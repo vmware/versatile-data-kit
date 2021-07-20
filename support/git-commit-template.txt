@@ -1,0 +1,26 @@
+<artifact/project>: <put a good 1-line overview here, no more than 50 characters!>
+
+
+# Why?
+# Describe the aim of the change and why it is needed. What business problem does it solve?
+# Make sure you explain the user problem - generally this part should not contain anything technical.
+# For example don't say "Creating file to persist data" but explain the user story - "persist customer contact details"
+
+# What?
+# Describe the design of the change.
+# Generally you don't need to explain what code changes were done. In any case your code implementation must be self-explanatory.
+# But you may explain what other options were considered (if any) and why this was chosen.
+# Often this can be seen in a separate design document. So link to it may be enough.
+
+# How has this been tested?
+# Describes how the change has been tested - in  best case scenario the code itself would contain all the tests so this section can be short.
+# In case there is any manual tests needed describe the exact steps -
+# what were the commands, what was the output, what was expected, details of your testing environment.
+
+# What type of change you are making?
+# Bug fix (non-breaking change which fixes an issue) or a cosmetic change/minor improvement - those do not need a design document
+# New feature (non-breaking change which adds functionality) - those generally are bigger changes - usually in multiple commits and often require design.
+# Breaking change (fix or feature that would cause existing functionality to change) - breaking changes are considered carefully and we try to find a way to solve the problem without those.
+
+# All commits must be signed
+# See https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/signing-commits
