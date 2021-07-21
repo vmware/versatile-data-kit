@@ -1,0 +1,18 @@
+# move this file to your HOME directory and rename it to .gitconfig (or copy paste the properties here to yours .gitconfig)
+
+[user]
+   name = <put-your-name-here>
+   email = <put-your-email-here>
+[color]
+   ui = true
+[alias]
+   prettylog = log --pretty=oneline --abbrev-commit --graph --decorate --all
+   ld = log --pretty=format:\"%C(yellow)%h\\\\ %C(green)%ad%Cred%d\\\\ %Creset%s%Cblue\\\\ [%cn]\" --decorate --date=short --graph
+   ls = log --pretty=format:\"%C(green)%h\\\\ %C(yellow)[%ad]%Cred%d\\\\ %Creset%s%Cblue\\\\ [%cn]\" --decorate --date=relative
+   ll = log --pretty=format:\"%C(yellow)%h%Cred%d\\\\ %Creset%s%Cblue\\\\ [%cn]\" --decorate --numstat
+   ln = log --name-status --oneline
+   sb = status -sb
+   pushm = push -o merge_request.create -o merge_request.remove_source_branch
+   up = pull --rebase --autostash
+[core]
+   autocrlf = input
