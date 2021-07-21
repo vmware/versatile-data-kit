@@ -1,6 +1,6 @@
 # Overview
 
-Versatile Data Kit is a data engineering framework that enables Data Engineers develop, troubleshoot, deploy, run, and manage data processing workloads (called "Data Job").
+Versatile Data Kit is a data engineering framework that enables Data Engineers to develop, troubleshoot, deploy, run, and manage data processing workloads (called "Data Job").
 "Data Job" enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a Data Warehouse
 
 # About Versatile Data Kit
@@ -53,4 +53,3 @@ We can reach out to us through slack, mail.
 
 # Code of Conduct
 Everyone interacting in the project's source code, issue trackers, slack channels, and mailing lists is expected to follow the [Code of Conduct](CODE-OF-CONDUCT.md).
-
