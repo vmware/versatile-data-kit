@@ -1,0 +1,18 @@
+
+
+image: "python:3.7"
+
+variables:
+  TAURUS_PIP_URI: https://build-artifactory.eng.vmware.com/api/pypi/Taurus-PyPI-local/simple
+
+stages:
+  - build
+  - pre_release
+  - release
+
+
+
+.build:
+  stage: build
+  script:
+    - ./cicd/build.sh
