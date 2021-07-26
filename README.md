@@ -43,7 +43,7 @@ For more see [installation documentation](../versatile-data-kit.wiki/install.md)
 
 # Documentation
 
-Official documentation for Versatile Data Kit can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Introductionw the [Code of Condu).
+Official documentation for Versatile Data Kit can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Introduction).
 
 # Contributing 
 
