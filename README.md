@@ -5,32 +5,28 @@ Versatile Data Kit is a data engineering framework that enables Data Engineers t
 
 # About Versatile Data Kit
 
-The abstraction of the common data engineering problems, provided by Versatile Data Kit, accelerates development of data applications and helps to manage data applications, making sure they are packaged, versioned and deployed correctly. Tracking both code and data modifications and relations between them enables engineers to troubleshoot more quickly and provides easy revert to a stable version
+Versatile Data Kit provides an abstraction layer that helps solve common data engineering problems.
+It can be called by the workflow engine with the goal to make data engineers more efficient
+(for example, it make sure data applications are packaged, versioned and deployed correctly,
+dealing with credentials, retries, reconnects, etc.).
+Everything exposed by Versatile Data Kit includes built-in monitoring, troubleshooting,
+and smart notifications capabilities.
+(for example, tracking both code and data modifications and relations between them
+enables engineers to troubleshoot more quickly and provides an easy revert to a stable version)
 
 Versatile Data Kit consists of:
 
-* Control Service which enables creating, deploying, managing and executing Data Jobs in Kubernetes runtime environment. It has multitenancy support, SSO, Access Control and auditing capabilities
-* Command line tool for data engineers to use locally to create by sample, deploy, list and manage Data Jobs in the Cloud
+* Control Service which enables creating, deploying, managing and executing Data Jobs in Kubernetes runtime environment.
+  It has multitenancy support, SSO, Access Control and auditing capabilities. It exposes CLI.
 * A development Kit to develop, test and run Data Jobs on your machine. It comes with common functionality for data ingestion and processing like: 
-    * sending data for ingestion from different sources to different destinations
-    * integrating raw table data into a dimensional model in Data Warehouse 
-    * Extremely extensible and adaptable to your organizations use-cases
-    * and many others
 
 
 # Installation and Getting Started
 
-#### Install Versatile Data Kit Control Service
-
-```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install bitnami/pipelines-control-service
-```
-
 #### Install Versatile Data Kit SDK
 
 ```bash
-pip install vdk
+pip install quickstart-vdk
 ```
 
 #### Use
@@ -39,10 +35,15 @@ pip install vdk
 # see Help to see what you can do
 vdk --help 
 # create a new job and start playing around.
-vdk create -u <URI-YOU-GOT-FROM-helm-install-OUTPUT>
+vdk create-sample-job
+vdk run first-job
 ```
 
+For more see [installation documentation](../versatile-data-kit.wiki/install.md)
+
 # Documentation
+
+Official documentation for Versatile Data Kit can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Introductionw the [Code of Condu).
 
 # Contributing 
 
