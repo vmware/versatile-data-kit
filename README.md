@@ -18,7 +18,7 @@ Versatile Data Kit consists of:
 
 * Control Service which enables creating, deploying, managing and executing Data Jobs in Kubernetes runtime environment.
   It has multitenancy support, SSO, Access Control and auditing capabilities. It exposes CLI.
-* A development Kit to develop, test and run Data Jobs on your machine. It comes with common functionality for data ingestion and processing like: 
+* A development Kit to develop, test and run Data Jobs on your machine. It comes with common functionality for data ingestion and processing
 
 
 # Installation and Getting Started
@@ -35,11 +35,10 @@ pip install quickstart-vdk
 # see Help to see what you can do
 vdk --help 
 # create a new job and start playing around.
-vdk create-sample-job
-vdk run first-job
+vdk run first-job-directory
 ```
 
-For more see [installation documentation](../versatile-data-kit.wiki/install.md)
+For more see [Getting Started page](https://github.com/vmware/versatile-data-kit/wiki/getting-started)
 
 # Documentation
 

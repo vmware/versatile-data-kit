@@ -7,14 +7,15 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
 # Structure of the project
 
 * projects - the interesting part, aka the source code - there is a separate folder for each component.
-  * vdk-control-service - Java spring-based API for managing lifecyhle of data jobs: job definitions, job deployments, and executions in Kubernetes.
+  * control-service - Java spring-based API for managing lifecycle of data jobs: job definitions, job deployments, and executions in Kubernetes.
   * vdk-core - Python-based SDK containing data library for developing and running data jobs. Includes a powerful plugin framework .
   * vdk-heartbeat - tool for verifying deployed SDK and Control Service are functional and working correctly
-  * vdk-control-cli - User friendly CLI interface over Control Service operations.
+  * vdk-control-cli - User friendly CLI interface over Control Service operations including login/logout.
   * plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, ...
 * support - helper scripts used by developers of the project during their workday
-* cicd - build and ci cd related scripts common across all projects.
+* cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder
 * examples - list of example use-cases. Each example directory has its README with detailed explanations
+* specs - specs for feature proposals and architecture documents
 
 # How to build, debug
 
@@ -26,14 +27,14 @@ All components have "build.sh" scripts in the cicd/ folder that would build the 
 
 # How to prepare your change
 
-Versatile Data Kit project uses GitHub issues and pull requests to track what work needs to be done, 
+Versatile Data Kit project uses GitHub issues and pull requests to track what work needs to be done,
 what work is currently in progress, who work is assigned to.
 
 Before suggesting a change/feature, think if this change only serves your needs, or it is broader,
 that is good for the project itself because it helps multiple users.
 
 For more complex features/changes, submitting your design is valuable, if possible, before you even write a single line of code.
-Creating a PR in Github with your proposal as markdown (in [specs](specs) directory) is recommended. 
+Creating a PR in Github with your proposal as markdown (in [specs](specs) directory) is recommended.
 Reviews and feedback will happen on the PR.
 
 Also, reach out to the community - through slack, mail to discuss your idea. We are happy to help.
@@ -46,7 +47,7 @@ In short, it looks like this:
 - Any changes must go on a feature branch.
 - Pipeline must pass before merging, and the pull request must be approved.
 - Break code commits into small self-contained units
-- Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt). 
+- Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit
 
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
