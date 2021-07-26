@@ -7,15 +7,19 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
 # Structure of the project
 
 * projects - the interesting part, aka the source code - there is a separate folder for each component.
-  * vdk-control-service - Java spring-based API for managing jobs, job deployments, and executions in Kubernetes.
-  * vdk-sdk - Python-based SDK containing data library for data jobs development and CLI for managing data jobs.
+  * vdk-control-service - Java spring-based API for managing lifecyhle of data jobs: job definitions, job deployments, and executions in Kubernetes.
+  * vdk-core - Python-based SDK containing data library for developing and running data jobs. Includes a powerful plugin framework .
+  * vdk-heartbeat - tool for verifying deployed SDK and Control Service are functional and working correctly
+  * vdk-control-cli - User friendly CLI interface over Control Service operations.
   * plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, ...
 * support - helper scripts used by developers of the project during their workday
+* cicd - build and ci cd related scripts common across all projects.
+* examples - list of example use-cases. Each example directory has its README with detailed explanations
 
 # How to build, debug
 
-Each subproject has its own README.md with details on how to test (locally), build it, and run it.
-If in doubt, open the .gitlab-ci.yml file.
+Each project has its own README.md with details on how to test (locally), build it, and run it.
+If in doubt, open the .gitlab-ci.yml file of the project.
 Read through the Gitlab CI file to find the build process confirmed to work by an automated continuous integration (CI).
 CI runs in Docker Linux containers, so if you have docker installed, you will be able to replicate the process.
 All components have "build.sh" scripts in the cicd/ folder that would build the whole component.
@@ -29,7 +33,7 @@ Before suggesting a change/feature, think if this change only serves your needs,
 that is good for the project itself because it helps multiple users.
 
 For more complex features/changes, submitting your design is valuable, if possible, before you even write a single line of code.
-We do not have a formal process but creating a PR in Github with your proposal as markdown is recommended. 
+Creating a PR in Github with your proposal as markdown (in [specs](specs) directory) is recommended. 
 Reviews and feedback will happen on the PR.
 
 Also, reach out to the community - through slack, mail to discuss your idea. We are happy to help.
