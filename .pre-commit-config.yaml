@@ -48,12 +48,12 @@ repos:
         -   id: pyupgrade
             args: [--py37-plus]
 # security check
-- repo: https://github.com/PyCQA/bandit
-  rev: '1.7.0'
-  hooks:
-      - id: bandit
-        exclude: tests
-        args: [ -s, B101 ]
+#- repo: https://github.com/PyCQA/bandit
+#  rev: '1.7.0'
+#  hooks:
+#      - id: bandit
+#        exclude: tests
+#        args: [ -s, B101 ]
 # add copyright notice
 - repo: https://github.com/Lucas-C/pre-commit-hooks
   rev: v1.1.10
