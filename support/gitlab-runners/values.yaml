@@ -1,3 +1,6 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 ## The GitLab Server URL (with protocol) that want to register the runner against
 ## ref: https://docs.gitlab.com/runner/commands/README.html#gitlab-runner-register
 ##
@@ -30,7 +33,7 @@ checkInterval: 30
 
 ## For RBAC support:
 rbac:
-  create: false
+  create: true
 
   ## Run the gitlab-bastion container with the ability to deploy/manage containers of jobs
   ## cluster-wide or only within namespace
@@ -66,18 +69,18 @@ runners:
   ##
   ## TODO: Have runners for big and small jobs.
   builds:
-    cpuLimit: 5000m
+    cpuLimit: 1000m
     memoryLimit: 4Gi
-    cpuRequests: 5000m
-    memoryRequests: 4Gi
+    cpuRequests: 500m
+    memoryRequests: 2Gi
 
   ## Service Container specific configuration
   ##
   ## Services in our case is docker:dind. Uses a lot since some jobs run several containers in it.
   services:
-    cpuLimit: 3000m
+    cpuLimit: 1000m
     memoryLimit: 3Gi
-    cpuRequests: 3000m
+    cpuRequests: 1000m
     memoryRequests: 3Gi
 
   ## Helper Container specific configuration
