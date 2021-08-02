@@ -14,7 +14,7 @@ before_script:
   only:
     refs:
       - external_pull_requests
-      - master
+      - main
   artifacts:
     when: always
     reports:
@@ -52,7 +52,7 @@ build_with_py39:
       junit: tests.xml
   only:
     refs:
-      - master
+      - main
 
 release:
   stage: release
@@ -69,7 +69,7 @@ release:
     - twine upload --repository-url "$PIP_REPO_UPLOAD_URL" -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   only:
     refs:
-      - master
+      - main
     changes:
      - projects/vdk-control-cli/version.txt
 
@@ -77,7 +77,7 @@ empty:
   stage: build
   script:
     - echo "Empty Pipeline to enable merging release only commits."
-    - echo "Will release VDK CLI version $(cat version.txt) after merged to master"
+    - echo "Will release VDK CLI version $(cat version.txt) after merged to main"
   only:
     refs:
       - external_pull_requests
