@@ -13,8 +13,8 @@ requests_oauthlib
 # Dependencies for creating HTTP calls against the OAuth2 provider. We can potentially remove those
 # and use requests_oauthlib only, but for now it seems like there are some custom logic with the first
 # OAuth2 provider which needs to be handled that way
-urllib3~=1.25.9
-requests~=2.23.0
+urllib3>=1.26.5
+requests>=2.0
 
 # TESTING dependencies:
 
