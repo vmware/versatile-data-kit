@@ -1,0 +1,24 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+import setuptools
+
+"""
+Builds a package with the help of setuptools in order for this package to be imported in other projects
+
+"plugin-package-template" is the name of the package which contains the plugin/s.
+
+"plugin-template" is the name of the plugin contained within this package. Note that you can include
+more than one plugin in a single package. Also note that the contained plugin may have the same name as the package.
+
+"plugin_template" is the Python file which contains the plugin hooks for the corresponding plugin.
+"""
+__version__ = "0.1.0"
+
+setuptools.setup(
+    name="plugin-package-template",
+    version=__version__,
+    install_requires=["vdk-core"],
+    package_dir={"": "src"},
+    packages=setuptools.find_namespace_packages(where="src"),
+    entry_points={"vdk.plugin.run": ["plugin-template = taurus.vdk.plugin_template"]},
+)

@@ -1,0 +1,124 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+import os
+import traceback
+import unittest
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
+from taurus.vdk.builtin_plugins.run import data_job
+from taurus.vdk.builtin_plugins.run.job_input_error_classifier import is_user_error
+from taurus.vdk.builtin_plugins.run.job_input_error_classifier import whom_to_blame
+from taurus.vdk.core import errors
+
+
+class ErrorClassifierTest(unittest.TestCase):
+
+    EXECUTOR_MODULE = data_job.__file__
+    EXECUTOR_MODULE_DIR = os.path.dirname(EXECUTOR_MODULE)
+    USER_ERROR_STACKTRACE = [
+        """File "{exec_module}", line 123, in _run_step
+      step_executed = runner_func(file_path)""".format(
+            exec_module=EXECUTOR_MODULE
+        ),
+        """File "{exec_module}", line 190, in _run_python_step
+      func(self.job_input)""".format(
+            exec_module=EXECUTOR_MODULE
+        ),
+        """File "{user_module}", line 111, in run
+      raise ValueError('No objects to concatenate')""".format(
+            user_module=os.path.join("job", "moonshine-ri", "21_find_ri_optimal.py")
+        ),
+    ]
+
+    PLATFORM_ERROR_STACKTRACE = [
+        """File "{exec_module}", line 133, in _run_step
+      step_executed = runner_func(file_path)""".format(
+            exec_module=EXECUTOR_MODULE
+        ),
+        """File "{exec_module}", line 199, in _run_python_step
+      func(self.job_input)""".format(
+            exec_module=EXECUTOR_MODULE
+        ),
+        """File "{user_module}", line 2, in run
+      job_input.load_csv('/home/pmitev/csv_files/no_read', 'random')""".format(
+            user_module=os.path.join("home", "pmitev", "test-job", "10_load.py")
+        ),
+        """File "{vdk_file}", line 77, in load_csv
+      raise ValueError('Test VAC Error')""".format(
+            vdk_file=os.path.join(EXECUTOR_MODULE_DIR, "job_input.py")
+        ),
+    ]
+
+    # Test VDK specific errors.
+    def test_vdk_user_code_error(self):
+        exception = errors.UserCodeError("User error")
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            errors.ResolvableBy.USER_ERROR,
+        )
+
+    def test_vdk_platform_service_error(self):
+        exception = errors.PlatformServiceError("Platform error")
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            errors.ResolvableBy.PLATFORM_ERROR,
+        )
+
+    # Test generic errors specifically recognised as user errors by VDK.
+    @patch(f"{is_user_error.__module__}.{is_user_error.__name__}")
+    def test_known_generic_error(self, mock_is_user_error):
+        mock_is_user_error.return_value = True
+        exception = Exception("User Error")
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            errors.ResolvableBy.USER_ERROR,
+        )
+
+    # Test generic errors that are not specifically recognised by VDK.
+    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    @patch(f"{is_user_error.__module__}.{is_user_error.__name__}")
+    def test_unknown_generic_error(self, mock_is_user_error, mock_traceback_format_tb):
+        exception = Exception("User Error")
+        mock_is_user_error.return_value = False
+        mock_traceback_format_tb.return_value = self.USER_ERROR_STACKTRACE
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            errors.ResolvableBy.USER_ERROR,
+        )
+
+    # Generic error thrown by job_input that is not specifically recognised by VDK should be VAC error.
+    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    @patch(f"{is_user_error.__module__}.{is_user_error.__name__}")
+    def test_job_input_generic_error(
+        self, mock_is_user_error, mock_traceback_format_tb
+    ):
+        exception = Exception("!")
+        mock_is_user_error.return_value = False
+        mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_STACKTRACE
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            errors.ResolvableBy.PLATFORM_ERROR,
+        )
+
+
+class UserErrorClassification(unittest.TestCase):
+    def test_user_error_classification(self):
+        self.assertTrue(
+            is_user_error(
+                OSError(
+                    "File size limit (10 MB) for Data Job has been exceeded.Optimize the disk utilization of your Data Job."
+                    "For local runs this limit can be changed by 'export VDK_RESOURCE_LIMIT_DISK_MB=<new-value>'.For cloud "
+                    "run you can fill in a Service Request (http://go/resource-limits) for the limit to be changed. "
+                    "This limit does not apply to macOS and Windows execution environments."
+                )
+            )
+        )
+        self.assertTrue(
+            is_user_error(
+                RuntimeError(
+                    "Unable to start new thread. Optimize thread usage of your Data Job."
+                )
+            )
+        )
+        self.assertTrue(is_user_error(MemoryError("foo")))

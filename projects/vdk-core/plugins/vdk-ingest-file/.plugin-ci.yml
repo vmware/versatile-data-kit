@@ -1,0 +1,33 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+stages:
+  - build
+  - release
+
+.build-vdk-ingest-file:
+  variables:
+    PLUGIN_NAME: vdk-ingest-file
+  extends: .build-plugin
+
+build-py37-vdk-ingest-file:
+  extends: .build-vdk-ingest-file
+  image: "python:3.7"
+
+
+build-py38-vdk-ingest-file:
+  extends: .build-vdk-ingest-file
+  image: "python:3.8"
+
+
+build-py39-vdk-ingest-file:
+  extends: .build-vdk-ingest-file
+  image: "python:3.9"
+
+
+release-vdk-ingest-file:
+  variables:
+    PLUGIN_NAME: vdk-ingest-file
+  extends: .release-plugin

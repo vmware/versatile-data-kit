@@ -1,0 +1,16 @@
+# Python dependencies used during build and tests
+# For dependencies used during installation make sure to set them in setup.cfg (install_requires section)
+
+
+# used for git hooks
+pre-commit
+black
+reorder-python-imports
+mypy
+pydocstyle
+
+pytest
+pytest-sugar
+pytest-randomly
+pytest-cov
+-e plugins/vdk-test-utils

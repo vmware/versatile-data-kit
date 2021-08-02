@@ -1,0 +1,16 @@
+# Specifies a base image containing installed and ready to use VDK
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices
+
+FROM harbor-repo.vmware.com/dockerhub-proxy-cache/library/python:3.7-slim
+
+WORKDIR /vdk
+
+# necessary for non-interactive install of krb5-user (kinit)
+ENV DEBIAN_FRONTEND noninteractive
+ENV VDK_VERSION $vdk_versions
+
+# Install VDK
+ARG vdk_version
+ARG vdk_package
+ARG pip_extra_index_url
+RUN pip install --extra-index-url $pip_extra_index_url $vdk_package==$vdk_version
