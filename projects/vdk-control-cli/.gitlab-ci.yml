@@ -1,0 +1,91 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+before_script:
+  - cd projects/vdk-control-cli
+
+
+.build:
+  stage: build
+  script:
+    - ./cicd/build.sh
+  only:
+    refs:
+      - external_pull_requests
+      - master
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+# Run in different environments
+# VDK Control CLI currently supports Python 3.7 and 3.8 and 3.9
+build_with_py37:
+  image: "python:3.7"
+  extends: .build
+
+build_with_py38:
+  image: "python:3.8"
+  extends: .build
+
+build_with_py39:
+  image: "python:3.9"
+  extends: .build
+
+# TODO: disable temporarily until all projects are migrated
+.release_acceptance_test:
+  stage: pre_release
+  script:
+    - set -x
+    - python setup.py sdist --formats=gztar
+    - pip install dist/* --extra-index-url $PIP_EXTRA_INDEX_URL
+    - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
+    - vdkcli version
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$STAGING_CSP_REFRESH_TOKEN
+    - export JOB_NAME=vdk-control-cli-release-test-job
+    - vdk-heartbeat -f cicd/release_test_heartbeat_config.ini
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+  only:
+    refs:
+      - master
+
+release:
+  stage: release
+  script:
+    - build_info_file="src/taurus/vdk/control/vdk_control_build_info.py"
+    - echo "" > $build_info_file # clear build info file first
+    - echo "RELEASE_VERSION='$(cat version.txt)'" >> $build_info_file
+    - echo "GIT_COMMIT_SHA='$CI_COMMIT_SHA'" >> $build_info_file
+    - echo "GIT_BRANCH='$CI_COMMIT_REF_NAME'" >> $build_info_file
+    - echo "GITLAB_CI_JOB_ID='$CI_JOB_ID'" >> $build_info_file
+    - echo "BUILD_DATE='$(date -u)'" >> $build_info_file
+    - pip install -U pip setuptools wheel twine
+    - python setup.py sdist --formats=gztar
+    - twine upload --repository-url "$PIP_REPO_UPLOAD_URL" -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+  only:
+    refs:
+      - master
+    changes:
+     - projects/vdk-control-cli/version.txt
+
+empty:
+  stage: build
+  script:
+    - echo "Empty Pipeline to enable merging release only commits."
+    - echo "Will release VDK CLI version $(cat version.txt) after merged to master"
+  only:
+    refs:
+      - external_pull_requests
+    changes:
+      - projects/vdk-control-cli/version.txt
+
+#docs:
+#  before_script:
+#  - pip install Sphinx
+#  script:
+#  - python setup.py build_sphinx
