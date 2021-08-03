@@ -1,0 +1,35 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+stages:
+  - build
+  - release
+
+.build-vdk-trino:
+  services:
+    - name: trinodb/trino
+  variables:
+    PLUGIN_NAME: vdk-trino
+  extends: .build-plugin
+
+build-py37-vdk-trino:
+  extends: .build-vdk-trino
+  image: "python:3.7"
+
+
+build-py38-vdk-trino:
+  extends: .build-vdk-trino
+  image: "python:3.8"
+
+
+build-py39-vdk-trino:
+  extends: .build-vdk-trino
+  image: "python:3.9"
+
+
+release-vdk-trino:
+  variables:
+    PLUGIN_NAME: vdk-trino
+  extends: .release-plugin

@@ -1,0 +1,79 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+.build-plugin:
+  stage: build
+  script:
+    - echo "Build plugin $PLUGIN_NAME"
+    - cd plugins/$PLUGIN_NAME || exit 1
+    - pip install -U pip setuptools pre-commit
+    - pre-commit install
+    - pip install -r requirements.txt
+    - extra_index_url=$([[ -n "$PIP_REPO_URL" ]] && echo "--extra-index-url $PIP_REPO_URL" || echo "")
+    - pip install -e . $extra_index_url
+    - pip install pytest-cov
+    - pytest --junitxml=tests.xml --cov taurus --cov-report term-missing --cov-report xml:coverage.xml
+  retry: !reference [.retry, retry_options]
+  rules: # we want to trigger build jobs if there are changes in this plugin or
+         # the main repository, but not if there are changes to other plugins
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "projects/vdk-core/*"
+        - "projects/vdk-core/plugins/*"
+        - "projects/vdk-core/cicd/**/*"
+        - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "projects/vdk-core/plugins/**/*"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+.release-plugin:
+  stage: release
+  script:
+    - echo "Release plugin $PLUGIN_NAME"
+    - cd plugins/$PLUGIN_NAME || exit 1
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
+    - pip install -U pip setuptools wheel twine
+    - python setup.py sdist --formats=gztar
+    # provide the credentials as Gitlab variables
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+       - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"
+
+
+.release-vdk-image:
+  stage: release_image
+  services:
+    - harbor-repo.vmware.com/dockerhub-proxy-cache/library/docker:19.03.8-dind
+  image: harbor-repo.vmware.com/dockerhub-proxy-cache/library/docker:19.03.8
+  script:
+    - echo "Build and release vdk image of plugin $PLUGIN_NAME"
+    - cd plugins/$PLUGIN_NAME || exit 1
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
+    - apk add --no-cache git bash python3
+    - python3 -V
+    - python3 -m pip install -U setuptools configparser
+    - export VDK_PACKAGE=$(python3 setup.py --name)
+    - export VDK_VERSION=$(python3 setup.py --version)
+    - export BUILD_TYPE=release
+    - export PIP_EXTRA_INDEX_URL="$PIP_REPO_URL"
+    - bash -x ../../cicd/deploy-base-vdk-image.sh
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"

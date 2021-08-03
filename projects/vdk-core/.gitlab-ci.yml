@@ -1,0 +1,99 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - "projects/vdk-core/plugins/.plugin-common.yml"
+  - "projects/vdk-core/plugins/*/.plugin-ci.yml"
+
+image: "python:3.9"
+
+#variables:
+#  EXAMPLE: database_name
+
+
+.vdk_core_changes: &vdk_core_locations
+  - "projects/vdk-core/*"
+  - "projects/vdk-core/cicd/**/*"
+  - "projects/vdk-core/src/**/*"
+  - "projects/vdk-core/tests/**/*"
+
+stages:
+  - build
+  - release
+  - release_image
+
+before_script:
+  - cd projects/vdk-core/
+
+.build:
+  stage: build
+  before_script:
+    - cd projects/vdk-core/
+    - pip install --extra-index-url https://test.pypi.org/simple -r requirements.txt
+  script:
+    - ./cicd/build.sh
+  retry: !reference [.retry, retry_options]
+  coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
+  only:
+    refs:
+      - external_pull_requests
+      - master
+    changes: *vdk_core_locations
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+build_with_py37:
+  image: "python:3.7"
+  extends: .build
+
+build_with_py38:
+  image: "python:3.8"
+  extends: .build
+
+build_with_py39:
+  image: "python:3.9"
+  extends: .build
+
+
+.simple_func_test:
+  services:
+    - name: trinodb/trino
+  stage: build
+  script:
+    - export VDK_TRINO_DOCKER_START=no
+    - ./cicd/simple-functional-test.sh
+  retry: !reference [.retry, retry_options]
+  only:
+    refs:
+      - external_pull_requests
+      - master
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+simple_func_test_with_py37:
+  image: "python:3.7"
+  extends: .simple_func_test
+
+simple_func_test_with_py38:
+  image: "python:3.8"
+  extends: .simple_func_test
+
+simple_func_test_with_py39:
+  image: "python:3.9"
+  extends: .simple_func_test
+
+
+release:
+  stage: release
+  script:
+    - pip install -U pip setuptools wheel twine
+    - ./cicd/release-vdk-core.sh
+  retry: !reference [.retry, retry_options]
+  only:
+    refs:
+      - master
+    changes: *vdk_core_locations

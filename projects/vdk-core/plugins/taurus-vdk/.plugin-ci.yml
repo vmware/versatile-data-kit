@@ -1,0 +1,42 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+stages:
+  - build
+  - release
+
+.build-taurus-vdk:
+  variables:
+    PLUGIN_NAME: taurus-vdk
+  extends: .build-plugin
+
+build-py37-taurus-vdk:
+  extends: .build-taurus-vdk
+  image: "python:3.7"
+
+
+build-py38-taurus-vdk:
+  extends: .build-taurus-vdk
+  image: "python:3.8"
+
+build-py39-taurus-vdk:
+  extends: .build-taurus-vdk
+  image: "python:3.9"
+
+
+release-taurus-vdk:
+  variables:
+    PLUGIN_NAME: taurus-vdk
+  extends: .release-plugin
+
+release_vdk_image:
+  variables:
+    PLUGIN_NAME: taurus-vdk
+  extends: .release-vdk-image

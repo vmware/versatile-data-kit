@@ -1,0 +1,5 @@
+
+include version.txt
+
+# this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
+# https://stackoverflow.com/questions/7522250/how-to-include-package-data-with-setuptools-distribute
