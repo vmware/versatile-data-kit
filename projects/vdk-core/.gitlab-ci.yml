@@ -17,19 +17,12 @@ image: "python:3.9"
   - "projects/vdk-core/src/**/*"
   - "projects/vdk-core/tests/**/*"
 
-stages:
-  - build
-  - release
-  - release_image
-
-before_script:
-  - cd projects/vdk-core/
 
 .build:
   stage: build
   before_script:
     - cd projects/vdk-core/
-    - pip install --extra-index-url https://test.pypi.org/simple -r requirements.txt
+    - pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
   script:
     - ./cicd/build.sh
   retry: !reference [.retry, retry_options]
@@ -37,7 +30,7 @@ before_script:
   only:
     refs:
       - external_pull_requests
-      - master
+      - main
     changes: *vdk_core_locations
   artifacts:
     when: always
@@ -61,6 +54,8 @@ build_with_py39:
   services:
     - name: trinodb/trino
   stage: build
+  before_script:
+    - cd projects/vdk-core/
   script:
     - export VDK_TRINO_DOCKER_START=no
     - ./cicd/simple-functional-test.sh
@@ -68,7 +63,7 @@ build_with_py39:
   only:
     refs:
       - external_pull_requests
-      - master
+      - main
   artifacts:
     when: always
     reports:
@@ -89,11 +84,13 @@ simple_func_test_with_py39:
 
 release:
   stage: release
+  before_script:
+    - cd projects/vdk-core/
   script:
     - pip install -U pip setuptools wheel twine
     - ./cicd/release-vdk-core.sh
   retry: !reference [.retry, retry_options]
   only:
     refs:
-      - master
+      - main
     changes: *vdk_core_locations

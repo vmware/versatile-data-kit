@@ -5,6 +5,7 @@ import setuptools
 
 __version__ = "0.1.2"
 
+
 setuptools.setup(
     name="vdk-test-utils",
     version=__version__,

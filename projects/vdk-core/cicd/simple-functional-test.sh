@@ -52,8 +52,8 @@ python setup.py sdist --formats=gztar && pip install dist/* || fail "VDK Install
 
 function restore_vdk_in_editable_mode {
   pip install -e .
-  pip install -e --extra-index-url https://test.pypi.org/simple ./plugins/vdk-trino
-  pip install -e --extra-index-url https://test.pypi.org/simple ./plugins/vdk-plugin-control-cli
+  pip install -e --extra-index-url $PIP_EXTRA_INDEX_URL ./plugins/vdk-trino
+  pip install -e --extra-index-url $PIP_EXTRA_INDEX_URL ./plugins/vdk-plugin-control-cli
 }
 trap restore_vdk_in_editable_mode EXIT
 
@@ -66,7 +66,7 @@ popd || exit
 echo "Install vdk-control-cli plugin"
 pushd plugins/vdk-plugin-control-cli || exit
 rm -rf dist/*
-python setup.py sdist --formats=gztar && pip install --extra-index-url https://test.pypi.org/simple dist/* || fail "vdk-control-cli plugin Install failed"
+python setup.py sdist --formats=gztar && pip install --extra-index-url $PIP_EXTRA_INDEX_URL dist/* || fail "vdk-control-cli plugin Install failed"
 popd || exit
 
 echo "Run commands ..."
