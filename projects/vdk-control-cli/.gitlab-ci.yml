@@ -3,12 +3,11 @@
 
 image: "python:3.7"
 
-before_script:
-  - cd projects/vdk-control-cli
-
 
 .build:
   stage: build
+  before_script:
+    - cd projects/vdk-control-cli
   script:
     - ./cicd/build.sh
   only:
@@ -37,6 +36,8 @@ build_with_py39:
 # TODO: disable temporarily until all projects are migrated
 .release_acceptance_test:
   stage: pre_release
+  before_script:
+    - cd projects/vdk-control-cli
   script:
     - set -x
     - python setup.py sdist --formats=gztar
@@ -56,6 +57,8 @@ build_with_py39:
 
 release:
   stage: release
+  before_script:
+    - cd projects/vdk-control-cli
   script:
     - build_info_file="src/taurus/vdk/control/vdk_control_build_info.py"
     - echo "" > $build_info_file # clear build info file first
@@ -75,6 +78,8 @@ release:
 
 empty:
   stage: build
+  before_script:
+    - cd projects/vdk-control-cli
   script:
     - echo "Empty Pipeline to enable merging release only commits."
     - echo "Will release VDK CLI version $(cat version.txt) after merged to main"
