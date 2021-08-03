@@ -37,7 +37,7 @@ before_script:
   only:
     refs:
       - external_pull_requests
-      - master
+      - main
     changes: *vdk_core_locations
   artifacts:
     when: always
@@ -68,7 +68,7 @@ build_with_py39:
   only:
     refs:
       - external_pull_requests
-      - master
+      - main
   artifacts:
     when: always
     reports:
@@ -95,5 +95,5 @@ release:
   retry: !reference [.retry, retry_options]
   only:
     refs:
-      - master
+      - main
     changes: *vdk_core_locations

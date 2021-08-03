@@ -1,8 +1,7 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 """
-Detailed documentation of VDK provided functionalities in job_input object can be found here:
-https://gitlab.eng.vmware.com/core-build/productanalytics/blob/master/analytics/vdk/src/vacloud/api/job_input.py
+Detailed documentation of VDK provided functionalities in job_input object can be found here in the user wiki
 """
 import logging
 

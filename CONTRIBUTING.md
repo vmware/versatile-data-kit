@@ -26,14 +26,14 @@ All components have "build.sh" scripts in the cicd/ folder that would build the 
 
 # How to prepare your change
 
-Versatile Data Kit project uses GitHub issues and pull requests to track what work needs to be done, 
+Versatile Data Kit project uses GitHub issues and pull requests to track what work needs to be done,
 what work is currently in progress, who work is assigned to.
 
 Before suggesting a change/feature, think if this change only serves your needs, or it is broader,
 that is good for the project itself because it helps multiple users.
 
 For more complex features/changes, submitting your design is valuable, if possible, before you even write a single line of code.
-Creating a PR in Github with your proposal as markdown (in [specs](specs) directory) is recommended. 
+Creating a PR in Github with your proposal as markdown (in [specs](specs) directory) is recommended.
 Reviews and feedback will happen on the PR.
 
 Also, reach out to the community - through slack, mail to discuss your idea. We are happy to help.
@@ -42,11 +42,11 @@ Also, reach out to the community - through slack, mail to discuss your idea. We 
 
 We use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow).
 In short, it looks like this:
-- All changes to the main branch ("master" in our case) are through merge requests.
+- All changes to the main branch ("main" in our case) are through merge requests.
 - Any changes must go on a feature branch.
 - Pipeline must pass before merging, and the pull request must be approved.
 - Break code commits into small self-contained units
-- Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt). 
+- Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit
 
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
