@@ -33,7 +33,7 @@ pip install quickstart-vdk
 
 ```bash
 # see Help to see what you can do
-vdk --help 
+vdk --help
 # create a new job and start playing around.
 vdk run first-job-directory
 ```
@@ -44,12 +44,13 @@ For more see [Getting Started page](https://github.com/vmware/versatile-data-kit
 
 Official documentation for Versatile Data Kit can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Introduction).
 
-# Contributing 
+# Contributing
 
 If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CONTRIBUTING.md).
 
-# Contacts 
-We can reach out to us through slack, mail. 
+# Contacts
+You can reach out to us through mail, or join our public Slack workspace [here](https://versatiledata-rgg2437.slack.com/).
+<!--- TODO: Set up a slackin web app to make joining easier --->
 
 # Code of Conduct
 Everyone interacting in the project's source code, issue trackers, slack channels, and mailing lists is expected to follow the [Code of Conduct](CODE-OF-CONDUCT.md).
