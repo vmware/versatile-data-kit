@@ -43,7 +43,7 @@ Also, reach out to the community - through slack, mail to discuss your idea. We 
 
 We use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow).
 In short, it looks like this:
-- All changes to the main branch ("master" in our case) are through merge requests.
+- All changes to the main branch ("main" in our case) are through merge requests.
 - Any changes must go on a feature branch.
 - Pipeline must pass before merging, and the pull request must be approved.
 - Break code commits into small self-contained units

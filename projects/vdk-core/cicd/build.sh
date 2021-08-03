@@ -8,7 +8,7 @@ cd ..
 
 
 echo "install dependencies from requirements.txt (used for development and testing)"
-pip install --extra-index-url https://test.pypi.org/simple -r requirements.txt
+pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 
 echo "Setup git hook scripts with pre-commit install"
 pre-commit install
