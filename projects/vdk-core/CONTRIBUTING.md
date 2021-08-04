@@ -9,25 +9,14 @@ For user facing documentation see [README.md](./README.md).
 
 ## Setup IDE (IntelliJ / PyCharm)
 
-### Importing the project
-
 We recommend using IntelliJ and the Python plugin or PyCharm for development. The steps following assume this.
 
 Setting up the development environment can be done in the following way:
 * Clone the repository;
-* Open IntelliJ, click `Import Project` and pick the directory where you cloned vdk-core;
-* Choose `Create project from existing sources` with default settings, then click `Next`;
-* Once you reach the window to pick an SDK click the `+` sign and add Python SDK (you need to install python3.7 and the plugin mentioned above as a prerequisite); in case you have duplication of the venvs, delete the one which does not contain any files;
-* In the new window choose `Virtual Environment` and `New environment` - the `Location` field is where the virtual environment will be created;
-* For `Base Interpreter` pick the python3.7 location and leave the checks below empty, then finish the import process.
-
-### Setting up the imported project
-
-Once you have imported the project follow the steps to properly resolve the dependencies:
-* Navigate to `File | Project Structure` and then to `Project Settings | Modules`;
-* You will see `vdk-core` as the only option and pressing it will open the layout of the project;
-* Click `src` and above the window click `Sources` to instruct IntelliJ that this is the source folder and then `Apply` and `Ok`;
-* We recommend that you install mypy IntelliJ/PyCharm plugin so that you have type checking in IDE.
+* Import the project in your IDE (pick the directory where you cloned vdk-core);
+* Set the project's Python interpreter - either create or choose an existing project-specific virtual environment with python3.7 or newer;
+* Mark vdk-core/src and vdk-core/tests as Sources in order to instruct your IDE that they are the source folders of the project;
+* We recommend that you install mypy IntelliJ/PyCharm plugin so that you have type checking in the IDE.
 
 ## Implementing plugins
 
