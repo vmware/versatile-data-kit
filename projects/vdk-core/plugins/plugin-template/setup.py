@@ -1,5 +1,7 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import pathlib
+
 import setuptools
 
 """
@@ -17,6 +19,8 @@ __version__ = "0.1.0"
 setuptools.setup(
     name="plugin-package-template",
     version=__version__,
+    description="Plugin template project used to quick start development of a new Versatile Data Kit SDK plugin.",
+    long_description=pathlib.Path("README.md").read_text(),
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
