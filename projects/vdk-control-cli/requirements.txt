@@ -14,7 +14,7 @@ requests_oauthlib
 # and use requests_oauthlib only, but for now it seems like there are some custom logic with the first
 # OAuth2 provider which needs to be handled that way
 urllib3>=1.26.5
-requests>=2.0
+requests>=2.25
 
 # TESTING dependencies:
 
