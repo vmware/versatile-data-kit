@@ -14,7 +14,7 @@ pip install vdk-plugin-control-cli
 
 ### New CLI commands
 
-Then on vdk CLI you should be able to see new commands. Run
+Then on the vdk CLI you should be able to see the new commands. Run
 ```bash
 vdk --help
 ```
