@@ -26,11 +26,10 @@ Updating it with the latest raw data from the Data Lake (from source view called
 def run(job_input):
     # . . .
 	dimension_name="sddc"
-	template_name = "src/taurus/vdk/templates/load/dimension/scd1"
 	template_args = {"target_schema": "<target_schema_of_choice>",
 	                 "target_table": "dim_{}".format(dimension_name),
 	                 "source_schema": "<source_schema_of_choice>",
 	                 "source_view": "vw_dim_{}".format(dimension_name)}
-	job_input.execute_template(template_name,template_args)
+	job_input.execute_template("scd1", template_args)
     # . . .
 ```
