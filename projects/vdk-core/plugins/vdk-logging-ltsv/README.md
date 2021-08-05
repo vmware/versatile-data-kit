@@ -16,7 +16,7 @@ The label names follow the labelling recommendations found at http://ltsv.org/.
 
 # Usage
 
-Switching vdk logigng to ltsv format is simply installing the plugin:
+Switching vdk logging can be done by simply installing the plugin:
 
 ```python
 pip install vdk-logging-ltsv
