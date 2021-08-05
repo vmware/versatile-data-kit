@@ -19,11 +19,17 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
 
 # How to build, debug
 
+To boostrap the project run
+```bash
+./cicd/build.sh
+```
+
 Each project has its own README.md with details on how to test (locally), build it, and run it.
 If in doubt, open the .gitlab-ci.yml file of the project.
 Read through the Gitlab CI file to find the build process confirmed to work by an automated continuous integration (CI).
 CI runs in Docker Linux containers, so if you have docker installed, you will be able to replicate the process.
-All components have "build.sh" scripts in the cicd/ folder that would build the whole component.
+
+Each component project also have "build.sh" scripts in their cicd/ folder that would build the whole component.
 
 # How to prepare your change
 
@@ -43,9 +49,9 @@ Also, reach out to the community - through slack, mail to discuss your idea. We 
 
 We use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow).
 In short, it looks like this:
-- All changes to the main branch ("main" in our case) are through merge requests.
-- Any changes must go on a feature branch.
-- Pipeline must pass before merging, and the pull request must be approved.
+- All changes to the main branch ("main" in our case) are through pull requests.
+- Any changes must go on a feature branch or on a fork.
+- Pipeline must pass before merging, and the pull request must be [reviewed](https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests) and approved.
 - Break code commits into small self-contained units
 - Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit
