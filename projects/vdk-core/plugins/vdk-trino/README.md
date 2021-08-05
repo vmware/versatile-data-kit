@@ -33,7 +33,7 @@ vdk-trino comes with pre-defined templates for SQL transformations
 
 The package gathers lineage data for all Trino SQL queries executed in a data job
 
-Other plugins can read that lienage data log it.
+Other plugins can read that lineage data log it.
 They need to provide LineageLogger implementation and hook this way:
 ```python
     @hookimpl
