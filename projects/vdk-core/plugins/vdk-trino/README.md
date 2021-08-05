@@ -8,7 +8,7 @@ Run
 pip install vdk-tino
 ```
 
-After this data jobs will have access to trino database connection managed by Versatile Data Kit SDK.
+After this data jobs will have access to Trino database connection managed by Versatile Data Kit SDK.
 
 If it is the only database plugin installed , vdk would automatically use it.
 Otherwise, user need to set VDK_DB_DEFAULT_TYPE=TRINO as environment variable or set 'db_default_type' option in their config.ini
