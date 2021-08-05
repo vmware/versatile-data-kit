@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id 'org.openapi.generator' version '4.3.0'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.openapi.generator'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    openApiGenerate {
+        // see https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-gradle-plugin/README.adoc
+        generatorName = "spring"
+        inputSpec = "$projectDir/api.yaml"
+        validateSpec = true
+        outputDir = "$rootDir"
+        configFile = "$rootDir/openapi-code-generator/config-spring.json"
+    }
+
+    task buildPython(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+        generatorName = "python"
+        inputSpec = "$projectDir/api.yaml"
+        outputDir = "$projectDir/build/python"
+        configFile = "$projectDir/config-python.json"
+    }
+
+    compileJava.dependsOn 'openApiGenerate' //generate Java from openapi specs
+}
+
+compileJava.dependsOn 'datajob-api:openApiGenerate'

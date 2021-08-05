@@ -1,0 +1,5 @@
+.openapi-generator-ignore
+.openapi-generator/
+pom.xml
+README.md
+src/
