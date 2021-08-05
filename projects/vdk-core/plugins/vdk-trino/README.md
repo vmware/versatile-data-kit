@@ -43,4 +43,4 @@ They need to provide LineageLogger implementation and hook this way:
 
 # Configuration
 
-Run vdk config-help - search for those prefixed with "TRINO_" to see what configuration options are avaialble.
+Run vdk config-help - search for those prefixed with "TRINO_" to see what configuration options are available.
