@@ -14,3 +14,6 @@ pytest-sugar
 pytest-randomly
 pytest-cov
 -e plugins/vdk-test-utils
+
+# Dependencies license report:
+pip-licenses
