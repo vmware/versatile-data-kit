@@ -64,6 +64,8 @@ build_with_py39:
     refs:
       - external_pull_requests
       - main
+    changes:
+      - "projects/vdk-core/**/*"
   artifacts:
     when: always
     reports:

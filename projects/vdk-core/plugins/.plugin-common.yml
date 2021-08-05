@@ -22,19 +22,11 @@
     - pip install pytest-cov
     - pytest --junitxml=tests.xml --cov taurus --cov-report term-missing --cov-report xml:coverage.xml
   retry: !reference [.retry, retry_options]
-  rules: # we want to trigger build jobs if there are changes in this plugin or
-         # the main repository, but not if there are changes to other plugins
+  rules: # we want to trigger build jobs if there are changes to this plugin,
+         # but not if there are changes to other plugins or the main directory
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
-        - "projects/vdk-core/*"
-        - "projects/vdk-core/plugins/*"
-        - "projects/vdk-core/cicd/**/*"
         - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - "projects/vdk-core/plugins/**/*"
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
   artifacts:
     when: always
     reports:
