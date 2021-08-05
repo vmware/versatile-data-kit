@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Logging configuration for Logback: http://logback.qos.ch/manual/configuration.html -->
+<!-- NB: you can use a spring or JVM property in the form - logging.level.LOGGER_NAME=LEVEL - to override a level -->
+<configuration debug="true">
+    <!--
+        taurus.svc.name must be set by services e.g. in their application.properties resource file
+    -->
+    <property name="svc.logdir" value="./logs"/>
+    <springProperty name="svc.name" source="taurus.svc.name"/>
+    <property name="logfile" value="${svc.logdir:-.}/${svc.name}.log"/>
+
+    <property name="log.message.pattern.colored"
+              value="%black(%d{ISO8601}) %highlight(%-5level) [OpId:%X{OpId}] %blue(%thread) %yellow(%logger) %message%n%throwable"/>
+
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${log.message.pattern.colored}</pattern>
+        </layout>
+    </appender>
+
+    <!-- LOG everything at INFO level -->
+    <root level="${TAURUS_ROOT_LOG_LEVEL:-INFO}">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <logger name="com.vmware.ph.client.api.impl.aggregation" level="WARN"/>
+    <logger name="org.hibernate.engine.jdbc.env.internal.LobCreatorBuilderImpl" level="WARN"/>
+    <logger name="org.springframework" level="INFO"/>
+
+    <!-- Shows SQL statements -->
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.eclipse.jgit" level="INFO" />
+
+    <!--
+    Enable to see parameter values of SQL statements
+    <logger name="oorg.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
+    -->
+</configuration>
