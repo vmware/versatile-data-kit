@@ -1,4 +1,7 @@
 #!/bin/bash -e
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # This script needs the following environment variables:
 # ARTIFACTORY_USER, ARTIFACTORY_PASS - Artifactory credentials
 

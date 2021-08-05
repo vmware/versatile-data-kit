@@ -60,4 +60,3 @@ To generate and publish API dependencies to a local repository for development/t
 gradle publishToMavenLocal
 ```
 The command has to be run from the ../projects/model folder.
-

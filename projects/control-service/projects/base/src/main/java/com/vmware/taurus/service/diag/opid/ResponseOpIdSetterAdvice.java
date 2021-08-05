@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.vmware.taurus.service.diag.opid;
 
 
@@ -41,5 +46,3 @@ public class ResponseOpIdSetterAdvice implements ResponseBodyAdvice<Object> {
         return body;
     }
 }
-
-

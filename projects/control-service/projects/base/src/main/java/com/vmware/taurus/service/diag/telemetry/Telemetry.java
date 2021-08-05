@@ -1,11 +1,16 @@
+/*
+ * Copyright (c) 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.vmware.taurus.service.diag.telemetry;
 
-import com.vmware.ph.client.api.PhClient;
-import com.vmware.ph.client.api.commondataformat.dimensions.Collector;
-import com.vmware.ph.client.api.exceptions.PhClientConnectionException;
-import com.vmware.ph.client.api.impl.PhClientBuilder;
-import com.vmware.ph.client.common.UrlFactory;
-import com.vmware.ph.upload.service.UploadServiceBuilder;
+//import com.vmware.ph.client.api.PhClient;
+//import com.vmware.ph.client.api.commondataformat.dimensions.Collector;
+//import com.vmware.ph.client.api.exceptions.PhClientConnectionException;
+//import com.vmware.ph.client.api.impl.PhClientBuilder;
+//import com.vmware.ph.client.common.UrlFactory;
+//import com.vmware.ph.upload.service.UploadServiceBuilder;
 import com.vmware.taurus.base.EnableComponents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,27 +49,27 @@ public class Telemetry implements ITelemetry {
     @Value("${telemetry.ph.environment:testing")
     private final String environment = "testing";
 
-    private PhClient phClient = null;
+    //private PhClient phClient = null;
 
-    public PhClient getClient() {
-        synchronized (this) {
-            if (null == phClient) {
-                var env = UploadServiceBuilder.Environment.valueOf(this.environment.toUpperCase());
-                log.info("Telemetry with instanceId {} will be sent to {}", instanceId, env);
-                this.phClient = PhClientBuilder.create(env, new Collector(collectorId, instanceId)).build();
-            }
-        }
-        return phClient;
-    }
+    //public PhClient getClient() {
+    //    synchronized (this) {
+    //        if (null == phClient) {
+    //            var env = UploadServiceBuilder.Environment.valueOf(this.environment.toUpperCase());
+    //            log.info("Telemetry with instanceId {} will be sent to {}", instanceId, env);
+    //            this.phClient = PhClientBuilder.create(env, new Collector(collectorId, instanceId)).build();
+    //        }
+    //    }
+    //    return phClient;
+    //}
 
     @Override
     public void sendAsync(String payload) {
-        try {
-            getClient().upload(collectorId, instanceId, UUID.randomUUID().toString(), UrlFactory.fromByteArray(payload.getBytes(StandardCharsets.UTF_8)));
-        } catch (IOException | PhClientConnectionException e) {
-            // PhClient doesn't actually throws those exception as communication is asynchronous.
-            log.error("Unexpected error while scheduling telemetry", e);
-        }
+        //try {
+        //    getClient().upload(collectorId, instanceId, UUID.randomUUID().toString(), UrlFactory.fromByteArray(payload.getBytes(StandardCharsets.UTF_8)));
+        //} catch (IOException | PhClientConnectionException e) {
+        //    // PhClient doesn't actually throws those exception as communication is asynchronous.
+        //    log.error("Unexpected error while scheduling telemetry", e);
+        //}
     }
 
 }

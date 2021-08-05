@@ -1,0 +1,5 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+sourceCompatibility = '11'
+targetCompatibility = '11'
+group 'com.vmware.taurus'
