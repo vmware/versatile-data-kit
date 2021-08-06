@@ -26,4 +26,7 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={"vdk.plugin.run": ["plugin-template = taurus.vdk.plugin_template"]},
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )

@@ -17,4 +17,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,
     entry_points={"vdk.plugin.run": ["vdk-trino = taurus.vdk.trino_plugin"]},
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )

@@ -18,4 +18,7 @@ setuptools.setup(
     entry_points={
         "vdk.plugin.run": ["vdk-ingest-http = taurus.vdk.ingest_http_plugin"]
     },
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )

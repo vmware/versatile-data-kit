@@ -19,4 +19,7 @@ setuptools.setup(
         "vdk-ingest-http",
         "vdk-ingest-file",
     ],
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )

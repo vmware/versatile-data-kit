@@ -24,4 +24,7 @@ setuptools.setup(
             "vdk-control-service-properties = taurus.vdk.properties_plugin",
         ]
     },
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )
