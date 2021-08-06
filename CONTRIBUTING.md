@@ -68,7 +68,3 @@ We are using CI as a code based on Gitlab CI.
 Entrypoint of CICD is the file .gitlab-ci.yml.
 
 There you can find the full definition of the CI/CD pipeline.
-
-# Licenses
-
-See [README.md](./README.md#Licenses) for generating dependencies license report.

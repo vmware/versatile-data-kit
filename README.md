@@ -48,15 +48,6 @@ Official documentation for Versatile Data Kit can be found [here](https://github
 
 If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CONTRIBUTING.md).
 
-# Licenses
-
-To generate licenses report for dependencies:
-```
-pip-licenses
-```
-
-Generate HTML report, e.g. ```pip-licenses --format=html > dependency_license.html```
-
 # Contacts
 You can reach out to us through mail, or join our public Slack workspace [here](https://versatiledata-rgg2437.slack.com/).
 <!--- TODO: Set up a slackin web app to make joining easier --->
