@@ -11,4 +11,7 @@ setuptools.setup(
     name="taurus-vdk",
     version=__version__,
     install_requires=["vdk-core", "vdk-plugin-control-cli", "vdk-trino"],
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )

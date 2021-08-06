@@ -4,9 +4,7 @@ import pathlib
 
 import setuptools
 
-
 __version__ = "0.1.2"
-
 
 setuptools.setup(
     name="vdk-test-utils",
@@ -17,4 +15,7 @@ setuptools.setup(
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+    ],
 )
