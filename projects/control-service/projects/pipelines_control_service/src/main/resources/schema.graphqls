@@ -1,0 +1,104 @@
+schema {
+    query: Query
+}
+
+type Query {
+    jobs(pageNumber: Int = 0, pageSize: Int = 20, filter: [Predicate], search: String): DataJobPage
+}
+
+input Predicate {
+    property: String,
+    pattern: String,
+    sort: Direction
+}
+
+enum Direction {
+    ASC,
+    DESC
+}
+
+# TODO use auto-generation [TAUR-1376]
+type DataJobPage {
+    content: [DataJob]
+    totalPages: Int
+    totalItems: Int
+}
+
+type DataJob {
+    jobName: String
+    config: DataJobConfig
+    deployments: [DataJobDeployment]
+}
+
+type DataJobContacts {
+    notifiedOnJobFailureUserError: [String]
+    notifiedOnJobFailurePlatformError: [String]
+    notifiedOnJobSuccess: [String]
+    notifiedOnJobDeploy: [String]
+}
+
+type DataJobResources {
+    cpuLimit: Int
+    cpuRequest: Int
+    empheralStorageLimit: Int
+    empheralSorageRequest: Int
+    memoryLimit: Int
+    memoryRequest: Int
+    netBandwitdthLimit: Int
+}
+
+type DataJobExecution {
+    id: String
+    jobName: String
+    status: DataJobExecutionStatus
+    startTime: String
+    endTime: String
+    startedBy: String
+    message: String
+    opId: String
+    logsUrl: String
+}
+
+type DataJobDeployment {
+    id: String
+    enabled: Boolean
+    contacts: DataJobContacts
+    jobVersion: String
+    lastDeployedDate: String
+    lastDeployedBy: String
+    mode: String
+    resources: DataJobResources
+    schedule: DataJobSchedule
+    vdkVersion: String
+    executions: [DataJobExecution]
+    status: DataJobDeploymentStatus
+}
+
+type DataJobConfig {
+    team: String
+    description: String
+    schedule: DataJobSchedule
+    contacts: DataJobContacts
+    generateKeytab: Boolean
+    sourceUrl: String
+    logsUrl: String
+}
+
+type DataJobSchedule {
+    scheduleCron: String
+    nextRunEpochSeconds: Int
+}
+
+enum DataJobDeploymentStatus {
+    NONE
+    SUCCESS
+    PLATFORM_ERROR
+    USER_ERROR
+}
+
+enum DataJobExecutionStatus {
+    SUBMITTED
+    RUNNING
+    FINISHED
+    FAILED
+}

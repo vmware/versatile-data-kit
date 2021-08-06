@@ -1,0 +1,135 @@
+plugins {
+    id 'io.spring.dependency-management'
+    id 'org.springframework.boot'
+    id 'idea'
+    id 'com.palantir.docker'
+    // https://projectlombok.org/setup/gradle
+    id "io.freefair.lombok"
+    id 'com.palantir.git-version'
+    id 'org.unbroken-dome.test-sets'
+    id 'jacoco'
+    id 'org.barfuin.gradle.jacocolog'
+    id 'com.github.jk1.dependency-license-report'
+}
+
+apply from: '../java-common.gradle'
+apply from: '../application.gradle'
+apply from: '../maven.gradle'
+apply from: '../versions-of-external-dependencies.gradle'
+
+// Uncomment this in case we revert to semantic versioning
+// version = file('version.txt').text.trim()
+
+bootJar {
+    mainClass.set('com.vmware.taurus.ServiceApp')
+}
+
+configurations {
+    testImplementation.exclude group: 'com.vaadin.external.google', module: 'android-json'
+}
+
+dependencies { // Implementation dependencies are found on compile classpath of this component and consumers.
+    implementation project(':base')
+    implementation 'com.vmware.taurus:model:3.1.+'
+
+    // for hdfs keytab access
+    implementation versions.'org.eclipse.jgit:org.eclipse.jgit' // gitlab repo
+
+    // for authorization
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    implementation versions.'org.zeroturnaround:zt-exec' // for kerberos shell kadmin command
+
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation versions.'org.yaml:snakeyaml'
+    implementation versions.'javax.mail:mail'
+    implementation versions.'org.ini4j:ini4j'
+
+    implementation versions.'org.json:json'
+    implementation versions.'io.kubernetes:client-java'
+    implementation versions.'com.graphql-java:graphql-java-spring-boot-starter-webmvc'
+    implementation versions.'com.cronutils:cron-utils'
+    implementation versions.'commons-io:commons-io'
+    implementation versions.'net.lingala.zip4j:zip4j'
+
+    implementation versions.'net.javacrumbs.shedlock:shedlock-spring'
+    implementation versions.'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'
+
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation versions.'com.mmnaseri.utils:spring-data-mock'
+    testImplementation versions.'org.mock-server:mockserver-netty'
+    testImplementation 'org.springframework.security:spring-security-oauth2-jose'
+    testImplementation versions.'org.mockito:mockito-core'
+    testImplementation versions.'org.testcontainers:testcontainers'
+    testImplementation versions.'org.springframework.security.kerberos:spring-security-kerberos-test'
+    testImplementation versions.'org.awaitility:awaitility'
+
+
+    // transitive dependencies version force
+    // on next upgrade, revise if those still need to be set explicitly
+    implementation versions.'io.swagger:swagger-annotations'
+    implementation versions.'io.swagger:swagger-models'
+    implementation versions.'io.springfox:springfox-swagger2'
+    implementation versions.'org.apache.commons:commons-compress'
+    implementation versions.'com.google.guava:guava'
+    implementation versions.'com.nimbusds:nimbus-jose-jwt'
+    implementation versions.'com.squareup.okio:okio'
+    implementation versions.'io.micrometer:micrometer-core'
+    implementation versions.'io.micrometer:micrometer-registry-prometheus'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '7.1.1'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Built-By': System.properties['user.name'],
+                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Revision': gitVersion(),
+                'Created-By': "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+testSets {
+    integrationTest { dirName = 'integration-test' }
+}
+
+configurations {
+    runtime.exclude group: "javax.servlet", module: "servlet-api" //exclude Servlet 2 (comes as transitive dependency from remotefs module)
+    runtime.exclude group: "org.slf4j", module: "slf4j-log4j12" //log4j and slf4j cannot co-exist
+}
+
+docker {
+    dependsOn bootJar
+    files bootJar.archiveFile
+    name "${dockerRegistry}${dockerProject}/pipelines-control-service:${version}"
+    buildArgs([
+            JAR_NAME                : "${project.name}-${version}.jar",
+            DATAJOBS_GIT_COMMIT_HASH: gitVersion()
+    ])
+    // Building images with no cache to make sure we always have the latest code in the image
+    noCache
+    dockerfile file('./Dockerfile')
+}
+
+dockerPush {
+    dependsOn dockerTag
+}

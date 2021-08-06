@@ -44,12 +44,12 @@ dependencies {
    implementation "org.springframework:spring-aspects"
 
    implementation versions.'org.influxdb:influxdb-java'
-   implementation versions.'com.vmware.ph.platform:ph-client'
    implementation versions.'com.google.guava:guava'
    implementation versions.'io.micrometer:micrometer-registry-prometheus'
    implementation versions.'io.springfox:springfox-swagger2'
    implementation versions.'io.springfox:springfox-swagger-ui'
    implementation versions.'org.tuckey:urlrewritefilter' //to move Swagger under /teams/
+   implementation versions.'org.apache.commons:commons-lang3'
 
    implementation versions.'com.nimbusds:nimbus-jose-jwt' // necessary for authZ ; remove after
    implementation 'javax.annotation:javax.annotation-api' // necessary for authZ; remove after
@@ -70,5 +70,3 @@ dependencies {
    testImplementation versions.'org.mockito:mockito-core'
    testImplementation 'junit:junit'
 }
-
-
