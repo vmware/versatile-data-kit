@@ -77,13 +77,15 @@ repos:
       args:
         - --license-filepath
         - NOTICE.txt
-    - id: insert-license
-      files: \.yml$
-      args:
-        - --license-filepath
-        - NOTICE.txt
-    - id: insert-license
-      files: \.yaml$
-      args:
-          - --license-filepath
-          - NOTICE.txt
+# License header create issues in helm chart yaml files
+# https://github.com/helm/helm/issues/4409
+#    - id: insert-license
+#      files: \.yml$
+#      args:
+#        - --license-filepath
+#        - NOTICE.txt
+#    - id: insert-license
+#      files: \.yaml$
+#      args:
+#          - --license-filepath
+#          - NOTICE.txt
