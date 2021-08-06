@@ -24,3 +24,6 @@ pytest~=5.4.3
 # So we will run pytest-cov only in gitlab ci and it's commented out here.
 # pytest-cov
 pytest-httpserver
+
+# Dependencies license report:
+pip-licenses
