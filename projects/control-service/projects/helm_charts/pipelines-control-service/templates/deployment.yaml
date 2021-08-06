@@ -1,0 +1,237 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-dep
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "pipelines-control-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: {{- include "pipelines-control-service.selectorLabels" . | nindent 6  }}
+  template:
+    metadata:
+      labels: {{- include "pipelines-control-service.labels" . | nindent 8 }}
+      annotations:
+        # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
+        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ template "pipelines-control-service.serviceAccountName" . }}
+      {{- end }}
+      containers:
+        - name: pipelines-control-service
+          image: {{ template "pipelines-control-service.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          ports:
+            - name: control-port
+              containerPort: 8092
+          env:
+            - name: DEFAULT_JOB_RESOURCES_REQUESTS_MEMORY
+              value: "{{ .Values.deploymentDefaultDataJobsResources.requests.memory }}"
+            - name: DEFAULT_JOB_RESOURCES_REQUESTS_CPU
+              value: "{{ .Values.deploymentDefaultDataJobsResources.requests.cpu }}"
+            - name: DEFAULT_JOB_RESOURCES_LIMITS_MEMORY
+              value: "{{ .Values.deploymentDefaultDataJobsResources.limits.memory }}"
+            - name: DEFAULT_JOB_RESOURCES_LIMITS_CPU
+              value: "{{ .Values.deploymentDefaultDataJobsResources.limits.cpu }}"
+            - name: DEFAULT_BUILDER_RESOURCES_REQUESTS_CPU
+              value: "{{ .Values.deploymentBuilderResourcesDefault.requests.cpu}}"
+            - name: DEFAULT_BUILDER_RESOURCES_REQUESTS_MEMORY
+              value: "{{ .Values.deploymentBuilderResourcesDefault.requests.memory}}"
+            - name: DEFAULT_BUILDER_RESOURCES_LIMITS_CPU
+              value: "{{ .Values.deploymentBuilderResourcesDefault.limits.cpu}}"
+            - name: DEFAULT_BUILDER_RESOURCES_LIMITS_MEMORY
+              value: "{{ .Values.deploymentBuilderResourcesDefault.limits.memory }}"
+            - name: NOTIFICATION_OWNER_EMAIL
+              value: "{{ .Values.notificationOwnerEmail }}"
+            - name: NOTIFICATION_OWNER_NAME
+              value: "{{ .Values.notificationOwnerName }}"
+            - name: GIT_URL
+              value: "{{ .Values.deploymentGitUrl }}"
+            - name: GIT_BRANCH
+              value: "{{ .Values.deploymentGitBranch }}"
+            - name: GIT_REMOTE
+              value: "{{ .Values.deploymentGitRemote }}"
+            - name: GIT_USERNAME
+              value: "{{ .Values.deploymentGitUsername }}"
+            - name: GIT_PASSWORD
+              value: "{{ .Values.deploymentGitPassword }}"
+            - name: AWS_REGION
+              value: "{{ .Values.deploymentEcrAwsRegion }}"
+            - name: AWS_ACCESS_KEY_ID
+              value: "{{ .Values.deploymentEcrAwsAccessKeyId }}"
+            - name: AWS_ACCESS_KEY_SECRET
+              value: "{{ .Values.deploymentEcrAwsAccessKeySecret }}"
+            - name: DOCKER_REGISTRY_TYPE
+              value: "{{ .Values.deploymentDockerRegistryType }}"
+            - name: DOCKER_REGISTRY_USERNAME
+              value: "{{ .Values.deploymentDockerRegistryUsername }}"
+            - name: DOCKER_REGISTRY_PASSWORD
+              value: "{{ .Values.deploymentDockerRegistryPassword }}"
+            - name: DOCKER_REPOSITORY_URL
+              value: "{{ .Values.deploymentDockerRepository }}"
+            - name: DOCKER_VDK_BASE_IMAGE
+              value: "{{ .Values.deploymentDockerVdkBaseImage }}"
+            - name: SERVER_MAX_HTTP_HEADER_SIZE
+              value: "{{ .Values.server.maxHttpHeaderSize }}"
+            - name: DB_JDBC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.externalSecretName | default (include "pipelines-control-service.jdbcSecretName" .)}}
+                  key: JDBC
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.externalSecretName | default (include "pipelines-control-service.jdbcSecretName" . )}}
+                  key: USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.externalSecretName | default (include "pipelines-control-service.jdbcSecretName" . )}}
+                  key: PASSWORD
+            - name: KADMIN_USER
+              value: "{{ .Values.credentials.kerberosKadminUser }}"
+            - name: CREDENTIALS_REPOSITORY
+              value: "{{ .Values.credentials.repository }}"
+            - name: CREDENTIALS_PRINCIPAL_PATTERN
+              value: "{{ .Values.credentials.principalPattern }}"
+            - name: DEPLOYMENT_K8S_KUBECONFIG
+              value: "/etc/secrets/deployment-kubeconfig"
+            - name: DEPLOYMENT_K8S_NAMESPACE
+              value: "{{ .Values.deploymentK8sNamespace }}"
+            - name: DATAJOBS_CONTROL_K8S_NAMESPACE
+              value: "{{ .Values.controlK8sNamespace }}"
+            - name: FEATUREFLAG_SECURITY_ENABLED
+              value: "{{ .Values.security.enabled }}"
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+              value: "{{ .Values.security.oauth2.jwtJwkSetUri }}"
+            - name: FEATUREFLAG_AUTHORIZATION_ENABLED
+              value: "{{ .Values.security.authorizationEnabled }}"
+            - name: DATAJOBS_AUTHORIZATION_WEBHOOK_ENDPOINT
+              value: "{{ .Values.security.authorization.webhookUri }}"
+            - name: DATAJOBS_POST_CREATE_WEBHOOK_ENDPOINT
+              value: "{{ .Values.webHooks.postCreate.webhookUri }}"
+            - name: DATAJOBS_POST_CREATE_WEBHOOK_INTERNAL_ERRORS_RETRIES
+              value: "{{ .Values.webHooks.postCreate.internalErrorsRetries }}"
+            - name: DATAJOBS_POST_DELETE_WEBHOOK_ENDPOINT
+              value: "{{ .Values.webHooks.postDelete.webhookUri }}"
+            - name: DATAJOBS_POST_DELETE_WEBHOOK_INTERNAL_ERRORS_RETRIES
+              value: "{{ .Values.webHooks.postDelete.internalErrorsRetries }}"
+            - name: DATAJOBS_AUTHORIZATION_JWT_CLAIM_USERNAME
+              value: "{{ .Values.security.authorization.jwtClaimUsername }}"
+            - name: KRB5_CONFIG
+              value: "/etc/secrets/krb5.conf"
+            - name: VDK_OPTIONS_INI
+              value: "/etc/secrets/vdk-options.ini"
+            - name: IMAGE_NAME
+              value: {{ template "pipelines-control-service.image" . }}
+            - name: datajobs_version
+              value: {{ .Chart.AppVersion | quote }}
+            - name: telemetry_ph_environment
+              value: "production"
+            - name: KADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "pipelines-control-service.fullname" . }}-secrets
+                  key: kadmin-password
+            - name: PROXY_DOCKER_REPO_URL
+              value: "{{ .Values.proxyRepositoryURL }}"
+            - name: GIT_USERNAME_READ_WRITE
+              value: "{{ .Values.uploadGitReadWriteUsername }}"
+            - name: GIT_PASSWORD_READ_WRITE
+              value: "{{ .Values.uploadGitReadWritePassword }}"
+            - name: DEFAULT_MONITORING_SYNC_INTERVAL
+              value: "{{ .Values.monitoringSync.delayMillis }}"
+            - name: DEFAULT_MONITORING_INITIAL_DELAY_SYNC_INTERVAL
+              value: "{{ .Values.monitoringSync.initialDelayMillis }}"
+            {{- if .Values.datajobTemplate.enabled }}
+            - name: K8S_DATA_JOB_TEMPLATE_FILE
+              value: "/etc/datajobs/k8s_data_job_template.yaml"
+            {{- end }}
+{{- if .Values.extraVars }}
+{{ toYaml .Values.extraVars | indent 12 }}
+{{- end }}
+            {{- range $key, $value := .Values.extraEnvVars }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+          volumeMounts:
+            - name: secrets
+              mountPath: "/etc/secrets"
+              readOnly: true
+            {{- if .Values.datajobTemplate.enabled }}
+            - name: datajob-template-volume
+              mountPath: "/etc/datajobs"
+            {{- end }}
+          {{- if .Values.resources }}
+          resources: {{ toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: "{{ .Values.livenessProbe.path }}"
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          {{- else if .Values.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: "{{ .Values.readinessProbe.path }}"
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{- else if .Values.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: "{{ .Values.startupProbe.path }}"
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+          {{- else if .Values.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customStartupProbe "context" $) | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: secrets
+          secret:
+            secretName: {{ template "pipelines-control-service.fullname" . }}-secrets
+            items:
+              {{- if or (not .Values.rbac.create) (not .Values.rbac.datajobsDeployment.create) -}}
+              - key: deployment-kubeconfig
+                path: deployment-kubeconfig
+              {{- end }}
+              - key: krb5.conf
+                path: krb5.conf
+              - key: vdk-options.ini
+                path: vdk-options.ini
+        {{- if .Values.datajobTemplate.enabled }}
+        - name: datajob-template-volume
+          configMap:
+            name: datajob-template-file
+            items:
+              - key: datajobTemplate
+                path: "k8s_data_job_template.yaml"
+        {{- end }}

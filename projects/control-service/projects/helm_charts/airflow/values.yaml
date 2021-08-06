@@ -1,0 +1,76 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+global:
+  storageClass: 3671cd71625c4312a2aee130db182e4c
+
+service:
+  type: LoadBalancer
+
+airflow:
+  workerImage:
+    debug: false
+  loadExamples: true
+  gitSyncInterval: 60
+  cloneDagFilesFromGit:
+    enabled: true
+    repository: "https://gitlab+deploy-token-419:5yNrY7fuaxojMiidWQ5X@gitlab.eng.vmware.com/taurus/demo-data-jobs.git"
+    branch: "master"
+    path: "__airflow_dags__"
+  clonePluginsFromGit:
+    enabled: true
+    repository: "https://gitlab+deploy-token-527:ZcqpTk6AG2TsLyKcT63Y@gitlab.eng.vmware.com/taurus/data-pipelines-sdk/vdk-airflow.git"
+    # TODO: use branch plugin-release-1.0 for versioning and release plugin from git...
+    branch: "master"
+    path: "plugin"
+  worker:
+    resources:
+      limits:
+        cpu: 1500m
+        memory: 4G
+      requests:
+        cpu: 500m
+        memory: 1G
+  scheduler:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1G
+      requests:
+        cpu: 500m
+        memory: 1G
+  web:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1G
+      requests:
+        cpu: 500m
+        memory: 1G
+
+postgresql:
+  persistence:
+    size: 2Gi
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 250m
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+redis:
+  master:
+    persistence:
+      size: 2Gi
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 250m
+  slave:
+    persistence:
+      size: 2Gi
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 250m

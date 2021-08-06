@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The pipeline control service configuration schema",
+  "description": "JSON Schema for values.yaml configuration of control service. See https://helm.sh/docs/topics/charts/#schema-files and http://json-schema.org/understanding-json-schema",
+  "default": {},
+  "required": [
+    "image",
+    "deploymentGitUrl",
+    "deploymentDockerRepository"
+  ],
+
+  "properties": {
+    "credentials": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "default": "EMPTY",
+          "enum": ["EMPTY", "KERBEROS"]
+        },
+        "principalPattern": {
+          "type": "string",
+          "default": "pa__view_%(data_job)",
+          "pattern": ".*%\\(data_job\\).*"
+        }
+      }
+    }
+  },
+
+  "allOf": [
+
+    {
+      "$comment": "Validate kerberosKrb5Conf if credentials.repository is KERBEROS",
+      "if": {
+        "properties": {
+          "credentials": {
+            "properties": {
+              "repository":  { "const": "KERBEROS" } } }
+        }
+      },
+      "then": {
+        "properties": {
+          "credentials": {
+            "properties": {
+              "kerberosKrb5Conf": { "pattern": ".+" }
+            }
+          }
+        }
+      }
+    }
+
+  ],
+  "additionalProperties": true
+}
