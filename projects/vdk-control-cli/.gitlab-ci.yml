@@ -33,8 +33,7 @@ build_with_py39:
   image: "python:3.9"
   extends: .build
 
-# TODO: disable temporarily until all projects are migrated
-.release_acceptance_test:
+release_acceptance_test:
   stage: pre_release
   before_script:
     - cd projects/vdk-control-cli
@@ -44,8 +43,8 @@ build_with_py39:
     - pip install dist/* --extra-index-url $PIP_EXTRA_INDEX_URL
     - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
     - vdkcli version
-    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$STAGING_CSP_REFRESH_TOKEN
-    - export JOB_NAME=vdk-control-cli-release-test-job
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+    - export JOB_NAME=vdk-control-cli-release-test-job-$(date +%s)
     - vdk-heartbeat -f cicd/release_test_heartbeat_config.ini
   artifacts:
     when: always
