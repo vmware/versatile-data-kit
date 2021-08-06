@@ -1,0 +1,27 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.alerting.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-rules
+  {{- if .Values.alerting.prometheusRule.namespace }}
+  namespace: {{ .Values.alerting.prometheusRule.namespace }}
+  {{- end }}
+  labels: {{- include "pipelines-control-service.labels" . | nindent 4 }}
+    {{- if .Values.alerting.prometheusRule.additionalLabels }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.alerting.prometheusRule.additionalLabels "context" $) | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+    - name: ./datajob.rules
+      rules:
+        {{- range $k, $v := .Values.alerting.prometheusRule.rules }}
+        {{- if or $v.enabled (not (hasKey $v "enabled")) }}
+        {{- $v := omit $v "enabled" }}
+        - alert: {{ $k }}
+          {{- include "common.tplvalues.render" (dict "value" $v "context" $) | nindent 10 }}
+        {{- end }}
+        {{- end }}
+{{- end }}

@@ -1,0 +1,28 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: pipelines-control-service
+description: A Helm chart for Versatile Data Kit Control Service
+
+type: application
+
+# Official version is set in version.txt file - it will update both appVersion and verison.
+# See root CONTRIBUTING.md for full release process.
+version: 0.0.1-SNAPSHOT
+appVersion: 0.0.1-SNAPSHOT
+
+
+# TODO: check that required k8s capabilities are present
+# TODO: add test to verify installation works https://helm.sh/docs/helm/helm_test (or maybe readiness probe would be enough?)
+
+dependencies:
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  tags:
+    - bitnami-common
+  version: 1.x.x
+- name: cockroachdb
+  version: "3.0.7"
+  repository: "https://charts.helm.sh/stable"
+  condition: cockroachdb.enabled

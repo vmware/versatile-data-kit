@@ -7,6 +7,8 @@ repos:
     hooks:
     -   id: check-yaml
         args: ['--unsafe']
+        # exclude helm chart templates
+        exclude: ^projects/control-service/projects/helm_charts
     -   id: check-json
     -   id: check-ast
     -   id: check-added-large-files
