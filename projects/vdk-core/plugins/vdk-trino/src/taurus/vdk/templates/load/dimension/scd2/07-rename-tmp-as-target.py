@@ -31,7 +31,7 @@ def run(job_input: IJobInput):
     trino_queries = TrinoQueries(job_input)
 
     log.debug("Create backup from target")
-    trino_queries.alter_table(
+    trino_queries.move_data_to_table(
         from_db=target_schema,
         from_table_name=target_table,
         to_db=target_schema,
@@ -39,7 +39,7 @@ def run(job_input: IJobInput):
     )
     try:
         log.debug("Create target from tmp target")
-        result = trino_queries.alter_table(
+        result = trino_queries.move_data_to_table(
             from_db=target_schema,
             from_table_name=tmp_target_table,
             to_db=target_schema,
@@ -65,7 +65,8 @@ def run(job_input: IJobInput):
                 "1. Try to rerun the data job OR\n"
                 "2. First try to recover {target_schema}.{target_table} from"
                 "{target_schema}.backup_{target_table} by manually executing:\n"
-                "ALTER TABLE {target_schema}.backup_{target_table} RENAME TO {target_schema}.{target_table}\n"
+                "CREATE TABLE {target_schema}.{target_table} (LIKE {target_schema}.backup_{target_table})\n"
+                "INSERT INTO {target_schema}.{target_table} SELECT * FROM {target_schema}.backup_{target_table}\n"
                 "Then try to rerun the data job OR\n"
                 "3. Report the issue to support team.""",
             )
@@ -79,7 +80,7 @@ def _try_recover_target_from_backup(
 ):
     log.debug("Try to recover target from backup")
     try:
-        result = trino_queries.alter_table(
+        result = trino_queries.move_data_to_table(
             from_db=db,
             from_table_name=backup_table,
             to_db=db,

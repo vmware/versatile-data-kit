@@ -16,19 +16,22 @@ from taurus.vdk.trino_utils import TrinoQueries
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
+VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = (
+    "VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
+)
 
-org_alter_table = TrinoQueries.alter_table
+org_move_data_to_table = TrinoQueries.move_data_to_table
 
 
-def trino_alter_table_break_tmp_to_target(
+def trino_move_data_to_table_break_tmp_to_target(
     obj, from_db: str, from_table_name: str, to_db: str, to_table_name: str
 ):
     if from_table_name == "tmp_dw_scmdb_people" and to_table_name == "dw_scmdb_people":
         obj.drop_table(from_db, from_table_name)
-    return org_alter_table(obj, from_db, from_table_name, to_db, to_table_name)
+    return org_move_data_to_table(obj, from_db, from_table_name, to_db, to_table_name)
 
 
-def trino_alter_table_break_tmp_to_target_and_restore(
+def trino_move_data_to_table_break_tmp_to_target_and_restore(
     obj, from_db: str, from_table_name: str, to_db: str, to_table_name: str
 ):
     if from_table_name == "tmp_dw_scmdb_people" and to_table_name == "dw_scmdb_people":
@@ -38,12 +41,17 @@ def trino_alter_table_break_tmp_to_target_and_restore(
         and to_table_name == "dw_scmdb_people"
     ):
         obj.drop_table(from_db, from_table_name)
-    return org_alter_table(obj, from_db, from_table_name, to_db, to_table_name)
+    return org_move_data_to_table(obj, from_db, from_table_name, to_db, to_table_name)
 
 
 @mock.patch.dict(
     os.environ,
-    {VDK_DB_DEFAULT_TYPE: "TRINO", VDK_TRINO_PORT: "8080", VDK_TRINO_USE_SSL: "False"},
+    {
+        VDK_DB_DEFAULT_TYPE: "TRINO",
+        VDK_TRINO_PORT: "8080",
+        VDK_TRINO_USE_SSL: "False",
+        VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "INSERT_SELECT",
+    },
 )
 class TemplateRegressionTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -121,7 +129,9 @@ class TemplateRegressionTests(unittest.TestCase):
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
 
     @mock.patch.object(
-        TrinoQueries, "alter_table", new=trino_alter_table_break_tmp_to_target
+        TrinoQueries,
+        "move_data_to_table",
+        new=trino_move_data_to_table_break_tmp_to_target,
     )
     def test_scd2_template_fail_last_step_and_restore_target(self):
         test_schema = "default"
@@ -139,8 +149,8 @@ class TemplateRegressionTests(unittest.TestCase):
 
     @mock.patch.object(
         TrinoQueries,
-        "alter_table",
-        new=trino_alter_table_break_tmp_to_target_and_restore,
+        "move_data_to_table",
+        new=trino_move_data_to_table_break_tmp_to_target_and_restore,
     )
     def test_scd2_template_fail_last_step_and_fail_restore_target(self):
         test_schema = "default"
@@ -253,3 +263,16 @@ class TemplateRegressionTests(unittest.TestCase):
                 f"DESCRIBE {schema_name}.{target_name}",
             ]
         )
+
+
+@mock.patch.dict(
+    os.environ,
+    {
+        VDK_DB_DEFAULT_TYPE: "TRINO",
+        VDK_TRINO_PORT: "8080",
+        VDK_TRINO_USE_SSL: "False",
+        VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "RENAME",
+    },
+)
+class TemplateRegressionTestsRenameStrategy(TemplateRegressionTests):
+    pass
