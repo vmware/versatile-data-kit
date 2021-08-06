@@ -10,6 +10,7 @@ setuptools.setup(
     name="quickstart-vdk",
     description="Versatile Data Kit SDK packaging containing common plugins to get started quickly using it.",
     long_description=pathlib.Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
     version=__version__,
     install_requires=[
         "vdk-core",

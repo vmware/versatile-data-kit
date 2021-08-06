@@ -11,6 +11,7 @@ setuptools.setup(
     version=__version__,
     description="Versatile Data Kit SDK ingestion plugin to ingest data via http requests.",
     long_description=pathlib.Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),

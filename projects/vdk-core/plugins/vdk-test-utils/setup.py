@@ -13,6 +13,7 @@ setuptools.setup(
     version=__version__,
     description="Provides utilities for testing Versatile Data Kit SDK plugins.",
     long_description=pathlib.Path("README.md").read_text(),
+    long_description_content_type="text/markdown",
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
