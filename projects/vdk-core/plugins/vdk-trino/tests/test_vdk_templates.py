@@ -170,6 +170,115 @@ class TemplateRegressionTests(unittest.TestCase):
             f"Table {test_schema}.{target_table} is lost!" in result.output
         ), "Missing log for losing target schema."
 
+    def test_fact_snapshot_template(self) -> None:
+        test_schema = "default"
+        source_view = "vw_fact_sddc_daily"
+        target_table = "dw_fact_sddc_daily"
+        expect_table = "ex_fact_sddc_daily"
+
+        result = self.__runner.invoke(
+            [
+                "run",
+                get_test_job_path(
+                    pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                    "load_fact_snapshot_template_job",
+                ),
+                "--arguments",
+                json.dumps(
+                    {
+                        "source_schema": test_schema,
+                        "source_view": source_view,
+                        "target_schema": test_schema,
+                        "target_table": target_table,
+                        "expect_schema": test_schema,
+                        "expect_table": expect_table,
+                        "last_arrival_ts": "updated_at",
+                    }
+                ),
+            ]
+        )
+
+        cli_assert_equal(0, result)
+
+        actual_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"SELECT * FROM {test_schema}.{target_table} ORDER BY dim_date_id, dim_sddc_sk",
+            ]
+        )
+
+        expected_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"SELECT * FROM {test_schema}.{expect_table} ORDER BY dim_date_id, dim_sddc_sk",
+            ]
+        )
+
+        cli_assert_equal(0, actual_rs)
+        cli_assert_equal(0, expected_rs)
+        assert (
+            actual_rs.output == expected_rs.output
+        ), f"Elements in {target_table} and {expect_table} differ."
+
+    def test_load_fact_snapshot_empty_source(self) -> None:
+        test_schema = "default"
+        source_view = "vw_fact_sddc_daily"
+        target_table = "dw_fact_sddc_daily"
+        expect_table = "ex_fact_sddc_daily"
+
+        result = self.__runner.invoke(
+            [
+                "run",
+                get_test_job_path(
+                    pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                    "load_fact_snapshot_template_job_empty_source",
+                ),
+                "--arguments",
+                json.dumps(
+                    {
+                        "source_schema": test_schema,
+                        "source_view": source_view,
+                        "target_schema": test_schema,
+                        "target_table": target_table,
+                        "expect_schema": test_schema,
+                        "expect_table": expect_table,
+                        "last_arrival_ts": "updated_at",
+                    }
+                ),
+            ]
+        )
+
+        cli_assert_equal(0, result)
+
+        assert (
+            f"Target table {test_schema}.{target_table} remains unchanged"
+            in result.output
+        ), "Cannot find log about empty source in output."
+
+        actual_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"SELECT * FROM {test_schema}.{target_table} ORDER BY dim_date_id, dim_sddc_sk",
+            ]
+        )
+
+        expected_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"SELECT * FROM {test_schema}.{expect_table} ORDER BY dim_date_id, dim_sddc_sk",
+            ]
+        )
+
+        cli_assert_equal(0, actual_rs)
+        cli_assert_equal(0, expected_rs)
+        assert (
+            actual_rs.output == expected_rs.output
+        ), f"Elements in {target_table} and {expect_table} differ."
+
     def __scd2_template_execute(
         self,
         test_schema,
