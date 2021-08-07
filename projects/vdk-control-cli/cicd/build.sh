@@ -3,9 +3,20 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+if ! which python3 >/dev/null 2>&1 ; then
+  echo "ERROR:"
+  echo "Please install python 3.7+. Build cannot continue without it."
+  echo "If you are new to python:"
+  echo "There are some awesome tools for installing and managing python which we recommend:"
+  echo " - conda - https://conda.io/projects/conda/en/latest/user-guide/getting-started.html"
+  echo " - pyenv - https://github.com/pyenv/pyenv"
+  echo "      - If you use pyenv we also recommend https://github.com/pyenv/pyenv-virtualenv"
+  echo ""
+  exit 1
+fi
+
 cd "$(dirname $0)" || exit 1
 cd ..
-
 
 echo "install dependencies from requirements.txt (used for development and testing)"
 pip install -r requirements.txt
@@ -20,3 +31,5 @@ pip install -e .
 echo "Run unit tests and generate coverage report"
 pip install pytest-cov
 pytest --junitxml=tests.xml --cov taurus --cov-report term-missing --cov-report xml:coverage.xml
+
+echo "Done"
