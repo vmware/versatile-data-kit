@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 NAMESPACE="cicd"
 
 if [ -z "$VALUES" ]; then
@@ -39,6 +42,13 @@ if ! helm version | grep -q 'Version:"v3'; then
     exit 1
 fi
 
+if [ -n "$IMAGE_PULL_DOCKER_USERNAME" ]; then
+  kubectl create secret docker-registry secret-dockerhub-docker \
+    --docker-username=$IMAGE_PULL_DOCKER_USERNAME \
+    --docker-password=$IMAGE_PULL_DOCKER_PASSWORD \
+    --docker-server="https://index.docker.io/v1/" --namespace="$NAMESPACE"
+fi
+
 helm repo add gitlab https://charts.gitlab.io
 
 # Before updating version, review changelog at https://docs.gitlab.com/runner/install/kubernetes.html .
@@ -46,5 +56,3 @@ helm upgrade --install \
   --set runnerRegistrationToken=$RUNNER_REGISTRATION_TOKEN \
   --set runners.namespace=$NAMESPACE \
   --kubeconfig $KUBECONFIG --namespace $NAMESPACE --version "0.22.0" $RUNNER_NAME -f $VALUES gitlab/gitlab-runner
-
-

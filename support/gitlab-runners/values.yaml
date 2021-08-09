@@ -62,6 +62,9 @@ runners:
   ## ref: https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section
   outputLimit: 51200
 
+  imagePullSecrets:
+    - [ secret-dockerhub-docker ]
+
   ## Namespace to run Kubernetes jobs in (defaults to 'default')
   ## namespace: gitlab-managed-apps
 
