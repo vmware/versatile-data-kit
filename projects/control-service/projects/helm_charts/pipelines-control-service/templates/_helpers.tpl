@@ -186,13 +186,14 @@ Generate default JDBC credentials for local embedded database instance (Cockroac
 */}}
 {{- define "pipelines-control-service.jdbcSecret" -}}
 {{- if and (not .Values.postgresql.enabled) .Values.cockroachdb.enabled -}}
-    USERNAME: {{ default "root" .Values.database.username | b64enc | quote }}
-    JDBC: {{ default (printf "jdbc:postgresql://%s-cockroachdb-public:26257/defaultdb?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
-{{- else -}}
-    USERNAME: {{ default "postgres" .Values.database.username | b64enc | quote }}
-    JDBC: {{ default (printf "jdbc:postgresql://%s-postgresql-public:5432/postgres?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
-{{- end -}}
+USERNAME: {{ default "root" .Values.database.username | b64enc | quote }}
 PASSWORD: {{ default "" .Values.database.password | b64enc | quote }}
+JDBC: {{ default (printf "jdbc:postgresql://%s-cockroachdb-public:26257/defaultdb?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
+{{- else -}}
+USERNAME: {{ default "postgres" .Values.database.username | b64enc | quote }}
+PASSWORD: {{ default "" .Values.database.password | b64enc | quote }}
+JDBC: {{ default (printf "jdbc:postgresql://%s-postgresql-public:5432/postgres?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
+{{- end -}}
 {{- end -}}
 
 {{/*
