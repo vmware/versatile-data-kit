@@ -1,6 +1,6 @@
 {
   "packageName": "taurus_datajob_api",
-  "projectName": "taurus-datajob-api",
+  "projectName": "vdk-control-service-api",
   "verbose": true,
-  "packageVersion": "3.1.3"
+  "packageVersion": "1.0.1"
 }
