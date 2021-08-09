@@ -5,71 +5,75 @@
 
 package com.vmware.taurus.service.diag.telemetry;
 
-//import com.vmware.ph.client.api.PhClient;
-//import com.vmware.ph.client.api.commondataformat.dimensions.Collector;
-//import com.vmware.ph.client.api.exceptions.PhClientConnectionException;
-//import com.vmware.ph.client.api.impl.PhClientBuilder;
-//import com.vmware.ph.client.common.UrlFactory;
-//import com.vmware.ph.upload.service.UploadServiceBuilder;
+
 import com.vmware.taurus.base.EnableComponents;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(value = EnableComponents.DIAGNOSTICS, havingValue = "true", matchIfMissing = true)
 public class Telemetry implements ITelemetry {
     private static final Logger log = LoggerFactory.getLogger(Telemetry.class);
 
-    public Telemetry() {
-        String instance;
-        try {
-            instance = InetAddress.getLocalHost().toString();
-        } catch (UnknownHostException e) {
-            instance = "" + System.currentTimeMillis() + " " + e;
+    public Telemetry(@Value("${datajobs.telemetry.webhook.endpoint:}") String telemetryEndpoint) {
+        this.client = HttpClient.newHttpClient();
+        this.telemetryEndpoint = telemetryEndpoint;
+        if (StringUtils.isBlank(this.telemetryEndpoint)) {
+            log.info("Telemetry endpoint is empty and sending telemetry is skipped");
         }
-        this.instanceId = instance;
     }
+    // TODO: add support for buffering, re-tries (with back-off)
+    private final String telemetryEndpoint;
+    private final HttpClient client;
 
-    private final String instanceId;
-
-    @Value("${telemetry.ph.collector:taurus.v0")
-    private final String collectorId = "taurus.v0";
-
-    @Value("${telemetry.ph.environment:testing")
-    private final String environment = "testing";
-
-    //private PhClient phClient = null;
-
-    //public PhClient getClient() {
-    //    synchronized (this) {
-    //        if (null == phClient) {
-    //            var env = UploadServiceBuilder.Environment.valueOf(this.environment.toUpperCase());
-    //            log.info("Telemetry with instanceId {} will be sent to {}", instanceId, env);
-    //            this.phClient = PhClientBuilder.create(env, new Collector(collectorId, instanceId)).build();
-    //        }
-    //    }
-    //    return phClient;
-    //}
+    private static <T> CompletableFuture<HttpResponse<T>> handleResponseWithRetry(HttpClient client, HttpRequest request,
+                                      HttpResponse.BodyHandler<T> handler, HttpResponse<T> response) {
+        if (response == null || response.statusCode() >= 500) {
+            return client.sendAsync(request, handler)
+                    .thenApplyAsync( (r) -> {
+                        if (r.statusCode() >= 400) {
+                            log.warn("Failed to send telemetry after re-try:" +
+                                    "telemetry webhook returned HTTP client error: " + r.statusCode()
+                                    + " and content: " + r.body());
+                        }
+                        return r;
+                    });
+        } else {
+            if (response.statusCode() >= 400 && response.statusCode() < 500) {
+                log.warn("Failed to send telemetry: telemetry webhook returned HTTP client error: " + response.statusCode()
+                        + " and content: " + response.body());
+            }
+            return CompletableFuture.completedFuture(response);
+        }
+    }
 
     @Override
     public void sendAsync(String payload) {
-        //try {
-        //    getClient().upload(collectorId, instanceId, UUID.randomUUID().toString(), UrlFactory.fromByteArray(payload.getBytes(StandardCharsets.UTF_8)));
-        //} catch (IOException | PhClientConnectionException e) {
-        //    // PhClient doesn't actually throws those exception as communication is asynchronous.
-        //    log.error("Unexpected error while scheduling telemetry", e);
-        //}
+        if (StringUtils.isBlank(this.telemetryEndpoint)) {
+            return;
+        }
+        log.debug("Sending streaming telemetry to {}", telemetryEndpoint);
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .setHeader("accept", "application/json")
+                .setHeader("content-type", "application/json")
+                .uri(URI.create(this.telemetryEndpoint))
+                .POST(HttpRequest.BodyPublishers.ofString(payload))
+                .build();
+        // we re-try once. We assume that most errors are resolved on first re-try.
+        // For better robustness though we should consider more sophisticated re-tries with back off
+        client.sendAsync(request, handler)
+                .thenComposeAsync(r -> handleResponseWithRetry(client, request, handler, r));
     }
 
 }
