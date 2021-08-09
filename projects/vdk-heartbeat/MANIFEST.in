@@ -1,0 +1,7 @@
+
+include version.txt
+include src/taurus/vdk/vdk_heartbeat_data_job/**/*
+
+# this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
+# https://stackoverflow.com/questions/7522250/how-to-include-package-data-with-setuptools-distribute
+
