@@ -1,0 +1,37 @@
+
+image: "python:3.7"
+
+#variables:
+#  POSTGRES_DB: database_name
+
+stages:
+  - build
+  - release
+
+test:
+  image: "python:3.9"
+  stage: build
+  script:
+    - ./cicd/build.sh
+  coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
+  only:
+    refs:
+      - external_pull_requests
+      - master
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+
+release:
+  stage: release
+  script:
+    - pip install -U pip setuptools wheel twine
+    - python setup.py sdist --formats=gztar
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+  only:
+    refs:
+      - master
+    changes:
+      - version.txt
