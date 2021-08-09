@@ -17,7 +17,7 @@ test:
   only:
     refs:
       - external_pull_requests
-      - master
+      - main
   artifacts:
     when: always
     reports:
@@ -32,6 +32,6 @@ release:
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   only:
     refs:
-      - master
+      - main
     changes:
       - version.txt
