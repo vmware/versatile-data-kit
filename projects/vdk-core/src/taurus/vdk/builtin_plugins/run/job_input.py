@@ -46,34 +46,34 @@ class JobInput(IJobInput):
     ):
         """Constructor."""
 
-        self.managed_connection_builder = managed_connection_builder
-        self.statestore = statestore
-        self.properties_router = properties_router
-        self.vdk_internal_telemetry = None
-        self.ingester = ingester
-        self.job_arguments = job_arguments
-        self.templates = templates
+        self.__managed_connection_builder = managed_connection_builder
+        self.__statestore = statestore
+        self.__properties_router = properties_router
+        self.__vdk_internal_telemetry = None
+        self.__ingester = ingester
+        self.__job_arguments = job_arguments
+        self.__templates = templates
 
     # Connections
 
     def get_managed_connection(self) -> ManagedConnectionBase:
-        return self.managed_connection_builder.open_default_connection()
+        return self.__managed_connection_builder.open_default_connection()
 
     def get_arguments(self) -> dict:
-        return self.job_arguments.get_arguments()
+        return self.__job_arguments.get_arguments()
 
     # Properties
 
     def get_property(self, name, default_value=None):
-        return self.properties_router.get_properties_impl().get_property(
+        return self.__properties_router.get_properties_impl().get_property(
             name, default_value
         )
 
     def get_all_properties(self):
-        return self.properties_router.get_properties_impl().get_all_properties()
+        return self.__properties_router.get_properties_impl().get_all_properties()
 
     def set_all_properties(self, properties):
-        return self.properties_router.get_properties_impl().set_all_properties(
+        return self.__properties_router.get_properties_impl().set_all_properties(
             properties
         )
 
@@ -81,7 +81,7 @@ class JobInput(IJobInput):
         sql = textwrap.dedent(sql).strip("\n") + "\n"
         query = sql
         if isinstance(
-            self.properties_router.get_properties_impl(), PropertiesNotAvailable
+            self.__properties_router.get_properties_impl(), PropertiesNotAvailable
         ):
             logging.getLogger(__name__).info(
                 "Data Job Properties has not been initialized., "
@@ -108,8 +108,8 @@ class JobInput(IJobInput):
         if not sql or not sql.strip():
             raise UserCodeError("Trying to execute an empty SQL query.")
 
-        job_name = self.statestore.get(ExecutionStateStoreKeys.JOB_NAME)
-        op_id = self.statestore.get(CommonStoreKeys.OP_ID)
+        job_name = self.__statestore.get(ExecutionStateStoreKeys.JOB_NAME)
+        op_id = self.__statestore.get(CommonStoreKeys.OP_ID)
 
         query = self._substitute_query_params(sql)
         query = "\n".join(
@@ -127,7 +127,7 @@ class JobInput(IJobInput):
         target: Optional[str] = None,
         collection_id=None,
     ):
-        self.ingester.send_object_for_ingestion(
+        self.__ingester.send_object_for_ingestion(
             payload,
             destination_table,
             method,
@@ -144,7 +144,7 @@ class JobInput(IJobInput):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        self.ingester.send_tabular_data_for_ingestion(
+        self.__ingester.send_tabular_data_for_ingestion(
             rows,
             column_names,
             destination_table,
@@ -156,8 +156,8 @@ class JobInput(IJobInput):
     def execute_template(
         self, template_name: str, template_args: dict
     ) -> ExecutionResult:
-        if self.templates:
-            return self.templates.execute_template(template_name, template_args)
+        if self.__templates:
+            return self.__templates.execute_template(template_name, template_args)
         else:
             raise NotImplemented("Templates not wired to JobInput")
 
@@ -168,10 +168,10 @@ class JobInput(IJobInput):
         pass
 
     def get_execution_properties(self) -> dict:
-        start_time = self.statestore.get(CommonStoreKeys.START_TIME)
+        start_time = self.__statestore.get(CommonStoreKeys.START_TIME)
         return {
-            "pa__execution_id": self.statestore.get(CommonStoreKeys.EXECUTION_ID),
+            "pa__execution_id": self.__statestore.get(CommonStoreKeys.EXECUTION_ID),
             "pa__job_start_unixtime": str(int(start_time.timestamp())),
             "pa__job_start_ts_expr": f"cast ({start_time.timestamp()} as timestamp)",
-            "pa__op_id": self.statestore.get(CommonStoreKeys.OP_ID),
+            "pa__op_id": self.__statestore.get(CommonStoreKeys.OP_ID),
         }
