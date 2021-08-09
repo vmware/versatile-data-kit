@@ -164,11 +164,12 @@ publish_control_service_api_client:
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
 # Go to the namespace -> StorageClass
-.deploy_testing_data_pipelines:
-  stage: deploy_testing
+deploy_testing_data_pipelines:
+  stage: pre_release
+  image: proum/aws-iam-authenticator
   script:
     - apk --no-cache add bash openssl curl git gettext
-    - bash projects/control-service/cicd/install-helm.sh
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   only:
@@ -180,16 +181,15 @@ publish_control_service_api_client:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
-.post_deployment_test:
-  stage: test
+post_deployment_test:
+  stage: pre_release_test
   image: python:3.7
   script:
     - set -x
-    - pip install vdk-heartbeat[taurus] --extra-index-url https://build-artifactory.eng.vmware.com/api/pypi/Taurus-PyPI-local/simple
-    - vdkcli version
-    - export DATABASE_USER="data-pipelines-cicd"
-    - export DATABASE_PASS="" # no password in http
-    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$STAGING_CSP_REFRESH_TOKEN
+    - pip install quickstart-vdk
+    - pip install vdk-heartbeat
+    - vdk version
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
     - vdk-heartbeat -f projects/control-service/cicd/post_deploy_test_heartbeat_config.ini
   retry: !reference [.control_service_retry, retry_options]
   only:

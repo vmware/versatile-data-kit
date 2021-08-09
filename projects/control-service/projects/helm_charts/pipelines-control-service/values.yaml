@@ -9,8 +9,8 @@ global: {}
 
 # Image configuration of the Control service image. Generally those should be left as it is.
 image:
-   registry: bu6w4yoa1d.execute-api.us-west-2.amazonaws.com
-   repository: taurus/pipelines-control-service
+   registry: registry.hub.docker.com/versatiledatakit
+   repository: pipelines-control-service
    tag: "a6caa29"
 
    ## Specify a imagePullPolicy
@@ -717,5 +717,7 @@ fluentd:
 ##              specified also get deleted.
 ##
 dataJobExecutionsCleanupTask:
-  maximumExecutionsToStore: 100 # maximum number of data job executions to store in the database / default is 100.
-  executionsTtlSeconds: 1209600 # maximum time to live seconds for each execution / default is 14 days.
+  ## maximum number of data job executions to store in the database / default is 100.
+  maximumExecutionsToStore: "100"
+  ## maximum time to live seconds for each execution / default is 14 days.
+  executionsTtlSeconds: "1209600"
