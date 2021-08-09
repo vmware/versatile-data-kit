@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.55 - 05.08.2021
+------
+* **Improvement**
+- New API model adoption in VDK CLI - adopted new API model which provides the SKIPPED DataJobExecution status.
+
 1.1.54 - XXX
 ----
 * **New feature**

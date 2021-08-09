@@ -11,7 +11,7 @@ global: {}
 image:
    registry: bu6w4yoa1d.execute-api.us-west-2.amazonaws.com
    repository: taurus/pipelines-control-service
-   tag: "a6caa29"
+   tag: "b8c1f05"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
