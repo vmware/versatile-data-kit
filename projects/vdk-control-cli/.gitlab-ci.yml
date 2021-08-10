@@ -1,10 +1,12 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-image: "python:3.7"
+image: "python:3.9"
 
+.vdk_control_cli_changes: &vdk_control_cli_changes_locations
+  - projects/vdk-control-cli/**/*
 
-.build:
+.vdk-control-cli-build:
   stage: build
   before_script:
     - cd projects/vdk-control-cli
@@ -14,26 +16,28 @@ image: "python:3.7"
     refs:
       - external_pull_requests
       - main
+    changes: *vdk_control_cli_changes_locations
   artifacts:
     when: always
     reports:
       junit: tests.xml
 
+
 # Run in different environments
 # VDK Control CLI currently supports Python 3.7 and 3.8 and 3.9
-build_with_py37:
+vdk-control-cli-build-with-py37:
   image: "python:3.7"
-  extends: .build
+  extends: .vdk-control-cli-build
 
-build_with_py38:
+vdk-control-cli-build-with-py38:
   image: "python:3.8"
-  extends: .build
+  extends: .vdk-control-cli-build
 
-build_with_py39:
+vdk-control-cli-build-with-py39:
   image: "python:3.9"
-  extends: .build
+  extends: .vdk-control-cli-build
 
-release_acceptance_test:
+vdk-control-cli-release-acceptance-test:
   stage: pre_release
   before_script:
     - cd projects/vdk-control-cli
@@ -53,8 +57,9 @@ release_acceptance_test:
   only:
     refs:
       - main
+    changes: *vdk_control_cli_changes_locations
 
-release:
+vdk-control-cli-release:
   stage: release
   before_script:
     - cd projects/vdk-control-cli
@@ -73,23 +78,4 @@ release:
     refs:
       - main
     changes:
-     - projects/vdk-control-cli/version.txt
-
-empty:
-  stage: build
-  before_script:
-    - cd projects/vdk-control-cli
-  script:
-    - echo "Empty Pipeline to enable merging release only commits."
-    - echo "Will release VDK CLI version $(cat version.txt) after merged to main"
-  only:
-    refs:
-      - external_pull_requests
-    changes:
       - projects/vdk-control-cli/version.txt
-
-#docs:
-#  before_script:
-#  - pip install Sphinx
-#  script:
-#  - python setup.py build_sphinx
