@@ -11,7 +11,7 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
   * vdk-core - Python-based SDK containing data library for developing and running data jobs. Includes a powerful plugin framework .
   * vdk-heartbeat - tool for verifying deployed SDK and Control Service are functional and working correctly
   * vdk-control-cli - User friendly CLI interface over Control Service operations including login/logout.
-  * plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, ...
+  * vdk-core/plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, ...
 * support - helper scripts used by developers of the project during their workday
 * cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder
 * examples - list of example use-cases. Each example directory has its README with detailed explanations
@@ -24,12 +24,16 @@ To boostrap the project run
 ./cicd/build.sh
 ```
 
-Each project has its own README.md with details on how to test (locally), build it, and run it.
+Each component project is independently buildable and has independent CICD.
+This enables people to contribute only to specific component without needing to know anything about the other components.
+
+Each component project has its own README.md with specific details on how to test (locally), build it, and run it.
+Each component project also have "build.sh" scripts in their cicd/ folder that would build the whole component.
+Each component project also have its own .gitlab-ci.yml file with CICD definition.
+
 If in doubt, open the .gitlab-ci.yml file of the project.
 Read through the Gitlab CI file to find the build process confirmed to work by an automated continuous integration (CI).
 CI runs in Docker Linux containers, so if you have docker installed, you will be able to replicate the process.
-
-Each component project also have "build.sh" scripts in their cicd/ folder that would build the whole component.
 
 # How to prepare your change
 
