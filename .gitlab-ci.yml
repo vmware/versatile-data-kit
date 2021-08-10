@@ -7,13 +7,15 @@ include:
   - "projects/vdk-control-cli/.gitlab-ci.yml"
   - "projects/vdk-core/.gitlab-ci.yml"
   - "projects/vdk-heartbeat/.gitlab-ci.yml"
+  - "projects/control-service/cicd/.gitlab-ci.yml"
 
 stages:
   - build
   - pre_release
   - release
   - release_image
-
+  - publish_artifacts
+  - end
 
 build:
   stage: build
