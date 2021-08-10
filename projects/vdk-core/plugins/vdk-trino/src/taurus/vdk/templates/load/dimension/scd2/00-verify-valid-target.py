@@ -32,7 +32,7 @@ def run(job_input: IJobInput):
         if trino_queries.table_exists(target_schema, backup_target_table):
             log.debug("Try to recover target from backup")
             try:
-                trino_queries.alter_table(
+                trino_queries.move_data_to_table(
                     target_schema, backup_target_table, target_schema, target_table
                 )
                 log.info(

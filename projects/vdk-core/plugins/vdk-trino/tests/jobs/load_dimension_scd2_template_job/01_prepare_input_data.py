@@ -4,6 +4,7 @@
 Load example input data for an scd2 template test.
 """
 from taurus.api.job_input import IJobInput
+from taurus.vdk.trino_utils import TrinoQueries
 
 
 def run(job_input: IJobInput) -> None:
@@ -119,14 +120,20 @@ def run(job_input: IJobInput) -> None:
 
     # Step 4: Change target to backup, so that restoring from backup process would be triggered
 
-    if job_input.get_arguments().get("test_restore_from_backup") == "True":
+    args = job_input.get_arguments()
+    if args.get("test_restore_from_backup") == "True":
         job_input.execute_query(
             """
                DROP TABLE IF EXISTS {target_schema}.backup_{target_table}
            """
         )
-        job_input.execute_query(
-            """
-               ALTER TABLE {target_schema}.{target_table} RENAME TO {target_schema}.backup_{target_table}
-           """
+
+        target_schema = args.get("target_schema")
+        target_table = args.get("target_table")
+        trino_queries = TrinoQueries(job_input)
+        trino_queries.move_data_to_table(
+            from_db=target_schema,
+            from_table_name=target_table,
+            to_db=target_schema,
+            to_table_name="backup_" + target_table,
         )

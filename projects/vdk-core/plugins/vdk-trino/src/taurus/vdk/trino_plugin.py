@@ -9,6 +9,7 @@ from typing import Optional
 import click
 import pluggy
 from taurus.api.plugin.hook_markers import hookimpl
+from taurus.vdk import trino_config
 from taurus.vdk.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from taurus.vdk.builtin_plugins.run.job_context import JobContext
 from taurus.vdk.builtin_plugins.run.step import Step
@@ -59,6 +60,14 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
         key="TRINO_PASSWORD", default_value=None, description="User password"
     )
+    config_builder.add(
+        key="TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY",
+        default_value="INSERT_SELECT",
+        description="What strategy is used when moving data from source table to target table in templates."
+        "Possible values are:\n"
+        "INSERT_SELECT - target is created, data from source is inserted into target, source is dropped;\n"
+        "RENAME - source is renamed to target;\n",
+    )
 
 
 LINEAGE_LOGGER_KEY = StoreKey[LineageLogger]("trino-lineage-logger")
@@ -87,6 +96,10 @@ def vdk_initialize(context: CoreContext) -> None:
         return connection
 
     context.state.set(CONNECTION_FUNC_KEY, new_connection)
+
+    trino_config.trino_templates_data_to_target_strategy = configuration.get_value(
+        "TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
+    )
 
 
 @hookimpl
