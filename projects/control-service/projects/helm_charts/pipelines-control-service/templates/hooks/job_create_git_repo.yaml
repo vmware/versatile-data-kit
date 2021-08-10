@@ -1,0 +1,50 @@
+{{- if not .Values.deploymentGitUrl }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+   name: {{ .Release.Name }}-create-git-repo
+   labels:
+      app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion }}
+      helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+   annotations:
+      # This is what defines this resource as a hook. Without this line, the
+      # job is considered part of the release.
+      helm.sh/hook: pre-install
+      helm.sh/hook-weight: "2"
+      helm.sh/hook-delete-policy: hook-succeeded
+      helm.sh/resource-policy: keep
+spec:
+   template:
+      metadata:
+         name: "{{ .Release.Name }}"
+         labels:
+            app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+            app.kubernetes.io/instance: {{ .Release.Name | quote }}
+            helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+      spec:
+         restartPolicy: Never
+         containers:
+            - name: pre-install-job
+              image: "alpine:3.3"
+              env:
+                 -  name: GIT_REPO_NAME
+                    valueFrom:
+                       secretKeyRef:
+                          name: {{ .Release.Name }}-git-properties
+                          key: git-repo-name
+                 -  name: GIT_ACCESS_TOKEN
+                    valueFrom:
+                       secretKeyRef:
+                          name: {{ .Release.Name }}-git-properties
+                          key: git-access-token
+              command:
+                 - 'sh'
+                 - '-c'
+                 - |-
+                    echo "Creating git repository: $GIT_REPO_NAME"
+                    apk --no-cache add curl
+                    curl -i -H "Authorization: token $GIT_ACCESS_TOKEN" -d "{ \"name\": \"$GIT_REPO_NAME\", \"auto_init\": false, \"private\": false }" https://api.github.com/user/repos
+                    echo "Done"
+{{- end }}
