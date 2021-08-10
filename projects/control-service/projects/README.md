@@ -176,13 +176,3 @@ In order to remove the service from the cluster run:
 ```
 helm uninstall taurus-data-pipelines
 ```
-
-## Licenses
-To generate licenses report for dependencies:
-```
-./gradlew :base:generateLicenseReport
-./gradlew :pipelines_control_service:generateLicenseReport
-./model/gradlew generateLicenseReport
-```
-
-Find reports in module ```build/reports/dependency-license```

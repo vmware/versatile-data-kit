@@ -1,0 +1,219 @@
+.control_service_retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+.control_service_changes: &control_service_change_locations
+  - .gitlab-ci.yml
+  - projects/control-service/cicd/**/*
+  - projects/control-service/projects/base/**/*
+  - projects/control-service/projects/model/**/*
+  - projects/control-service/projects/pipelines_control_service/**/*
+  - projects/control-service/projects/settings.gradle
+  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
+
+.control_service_deploy_testing_changes: &control_service_deploy_testing_changes
+  - .gitlab-ci.yml
+  - projects/control-service/cicd/**/*
+  - projects/control-service/projects/base/**/*
+  - projects/control-service/projects/model/**/*
+  - projects/control-service/projects/pipelines_control_service/**/*
+  - projects/control-service/projects/settings.gradle
+  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
+  - projects/control-service/projects/vdk_job_builder/**/*
+  - projects/control-service/projects/helm_charts/pipelines-control-service/**
+
+build_control_service_image:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  stage: build
+  script:
+    - apk --no-cache add git openjdk11-jdk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    - export TAG=$(git rev-parse --short HEAD)
+    - cd projects/control-service/projects
+    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
+    - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
+    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
+  retry: !reference [.control_service_retry, retry_options]
+  coverage: "/    - Line Coverage: ([0-9.]+)%/"
+  artifacts:
+    when: always
+    paths:
+      - ./projects/control-service/projects/*/build/reports/**
+    expire_in: 1 week
+    reports:
+      junit: ./projects/control-service/projects/**/build/test-results/test/TEST-*.xml
+  only:
+    refs:
+      - external_pull_requests
+      - main
+    changes: *control_service_change_locations
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+.integration_test:
+  stage: build
+  script:
+    - apk --no-cache add git openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    - cd projects/control-service/projects
+    - ./gradlew -p ./model build publishToMavenLocal
+    - export INTEGRATIONTEST_CONTROLNAMESPACE=scdc1-staging-taurus-staging
+    - export INTEGRATIONTEST_DATAJOBSNAMESPACE=scdc1-staging-taurus-staging
+    - mkdir -p ~/.kube
+    - cp $KUBECONFIG ~/.kube/config
+    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
+  retry: !reference [.control_service_retry, retry_options]
+  artifacts:
+    when: always
+    paths:
+      - ./projects/control-service/projects/*/build/reports/**
+    expire_in: 1 week
+    reports:
+      junit: ./projects/control-service/projects/**/build/test-results/integrationTest/TEST-*.xml
+  only:
+    refs:
+      - external_pull_requests
+      - main
+    changes: *control_service_change_locations
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+.publish_vdk_job_builder_image:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${HARBOR_REGISTRY_ROBOT_PIPELINES_USER}" --password "${HARBOR_REGISTRY_ROBOT_PIPELINES_TOKEN}" "${PIPELINES_DOCKER_REGISTRY}"
+    - cd projects/control-service/projects/vdk_job_builder
+    - bash -ex ./publish-vdk-job-builder.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes:
+      - projects/control-service/projects/vdk_job_builder/version.txt
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+.publish_control_service_image:
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache py-pip git openjdk11-jdk
+    - export TAG=$(git rev-parse --short HEAD)
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_keyy $AWS_SECRET_ACCESS_KEY
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REGISTRY
+    - cd projects/control-service/projects
+    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
+    - ./gradlew build --info --stacktrace
+    - ./gradlew :pipelines_control_service:dockerPush --info --stacktrace -Pversion=$TAG
+  retry: !reference [.control_service_retry, retry_options]
+  artifacts:
+    when: always
+    reports:
+      junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
+  only:
+    refs:
+      - main
+    changes: *control_service_change_locations
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+publish_control_service_api_client:
+  image: docker:19.03.8
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache py-pip openjdk11-jdk git python
+    - pip install -U pip setuptools wheel twine
+    - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
+    - cd projects/control-service/projects/model/apidefs/datajob-api/build
+    - rm -rf dist/ && cd ./python
+    - python setup.py sdist --formats=gztar
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes:
+      - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+# (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
+# The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
+# Go to the namespace -> StorageClass
+.deploy_testing_data_pipelines:
+  stage: deploy_testing
+  script:
+    - apk --no-cache add bash openssl curl git gettext
+    - bash projects/control-service/cicd/install-helm.sh
+    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes: *control_service_deploy_testing_changes
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+# vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
+.post_deployment_test:
+  stage: test
+  image: python:3.7
+  script:
+    - set -x
+    - pip install vdk-heartbeat[taurus] --extra-index-url https://build-artifactory.eng.vmware.com/api/pypi/Taurus-PyPI-local/simple
+    - vdkcli version
+    - export DATABASE_USER="data-pipelines-cicd"
+    - export DATABASE_PASS="" # no password in http
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$STAGING_CSP_REFRESH_TOKEN
+    - vdk-heartbeat -f projects/control-service/cicd/post_deploy_test_heartbeat_config.ini
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes: *control_service_deploy_testing_changes
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+.release_control_service:
+  stage: release
+  script:
+    - apk --no-cache add bash openssl curl
+    - bash projects/control-service/cicd/install-helm.sh
+    - bash -ex projects/control-service/cicd/release-pipelines-service.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+end:
+  stage: end
+  script:
+    - echo "Noop pipeline to enable merging changes that are not covered by any of the jobs."
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - external_pull_requests
