@@ -1,7 +1,7 @@
 Changelog
 =========
 
-VDK Control CLI 1.1 - (not yet)
+VDK Control CLI 1.1 - (10.08.2021)
 ------
 
 First release of VDK Control CLI.
