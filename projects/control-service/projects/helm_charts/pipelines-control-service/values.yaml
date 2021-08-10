@@ -119,15 +119,18 @@ deploymentK8sKubeconfig: ""
 ## It's is ok to leave it empty (by default).
 controlK8sNamespace: ""
 
-## [Required] Git repository where deployed data jobs source can be found and from where they will be deployed
+## Git repository where deployed data jobs source can be found and from where they will be deployed.
+## If not specified, the Helm installation will create a public Github repository at
+## https://github.com/versatile-data-kit-jobs with a random UUID as name.
 # Git URL (without https:// scheme)
 deploymentGitUrl: ""
+deploymentGitRepoName: ""
 deploymentGitBranch: "main"
 deploymentGitRemote: "origin"
-# Username with read-only access to Git repo
+# Credentials with read-only access to the Git repository.
 deploymentGitUsername: ""
 deploymentGitPassword: ""
-# Credentials with read and write access to the git repository.
+# Credentials with read and write access to the Git repository.
 uploadGitReadWriteUsername: ""
 uploadGitReadWritePassword: ""
 
