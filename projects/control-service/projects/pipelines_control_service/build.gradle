@@ -120,7 +120,7 @@ configurations {
 docker {
     dependsOn bootJar
     files bootJar.archiveFile
-    name "${dockerRegistry}${dockerProject}/pipelines-control-service:${version}"
+    name "${dockerProject}/pipelines-control-service:${version}"
     buildArgs([
             JAR_NAME                : "${project.name}-${version}.jar",
             DATAJOBS_GIT_COMMIT_HASH: gitVersion()

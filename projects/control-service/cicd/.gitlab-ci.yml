@@ -110,15 +110,19 @@ build_control_service_image:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
-.publish_control_service_image:
+publish_control_service_image:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip git openjdk11-jdk
+    - apk add --no-cache git openjdk11-jdk
     - export TAG=$(git rev-parse --short HEAD)
-    - pip install awscli
-    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_keyy $AWS_SECRET_ACCESS_KEY
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REGISTRY
+    - docker login -u $VDK_DOCKER_REGISTRY_USERNAME -p $VDK_DOCKER_REGISTRY_PASSWORD
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build --info --stacktrace
@@ -196,12 +200,15 @@ publish_control_service_api_client:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
-.release_control_service:
+release_control_service:
+  image: docker:19.03.8
   stage: release
   script:
-    - apk --no-cache add bash openssl curl
-    - bash projects/control-service/cicd/install-helm.sh
-    - bash -ex projects/control-service/cicd/release-pipelines-service.sh
+    - apk --no-cache add bash openssl curl git
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - helm plugin install https://github.com/chartmuseum/helm-push
+    - cd projects/control-service/projects/helm_charts
+    - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   only:
     refs:
