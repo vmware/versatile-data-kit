@@ -18,7 +18,7 @@ image: "python:3.9"
   - "projects/vdk-core/tests/**/*"
 
 
-.build:
+.vdk-core-build:
   stage: build
   before_script:
     - cd projects/vdk-core/
@@ -37,20 +37,20 @@ image: "python:3.9"
     reports:
       junit: tests.xml
 
-build_with_py37:
+vdk-core-build_with_py37:
   image: "python:3.7"
-  extends: .build
+  extends: .vdk-core-build
 
-build_with_py38:
+vdk-core-build_with_py38:
   image: "python:3.8"
-  extends: .build
+  extends: .vdk-core-build
 
-build_with_py39:
+vdk-core-build_with_py39:
   image: "python:3.9"
-  extends: .build
+  extends: .vdk-core-build
 
 
-.simple_func_test:
+.vdk-core-simple_func_test:
   services:
     - name: trinodb/trino
   stage: build
@@ -71,20 +71,20 @@ build_with_py39:
     reports:
       junit: tests.xml
 
-simple_func_test_with_py37:
+vdk-core-simple_func_test_with_py37:
   image: "python:3.7"
-  extends: .simple_func_test
+  extends: .vdk-core-simple_func_test
 
-simple_func_test_with_py38:
+vdk-core-simple_func_test_with_py38:
   image: "python:3.8"
-  extends: .simple_func_test
+  extends: .vdk-core-simple_func_test
 
-simple_func_test_with_py39:
+vdk-core-simple_func_test_with_py39:
   image: "python:3.9"
-  extends: .simple_func_test
+  extends: .vdk-core-simple_func_test
 
 
-release:
+vdk-core-release:
   stage: release
   before_script:
     - cd projects/vdk-core/
