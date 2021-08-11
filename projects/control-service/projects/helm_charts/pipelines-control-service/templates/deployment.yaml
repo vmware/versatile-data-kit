@@ -182,12 +182,10 @@ spec:
             - name: K8S_DATA_JOB_TEMPLATE_FILE
               value: "/etc/datajobs/k8s_data_job_template.yaml"
             {{- end }}
-            {{- if .Values.dataJobExecutionsCleanupTask.shouldUseHelmValues }}
             - name: DATAJOBS_EXECUTION_TTL_SECONDS
-              value: "{{ .Values.dataJobExecutionsCleanupTask.ttlSeconds }}"
+              value: "{{ .Values.dataJobExecutionsCleanupTask.executionsTtlSeconds }}"
             - name: DATAJOBS_EXECUTION_MAXIMUM_EXECUTIONS_TO_STORE
               value: "{{ .Values.dataJobExecutionsCleanupTask.maximumExecutionsToStore }}"
-            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}

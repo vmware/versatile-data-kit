@@ -710,13 +710,6 @@ fluentd:
 ## are providing a way to clean old information about data job executions through
 ## the following properties:
 ##
-## shouldUseHelmValues - When set to false, the default internal configuration file of control plane:
-##                       (../pipelines_control_service/src/main/resources/application.properties)
-##                       will be used to determine the values for these properties. Default values are
-##                       100 maximum executions to store and 14 days time to live. When set to true, the
-##                       corresponding values in the default configuration file are overridden with the values
-##                       specified here.
-##
 ## maximumExecutionsToStore - The maximum amount of executions per data job to keep. If data
 ##                            job executions exceed this number, the older executions are deleted.
 ##
@@ -724,6 +717,5 @@ fluentd:
 ##              specified also get deleted.
 ##
 dataJobExecutionsCleanupTask:
-  shouldUseHelmValues: false # if set to true the default values in "application.properties" file will be overridden.
   maximumExecutionsToStore: 100 # maximum number of data job executions to store in the database / default is 100.
-  ttlSeconds: 1209600 # maximum time to live seconds for each execution / default is 14 days.
+  executionsTtlSeconds: 1209600 # maximum time to live seconds for each execution / default is 14 days.
