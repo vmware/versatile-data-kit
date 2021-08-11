@@ -1,5 +1,8 @@
 
-image: "python:3.7"
+image: "python:3.9"
+
+.vdk_heartbeat_changes: &vdk_heartbeat_changes_locations
+  - projects/vdk-heartbeat/**/*
 
 #variables:
 #  POSTGRES_DB: database_name
@@ -8,7 +11,7 @@ stages:
   - build
   - release
 
-test:
+vdk-heartbeat-test:
   image: "python:3.9"
   stage: build
   script:
@@ -18,13 +21,14 @@ test:
     refs:
       - external_pull_requests
       - main
+    changes: *vdk_heartbeat_changes_locations
   artifacts:
     when: always
     reports:
       junit: tests.xml
 
 
-release:
+vdk-heartbeat-release:
   stage: release
   script:
     - pip install -U pip setuptools wheel twine
@@ -34,4 +38,4 @@ release:
     refs:
       - main
     changes:
-      - version.txt
+      - projects/vdk-heartbeat/version.txt
