@@ -8,10 +8,11 @@ __version__ = "0.1.2"
 
 setuptools.setup(
     name="quickstart-vdk",
+    version=__version__,
+    url="https://github.com/vmware/versatile-data-kit",
     description="Versatile Data Kit SDK packaging containing common plugins to get started quickly using it.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    version=__version__,
     install_requires=[
         "vdk-core",
         "vdk-plugin-control-cli",
@@ -20,6 +21,10 @@ setuptools.setup(
         "vdk-ingest-file",
     ],
     classifiers=[
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )

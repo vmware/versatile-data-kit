@@ -9,6 +9,7 @@ __version__ = "0.1.2"
 setuptools.setup(
     name="vdk-test-utils",
     version=__version__,
+    url="https://github.com/vmware/versatile-data-kit",
     description="Provides utilities for testing Versatile Data Kit SDK plugins.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
@@ -16,6 +17,10 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     classifiers=[
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )
