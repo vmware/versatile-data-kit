@@ -676,8 +676,29 @@ datajobTemplate:
               restartPolicy: OnFailure
           ttlSecondsAfterFinished: 600
 
-# TODO: make fluentd config configurable by setting the exact config here and using this variable
 # configuration for the fluentd data collector (https://github.com/vmware/kube-fluentd-operator),
-# which is currently used for collecting and visualizing Versatile Data Kit logs in Kibana
+# which is currently used for collecting and visualizing Versatile Data Kit logs in Kibana;
+# filter and match refer to the fluentd config directives, see here https://docs.fluentd.org/configuration/config-file;
+# extra refers to any additional directives you might use besides for filter and match - note that you must include
+# the directive opening and closing statement in the value of fluentd.extra
+# extra is included at the start of the fluentd config before the filter and match blocks
 fluentd:
   enabled: false
+  filter: |-
+    @type parser
+    key_name log
+    reserve_data true
+    remove_key_name_field true
+    <parse>
+      @type json
+    </parse>
+  match: |-
+    @type elastic
+#  extra: |-
+#    <source>
+#      @type http
+#      port 8090
+#    </source>
+#    <system>
+#      some system config
+#    </system>
