@@ -32,6 +32,12 @@ To access Data Jobs API from outside your K8s cluster, follow the steps below:
 
 {{- end }}
 
+{{- if not .Values.deploymentGitUrl }}
+
+This installation uses public git repository to store the source code of data jobs.
+
+{{- end }}
+
 # TODO: allow people to install with defaults including required properties (like credentials) but print warnings on what functionality is disabled and why.
 # TODO: if deploymentK8sNamespace == "" and deploymentK8sKubeconfig = "" not recommended warning
 # TODO: if kubeConfig is missing automated provisioning of users will be disabled
