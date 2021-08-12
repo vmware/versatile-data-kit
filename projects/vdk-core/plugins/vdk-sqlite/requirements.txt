@@ -1,0 +1,7 @@
+vdk-core
+click
+
+# testing requirements
+vdk-test-utils
+pytest
+pytest-cov
