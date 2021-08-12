@@ -4,16 +4,16 @@ kind: FluentdConfig
 metadata:
   name: {{ include "pipelines-control-service.fullname" . }}-parser
 spec:
-  fluentconf: | # TODO: make fluentd config configurable from Values.yml
+  fluentconf: |
+    {{- if .Values.fluentd.extra }}
+    {{ .Values.fluentd.extra | indent 4 | trim }}
+    {{- end }}
+    {{- if .Values.fluentd.filter }}
     <filter $labels(app_kubernetes_io/name={{ include "pipelines-control-service.name" . }})>
-      @type parser
-      key_name log
-      reserve_data true
-        <parse>
-          @type ltsv
-        </parse>
+      {{ .Values.fluentd.filter | indent 6 | trim }}
     </filter>
+    {{- end }}
     <match $labels(app_kubernetes_io/name={{ include "pipelines-control-service.name" . }})>
-      @type elastic-vrli
+      {{ .Values.fluentd.match | indent 6 | trim }}
     </match>
 {{- end }}
