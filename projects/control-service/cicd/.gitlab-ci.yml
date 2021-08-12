@@ -208,12 +208,3 @@ publish_control_service_api_client:
       - main
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
-
-end:
-  stage: end
-  script:
-    - echo "Noop pipeline to enable merging changes that are not covered by any of the jobs."
-  retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - external_pull_requests
