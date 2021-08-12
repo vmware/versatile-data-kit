@@ -7,10 +7,6 @@ include:
 
 image: "python:3.9"
 
-#variables:
-#  EXAMPLE: database_name
-
-
 .vdk_core_changes: &vdk_core_locations
   - "projects/vdk-core/*"
   - "projects/vdk-core/cicd/**/*"

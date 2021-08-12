@@ -12,7 +12,8 @@
 export VDK_VERSION=${VDK_VERSION:-$(python setup.py --version)} # used to retrieve the VDK version that should be installed
 export BUILD_TYPE=${BUILD_TYPE:-release} # used to tag the image, either release-candidate or release
 export VDK_PACKAGE=${VDK_PACKAGE:-$(python setup.py --name)}
-export DOCKER_REGISTRY_IMAGE=${DOCKER_REGISTRY_IMAGE:-"harbor-repo.vmware.com/taurus/dp/$VDK_PACKAGE"}  # where the image should be pushed
+export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
+export DOCKER_REGISTRY_IMAGE=${DOCKER_REGISTRY_IMAGE:-"$VDK_DOCKER_REGISTRY_URL/$VDK_PACKAGE"}  # where the image should be pushed
 export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
 
 set -o errexit -o nounset
@@ -35,11 +36,11 @@ fi
 echo "Publishing $BUILD_TYPE VDK base image with $VDK_PACKAGE version $VDK_VERSION ..."
 
 
-docker login --username "${HARBOR_REGISTRY_ROBOT_PIPELINES_USER}" --password "${HARBOR_REGISTRY_ROBOT_PIPELINES_TOKEN}" "${DOCKER_REGISTRY_IMAGE}"
+docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${DOCKER_REGISTRY_IMAGE}"
 
 SCRIPT_DIR=$(dirname "$0")
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
-docker build  -t "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}" \
+docker build  -t "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}" -t "${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}" \
   --label "vdk_version=${VDK_VERSION}" \
   --no-cache --force-rm \
   --file "${DOCKERFILE_PATH}" \
@@ -48,4 +49,6 @@ docker build  -t "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}" \
   --build-arg pip_extra_index_url="${PIP_EXTRA_INDEX_URL}" \
   .
 
+# docker registry must allow override
 docker push "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}"
+docker push "${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}"
