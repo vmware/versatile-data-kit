@@ -11,7 +11,7 @@ from taurus.vdk import trino_plugin
 from taurus.vdk.test_utils.util_funcs import cli_assert_equal
 from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
 from taurus.vdk.test_utils.util_funcs import get_test_job_path
-from taurus.vdk.trino_utils import TrinoQueries
+from taurus.vdk.trino_utils import TrinoTemplateQueries
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
@@ -20,7 +20,7 @@ VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = (
     "VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
 )
 
-org_move_data_to_table = TrinoQueries.move_data_to_table
+org_move_data_to_table = TrinoTemplateQueries.move_data_to_table
 
 
 def trino_move_data_to_table_break_tmp_to_target(
@@ -129,7 +129,7 @@ class TemplateRegressionTests(unittest.TestCase):
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
 
     @mock.patch.object(
-        TrinoQueries,
+        TrinoTemplateQueries,
         "move_data_to_table",
         new=trino_move_data_to_table_break_tmp_to_target,
     )
@@ -148,7 +148,7 @@ class TemplateRegressionTests(unittest.TestCase):
         cli_assert_equal(0, self.__template_table_exists(test_schema, target_table))
 
     @mock.patch.object(
-        TrinoQueries,
+        TrinoTemplateQueries,
         "move_data_to_table",
         new=trino_move_data_to_table_break_tmp_to_target_and_restore,
     )
