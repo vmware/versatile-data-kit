@@ -702,3 +702,20 @@ fluentd:
 #    <system>
 #      some system config
 #    </system>
+
+## These values expose configuration properties for the execution api
+## The execution API helps you collect information about previous
+## data job executions, or manually start a job execution. Stored data job
+## execution information will naturally increase over time. This is why we
+## are providing a way to clean old information about data job executions through
+## the following properties:
+##
+## maximumExecutionsToStore - The maximum amount of executions per data job to keep. If data
+##                            job executions exceed this number, the older executions are deleted.
+##
+## ttlSeconds - Total time to live per data job execution. Data job executions older than ttlSeconds
+##              specified also get deleted.
+##
+dataJobExecutionsCleanupTask:
+  maximumExecutionsToStore: 100 # maximum number of data job executions to store in the database / default is 100.
+  executionsTtlSeconds: 1209600 # maximum time to live seconds for each execution / default is 14 days.
