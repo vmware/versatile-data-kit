@@ -6,16 +6,17 @@ Versatile Data Kit is a platform that enables Data Engineers to implement automa
 - Helm 3.0
 - PV provisioner support in the underlying infrastructure if using the embedded database.
 - During helm install - CRUD on Kubernetes Deployment, Service, ServiceAccount, Role, Rolebindings. Control Service itself manages CronJob(Job and Pod as well), Secret resources. Statefulset and PVC if using the embedded database
-- Kerberos is currently required (in the future it will be optional) (see [Parameters](#parameters) section on how to configure it)
-- Docker repository (see [Parameters](#parameters) section on how to configure it)
-- Git repository where Data Jobs will be stored (see [Parameters](#parameters) section on how to configure it)
+
+### Optional
+- Kerberos (see [Parameters](#parameters) section on how to configure it)
+- Docker repository to store Data Job images (see [Parameters](#parameters) section on how to configure it)
+- Git repository to store Data Jobs source code (see [Parameters](#parameters) section on how to configure it)
 
 ## TL;DR;
 ```console
-$ helm repo add taurus-helm https://build-artifactory.eng.vmware.com/taurus-helm
-$ helm install taurus-helm/pipelines-control-service --set ... (refer to Parameters section of this README)
+$ helm repo add bitnami https://charts.bitnami.com/bitnami
+$ helm install bitnami/pipelines-control-service
 ```
-See following script for a demo deployment of Data Piplines - [deploy-testing-pipelines-service.sh](.gitlab-ci/deploy-testing-pipelines-service.sh)
 
 ## Introduction
 This chart bootstraps a Versatile Data Kit deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
@@ -26,7 +27,7 @@ It also packages the [Cockroach chart](https://github.com/helm/charts/tree/maste
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install my-release taurus-helm/pipelines-control-service
+$ helm install my-release bitnami/pipelines-control-service
 ```
 
 The command deploys Versatile Data Kit on the Kubernetes cluster in the default configuration.
@@ -59,13 +60,13 @@ $ helm install my-release \
     --set kerberosKadminPassword=$KADMIN_PASSWORD \
     --set-file kerberosKrb5Conf=$KRB5_CONFIG \
     --set-file deploymentK8sKubeconfig=$KUBECONFIG \
-    taurus-helm/pipelines-control-service
+    bitnami/pipelines-control-service
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install my-release -f my-values.yaml taurus-helm/pipelines-control-service
+$ helm install my-release -f my-values.yaml bitnami/pipelines-control-service
 ```
 
 
@@ -198,29 +199,3 @@ Good starting default limits per Data Job are:
 Persistent Volume Claims are used to keep the data across deployments.
 See the [Parameters](#parameters) section to configure the PVC or to disable persistence and use external database.
 You may want to review the [PV reclaim policy](https://kubernetes.io/docs/tasks/administer-cluster/change-pv-reclaim-policy/) and update as required. By default, it's set to delete, and when Versatile Data Kit is uninstalled, data is also removed.
-
-## Upgrading
-### To 1.0.0
-Installing Versatile Data Kit will take ownership of all deployed Data Jobs (aka CronJobs) as long as they are migrated.
-There is a script that migrates all data jobs (TODO). The script will not change deployed data jobs but take co-ownership of them.
-Once tests are passed use update-finalize to redeploy all jobs. This will be harder to revert so make sure everything is stable before that.
-
-All data jobs that use psycopg2 will need to switch to psycopg2-binary instead as psycopg2
-is no longer supported in Versatile Data Kit.
-
-A suggested plan:
-* Create wrapper script over helm install with all necessary variables set
-* Create CICD of SC Deployer
-    * Step 1 helm upgrade.
-    * Step 2 Deploy using a newer version of DP the UAT data jobs
-    * Step 3 Run UAT
-    * If Step 3 Fails -  investigate else success (at this step the older Deployer are Jobs can work as before as well)
-* On success and after some time run update-finalize to finalize the upgrade. (here assumptions is k8s cluster and namespace are the same as before)
-* Delete lots of Deployer logic in Jenkins, keep only:
-    * dp--on-git-push
-    * pip-dp--update-job (the part that detects which jobs need to be updated and git hash commit of job)
-    * The logic that creates Free IPA and Sets permissions.
-    *
-
-Redshift Jobs (in config.ini db_default_type is set to REDSHIFT) need to have either environment variable VDK_DB_DEFAULT_TYPE set to REDSHIFT (from vdk-options.ini of Taurus Control Service)
-or vacloud-vdk should be patched to honor config.ini db_default_type

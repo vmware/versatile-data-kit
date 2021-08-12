@@ -135,8 +135,10 @@ spec:
               value: "{{ .Values.controlK8sNamespace }}"
             - name: FEATUREFLAG_SECURITY_ENABLED
               value: "{{ .Values.security.enabled }}"
+            {{- if .Values.security.oauth2.jwtJwkSetUri }}
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
               value: "{{ .Values.security.oauth2.jwtJwkSetUri }}"
+            {{- end }}
             - name: FEATUREFLAG_AUTHORIZATION_ENABLED
               value: "{{ .Values.security.authorizationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_WEBHOOK_ENDPOINT

@@ -374,7 +374,7 @@ metrics:
    ## Prometheus Operator ServiceMonitor configuration
    ##
    serviceMonitor:
-      enabled: true
+      enabled: false
       ## Namespace in which Prometheus is running
       ##
       # namespace: monitoring
@@ -407,7 +407,7 @@ metrics:
 ## Alerting configuration
 ##
 alerting:
-   enabled: true
+   enabled: false
 
    ## Custom PrometheusRule to be defined
    ## ref: https://github.com/coreos/prometheus-operator#customresourcedefinitions
