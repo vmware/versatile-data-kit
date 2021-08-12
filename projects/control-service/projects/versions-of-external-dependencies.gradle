@@ -37,6 +37,7 @@ project.ext {
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.1.0',
             'org.tuckey:urlrewritefilter'                                        : 'org.tuckey:urlrewritefilter:4.0.4',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
+            'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly

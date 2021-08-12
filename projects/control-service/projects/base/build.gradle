@@ -67,6 +67,8 @@ dependencies {
    implementation versions.'io.swagger:swagger-annotations'
    implementation versions.'io.swagger:swagger-models'
    implementation versions.'io.micrometer:micrometer-core'
+   testImplementation versions.'org.awaitility:awaitility'
+   testImplementation versions.'com.github.tomakehurst:wiremock'
    testImplementation versions.'org.mockito:mockito-core'
    testImplementation 'junit:junit'
 }
