@@ -3,10 +3,6 @@
 
 image: "python:3.7"
 
-stages:
-  - build
-  - release
-
 .build-vdk-plugin-control-cli:
   variables:
     PLUGIN_NAME: vdk-plugin-control-cli

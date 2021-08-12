@@ -3,10 +3,6 @@
 
 image: "python:3.7"
 
-stages:
-  - build
-  - release
-
 .build-plugin-template: # change name here to the name of the plugin
   variables:
     PLUGIN_NAME: plugin-template # change name here to the name of the plugin
