@@ -4,6 +4,7 @@
 Load example input data for a snapshot template test.
 """
 from taurus.api.job_input import IJobInput
+from taurus.vdk.trino_utils import TrinoTemplateQueries
 
 
 def run(job_input: IJobInput) -> None:
@@ -126,3 +127,23 @@ def run(job_input: IJobInput) -> None:
           ('sddc06-r01', 1, TIMESTAMP '2019-11-20', 3 , 1, TIMESTAMP '2019-11-20 09:00:00')
     """
     )
+
+    # Step 4: Change target to backup, so that restoring from backup process would be triggered
+
+    args = job_input.get_arguments()
+    if args.get("test_restore_from_backup") == "True":
+        job_input.execute_query(
+            """
+               DROP TABLE IF EXISTS {target_schema}.backup_{target_table}
+           """
+        )
+
+        target_schema = args.get("target_schema")
+        target_table = args.get("target_table")
+        trino_queries = TrinoTemplateQueries(job_input)
+        trino_queries.move_data_to_table(
+            from_db=target_schema,
+            from_table_name=target_table,
+            to_db=target_schema,
+            to_table_name="backup_" + target_table,
+        )
