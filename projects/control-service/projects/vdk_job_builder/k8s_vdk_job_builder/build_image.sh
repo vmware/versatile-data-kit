@@ -36,7 +36,11 @@ if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] || [ "$registry_
     aws ecr describe-repositories --region $aws_region --repository-names $repository_prefix/${DATA_JOB_NAME} ||
         aws ecr create-repository --region $aws_region --repository-name $repository_prefix/${DATA_JOB_NAME}
 elif [ "$registry_type" = "generic" ] || [ "$registry_type" = "GENERIC" ]; then
-    echo -n "$registry_password" | docker login $IMAGE_REGISTRY_PATH --username $registry_username --password-stdin
+    if [ -n "$registry_username" ]; then
+        echo -n "$registry_password" | docker login $IMAGE_REGISTRY_PATH --username $registry_username --password-stdin
+    else
+        echo "Skipping logging to registry"
+    fi
 fi
 
 # Clone repo into /data-jobs dir to get job's source
