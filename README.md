@@ -49,8 +49,8 @@ Official documentation for Versatile Data Kit can be found [here](https://github
 If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CONTRIBUTING.md).
 
 # Contacts
-You can reach out to us through mail, or join our public Slack workspace [here](https://versatiledata-rgg2437.slack.com/).
-<!--- TODO: Set up a slackin web app to make joining easier --->
+You can reach out to us through mail, or join our public Slack workspace using the following [invite link](https://join.slack.com/t/versatiledata-rgg2437/shared_invite/zt-tvnl62c3-qP0EUYJZJxb6Ws_eQWyDtQ).
+
 
 # Code of Conduct
 Everyone interacting in the project's source code, issue trackers, slack channels, and mailing lists is expected to follow the [Code of Conduct](CODE-OF-CONDUCT.md).
