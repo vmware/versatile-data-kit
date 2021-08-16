@@ -99,15 +99,15 @@ class TrinoTemplateQueries:
             """
         )
 
-    def ensure_target_exists_step(self, db: str, target_name: str, backup_name: str):
+    def ensure_target_exists_step(self, db: str, target_name: str):
         """
         This method checks if target exists. If it does not, an attempt to recover it from backup is initiated.
         If there is no valid target at the end, error is raised.
         :param db: Schema of the target table
         :param target_name: Name of the target table
-        :param backup_name: Name of the backup from which we might try to recover target (backup may not exists)
         :return: None
         """
+        backup_name = self.__get_backup_table_name(target_name)
         if not self.table_exists(db, target_name):
             log.debug("If there is backup, try to recover target from it")
             if self.table_exists(db, backup_name):
@@ -147,7 +147,6 @@ class TrinoTemplateQueries:
         from_table_name: str,
         to_db: str,
         to_table_name: str,
-        backup_table_name: str,
     ):
         """
         This method creates a backup table of the target, then tries to move data from source to target.
@@ -157,10 +156,10 @@ class TrinoTemplateQueries:
         :param from_table_name: Name of the table we want to rename
         :param to_db: Schema of the new table we want
         :param to_table_name: Name of the new table
-        :param backup_table_name: Name of the backup table we create
         :return: None
         """
         log.debug("Create backup from target")
+        backup_table_name = self.__get_backup_table_name(to_table_name)
         self.move_data_to_table(
             from_db=to_db,
             from_table_name=to_table_name,
@@ -227,3 +226,7 @@ class TrinoTemplateQueries:
             isinstance(exception, TrinoUserError)
             and exception.error_name == "TABLE_NOT_FOUND"
         )
+
+    @staticmethod
+    def __get_backup_table_name(table_name):
+        return "backup_" + table_name
