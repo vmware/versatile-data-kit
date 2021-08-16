@@ -7,10 +7,6 @@ image: "python:3.9"
 #variables:
 #  POSTGRES_DB: database_name
 
-stages:
-  - build
-  - release
-
 vdk-heartbeat-test:
   image: "python:3.9"
   stage: build

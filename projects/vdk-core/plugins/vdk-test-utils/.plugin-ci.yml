@@ -3,10 +3,6 @@
 
 image: "python:3.7"
 
-stages:
-  - build
-  - release
-
 .build-vdk-test-utils:
   variables:
     PLUGIN_NAME: vdk-test-utils

@@ -3,10 +3,6 @@
 
 image: "python:3.7"
 
-stages:
-  - build
-  - release
-
 .build-vdk-logging-json:
   variables:
     PLUGIN_NAME: vdk-logging-json
