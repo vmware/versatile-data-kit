@@ -13,11 +13,11 @@ def run(job_input: IJobInput):
     """
     In this step we try to move data from tmp_target_table (where we populated the result data in the previous step)
     to target table in the following way:
-    1. Move data from target_table to backup_target_table
+    1. Move data from target_table to a backup table
     2. Try to move data from tmp_target_table to target_table
     3. If 2 fails, try to restore target from backup
     4. If 3 succeeds, drop tmp target. The job fails.
-    5. If 3 fails, target table is lost, its content are in backup_target_table. Next job retry will try to
+    5. If 3 fails, target table is lost, its content are in the backup table. Next job retry will try to
     recover target on its first step.
     6. If 2 succeeds, drop backup, we are ready.
     """
@@ -26,7 +26,6 @@ def run(job_input: IJobInput):
     target_schema = args.get("target_schema")
     target_table = args.get("target_table")
     tmp_target_table = "tmp_" + target_table
-    backup_target_table = "backup_" + target_table
     trino_queries = TrinoTemplateQueries(job_input)
 
     trino_queries.perform_safe_move_data_to_table_step(
@@ -34,5 +33,4 @@ def run(job_input: IJobInput):
         from_table_name=tmp_target_table,
         to_db=target_schema,
         to_table_name=target_table,
-        backup_table_name=backup_target_table,
     )

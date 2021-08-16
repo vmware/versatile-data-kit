@@ -1,4 +1,5 @@
 include src/taurus/vdk/templates/load/dimension/**/*
+include src/taurus/vdk/templates/load/fact/**/*
 
 # this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
 # https://packaging.python.org/guides/using-manifest-in/
