@@ -61,49 +61,6 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
    private OperationContext operationContext;
 
    @Override
-   @Deprecated
-   public ResponseEntity<Void> deploymentDeleteDeprecated(final String teamName,
-                                                          final String jobName,
-                                                          final String deploymentId) {
-      return deploymentDelete(teamName, jobName, deploymentId);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> deploymentEnableDeprecated(final String teamName,
-                                                          final String jobName,
-                                                          final String deploymentId,
-                                                          final Enable enable) {
-      return deploymentEnable(teamName, jobName, deploymentId, enable);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<List<DataJobDeploymentStatus>> deploymentListDeprecated(final String teamName,
-                                                                                 final String jobName,
-                                                                                 final String deploymentId,
-                                                                                 final DataJobMode dataJobMode) {
-      return deploymentList(teamName, jobName, deploymentId, dataJobMode);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<DataJobDeploymentStatus> deploymentReadDeprecated(final String teamName,
-                                                                           final String jobName,
-                                                                           final String deploymentId) {
-      return deploymentRead(teamName, jobName, deploymentId);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> deploymentUpdateDeprecated(final String teamName,
-                                                          final String jobName,
-                                                          final Boolean sendNotification,
-                                                          final DataJobDeployment dataJobDeployment) {
-      return deploymentUpdate(teamName, jobName, sendNotification, dataJobDeployment);
-   }
-
-   @Override
    public ResponseEntity<Void> deploymentDelete(String teamName, String jobName, String deploymentId) {
       if (jobsService.jobWithTeamExists(jobName, teamName)) {
          // TODO: deploymentId not implemented
