@@ -4,7 +4,7 @@ import pathlib
 
 import setuptools
 
-__version__ = "0.1.2"
+__version__ = "0.1.dev1"
 
 setuptools.setup(
     name="quickstart-vdk",
@@ -17,6 +17,7 @@ setuptools.setup(
         "vdk-core",
         "vdk-plugin-control-cli",
         "vdk-trino",
+        "vdk-sqlite",
         "vdk-ingest-http",
         "vdk-ingest-file",
     ],
