@@ -11,8 +11,9 @@ include:
 
 stages:
   - build
-  - pre_release
   - publish_artifacts
+  - pre_release
+  - pre_release_test
   - release
   - release_image
   - end
