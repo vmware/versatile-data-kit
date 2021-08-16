@@ -19,6 +19,7 @@ public enum JobFieldStrategyBy {
    JOB_NAME("jobName", "content/jobName"),
    DEPLOYMENT("deployments", "content/deployments"),
    DEPLOYMENT_ENABLED("deployments.enabled", "content/deployments/enabled"),
+   DEPLOYMENT_EXECUTIONS("deployments.executions", "content/deployments/executions"),
    TEAM("config.team", "content/config/team"),
    DESCRIPTION("config.description", "content/config/description"),
    SOURCE_URL("config.sourceUrl", "content/config/sourceUrl"),

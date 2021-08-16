@@ -210,6 +210,10 @@ public class DataJobGraphQLIT extends BaseIT {
                   "      deployments {" +
                   "        id" +
                   "        enabled" +
+                  "        executions {" +
+                  "          id" +
+                  "          status" +
+                  "        }" +
                   "      }" +
                   "      config {" +
                   "        team" +

@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.graphql;
 
+import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
@@ -37,7 +38,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GraphQLDataFetchersTest {
 
-
+   @Mock
+   private JobExecutionRepository jobExecutionRepository;
    @Mock
    private JobsRepository jobsRepository;
    @Mock
@@ -52,7 +54,7 @@ class GraphQLDataFetchersTest {
    @BeforeEach
    public void before() {
       JobFieldStrategyFactory strategyFactory = new JobFieldStrategyFactory(collectSupportedFieldStrategies());
-      GraphQLDataFetchers graphQLDataFetchers = new GraphQLDataFetchers(strategyFactory, jobsRepository, deploymentService);
+      GraphQLDataFetchers graphQLDataFetchers = new GraphQLDataFetchers(strategyFactory, jobsRepository, jobExecutionRepository, deploymentService);
       findDataJobs = graphQLDataFetchers.findAllAndBuildDataJobPage();
    }
 

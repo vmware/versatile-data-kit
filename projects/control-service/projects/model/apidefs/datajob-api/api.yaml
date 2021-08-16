@@ -343,6 +343,12 @@ paths:
                 enabled<br/>
                 jobVersion<br/>
                 mode<br/>
+                executions {<br/>
+                  id<br/>
+                  status<br/>
+                  startTime<br/>
+                  endTime<br/>
+                }<br/>
               }<br/>
             }<br/>
             totalPages<br/>

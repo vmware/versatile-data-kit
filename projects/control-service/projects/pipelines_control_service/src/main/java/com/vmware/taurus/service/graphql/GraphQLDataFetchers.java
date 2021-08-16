@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
@@ -13,6 +14,7 @@ import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
+import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.DataJobPage;
 import com.vmware.taurus.service.model.Filter;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
@@ -38,6 +40,7 @@ public class GraphQLDataFetchers {
 
    private final JobFieldStrategyFactory strategyFactory;
    private final JobsRepository jobsRepository;
+   private final JobExecutionRepository jobsExecutionRepository;
    private final DeploymentService deploymentService;
 
    public DataFetcher<Object> findAllAndBuildDataJobPage() {
@@ -81,6 +84,10 @@ public class GraphQLDataFetchers {
    private List<V2DataJob> populateDataJobsByRequestedFields(DataFetchingFieldSelectionSet requestedFields, List<V2DataJob> allDataJob) {
       if (requestedFields.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())) {
          populateDeployments(allDataJob);
+      }
+
+      if (requestedFields.contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())) {
+         populateExecutions(allDataJob);
       }
 
       allDataJob.forEach(dataJob -> strategyFactory.getStrategies().entrySet().stream()
@@ -174,6 +181,16 @@ public class GraphQLDataFetchers {
                   ToApiModelConverter.toV2DataJobDeployment(jobDeploymentStatus)));
          }
       });
+      return allDataJob;
+   }
+
+   private List<V2DataJob> populateExecutions(List<V2DataJob> allDataJob) {
+      for (V2DataJob dataJob : allDataJob) {
+         List<DataJobExecution> executionsPerJob = jobsExecutionRepository.findFirst5ByDataJobNameOrderByStartTimeDesc(dataJob.getJobName());
+         if(dataJob.getDeployments() != null) {
+            dataJob.getDeployments().stream().findFirst().ifPresent(deployment -> deployment.setExecutions(executionsPerJob.stream().map(ToApiModelConverter::jobExecutionToConvert).collect(Collectors.toList())));
+         }
+      }
       return allDataJob;
    }
 }

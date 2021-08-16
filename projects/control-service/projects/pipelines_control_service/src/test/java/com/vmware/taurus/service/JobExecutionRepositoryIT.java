@@ -10,22 +10,20 @@ import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * Integration tests of the setup of Spring Data repository for data job executions
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ControlplaneApplication.class)
-public class JobExecutionRepositoryIT {
+class JobExecutionRepositoryIT {
 
    @Autowired
    private JobsRepository jobsRepository;
@@ -33,7 +31,7 @@ public class JobExecutionRepositoryIT {
    @Autowired
    private JobExecutionRepository jobExecutionRepository;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       jobsRepository.deleteAll();
    }
@@ -42,7 +40,7 @@ public class JobExecutionRepositoryIT {
     * Tests CRUD operations of job executions
     */
    @Test
-   public void testCRUD_shouldSucceed() {
+   void testCRUD_shouldSucceed() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       String executionId = "test-execution-id";
@@ -51,15 +49,15 @@ public class JobExecutionRepositoryIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, executionId, actualDataJob, executionStatus);
 
       var actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getId()).get();
-      Assert.assertEquals(expectedJobExecution, actualJobExecution);
+      Assertions.assertEquals(expectedJobExecution, actualJobExecution);
 
       jobsRepository.deleteAll();
       var deletedJobExecution = jobExecutionRepository.findById(expectedJobExecution.getId());
-      Assert.assertFalse(deletedJobExecution.isPresent());
+      Assertions.assertFalse(deletedJobExecution.isPresent());
    }
 
    @Test
-   public void testFindDataJobExecutionsByDataJobName_existingDataJobExecution_shouldReturnResult() {
+   void testFindDataJobExecutionsByDataJobName_existingDataJobExecution_shouldReturnResult() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       String executionId = "test-execution-id";
@@ -69,51 +67,51 @@ public class JobExecutionRepositoryIT {
 
       var actualJobExecutions = jobExecutionRepository.findDataJobExecutionsByDataJobName(actualDataJob.getName());
 
-      Assert.assertNotNull(actualJobExecutions);
-      Assert.assertEquals(1, actualJobExecutions.size());
-      Assert.assertEquals(expectedJobExecution, actualJobExecutions.get(0));
+      Assertions.assertNotNull(actualJobExecutions);
+      Assertions.assertEquals(1, actualJobExecutions.size());
+      Assertions.assertEquals(expectedJobExecution, actualJobExecutions.get(0));
    }
 
    @Test
-   public void testFindDataJobExecutionsByDataJobName_nonExistingDataJobExecution_shouldReturnEmptyResult() {
+   void testFindDataJobExecutionsByDataJobName_nonExistingDataJobExecution_shouldReturnEmptyResult() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
       var actualJobExecutions = jobExecutionRepository.findDataJobExecutionsByDataJobName(actualDataJob.getName());
 
-      Assert.assertNotNull(actualJobExecutions);
-      Assert.assertTrue(actualJobExecutions.isEmpty());
+      Assertions.assertNotNull(actualJobExecutions);
+      Assertions.assertTrue(actualJobExecutions.isEmpty());
    }
 
    @Test
-   public void testFindDataJobExecutionsByDataJobNameAndStatusIn_existingDataJobExecutions_shouldReturnResult() {
+   void testFindFirst5ByDataJobNameOrderByStartTimeDesc_existingDataJobExecutions_shouldReturnResult() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED);
-      DataJobExecution expectedJobExecution1 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
       DataJobExecution expectedJobExecution2 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-5", actualDataJob, ExecutionStatus.SUBMITTED);
+      DataJobExecution expectedJobExecution6 =
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-6", actualDataJob, ExecutionStatus.FINISHED);
 
 
       var actualJobExecutions =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(
-                  actualDataJob.getName(),
-                  List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED));
+            jobExecutionRepository.findFirst5ByDataJobNameOrderByStartTimeDesc(actualDataJob.getName());
 
-      Assert.assertNotNull(actualJobExecutions);
-      Assert.assertEquals(2, actualJobExecutions.size());
-      Assert.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
-      Assert.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
+      Assertions.assertNotNull(actualJobExecutions);
+      Assertions.assertEquals(5, actualJobExecutions.size());
+      Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(4));
+      Assertions.assertEquals(expectedJobExecution6, actualJobExecutions.get(0));
    }
 
    @Test
-   public void testFindDataJobExecutionsByDataJobNameAndStatusIn_nonExistingDataJobExecution_shouldReturnEmptyResult() {
+   void testFindDataJobExecutionsByDataJobNameAndStatusIn_nonExistingDataJobExecution_shouldReturnEmptyResult() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       var actualJobExecutions =
             jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
 
-      Assert.assertNotNull(actualJobExecutions);
-      Assert.assertTrue(actualJobExecutions.isEmpty());
+      Assertions.assertNotNull(actualJobExecutions);
+      Assertions.assertTrue(actualJobExecutions.isEmpty());
    }
 }
