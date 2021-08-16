@@ -101,4 +101,6 @@ enum DataJobExecutionStatus {
     RUNNING
     FINISHED
     FAILED
+    CANCELLED
+    SKIPPED
 }
