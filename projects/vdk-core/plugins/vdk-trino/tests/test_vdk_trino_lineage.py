@@ -4,6 +4,7 @@ import os
 import re
 from unittest import mock
 
+import pytest
 from click.testing import Result
 from taurus.api.plugin.hook_markers import hookimpl
 from taurus.vdk import trino_plugin
@@ -16,6 +17,7 @@ VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 
 
+@pytest.mark.usefixtures("trino_service")
 @mock.patch.dict(
     os.environ,
     {
