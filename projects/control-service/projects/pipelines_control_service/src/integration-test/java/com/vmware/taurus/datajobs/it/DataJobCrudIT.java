@@ -79,15 +79,30 @@ public class DataJobCrudIT extends BaseIT {
       Assert.assertEquals(TEST_JOB_SCHEDULE, jobFromDb.getJobConfig().getSchedule());
 
       // Execute list jobs
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s", TEST_TEAM_NAME))
-               .with(user("user")))
-               .andExpect(status().isOk())
-               .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_NAME))));
+      mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+              .with(user("user"))
+              .param("query", "query($filter: [Predicate], $pageNumber: Int) {" +
+                      "  jobs(pageNumber: $pageNumber, filter: $filter) {" +
+                      "    content {" +
+                      "      jobName" +
+                      "    }" +
+                      "  }" +
+                      "}")
+              .param("variables", "{" +
+                      "\"filter\": [" +
+                      "    {" +
+                      "      \"property\": \"config.team\"," +
+                      "      \"pattern\": \"" + TEST_TEAM_NAME + "\"" +
+                      "    }" +
+                      "  ]," +
+                      "\"pageNumber\": 1" +
+                      "}")
+              .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk())
+              .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_NAME)))));
 
       // Execute list jobs with no user
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s", TEST_TEAM_NAME)))
+      mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME)))
                .andExpect(status().isUnauthorized())
                .andExpect(content().string(lambdaMatcher(s -> s.isBlank())));
 
@@ -271,172 +286,6 @@ public class DataJobCrudIT extends BaseIT {
       Assert.assertFalse(jobsRepository.existsById(TEST_INTERNAL_ERROR_RETRIED_JOB_NAME));
       //Clean Up
       jobsRepository.delete(internalServerEntity);
-   }
-
-   /**
-    * @deprecated in favour of jobsQuery
-    */
-   @Test
-   @Deprecated
-   public void testDataJobGetPaging() throws Exception {
-
-      // Setup by creating 2 jobs in 2 separate teams
-      String dataJobTestBodyOne = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_1);
-
-      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-              .with(user("user"))
-              .content(dataJobTestBodyOne)
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isCreated());
-
-      String dataJobTestBodyTwo = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_2);
-
-      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-              .with(user("user"))
-              .content(dataJobTestBodyTwo)
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isCreated());
-
-      String dataJobTestBodyThree = getDataJobRequestBody(NEW_TEST_TEAM_NAME, TEST_JOB_3);
-
-      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", NEW_TEST_TEAM_NAME))
-              .with(user("user"))
-              .content(dataJobTestBodyThree)
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isCreated());
-
-      String dataJobTestBodyFour= getDataJobRequestBody(NEW_TEST_TEAM_NAME, TEST_JOB_4);
-
-      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", NEW_TEST_TEAM_NAME))
-              .with(user("user"))
-              .content(dataJobTestBodyFour)
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isCreated());
-
-      // Validate - only jobs from the first team are returned
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s", TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_1))
-                      && (s.contains(TEST_JOB_2))
-                      && (!s.contains(TEST_JOB_3))
-                      && (!s.contains(TEST_JOB_4)))));
-
-      // Validate - ordered paging of jobs from the first team for page 0
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?page_number=0&page_size=1", TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_1))
-                      && (!s.contains(TEST_JOB_2))
-                      && (!s.contains(TEST_JOB_3))
-                      && (!s.contains(TEST_JOB_4)))));
-
-      // Validate - ordered paging of jobs from the first team for page 1
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?page_number=1&page_size=1", TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> (!s.contains(TEST_JOB_1))
-                      && (s.contains(TEST_JOB_2))
-                      && (!s.contains(TEST_JOB_3))
-                      && (!s.contains(TEST_JOB_4)))));
-
-      // Validate - only jobs from the second team are returned
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s", NEW_TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_3)
-                      && s.contains(TEST_JOB_4)
-                      && !s.contains(TEST_JOB_1)
-                      && !s.contains(TEST_JOB_2))));
-
-      // Validate - ordered paging of jobs from the second team for page 0
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?page_number=0&page_size=1", NEW_TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_3)
-                      && !s.contains(TEST_JOB_4)
-                      && !s.contains(TEST_JOB_1)
-                      && !s.contains(TEST_JOB_2))));
-
-      // Validate - ordered paging of jobs from the second team for page 1
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?page_number=1&page_size=1", NEW_TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> !s.contains(TEST_JOB_3)
-                      && s.contains(TEST_JOB_4)
-                      && !s.contains(TEST_JOB_1)
-                      && !s.contains(TEST_JOB_2))));
-
-      // Validate - all jobs are returned in case of all parameter
-
-      // TODO: putting arbitrary team with "all" parameter returns all the jobs which looks strange, we should
-      //  probably introduce special team name like "default" and treat is as if all parameter also in the client
-      //  for simple use cases where the teams authorization chain is disabled
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?show_all=true", TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_1)
-                      && s.contains(TEST_JOB_2)
-                      && s.contains(TEST_JOB_3)
-                      && s.contains(TEST_JOB_4))));
-
-      // Validate - validate ordering for first page with two jobs
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?show_all=true&page_number=0&page_size=2", TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_1)
-                      && s.contains(TEST_JOB_2)
-                      && !s.contains(TEST_JOB_3)
-                      && !s.contains(TEST_JOB_4))));
-
-      // Validate - validate ordering for second page with two jobs
-      // deprecated jobsList in favour of jobsQuery
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s?show_all=true&page_number=1&page_size=2", TEST_TEAM_NAME))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().string(lambdaMatcher(s -> !s.contains(TEST_JOB_1)
-                      && !s.contains(TEST_JOB_2)
-                      && s.contains(TEST_JOB_3)
-                      && s.contains(TEST_JOB_4))));
-
-      // Clean up
-
-      mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_1))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk());
-
-      mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_2))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk());
-
-      mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", NEW_TEST_TEAM_NAME, TEST_JOB_3))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk());
-
-      mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", NEW_TEST_TEAM_NAME, TEST_JOB_4))
-              .with(user("user"))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk());
    }
 
    @Test

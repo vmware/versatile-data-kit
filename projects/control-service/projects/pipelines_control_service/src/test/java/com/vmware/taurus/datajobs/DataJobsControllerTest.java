@@ -87,43 +87,6 @@ public class DataJobsControllerTest {
       testInst.dataJobUpdate("team", "test-job", newJob("test-job", "team", "* * * * *"));
    }
 
-   @Test
-   public void testDataJobList() {
-      DataJobsController testInst = constructTestListController();
-
-      var response = testInst.jobsList("team", Boolean.FALSE, 0, 10);
-      Assertions.assertEquals(1, response.getBody().size());
-      Assertions.assertEquals("test-job", response.getBody().get(0).getJobName());
-   }
-
-   @Test
-   public void testDataJobListForAllTeams() {
-      DataJobsController testInst = constructTestListController();
-
-      var response = testInst.jobsList("team", Boolean.TRUE, 0, 10);
-      Assertions.assertEquals(2, response.getBody().size());
-      Assertions.assertEquals("test-job", response.getBody().get(0).getJobName());
-      Assertions.assertEquals("test-job2", response.getBody().get(1).getJobName());
-   }
-
-   //@NotNull
-   private DataJobsController constructTestListController() {
-      com.vmware.taurus.service.model.DataJob testJobTeam = getServiceModelDataJob("test-job", "team");
-      com.vmware.taurus.service.model.DataJob testJobTwoTeamAnother = getServiceModelDataJob("test-job2", "team-another");
-
-      List<com.vmware.taurus.service.model.DataJob> jobList = new ArrayList<>();
-      jobList.add(testJobTeam);
-      jobList.add(testJobTwoTeamAnother);
-
-      when(jobsService.getAllJobs(anyInt(), anyInt())).thenReturn(jobList);
-      when(jobsService.getTeamJobs(anyInt(), anyInt(), eq("team"))).thenReturn(List.of(testJobTeam));
-      when(jobsService.getTeamJobs(anyInt(),anyInt(), eq("team-another"))).thenReturn(List.of(testJobTwoTeamAnother));
-
-
-      UriBuilder builder = UriComponentsBuilder.fromHttpUrl("http://test.com/");
-      return new DataJobsController(jobsService, null, null, null, () -> builder);
-   }
-
    private static com.vmware.taurus.service.model.DataJob getServiceModelDataJob(String name, String team) {
       JobConfig jobConfig = new JobConfig();
       jobConfig.setJobName(name);

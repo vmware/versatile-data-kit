@@ -47,7 +47,9 @@ public class DataJobGraphQLIT extends BaseIT {
                "}";
 
    @Test
-   public void testGraphQLPagination() throws Exception {
+   public void testGraphQLPagination() throws Exception
+
+   {
       createDummyJobs();
 
       // Test listing of team jobs by filtering with team property

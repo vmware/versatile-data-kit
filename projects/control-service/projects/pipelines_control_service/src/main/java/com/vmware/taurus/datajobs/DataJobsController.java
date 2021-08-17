@@ -247,30 +247,6 @@ public class DataJobsController implements DataJobsApi {
    }
 
    @Override
-   @Deprecated
-   public ResponseEntity<List<DataJobSummary>> jobsList(String teamName, Boolean includeAllTeams, Integer pageNumber, Integer pageSize) {
-      if (pageSize < 1 || pageSize > 100) {
-         throw new ApiConstraintError("page_size", "between 0 and 100 inclusive", pageSize);
-      }
-
-      if (pageNumber < 0) {
-         throw new ApiConstraintError("page_number", "0 or larger", pageNumber);
-      }
-
-      List<DataJobSummary> result = new ArrayList<>();
-
-      if (Boolean.TRUE.equals(includeAllTeams)) {
-         var jobStream = jobsService.getAllJobs(pageNumber, pageSize).stream();
-         result = jobStream.map(ToApiModelConverter::toDataJobSummary).collect(Collectors.toList());
-      } else if (StringUtils.isNotBlank(teamName)) {
-         var jobStream = jobsService.getTeamJobs(pageNumber, pageSize, teamName).stream();
-         result = jobStream.map(ToApiModelConverter::toDataJobSummary).collect(Collectors.toList());
-      }
-
-      return ResponseEntity.ok(result);
-   }
-
-   @Override
    public ResponseEntity<DataJobQueryResponse> jobsQuery(String teamName, String query, String operationName, String variables) {
       if(query == null) {
          query = GraphQLJobsQueryService.DEFAULT_QUERY;

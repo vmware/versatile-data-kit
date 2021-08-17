@@ -128,62 +128,6 @@ paths:
         required: true
 
   '/data-jobs/for-team/{team_name}':
-    get:
-      deprecated: true
-      tags:
-        - Data Jobs
-      parameters:
-        - name: team_name
-          description: Team Name
-          schema:
-            type: string
-          in: path
-          required: true
-        - name: show_all
-          description: |
-            If set to 'true' will list the jobs for all the teams, otherwise will list only the jobs that belong to this 'team'.
-          schema:
-            type: boolean
-            default: False
-          in: query
-          # This API support pagination because there can be thousands of data jobs.
-          # page parameters are based on the offset and limit example at
-          # https://swagger.io/docs/specification/describing-parameters/#default adjusted for easier spring use.
-          # We intentionally don't support consistent paging via cursors because it is quite resource intensive
-          # while not explicitly requested.
-        - name: page_number
-          description: The number of pages of items to skip before starting to collect the result set.
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-            example: 0
-          required: false
-          in: query
-        - name: page_size
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100 # Over 100 items will make the resulting JSON too large to serialize safely.
-            default: 20
-            example: 0
-          required: false
-          description: The number of items in page.
-          in: query
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DataJobSummary'
-          description: List of jobs
-        '400':
-          $ref: '#/components/responses/Error'
-      operationId: jobsList
-      summary: List all or Team's Data Jobs | (Stable)
-      description: <i>(Introduced in v1.0)</i>
     post:
       deprecated: true
       requestBody:
