@@ -939,7 +939,7 @@ paths:
       summary: Upload Data Job source code. | (Stable)
       description: |
         <i>(Introduced in v1.0)</i> | Uploads the Data Job source code and returns its version.
-        Upload is persisted in source (Git) repo, so that all code deployed is versioned.
+        Upload is persisted in source (Git) repository, so that all code deployed is versioned.
         The format of the payload is expected to be a ZIP archive, where the directory content can be found.
         <br>Example:<br>
         <br>
@@ -1502,7 +1502,7 @@ paths:
       summary: Upload Data Job source code. | (Stable)
       description: |
         <i>(Introduced in v1.0)</i> | Uploads the Data Job source code and returns its version.
-        Upload is persisted in source (Git) repo, so that all code deployed is versioned.
+        Upload is persisted in source (Git) repository, so that all code deployed is versioned.
         The format of the payload is expected to be a ZIP archive, where the directory content can be found.
         <br>Example:<br>
         <br>
