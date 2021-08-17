@@ -36,6 +36,7 @@ build_control_service_image:
   script:
     - apk --no-cache add git openjdk11-jdk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
     - export TAG=$(git rev-parse --short HEAD)
+    - unset KUBECONFIG
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
@@ -58,14 +59,17 @@ build_control_service_image:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
-.integration_test:
+integration_test:
   stage: build
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
   script:
     - apk --no-cache add git openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
-    - export INTEGRATIONTEST_CONTROLNAMESPACE=scdc1-staging-taurus-staging
-    - export INTEGRATIONTEST_DATAJOBSNAMESPACE=scdc1-staging-taurus-staging
+    - export INTEGRATIONTEST_CONTROLNAMESPACE=$CICD_KUBERNETES_NAMESPACE
+    - export INTEGRATIONTEST_DATAJOBSNAMESPACE=$CICD_KUBERNETES_NAMESPACE
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
     - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
@@ -135,6 +139,7 @@ publish_control_service_image:
   only:
     refs:
       - main
+      - external_pull_requests
     changes: *control_service_change_locations
   except:
     changes:

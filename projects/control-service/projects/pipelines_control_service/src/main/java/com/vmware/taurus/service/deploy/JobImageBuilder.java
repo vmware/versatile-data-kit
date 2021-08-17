@@ -38,23 +38,23 @@ public class JobImageBuilder {
 
    @Value("${datajobs.git.url}")
    private String gitRepo;
-   @Value("${datajobs.git.username}")
+   @Value("${datajobs.git.username:}")
    private String gitUsername;
-   @Value("${datajobs.git.password}")
+   @Value("${datajobs.git.password:}")
    private String gitPassword;
-   @Value("${datajobs.aws.region}")
+   @Value("${datajobs.aws.region:}")
    private String awsRegion;
-   @Value("${datajobs.aws.accessKeyId}")
+   @Value("${datajobs.aws.accessKeyId:}")
    private String awsAccessKeyId;
-   @Value("${datajobs.aws.secretAccessKey}")
+   @Value("${datajobs.aws.secretAccessKey:}")
    private String awsSecretAccessKey;
-   @Value("${datajobs.docker.repositoryUrl}")
+   @Value("${datajobs.docker.repositoryUrl:}")
    private String dockerRepositoryUrl;
-   @Value("${datajobs.docker.registryType}")
+   @Value("${datajobs.docker.registryType:generic}")
    private String registryType;
-   @Value("${datajobs.docker.registryUsername}")
+   @Value("${datajobs.docker.registryUsername:}")
    private String registryUsername;
-   @Value("${datajobs.docker.registryPassword}")
+   @Value("${datajobs.docker.registryPassword:}")
    private String registryPassword;
    @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
    private String deploymentDataJobBaseImage;
