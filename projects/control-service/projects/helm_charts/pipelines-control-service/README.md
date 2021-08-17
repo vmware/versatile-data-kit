@@ -14,9 +14,11 @@ Versatile Data Kit is a platform that enables Data Engineers to implement automa
 
 ## TL;DR;
 ```console
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm install bitnami/pipelines-control-service
+$ helm repo add vdk-gitlab https://gitlab.com/api/v4/projects/28814611/packages/helm/stable
+$ helm install vdk-gitlab/pipelines-control-service
 ```
+
+Note: integration with bitnami is being planned which will replace above repo.
 
 ## Introduction
 This chart bootstraps a Versatile Data Kit deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
