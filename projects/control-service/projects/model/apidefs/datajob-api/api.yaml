@@ -777,7 +777,7 @@ paths:
   '/data-jobs/for-team/{team_name}/name/{job_name}/keytab':
     summary: |
       List of credentials to be used by a data job - for example kerberos key to authenticate to the database.
-      Note: rename to /credentials perhaps as it seems more clear/generic
+      Note: will be renamed to /credentials as it seems more clear/generic
     get:
       deprecated: true
       tags:
@@ -1060,7 +1060,7 @@ paths:
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/keytab':
     summary: |
       List of credentials to be used by a data job - for example kerberos key to authenticate to the database.
-      Note: rename to /credentials perhaps as it seems more clear/generic
+      Note: will be renamed to /credentials as it seems more clear/generic
     get:
       tags:
         - Data Jobs
