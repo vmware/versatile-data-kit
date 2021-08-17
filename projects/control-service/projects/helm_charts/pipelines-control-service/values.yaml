@@ -174,7 +174,7 @@ deploymentDockerRegistryPassword: ""
 ## Everything else is effectively discarded since another image is used as base during execution.
 ## Override if you build VDK SDK yourself instead of using one provided by default.
 ## (without https:// scheme)
-deploymentDockerVdkBaseImage: "012285273210.dkr.ecr.us-west-2.amazonaws.com/taurus-vdk:latest"
+deploymentDockerVdkBaseImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
 
 
 ## ini formatted options that provides default and per-job VDK options.

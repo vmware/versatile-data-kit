@@ -66,7 +66,6 @@ helm upgrade --install --wait --timeout 10m0s $RELEASE_NAME . \
       --set resources.limits.memory=2G \
       --set credentials.repository="EMPTY" \
       --set-file vdkOptions=$VDK_OPTIONS_SUBSTITUTED \
-      --set deploymentDockerVdkBaseImage="$VDK_DOCKER_REGISTRY_URL/quickstart-vdk:release" \
       --set deploymentGitUrl="$CICD_GIT_URI" \
       --set deploymentGitUsername="$CICD_GIT_USER" \
       --set deploymentGitPassword="$CICD_GIT_PASSWORD" \
@@ -83,5 +82,4 @@ helm upgrade --install --wait --timeout 10m0s $RELEASE_NAME . \
       --set security.authorization.webhookUri=https://httpbin.org/post \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service" \
-      --set extraEnvVars.DATAJOBS_BUILDER_IMAGE="$VDK_DOCKER_REGISTRY_URL/job-builder:latest" \
       --set extraEnvVars.DATAJOBS_DEPLOYMENT_DATAJOBBASEIMAGE=python:3.9-slim
