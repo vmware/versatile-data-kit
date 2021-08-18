@@ -3,41 +3,47 @@
 
 openapi: 3.0.0
 info:
-  title: Taurus Data Jobs
+  title: Versatile Data Kit Control Service API
   version: '1.0'
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   description: |
-    The Taurus Data Jobs internal and Control Plane API.
+    The Data Jobs API of Versatile Data Kit Control Service.
     Data Jobs allows Data Engineers to implement automated pull ingestion (E in ELT)
     and batch data transformation into Data Warehouse (T in ELT).
     See also https://github.com/vmware/versatile-data-kit/wiki/Introduction
 
     The API has resource-oriented URLs, JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.
-    The API enables creating, deploying, managing and executing Data Jobs in runtime environment.<br>
+    The API enables creating, deploying, managing and executing Data Jobs in the runtime environment.<br>
+    <br>
+    ![](https://github.com/vmware/versatile-data-kit/wiki/vdk-data-job-lifecycle-state-diagram.png)
     <br>
     The API reflects the usual Data Job Development lifecycle:<br>
-    <li> Create a new data job (webhook to further configure job -e.g authorize its createion, setup permissions, etc).
+    <li> Create a new data job (webhook to further configure the job, e.g authorize its creation, setup permissions, etc).
     <li> Download keytab. Develop and run the data job locally.
-    <li> Deploy data job in cloud runtime enviornment to run on scheduled basis.
+    <li> Deploy the data job in cloud runtime environment to run on a scheduled basis.
     <br><br>
-    If Authentication is required pass OAuth2 access token in http header 'Authorization: Bearer [access-token-here]'
+    If Authentication is enabled, pass OAuth2 access token in HTTP header 'Authorization: Bearer [access-token-here]' (https://datatracker.ietf.org/doc/html/rfc6750).
+    <br
 
-    The API promotes some best practices (inspired by https://12factor.net ):
-    <li> Explicitly declare and isolate dependencies
-    <li> Strict separation of config from code. Config varies substantially across deploys, code does not.
-    <li> Separation between the build, release/deploy, and run stages
-    <li> Data Jobs are stateless and share-nothing processes. Any data that needs to persist must be stored in a stateful backing service (e.g IProperties).
-    <li> Implementation is assumed to be be atomic and idempotent - should be OK for a job to fail somewhere in the middle; subsequent restart should not cause data corruption.
-    <li> Keep development, staging, and production as similar as possible
+    The API promotes some best practices (inspired by https://12factor.net):
+    <li> Explicitly declare and isolate dependencies.
+    <li> Strict separation of configurations from code. Configurations vary substantially across deploys, code does not.
+    <li> Separation between the build, release/deploy, and run stages.
+    <li> Data Jobs are stateless and share-nothing processes. Any data that needs to be persisted must be stored in a stateful backing service (e.g IProperties).
+    <li> Implementation is assumed to be atomic and idempotent - should be OK for a job to fail somewhere in the middle; subsequent restart should not cause data corruption.
+    <li> Keep development, staging, and production as similar as possible.
     <br><br>
     <b>API Evolution</b><br>
     In the following sections, there are some terms that have a special meaning in the context of the APIs.
     <br><br>
-    <li> <i>Stable</i> - The implementation of API has been battle-tested (has been in production for some time - probably at least a month)
-                         API is subject to the semantic versioning model and will follow
-                         deprecation policy
-    <li> <i>Experimental</i> - May disappear without notice and is not subject to semantic versioning
+    <li> <i>Stable</i> - The implementation of the API has been battle-tested (has been in production for some time - probably at least a month).
+                         The API is a subject to semantic versioning model and will follow
+                         deprecation policy.
+    <li> <i>Experimental</i> - May disappear without notice and is not a subject to semantic versioning.
                                Implementation of the API is not considered stable nor well tested.
-                               Generally this is given to clients to experiment within testing environment. Must not be used in Production.
+                               Generally this is given to clients to experiment within testing environment. Must not be used in production.
     <li> <i>Deprecated</i> - API is expected to be removed within next one or two major version upgrade.
                              The deprecation notice/comment will say when the API will be removed and what alternatives should be used instead.
 
@@ -75,16 +81,16 @@ paths:
           required: true
         - name: show_all
           description: |
-            If set to 'true' will list the jobs for all the teams, otherwise will list only the jobs that belong to this 'team'.
+            If set to 'true' will list the jobs for all the teams, otherwise will list only the jobs that belong to this team.
           schema:
             type: boolean
             default: False
           in: query
-          # This API support pagination because there can be thousands of data jobs.
-          # page parameters are based on the offset and limit example at
-          # https://swagger.io/docs/specification/describing-parameters/#default adjusted for easier spring use.
-          # We intentionally don't support consistent paging via cursors because it is quite resource intensive
-          # while not explicitly requested.
+          # This API supports pagination, because there can be thousands of data jobs.
+          # Page parameters are based on the offset and limit example at
+          # https://swagger.io/docs/specification/describing-parameters/#default adjusted for easier Spring use.
+          # We intentionally don't support consistent paging via cursors because it is quite resource-intensive -
+          # until explicitly requested.
         - name: page_number
           description: The number of pages of items to skip before starting to collect the result set.
           schema:
@@ -102,7 +108,7 @@ paths:
             default: 20
             example: 0
           required: false
-          description: The number of items in page.
+          description: The number of items per page
           in: query
       responses:
         '200':
@@ -363,16 +369,16 @@ paths:
         <i>(Introduced in v1.0)</i> | Creates a new Data Job.<br>
         The name of the Data job should comply to the following naming convention:<br>
         <li>should start with a letter
-        <li>less than 50 characters
-        <li>more than 5 characters
-        <li>contain only lowercase alphanumeric symbols and dash [a-z0-9\-]
+        <li>50 characters at most
+        <li>5 characters at least
+        <li>should contain only lowercase alphanumeric symbols and dash [a-z0-9\-]
         <br><br>
-        When succesfully created clients can download keytab associated with the Data Job to run it locally.<br>
-        To deploy so that it can be executed reguarly in runtime use /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments API.
+        When succesfully created clients can download the keytab associated with the Data Job to run it locally.<br>
+        To deploy so that it can be executed reguarly in the runtime environment use /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments API.
 
   '/data-jobs/for-team/{team_name}/jobs/{job_name}':
     summary: |
-      Data Job is a sequence of python or sql scripts and configuration and executed by Versatile Data Kit SDK.
+      A Data Job is a sequence of Python and/or SQL scripts and configurations, executed by Versatile Data Kit SDK.<br>
       See more in https://github.com/vmware/versatile-data-kit/wiki/Getting-Started
     get:
       tags:
@@ -415,9 +421,9 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: dataJobDelete
-      summary: Delete data Data Job | (Stable)
+      summary: Delete Data Job | (Stable)
       description: |
-        <i>(Introduced in v1.0)</i> | Delete data Data Job including all its state (properties) and any deployments.
+        <i>(Introduced in v1.0)</i> | Delete Data Job including its state (properties) and deployments.
         Currently executing Data Jobs will be left to finish.
     parameters:
       - name: team_name
@@ -435,8 +441,8 @@ paths:
 
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/keytab':
     summary: |
-      List of credentials to be used by data job - for example kerberos key to authenticate to Database.
-      TODO: rename to /credentials perhaps as it seems more clear/generic
+      List of credentials to be used by a data job - for example kerberos key to authenticate to the database.
+      Note: will be renamed to /credentials as it seems more clear/generic
     get:
       tags:
         - Data Jobs
@@ -463,7 +469,7 @@ paths:
         in: path
         required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
@@ -505,9 +511,9 @@ paths:
 
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments':
     summary: |
-      Deployments are requests to deploy a specific (code) version of a Data Job to be executed in runtime (kubernetes) .
-      Users can deploy the same (code) version of a Data Job with different properties.
-      Currently deployment_id and mode are not implemented. Only a single active deployment of a job is possible.
+      Deployments are requests to deploy a specific (code version of a Data Job to be executed in the runtime environment (Kubernetes).
+      Users can deploy the same (code) version of a Data Job with different properties.<br>
+      Note: Currently deployment_id and mode are not implemented. Only a single active deployment of a job is possible.
     get:
       tags:
         - Data Jobs Deployment
@@ -561,7 +567,7 @@ paths:
       description: |
         <i>(Introduced in v1.0)</i> | Creates or updates a deployment of a Data Job.
         The API returns before the actual Job is deployed.
-        Depending on settings specified during Data Job creation clients will get an mail in case of success or failure of the deployment.
+        Depending on settings specified during Data Job creation, clients will get an e-mail in case of success or failure of the deployment.
     parameters:
       -  name: team_name
          description: Team Name
@@ -570,7 +576,7 @@ paths:
          in: path
          required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
@@ -619,7 +625,7 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: deploymentEnable
-      summary: Enable/disable the deployment of a Data Job. When disabled Data Job will not be executed. | (Stable)
+      summary: Enable/disable the deployment of a Data Job. When disabled, the Data Job will not be executed. | (Stable)
       description: <i>(Introduced in v1.0)</i>
     parameters:
       -  name: team_name
@@ -652,7 +658,7 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: dataJobExecutionList
-      summary: Get Data Jobs (recent) executions. (the whole Execution API is still experimental and must not be used in production) | (Experimental)
+      summary: Get Data Jobs (recent) executions. (Execution API is still experimental and must not be used in production) | (Experimental)
       description: <i>(Introduced in v1.0)</i>
     parameters:
       -  name: team_name
@@ -662,7 +668,7 @@ paths:
          in: path
          required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
@@ -724,7 +730,7 @@ paths:
         <i>(Introduced in v1.0)</i> | Trigger new execution of a Data Job.
         If Data Job deployment is currently being executed it will return an error (409 Conflict).
         Only deployed Data Jobs can be executed. Currently the Data Job arguments ('args') are ignored.
-        TODO in the future it will be possible to trigger different deployments.
+        Note: in the future it will be possible to trigger different deployments.
     parameters:
       -  name: team_name
          description: Team Name
@@ -733,13 +739,13 @@ paths:
          in: path
          required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
         required: true
       - name: deployment_id
-        description: Data job deployment id. Currently it is being ignored as multiple deployments are not implemented.
+        description: Data job deployment ID. Currently it is being ignored as multiple deployments are not implemented.
         schema:
           $ref: '#/components/schemas/DataJobDeploymentId'
         in: path
@@ -768,7 +774,7 @@ paths:
           $ref: '#/components/responses/Error'
       operationId: dataJobExecutionCancel
       summary: Cancel (if running) Data Job Execution | (Experimental)
-      description: <i>(Introduced in v1.0)</i> | Cancel execution of a Data Job with given execution id.
+      description: <i>(Introduced in v1.0)</i> | Cancel the execution of a Data Job with a given execution ID.
     parameters:
       -  name: team_name
          description: Team Name
@@ -777,7 +783,7 @@ paths:
          in: path
          required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
@@ -792,7 +798,8 @@ paths:
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/properties':
     summary: |
       Data Job properties API.
-      Currently they are not implemented in Taurus.
+      See https://github.com/vmware/versatile-data-kit/blob/6726aa6771b8a47edc81168afcd13030127a7c4b/projects/vdk-core/src/taurus/api/job_input.py#L11 <br>
+      Currently they are not implemented in Versatile Data Kit.
     get:
       tags:
         - Data Jobs Properties
@@ -827,7 +834,7 @@ paths:
          in: path
          required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
@@ -876,9 +883,9 @@ paths:
       operationId: sourcesUpload
       summary: Upload Data Job source code. | (Stable)
       description: |
-        <i>(Introduced in v1.0)</i> | Uploads Data Job source code and returns its version.
-        Upload is persisted in source (git) repo so that all deployed code is versioned.
-        The format of the payload is expected to be a zip in which the directory content can be found.
+        <i>(Introduced in v1.0)</i> | Uploads the Data Job source code and returns its version.
+        Upload is persisted in source (Git) repository, so that all code deployed is versioned.
+        The format of the payload is expected to be a ZIP archive, where the directory content can be found.
         <br>Example:<br>
         <br>
         If zip is <br>
@@ -922,7 +929,7 @@ paths:
          in: path
          required: true
       - name: job_name
-        description: DataJob Name.
+        description: Data Job Name.
         schema:
           type: string
         in: path
@@ -949,7 +956,7 @@ components:
         api_version: 1.0.0
 
     DataJobSummary:
-      description: Data DataJob summary
+      description: Data Job summary
       required:
         - job_name
         - team
@@ -957,7 +964,7 @@ components:
       type: object
       properties:
         job_name:
-          description: DataJob Name
+          description: Data Job name
           type: string
           example: starshot-processing-vmc-fact-daily
         team:
@@ -967,13 +974,13 @@ components:
         description:
           description: Description
           type: string
-          example: Data Job responsible for transforming vmc realted fact tables on daily basis
+          example: Data Job responsible for transforming vmc related fact tables on daily basis.
         source_url:
-          description: Link to source code
+          description: Link to source code.
           type: string
 
     DataJob:
-      description: Data Job Details.
+      description: Data Job Details
       required:
         - job_name
         - description
@@ -981,17 +988,17 @@ components:
       type: object
       properties:
         job_name:
-          description: DataJob Name
+          description: Data Job name
           type: string
           example: starshot-processing-vmc-fact-daily
         description:
-          description: Short DataJob description.
+          description: Short Data Job description
           type: string
-          example: Data Job responsible for transforming vmc realted fact tables on daily basis
+          example: Data Job responsible for transforming vmc-related fact tables on a daily basis.
         config:
           $ref: '#/components/schemas/DataJobConfig'
         team:
-          description: (Optional) Team name.
+          description: (Optional) Team name
           type: string
           example: starshot (Optional property)
 
@@ -1002,23 +1009,23 @@ components:
       type: object
       properties:
         messages:
-          description: Error messages.
+          description: Error messages
           type: array
           items:
             type: string
           example:
-            - Data Job starshot-processing-vmc-fact-daily not found.
+            - Data Job starshot-processing-vmc-fact-daily not found
 
     DataJobDeployment:
-      description: A Deployment of the DataJob.
+      description: A deployment of the Data Job
       type: object
       properties:
         vdk_version:
-          description: A specific VDK version to use.
+          description: A specific VDK version to use
           type: string
           example: 2.1
         job_version:
-          description: Job version (can be git commit).
+          description: Job version (can be Git commit)
           type: string
           example: 11a403ba
         mode:
@@ -1026,16 +1033,16 @@ components:
         id:
           $ref: '#/components/schemas/DataJobDeploymentId'
         enabled:
-          description: Enable/disable flag.
+          description: Enable/disable flag
           type: boolean
           example: false
           default: true
         deployed_by:
-          description: User or service that deployed the data job
+          description: User or service that deployed the Data Job
           type: string
           example: auserov@vmware.com
         deployed_date:
-          description: The data job deployment date
+          description: The Data Job deployment date
           type: string
           format: date-time
         schedule:
@@ -1044,15 +1051,15 @@ components:
           $ref: '#/components/schemas/DataJobResources'
 
     DataJobDeploymentStatus:
-      description: A Deployment Status of the DataJob, whick includes information such as last deployment date, and who deployed the data job.
+      description: A deployment status of the Data Job, which includes information such as last deployment date, and who deployed the Data Job.
       type: object
       properties:
         vdk_version:
-          description: A specific VDK version to use.
+          description: A specific VDK version to use
           type: string
           example: 2.1
         job_version:
-          description: Job version (can be git commit).
+          description: Job version (can be Git commit)
           type: string
           example: 11a403ba
         mode:
@@ -1060,7 +1067,7 @@ components:
         id:
           $ref: '#/components/schemas/DataJobDeploymentId'
         enabled:
-          description: Enable/disable flag.
+          description: Enable/disable flag
           type: boolean
           example: false
           default: true
@@ -1071,23 +1078,23 @@ components:
         resources:
           $ref: '#/components/schemas/DataJobResources'
         last_deployed_date:
-          description: The date and time in UTC of last deployment of the data job deployment.
+          description: The date and time in UTC of the last deployment of the data job
           type: string
           example: 2021-02-02T10:50:40.034Z
           default: null
         last_deployed_by:
-          description: The username of the user who modified the data job last.
+          description: The username of the user who modified the data job last
           type: string
           example: jdoe
           default: null
 
 
     DataJobExecutionRequest:
-      description: Request to start execution of Data Job. The job must have been deployed before that (see Deployment API) and will run its latest version
+      description: Request to start execution of Data Job. The job must have been deployed before that (see Deployment API) and will run its latest version.
       type: object
       properties:
         started_by:
-          description: user or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
+          description: User or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
           type: string
           example: schedule/runtime
         args:
@@ -1098,7 +1105,7 @@ components:
             key: value
 
     DataJobExecution:
-      description: Executions of a Data Job.
+      description: Executions of a Data Job
       type: object
       properties:
         id:
@@ -1110,7 +1117,7 @@ components:
           type: string
           example: starshot-processing-vmc-fact-daily
         status:
-          description: The current status.
+          description: The current status
           enum:
             - submitted
             - running
@@ -1136,7 +1143,7 @@ components:
           type: string
           format: date-time
         started_by:
-          description: user or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
+          description: User or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
           type: string
           example: schedule/runtime
         message:
@@ -1150,7 +1157,7 @@ components:
           $ref: '#/components/schemas/DataJobDeployment'
 
     DataJobProperties:
-      description: Properties of a Data Job.
+      description: Properties of a Data Job
       type: object
       additionalProperties:
         type: object
@@ -1160,18 +1167,18 @@ components:
         last-execution-time: 1585303338
 
     Enable:
-      description: Enable or disable an App or a Deployment.
+      description: Enable or disable an App or a Deployment
       required:
         - enabled
       type: object
       properties:
         enabled:
-          description: Enable/disable flag.
+          description: Enable/disable flag
           type: boolean
 
     DataJobMode:
-      description: Execution mode the data job is deployed. Data Jobs used for dev or testing purposes are marked as testing.
-        This is used by Opeartion team when rollout platform and infrastructure changes - they are first roll out to the testing jobs and only after confirming it;s ok - to the release jobs. Also testing and release jobs may have different limits and SLA targets.
+      description: The execution mode that the data job is deployed in. Data Jobs used for development or testing purposes are marked as testing.
+        This is used by Operations team on platform rollout and infrastructure changes adoption. For example, rollout and validation of testing jobs first, then proceeding with release data jobs. Also, testing and release jobs may have different limits and SLA targets.
       enum:
         - testing
         - release
@@ -1181,18 +1188,19 @@ components:
     DataJobDeploymentId:
       description: |
         String that identifies a single deployment of a Data Job.
-        Currently only single deployment per Data Job is possible. In the future:
+        Currently only one single deployment per Data Job is possible.<br>
+        In the future:<br>
         It's recommended to use following ids - development, testing, production.
-        But users are free to come up with their own.
-        For example - this enables create with same Data Job code 3 different deployment:
-        development  deployment  --deployment-id development
-        testing deployment  --deployment-id testing
-        production deployment  --deployment-id prod
+        However users are free to come up with their own.
+        For example, this enables the creation of 3 different deployments, using the same Data Job code:<br>
+        `development  deployment  --deployment-id development`<br>
+        `testing deployment  --deployment-id testing`<br>
+        `production deployment  --deployment-id prod`
       type: string
       example: release
 
     DataJobResources:
-      description: Resource cofiguration of a data DataJob Deployment.
+      description: Resource cofiguration of a data Data Job Deployment.
       type: object
       properties:
         cpu_request:
@@ -1217,14 +1225,13 @@ components:
           example: 2048
 
     DataJobConfig:
-      description: DataJob configuration properties.
+      description: Data Job configuration properties.
       type: object
       properties:
         db_default_type:
-          example: IMPALA
+          example: TRINO
           description: |
-            Default DB connection provided for the job. Can be either 'IMPALA' or 'REDSHIFT'.
-            Note: 'REDSHIFT' is deprecated.
+            Default DB connection provided for the job, e.g. 'TRINO', 'IMPALA', 'REDSHIFT'.<br>
           type: string
         contacts:
           $ref: '#/components/schemas/DataJobContacts'
@@ -1233,14 +1240,12 @@ components:
           deprecated: true
         generate_keytab:
           example: false
-          description: |
-            Enable Disable flag for generating secret with keytab
+          description: Enable Disable flag for generating secret with keytab
           type: boolean
           default: true
         enable_execution_notifications:
           example: false
-          description: |
-            (Optional) Specifies whether to dispatch email notifications per data job execution.
+          description: (Optional) Specifies whether to dispatch email notifications per data job execution.
           type: boolean
           default: true
         notification_delay_period_minutes:
@@ -1248,9 +1253,9 @@ components:
           description: |
             (Optional) Specifies the time (in minutes) a job execution is allowed to be delayed from
             its schedule before an alert is triggered.
-            The value of this property for each data job is exposed as a Prometheus metrics by the service
-            at the /data-jobs/debug/prometheus endpoint. This metrics (taurus_datajob_notification_delay)
-            is subsequently used in the JobDelay Prometheus rule to generate the alerts.
+            The value of this property for each data job is exposed as a Prometheus metric by the service
+            at the /data-jobs/debug/prometheus endpoint. These metrics (taurus_datajob_notification_delay)
+            are subsequently used in JobDelay Prometheus rules to generate the alerts.
           type: integer
           example: 60
           default: 240
@@ -1263,9 +1268,9 @@ components:
         schedule_cron:
           example: 0 0 13 * 5
           description: |
-            For format see https://en.wikipedia.org/wiki/Cron
+            For format see https://en.wikipedia.org/wiki/Cron<br>
             The cron expression is evaluated in UTC time.
-            If it is time for a new job run and the previous job run hasn’t finished yet, the cron job kills and replaces the currently running job run with a new job run.
+            If it is time for a new job run and the previous job run hasn't finished yet, the cron job kills and replaces the currently running job run with a new job run.
             Jobs configured to run more often than once per hour are not supported and their schedule may be overridden by the platform.
             To distribute load evenly, Administrators may override the minute you specified.
             Use https://crontab.guru for help.
@@ -1277,8 +1282,8 @@ components:
       properties:
         notified_on_job_failure_user_error:
           description: |
-            list of email addresses to be notified on job execution failure caused by user code or user configuration problem.
-            For example: if the job contains an SQL script with syntax error.
+            List of email addresses to be notified on job execution failure caused by user code or user configuration problem.
+            E.g. if the job contains a SQL script with a syntax error.
           type: array
           items:
             type: string
@@ -1286,8 +1291,7 @@ components:
             - starshot_ops@vmware.com
             - auserov@vmware.com
         notified_on_job_failure_platform_error:
-          description: |
-            list of email addresses to be notified on job execution failure caused by a platform problem.
+          description: List of email addresses to be notified on job execution failure caused by a platform problem
           type: array
           items:
             type: string
@@ -1295,16 +1299,14 @@ components:
             - starshot_ops@vmware.com
             - auserov@vmware.com
         notified_on_job_success:
-          description: |
-            list of email addresses to be notified on job execution success.
+          description: List of email addresses to be notified on job execution success
           type: array
           items:
             type: string
           example:
             - auserov@vmware.com
         notified_on_job_deploy:
-          description: |
-            list of email addresses to be notified of job deployment outcome.
+          description: List of email addresses to be notified of job deployment outcome
           type: array
           items:
             type: string
@@ -1318,7 +1320,7 @@ components:
       type: object
       properties:
         version_sha:
-          description: sha which specifies the latest deployed version of the data job
+          description: SHA hash which specifies the latest deployed version of the data job
           type: string
       example:
         version_sha: 17012900f60461778c01ab24728807e70a5f2c87
@@ -1375,7 +1377,7 @@ components:
                 "jobName": "starshot-processing-vmc-fact-daily",
                 "config": {
                   "team": "starshot",
-                  "description": "Data Job responsible for transforming vmc realted fact tables on daily basis",
+                  "description": "Data Job responsible for transforming vmc related fact tables on daily basis",
                   "schedule": {
                     "scheduleCron": "5 0 * 8 *",
                     "nextRun": 1618914371
@@ -1412,13 +1414,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJob'
-      description: Data Job details.
+      description: Data Job details
     Error:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-      description: A response for any errors detected.
+      description: A response for any errors detected
     DeploymentArray:
       content:
         application/json:
@@ -1426,19 +1428,19 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/DataJobDeploymentStatus'
-      description: A list of data job deployments.
+      description: A list of data job deployments
     Deployment:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobDeploymentStatus'
-      description: Deployment properties.
+      description: Deployment properties
     DataJobConfig:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobConfig'
-      description: DataJob custom configuration.
+      description: Data Job custom configuration
     ExecutionArray:
       content:
         application/json:
@@ -1446,37 +1448,37 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/DataJobExecution'
-      description: Data Job Executions.
+      description: Data Job executions
     Execution:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobExecution'
-      description: Deployment properties.
+      description: Deployment properties
     Properties:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobProperties'
-      description: Data Job Properties.
+      description: Data Job properties
     Source:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobVersion'
-      description: Data Job version.
+      description: Data Job version
     DataJobQueryResponse:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobQueryResponse'
-      description: Data Job query response.
+      description: Data Job query response
     DataJobQueryResponseWithError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobQueryResponseWithError'
-      description: Data Job query response with error.
+      description: Data Job query response with error
 
 security:
   - bearerAuth: []
@@ -1485,14 +1487,14 @@ tags:
   - name: Data Jobs
   - name: Data Jobs Deployment
     description: |
-      Data Job Deployment takes both the Data Job Code/Build and the deploy specific Properties and is ready for immediate execution in the execution environment. <br>
-      Data Job Code/Build - all python, SQL files, and requirements.txt of the Data Job.
-      NOTE: deploymentID and mode are not implemented so they are ignored.
+      Data Job Deployment takes the code/build and deploy-specific properties of the data job, then it is ready for immediate run in the execution environment. <br>
+      Data job code/build - all python, SQL files, and requirements.txt of the data job.
+      NOTE: deploymentID and mode are not implemented, so they are ignored.
   - name: Data Jobs Execution
     description: Experimental API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
   - name: Data Jobs Properties
     description: |
       Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
-      not implemented yet: Properties are versioned so all changes are tracked (when, who - opid or user)
+      NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet.
   - name: Data Jobs Service
   - name: Data Jobs Sources
