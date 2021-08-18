@@ -11,7 +11,7 @@ Changelog
 * **New feature**
 
 * **Improvement**
-  * Make helm char registry configurable.
+  * In helm chart make images registry configurable.
     Configure registry part of docker images used for control-service API, job builder image and VDK distribution image.
     This make it easier to use docker cache proxies.
 
