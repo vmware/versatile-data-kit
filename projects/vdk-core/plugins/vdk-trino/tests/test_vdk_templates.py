@@ -11,7 +11,7 @@ from taurus.vdk import trino_plugin
 from taurus.vdk.test_utils.util_funcs import cli_assert_equal
 from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
 from taurus.vdk.test_utils.util_funcs import get_test_job_path
-from taurus.vdk.trino_utils import TrinoQueries
+from taurus.vdk.trino_utils import TrinoTemplateQueries
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
@@ -20,7 +20,7 @@ VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = (
     "VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
 )
 
-org_move_data_to_table = TrinoQueries.move_data_to_table
+org_move_data_to_table = TrinoTemplateQueries.move_data_to_table
 
 
 def trino_move_data_to_table_break_tmp_to_target(
@@ -122,14 +122,18 @@ class TemplateRegressionTests(unittest.TestCase):
         expect_table = "ex_scmdb_people"
 
         result: Result = self.__scd2_template_execute(
-            test_schema, source_view, target_table, expect_table, "restore_from_backup"
+            test_schema, source_view, target_table, expect_table, True
         )
         cli_assert_equal(0, result)
+
+        assert (
+            f"Successfully recovered {test_schema}.{target_table}" in result.output
+        ), "Missing log for recovering target schema."
 
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
 
     @mock.patch.object(
-        TrinoQueries,
+        TrinoTemplateQueries,
         "move_data_to_table",
         new=trino_move_data_to_table_break_tmp_to_target,
     )
@@ -148,7 +152,7 @@ class TemplateRegressionTests(unittest.TestCase):
         cli_assert_equal(0, self.__template_table_exists(test_schema, target_table))
 
     @mock.patch.object(
-        TrinoQueries,
+        TrinoTemplateQueries,
         "move_data_to_table",
         new=trino_move_data_to_table_break_tmp_to_target_and_restore,
     )
@@ -169,6 +173,176 @@ class TemplateRegressionTests(unittest.TestCase):
         assert (
             f"Table {test_schema}.{target_table} is lost!" in result.output
         ), "Missing log for losing target schema."
+
+    def test_fact_snapshot_template(self) -> None:
+        test_schema = "default"
+        source_view = "vw_fact_sddc_daily"
+        target_table = "dw_fact_sddc_daily"
+        expect_table = "ex_fact_sddc_daily"
+
+        result: Result = self.__fact_snapshot_template_execute(
+            test_schema, source_view, target_table, expect_table
+        )
+        cli_assert_equal(0, result)
+
+        self.__fact_snapshot_template_check_expected_res(
+            test_schema, target_table, expect_table
+        )
+
+    def test_fact_snapshot_empty_source(self) -> None:
+        test_schema = "default"
+        source_view = "vw_fact_sddc_daily"
+        target_table = "dw_fact_sddc_daily"
+        expect_table = "ex_fact_sddc_daily"
+
+        result: Result = self.__runner.invoke(
+            [
+                "run",
+                get_test_job_path(
+                    pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                    "load_fact_snapshot_template_job_empty_source",
+                ),
+                "--arguments",
+                json.dumps(
+                    {
+                        "source_schema": test_schema,
+                        "source_view": source_view,
+                        "target_schema": test_schema,
+                        "target_table": target_table,
+                        "expect_schema": test_schema,
+                        "expect_table": expect_table,
+                        "last_arrival_ts": "updated_at",
+                    }
+                ),
+            ]
+        )
+        cli_assert_equal(0, result)
+
+        assert (
+            f"Target table {test_schema}.{target_table} remains unchanged"
+            in result.output
+        ), "Cannot find log about empty source in output."
+
+        self.__fact_snapshot_template_check_expected_res(
+            test_schema, target_table, expect_table
+        )
+
+    def test_fact_snapshot_template_restore_target_from_backup_on_start(self) -> None:
+        test_schema = "default"
+        source_view = "vw_scmdb_people"
+        target_table = "dw_scmdb_people"
+        expect_table = "ex_scmdb_people"
+
+        result: Result = self.__fact_snapshot_template_execute(
+            test_schema, source_view, target_table, expect_table, True
+        )
+        cli_assert_equal(0, result)
+
+        assert (
+            f"Successfully recovered {test_schema}.{target_table}" in result.output
+        ), "Missing log for recovering target schema."
+
+        self.__fact_snapshot_template_check_expected_res(
+            test_schema, target_table, expect_table
+        )
+
+    @mock.patch.object(
+        TrinoTemplateQueries,
+        "move_data_to_table",
+        new=trino_move_data_to_table_break_tmp_to_target,
+    )
+    def test_fact_snapshot_template_fail_last_step_and_restore_target(self):
+        test_schema = "default"
+        source_view = "vw_scmdb_people"
+        target_table = "dw_scmdb_people"
+        expect_table = "ex_scmdb_people"
+
+        result: Result = self.__fact_snapshot_template_execute(
+            test_schema, source_view, target_table, expect_table
+        )
+
+        # Check if template fails but target is successfully restored
+        cli_assert_equal(1, result)
+        cli_assert_equal(0, self.__template_table_exists(test_schema, target_table))
+
+    @mock.patch.object(
+        TrinoTemplateQueries,
+        "move_data_to_table",
+        new=trino_move_data_to_table_break_tmp_to_target_and_restore,
+    )
+    def test_fact_snapshot_template_fail_last_step_and_fail_restore_target(self):
+        test_schema = "default"
+        source_view = "vw_scmdb_people"
+        target_table = "dw_scmdb_people"
+        expect_table = "ex_scmdb_people"
+
+        result: Result = self.__fact_snapshot_template_execute(
+            test_schema, source_view, target_table, expect_table
+        )
+
+        # Check if template fails and target fails to be restored
+        cli_assert_equal(1, result)
+        cli_assert_equal(1, self.__template_table_exists(test_schema, target_table))
+
+        assert (
+            f"Table {test_schema}.{target_table} is lost!" in result.output
+        ), "Missing log for losing target schema."
+
+    def __fact_snapshot_template_execute(
+        self,
+        test_schema,
+        source_view,
+        target_table,
+        expect_table,
+        restore_from_backup=False,
+    ):
+        return self.__runner.invoke(
+            [
+                "run",
+                get_test_job_path(
+                    pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                    "load_fact_snapshot_template_job",
+                ),
+                "--arguments",
+                json.dumps(
+                    {
+                        "source_schema": test_schema,
+                        "source_view": source_view,
+                        "target_schema": test_schema,
+                        "target_table": target_table,
+                        "expect_schema": test_schema,
+                        "expect_table": expect_table,
+                        "last_arrival_ts": "updated_at",
+                        "test_restore_from_backup": f"{restore_from_backup}",
+                    }
+                ),
+            ]
+        )
+
+    def __fact_snapshot_template_check_expected_res(
+        self, test_schema, target_table, expect_table
+    ) -> None:
+        actual_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"SELECT * FROM {test_schema}.{target_table} ORDER BY dim_date_id, dim_sddc_sk",
+            ]
+        )
+
+        expected_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"SELECT * FROM {test_schema}.{expect_table} ORDER BY dim_date_id, dim_sddc_sk",
+            ]
+        )
+
+        cli_assert_equal(0, actual_rs)
+        cli_assert_equal(0, expected_rs)
+        assert (
+            actual_rs.output == expected_rs.output
+        ), f"Elements in {target_table} and {expect_table} differ."
 
     def __scd2_template_execute(
         self,

@@ -76,51 +76,6 @@ public class DataJobsController implements DataJobsApi {
    private Supplier<UriBuilder> currentContextPathBuilderSupplier = ServletUriComponentsBuilder::fromCurrentContextPath;
 
    @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobCreateDeprecated(final String teamName,
-                                                       final DataJob dataJob,
-                                                       final String jobName) {
-      return dataJobCreate(teamName, dataJob, jobName);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobDeleteDeprecated(final String teamName,
-                                                       final String jobName) {
-      return dataJobDelete(teamName, jobName);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Resource> dataJobKeytabDownloadDeprecated(final String teamName,
-                                                                   final String jobName) {
-      return dataJobKeytabDownload(teamName, jobName);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<DataJob> dataJobReadDeprecated(final String teamName,
-                                                        final String jobName) {
-      return dataJobRead(teamName, jobName);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobTeamUpdateDeprecated(final String teamName,
-                                                           final String newTeamName,
-                                                           final String jobName) {
-      return dataJobTeamUpdate(teamName, newTeamName, jobName);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobUpdateDeprecated(final String teamName,
-                                                       final String jobName,
-                                                       final DataJob dataJob) {
-      return dataJobUpdate(teamName, jobName, dataJob);
-   }
-
-   @Override
    public ResponseEntity<Void> dataJobCreate(String teamName, DataJob dataJob, String jobName) {
       if (dataJob.getJobName() == null) {
          throw new ApiConstraintError("dataJob.jobName",

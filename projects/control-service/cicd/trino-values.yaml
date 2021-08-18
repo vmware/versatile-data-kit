@@ -1,0 +1,26 @@
+
+
+image:
+  repository: trinodb/trino
+
+#service:
+#  type: LoadBalancer
+
+connectors:
+  # Connectors configuration usually contains sensitive data (like passwords, usernames, ...)
+  # so data is stored in a secret
+  # For testing purposes
+  memory.properties: |-
+    connector.name=memory
+    memory.max-data-per-node=512MB
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2G
+  requests:
+    cpu: 500m
+    memory: 1G
+
+server:
+  workers: 1

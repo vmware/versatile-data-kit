@@ -17,7 +17,7 @@
     - pip install -U pip setuptools pre-commit
     - pre-commit install
     - pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
-    - extra_index_url=$([[ -n "$PIP_REPO_URL" ]] && echo "--extra-index-url $PIP_REPO_URL" || echo "")
+    - extra_index_url=$([[ -n "$PIP_EXTRA_INDEX_URL" ]] && echo "--extra-index-url $PIP_EXTRA_INDEX_URL" || echo "")
     - pip install -e . $extra_index_url
     - pip install pytest-cov
     - pytest --junitxml=tests.xml --cov taurus --cov-report term-missing --cov-report xml:coverage.xml
@@ -53,9 +53,13 @@
 
 .release-vdk-image:
   stage: release_image
+  image: docker:19.03.8
   services:
-    - harbor-repo.vmware.com/dockerhub-proxy-cache/library/docker:19.03.8-dind
-  image: harbor-repo.vmware.com/dockerhub-proxy-cache/library/docker:19.03.8
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - cd projects/vdk-core/
   script:
@@ -68,7 +72,6 @@
     - export VDK_PACKAGE=$(python3 setup.py --name)
     - export VDK_VERSION=$(python3 setup.py --version)
     - export BUILD_TYPE=release
-    - export PIP_EXTRA_INDEX_URL="$PIP_REPO_URL"
     - bash -x ../../cicd/deploy-base-vdk-image.sh
   retry: !reference [.retry, retry_options]
   rules:

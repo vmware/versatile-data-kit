@@ -103,7 +103,9 @@ spec:
             - name: DOCKER_REPOSITORY_URL
               value: "{{ .Values.deploymentDockerRepository }}"
             - name: DOCKER_VDK_BASE_IMAGE
-              value: "{{ .Values.deploymentDockerVdkBaseImage }}"
+              value: {{ template "pipelines-control-service.deploymentVdkDistributionImage" . }}
+            - name: DATAJOBS_BUILDER_IMAGE
+              value: {{ template "pipelines-control-service.deploymentBuilderImage" . }}
             - name: SERVER_MAX_HTTP_HEADER_SIZE
               value: "{{ .Values.server.maxHttpHeaderSize }}"
             - name: DB_JDBC_URL
@@ -135,8 +137,10 @@ spec:
               value: "{{ .Values.controlK8sNamespace }}"
             - name: FEATUREFLAG_SECURITY_ENABLED
               value: "{{ .Values.security.enabled }}"
+            {{- if .Values.security.oauth2.jwtJwkSetUri }}
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
               value: "{{ .Values.security.oauth2.jwtJwkSetUri }}"
+            {{- end }}
             - name: FEATUREFLAG_AUTHORIZATION_ENABLED
               value: "{{ .Values.security.authorizationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_WEBHOOK_ENDPOINT
@@ -180,6 +184,10 @@ spec:
             - name: K8S_DATA_JOB_TEMPLATE_FILE
               value: "/etc/datajobs/k8s_data_job_template.yaml"
             {{- end }}
+            - name: DATAJOBS_EXECUTION_TTL_SECONDS
+              value: "{{ .Values.dataJobExecutionsCleanupTask.executionsTtlSeconds }}"
+            - name: DATAJOBS_EXECUTION_MAXIMUM_EXECUTIONS_TO_STORE
+              value: "{{ .Values.dataJobExecutionsCleanupTask.maximumExecutionsToStore }}"
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}

@@ -5,14 +5,14 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 VERSION_TAG=$(cat "$SCRIPT_DIR/version.txt")
-PIPELINES_DOCKER_REGISTRY=${PIPELINES_DOCKER_REGISTRY:-"hub.docker.com/versatiledatakit"}
+VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
 
 function build_and_push_image() {
     name="$1"
     docker_file="$2"
     arguments="$3"
 
-    image_repo="$PIPELINES_DOCKER_REGISTRY/$name"
+    image_repo="$VDK_DOCKER_REGISTRY_URL/$name"
     image_tag="$image_repo:$VERSION_TAG"
 
     docker build -t $image_tag -t $image_repo:latest -f "$SCRIPT_DIR/k8s_vdk_job_builder/$docker_file" $arguments "$SCRIPT_DIR"

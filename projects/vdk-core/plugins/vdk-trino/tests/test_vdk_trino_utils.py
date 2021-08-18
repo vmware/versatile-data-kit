@@ -12,7 +12,7 @@ from taurus.vdk import trino_plugin
 from taurus.vdk.test_utils.util_funcs import cli_assert_equal
 from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
 from taurus.vdk.test_utils.util_funcs import get_test_job_path
-from taurus.vdk.trino_utils import TrinoQueries
+from taurus.vdk.trino_utils import TrinoTemplateQueries
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
@@ -33,7 +33,7 @@ class TrinoUtilsTests(unittest.TestCase):
 
     def test_move_data_to_table_insert_select_strategy(self) -> None:
         with mock.patch.object(
-            TrinoQueries,
+            TrinoTemplateQueries,
             "get_move_data_to_table_strategy",
             return_value="INSERT_SELECT",
         ) as patched:
@@ -41,13 +41,15 @@ class TrinoUtilsTests(unittest.TestCase):
 
     def test_move_data_to_table_rename_strategy(self) -> None:
         with mock.patch.object(
-            TrinoQueries, "get_move_data_to_table_strategy", return_value="RENAME"
+            TrinoTemplateQueries,
+            "get_move_data_to_table_strategy",
+            return_value="RENAME",
         ) as patched:
             self.check_move_data_to_table_for_current_strategy()
 
     def test_move_data_to_table_invalid_strategy(self) -> None:
         with mock.patch.object(
-            TrinoQueries,
+            TrinoTemplateQueries,
             "get_move_data_to_table_strategy",
             return_value="INVALID_STRATEGY",
         ) as patched:

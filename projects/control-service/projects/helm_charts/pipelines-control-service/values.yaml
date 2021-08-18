@@ -1,6 +1,7 @@
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 ## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+## Set global.imageRegistry if you use docker proxy to the proxy prefix for versatiledataki.
 ##
 global: {}
 #   imageRegistry: myRegistryName
@@ -9,15 +10,23 @@ global: {}
 
 # Image configuration of the Control service image. Generally those should be left as it is.
 image:
-   registry: bu6w4yoa1d.execute-api.us-west-2.amazonaws.com
-   repository: taurus/pipelines-control-service
-   tag: "a6caa29"
+   registry: registry.hub.docker.com/versatiledatakit
+   repository: pipelines-control-service
+   tag: "c06eb1b"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
    ##
    pullPolicy: Always
+
+# The image configuration for builder jobs used during deployment of data jobs.
+# Generally those should be left as it is.
+deploymentBuilderImage:
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: job-builder
+  tag: "1.0.5"
+
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)
 ##
@@ -168,13 +177,16 @@ deploymentDockerRegistryUsername: ""
 deploymentDockerRegistryPassword: ""
 
 ## Image name of VDK which will be used to run the data jobs.
-## It will use image with tag latest and will be pulled before any execution thus making sure jobs use the same and latest version of VDK.
+## It is recommended to use image with same tag (e.g release or latest)
+## As it will be pulled before any execution thus making sure all jobs use the same and latest version of VDK.
 ## The image should contain installation of VDK (vdk) which will be used to run the data jobs (vdk run command)
 ## Only the installed python modules (vdk and its dependencies) will be used from the image.
 ## Everything else is effectively discarded since another image is used as base during execution.
 ## Override if you build VDK SDK yourself instead of using one provided by default.
-## (without https:// scheme)
-deploymentDockerVdkBaseImage: "012285273210.dkr.ecr.us-west-2.amazonaws.com/taurus-vdk:latest"
+deploymentVdkDistributionImage:
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: quickstart-vdk
+  tag: "release"
 
 
 ## ini formatted options that provides default and per-job VDK options.
@@ -374,7 +386,7 @@ metrics:
    ## Prometheus Operator ServiceMonitor configuration
    ##
    serviceMonitor:
-      enabled: true
+      enabled: false
       ## Namespace in which Prometheus is running
       ##
       # namespace: monitoring
@@ -407,7 +419,7 @@ metrics:
 ## Alerting configuration
 ##
 alerting:
-   enabled: true
+   enabled: false
 
    ## Custom PrometheusRule to be defined
    ## ref: https://github.com/coreos/prometheus-operator#customresourcedefinitions
@@ -676,8 +688,48 @@ datajobTemplate:
               restartPolicy: OnFailure
           ttlSecondsAfterFinished: 600
 
-# TODO: make fluentd config configurable by setting the exact config here and using this variable
 # configuration for the fluentd data collector (https://github.com/vmware/kube-fluentd-operator),
-# which is currently used for collecting and visualizing Versatile Data Kit logs in Kibana
+# which is currently used for collecting and visualizing Versatile Data Kit logs in Kibana;
+# filter and match refer to the fluentd config directives, see here https://docs.fluentd.org/configuration/config-file;
+# extra refers to any additional directives you might use besides for filter and match - note that you must include
+# the directive opening and closing statement in the value of fluentd.extra
+# extra is included at the start of the fluentd config before the filter and match blocks
 fluentd:
   enabled: false
+  filter: |-
+    @type parser
+    key_name log
+    reserve_data true
+    remove_key_name_field true
+    <parse>
+      @type json
+    </parse>
+  match: |-
+    @type elastic
+#  extra: |-
+#    <source>
+#      @type http
+#      port 8090
+#    </source>
+#    <system>
+#      some system config
+#    </system>
+
+## These values expose configuration properties for the execution api
+## The execution API helps you collect information about previous
+## data job executions, or manually start a job execution. Stored data job
+## execution information will naturally increase over time. This is why we
+## are providing a way to clean old information about data job executions through
+## the following properties:
+##
+## maximumExecutionsToStore - The maximum amount of executions per data job to keep. If data
+##                            job executions exceed this number, the older executions are deleted.
+##
+## ttlSeconds - Total time to live per data job execution. Data job executions older than ttlSeconds
+##              specified also get deleted.
+##
+dataJobExecutionsCleanupTask:
+  ## maximum number of data job executions to store in the database / default is 100.
+  maximumExecutionsToStore: "100"
+  ## maximum time to live seconds for each execution / default is 14 days.
+  executionsTtlSeconds: "1209600"

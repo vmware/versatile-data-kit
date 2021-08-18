@@ -8,9 +8,6 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
-stages:
-  - build
-  - release
 
 .build-quickstart-vdk:
   variables:
@@ -35,7 +32,7 @@ release-quickstart-vdk:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-plugin
 
-release_vdk_image:
+release-vdk-image-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image

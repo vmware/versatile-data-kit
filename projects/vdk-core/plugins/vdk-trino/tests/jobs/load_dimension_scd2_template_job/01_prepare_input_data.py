@@ -4,7 +4,7 @@
 Load example input data for an scd2 template test.
 """
 from taurus.api.job_input import IJobInput
-from taurus.vdk.trino_utils import TrinoQueries
+from taurus.vdk.trino_utils import TrinoTemplateQueries
 
 
 def run(job_input: IJobInput) -> None:
@@ -130,7 +130,7 @@ def run(job_input: IJobInput) -> None:
 
         target_schema = args.get("target_schema")
         target_table = args.get("target_table")
-        trino_queries = TrinoQueries(job_input)
+        trino_queries = TrinoTemplateQueries(job_input)
         trino_queries.move_data_to_table(
             from_db=target_schema,
             from_table_name=target_table,

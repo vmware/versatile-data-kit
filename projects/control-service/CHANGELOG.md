@@ -1,8 +1,10 @@
 Changelog
 =========
 
-1.1.54 - XXX
+1.2.0 - 17.08.2021
 ----
+Initial release of Control Service in the public VDK Helm repository.
+
 * **New feature**
   - Data Job Management REST API
     - Create, configure, delete Data Jobs
@@ -28,3 +30,9 @@ Changelog
   - GET Sources API implementation
   - Configurable data job template can be provided via Helm
   - Data Job Execution API that allows clients to execute their jobs remotely.
+
+* **Improvement**
+
+* **Bug Fixes**
+
+* **Breaking Changes**

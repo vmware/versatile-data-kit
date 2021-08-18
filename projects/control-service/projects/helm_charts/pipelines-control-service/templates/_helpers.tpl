@@ -67,9 +67,10 @@ Create the name of the service account to use
 
 
 {{/*
-Return the proper Pipelines Control Service image name
+Return the proper Control Service image name
 */}}
 {{- define "pipelines-control-service.image" -}}
+{{- $globalRegistryOverrideName := .Values.image.globalRegistryOverride -}}
 {{- $registryName := .Values.image.registry -}}
 {{- $repositoryName := .Values.image.repository -}}
 {{- $tag := .Values.image.tag | toString -}}
@@ -78,12 +79,59 @@ Helm 2.11 supports the assignment of a value to a variable defined in a differen
 but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
 Also, we can't use a single if because lazy evaluation is not an option
 */}}
-{{- if .Values.global.imageRegistry }}
+{{- if $globalRegistryOverrideName }}
+    {{- printf "%s/%s:%s" $globalRegistryOverrideName $repositoryName $tag -}}
+{{- else if .Values.global.imageRegistry }}
     {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
 {{- else -}}
     {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return the proper Control Service deployment builder image name
+*/}}
+{{- define "pipelines-control-service.deploymentBuilderImage" -}}
+{{- $globalRegistryOverrideName := .Values.deploymentBuilderImage.globalRegistryOverride -}}
+{{- $registryName := .Values.deploymentBuilderImage.registry -}}
+{{- $repositoryName := .Values.deploymentBuilderImage.repository -}}
+{{- $tag := .Values.deploymentBuilderImage.tag | toString -}}
+{{/*
+Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
+but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
+Also, we can't use a single if because lazy evaluation is not an option
+*/}}
+{{- if $globalRegistryOverrideName }}
+    {{- printf "%s/%s:%s" $globalRegistryOverrideName $repositoryName $tag -}}
+{{- else if .Values.global.imageRegistry }}
+    {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
+{{- else -}}
+    {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper Control Service vdk image used to run deployed data jobs
+*/}}
+{{- define "pipelines-control-service.deploymentVdkDistributionImage" -}}
+{{- $globalRegistryOverrideName := .Values.deploymentVdkDistributionImage.globalRegistryOverride -}}
+{{- $registryName := .Values.deploymentVdkDistributionImage.registry -}}
+{{- $repositoryName := .Values.deploymentVdkDistributionImage.repository -}}
+{{- $tag := .Values.deploymentVdkDistributionImage.tag | toString -}}
+{{/*
+Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
+but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
+Also, we can't use a single if because lazy evaluation is not an option
+*/}}
+{{- if $globalRegistryOverrideName }}
+    {{- printf "%s/%s:%s" $globalRegistryOverrideName $repositoryName $tag -}}
+{{- else if .Values.global.imageRegistry }}
+    {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
+{{- else -}}
+    {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+{{- end -}}
+{{- end -}}
+
 
 {{/*
 Create the name of the deployment Kubernetes namespace used by Data Jobs

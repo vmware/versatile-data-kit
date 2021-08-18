@@ -19,6 +19,7 @@ __version__ = "0.1.0"
 setuptools.setup(
     name="plugin-package-template",
     version=__version__,
+    url="https://github.com/vmware/versatile-data-kit",
     description="Plugin template project used to quick start development of a new Versatile Data Kit SDK plugin.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
@@ -27,6 +28,10 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={"vdk.plugin.run": ["plugin-template = taurus.vdk.plugin_template"]},
     classifiers=[
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )

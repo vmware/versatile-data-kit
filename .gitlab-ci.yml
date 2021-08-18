@@ -11,15 +11,24 @@ include:
 
 stages:
   - build
+  - publish_artifacts
   - pre_release
+  - pre_release_test
   - release
   - release_image
-  - publish_artifacts
   - end
 
-build:
+build-check-prerequisites:
   stage: build
   script:
     - ./cicd/build.sh
   only:
     - external_pull_requests
+
+end:
+  stage: end
+  script:
+    - echo "Noop pipeline to enable merging changes that are not covered by any of the jobs."
+  only:
+    refs:
+      - external_pull_requests

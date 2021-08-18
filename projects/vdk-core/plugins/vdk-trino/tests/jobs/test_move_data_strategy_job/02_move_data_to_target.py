@@ -1,7 +1,7 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from taurus.api.job_input import IJobInput
-from taurus.vdk.trino_utils import TrinoQueries
+from taurus.vdk.trino_utils import TrinoTemplateQueries
 
 
 def run(job_input: IJobInput) -> None:
@@ -13,5 +13,5 @@ def run(job_input: IJobInput) -> None:
     src = args.get("src")
     target = args.get("target")
 
-    trino_queries = TrinoQueries(job_input)
+    trino_queries = TrinoTemplateQueries(job_input)
     trino_queries.move_data_to_table(db, src, db, target)

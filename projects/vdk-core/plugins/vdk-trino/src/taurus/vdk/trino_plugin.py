@@ -116,6 +116,11 @@ def initialize_job(context: JobContext) -> None:
         "scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
     )
 
+    # TODO: revise template name, what this template does currently is not snapshot (maybe rename to append-overwrite)
+    context.templates.add_template(
+        "snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
+    )
+
 
 @hookimpl(hookwrapper=True, trylast=True)
 def run_step(context: JobContext, step: Step) -> None:

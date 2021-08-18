@@ -6,8 +6,9 @@
 package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.model.DataJobExecution;
+import com.vmware.taurus.service.model.DataJobExecutionIdAndEndTime;
 import com.vmware.taurus.service.model.ExecutionStatus;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
@@ -24,9 +25,12 @@ import java.util.List;
  * <p>
  * JobExecutionRepositoryIT validates some aspects of the behavior
  */
-public interface JobExecutionRepository extends PagingAndSortingRepository<DataJobExecution, String> {
+public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String> {
 
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
 
    List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
+
+   List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(String jobName, List<ExecutionStatus> statuses);
+
 }

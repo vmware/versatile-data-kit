@@ -16,8 +16,5 @@ task javadocJar(type: Jar) {
 
 project.ext {
    // The path within the registry where we push images
-   dockerProject = "/versatiledatakit"
-
-   // A public docker registry
-   dockerRegistry = "hub.docker.com"
+   dockerProject = "versatiledatakit"
 }
