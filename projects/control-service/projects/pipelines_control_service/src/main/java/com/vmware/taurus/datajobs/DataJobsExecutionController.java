@@ -44,48 +44,6 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
    private final Supplier<UriBuilder> currentContextPathBuilderSupplier = ServletUriComponentsBuilder::fromCurrentContextPath;
 
    @Override
-   @Deprecated
-   public ResponseEntity<List<DataJobExecution>> dataJobDeploymentExecutionListDeprecated(final String teamName,
-                                                                                          final String jobName,
-                                                                                          final String deploymentId,
-                                                                                          final List<String> executionStatus) {
-      return dataJobDeploymentExecutionList(teamName, jobName, deploymentId, executionStatus);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobExecutionCancelDeprecated(final String teamName,
-                                                                final String jobName,
-                                                                final String executionId) {
-      return dataJobExecutionCancel(teamName, jobName, executionId);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<List<DataJobExecution>> dataJobExecutionListDeprecated(final String teamName,
-                                                                                final String jobName,
-                                                                                final List<String> executionStatus) {
-      return dataJobExecutionList(teamName, jobName, executionStatus);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<DataJobExecution> dataJobExecutionReadDeprecated(final String teamName,
-                                                                          final String jobName,
-                                                                          final String executionId) {
-      return dataJobExecutionRead(teamName, jobName, executionId);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobExecutionStartDeprecated(final String teamName,
-                                                               final String jobName,
-                                                               final String deploymentId,
-                                                               final DataJobExecutionRequest jobExecutionRequest) {
-      return dataJobExecutionStart(teamName, jobName, deploymentId, jobExecutionRequest);
-   }
-
-   @Override
    public ResponseEntity<List<DataJobExecution>> dataJobDeploymentExecutionList(
          String teamName,
          String jobName,

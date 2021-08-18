@@ -49,30 +49,6 @@ public class DataJobsSourcesController implements DataJobsSourcesApi {
    private JobUpload jobUpload;
 
    @Override
-   @Deprecated
-   public ResponseEntity<Resource> dataJobSourcesDownloadDeprecated(final String teamName,
-                                                                    final String jobName) {
-      return dataJobSourcesDownload(teamName, jobName);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> sourcesDeleteDeprecated(final String teamName,
-                                                       final String jobName,
-                                                       final String reason) {
-      return sourcesDelete(teamName, jobName, reason);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<DataJobVersion> sourcesUploadDeprecated(final String teamName,
-                                                                 final String jobName,
-                                                                 final Resource resource,
-                                                                 final String reason) {
-      return sourcesUpload(teamName, jobName, resource, reason);
-   }
-
-   @Override
    public ResponseEntity<Void> sourcesDelete(String teamName, String jobName, String reason) {
       if (jobsService.jobWithTeamExists(jobName, teamName)) {
          jobUpload.deleteDataJob(jobName, reason);
