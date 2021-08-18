@@ -17,7 +17,7 @@ info:
     The API has resource-oriented URLs, JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.
     The API enables creating, deploying, managing and executing Data Jobs in the runtime environment.<br>
     <br>
-    ![](./image/Data Job Development Lifecycle.png)
+    ![](https://github.com/vmware/versatile-data-kit/wiki/vdk-data-job-lifecycle-state-diagram.png)
     <br>
     The API reflects the usual Data Job Development lifecycle:<br>
     <li> Create a new data job (webhook to further configure the job, e.g authorize its creation, setup permissions, etc).
