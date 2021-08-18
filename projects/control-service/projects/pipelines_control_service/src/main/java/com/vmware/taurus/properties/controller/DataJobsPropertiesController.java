@@ -31,23 +31,6 @@ public class DataJobsPropertiesController implements DataJobsPropertiesApi {
    }
 
    @Override
-   @Deprecated
-   public ResponseEntity<Map<String, Object>> dataJobPropertiesReadDeprecated(final String teamName,
-                                                                              final String jobName,
-                                                                              final String deploymentId) {
-      return dataJobPropertiesRead(teamName, jobName, deploymentId);
-   }
-
-   @Override
-   @Deprecated
-   public ResponseEntity<Void> dataJobPropertiesUpdateDeprecated(final String teamName,
-                                                                 final String jobName,
-                                                                 final String deploymentId,
-                                                                 final Map<String, Object> requestBody) {
-      return dataJobPropertiesUpdate(teamName, jobName, deploymentId, requestBody);
-   }
-
-   @Override
    public ResponseEntity<Void> dataJobPropertiesUpdate(String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
       log.debug("Updating properties for job: {}", jobName);
 
@@ -68,5 +51,4 @@ public class DataJobsPropertiesController implements DataJobsPropertiesApi {
                HttpStatus.INTERNAL_SERVER_ERROR, "Error while parsing properties for job: " + jobName);
       }
    }
-
 }
