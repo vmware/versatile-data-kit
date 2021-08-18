@@ -11,24 +11,24 @@ def run(job_input: IJobInput) -> None:
 
     job_input.execute_query(
         """
-        DROP TABLE IF EXISTS {target_schema}.{target_table}
+        DROP TABLE IF EXISTS "{target_schema}"."{target_table}"
     """
     )
     job_input.execute_query(
         """
-        CREATE TABLE IF NOT EXISTS {target_schema}.{target_table} (
+        CREATE TABLE IF NOT EXISTS "{target_schema}"."{target_table}" (
           dim_sddc_sk VARCHAR,
           dim_org_id INT,
           dim_date_id TIMESTAMP,
           host_count BIGINT,
           cluster_count BIGINT,
-          {last_arrival_ts} TIMESTAMP
+          "{last_arrival_ts}" TIMESTAMP
         )
     """
     )
     job_input.execute_query(
         """
-        INSERT INTO {target_schema}.{target_table} VALUES
+        INSERT INTO "{target_schema}"."{target_table}" VALUES
           -- 2019-11-18
           ('sddc01-r01', 1, TIMESTAMP '2019-11-18', 5 , 1, TIMESTAMP '2019-11-18 09:00:00'),
           ('sddc02-r01', 2, TIMESTAMP '2019-11-18', 4 , 1, TIMESTAMP '2019-11-18 09:00:00'),
@@ -47,18 +47,18 @@ def run(job_input: IJobInput) -> None:
 
     job_input.execute_query(
         """
-        DROP TABLE IF EXISTS {source_schema}.{source_view}
+        DROP TABLE IF EXISTS "{source_schema}"."{source_view}"
     """
     )
     job_input.execute_query(
         """
-        CREATE TABLE IF NOT EXISTS {source_schema}.{source_view} (
+        CREATE TABLE IF NOT EXISTS "{source_schema}"."{source_view}" (
           dim_sddc_sk VARCHAR,
           dim_org_id INT,
           dim_date_id TIMESTAMP,
           host_count BIGINT,
           cluster_count BIGINT,
-          {last_arrival_ts} TIMESTAMP
+          "{last_arrival_ts}" TIMESTAMP
         )
     """
     )
@@ -67,24 +67,24 @@ def run(job_input: IJobInput) -> None:
 
     job_input.execute_query(
         """
-        DROP TABLE IF EXISTS {expect_schema}.{expect_table}
+        DROP TABLE IF EXISTS "{expect_schema}"."{expect_table}"
     """
     )
     job_input.execute_query(
         """
-        CREATE TABLE IF NOT EXISTS {expect_schema}.{expect_table} (
+        CREATE TABLE IF NOT EXISTS "{expect_schema}"."{expect_table}" (
           dim_sddc_sk VARCHAR,
           dim_org_id INT,
           dim_date_id TIMESTAMP,
           host_count BIGINT,
           cluster_count BIGINT,
-          {last_arrival_ts} TIMESTAMP
+          "{last_arrival_ts}" TIMESTAMP
         )
     """
     )
     job_input.execute_query(
         """
-        INSERT INTO {expect_schema}.{expect_table} VALUES
+        INSERT INTO "{expect_schema}"."{expect_table}" VALUES
           -- 2019-11-18
           ('sddc01-r01', 1, TIMESTAMP '2019-11-18', 5 , 1, TIMESTAMP '2019-11-18 09:00:00'),
           ('sddc02-r01', 2, TIMESTAMP '2019-11-18', 4 , 1, TIMESTAMP '2019-11-18 09:00:00'),
