@@ -9,7 +9,7 @@ To contribute see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Java 11 and Docker are necessary.
 
-Run form control-service directory:
+Run from `projects/control-service` directory:
 ```bash
 ./cicd/build.sh
 ```
