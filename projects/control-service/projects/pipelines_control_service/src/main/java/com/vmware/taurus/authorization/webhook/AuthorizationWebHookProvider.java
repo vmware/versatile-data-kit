@@ -8,6 +8,7 @@ package com.vmware.taurus.authorization.webhook;
 import com.vmware.taurus.authorization.AuthorizationInterceptor;
 import com.vmware.taurus.exception.AuthorizationError;
 import com.vmware.taurus.exception.ExternalSystemError;
+import com.vmware.taurus.service.webhook.WebHookRequestBody;
 import com.vmware.taurus.service.webhook.WebHookResult;
 import com.vmware.taurus.service.webhook.WebHookService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,10 @@ import org.springframework.stereotype.Service;
  * AuthorizationWebhookProvider class which delegates authorization request to a third party webhook
  * authorization server.
  * <p>
- * Uses a single method {@link AuthorizationWebHookProvider#invokeWebHook(AuthorizationBody)}
+ * Uses a single method {@link WebHookService#invokeWebHook(WebHookRequestBody)}
  * which triggers a webhook to the actual authorization server to determine whether a user is authorized
  * or not by creating {@link WebHookResult} which is then provided to {@link AuthorizationInterceptor}
- * <p/>
+ * </p>
  */
 @Service
 @Slf4j
