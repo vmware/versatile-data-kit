@@ -174,22 +174,22 @@ class TemplateRegressionTests(unittest.TestCase):
             f"Table {test_schema}.{target_table} is lost!" in result.output
         ), "Missing log for losing target schema."
 
-    def test_fact_snapshot_template(self) -> None:
+    def test_fact_periodic_snapshot_template(self) -> None:
         test_schema = "default"
         source_view = "vw_fact_sddc_daily"
         target_table = "dw_fact_sddc_daily"
         expect_table = "ex_fact_sddc_daily"
 
-        result: Result = self.__fact_snapshot_template_execute(
+        result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table
         )
         cli_assert_equal(0, result)
 
-        self.__fact_snapshot_template_check_expected_res(
+        self.__fact_periodic_snapshot_template_check_expected_res(
             test_schema, target_table, expect_table
         )
 
-    def test_fact_snapshot_empty_source(self) -> None:
+    def test_fact_periodic_snapshot_empty_source(self) -> None:
         test_schema = "default"
         source_view = "vw_fact_sddc_daily"
         target_table = "dw_fact_sddc_daily"
@@ -200,7 +200,7 @@ class TemplateRegressionTests(unittest.TestCase):
                 "run",
                 get_test_job_path(
                     pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                    "load_fact_snapshot_template_job_empty_source",
+                    "load_fact_periodic_snapshot_template_job_empty_source",
                 ),
                 "--arguments",
                 json.dumps(
@@ -223,17 +223,19 @@ class TemplateRegressionTests(unittest.TestCase):
             in result.output
         ), "Cannot find log about empty source in output."
 
-        self.__fact_snapshot_template_check_expected_res(
+        self.__fact_periodic_snapshot_template_check_expected_res(
             test_schema, target_table, expect_table
         )
 
-    def test_fact_snapshot_template_restore_target_from_backup_on_start(self) -> None:
+    def test_fact_periodic_snapshot_template_restore_target_from_backup_on_start(
+        self,
+    ) -> None:
         test_schema = "default"
         source_view = "vw_scmdb_people"
         target_table = "dw_scmdb_people"
         expect_table = "ex_scmdb_people"
 
-        result: Result = self.__fact_snapshot_template_execute(
+        result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table, True
         )
         cli_assert_equal(0, result)
@@ -242,7 +244,7 @@ class TemplateRegressionTests(unittest.TestCase):
             f"Successfully recovered {test_schema}.{target_table}" in result.output
         ), "Missing log for recovering target schema."
 
-        self.__fact_snapshot_template_check_expected_res(
+        self.__fact_periodic_snapshot_template_check_expected_res(
             test_schema, target_table, expect_table
         )
 
@@ -251,13 +253,13 @@ class TemplateRegressionTests(unittest.TestCase):
         "move_data_to_table",
         new=trino_move_data_to_table_break_tmp_to_target,
     )
-    def test_fact_snapshot_template_fail_last_step_and_restore_target(self):
+    def test_fact_periodic_snapshot_template_fail_last_step_and_restore_target(self):
         test_schema = "default"
         source_view = "vw_scmdb_people"
         target_table = "dw_scmdb_people"
         expect_table = "ex_scmdb_people"
 
-        result: Result = self.__fact_snapshot_template_execute(
+        result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table
         )
 
@@ -270,13 +272,15 @@ class TemplateRegressionTests(unittest.TestCase):
         "move_data_to_table",
         new=trino_move_data_to_table_break_tmp_to_target_and_restore,
     )
-    def test_fact_snapshot_template_fail_last_step_and_fail_restore_target(self):
+    def test_fact_periodic_snapshot_template_fail_last_step_and_fail_restore_target(
+        self,
+    ):
         test_schema = "default"
         source_view = "vw_scmdb_people"
         target_table = "dw_scmdb_people"
         expect_table = "ex_scmdb_people"
 
-        result: Result = self.__fact_snapshot_template_execute(
+        result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table
         )
 
@@ -288,7 +292,7 @@ class TemplateRegressionTests(unittest.TestCase):
             f"Table {test_schema}.{target_table} is lost!" in result.output
         ), "Missing log for losing target schema."
 
-    def __fact_snapshot_template_execute(
+    def __fact_periodic_snapshot_template_execute(
         self,
         test_schema,
         source_view,
@@ -301,7 +305,7 @@ class TemplateRegressionTests(unittest.TestCase):
                 "run",
                 get_test_job_path(
                     pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                    "load_fact_snapshot_template_job",
+                    "load_fact_periodic_snapshot_template_job",
                 ),
                 "--arguments",
                 json.dumps(
@@ -319,7 +323,7 @@ class TemplateRegressionTests(unittest.TestCase):
             ]
         )
 
-    def __fact_snapshot_template_check_expected_res(
+    def __fact_periodic_snapshot_template_check_expected_res(
         self, test_schema, target_table, expect_table
     ) -> None:
         actual_rs: Result = self.__runner.invoke(
