@@ -1,8 +1,22 @@
 Changelog
 =========
 
-1.2.2 - Next
+
+1.2.3 - Next
 ----
+
+1.2.2 - 19.08.2021
+----
+
+* **New feature**
+
+* **Improvement**
+  * Expose data job base image as configuration
+    Data job base image used to run deployed data job can be configured using helm now.
+
+* **Bug Fixes**
+
+* **Breaking Changes**
 
 
 1.2.1 - 18.08.2021
@@ -14,7 +28,6 @@ Changelog
   * Make helm char registry configurable.
     Configure registry part of docker images used for control-service API, job builder image and VDK distribution image.
     This make it easier to use docker cache proxies.
-
 
 * **Bug Fixes**
 
