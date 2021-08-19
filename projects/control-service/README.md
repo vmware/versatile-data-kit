@@ -1,6 +1,6 @@
 Versatile Data Kit Control Service enables creating, deploying, managing, and executing Data Jobs in Kubernetes runtime environment.
 
-Best way to see its full capabilities is to see the REST API:
+The best way to see its full capabilities is to see the REST API:
 see OpenAPI Spec at [api.yaml](./projects/model/apidefs/datajob-api/api.yaml)
 
 To contribute see [CONTRIBUTING.md](./CONTRIBUTING.md)
