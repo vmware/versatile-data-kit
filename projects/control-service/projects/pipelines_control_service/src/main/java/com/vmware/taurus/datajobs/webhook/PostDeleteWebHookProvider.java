@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  * <p>
  * Uses a single method {@link PostDeleteWebHookProvider#invokeWebHook(WebHookRequestBody)}
  * which triggers a webhook to a server to execute various Post Delete Data Jobs operations.
- * <p/>
+ * </p>
  */
 @Service
 @Slf4j
