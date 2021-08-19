@@ -7,7 +7,7 @@ To contribute see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Build
 
-Java 11 and Docker are necessary.
+Java 11 and Docker are required.
 
 Run from `projects/control-service` directory:
 ```bash
