@@ -144,8 +144,8 @@ public class JobsService {
    /**
     * Read a page of jobs
     *
-    * @param pageNumber The number of pages of items to skip before starting to collect the result set. Must be >= 0
-    * @param pageSize   The number of items in page. Must be > 0.
+    * @param pageNumber The number of pages of items to skip before starting to collect the result set. Must be &gt;= 0
+    * @param pageSize   The number of items in page. Must be &gt; 0.
     * @return a list of jobs, up to pageSize in size
     */
    public List<DataJob> getAllJobs(int pageNumber, int pageSize) {
@@ -162,8 +162,8 @@ public class JobsService {
    /**
     * Read a page of jobs belonging to a team
     *
-    * @param pageNumber The number of pages of items to skip before starting to collect the result set. Must be >= 0
-    * @param pageSize   The number of items in page. Must be > 0.
+    * @param pageNumber The number of pages of items to skip before starting to collect the result set. Must be &gt;= 0
+    * @param pageSize   The number of items in page. Must be &gt; 0.
     * @param teamName   The name of the team to which the job belongs
     * @return a list of jobs, up to pageSize in size
     */
