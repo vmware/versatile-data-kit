@@ -81,5 +81,4 @@ helm upgrade --install --wait --timeout 10m0s $RELEASE_NAME . \
       --set security.authorizationEnabled=true \
       --set security.authorization.webhookUri=https://httpbin.org/post \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
-      --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service" \
-      --set extraEnvVars.DATAJOBS_DEPLOYMENT_DATAJOBBASEIMAGE=python:3.9-slim
+      --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"
