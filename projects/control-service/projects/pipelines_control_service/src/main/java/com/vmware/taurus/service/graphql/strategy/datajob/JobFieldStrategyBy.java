@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 /**
  * Enum to distinguish between different strategies (fields and paths)
- * Using doubled string instead of prefilled & preformatted hashmap to map the incoming (field) vs outgoing (path) names
+ * Using doubled string instead of prefilled &amp; preformatted hashmap to map the incoming (field) vs outgoing (path) names
  * In future the order could be meaningful (due to dependencies across strategy fields),
  * but it could be controlled with the {@link JobFieldStrategyFactory}
  */

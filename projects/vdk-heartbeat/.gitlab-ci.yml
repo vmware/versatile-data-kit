@@ -8,6 +8,8 @@ image: "python:3.9"
 #  POSTGRES_DB: database_name
 
 vdk-heartbeat-test:
+  before_script:
+    - cd projects/vdk-heartbeat
   image: "python:3.9"
   stage: build
   script:
@@ -25,6 +27,8 @@ vdk-heartbeat-test:
 
 
 vdk-heartbeat-release:
+  before_script:
+    - cd projects/vdk-heartbeat
   stage: release
   script:
     - pip install -U pip setuptools wheel twine
