@@ -4,13 +4,14 @@ import json
 from unittest import mock
 
 import pytest
+
 from taurus.api.plugin.plugin_registry import PluginException
 from taurus.vdk.core.errors import UserCodeError
+from taurus.vdk.core.errors import PlatformServiceError
 from taurus.vdk.core.errors import VdkConfigurationError
 from taurus.vdk.ingest_over_http import IngestOverHttp
 
 payload: dict = {
-    "@table": "test_destination_table",
     "@id": "test_id",
     "some_data": "some_test_data",
 }
@@ -28,6 +29,8 @@ def mocked_requests_post(url, *args, **kwargs):
 
     if url == "http://example.com/data-source":
         return MockResponse(payload, 200)
+    elif url == "http://example.com/wrong/data-source":
+        return MockResponse(None, 500)
 
     return MockResponse(None, 404)
 
@@ -42,10 +45,11 @@ def test_ingest_over_http(mock_post):
     )
 
     assert len(mock_post.call_args_list) == 1
+    payload["@table"] = "test_table"
 
     mock_post.assert_called_with(
         headers={"Content-Type": "application/octet-stream"},
-        json=json.dumps(payload),
+        json=payload,
         url="http://example.com/data-source",
         verify=False,
     )
@@ -61,4 +65,29 @@ def test_ingest_over_http_missing_target(mock_post):
         )
 
 
-# TODO: test the other failure scenarios
+@mock.patch("requests.post", side_effect=mocked_requests_post)
+def test_ingest_over_http_missing_destination_table(mock_post):
+    test_payload = [{"key1": 42, "key2": True}]
+    http_ingester: IngestOverHttp = IngestOverHttp()
+
+    with pytest.raises(UserCodeError):
+        http_ingester.ingest_payload(payload=test_payload,
+                                     target="http://example.com/data-source")
+
+
+@mock.patch("requests.post", side_effect=mocked_requests_post)
+def test_ingest_over_http_request_errors(mock_post):
+    http_ingester: IngestOverHttp = IngestOverHttp()
+    with pytest.raises(UserCodeError):
+        http_ingester.ingest_payload(
+            payload=[payload],
+            destination_table="test_table",
+            target="http://example.com/",
+        )
+
+    with pytest.raises(PlatformServiceError):
+        http_ingester.ingest_payload(
+            payload=[payload],
+            destination_table="test_table",
+            target="http://example.com/wrong/data-source",
+        )
