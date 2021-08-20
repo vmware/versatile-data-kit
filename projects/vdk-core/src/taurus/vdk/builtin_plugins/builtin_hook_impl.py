@@ -10,6 +10,7 @@ import click
 from taurus.api.plugin.core_hook_spec import JobRunHookSpecs
 from taurus.api.plugin.hook_markers import hookimpl
 from taurus.vdk import vdk_build_info
+from taurus.vdk.builtin_plugins.config.config_help import ConfigHelpPlugin
 from taurus.vdk.builtin_plugins.config.log_config import LoggingPlugin
 from taurus.vdk.builtin_plugins.config.vdk_config import CoreConfigDefinitionPlugin
 from taurus.vdk.builtin_plugins.config.vdk_config import EnvironmentVarsConfigPlugin
@@ -88,6 +89,7 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     log.info("Load default (builtin) vdk plugins.")
     plugin_registry.load_plugin_with_hooks_impl(DebugPlugins())
     plugin_registry.load_plugin_with_hooks_impl(LoggingPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(ConfigHelpPlugin())
     plugin_registry.load_plugin_with_hooks_impl(CoreConfigDefinitionPlugin())
     plugin_registry.load_plugin_with_hooks_impl(EnvironmentVarsConfigPlugin())
     plugin_registry.load_plugin_with_hooks_impl(RuntimeStateInitializePlugin())

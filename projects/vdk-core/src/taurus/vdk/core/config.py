@@ -137,7 +137,7 @@ class ConfigurationBuilder:
         :param description: Set description if you want config variable to appear in command line help .
         It is strongly recommended to set description. If no description is set the config key will be hidden.
         TODO: in the future we should require description always and have separate hidden=True/False instead
-        :return: self so it can be chained
+        :return: self so it can be chained like builder.add(..).set_value(...)...
         """
         self.set_value(key, default_value)
         if description and show_default_value:
@@ -153,7 +153,7 @@ class ConfigurationBuilder:
         It will try to cast it to the specified default type inferred from default value (set with #add method)
         :param key: the configuration key
         :param value: the configuration value.
-        :return: self so it can be chained
+        :return: self so it can be chained like builder.set_value(..).add(...)...
         """
         default_value = (
             self.__config_key_to_value.get(key)
