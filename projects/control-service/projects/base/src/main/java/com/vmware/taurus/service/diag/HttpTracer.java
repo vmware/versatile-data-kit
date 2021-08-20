@@ -86,6 +86,7 @@ public class HttpTracer implements org.springframework.boot.actuate.trace.http.H
             if (log.isDebugEnabled()) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
+                    mapper.registerModule(new JavaTimeModule());
                     String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(trace);
                     log.debug(jsonString);
                 } catch (Exception e) {

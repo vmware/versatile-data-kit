@@ -1,6 +1,7 @@
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 ## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+## Set global.imageRegistry if you use docker proxy to the proxy prefix for versatiledataki.
 ##
 global: {}
 #   imageRegistry: myRegistryName
@@ -11,13 +12,21 @@ global: {}
 image:
    registry: registry.hub.docker.com/versatiledatakit
    repository: pipelines-control-service
-   tag: "c06eb1b"
+   tag: "4bab789"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
    ##
    pullPolicy: Always
+
+# The image configuration for builder jobs used during deployment of data jobs.
+# Generally those should be left as it is.
+deploymentBuilderImage:
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: job-builder
+  tag: "1.0.5"
+
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)
 ##
@@ -168,14 +177,27 @@ deploymentDockerRegistryUsername: ""
 deploymentDockerRegistryPassword: ""
 
 ## Image name of VDK which will be used to run the data jobs.
-## It will use image with tag latest and will be pulled before any execution thus making sure jobs use the same and latest version of VDK.
+## It is recommended to use image with same tag (e.g release or latest)
+## As it will be pulled before any execution thus making sure all jobs use the same and latest version of VDK.
 ## The image should contain installation of VDK (vdk) which will be used to run the data jobs (vdk run command)
 ## Only the installed python modules (vdk and its dependencies) will be used from the image.
 ## Everything else is effectively discarded since another image is used as base during execution.
 ## Override if you build VDK SDK yourself instead of using one provided by default.
-## (without https:// scheme)
-deploymentDockerVdkBaseImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+deploymentVdkDistributionImage:
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: quickstart-vdk
+  tag: "release"
 
+
+# The base image which will be used to create the image where data job would be run.
+# On top of it the job source and its dependencies are installed for each job.
+# It can be customized further by installing other native dependencies necessary to run different kinds of libraries
+# For example the below default image adds support for Oracle client on top of standard python image.
+# The SDK (vdk) is installed separate image (to enable zero time upgrades) see deploymentVdkDistributionImage
+deploymentDataJobBaseImage:
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: data-job-base-python-3.7
+  tag: "latest"
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.
