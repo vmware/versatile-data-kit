@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from unittest.mock import MagicMock
 from unittest.mock import patch
+from datetime import datetime
 
 import pytest
 from taurus.api.plugin.plugin_input import IIngesterPlugin
@@ -36,6 +37,7 @@ def create_ingester_base() -> IngesterBase:
 
 @patch.object(IngesterBase, "_send", spec=True)
 def test_send_object_for_ingestion(mocked_send):
+    test_unserializable_payload = {"key1": 42, "key2": datetime.utcnow()}
     destination_table = "a_destination_table"
     method = "test_method"
     target = "some_target"
@@ -59,16 +61,23 @@ def test_send_object_for_ingestion(mocked_send):
         )
     assert exc_info.type == errors.UserCodeError
 
+    with pytest.raises(errors.UserCodeError) as exc_info:
+        ingester_base.send_object_for_ingestion(payload=test_unserializable_payload,
+                                                destination_table=destination_table,
+                                                method=method,
+                                                target=target)
+    assert exc_info.type == errors.UserCodeError
+
 
 def test_send_tabular_data_for_ingestion():
-    test_rows = iter([["testrow0testcol0", "testrow0testcol1"]])
+    test_rows = iter([["testrow0testcol0", 42]])
     test_columns = ["testcol0", "testcol1"]
     destination_table = "a_destination_table"
     converted_row = [
         {
             "@table": destination_table,
             "testcol0": "testrow0testcol0",
-            "testcol1": "testrow0testcol1",
+            "testcol1": 42,
         }
     ]
     method = "test_method"
