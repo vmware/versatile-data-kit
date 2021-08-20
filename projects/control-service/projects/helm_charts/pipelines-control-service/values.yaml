@@ -12,7 +12,7 @@ global: {}
 image:
    registry: registry.hub.docker.com/versatiledatakit
    repository: pipelines-control-service
-   tag: "106a7db"
+   tag: "4bab789"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -188,6 +188,16 @@ deploymentVdkDistributionImage:
   repository: quickstart-vdk
   tag: "release"
 
+
+# The base image which will be used to create the image where data job would be run.
+# On top of it the job source and its dependencies are installed for each job.
+# It can be customized further by installing other native dependencies necessary to run different kinds of libraries
+# For example the below default image adds support for Oracle client on top of standard python image.
+# The SDK (vdk) is installed separate image (to enable zero time upgrades) see deploymentVdkDistributionImage
+deploymentDataJobBaseImage:
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: data-job-base-python-3.7
+  tag: "latest"
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.
