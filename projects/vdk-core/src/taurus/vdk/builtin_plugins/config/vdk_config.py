@@ -40,7 +40,7 @@ class CoreConfigDefinitionPlugin:
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
         """Set common configuration necessary for vdk
 
-        We are setting it as tryfirst to make sure any config provider afterwards would see the defintions.
+        We are setting it as tryfirst to make sure any config provider afterwards would see the definitions.
         """
 
         # TODO: Get currently supported db types
@@ -63,7 +63,7 @@ class CoreConfigDefinitionPlugin:
         config_builder.add(
             LOG_LEVEL_VDK,
             "DEBUG",
-            "Logging verbosity of VDK code can be cotrolled from here. "
+            "Logging verbosity of VDK code can be controlled from here. "
             "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG",
         )
         config_builder.add(JOB_GITHASH, "unknown")
@@ -133,6 +133,11 @@ class JobConfigIniPlugin:
 
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
+        description = f"""Used only during vdk run only - load configuration specified in
+config.ini file in the data job's root directory. It can be overridden by environment variables configuration.
+config.ini loads only specific configuration and is used for legacy reasons.
+The following options are set with config.ini: {[e.value for e in JobConfigKeys]}
+         """
         if (
             self.__job_path
             and self.__job_path.exists()
@@ -140,10 +145,6 @@ class JobConfigIniPlugin:
             and self.__job_path.joinpath("config.ini").exists()
         ):
             print("Detected config.ini. Will try to read config.ini.")
-            description = f"""Attempts configuration specified in config.ini file in the data job's root directory.
-config.ini loads only specific configuration and is used for legacy reasons.
-The following options are set with config.ini: {[e.value for e in JobConfigKeys]}
-         """
             config_builder.add(
                 key="__config_provider__job config ini",
                 default_value="always_enabled",
