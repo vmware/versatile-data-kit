@@ -1,13 +1,10 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import json
 import logging
 from typing import List
 from typing import Optional
 
 import requests
-from requests import HTTPError
-from taurus.api.plugin.plugin_registry import PluginException
 from taurus.vdk.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from taurus.vdk.core import errors
 
@@ -50,28 +47,25 @@ class IngestOverHttp(IIngesterPlugin):
 
         # TODO: do not make separate http requests for each payload but send them in single http request
         for obj in payload:
-            payload_object = None
-            if isinstance(obj, dict):
-                payload_object = obj
-            else:
-                try:
-                    # TODO: why ? As long as the object is serializable to json, it can be of any type.
-                    payload_object = dict(obj)
-                except Exception as e:
-                    errors.log_and_rethrow(
+            # TODO: Move all ingestion formatting logic to a separate plugin.
+            if not ("@table" in obj):
+                if not destination_table:
+                    errors.log_and_throw(
                         errors.ResolvableBy.USER_ERROR,
                         log,
-                        "Failed to convert payload to dictionary",
-                        "Likely payload contain type not supported by this plugin. Error was: "
-                        + e,
-                        "Will not be able to send the payload for ingestion",
-                        "Fix the types in the paylaod being sent. See error message for help ",
-                        wrap_in_vdk_error=True,
+                        "Corrupt payload",
+                        """destination_table argument is empty, or @table key is
+                        missing from payload.""",
+                        "Payload would not be ingested, and data job may fail.",
+                        "Re-send payload by including @table key/value pair, or pass a destination_table parameter to the ingestion method called.",
                     )
+                else:
+                    obj["@table"] = destination_table
+
             try:
                 req = requests.post(
                     url=target,
-                    json=json.dumps(payload_object),
+                    json=obj,
                     headers=header,
                     verify=False,  # nosec # TODO: disabled temporarily for easier testing, it must be configurable
                 )
@@ -102,7 +96,7 @@ class IngestOverHttp(IIngesterPlugin):
                     errors.ResolvableBy.PLATFORM_ERROR,
                     log,
                     "Failed to sent payload",
-                    "Unknown error. Error message was : " + e,
+                    "Unknown error. Error message was : " + str(e),
                     "Will not be able to send the payload for ingestion",
                     "See error message for help ",
                     e,
