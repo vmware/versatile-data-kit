@@ -1,6 +1,5 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import datetime
 import json
 import logging
 import queue
@@ -117,17 +116,7 @@ class IngesterBase(IIngester):
             meaning all method invocations from a data job run will belong to the
             same collection.
         """
-        if not payload:
-            raise errors.UserCodeError(
-                "Payload given to "
-                "job_input.send_object_for_ingestion should "
-                "not be empty."
-            )
-        elif not isinstance(payload, dict):
-            raise errors.UserCodeError(
-                "Payload given to job_input.send_object_for_ingestion should be a "
-                "dictionary, but it is not."
-            )
+        self.__verify_payload_format(payload_dict=payload)
 
         if collection_id is None:
             collection_id = "{data_job_name}|{execution_id}".format(
@@ -135,7 +124,7 @@ class IngesterBase(IIngester):
             )
 
         self._send(
-            payload=payload,
+            payload_dict=payload,
             destination_table=destination_table,
             method=method,
             target=target,
@@ -238,8 +227,9 @@ class IngesterBase(IIngester):
                 )
             )
             for row in converted_rows:
+                self.__verify_payload_format(payload_dict=row)
                 self._send(
-                    payload=row,
+                    payload_dict=row,
                     destination_table=destination_table,
                     method=method,
                     target=target,
@@ -248,7 +238,7 @@ class IngesterBase(IIngester):
 
     def _send(
         self,
-        payload: dict,
+        payload_dict: dict,
         destination_table: str,
         method: str,
         target: str,
@@ -257,7 +247,7 @@ class IngesterBase(IIngester):
         """
         Send payload to the _objects_queue for processing.)
 
-        :param payload: dict
+        :param payload_dict: dict
             Payload to be send to the _objects_queue.
         :param destination_table: string
             The name of the table, where the data sould be ingested into.
@@ -279,7 +269,7 @@ class IngesterBase(IIngester):
             same collection.
         """
         self._objects_queue.put(
-            (payload, destination_table, method, target, collection_id)
+            (payload_dict, destination_table, method, target, collection_id)
         )
 
     def _payload_aggregator_thread(self):
@@ -297,7 +287,7 @@ class IngesterBase(IIngester):
         while True:
             try:
                 (
-                    payload_object,
+                    payload_dict,
                     destination_table,
                     method,
                     target,
@@ -346,7 +336,7 @@ class IngesterBase(IIngester):
             # We are converting to string to get correct memory size. This may
             # cause performance issues.
             # TODO: Propose a way to calculate the object's memory footprint without converting to string.
-            string_payload = json.dumps(payload_object, separators=(",", ":"))
+            string_payload = str(payload_dict)
 
             if (
                 sys.getsizeof(string_payload) + current_payload_size_in_bytes
@@ -364,7 +354,7 @@ class IngesterBase(IIngester):
                     current_target,
                     current_collection_id,
                 )
-            aggregated_payload.append(payload_object)
+            aggregated_payload.append(payload_dict)
             number_of_payloads += 1
             current_payload_size_in_bytes += sys.getsizeof(string_payload)
 
@@ -424,9 +414,9 @@ class IngesterBase(IIngester):
             finally:
                 for i in range(number_of_payloads):
                     self._objects_queue.task_done()
-            # Return statement below is coupled with _payload_aggregator_thread
-            # and is used to reset the aggregated payload, number of payloads and
-            # its aggregated payload size
+        # Return statement below is coupled with _payload_aggregator_thread
+        # and is used to reset the aggregated payload, number of payloads and
+        # its aggregated payload size
         aggregated_payload_reset: list = []
         number_of_payloads_reset: int = 0
         current_payload_size_in_bytes_reset: int = 0
@@ -444,11 +434,11 @@ class IngesterBase(IIngester):
         while True:
             try:
                 payload = self._payloads_queue.get()
-                payload, destination_table, method, target, collection_id = payload
+                payload_dict, destination_table, method, target, collection_id = payload
 
                 try:
                     self._ingester.ingest_payload(
-                        payload=payload,
+                        payload=payload_dict,
                         destination_table=destination_table,
                         target=target,
                         collection_id=collection_id,
@@ -495,3 +485,31 @@ class IngesterBase(IIngester):
         ingester_utils.wait_completion(
             objects_queue=self._objects_queue, payloads_queue=self._payloads_queue
         )
+    
+    @staticmethod
+    def __verify_payload_format(payload_dict: dict):
+        if not payload_dict:
+            raise errors.UserCodeError(
+                "Payload given to "
+                "ingestion method should "
+                "not be empty."
+            )
+
+        elif not isinstance(payload_dict, dict):
+            raise errors.UserCodeError(
+                "Payload given to ingestion method should be a "
+                "dictionary, but it is not."
+            )
+        
+        # Check if payload dict is valid json
+        try:
+            json.dumps(payload_dict)
+        except (TypeError, OverflowError, Exception) as e:
+            errors.log_and_throw(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "Failed to send payload",
+                "JSON Serialization Error. Payload is not json serializable",
+                "Payload may be only partially ingested, or not ingested at all.",
+                f"See error message for help: {str(e)}"
+            )
