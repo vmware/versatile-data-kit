@@ -203,13 +203,18 @@ public class DataJobGraphQLIT extends BaseIT {
       // Test requesting of fields that are computed
       String contentAsString = mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
             .with(user("user"))
-            .param("query", "query($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
+            .param("query",
+                  "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
                   "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
                   "    content {" +
                   "      jobName" +
                   "      deployments {" +
                   "        id" +
                   "        enabled" +
+                  "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
+                  "          id" +
+                  "          status" +
+                  "        }" +
                   "      }" +
                   "      config {" +
                   "        team" +
@@ -228,6 +233,12 @@ public class DataJobGraphQLIT extends BaseIT {
                   "\"search\": \"" + TEST_JOB_1 + "\"," +
                   "\"pageNumber\": 1," +
                   "\"pageSize\": 10" +
+                  "\"executionFilter\": [" +
+                  "    {" +
+                  "      \"sort\": \"DESC\"," +
+                  "      \"property\": \"deployments.executions.status\"" +
+                  "    }" +
+                  "  ]," +
                   "}")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

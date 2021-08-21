@@ -7,37 +7,55 @@ package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
-import com.vmware.taurus.service.graphql.strategy.datajob.*;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByDescription;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByName;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByNextRun;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByScheduleCron;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBySourceUrl;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByTeam;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobPage;
-import com.vmware.taurus.service.model.Filter;
 import com.vmware.taurus.service.model.JobConfig;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
 import graphql.GraphQLException;
-import graphql.GraphqlErrorException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
+import graphql.schema.SelectedField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GraphQLDataFetchersTest {
 
-
+   @Mock
+   private ExecutionDataFetcher executionDataFetcher;
    @Mock
    private JobsRepository jobsRepository;
    @Mock
@@ -46,13 +64,14 @@ class GraphQLDataFetchersTest {
    private DataFetchingEnvironment dataFetchingEnvironment;
    @Mock
    private DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
+   @Mock
+   private SelectedField selectedField;
    private DataFetcher<Object> findDataJobs;
-   private ArrayList<LinkedHashMap<String, String>> rawFilters;
 
    @BeforeEach
    public void before() {
       JobFieldStrategyFactory strategyFactory = new JobFieldStrategyFactory(collectSupportedFieldStrategies());
-      GraphQLDataFetchers graphQLDataFetchers = new GraphQLDataFetchers(strategyFactory, jobsRepository, deploymentService);
+      GraphQLDataFetchers graphQLDataFetchers = new GraphQLDataFetchers(strategyFactory, jobsRepository, deploymentService, executionDataFetcher);
       findDataJobs = graphQLDataFetchers.findAllAndBuildDataJobPage();
    }
 
@@ -62,7 +81,8 @@ class GraphQLDataFetchersTest {
       when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(10);
       when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      when(dataFetchingFieldSelectionSet.contains(anyString())).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(not(eq(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())))).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())).thenReturn(false);
 
       DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
 
@@ -75,7 +95,8 @@ class GraphQLDataFetchersTest {
       when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(2);
       when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      when(dataFetchingFieldSelectionSet.contains(anyString())).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(not(eq(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())))).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())).thenReturn(false);
 
       DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
 
@@ -92,7 +113,7 @@ class GraphQLDataFetchersTest {
       when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
       when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
-            Filter.of("jobName", "sample-job", Filter.Direction.DESC)
+            Filter.of("jobName", "sample-job", Sort.Direction.DESC)
       ));
 
       DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
@@ -102,21 +123,7 @@ class GraphQLDataFetchersTest {
       assertThat(dataJob.getJobName()).isEqualTo("sample-job-3");
    }
 
-   @Test
-   void testDataFetcherOfJobs_whenUnsupportedFieldProvided_shouldThrowException() {
-      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(2);
-      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(2);
-      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
-      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      when(dataFetchingEnvironment.getArgument("search")).thenReturn(null);
-      when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
-            Filter.of(UUID.randomUUID().toString(), "sample-job-1", Filter.Direction.ASC)
-      ));
 
-      assertThrows(GraphqlErrorException.class, () -> {
-         findDataJobs.get(dataFetchingEnvironment);
-      });
-   }
 
    @Test
    void testDataFetcherOfJobs_whenSearchingSpecificJob_shouldReturnSearchedJob() throws Exception {
@@ -125,7 +132,8 @@ class GraphQLDataFetchersTest {
       when(dataFetchingEnvironment.getArgument("search")).thenReturn("sample-job-2");
       when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      when(dataFetchingFieldSelectionSet.contains(anyString())).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(not(eq(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())))).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())).thenReturn(false);
 
       DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
 
@@ -135,13 +143,14 @@ class GraphQLDataFetchersTest {
    }
 
    @Test
-   void testDataFetcherOfJobs_whenSearchingByPattern_shouldReturnMathchingJobs() throws Exception {
+   void testDataFetcherOfJobs_whenSearchingByPattern_shouldReturnMatchingJobs() throws Exception {
       when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
       when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(10);
       when(dataFetchingEnvironment.getArgument("search")).thenReturn("sample-job-2");
       when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      when(dataFetchingFieldSelectionSet.contains(anyString())).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(not(eq(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())))).thenReturn(true);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())).thenReturn(false);
 
       DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
 
@@ -187,6 +196,16 @@ class GraphQLDataFetchersTest {
       });
    }
 
+
+   private List<JobDeploymentStatus> mockListOfDeployments() {
+      List<JobDeploymentStatus> jobDeployments = new ArrayList<>();
+
+      jobDeployments.add(mockSampleDeployment("sample-job-1", true));
+      jobDeployments.add(mockSampleDeployment("sample-job-2", false));
+
+      return jobDeployments;
+   }
+
    private List<DataJob> mockListOfDataJobs() {
       List<DataJob> dataJobs = new ArrayList<>();
 
@@ -208,8 +227,17 @@ class GraphQLDataFetchersTest {
       return dataJob;
    }
 
-   private ArrayList<LinkedHashMap<String, String>> constructFilter(Filter ... filters ) {
-      rawFilters = new ArrayList<>();
+   private JobDeploymentStatus mockSampleDeployment(String jobName, boolean enabled) {
+      JobDeploymentStatus status = new JobDeploymentStatus();
+      status.setEnabled(enabled);
+      status.setDataJobName(jobName);
+      status.setCronJobName(jobName+"-latest");
+      status.setMode("release");
+      return status;
+   }
+
+   static ArrayList<LinkedHashMap<String, String>> constructFilter(Filter ... filters ) {
+      ArrayList<LinkedHashMap<String, String>> rawFilters = new ArrayList<>();
       Arrays.stream(filters).forEach(filter -> {
          LinkedHashMap<String, String> map = new LinkedHashMap<>();
 

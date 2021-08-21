@@ -8,8 +8,9 @@ package com.vmware.taurus.service.graphql.strategy.datajob;
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -38,7 +39,7 @@ class JobFieldStrategyByTeamTest {
    @Test
    void testJobTeamStrategy_whenComputingValidCriteriaWithoutFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(V2DataJob::getJobName));
-      Filter baseFilter = new Filter("random", null, Filter.Direction.DESC);
+      Filter baseFilter = new Filter("random", null, Sort.Direction.DESC);
       V2DataJob a = createDummyJob("starshot");
       V2DataJob b = createDummyJob("taurus");
 
@@ -51,7 +52,7 @@ class JobFieldStrategyByTeamTest {
    @Test
    void testJobTeamStrategy_whenComputingValidCriteriaWithFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(V2DataJob::getJobName));
-      Filter baseFilter = new Filter("config.team", "starshot", Filter.Direction.ASC);
+      Filter baseFilter = new Filter("config.team", "starshot", Sort.Direction.ASC);
       V2DataJob a = createDummyJob("starshot");
       V2DataJob b = createDummyJob("taurus");
 
