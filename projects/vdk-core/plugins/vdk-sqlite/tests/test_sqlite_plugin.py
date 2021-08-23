@@ -13,7 +13,10 @@ from taurus.vdk.test_utils.util_funcs import jobs_path_from_caller_directory
 def test_sqlite_plugin(tmpdir):
     with mock.patch.dict(
         os.environ,
-        {"VDK_DB_DEFAULT_TYPE": "SQLITE", "VDK_SQLITE_DIRECTORY": str(tmpdir)},
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
+        },
     ):
         runner = CliEntryBasedTestRunner(sqlite_plugin)
 
