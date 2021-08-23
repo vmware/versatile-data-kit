@@ -16,15 +16,19 @@ class SqLiteConnection:
     """
 
     def __init__(
-        self, temp_directory: pathlib.Path = pathlib.Path(tempfile.gettempdir())
+        self,
+        sqlite_file: pathlib.Path = pathlib.Path(tempfile.gettempdir()).joinpath(
+            "vdk-sqlite.db"
+        ),
     ):
-        self.__db_name = "vdk-sqlite"
-        self.__db_file = temp_directory.joinpath(self.__db_name + ".db")
+        self.__db_file = sqlite_file
 
     def new_connection(self):
         import sqlite3
 
-        log.info(f"Create new connection against local file db: {self.__db_name}")
+        log.info(
+            f"Creating new connection against local file database located at: {self.__db_file}"
+        )
         return sqlite3.connect(f"{self.__db_file}")
 
     def execute_query(self, query: str) -> List[List]:
