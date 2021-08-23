@@ -2,8 +2,21 @@ Changelog
 =========
 
 
-1.2.3 - Next
+1.2.4 - Next
+---
+
+1.2.3 - 23.08.2021
 ----
+* **New feature**
+
+* **Improvement**
+
+* **Bug Fixes**
+  * Data Job deployment fix
+    Atomic latestJobDeploymentStatus update introduced to solve transaction contention.
+
+* **Breaking Changes**
+
 
 1.2.2 - 19.08.2021
 ----
@@ -15,6 +28,7 @@ Changelog
     Data job base image used to run deployed data job can be configured using helm now.
 
 * **Bug Fixes**
+  * Generating javadoc fix
 
 * **Breaking Changes**
 
@@ -32,7 +46,6 @@ Changelog
 * **Bug Fixes**
 
 * **Breaking Changes**
-
 
 
 1.2.0 - 17.08.2021
