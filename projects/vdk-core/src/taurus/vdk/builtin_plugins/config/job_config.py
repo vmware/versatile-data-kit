@@ -63,20 +63,21 @@ class JobConfig:
 
     def get_enable_attempt_notifications(self) -> bool:
         """
-        Flag to enable or disable the email notifications on a single attempt (in other automatic re-tries will not sent one).
+        Flag to enable or disable the email notifications on a single attempt
+        (in other words each automatic retry will sent an email).
         """
         enable_attempt_notif_value = self._get_value(
             "contacts", JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS
         )
         if (
             enable_attempt_notif_value == ""
-        ):  # if the parameter hasn't been set in config.ini, we default to True
-            return True
+        ):  # if the parameter hasn't been set in config.ini, we default to False
+            return False
         else:
             return convert_value_to_type_of_default_type(
                 JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
                 enable_attempt_notif_value,
-                True,
+                False,
             )
 
     def get_db_type(self) -> str:
