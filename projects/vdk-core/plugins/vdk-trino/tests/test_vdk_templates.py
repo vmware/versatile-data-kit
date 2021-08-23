@@ -85,11 +85,23 @@ class TemplateRegressionTests(unittest.TestCase):
         cli_assert_equal(0, result)
 
         actual_rs: Result = self.__runner.invoke(
-            ["trino-query", "--query", f"SELECT * FROM {target_schema}.{target_table}"]
+            [
+                "trino-query",
+                "--query",
+                f"""
+                SELECT * FROM "{target_schema}"."{target_table}"
+                """,
+            ]
         )
 
         expected_rs: Result = self.__runner.invoke(
-            ["trino-query", "--query", f"SELECT * FROM {source_schema}.{source_view}"]
+            [
+                "trino-query",
+                "--query",
+                f"""
+                SELECT * FROM "{source_schema}"."{source_view}"
+                """,
+            ]
         )
 
         cli_assert_equal(0, actual_rs)
@@ -330,7 +342,9 @@ class TemplateRegressionTests(unittest.TestCase):
             [
                 "trino-query",
                 "--query",
-                f"SELECT * FROM {test_schema}.{target_table} ORDER BY dim_date_id, dim_sddc_sk",
+                f"""
+                SELECT * FROM "{test_schema}"."{target_table}" ORDER BY dim_date_id, dim_sddc_sk
+                """,
             ]
         )
 
@@ -338,7 +352,9 @@ class TemplateRegressionTests(unittest.TestCase):
             [
                 "trino-query",
                 "--query",
-                f"SELECT * FROM {test_schema}.{expect_table} ORDER BY dim_date_id, dim_sddc_sk",
+                f"""
+                SELECT * FROM "{test_schema}"."{expect_table}" ORDER BY dim_date_id, dim_sddc_sk
+                """,
             ]
         )
 
@@ -412,7 +428,7 @@ class TemplateRegressionTests(unittest.TestCase):
                 "trino-query",
                 "--query",
                 f"""SELECT active_from, active_to, sddc_id, updated_by_user_id, state, is_next, cloud_vendor, version
-                FROM {test_schema}.{target_table}
+                FROM "{test_schema}"."{target_table}"
                 ORDER BY sddc_id, active_to""",
             ]
         )
@@ -422,7 +438,7 @@ class TemplateRegressionTests(unittest.TestCase):
                 "trino-query",
                 "--query",
                 f"""SELECT active_from, active_to, sddc_id, updated_by_user_id, state, is_next, cloud_vendor, version
-                FROM {test_schema}.{expect_table}
+                FROM "{test_schema}"."{expect_table}"
                 ORDER BY sddc_id, active_to""",
             ]
         )
