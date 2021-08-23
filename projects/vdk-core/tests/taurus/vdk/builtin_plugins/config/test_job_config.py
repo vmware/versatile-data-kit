@@ -76,7 +76,7 @@ class TestJobConfig:
         open(empty_file, "a").close()
         cfg = JobConfig(pathlib.Path(empty_file_dir))
 
-        self.assertEqual(True, cfg.get_enable_attempt_notifications())
+        self.assertEqual(False, cfg.get_enable_attempt_notifications())
         # this is the only important default no need to verify the others.
 
     @staticmethod

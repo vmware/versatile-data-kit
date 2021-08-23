@@ -1,1 +1,1 @@
-DROP TABLE {target_schema}.{target_table}
+DROP TABLE "{target_schema}"."{target_table}"
