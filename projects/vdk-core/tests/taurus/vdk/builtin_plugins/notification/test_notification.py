@@ -2,10 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 import smtplib
 import unittest
+from collections import defaultdict
 from email.mime.text import MIMEText
+from typing import cast
 from unittest.mock import patch
 
 from taurus.vdk.builtin_plugins.notification import notification_base
+from taurus.vdk.builtin_plugins.notification.notification_configuration import (
+    SmtpConfiguration,
+)
+from taurus.vdk.core.config import Configuration
 
 job_log_url_template = (
     "https://test.log.com/explorer/?existingChartQuery=%7B%22query"
@@ -15,7 +21,17 @@ job_log_url_template = (
 )
 cc = None
 sender = "vdk@test.com"
-smtp_host = "smtp.test.com"
+smtp_cfg = SmtpConfiguration(
+    cast(
+        Configuration,
+        defaultdict(
+            lambda: None,
+            NOTIFICATION_SMTP_HOST="smtp.test.com",
+            NOTIFICATION_SMTP_PORT=25,
+            NOTIFICATION_SMTP_DEBUG_LEVEL=1,
+        ),
+    )
+)
 
 
 class NotificationTest(unittest.TestCase):
@@ -25,7 +41,7 @@ class NotificationTest(unittest.TestCase):
     def test_get_valid_recipients(self, mock_email_exists):
         mock_email_exists.side_effect = [True, False]
         valid_recipients = notification_base.EmailNotification(
-            [" valid1@test.com ", "invalid1@test.com"], cc, smtp_host, sender
+            [" valid1@test.com ", "invalid1@test.com"], cc, smtp_cfg, sender
         )._get_valid_recipients()
 
         self.assertEqual(["valid1@test.com"], valid_recipients)
@@ -34,7 +50,7 @@ class NotificationTest(unittest.TestCase):
     def test_email_address_exists_valid_email(self, mock_smtp):
         mock_smtp.return_value.rcpt.return_value = (250,)
         email_notification = notification_base.EmailNotification(
-            [], "", smtp_host, sender
+            [], "", smtp_cfg, sender
         )
         self.assertEqual(
             True, email_notification._email_address_exists("valid@test.com")
@@ -61,7 +77,7 @@ class NotificationTest(unittest.TestCase):
         self, mock_send_message, mock_build_message, mock_get_valid_recipients
     ):
         email_notification = notification_base.EmailNotification(
-            [], cc, smtp_host, sender
+            [], cc, smtp_cfg, sender
         )
         msg = MIMEText("body", "html")
         msg["Subject"] = "subject"
@@ -97,7 +113,7 @@ class NotificationTest(unittest.TestCase):
         self, mock_send_message, mock_build_message, mock_get_valid_recipients
     ):
         email_notification = notification_base.EmailNotification(
-            [], cc, smtp_host, sender
+            [], cc, smtp_cfg, sender
         )
         mock_get_valid_recipients.return_value = []
 
@@ -130,7 +146,7 @@ class NotificationTest(unittest.TestCase):
         mock_get_valid_recipients.return_value = []
 
         email_notification = notification_base.EmailNotification(
-            ["not-valid-email@test.com"], ["cc-email@test.com"], smtp_host, sender
+            ["not-valid-email@test.com"], ["cc-email@test.com"], smtp_cfg, sender
         )
 
         email_notification.notify("", "no-valid-email-body")
@@ -142,18 +158,18 @@ class NotificationTest(unittest.TestCase):
     @patch("taurus.vdk.builtin_plugins.notification.notification_base.LoggingSMTP")
     def test_send_email_message(self, mock_smtp):
         msg = notification_base.EmailNotification(
-            [], cc, smtp_host, sender
+            [], cc, smtp_cfg, sender
         )._build_message("subject", "message", "somebody@test.com")
 
         notification_base.EmailNotification(
-            "somebody@test.com", cc, smtp_host, sender
+            "somebody@test.com", cc, smtp_cfg, sender
         )._send_message(msg)
 
         mock_smtp.return_value.send_message.assert_called_once_with(msg)
 
     def test_build_message(self):
         msg = notification_base.EmailNotification(
-            [], cc, smtp_host, sender="other@test.com"
+            [], cc, smtp_cfg, sender="other@test.com"
         )._build_message("subject", "body", "somebody@test.com,else@test.com")
 
         self.assertEqual("other@test.com", msg["From"])
@@ -359,6 +375,3 @@ class NotificationTest(unittest.TestCase):
 
     def _assert_equal_str_without_whitespaces(self, expected, actual):
         return self.assertEqual(expected.replace(" ", ""), actual.replace(" ", ""))
-
-    if __name__ == "__main__":
-        unittest.main()
