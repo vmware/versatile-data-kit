@@ -133,11 +133,18 @@ class JobConfigIniPlugin:
 
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
-        description = f"""Used only during vdk run only - load configuration specified in
-config.ini file in the data job's root directory. It can be overridden by environment variables configuration.
+        description = f"""Used only during vdk run  - load configuration specified in
+config.ini file in the data job's root directory.
+It can be overridden by environment variables configuration (set by operators in Cloud deployment or by users locally).
 config.ini loads only specific configuration and is used for legacy reasons.
-The following options are set with config.ini: {[e.value for e in JobConfigKeys]}
+Only the following options can be set with config.ini: {[e.value for e in JobConfigKeys]}
          """
+
+        config_builder.add(
+            key="__config_provider__job config ini",
+            default_value="always_enabled",
+            description=description,
+        )
         if (
             self.__job_path
             and self.__job_path.exists()
@@ -145,11 +152,6 @@ The following options are set with config.ini: {[e.value for e in JobConfigKeys]
             and self.__job_path.joinpath("config.ini").exists()
         ):
             print("Detected config.ini. Will try to read config.ini.")
-            config_builder.add(
-                key="__config_provider__job config ini",
-                default_value="always_enabled",
-                description=description,
-            )
 
             job_config = JobConfig(self.__job_path)
             config_builder.set_value(JobConfigKeys.TEAM, job_config.get_team())

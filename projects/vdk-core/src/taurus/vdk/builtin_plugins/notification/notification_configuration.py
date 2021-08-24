@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 
+from taurus.vdk.builtin_plugins.config.job_config import JobConfigKeys
 from taurus.vdk.core.config import Configuration
 from taurus.vdk.core.config import ConfigurationBuilder
 
@@ -33,6 +34,45 @@ class NotificationConfiguration:
         return str(self.__config[NOTIFICATION_SMTP_HOST])
 
 
+def __add_job_notified_configuration_definitions(config_builder: ConfigurationBuilder):
+    config_builder.add(
+        key=JobConfigKeys.TEAM,
+        default_value="",
+        description="Specified which is the team that owns the data job. "
+        "Value is case-sensitive and must be an actual team name as specified during job creation."
+        "",
+    )
+    config_builder.add(
+        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR,
+        default_value="",
+        description="Semicolon-separated list of email addresses to be notified on job execution "
+        "failure caused by user code or user configuration problem. "
+        " For example: if the job contains an SQL script with syntax error.",
+    )
+    config_builder.add(
+        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR,
+        default_value="",
+        description="Semicolon-separated list of email addresses to be notified on job execution failure "
+        "caused by a platform problem, including job execution delays.",
+    )
+    config_builder.add(
+        key=JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS,
+        default_value="",
+        description="Semicolon-separated list of email addresses to be notified on job execution success.",
+    )
+    config_builder.add(
+        key=JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY,
+        default_value="",
+        description="Semicolon-separated list of email addresses to be notified of job deployment outcome",
+    )
+    config_builder.add(
+        key=JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
+        default_value=False,
+        description="Flag to enable or disable the email notifications sent to the recipients listed above "
+        "for each data job run attempt.",
+    )
+
+
 def add_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
         key=NOTIFICATION_JOB_LOG_URL_PATTERN,
@@ -61,3 +101,4 @@ def add_definitions(config_builder: ConfigurationBuilder):
         default_value="smtp.vmware.com",
         description="The SMTP host used for to send the notification email.",
     )
+    __add_job_notified_configuration_definitions(config_builder)
