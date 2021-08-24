@@ -44,3 +44,12 @@ They need to provide LineageLogger implementation and hook this way:
 # Configuration
 
 Run vdk config-help - search for those prefixed with "TRINO_" to see what configuration options are available.
+
+# Testing
+
+Testing this plugin locally requires installing the dependencies listed in plugins/vdk-trino/requirements.txt
+
+Run
+```bash
+pip install -r requirements.txt
+```

@@ -6,6 +6,7 @@ import pathlib
 import unittest
 from unittest import mock
 
+import pytest
 from click.testing import Result
 from taurus.vdk import trino_plugin
 from taurus.vdk.test_utils.util_funcs import cli_assert_equal
@@ -44,6 +45,7 @@ def trino_move_data_to_table_break_tmp_to_target_and_restore(
     return org_move_data_to_table(obj, from_db, from_table_name, to_db, to_table_name)
 
 
+@pytest.mark.usefixtures("trino_service")
 @mock.patch.dict(
     os.environ,
     {
