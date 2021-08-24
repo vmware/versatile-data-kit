@@ -28,7 +28,11 @@ class TrinoTemplateQueries:
         """
         result = True
         try:
-            self.__job_input.execute_query(f"DESCRIBE {db}.{table_name}")
+            self.__job_input.execute_query(
+                f"""
+                DESCRIBE "{db}"."{table_name}"
+                """
+            )
         except Exception as e:
             if self.__is_table_not_found_error(e):
                 result = False
@@ -57,23 +61,23 @@ class TrinoTemplateQueries:
         if strategy == "RENAME":
             return self.__job_input.execute_query(
                 f"""
-                ALTER TABLE {from_db}.{from_table_name} RENAME TO {to_db}.{to_table_name}
+                ALTER TABLE "{from_db}"."{from_table_name}" RENAME TO "{to_db}"."{to_table_name}"
                 """
             )
         elif strategy == "INSERT_SELECT":
             self.__job_input.execute_query(
                 f"""
-                CREATE TABLE {to_db}.{to_table_name} (LIKE {from_db}.{from_table_name})
+                CREATE TABLE "{to_db}"."{to_table_name}" (LIKE "{from_db}"."{from_table_name}")
                 """
             )
             self.__job_input.execute_query(
                 f"""
-                INSERT INTO {to_db}.{to_table_name} SELECT * FROM {from_db}.{from_table_name}
+                INSERT INTO "{to_db}"."{to_table_name}" SELECT * FROM "{from_db}"."{from_table_name}"
                 """
             )
             return self.__job_input.execute_query(
                 f"""
-                DROP TABLE {from_db}.{from_table_name}
+                DROP TABLE "{from_db}"."{from_table_name}"
                 """
             )
         else:
@@ -95,7 +99,7 @@ class TrinoTemplateQueries:
         """
         return self.__job_input.execute_query(
             f"""
-            DROP TABLE IF EXISTS {db}.{table_name}
+            DROP TABLE IF EXISTS "{db}"."{table_name}"
             """
         )
 
