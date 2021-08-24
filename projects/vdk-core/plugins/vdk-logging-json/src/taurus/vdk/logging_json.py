@@ -13,6 +13,14 @@ format_template = (
     '"lineno":"%(lineno)s","funcname":"%(funcName)s","attemptid":"{attempt_id}","message":"%(message)s"'
 )
 
+# this class serves to escape newline characters in the log message
+# as according to https://stackoverflow.com/questions/42068/how-do-i-handle-newlines-in-json
+# it is currently experimental and might be removed
+class RemoveNewlinesFormatter(logging.Formatter):
+    def format(self, record):
+        record.msg = record.msg.replace("\n", "\\n")
+        return super().format(record)
+
 
 @hookimpl(trylast=True)
 def initialize_job(context: JobContext) -> None:
@@ -27,7 +35,7 @@ def initialize_job(context: JobContext) -> None:
     )  # formatting a string containing curly braces
 
     for handler in logging.getLogger().handlers:
-        formatter = logging.Formatter(fmt=detailed_format)
+        formatter = RemoveNewlinesFormatter(fmt=detailed_format)
         formatter.default_time_format = "%Y-%m-%dT%H:%M:%S"
         formatter.default_msec_format = "%s.%03dZ"
 
