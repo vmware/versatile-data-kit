@@ -1,4 +1,8 @@
 vdk-core
-click
 trino
+
+# testing requirements
+click
 vdk-test-utils
+pytest-docker
+docker-compose

@@ -39,11 +39,6 @@ In short:
 * Click OK to save the settings;
 *  Add tests directory as Test Sources;
 
-* Testing the `vdk-trino` plugin locally requires a manually started trino. You can do this by running:
-```bash
-docker run -p 8080:8080 --name trino trinodb/trino
-```
-
 
 ## Release
 
