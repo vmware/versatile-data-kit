@@ -148,6 +148,56 @@ class JobController:
                            "-t", self.config.job_team,
                            "-p", heartbeat_job_dir,
                            "-r", "Updating heartbeat data job"])
+    
+    @LogDecorator(log)
+    def start_job_execution(self):
+        log.info("Starting data job execution through API.")
+        job_execution = self._execute(["execute",
+                                       "--start",
+                                       "-t", self.config.job_team,
+                                       "-n", self.config.job_name,
+                                       "-o", "json",
+                                       "-u", self.config.control_api_url])
+        
+        job_execution_id = json.loads(job_execution)["execution_id"]
+
+        response = self._execute(["execute",
+                                      "--show",
+                                      "-t", self.config.job_team,
+                                      "-n", self.config.job_name,
+                                      "-o", "json",
+                                      "-u", self.config.control_api_url,
+                                      "--execution-id", str(job_execution_id)])
+        execution_response = json.loads(response)
+        
+        assert str(job_execution_id) in str(execution_response), "Failed to start data job execution."
+        log.info("Execution started successfully.")
+
+    @LogDecorator(log)
+    def check_job_execution_finished(self):
+        log.info("Checking if data job execution is still running.")
+        job_execution_running = True
+        start = time.time()
+
+        while job_execution_running and time.time() - start < self.config.RUN_TEST_TIMEOUT_SECONDS:
+            response = self._execute(["execute",
+                                      "--list",
+                                      "-t", self.config.job_team,
+                                      "-n", self.config.job_name,
+                                      "-o" "json",
+                                      "-u", self.config.control_api_url])
+            execution_list = json.loads(response)
+
+            job_execution_running = False
+            for execution in execution_list:
+                if str(execution["status"]) == "running":
+                    job_execution_running = True
+                    log.info(f"Data job execution is in state {execution['status']}. Will wait 10 seconds and check again.")
+                    break
+            time.sleep(10)
+        log.info(f"Data job is running : {job_execution_running}")
+        assert not job_execution_running, (f"VDK-heartbeat timed out. Job execution {self.config.job_name} " +
+                                           f"did not finish in {self.config.RUN_TEST_TIMEOUT_SECONDS}.")
 
     def _update_config_ini(self, heartbeat_job_dir):
         config_ini = configparser.ConfigParser()
