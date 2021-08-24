@@ -51,7 +51,7 @@ public class DeploymentMonitor {
    public void updateDataJobStatus(String dataJob, DeploymentStatus deploymentStatus) {
       if (!currentStatuses.containsKey(dataJob)) {
          Tags tags = Tags.of("dataJob", dataJob);
-         Gauge.builder(this.GAUGE_METRIC_NAME, currentStatuses,
+         Gauge.builder(GAUGE_METRIC_NAME, currentStatuses,
                  map -> map.getOrDefault(dataJob, 0))
                  .tags(tags)
                  .register(meterRegistry);
@@ -70,7 +70,7 @@ public class DeploymentMonitor {
          boolean jobExists = saveDataJobStatus(dataJobName, deploymentStatus);
          if (jobExists || currentStatuses.containsKey(dataJobName)) {
             // TODO: Add tag for data job mode
-            DistributionSummary.builder(this.SUMMARY_METRIC_NAME)
+            DistributionSummary.builder(SUMMARY_METRIC_NAME)
                     .tag("dataJob", dataJobName)
                     .tag("status", deploymentStatus.toString())
                     .register(meterRegistry)
@@ -82,15 +82,11 @@ public class DeploymentMonitor {
       }
    }
 
-   private boolean saveDataJobStatus(String dataJobName, DeploymentStatus deploymentStatus) {
-      DataJob dataJob = this.jobsRepository.findById(dataJobName).orElse(null);
-      if (dataJob != null) {
-         dataJob.setLatestJobDeploymentStatus(deploymentStatus);
-         this.jobsRepository.save(dataJob);
-         return true;
-      } else {
-         log.debug("Data job: {} was deleted or hasn't been created", dataJobName);
-      }
-      return false;
-   }
+    private boolean saveDataJobStatus(final String dataJobName, final DeploymentStatus deploymentStatus) {
+        if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus) > 0) {
+            return true;
+        }
+        log.debug("Data job: {} was deleted or hasn't been created", dataJobName);
+        return false;
+    }
 }

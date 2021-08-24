@@ -6,10 +6,15 @@
 package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DeploymentStatus;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +36,13 @@ public interface JobsRepository extends PagingAndSortingRepository<DataJob, Stri
    List<DataJob> findAllByJobConfigTeam(String team, Pageable pageable);
 
    Optional<DataJob> findDataJobByNameAndJobConfigTeam(String jobName, String teamName);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("update DataJob j set j.latestJobDeploymentStatus = :latestJobDeploymentStatus where j.name = :name")
+    int updateDataJobLatestJobDeploymentStatusByName(
+            @Param(value = "name") String name,
+            @Param(value = "latestJobDeploymentStatus") DeploymentStatus latestJobDeploymentStatus);
 
    boolean existsDataJobByNameAndJobConfigTeam(String jobName, String teamName);
 }
