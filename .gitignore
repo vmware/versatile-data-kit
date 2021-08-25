@@ -33,6 +33,7 @@ venv
 *.eggs/
 .installed.cfg
 *.egg-info
+Chart.lock
 
 # Unittest and coverage
 htmlcov/*
@@ -51,10 +52,14 @@ docs/_rst/*
 docs/_build/*
 cover/*
 MANIFEST
+tests.xml
 
 # Per-project virtualenvs
 .venv*/
+.python-version
 
 # Ignore Gradle project-specific cache directory
 .gradle
 temp
+gradlew
+gradlew.bat
