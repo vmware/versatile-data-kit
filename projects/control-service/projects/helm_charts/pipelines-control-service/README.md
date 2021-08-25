@@ -15,7 +15,7 @@ Versatile Data Kit is a platform that enables Data Engineers to implement automa
 ## TL;DR;
 ```console
 $ helm repo add vdk-gitlab https://gitlab.com/api/v4/projects/28814611/packages/helm/stable
-$ helm install vdk-gitlab/pipelines-control-service
+$ helm install my-release vdk-gitlab/pipelines-control-service
 ```
 
 Note: integration with bitnami is being planned which will replace above repo.
@@ -29,7 +29,7 @@ It also packages the [Cockroach chart](https://github.com/helm/charts/tree/maste
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install my-release bitnami/pipelines-control-service
+$ helm install my-release vdk-gitlab/pipelines-control-service
 ```
 
 The command deploys Versatile Data Kit on the Kubernetes cluster in the default configuration.
@@ -58,17 +58,13 @@ Specify each parameter using the `--set key=value` or `--set-file key=filePath` 
 ```console
 $ helm install my-release \
     --set cockroachdb.storage.persistentVolume.storageClass="3671cd71625c4312a2aee130db182e4c" \
-    --set kerberosKadminUser=$KADMIN_USER \
-    --set kerberosKadminPassword=$KADMIN_PASSWORD \
-    --set-file kerberosKrb5Conf=$KRB5_CONFIG \
-    --set-file deploymentK8sKubeconfig=$KUBECONFIG \
-    bitnami/pipelines-control-service
+    vdk-gitlab/pipelines-control-service
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install my-release -f my-values.yaml bitnami/pipelines-control-service
+$ helm install my-release -f my-values.yaml vdk-gitlab/pipelines-control-service
 ```
 
 
