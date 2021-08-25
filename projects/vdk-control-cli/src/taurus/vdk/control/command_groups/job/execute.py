@@ -67,14 +67,15 @@ class JobExecute:
         location = headers["Location"]
         execution_id = os.path.basename(location)
         if output == OutputFormat.TEXT.value:
-            log.info(
+            click.echo(
                 f"Execution of Data Job {name} started. "
                 f"See execution status using: \n\n"
-                f"vdkcli execute --show --execution-id {execution_id} -n {name}"
+                f"vdkcli execute --show --execution-id {execution_id} -n {name} -t {team}"
             )
         elif output == OutputFormat.JSON.value:
             result = {
                 "job_name": name,
+                "team": team,
                 "execution_id": execution_id,
             }
             click.echo(json.dumps(result))
