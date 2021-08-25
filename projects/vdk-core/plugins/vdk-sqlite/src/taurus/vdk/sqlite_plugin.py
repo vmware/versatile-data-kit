@@ -13,7 +13,7 @@ from taurus.vdk.core.config import Configuration
 from taurus.vdk.core.config import ConfigurationBuilder
 from taurus.vdk.sqllite_connection import SqLiteConnection
 
-SQLITE_DIRECTORY = "SQLITE_DIRECTORY"
+SQLITE_FILE = "SQLITE_FILE"
 
 log = logging.getLogger(__name__)
 
@@ -22,15 +22,17 @@ class SqLiteConfiguration:
     def __init__(self, configuration: Configuration):
         self.__config = configuration
 
-    def get_sqlite_directory(self) -> pathlib.Path:
-        return pathlib.Path(self.__config.get_value(SQLITE_DIRECTORY))
+    def get_sqlite_file(self) -> pathlib.Path:
+        return pathlib.Path(self.__config.get_value(SQLITE_FILE))
 
 
 def add_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
-        key=SQLITE_DIRECTORY,
-        default_value=tempfile.gettempdir(),
-        description="The directory where the sqlite database would be found.",
+        key=SQLITE_FILE,
+        default_value=str(
+            pathlib.Path(tempfile.gettempdir()).joinpath("vdk-sqlite.db")
+        ),
+        description="The file of the sqlite database.",
     )
 
 
@@ -47,9 +49,7 @@ def initialize_job(context: JobContext) -> None:
     conf = SqLiteConfiguration(context.core_context.configuration)
     context.connections.add_open_connection_factory_method(
         "SQLITE",
-        lambda: SqLiteConnection(
-            pathlib.Path(conf.get_sqlite_directory())
-        ).new_connection(),
+        lambda: SqLiteConnection(pathlib.Path(conf.get_sqlite_file())).new_connection(),
     )
 
 
@@ -60,7 +60,7 @@ def initialize_job(context: JobContext) -> None:
 @click.pass_context
 def sqlite_query(ctx: click.Context, query):
     conf = SqLiteConfiguration(ctx.obj.configuration)
-    conn = SqLiteConnection(conf.get_sqlite_directory())
+    conn = SqLiteConnection(conf.get_sqlite_file())
     res = conn.execute_query(query)
     click.echo(tabulate(res))
 

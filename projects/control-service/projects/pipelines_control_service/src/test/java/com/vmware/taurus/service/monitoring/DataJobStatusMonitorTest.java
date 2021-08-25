@@ -36,7 +36,7 @@ import static org.mockito.Mockito.doThrow;
 
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ControlplaneApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DataJobStatusMonitorTest {
 

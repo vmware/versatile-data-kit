@@ -6,6 +6,7 @@ import pathlib
 import unittest
 from unittest import mock
 
+import pytest
 from click.testing import Result
 from taurus.vdk import trino_plugin
 from taurus.vdk.test_utils.util_funcs import cli_assert_equal
@@ -44,6 +45,7 @@ def trino_move_data_to_table_break_tmp_to_target_and_restore(
     return org_move_data_to_table(obj, from_db, from_table_name, to_db, to_table_name)
 
 
+@pytest.mark.usefixtures("trino_service")
 @mock.patch.dict(
     os.environ,
     {
@@ -110,6 +112,59 @@ class TemplateRegressionTests(unittest.TestCase):
             actual_rs.output == expected_rs.output
         ), f"Elements in {source_view} and {target_table} differ."
 
+    def test_scd1_template_reserved_args(self) -> None:
+        source_schema = "default"
+        source_view = "alter"
+        target_schema = "default"
+        target_table = "table"
+
+        result: Result = self.__runner.invoke(
+            [
+                "run",
+                get_test_job_path(
+                    pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                    "load_dimension_scd1_template_job",
+                ),
+                "--arguments",
+                json.dumps(
+                    {
+                        "source_schema": source_schema,
+                        "source_view": source_view,
+                        "target_schema": target_schema,
+                        "target_table": target_table,
+                    }
+                ),
+            ]
+        )
+
+        cli_assert_equal(0, result)
+
+        actual_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"""
+                SELECT * FROM "{target_schema}"."{target_table}"
+                """,
+            ]
+        )
+
+        expected_rs: Result = self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                f"""
+                SELECT * FROM "{source_schema}"."{source_view}"
+                """,
+            ]
+        )
+
+        cli_assert_equal(0, actual_rs)
+        cli_assert_equal(0, expected_rs)
+        assert (
+            actual_rs.output == expected_rs.output
+        ), f"Elements in {source_view} and {target_table} differ."
+
     def test_scd2_template(self) -> None:
         test_schema = "default"
         source_view = "vw_scmdb_people"
@@ -123,6 +178,25 @@ class TemplateRegressionTests(unittest.TestCase):
 
         # Check if we got the expected result and successfully dropped backup
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
+        cli_assert_equal(
+            1, self.__template_table_exists(test_schema, "backup_" + target_table)
+        )
+
+    def test_scd2_template_reserved_args(self) -> None:
+        test_schema = "default"
+        source_view = "alter"
+        target_table = "table"
+        expect_table = "between"
+
+        result: Result = self.__scd2_template_execute(
+            test_schema, source_view, target_table, expect_table, False, "reserved"
+        )
+        cli_assert_equal(0, result)
+
+        # Check if we got the expected result and successfully dropped backup
+        self.__scd2_template_check_expected_res(
+            test_schema, target_table, expect_table, "reserved"
+        )
         cli_assert_equal(
             1, self.__template_table_exists(test_schema, "backup_" + target_table)
         )
@@ -191,6 +265,21 @@ class TemplateRegressionTests(unittest.TestCase):
         source_view = "vw_fact_sddc_daily"
         target_table = "dw_fact_sddc_daily"
         expect_table = "ex_fact_sddc_daily"
+
+        result: Result = self.__fact_periodic_snapshot_template_execute(
+            test_schema, source_view, target_table, expect_table
+        )
+        cli_assert_equal(0, result)
+
+        self.__fact_periodic_snapshot_template_check_expected_res(
+            test_schema, target_table, expect_table
+        )
+
+    def test_fact_periodic_snapshot_template_reserved_args(self) -> None:
+        test_schema = "default"
+        source_view = "alter"
+        target_table = "table"
+        expect_table = "between"
 
         result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table
@@ -371,7 +460,9 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table,
         expect_table,
         restore_from_backup=False,
+        reserved=False,
     ):
+        value_column_1 = reserved and "with" or "updated_by_user_id"
         return self.__runner.invoke(
             [
                 "run",
@@ -389,17 +480,17 @@ class TemplateRegressionTests(unittest.TestCase):
                         "staging_schema": test_schema,
                         "expect_schema": test_schema,
                         "expect_table": expect_table,
-                        "id_column": "sddc_id",
-                        "sk_column": "sddc_sk",
+                        "id_column": reserved and "when" or "sddc_id",
+                        "sk_column": reserved and "where" or "sddc_sk",
                         "value_columns": [
-                            "updated_by_user_id",
+                            value_column_1,
                             "state",
                             "is_next",
                             "cloud_vendor",
                             "version",
                         ],
                         "tracked_columns": [
-                            "updated_by_user_id",
+                            value_column_1,
                             "state",
                             "is_next",
                             "version",
@@ -412,36 +503,60 @@ class TemplateRegressionTests(unittest.TestCase):
                         "end_time_column": "end_time",
                         "end_time_default_value": "9999-12-31",
                         "test_restore_from_backup": f"{restore_from_backup}",
+                        "value_column_1": f"{value_column_1}",
                     }
                 ),
             ]
         )
 
     def __scd2_template_check_expected_res(
-        self, test_schema, target_table, expect_table
+        self, test_schema, target_table, expect_table, reserved=False
     ) -> None:
         # don't check first (surrogate key) column from the two results,
         # as those are uniquely generated and might differ
 
-        actual_rs: Result = self.__runner.invoke(
-            [
-                "trino-query",
-                "--query",
-                f"""SELECT active_from, active_to, sddc_id, updated_by_user_id, state, is_next, cloud_vendor, version
-                FROM "{test_schema}"."{target_table}"
-                ORDER BY sddc_id, active_to""",
-            ]
-        )
+        if reserved:
+            actual_rs: Result = self.__runner.invoke(
+                [
+                    "trino-query",
+                    "--query",
+                    f"""
+                    SELECT active_from, active_to, "when", "with", state, is_next, cloud_vendor, version
+                    FROM "{test_schema}"."{target_table}"
+                    ORDER BY "when", active_to
+                    """,
+                ]
+            )
 
-        expected_rs: Result = self.__runner.invoke(
-            [
-                "trino-query",
-                "--query",
-                f"""SELECT active_from, active_to, sddc_id, updated_by_user_id, state, is_next, cloud_vendor, version
-                FROM "{test_schema}"."{expect_table}"
-                ORDER BY sddc_id, active_to""",
-            ]
-        )
+            expected_rs: Result = self.__runner.invoke(
+                [
+                    "trino-query",
+                    "--query",
+                    f"""SELECT active_from, active_to, "when", "with", state, is_next, cloud_vendor, version
+                    FROM "{test_schema}"."{expect_table}"
+                    ORDER BY "when", active_to""",
+                ]
+            )
+        else:
+            actual_rs: Result = self.__runner.invoke(
+                [
+                    "trino-query",
+                    "--query",
+                    f"""SELECT active_from, active_to, sddc_id, updated_by_user_id, state, is_next, cloud_vendor, version
+                                FROM "{test_schema}"."{target_table}"
+                                ORDER BY sddc_id, active_to""",
+                ]
+            )
+
+            expected_rs: Result = self.__runner.invoke(
+                [
+                    "trino-query",
+                    "--query",
+                    f"""SELECT active_from, active_to, sddc_id, updated_by_user_id, state, is_next, cloud_vendor, version
+                                FROM "{test_schema}"."{expect_table}"
+                                ORDER BY sddc_id, active_to""",
+                ]
+            )
 
         cli_assert_equal(0, actual_rs)
         cli_assert_equal(0, expected_rs)

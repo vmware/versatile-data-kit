@@ -16,6 +16,8 @@ The label names follow the labelling recommendations found at http://ltsv.org/.
 The reason we chose the LTSV naming standard is due to the fact that this plugin was based on a previous LTSV-formatting plugin,
 as well as the fact that there is no single JSON naming standard.
 
+Additionally, newline characters within the message are escaped.
+
 # Usage
 
 Switching vdk logging can be done by simply installing the plugin:
