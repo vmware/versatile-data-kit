@@ -13,7 +13,7 @@ Changelog
 
 * **Bug Fixes**
   * Data Job deployment fix
-    Atomic latestJobDeploymentStatus update introduced to solve transaction contention.
+    Fixed data jobs deployment failures that emit 'ERROR: restart transaction' due to DeploymentMonitor.recordDeploymentStatus.
 
 * **Breaking Changes**
 
