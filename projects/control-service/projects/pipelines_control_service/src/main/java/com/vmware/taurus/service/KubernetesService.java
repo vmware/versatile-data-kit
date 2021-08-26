@@ -182,7 +182,7 @@ public abstract class KubernetesService implements InitializingBean {
         String deployedBy;
 
         public enum Status {
-            RUNNING, FAILED, FINISHED, SKIPPED
+            RUNNING, FAILED, FINISHED, SKIPPED, CANCELLED;
         }
     }
 
@@ -471,6 +471,21 @@ public abstract class KubernetesService implements InitializingBean {
         }
 
         createNewJob(executionId, jobSpec, jobLabels, jobAnnotations);
+    }
+
+    public void cancelRunningCronJob(String teamName, String jobName, String executionId) throws ApiException {
+        log.info("K8S deleting job for team: {} data job name: {} execution: {}", teamName, jobName, executionId);
+        var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
+                null, null,
+                0,
+                null,
+                "Foreground");
+
+        //Status of the operation. One of: "Success" or "Failure"
+        if (operationResponse.getStatus().equals("Failure")){
+            log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
+            throw new ApiException(operationResponse.getCode(), operationResponse.getMessage());
+        }
     }
 
     public Set<String> listCronJobs() throws ApiException {
