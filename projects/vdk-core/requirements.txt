@@ -9,9 +9,11 @@ reorder-python-imports
 mypy
 pydocstyle
 
+# testing dependencies
 pytest
 pytest-sugar
 pytest-randomly
+smtpdfix
 pytest-cov
 -e plugins/vdk-test-utils
 
