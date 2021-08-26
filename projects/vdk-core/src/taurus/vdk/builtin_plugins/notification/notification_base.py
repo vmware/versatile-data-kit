@@ -7,7 +7,11 @@ from abc import ABC
 from abc import abstractmethod
 from email.mime.text import MIMEText
 from functools import reduce
+from typing import List
 
+from taurus.vdk.builtin_plugins.notification.notification_configuration import (
+    SmtpConfiguration,
+)
 from taurus.vdk.core import errors
 
 log = logging.getLogger(__name__)
@@ -36,15 +40,24 @@ class INotification(ABC):
 
 
 class EmailNotification(INotification):
-    def __init__(self, recipients, cc, smtp_host, sender):
+    def __init__(
+        self,
+        recipients: List[str],
+        cc: List[str],
+        smtp_cfg: SmtpConfiguration,
+        sender: str,
+    ):
         """
         :param recipients: list of emails
         :param sender: sender email
         :param cc: list of emails
         """
+        log.debug(
+            f"New EmailNotification prepared: sender: {sender}; cc: {cc}; recipeints: {recipients}"
+        )
         self._sender = sender
         self._cc = [] if cc is None else cc
-        self._smtp_host = smtp_host
+        self._smtp_cfg = smtp_cfg
         self._recipients = recipients
 
     def notify(self, subject, body):
@@ -84,8 +97,8 @@ class EmailNotification(INotification):
                 logging.getLogger(__name__).debug("Empty list of recipients is given")
 
     def _send_message(self, msg):
-        s = LoggingSMTP(host=self._smtp_host, port=25)
-        s.set_debuglevel(2)
+        log.debug(f"Send message {msg}")
+        s = self.__smtp_server()
         s.send_message(msg)
         s.quit()
 
@@ -107,9 +120,8 @@ class EmailNotification(INotification):
         :param email_address: The email address in string form
         :return: a boolean specifying if the address is valid or not
         """
+        s = self.__smtp_server()
         try:
-            s = LoggingSMTP(self._smtp_host)
-            s.set_debuglevel(2)
             s.helo()
             s.mail("whatever")
             resp = s.rcpt(email_address)
@@ -121,6 +133,17 @@ class EmailNotification(INotification):
             return True
         finally:
             s.quit()
+
+    def __smtp_server(self):
+        s = LoggingSMTP(self._smtp_cfg.get_host(), port=self._smtp_cfg.get_port())
+        if self._smtp_cfg.get_use_tls():
+            s.starttls()
+        if self._smtp_cfg.get_login_username():
+            s.login(
+                self._smtp_cfg.get_login_username(), self._smtp_cfg.get_login_password()
+            )
+        s.set_debuglevel(self._smtp_cfg.get_debug_level())
+        return s
 
     def _get_valid_recipients(self):
         return [x.strip() for x in self._recipients if self._email_address_exists(x)]
