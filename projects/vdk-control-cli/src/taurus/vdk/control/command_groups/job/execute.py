@@ -10,6 +10,7 @@ import click
 from tabulate import tabulate
 from taurus.vdk.control.configuration.defaults_config import load_default_team_name
 from taurus.vdk.control.rest_lib.factory import ApiClientFactory
+from taurus.vdk.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from taurus.vdk.control.utils import cli_utils
 from taurus.vdk.control.utils.cli_utils import get_or_prompt
 from taurus.vdk.control.utils.cli_utils import OutputFormat
@@ -51,6 +52,7 @@ class JobExecute:
         elif output == OutputFormat.JSON.value:
             return cli_utils.json_format(list(executions))
 
+    @ApiClientErrorDecorator()
     def start(self, name: str, team: str, output: OutputFormat):
         execution_request = DataJobExecutionRequest(
             started_by=f"vdk-control-cli", args={}
@@ -80,12 +82,14 @@ class JobExecute:
             }
             click.echo(json.dumps(result))
 
+    @ApiClientErrorDecorator()
     def show(self, name: str, team: str, execution_id: str, output: OutputFormat):
         execution: DataJobExecution = self.execution_api.data_job_execution_read(
             team_name=team, job_name=name, execution_id=execution_id
         )
         click.echo(self.__model_executions([execution], output))
 
+    @ApiClientErrorDecorator()
     def list(self, name: str, team: str, output: OutputFormat):
         executions: list[DataJobExecution] = self.execution_api.data_job_execution_list(
             team_name=team, job_name=name
