@@ -114,3 +114,12 @@ def test_execute_start_output_json(httpserver: PluginHTTPServer, tmpdir: LocalPa
 
     assert job_name == json_output.get("job_name")
     assert team_name == json_output.get("team")
+    
+def test_execute_with_exception(httpserver: PluginHTTPServer, tmpdir:LocalPath):
+    runner = CliRunner()
+    result = runner.invoke(execute, ["--start", "-n", "job_name", "-t", "team_name", "-u", "localhost"])
+    
+    assert (
+        result.exit_code == 2
+    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    assert "what" in result.output and "why" in result.output
