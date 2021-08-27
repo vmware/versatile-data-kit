@@ -19,23 +19,13 @@ Changelog
 * **New feature**
 
 * **Improvement**
-  * Enable integration tests
-  * Fix spelling errors in CHANGELOG
-  * Add tag Data Job Properties to hide "data-jobs-properties-controller" section in Swagger UI
-  * Update readme with correct helm repo
 
 * **Bug Fixes**
   * Non-accurate control-service image tag fix
   * Data Job deployment fix
     Fixed data jobs deployment failures that emit 'ERROR: restart transaction' due to DeploymentMonitor.recordDeploymentStatus.
-  * base module generating javadoc fix
 
 * **Breaking Changes**
-
-
-1.2.3 - 23.08.2021
-----
-noop
 
 
 1.2.2 - 19.08.2021
