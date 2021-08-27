@@ -111,14 +111,14 @@ public class JobExecutionService {
 
          if (!jobsService.jobWithTeamExists(jobName, teamName)) {
             log.info("No such data job: {} found for team: {} .", jobName, teamName);
-            throw new DataJobNotFoundException(jobName);
+            throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.DataJobNotFound);
          }
 
          var jobExecutionOptional = jobExecutionRepository.findById(executionId);
 
          if (jobExecutionOptional.isEmpty()) {
             log.info("Execution: {} for data job: {} with team: {} not found!", executionId, teamName, jobName);
-            throw new DataJobExecutionNotFoundException(executionId);
+            throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
          }
 
          var jobExecution = jobExecutionOptional.get();
@@ -126,7 +126,7 @@ public class JobExecutionService {
          var acceptedStatusToCancelExecutionSet = Set.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
          if (!acceptedStatusToCancelExecutionSet.contains(jobStatus)) {
             log.info("Trying to cancel execution: {} for data job: {} with team: {} but job has status {}!", executionId, teamName, jobName, jobStatus.toString());
-            throw new DataJobExecutionCannotBeCancelledException(executionId);
+            throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.ExecutionNotRunning);
          }
 
          dataJobsKubernetesService.cancelRunningCronJob(teamName, jobName, executionId);

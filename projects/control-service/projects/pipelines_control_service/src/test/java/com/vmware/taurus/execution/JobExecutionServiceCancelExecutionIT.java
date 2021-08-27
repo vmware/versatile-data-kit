@@ -3,8 +3,6 @@ package com.vmware.taurus.execution;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
-import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
-import com.vmware.taurus.exception.DataJobNotFoundException;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
@@ -23,6 +21,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -82,29 +81,32 @@ public class JobExecutionServiceCancelExecutionIT {
                 () -> jobExecutionService.cancelDataJobExecution("test-team", "testJob", jobExecutionId));
 
         var exceptionMessage = actualException.getMessage();
-        Assertions.assertTrue(exceptionMessage.contains("Likely the Data Job execution is not running or submitted."),
+        Assertions.assertTrue(exceptionMessage.contains("Specified data job execution is not in running or submitted state."),
                 "Unexpected exception message content.");
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, actualException.getHttpStatus());
     }
 
     @Test
     public void testCancelNonExistingDataJob() {
 
-        var actualException = Assertions.assertThrows(DataJobNotFoundException.class,
+        var actualException = Assertions.assertThrows(DataJobExecutionCannotBeCancelledException.class,
                 () -> jobExecutionService.cancelDataJobExecution("test-team", "nonExistentDataJob", null));
 
         var exceptionMessage = actualException.getMessage();
-        Assertions.assertTrue(exceptionMessage.contains("The Data Job must be existing."),
+        Assertions.assertTrue(exceptionMessage.contains("Specified Data Job for Team does not exist."),
                 "Unexpected exception message content.");
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, actualException.getHttpStatus());
     }
 
     @Test
     public void testCancelNonExistingDataJobExecution() {
-        var actualException = Assertions.assertThrows(DataJobExecutionNotFoundException.class,
+        var actualException = Assertions.assertThrows(DataJobExecutionCannotBeCancelledException.class,
                 () -> jobExecutionService.cancelDataJobExecution("test-team", "testJob", "nonExistingExecId"));
 
         var exceptionMessage = actualException.getMessage();
-        Assertions.assertTrue(exceptionMessage.contains("The Data Job execution will not be returned/cancelled."),
+        Assertions.assertTrue(exceptionMessage.contains("Specified data job execution does not exist."),
                 "Unexpected exception message content.");
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, actualException.getHttpStatus());
     }
 
     @Test
@@ -119,6 +121,19 @@ public class JobExecutionServiceCancelExecutionIT {
         var exceptionMessage = actualException.getMessage();
         Assertions.assertTrue(exceptionMessage.contains("Cannot cancel a Data Job 'testJob' execution with execution id 'test-job-id'"),
                 "Unexpected exception message content.");
+    }
+
+    @Test
+    public void testExceptionObjectNullTolerant() {
+        var exception = new DataJobExecutionCannotBeCancelledException(null, null);
+        var message = exception.getMessage();
+        var status = exception.getHttpStatus();
+
+        Assertions.assertNotNull(message);
+        Assertions.assertNotNull(status);
+        Assertions.assertTrue(exception.getMessage().contains("Unknown cause"));
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, status);
+
     }
 
 }

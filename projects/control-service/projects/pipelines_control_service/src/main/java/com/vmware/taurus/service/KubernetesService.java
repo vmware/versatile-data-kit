@@ -477,12 +477,12 @@ public abstract class KubernetesService implements InitializingBean {
         log.info("K8S deleting job for team: {} data job name: {} execution: {}", teamName, jobName, executionId);
         var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
                 null, null,
-                0,
+                null,
                 null,
                 "Foreground");
 
         //Status of the operation. One of: "Success" or "Failure"
-        if (operationResponse.getStatus().equals("Failure")){
+        if (operationResponse.getStatus().equals("Failure")) {
             log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
             throw new ApiException(operationResponse.getCode(), operationResponse.getMessage());
         }
