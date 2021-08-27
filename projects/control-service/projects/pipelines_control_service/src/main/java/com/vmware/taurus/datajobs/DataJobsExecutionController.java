@@ -71,7 +71,8 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
 
    @Override
    public ResponseEntity<Void> dataJobExecutionCancel(String teamName, String jobName, String executionId) {
-      throw new NotImplementedException("Cancel is not implemented");
+      executionService.cancelDataJobExecution(teamName, jobName, executionId);
+      return ResponseEntity.ok().build();
    }
 
    @Override
