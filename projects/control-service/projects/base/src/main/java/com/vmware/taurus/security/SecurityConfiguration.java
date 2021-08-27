@@ -21,8 +21,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * <br>
  * If security is enabled (see FeatureFlags) then:
  * <br>
+ * <ul>
  * <li>Only JWK-signed JWTs is supported and following property must be set:
- *     spring.security.oauth2.resourceserver.jwt.jwk-set-uri
+ *     spring.security.oauth2.resourceserver.jwt.jwk-set-uri</li></ul>
  */
 @EnableWebSecurity
 @RequiredArgsConstructor

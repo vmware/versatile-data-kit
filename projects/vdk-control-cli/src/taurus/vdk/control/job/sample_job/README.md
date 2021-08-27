@@ -6,7 +6,7 @@ Versatile Data Kit feature allows you to implement automated pull ingestion and 
 
 Data Job directory can contain any files, however there are some files that are treated in a specific way:
 
-* SQL files (.sql) - called SQL steps - are directly executed as queries against Impala.
+* SQL files (.sql) - called SQL steps - are directly executed as queries against your configured database.
 * Python files (.py) - called Python steps - are python scripts tha define run function that takes as argument the job_input object .
 * config.ini is needed in order to configure the Job. This is the only required file.
 * requirements.txt is an optional file needed when your Python steps use external python libraries.

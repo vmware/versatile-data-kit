@@ -19,6 +19,7 @@ VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 
 
+@pytest.mark.usefixtures("trino_service")
 @mock.patch.dict(
     os.environ,
     {

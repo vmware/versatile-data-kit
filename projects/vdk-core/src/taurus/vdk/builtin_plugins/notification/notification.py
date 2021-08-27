@@ -1,11 +1,19 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+from typing import List
 
 from taurus.api.plugin.hook_markers import hookimpl
 from taurus.vdk.builtin_plugins.config.job_config import JobConfigKeys
 from taurus.vdk.builtin_plugins.config.vdk_config import LOG_CONFIG
 from taurus.vdk.builtin_plugins.notification import notification_base
+from taurus.vdk.builtin_plugins.notification import notification_configuration
+from taurus.vdk.builtin_plugins.notification.notification_configuration import (
+    NotificationConfiguration,
+)
+from taurus.vdk.builtin_plugins.notification.notification_configuration import (
+    SmtpConfiguration,
+)
 from taurus.vdk.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from taurus.vdk.core import errors
 from taurus.vdk.core.config import ConfigurationBuilder
@@ -14,50 +22,69 @@ from taurus.vdk.core.statestore import CommonStoreKeys
 
 log = logging.getLogger(__name__)
 
-NOTIFICATION_JOB_LOG_URL_PATTERN = "NOTIFICATION_JOB_LOG_URL_PATTERN"
-NOTIFICATION_EMAIL_CC_LIST = "NOTIFICATION_EMAIL_CC_LIST"
-NOTIFICATION_SMTP_HOST = "NOTIFICATION_SMTP_HOST"
-NOTIFICATION_SENDER = "NOTIFICATION_SENDER"
+
+def __get_list(value: str) -> List[str]:
+    result = value.split(";") if value else []
+    result = [v.strip() for v in result if len(v.strip()) > 0]
+    return result
 
 
 def _notify(error_overall, user_error, configuration, state):
-    if configuration.get_value(LOG_CONFIG).lower() == "local":
+    notification_cfg = NotificationConfiguration(configuration)
+
+    if (
+        configuration.get_value(LOG_CONFIG).lower() == "local"
+        and notification_cfg.get_notification_enabled() is False
+    ):
         return
+    log.debug(
+        f"Prepare to send notification if necessary: error_overall: {error_overall}"
+    )
 
     job_name = state.get(ExecutionStateStoreKeys.JOB_NAME)
     op_id = state.get(CommonStoreKeys.OP_ID)
 
-    job_log_url_template = configuration.get_value(NOTIFICATION_JOB_LOG_URL_PATTERN)
-    cc = configuration.get_value(NOTIFICATION_EMAIL_CC_LIST)
-    smtp_host = configuration.get_value(NOTIFICATION_SMTP_HOST)
-    sender = configuration.get_value(NOTIFICATION_SENDER)
+    job_log_url_template = notification_cfg.get_job_log_url_pattern()
+    cc = notification_cfg.get_email_cc_list()
+    sender = notification_cfg.get_sender()
+    smtp_cfg = SmtpConfiguration(configuration)
 
     if not error_overall:
-        recipients = configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS)
+        recipients = __get_list(
+            configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS)
+        )
         if recipients:
             subject, body = notification_base.SuccessEmailNotificationMessageBuilder(
                 job_name, job_log_url_template
             ).build(exec_type="run", op_id=op_id)
             notification_base.EmailNotification(
-                recipients=recipients, cc=cc, smtp_host=smtp_host, sender=sender
+                recipients=recipients, cc=cc, smtp_cfg=smtp_cfg, sender=sender
             ).notify(subject, body)
+        else:
+            log.debug(
+                "No recipients configured to send on successful run. No notification is sent"
+            )
         return
 
     if user_error:
-        recipients = configuration.get_value(
-            JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR
+        recipients = __get_list(
+            configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR)
         )
         if recipients:
             subject, body = notification_base.UserErrorEmailNotificationMessageBuilder(
                 job_name, job_log_url_template
             ).build(exec_type="run", op_id=op_id, msg=user_error)
             notification_base.EmailNotification(
-                recipients=recipients, cc=cc, smtp_host=smtp_host, sender=sender
+                recipients=recipients, cc=cc, smtp_cfg=smtp_cfg, sender=sender
             ).notify(subject, body)
+        else:
+            log.debug(
+                "No recipients configured to send on user error. No notification is sent"
+            )
         return
 
-    recipients = configuration.get_value(
-        JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR
+    recipients = __get_list(
+        configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR)
     )
 
     if recipients:
@@ -65,8 +92,12 @@ def _notify(error_overall, user_error, configuration, state):
             job_name, job_log_url_template
         ).build(exec_type="run", op_id=op_id)
         notification_base.EmailNotification(
-            recipients=recipients, cc=cc, smtp_host=smtp_host, sender=sender
+            recipients=recipients, cc=cc, smtp_cfg=smtp_cfg, sender=sender
         ).notify(subject, body)
+    else:
+        log.debug(
+            "No recipients configured to send on platform error. No notification is sent"
+        )
 
     log.debug("Notification for Data Job state has been sent to listed recipients")
 
@@ -74,33 +105,7 @@ def _notify(error_overall, user_error, configuration, state):
 class NotificationPlugin:
     @hookimpl
     def vdk_configure(self, config_builder: ConfigurationBuilder):
-        config_builder.add(
-            key=NOTIFICATION_JOB_LOG_URL_PATTERN,
-            default_value=(
-                "https://example-job-log-url.com/{op_id},{start_time_ms},{end_time_ms}"
-            ),
-            description=(
-                "The URL template used to find the full log of a particular job. "
-                "It is further parametrized with the job's op_id and start and end times "
-                "by replacing the bracketed parts of the url with the respective values. "
-                "(For example, '{op_id}' becomes the actual op_id of the job.)"
-            ),
-        )
-        config_builder.add(
-            key=NOTIFICATION_EMAIL_CC_LIST,
-            default_value="",
-            description="A comma separated string of email addresses to be CC'd in the notification email.",
-        )
-        config_builder.add(
-            key=NOTIFICATION_SMTP_HOST,
-            default_value="smtp.vmware.com",
-            description="The SMTP host used for to send the notification email.",
-        )
-        config_builder.add(
-            key=NOTIFICATION_SENDER,
-            default_value="data-pipelines@vmware.com",
-            description="The email address, from which notification emails are sent.",
-        )
+        notification_configuration.add_definitions(config_builder)
 
     @hookimpl
     def vdk_exit(self, context: CoreContext, exit_code: int):
