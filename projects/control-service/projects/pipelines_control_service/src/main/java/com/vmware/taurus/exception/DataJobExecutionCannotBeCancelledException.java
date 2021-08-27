@@ -50,9 +50,9 @@ public class DataJobExecutionCannotBeCancelledException extends DomainError impl
                 reason == ExecutionCancellationFailureReason.ExecutionNotRunning ||
                 reason == ExecutionCancellationFailureReason.DataJobExecutionNotFound) {
 
-            message = "Data job execution will not be cancelled. No changes to the DB will be made.";
+            message = "API request to cancel Data Job Execution failed. API returned possible resolutions in the error message.";
         } else {
-            message = "Unknown consequences.";
+            message = "API request to cancel Data Job Execution failed. API could not determine what caused this error.";
         }
 
         return message;
@@ -63,19 +63,19 @@ public class DataJobExecutionCannotBeCancelledException extends DomainError impl
 
         if (reason == ExecutionCancellationFailureReason.DataJobNotFound) {
             message = "Specified Data Job for Team must exist and be deployed to cancel one of its running executions. " +
-                    "You can use 'vdkcli list' to list Data jobs that have been created in cloud.";
+                    "List data jobs that have been created in cloud and make sure you specify a valid data job and team.";
         } else if (reason == ExecutionCancellationFailureReason.ExecutionNotRunning) {
-            message = "Make sure you are attempting to cancel an execution in Running or Submitted state. " +
-                    "You can use 'vdkcli execute --list' to show all executions currently stored in the database.";
+            message = "List recent and/or current executions of the Data Job. " +
+                    "Make sure you specify a valid execution in running or submitted state.";
         } else if (reason == ExecutionCancellationFailureReason.DataJobExecutionNotFound) {
             message = "The provided data job execution does not exist. Make sure the provided execution id is correct. " +
-                    "You can use 'vdkcli execute --list' to show all executions currently stored in the database.";
+                    "List all data job executions of the data job and make sure you specify one that exists.";
         } else {
-            message = "Unknown countermeasures.";
+            message = "Unknown failure reason. Please verify all specified parameters: data job, data job execution and " +
+                    "team are correct and try again. Should the problem persist please contact support.";
         }
 
         return message;
     }
 
 }
-
