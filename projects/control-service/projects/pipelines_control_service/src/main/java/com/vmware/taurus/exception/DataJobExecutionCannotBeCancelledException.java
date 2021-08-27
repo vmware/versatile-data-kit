@@ -44,18 +44,8 @@ public class DataJobExecutionCannotBeCancelledException extends DomainError impl
 
 
     private static String getConsequencesMessage(ExecutionCancellationFailureReason reason) {
-        String message;
-
-        if (reason == ExecutionCancellationFailureReason.DataJobNotFound ||
-                reason == ExecutionCancellationFailureReason.ExecutionNotRunning ||
-                reason == ExecutionCancellationFailureReason.DataJobExecutionNotFound) {
-
-            message = "API request to cancel Data Job Execution failed. API returned possible resolutions in the error message.";
-        } else {
-            message = "API request to cancel Data Job Execution failed. API could not determine what caused this error.";
-        }
-
-        return message;
+        //reason is here in case we need to expand this method in the future
+        return "API request to cancel Data Job Execution failed.";
     }
 
     private static String getCounterMeasuresMessage(ExecutionCancellationFailureReason reason) {
