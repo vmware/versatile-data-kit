@@ -8,6 +8,9 @@ Changelog
 * **New feature**
 
 * **Improvement**
+  * Switch Job Builder image to use kaniko
+    This will enable Control Servie to run in more secure kubernetes (pod security - no privilege run, seccomp/apparmor profiles enabled)
+    It will enable to use local docker registry (without ssl) for easier deployment for prototype purposes
 
 * **Bug Fixes**
 
