@@ -49,6 +49,7 @@ type DataJobResources {
 
 type DataJobExecution {
     id: String
+    type: DataJobExecutionType
     jobName: String
     status: DataJobExecutionStatus
     startTime: String
@@ -56,6 +57,15 @@ type DataJobExecution {
     startedBy: String
     message: String
     opId: String
+    vkdVersion: String
+    jobVersion: String
+    jobSchedule: String
+    resourcesCpuRequest: Float
+    resourcesCpuLimit: Float
+    resourcesMemoryRequest: Int
+    resourcesMemoryLimit: Int
+    lastDeployedDate: String
+    lastDeployedBy: String
     logsUrl: String
 }
 
@@ -70,7 +80,7 @@ type DataJobDeployment {
     resources: DataJobResources
     schedule: DataJobSchedule
     vdkVersion: String
-    executions: [DataJobExecution]
+    executions(pageNumber: Int, pageSize: Int, filter: [Predicate]): [DataJobExecution]
     status: DataJobDeploymentStatus
 }
 
@@ -103,4 +113,9 @@ enum DataJobExecutionStatus {
     FAILED
     CANCELLED
     SKIPPED
+}
+
+enum DataJobExecutionType {
+    MANUAL
+    SCHEDULED
 }
