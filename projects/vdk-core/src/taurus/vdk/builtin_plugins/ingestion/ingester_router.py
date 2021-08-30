@@ -42,7 +42,7 @@ class IngesterRouter(IIngesterRegistry):
         """
         Add new ingester.
         """
-        self._ingester_builders[method] = ingester_plugin
+        self._ingester_builders[method.lower()] = ingester_plugin
 
     def send_object_for_ingestion(
         self,
@@ -55,7 +55,7 @@ class IngesterRouter(IIngesterRegistry):
         # Use the method and target provided by customer, or load the default ones
         # if set. `method` and `target` provided when the method is called take
         # precedence over the ones set with environment variables.
-        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
+        method = (method or self._cfg.get_value("INGEST_METHOD_DEFAULT")).lower()
         target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
         self._log.info(
             "Sending object for ingestion with "
