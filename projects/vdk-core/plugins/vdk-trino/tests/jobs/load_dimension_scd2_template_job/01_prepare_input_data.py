@@ -12,17 +12,17 @@ def run(job_input: IJobInput) -> None:
 
     job_input.execute_query(
         """
-        DROP TABLE IF EXISTS {target_schema}.{target_table}
+        DROP TABLE IF EXISTS "{target_schema}"."{target_table}"
     """
     )
     job_input.execute_query(
         """
-           CREATE TABLE IF NOT EXISTS {target_schema}.{target_table} (
-             {sk_column} VARCHAR,
+           CREATE TABLE IF NOT EXISTS "{target_schema}"."{target_table}" (
+             "{sk_column}" VARCHAR,
              {active_from_column} TIMESTAMP,
              {active_to_column} TIMESTAMP,
-             {id_column} INT,
-             updated_by_user_id INT,
+             "{id_column}" INT,
+             "{value_column_1}" INT,
              state VARCHAR,
              is_next BOOLEAN,
              cloud_vendor VARCHAR,
@@ -32,7 +32,7 @@ def run(job_input: IJobInput) -> None:
     )
     job_input.execute_query(
         """
-           INSERT INTO {target_schema}.{target_table} VALUES
+           INSERT INTO "{target_schema}"."{target_table}" VALUES
              ('sddc01-v01', TIMESTAMP '2019-01-01', TIMESTAMP '9999-12-31', 1, 7, 'RUNNING'     , false, 'Azure', 498),
              ('sddc02-v01', TIMESTAMP '2019-02-01', TIMESTAMP '9999-12-31', 2, 9, 'STOPPED'     , false, 'AWS'  , 500),
              ('sddc03-v01', TIMESTAMP '2019-03-01', TIMESTAMP '9999-12-31', 3, 3, 'PROVISIONING', false, 'Azure', 497),
@@ -47,15 +47,15 @@ def run(job_input: IJobInput) -> None:
 
     job_input.execute_query(
         """
-        DROP TABLE IF EXISTS {source_schema}.{source_view}
+        DROP TABLE IF EXISTS "{source_schema}"."{source_view}"
     """
     )
     job_input.execute_query(
         """
-           CREATE TABLE IF NOT EXISTS {source_schema}.{source_view} (
+           CREATE TABLE IF NOT EXISTS "{source_schema}"."{source_view}" (
              {updated_at_column} TIMESTAMP,
-             {id_column} INT,
-             updated_by_user_id INT,
+             "{id_column}" INT,
+             "{value_column_1}" INT,
              state VARCHAR,
              is_next BOOLEAN,
              cloud_vendor VARCHAR,
@@ -65,7 +65,7 @@ def run(job_input: IJobInput) -> None:
     )
     job_input.execute_query(
         """
-           INSERT INTO {source_schema}.{source_view} VALUES
+           INSERT INTO "{source_schema}"."{source_view}" VALUES
              (TIMESTAMP '2019-02-02', 2, 1, 'STARTING'    , false, 'AWS'  , 500), -- Update (1) - new  time, new  values
              (TIMESTAMP '2019-03-01', 3, 4, 'RUNNING'     , false, 'Azure', 497), -- Update (2) - same time, new  values
              (TIMESTAMP '2019-04-02', 4, 5, 'PROVISIONING', true , 'Azure', 498), -- Update (3) - new  time, same values
@@ -80,17 +80,17 @@ def run(job_input: IJobInput) -> None:
 
     job_input.execute_query(
         """
-        DROP TABLE IF EXISTS {expect_schema}.{expect_table}
+        DROP TABLE IF EXISTS "{expect_schema}"."{expect_table}"
     """
     )
     job_input.execute_query(
         """
-           CREATE TABLE IF NOT EXISTS {expect_schema}.{expect_table} (
-             {sk_column} VARCHAR,
+           CREATE TABLE IF NOT EXISTS "{expect_schema}"."{expect_table}" (
+             "{sk_column}" VARCHAR,
              {active_from_column} TIMESTAMP,
              {active_to_column} TIMESTAMP,
-             {id_column} INT,
-             updated_by_user_id INT,
+             "{id_column}" INT,
+             "{value_column_1}" INT,
              state VARCHAR,
              is_next BOOLEAN,
              cloud_vendor VARCHAR,
@@ -100,7 +100,7 @@ def run(job_input: IJobInput) -> None:
     )
     job_input.execute_query(
         """
-           INSERT INTO {expect_schema}.{expect_table} VALUES
+           INSERT INTO "{expect_schema}"."{expect_table}" VALUES
              ('sddc01-v01', TIMESTAMP '2019-01-01', TIMESTAMP '9999-12-31', 1, 7, 'RUNNING'     , false, 'Azure', 498),
 
              ('sddc02-v01', TIMESTAMP '2019-02-01', TIMESTAMP '2019-02-02', 2, 9, 'STOPPED'     , false, 'AWS'  , 500),
@@ -124,7 +124,7 @@ def run(job_input: IJobInput) -> None:
     if args.get("test_restore_from_backup") == "True":
         job_input.execute_query(
             """
-               DROP TABLE IF EXISTS {target_schema}.backup_{target_table}
+               DROP TABLE IF EXISTS "{target_schema}"."backup_{target_table}"
            """
         )
 

@@ -32,6 +32,7 @@ def description_line_wrapping(description, description_start=40, description_len
             break_on_hyphens=False,
         )
     indent = " " * description_start
+    # we do not need to wrap the first line (it's already padded to the config key)
     for index, line in enumerate(wrapped_text_list[1:], start=1):
         wrapped_text_list[index] = indent + wrapped_text_list[index]
     return "\n".join(wrapped_text_list)
@@ -64,11 +65,32 @@ def generate_config_list_help(variable_to_description_map):
 
 
 @click.command(
-    help="Configuration help. Prints details on all possible configuration options of vdk"
+    help="Configuration help."
+    "Prints details on all possible configuration options of vdk ."
+    "It includes all configuration options added by plugins"
+    """
+
+Examples:
+
+\b
+# if we call config-help we get similar output to one below.
+# first we provide details on how those configuration can be set (e.g environment varibales, files, etc)
+# Next list of all possible configuration variables supported.
+vdk config-help
+
+\b
+Configuring VDK is done via:
+environment variables                   Attempts to load all defined configurations using
+                                        environment variables by adding prefix "VDK_".
+                                        ...
+-----
+List of configuration variables:
+DB_DEFAULT_TYPE                         Default DB connection provided by VDK when ..
+EXECUTION_ID                            An identifier to be associated with the current VDK run ...
+    """
 )
 @click.pass_context
 def config_help(ctx: click.Context) -> None:
-    """ """
     configuration = cast(CoreContext, ctx.obj).configuration
 
     vars_to_descriptions = {}
@@ -94,7 +116,10 @@ def config_help(ctx: click.Context) -> None:
 
 class ConfigHelpPlugin:
     """
-    Plugin which adds some debug functionalities
+    The following plugins add a new command (vdk conflig-help) which would enable
+    users to query for possible configurations. Each plugin declare their possible configuration
+    in vdk_configure hook (using config_builder.add) providng descriptions and other attributes,
+    Those then can be queried by end users. See vdk_configure doc for more information.
     """
 
     @hookimpl

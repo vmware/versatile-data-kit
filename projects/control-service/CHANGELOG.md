@@ -2,8 +2,31 @@ Changelog
 =========
 
 
-1.2.3 - Next
+1.2.5 - Next
 ----
+
+* **New feature**
+
+* **Improvement**
+
+* **Bug Fixes**
+
+* **Breaking Changes**
+
+
+1.2.4 - 27.08.2021
+---
+* **New feature**
+
+* **Improvement**
+
+* **Bug Fixes**
+  * Non-accurate control-service image tag fix
+  * Data Job deployment fix
+    Fixed data jobs deployment failures that emit 'ERROR: restart transaction' due to DeploymentMonitor.recordDeploymentStatus.
+
+* **Breaking Changes**
+
 
 1.2.2 - 19.08.2021
 ----
@@ -15,6 +38,7 @@ Changelog
     Data job base image used to run deployed data job can be configured using helm now.
 
 * **Bug Fixes**
+  * Generating javadoc fix
 
 * **Breaking Changes**
 
@@ -25,14 +49,13 @@ Changelog
 * **New feature**
 
 * **Improvement**
-  * Make helm char registry configurable.
+  * Make the image registry in the helm chart configurable.
     Configure registry part of docker images used for control-service API, job builder image and VDK distribution image.
     This make it easier to use docker cache proxies.
 
 * **Bug Fixes**
 
 * **Breaking Changes**
-
 
 
 1.2.0 - 17.08.2021

@@ -193,7 +193,7 @@ helm uninstall taurus-data-pipelines
 In order to make new release of Versatile Data Kit Control Service:
 * Update version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org
 * Make sure image.tag (in [values.yaml](projects/helm_charts/pipelines-control-service/values.yaml)) is updated accordingly
-  * look at the latest successful CICD Pipeline on main - get tag from logs of [stage deploy_testing](cicd/.gitlab-ci.yml)
+  * look at the latest successful CICD Pipeline on [main](https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines?page=1&scope=all&ref=main) - get tag from logs of [stage pre_release](cicd/.gitlab-ci.yml) and ci job control_service_deploy_testing_data_pipelines
 * Check if [CHANGELOG.md](CHANGELOG.md) needs to be updated.
 * Post review and merge to main. The release commit should not have other changes except those above.
 * CICD automatically triggers new release on each update of the version.txt file - so only monitor CICD pipeline.

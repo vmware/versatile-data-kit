@@ -59,6 +59,7 @@ In short, it looks like this:
 - Break code commits into small self-contained units
 - Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit
+- projects/*/CHANGELOG.md Next version section should be updated accordingly.
 
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
@@ -78,3 +79,4 @@ We are using CI as a code based on Gitlab CI.
 Entrypoint of CICD is the file .gitlab-ci.yml.
 
 There you can find the full definition of the CI/CD pipeline.
+For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD)
