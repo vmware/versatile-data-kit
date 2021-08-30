@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 import functools
 import json
+import logging
 
 from taurus.vdk.control.exception.vdk_exception import VDKException
 from taurus_datajob_api import ApiException
 from urllib3.exceptions import HTTPError
+
+log = logging.getLogger(__name__)
 
 
 class ApiClientErrorDecorator:
@@ -45,6 +48,9 @@ class ApiClientErrorDecorator:
                 result = fn(*args, **kwargs)
                 return result
             except ApiException as ex:
+                log.debug(f"An API Exception occurred in {fn.__module__}.{fn.__name__}",
+                f"The Exception class was: {ex}")
+
                 body = self._get_error(ex)
                 vdk_ex = VDKException(
                     what=body.get("what", self.what),
@@ -59,6 +65,9 @@ class ApiClientErrorDecorator:
                 )
                 raise vdk_ex from ex
             except HTTPError as ex:
+                log.debug(f"An HTTP Exception occurred in {fn.__module__}.{fn.__name__}",
+                f"The Exception class was: {ex}")
+
                 vdk_ex = VDKException(
                     what=self.what,
                     why=str(ex),

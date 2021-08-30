@@ -2,16 +2,26 @@ Changelog
 =========
 
 
-1.2.4 - Next
----
-
-1.2.3 - 23.08.2021
+1.2.5 - Next
 ----
+
 * **New feature**
 
 * **Improvement**
 
 * **Bug Fixes**
+
+* **Breaking Changes**
+
+
+1.2.4 - 27.08.2021
+---
+* **New feature**
+
+* **Improvement**
+
+* **Bug Fixes**
+  * Non-accurate control-service image tag fix
   * Data Job deployment fix
     Fixed data jobs deployment failures that emit 'ERROR: restart transaction' due to DeploymentMonitor.recordDeploymentStatus.
 

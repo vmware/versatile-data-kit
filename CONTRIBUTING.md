@@ -79,3 +79,4 @@ We are using CI as a code based on Gitlab CI.
 Entrypoint of CICD is the file .gitlab-ci.yml.
 
 There you can find the full definition of the CI/CD pipeline.
+For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD)
