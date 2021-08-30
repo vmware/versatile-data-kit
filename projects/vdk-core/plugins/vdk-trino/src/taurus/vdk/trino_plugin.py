@@ -18,6 +18,7 @@ from taurus.vdk.core.context import CoreContext
 from taurus.vdk.core.errors import UserCodeError
 from taurus.vdk.core.statestore import ImmutableStoreKey
 from taurus.vdk.core.statestore import StoreKey
+from taurus.vdk.ingest_to_trino import IngestToTrino
 from taurus.vdk.lineage import LineageLogger
 from taurus.vdk.trino_connection import TrinoConnection
 from trino.exceptions import TrinoUserError
@@ -118,6 +119,10 @@ def initialize_job(context: JobContext) -> None:
 
     context.templates.add_template(
         "periodic_snapshot", pathlib.Path(get_job_path("load/fact/periodic_snapshot"))
+    )
+
+    context.ingester.add_ingester_factory_method(
+        "trino", (lambda: IngestToTrino(context))
     )
 
 
