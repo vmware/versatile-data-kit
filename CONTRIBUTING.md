@@ -59,6 +59,7 @@ In short, it looks like this:
 - Break code commits into small self-contained units
 - Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit
+- projects/*/CHANGELOG.md Next version section should be updated accordingly.
 
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
