@@ -103,7 +103,7 @@ def _notify(error_overall, user_error, configuration, state):
 
 
 class NotificationPlugin:
-    @hookimpl
+    @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder):
         notification_configuration.add_definitions(config_builder)
 
