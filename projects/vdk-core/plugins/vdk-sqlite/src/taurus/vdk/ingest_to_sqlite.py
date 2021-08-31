@@ -4,11 +4,14 @@ import logging
 from typing import List
 from typing import Optional
 
-from sqlalchemy import create_engine
-from sqlalchemy import MetaData
+from sqlalchemy import column
+from sqlalchemy import insert
+from sqlalchemy import table
+from sqlalchemy.dialects import sqlite
 from taurus.vdk.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from taurus.vdk.core import errors
 from taurus.vdk.sqlite_connection import SQLiteConfiguration
+from taurus.vdk.sqlite_connection import SQLiteConnection
 
 log = logging.getLogger(__name__)
 
@@ -18,8 +21,8 @@ class IngestToSQLite(IIngesterPlugin):
     Create a new ingestion mechanism for ingesting to a SQLite database
     """
 
-    def __init__(self, sqlite_conf: SQLiteConfiguration):
-        self.conf = sqlite_conf
+    def __init__(self, conf: SQLiteConfiguration):
+        self.conf = conf
 
     def ingest_payload(
         self,
@@ -46,34 +49,17 @@ class IngestToSQLite(IIngesterPlugin):
             f"collection_id: {collection_id}"
         )
 
-        # Get target in order of precedence
-        target = (
-            target
-            or self.conf.get_default_ingest_target()
-            or self.conf.get_sqlite_file()
-        )
-        if not target:
-            errors.log_and_throw(
-                errors.ResolvableBy.CONFIG_ERROR,
-                log,
-                what_happened="Cannot send payload for ingestion to SQLite database.",
-                why_it_happened="target has not been provided to the plugin. "
-                "Most likely it has been mis-configured",
-                consequences="Will not be able to send the payloads and will throw exception."
-                "Likely the job would fail",
-                countermeasures="Make sure you have set correct target - "
-                "either as VDK_DEFAULT_INGEST_TARGET or VDK_SQLITE_FILE configuration variable "
-                "or passed target to send_**for_ingestion APIs",
+        conn = SQLiteConnection(target).new_connection()
+        cur = conn.cursor()
+
+        # checking if the table exists - https://tableplus.com/blog/2018/04/sqlite-check-whether-a-table-exists.html
+        table_exists_flag = sum(
+            1
+            for row in cur.execute(
+                f"SELECT name FROM sqlite_master WHERE type='table' AND name='{destination_table}';"
             )
-
-        # create database engine
-        engine = create_engine("sqlite:///" + target)
-        meta = MetaData()
-        meta.reflect(bind=engine)
-
-        if (
-            destination_table not in meta.tables.keys()
-        ):  # check if destination_table exists in database
+        )
+        if not table_exists_flag:  # check if destination_table exists in database
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,
@@ -84,12 +70,19 @@ class IngestToSQLite(IIngesterPlugin):
                 countermeasures="Make sure the destination_table exists in the target SQLite database.",
             )
 
-        conn = engine.connect()
+        # create target TableClause
+        dest_table_clause = table(
+            destination_table, *(column(key) for key in payload[0].keys())
+        )
+
         for obj in payload:
             try:
-                conn.execute(meta.tables[destination_table].insert().values(obj))
+                query = str(dest_table_clause.insert())
+                cur.execute(query, obj)
+                conn.commit()
                 log.debug("Payload was ingested.")
             except Exception as e:
+                conn.close()
                 errors.log_and_rethrow(
                     errors.ResolvableBy.PLATFORM_ERROR,
                     log,
@@ -100,3 +93,4 @@ class IngestToSQLite(IIngesterPlugin):
                     e,
                     wrap_in_vdk_error=True,
                 )
+        conn.close()
