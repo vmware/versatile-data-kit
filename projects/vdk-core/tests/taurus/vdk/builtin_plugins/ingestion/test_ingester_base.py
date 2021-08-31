@@ -23,9 +23,7 @@ def create_ingester_base() -> IngesterBase:
         "INGESTER_LOG_UPLOAD_ERRORS": False,
         "INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS": 2,
     }
-    test_config = Configuration(
-        config_key_to_description=None, config_key_to_value=config_key_value_pairs
-    )
+    test_config = Configuration(None, config_key_value_pairs, {})
 
     return IngesterBase(
         data_job_name="test_job",
