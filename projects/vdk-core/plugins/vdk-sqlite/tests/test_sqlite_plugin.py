@@ -66,26 +66,16 @@ def test_sqlite_ingestion(tmpdir):
     )
     sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
 
-    with mock.patch("sqlalchemy.engine.base.Connection.execute") as conn_execute:
+    with mock.patch("sqlite3.Cursor.execute") as mock_execute:
         sqlite_ingester.ingest_payload(
             payload=payload,
             destination_table="test_table",
         )
 
     assert (
-        str(conn_execute.call_args_list[0][0][0])
+        str(mock_execute.call_args_list[0][0][0])
         == "INSERT INTO test_table (some_data, more_data) VALUES (:some_data, :more_data)"
     )
-
-
-def test_sqlite_ingestion_missing_target(tmpdir):
-    mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
-    mock_sqlite_conf.get_default_ingest_target.return_value = None
-    mock_sqlite_conf.get_sqlite_file.return_value = None
-    sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
-
-    with raises(VdkConfigurationError):
-        sqlite_ingester.ingest_payload(payload=payload)
 
 
 def test_sqlite_ingestion_missing_dest_table(tmpdir):
