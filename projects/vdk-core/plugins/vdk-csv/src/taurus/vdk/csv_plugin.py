@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
     help="Ingest CSV file."
     """
 The ingestion destination depends on how vdk has been configured.
-See vdk config-help  - search for "ingest" to check for possible ingestion conifgurations.
+See vdk config-help  - search for "ingest" to check for possible ingestion configurations.
 
 Examples:
 
@@ -46,7 +46,7 @@ vdkcli ingest-csv revenue.tsv --options="{'sep': '\\t'}"
 @click.option(
     "-f",
     "--file",
-    help="Path to the csv file. It must contain at least properly formatted csv file.",
+    help="Path to the csv file. It must contain properly formatted csv file.",
     type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True),
 )
 @click.option(
@@ -54,8 +54,8 @@ vdkcli ingest-csv revenue.tsv --options="{'sep': '\\t'}"
     "--table-name",
     default=None,
     type=click.STRING,
-    help="Path to the csv file. It must contain properly formatted csv file. "
-    "It will default to the csv file name without the extension",
+    help="The table in which the csv file will be ingested into."
+    "If not specified, it will default to the csv file name without the extension",
 )
 @click.option(
     "-o",

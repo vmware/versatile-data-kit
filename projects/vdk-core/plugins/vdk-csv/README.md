@@ -17,5 +17,5 @@ vdk ingest-csv --help
 
 For example you can ingest CSV file into tables.
 
-In order to configure ingestion method and target you can configure ingestion
-Run `vdk config-help` and look for options starting with VDK_INGEST
+The ingestion destination depends on how vdk has been configured.
+See vdk config-help - search for "ingest" to check for possible ingestion configurations.
