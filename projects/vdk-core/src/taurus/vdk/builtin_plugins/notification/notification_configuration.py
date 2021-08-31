@@ -65,13 +65,6 @@ class SmtpConfiguration:
 
 def __add_job_notified_configuration_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
-        key=JobConfigKeys.TEAM,
-        default_value="",
-        description="Specified which is the team that owns the data job. "
-        "Value is case-sensitive and must be an actual team name as specified during job creation."
-        "",
-    )
-    config_builder.add(
         key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution "
@@ -137,13 +130,6 @@ def __add_smtp_configuration_definitions(config_builder):
 
 
 def __add_job_notified_configuration_definitions(config_builder: ConfigurationBuilder):
-    config_builder.add(
-        key=JobConfigKeys.TEAM,
-        default_value="",
-        description="Specified which is the team that owns the data job. "
-        "Value is case-sensitive and must be an actual team name as specified during job creation."
-        "",
-    )
     config_builder.add(
         key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR,
         default_value="",
