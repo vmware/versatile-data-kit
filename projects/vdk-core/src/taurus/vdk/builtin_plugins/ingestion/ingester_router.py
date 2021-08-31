@@ -14,6 +14,7 @@ from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
 from taurus.vdk.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from taurus.vdk.core import errors
 from taurus.vdk.core.config import Configuration
+from taurus.vdk.core.errors import ResolvableBy
 from taurus.vdk.core.statestore import CommonStoreKeys
 from taurus.vdk.core.statestore import StateStore
 
@@ -182,6 +183,16 @@ class IngesterRouter(IIngesterRegistry):
         except Exception as e:
             self._log.error(
                 "Failed to send tabular data for ingestion." f"Exception was: {e}"
+            )
+            errors.log_and_rethrow(
+                ResolvableBy.USER_ERROR,
+                self._log,
+                what_happened="Failed to send tabular data for ingestion",
+                why_it_happened=f"Exception was: {e}",
+                consequences="Data is not ingested and the method will raise an exception",
+                countermeasures="Please look the error message and try to fix the error and re-try.",
+                exception=e,
+                wrap_in_vdk_error=True,
             )
 
     def __initialize_ingester(self, method) -> IngesterBase:
