@@ -1,15 +1,22 @@
 Changelog
 =========
 
-1.2.6 - Next
+1.2.7 - Next
+----
+* **New feature**
+* **Improvement**
+* **Bug Fixes**
+* **Breaking Changes**
+
+1.2.6 - 31.08.2021
 ----
 
 * **New feature**
+  * control-service: adding support for forwarding logs of the Control Service Server (only) to syslog server
+    Added a logback-spring.xml file which contains the properties for customizable logging.
 
 * **Improvement**
-
 * **Bug Fixes**
-
 * **Breaking Changes**
 
 1.2.5 - 30.08.2021
