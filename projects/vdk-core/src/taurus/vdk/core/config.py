@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import logging
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any
@@ -11,6 +12,8 @@ from taurus.vdk.core.errors import VdkConfigurationError
 # Consider ConfigValue should be primitive type perhaps? and not just any object
 ConfigValue = Any
 ConfigKey = str
+
+log = logging.getLogger(__name__)
 
 
 def convert_value_to_type_of_default_type(
@@ -176,6 +179,12 @@ class ConfigurationBuilder:
     def __add_public(
         self, key: ConfigKey, description: str, default_value: ConfigValue = None
     ) -> None:
+        if not isinstance(description, str):
+            log.warning(
+                f"Description for key {key} is not of type string. Converting to type string."
+            )
+            description = str(description)
+
         if default_value is not None:
             description += "\nDefault value is: '%s'." % default_value
         self.__config_key_to_description[key] = description
