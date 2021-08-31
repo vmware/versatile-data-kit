@@ -244,10 +244,9 @@ class IngesterRouter(IIngesterRegistry):
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=self._log,
-                what_happened=f"Failed to clean some of the ingestion queues. Exceptions were: {errors_list}",
-                why_it_happened=f"There were errors while cleaning the queues for: {errors_list.keys()}.",
+                what_happened=f"Ingesting data failed. On close some ingest queues reported errors. Exceptions were: {errors_list}",
+                why_it_happened=f"There were errors while closing ingestion: {errors_list.keys()}.",
                 consequences="Some data was partially ingested or not ingested at all.",
-                countermeasures="""
-                Make sure all the data is ingested properly by re-running the job.
-                """,
+                countermeasures="Follow the instructions in the error messages and log warnings. Re-try the job if "
+                "necessary.",
             )
