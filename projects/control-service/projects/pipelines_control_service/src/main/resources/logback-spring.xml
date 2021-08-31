@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="log.message.pattern.colored"
+              value="%black(%d{ISO8601}) %highlight(%-5level) [OpId:%X{OpId}] %blue(%-10.10thread) %yellow(%-32.32logger{32}) %message%n%throwable"/>
+
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${log.message.pattern.colored}</pattern>
+        </layout>
+    </appender>
+
+    <if condition='isDefined("LOGGING_SYS_LOG_HOST")'>
+        <then>
+            <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+                <port>${LOGGING_SYS_LOG_PORT:-514}</port>
+                <syslogHost>${LOGGING_SYS_LOG_HOST}</syslogHost>
+                <facility>User</facility>
+            </appender>
+        </then>
+
+    </if>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+
+        <if condition='isDefined("LOGGING_SYS_LOG_HOST")'>
+            <then>
+                <appender-ref ref="SYSLOG"/>
+            </then>
+        </if>
+
+    </root>
+
+    <logger name="logging.level.io.swagger.models.parameters.AbstractSerializableParameter" level="ERROR"/>
+
+</configuration>
+
+
+
+

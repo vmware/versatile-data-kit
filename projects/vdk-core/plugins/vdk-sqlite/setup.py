@@ -10,7 +10,7 @@ __version__ = "0.1.3"
 setuptools.setup(
     name="vdk-sqlite",
     version=__version__,
-    install_requires=["vdk-core", "tabulate", "sqlalchemy"],
+    install_requires=["vdk-core", "tabulate"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,

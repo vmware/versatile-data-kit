@@ -124,3 +124,17 @@ def _handle_special_types(value: Any) -> Any:
 def wait_completion(objects_queue: queue.Queue, payloads_queue: queue.Queue):
     objects_queue.join()
     payloads_queue.join()
+
+
+def is_iterable(obj: Any) -> bool:
+    """
+    According to Python doc this is the most reliable way to determine if object is iterable.
+    See https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable
+    :param obj: the object to check
+    :return: true or false :)
+    """
+    try:
+        _ = iter(obj)
+        return True
+    except TypeError:
+        return False

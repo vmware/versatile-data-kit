@@ -43,11 +43,12 @@ def test_sqlite_plugin(tmpdir):
 
 
 def test_sqlite_ingestion(tmpdir):
+    db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {
             "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
+            "VDK_SQLITE_FILE": db_dir,
         },
     ):
         # create table first, as the ingestion fails otherwise
@@ -60,33 +61,33 @@ def test_sqlite_ingestion(tmpdir):
             ]
         )
 
-    mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
-    mock_sqlite_conf.get_default_ingest_target.return_value = (
-        str(tmpdir) + "vdk-sqlite.db"
-    )
-    sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
+        mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
+        sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
 
-    with mock.patch("sqlite3.Cursor.execute") as mock_execute:
         sqlite_ingester.ingest_payload(
-            payload=payload,
+            payload=[payload],
             destination_table="test_table",
+            target=db_dir,
         )
 
-    assert (
-        str(mock_execute.call_args_list[0][0][0])
-        == "INSERT INTO test_table (some_data, more_data) VALUES (:some_data, :more_data)"
-    )
+        check_result = runner.invoke(
+            ["sqlite-query", "--query", "SELECT * FROM test_table"]
+        )
+
+        assert check_result.stdout == (
+            "--------------  --------------\n"
+            "some_test_data  more_test_data\n"
+            "--------------  --------------\n"
+        )
 
 
 def test_sqlite_ingestion_missing_dest_table(tmpdir):
     mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
-    mock_sqlite_conf.get_default_ingest_target.return_value = (
-        str(tmpdir) + "vdk-sqlite.db"
-    )
     sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
 
     with raises(UserCodeError):
         sqlite_ingester.ingest_payload(
             payload=payload,
             destination_table="test_table",
+            target=str(tmpdir) + "vdk-sqlite.db",
         )

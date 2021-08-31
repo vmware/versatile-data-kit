@@ -1,13 +1,12 @@
 # Copyright (c) 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import pathlib
+from contextlib import closing
+from sqlite3 import Cursor
 from typing import List
 from typing import Optional
 
-from sqlalchemy import column
-from sqlalchemy import insert
-from sqlalchemy import table
-from sqlalchemy.dialects import sqlite
 from taurus.vdk.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from taurus.vdk.core import errors
 from taurus.vdk.sqlite_connection import SQLiteConfiguration
@@ -30,7 +29,7 @@ class IngestToSQLite(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: str = None,
         collection_id: Optional[str] = None,
-    ):
+    ) -> None:
         """
         Performs the ingestion
 
@@ -43,16 +42,41 @@ class IngestToSQLite(IIngesterPlugin):
         :param collection_id:
             an identifier specifying that data from different method invocations belongs to the same collection
         """
-
         log.info(
             f"Ingesting payloads for target: {target}; "
             f"collection_id: {collection_id}"
         )
 
-        conn = SQLiteConnection(target).new_connection()
-        cur = conn.cursor()
+        with SQLiteConnection(pathlib.Path(target)).new_connection() as conn:
+            with closing(conn.cursor()) as cur:
+                self.__check_destination_table_exists(destination_table, cur)
+                self.__ingest_payload(destination_table, payload, cur)
 
-        # checking if the table exists - https://tableplus.com/blog/2018/04/sqlite-check-whether-a-table-exists.html
+    def __ingest_payload(
+        self, destination_table: str, payload: List[dict], cur: Cursor
+    ) -> None:
+        query = self.__create_query(destination_table, cur)
+
+        for obj in payload:
+            try:
+                cur.execute(query, obj)
+                log.debug("Payload was ingested.")
+            except Exception as e:
+                errors.log_and_rethrow(
+                    errors.ResolvableBy.PLATFORM_ERROR,
+                    log,
+                    "Failed to sent payload",
+                    "Unknown error. Error message was : " + str(e),
+                    "Will not be able to send the payload for ingestion",
+                    "See error message for help ",
+                    e,
+                    wrap_in_vdk_error=True,
+                )
+
+    def __check_destination_table_exists(
+        self, destination_table: str, cur: Cursor
+    ) -> None:
+        # https://tableplus.com/blog/2018/04/sqlite-check-whether-a-table-exists.html
         table_exists_flag = sum(
             1
             for row in cur.execute(
@@ -70,27 +94,13 @@ class IngestToSQLite(IIngesterPlugin):
                 countermeasures="Make sure the destination_table exists in the target SQLite database.",
             )
 
-        # create target TableClause
-        dest_table_clause = table(
-            destination_table, *(column(key) for key in payload[0].keys())
-        )
-
-        for obj in payload:
-            try:
-                query = str(dest_table_clause.insert())
-                cur.execute(query, obj)
-                conn.commit()
-                log.debug("Payload was ingested.")
-            except Exception as e:
-                conn.close()
-                errors.log_and_rethrow(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    "Unknown error. Error message was : " + str(e),
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
-                    e,
-                    wrap_in_vdk_error=True,
-                )
-        conn.close()
+    def __create_query(self, destination_table: str, cur: Cursor) -> str:
+        fields = [
+            field_tuple[0]
+            for field_tuple in cur.execute(
+                f"SELECT name FROM PRAGMA_TABLE_INFO('{destination_table}')"
+            ).fetchall()
+        ]
+        # the returned fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (:val1, :val2, :val3)'
+        # assuming dest_table is the destination_table and val1, val2, val3 are the fields of that table
+        return f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':'+field for field in fields])})"

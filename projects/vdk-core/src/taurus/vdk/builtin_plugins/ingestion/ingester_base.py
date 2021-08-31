@@ -5,8 +5,7 @@ import logging
 import queue
 import sys
 import threading
-from typing import Iterator
-from typing import List
+from typing import Iterable
 from typing import Optional
 
 from taurus.api.job_input import IIngester
@@ -17,7 +16,7 @@ from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
 )
 from taurus.vdk.builtin_plugins.ingestion.ingester_utils import AtomicCounter
 from taurus.vdk.core import errors
-
+from taurus.vdk.core.errors import ResolvableBy
 
 log = logging.getLogger(__name__)
 
@@ -188,22 +187,37 @@ class IngesterBase(IIngester):
             meaning all method invocations from a data job run will belong to the
             same collection.
         """
-        if not rows or not column_names:
-            raise errors.UserCodeError(
-                error_message=errors.ErrorMessage(
-                    summary="Data was not accepted for ingestion.",
-                    what="Failed to accept data.",
-                    why="`rows` or `column_names` parameter is empty.",
-                    consequences="The data cannot be ingested.",
-                    countermeasures="Check if the data is correctly sent for ingestion.",
-                )
+        if len(column_names) == 0 and destination_table is None:
+            errors.log_and_throw(
+                ResolvableBy.USER_ERROR,
+                log,
+                what_happened="Failed to ingest tabular data",
+                why_it_happened="Either column names or destination table must be specified."
+                "Without at least one of those we cannot determine how data should be ingested and we abort.",
+                consequences="The data will not be ingested and the current call will fail with an exception.",
+                countermeasures="Pass column names or destination table as argument.",
             )
-        if not isinstance(rows, Iterator) or not isinstance(column_names, List):
-            raise errors.UserCodeError(
-                "The rows argument must be an iterator "
-                "and the column_names argument "
-                "must be a list"
+
+        if not ingester_utils.is_iterable(rows):
+            errors.log_and_throw(
+                ResolvableBy.USER_ERROR,
+                log,
+                what_happened="Cannot ingest tabular data",
+                why_it_happened=f"The rows argument must be an iterable but it was type: {type(rows)}",
+                consequences="The data will not be ingested and current call will fail with an exception.",
+                countermeasures="Make sure rows is proper iterator object ",
             )
+
+        if not isinstance(column_names, Iterable):
+            errors.log_and_throw(
+                ResolvableBy.USER_ERROR,
+                log,
+                what_happened="Cannot ingest tabular data",
+                why_it_happened=f"The column_names argument must be a List (or iterable) but it was: {type(rows)}",
+                consequences="The data will not be ingested and current call will fail with an exception.",
+                countermeasures="Make sure column_names is proper List object ",
+            )
+
         log.info(
             "Posting for ingestion data for table {table} with columns {columns} against endpoint {endpoint}".format(
                 table=destination_table, columns=column_names, endpoint=target
@@ -485,14 +499,12 @@ class IngesterBase(IIngester):
         ingester_utils.wait_completion(
             objects_queue=self._objects_queue, payloads_queue=self._payloads_queue
         )
-    
+
     @staticmethod
     def __verify_payload_format(payload_dict: dict):
         if not payload_dict:
             raise errors.UserCodeError(
-                "Payload given to "
-                "ingestion method should "
-                "not be empty."
+                "Payload given to " "ingestion method should " "not be empty."
             )
 
         elif not isinstance(payload_dict, dict):
@@ -500,8 +512,9 @@ class IngesterBase(IIngester):
                 "Payload given to ingestion method should be a "
                 "dictionary, but it is not."
             )
-        
+
         # Check if payload dict is valid json
+        # TODO: optimize the check - we should not need to serialize the payload every time
         try:
             json.dumps(payload_dict)
         except (TypeError, OverflowError, Exception) as e:
@@ -511,5 +524,5 @@ class IngesterBase(IIngester):
                 "Failed to send payload",
                 "JSON Serialization Error. Payload is not json serializable",
                 "Payload may be only partially ingested, or not ingested at all.",
-                f"See error message for help: {str(e)}"
+                f"See error message for help: {str(e)}",
             )
