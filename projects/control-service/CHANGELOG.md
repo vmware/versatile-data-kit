@@ -1,13 +1,29 @@
 Changelog
 =========
 
-
-1.2.5 - Next
+1.2.6 - Next
 ----
 
 * **New feature**
 
 * **Improvement**
+
+* **Bug Fixes**
+
+* **Breaking Changes**
+
+1.2.5 - 30.08.2021
+----
+
+* **New feature**
+  * implement DELETE Job execution REST API<br>
+    Users can now cancel started data job execution in self-service manner using REST API
+
+
+* **Improvement**
+  * Switch Job Builder image to use kaniko<br>
+    This will enable Control Servie to run in more secure kubernetes (pod security - no privilege run, seccomp/apparmor profiles enabled)
+    It will enable to use local docker registry (without ssl) for easier deployment for prototype purposes
 
 * **Bug Fixes**
 

@@ -212,7 +212,7 @@ class IIngesterRegistry:
     ) -> None:
         """
         Register new ingester objects.
-        By registering ingester objects, data enfineers would be able to use the
+        By registering ingester objects, data engineers would be able to use the
         same vdk setup with multiple ingester plugins, and direct where the data
         should be ingested by only specifying the `method` when calling
         send_object_for_ingestion()/send_tabular_data_for_ingestion().
@@ -223,6 +223,10 @@ class IIngesterRegistry:
                     method='file' -> for ingest to file plugin
                     method='http' -> for ingest over http plugin
                     method='kafka' -> for ingest to kafka endpoint plugin
+               The value for the method parameter will be converted to lowercase and
+               stored in this way with the aim of preventing issues where a user has
+               set a variable to the correct string for a particular method, but the
+               case is wrong.
         :param ingester_plugin: Callable[[], IIngesterPlugin]
                The ingester must implement the ingestion mechanism indicated by the
                method parameter.
