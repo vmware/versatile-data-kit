@@ -296,7 +296,7 @@ class IngesterBase(IIngester):
         current_payload_size_in_bytes = 0
         current_target = None
         current_collection_id = None
-        destination_table = None
+        current_destination_table = None
         method = None
         while True:
             try:
@@ -325,13 +325,15 @@ class IngesterBase(IIngester):
                 continue
 
             # First payload will determine the target and collection_id
-            if not current_target and not current_collection_id:
+            if not current_target and not current_collection_id and not current_destination_table:
                 current_target = target
                 current_collection_id = collection_id
+                current_destination_table = destination_table
 
-            # When we get a payload with different than current target/collection_id,
+
+            # When we get a payload with different than current target/collection_id/destination_table,
             # send the current payload and start aggregating for the new one.
-            if current_target != target or current_collection_id != collection_id:
+            if current_target != target or current_collection_id != collection_id or current_destination_table != destination_table:
                 (
                     aggregated_payload,
                     number_of_payloads,
@@ -339,13 +341,14 @@ class IngesterBase(IIngester):
                 ) = self._queue_payload_for_posting(
                     aggregated_payload,
                     number_of_payloads,
-                    destination_table,
+                    current_destination_table,
                     method,
                     current_target,
                     current_collection_id,
                 )
                 current_target = target
                 current_collection_id = collection_id
+                current_destination_table = destination_table
 
             # We are converting to string to get correct memory size. This may
             # cause performance issues.
@@ -363,7 +366,7 @@ class IngesterBase(IIngester):
                 ) = self._queue_payload_for_posting(
                     aggregated_payload,
                     number_of_payloads,
-                    destination_table,
+                    current_destination_table,
                     method,
                     current_target,
                     current_collection_id,
