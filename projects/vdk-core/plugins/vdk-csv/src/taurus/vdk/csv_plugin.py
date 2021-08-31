@@ -36,7 +36,7 @@ vdkcli ingest-csv revenue.csv --table-name my_revenue_table
 
 \b
 # This will ingest a CSV file into table passed as argument
-# But we can switch the delimiter to tab instead of command
+# But we can switch the delimiter to tab instead of comma
 # Effectively ingesting TSV file.
 vdkcli ingest-csv revenue.tsv --options="{'sep': '\\t'}"
 
