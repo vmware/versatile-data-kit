@@ -83,7 +83,7 @@ public class JobExecutionService {
          annotations.put(JobAnnotation.OP_ID.getValue(), opId);
 
          String startedBy = StringUtils.isNotBlank(jobExecutionRequest.getStartedBy()) ?
-               jobExecutionRequest.getStartedBy() :
+               jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser() :
                operationContext.getUser();
          String startedByBuilt = buildStartedByAnnotationValue(ExecutionType.MANUAL, startedBy);
          annotations.put(JobAnnotation.STARTED_BY.getValue(), startedByBuilt);
