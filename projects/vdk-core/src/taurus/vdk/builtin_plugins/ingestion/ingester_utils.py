@@ -78,7 +78,7 @@ def validate_column_count(data: iter, column_names: iter):
             )
 
 
-def convert_table(table: iter, column_names: iter, table_name: str) -> List[dict]:
+def convert_table(table: iter, column_names: iter) -> List[dict]:
     """
     Converts tabular data into dictionary objects
 
@@ -86,15 +86,11 @@ def convert_table(table: iter, column_names: iter, table_name: str) -> List[dict
        A representation of a two-dimensional array that allows iteration over rows.
     :param column_names: iter
        Names of the table columns.
-    :param table_name: string
-       Value of the `table_name` key, that is mandatory to identify the
-       destination table.
     :return: list of dicts containing the converted table objects.
     """
     converted_rows = []
     for row in table:
         cdf_row = dict()
-        cdf_row["@table"] = table_name
         for index, value in enumerate(row):
             if value is not None:
                 value = _handle_special_types(value)
