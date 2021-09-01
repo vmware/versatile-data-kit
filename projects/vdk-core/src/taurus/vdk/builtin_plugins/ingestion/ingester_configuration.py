@@ -11,6 +11,9 @@ INGESTER_LOG_UPLOAD_ERRORS = "INGESTER_LOG_UPLOAD_ERRORS"
 INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS = (
     "INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS"
 )
+INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE = (
+    "INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE"
+)
 
 
 class IngesterConfiguration:
@@ -31,6 +34,9 @@ class IngesterConfiguration:
 
     def get_should_log_upload_errors(self) -> bool:
         return bool(self.__config.get_value(INGESTER_LOG_UPLOAD_ERRORS))
+
+    def get_should_raise_exception_on_failure(self) -> bool:
+        return bool(self.__config.get_value(INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE))
 
     def get_payload_aggregator_timeout_seconds(self) -> int:
         return int(
@@ -75,6 +81,11 @@ def add_definitions(config_builder: ConfigurationBuilder):
         key=INGESTER_LOG_UPLOAD_ERRORS,
         default_value=True,
         description="Specifies if errors should be logged.",
+    )
+    config_builder.add(
+        key=INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE,
+        default_value=True,
+        description="If set to true, data job will fail with exception in case it a payload fail to ingest.",
     )
     config_builder.add(
         key=INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS,
