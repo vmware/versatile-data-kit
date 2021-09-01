@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from datetime import datetime
 from unittest.mock import MagicMock
-from unittest.mock import patch
-
+from unittest.mock import patch, call
+from datetime import datetime
 import pytest
 from taurus.api.plugin.plugin_input import IIngesterPlugin
 from taurus.vdk.builtin_plugins.ingestion.ingester_base import IngesterBase
@@ -145,3 +145,36 @@ def test_plugin_ingest_payload():
         target=target,
         collection_id=collection_id,
     )
+
+
+def test_ingest_payload_multiple_destinations():
+    test_payload1 = {"key1": "val1", "key2": "val2", "key3": "val3"}
+    test_payload2 = {"key1": 1, "key2": 2, "key3": 3}
+    test_expected_payload1 = [{"key1": "val1", "key2": "val2", "key3": "val3"}]
+    test_expected_payload2 = [{"key1": 1, "key2": 2, "key3": 3}]
+    destination_table1 = "a_destination_table"
+    destination_table2 = "another_destination_table"
+    method = "test_method"
+    target = "some_target"
+    collection_id = "test_job|42a420"
+    ingester_base = create_ingester_base()
+
+    ingester_base.send_object_for_ingestion(
+        payload=test_payload1,
+        destination_table=destination_table1,
+        method=method,
+        target=target,
+    )
+    ingester_base.send_object_for_ingestion(
+        payload=test_payload2,
+        destination_table=destination_table2,
+        method=method,
+        target=target,
+    )
+    ingester_base.close()
+
+    assert ingester_base._ingester.ingest_payload.call_count == 2
+
+    assert ingester_base._ingester.ingest_payload.call_args_list[0] == call(collection_id=collection_id, target=target, destination_table=destination_table1, payload=test_expected_payload1)
+
+    assert ingester_base._ingester.ingest_payload.call_args_list[1] == call(collection_id=collection_id, target=target, destination_table=destination_table2, payload=test_expected_payload2)
