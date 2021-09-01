@@ -60,11 +60,22 @@ def test_set_value(key, value):
     assert cfg[key] == value
 
 
+def test_set_value_overrides_default():
+    builder = ConfigurationBuilder()
+    builder.set_value("key", "value")
+    builder.add("key", "default_value", False, "key description")
+    cfg = builder.build()
+    assert cfg.get_value("key") == "value"
+
+
 def test_list_config_keys():
     builder = ConfigurationBuilder()
     builder.add("key1", 1)
     builder.add("key2", "two")
-    assert {"key1", "key2"} == set(builder.list_config_keys())
+    builder.add("key3", None)
+    builder.add("key4", False, False, "description")
+    builder.add("key5", 1.2, True, "description")
+    assert {"key1", "key2", "key3", "key4", "key5"} == set(builder.list_config_keys())
 
 
 def test_conversions():
