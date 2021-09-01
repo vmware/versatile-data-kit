@@ -85,7 +85,9 @@ def add_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
         key=INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE,
         default_value=True,
-        description="If set to true, data job will fail with exception in case it a payload fail to ingest.",
+        description="When set to true, if there is an ingesting error, and we fail to ingest some data,"
+        " ingester will raise an exception at the end - during finalize_job phase (plugin hook)."
+        "By default this will cause the data job to fail (this behaviour can be overridden by plugins).",
     )
     config_builder.add(
         key=INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS,
