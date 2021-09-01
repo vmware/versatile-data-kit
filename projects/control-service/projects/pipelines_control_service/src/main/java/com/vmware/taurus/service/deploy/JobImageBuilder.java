@@ -58,6 +58,8 @@ public class JobImageBuilder {
    private String registryPassword;
    @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
    private String deploymentDataJobBaseImage;
+   @Value("${datajobs.deployment.builder.extraArgs:}")
+   private String extraArgs;
 
    private final ControlKubernetesService controlKubernetesService;
    private final DockerRegistryService dockerRegistryService;
@@ -212,7 +214,8 @@ public class JobImageBuilder {
             entry("GIT_COMMIT", jobVersion),
             entry("JOB_GITHASH", jobVersion),
             entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-            entry("BASE_IMAGE", deploymentDataJobBaseImage)
+            entry("BASE_IMAGE", deploymentDataJobBaseImage),
+            entry("EXTRA_ARGUMENTS", extraArgs)
       );
    }
 
