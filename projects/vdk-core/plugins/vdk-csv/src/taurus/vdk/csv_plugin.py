@@ -28,17 +28,23 @@ Examples:
 \b
 # This will ingest a CSV file into table with the same name as the csv file
 # revenue.csv will be ingested into table revenue.
-vdkcli ingest-csv revenue.csv
+# Column names are inferred from the top row of the csv file.
+vdkcli ingest-csv -f revenue.csv
 
 \b
 # This will ingest a CSV file into table passed as argument
-vdkcli ingest-csv revenue.csv --table-name my_revenue_table
+vdkcli ingest-csv -f revenue.csv --table-name my_revenue_table
 
 \b
-# This will ingest a CSV file into table passed as argument
-# But we can switch the delimiter to tab instead of comma
-# Effectively ingesting TSV file.
-vdkcli ingest-csv revenue.tsv --options="{'sep': '\\t'}"
+# This will ingest a CSV file
+# But we will switch the delimiter to tab instead of comma
+# Effectively ingesting TSV (tab-separate) file.
+vdkcli ingest-csv -f revenue.tsv --options='{"sep": "\\t"}'
+
+\b
+# This will ingest a CSV file.
+# We will use custom column names.
+vdkcli ingest-csv -f revenue.csv --options='{"names": ["gender", "os", "visits", "age", "revenue"]}'
 
                """,
     no_args_is_help=True,
@@ -62,8 +68,8 @@ vdkcli ingest-csv revenue.tsv --options="{'sep': '\\t'}"
     "--options",
     default="{}",
     type=click.STRING,
-    help="Pass extra options when reading CSV file formatted as json. For example {'sep': ';', 'verbose': true} "
-    "Those are the same options as passed to pandas.read_csv"
+    help="""Pass extra options when reading CSV file formatted as json. For example {"sep": ";", "verbose": true} """
+    "Those are the same options as passed to pandas.read_csv. See "
     "https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html.",
 )
 @click.pass_context
@@ -74,6 +80,7 @@ def ingest_csv(ctx: Context, file: str, table_name: str, options: str) -> None:
         data_job_directory=os.path.dirname(csv_ingest_step.__file__),
         arguments=json.dumps(args),
     )
+    click.echo(f"Ingesting csv file {file} finished.")
 
 
 @hookimpl
