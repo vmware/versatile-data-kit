@@ -8,6 +8,7 @@ from typing import Optional
 
 import click
 import pluggy
+from tabulate import tabulate
 from taurus.api.plugin.hook_markers import hookimpl
 from taurus.vdk import trino_config
 from taurus.vdk.builtin_plugins.connection.pep249.interfaces import PEP249Connection
@@ -142,9 +143,7 @@ def run_step(context: JobContext, step: Step) -> None:
 def trino_query(ctx: click.Context, query):
     with ctx.obj.state.get(CONNECTION_FUNC_KEY)() as conn:
         res = conn.execute_query(query)
-        import json
-
-        print(json.dumps(res, indent=2))
+        click.echo(tabulate(res))
 
 
 @hookimpl
