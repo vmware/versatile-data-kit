@@ -232,9 +232,7 @@ class IngesterBase(IIngester):
         # fetch data in chunks to prevent running out of memory
         for page_number, page in enumerate(ingester_utils.get_page_generator(rows)):
             ingester_utils.validate_column_count(page, column_names)
-            converted_rows = ingester_utils.convert_table(
-                page, column_names, destination_table
-            )
+            converted_rows = ingester_utils.convert_table(page, column_names)
             log.debug(
                 "Posting page {number} with {size} rows for ingestion.".format(
                     number=page_number, size=len(converted_rows)
@@ -325,15 +323,22 @@ class IngesterBase(IIngester):
                 continue
 
             # First payload will determine the target and collection_id
-            if not current_target and not current_collection_id and not current_destination_table:
+            if (
+                not current_target
+                and not current_collection_id
+                and not current_destination_table
+            ):
                 current_target = target
                 current_collection_id = collection_id
                 current_destination_table = destination_table
 
-
             # When we get a payload with different than current target/collection_id/destination_table,
             # send the current payload and start aggregating for the new one.
-            if current_target != target or current_collection_id != collection_id or current_destination_table != destination_table:
+            if (
+                current_target != target
+                or current_collection_id != collection_id
+                or current_destination_table != destination_table
+            ):
                 (
                     aggregated_payload,
                     number_of_payloads,
