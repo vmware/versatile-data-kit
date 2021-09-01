@@ -5,10 +5,13 @@ import pathlib
 import tempfile
 import uuid
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Dict
 from typing import List
+from typing import Optional
 
 from taurus.api.plugin.hook_markers import hookimpl
+from taurus.api.plugin.plugin_input import IIngesterPlugin
 from taurus.api.plugin.plugin_input import IPropertiesServiceClient
 from taurus.vdk.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
@@ -127,3 +130,38 @@ class TestPropertiesPlugin:
         context.properties.set_properties_factory_method(
             "default", lambda: self.properties_client
         )
+
+
+class IngestIntoMemoryPlugin(IIngesterPlugin):
+    """
+    Create a new ingestion mechanism to ingest data into memory
+    """
+
+    @dataclass
+    class Payload:
+        payload: List[dict]
+        destination_table: Optional[str]
+        target: Optional[str]
+        collection_id: Optional[str]
+
+    def __init__(self):
+        self.payloads: List[IngestIntoMemoryPlugin.Payload] = []
+
+    def ingest_payload(
+        self,
+        payload: List[dict],
+        destination_table: Optional[str],
+        target: Optional[str] = None,
+        collection_id: Optional[str] = None,
+    ):
+        self.payloads.append(
+            IngestIntoMemoryPlugin.Payload(
+                payload, destination_table, target, collection_id
+            )
+        )
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        log.info("Initialize data job with IngestIntoMemory Plugin.")
+
+        context.ingester.add_ingester_factory_method("memory", lambda: self)
