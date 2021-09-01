@@ -12,8 +12,10 @@ Changelog
 ----
 
 * **New feature**
-  * control-service: adding support for forwarding logs of the Control Service Server (only) to syslog server
-    Added a logback-spring.xml file which contains the properties for customizable logging.
+  * Adding support for forwarding logs of the Control Service Server (only) to syslog server <br>
+    Users can now specify environment variable LOGGING_SYS_LOG_HOST and LOGGING_SYS_LOG_PORT to enable forwarding them to syslog.
+
+
 
 * **Improvement**
 * **Bug Fixes**
