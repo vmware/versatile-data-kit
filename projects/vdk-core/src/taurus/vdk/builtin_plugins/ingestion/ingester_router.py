@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import Callable
@@ -14,12 +14,18 @@ from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
 from taurus.vdk.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from taurus.vdk.core import errors
 from taurus.vdk.core.config import Configuration
+from taurus.vdk.core.errors import ErrorMessage
+from taurus.vdk.core.errors import PlatformServiceError
 from taurus.vdk.core.errors import ResolvableBy
+from taurus.vdk.core.errors import UserCodeError
+from taurus.vdk.core.errors import VdkConfigurationError
 from taurus.vdk.core.statestore import CommonStoreKeys
 from taurus.vdk.core.statestore import StateStore
 
 
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
+
+log = logging.getLogger(__name__)
 
 
 class IngesterRouter(IIngesterRegistry):
@@ -241,12 +247,25 @@ class IngesterRouter(IIngesterRegistry):
                 )
 
         if errors_list:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=self._log,
-                what_happened=f"Ingesting data failed. On close some ingest queues reported errors. Exceptions were: {errors_list}",
-                why_it_happened=f"There were errors while closing ingestion: {errors_list.keys()}.",
-                consequences="Some data was partially ingested or not ingested at all.",
-                countermeasures="Follow the instructions in the error messages and log warnings. Re-try the job if "
-                "necessary.",
+            message = ErrorMessage(
+                "Ingesting data failed",
+                f"On close some following ingest queues types reported errors:  {list(errors_list.keys())}.",
+                f"There were errors while closing ingestion. Exceptions were: {errors_list}.",
+                "Some data was partially ingested or not ingested at all.",
+                "Follow the instructions in the error messages and log warnings. "
+                "Make sure to inspect any errors or warning logs generated"
+                "Re-try the job if necessary",
             )
+
+            if any(
+                filter(lambda v: isinstance(v, UserCodeError), errors_list.values())
+            ):
+                raise UserCodeError(message)
+            elif any(
+                filter(
+                    lambda v: isinstance(v, VdkConfigurationError), errors_list.values()
+                )
+            ):
+                raise VdkConfigurationError(message)
+            else:
+                raise PlatformServiceError(message)

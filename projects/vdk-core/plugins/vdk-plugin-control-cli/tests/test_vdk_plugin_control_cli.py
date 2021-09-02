@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from taurus.vdk import vdk_plugin_control_cli
 from taurus.vdk.test_utils.util_funcs import cli_assert_equal

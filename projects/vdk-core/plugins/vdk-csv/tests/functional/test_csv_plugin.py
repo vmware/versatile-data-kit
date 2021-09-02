@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 from unittest import mock
@@ -28,7 +28,6 @@ def test_ingestion_csv():
     assert len(ingest_plugin.payloads) > 0
     assert len(ingest_plugin.payloads[0].payload) == 4
     expected_first_row = {
-        "@table": "test",
         "Transaction_date": "01/02/2009 04:53",
         "Product": "Product1",
         "Price": 1200,

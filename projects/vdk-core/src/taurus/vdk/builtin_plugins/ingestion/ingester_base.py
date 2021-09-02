@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -481,22 +481,20 @@ class IngesterBase(IIngester):
 
                 except VdkConfigurationError as e:
                     self._plugin_errors[VdkConfigurationError].increment()
-                    log.warning(
-                        "A configuration error occurred while ingesting data. "
-                        f"The error was: {e}"
+                    # TODO: logging for every error might be too much
+                    # There could be million of uploads and millions of error logs would be hard to use.
+                    # But until we have a way to aggregate the errors and show
+                    # the most relevant errors it's better to make sure we do not hide an issue
+                    # and be verbose.
+                    log.exception(
+                        "A configuration error occurred while ingesting data."
                     )
                 except UserCodeError as e:
                     self._plugin_errors[UserCodeError].increment()
-                    log.warning(
-                        "An user error occurred while ingesting data. "
-                        f"The error was: {e}"
-                    )
+                    log.exception("An user error occurred while ingesting data.")
                 except Exception as e:
                     self._plugin_errors[PlatformServiceError].increment()
-                    log.warning(
-                        "A platform error occurred while ingesting data. "
-                        f"The error was: {e}"
-                    )
+                    log.exception("A platform error occurred while ingesting data.")
 
             except Exception as e:
                 self._fail_count.increment()
@@ -552,20 +550,20 @@ class IngesterBase(IIngester):
             )
 
     def _handle_results(self):
-        if self._plugin_errors.get(UserCodeError, 0).value > 0:
+        if self._plugin_errors.get(UserCodeError, AtomicCounter(0)).value > 0:
             self._log_and_throw(
                 to_be_fixed_by=ResolvableBy.USER_ERROR,
                 countermeasures="Ensure data you are sending is aligned with the requirements",
                 why_it_happened="User error occurred. See warning logs for more details. ",
             )
-        if self._plugin_errors.get(VdkConfigurationError, 0).value > 0:
+        if self._plugin_errors.get(VdkConfigurationError, AtomicCounter(0)).value > 0:
             self._log_and_throw(
                 to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
                 countermeasures="Ensure job is properly configured. "
                 "For example make sure that target and method specified are correct",
             )
         if (
-            self._plugin_errors.get(PlatformServiceError, 0).value > 0
+            self._plugin_errors.get(PlatformServiceError, AtomicCounter(0)).value > 0
             or self._fail_count.value > 0
         ):
             self._log_and_throw(
@@ -586,7 +584,7 @@ class IngesterBase(IIngester):
             log=log,
             what_happened="Failed to post all data for ingestion successfully.",
             why_it_happened=why_it_happened,
-            consequences="Some data will not be ingested into Super Collider.",
+            consequences="Some data will not be ingested.",
             countermeasures=countermeasures,
         )
 
