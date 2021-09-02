@@ -21,7 +21,7 @@
   - projects/control-service/projects/pipelines_control_service/**/*
   - projects/control-service/projects/settings.gradle
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
-  - projects/control-service/projects/vdk_job_builder/**/*
+  - projects/control-service/projects/job-builder/**/*
   - projects/control-service/projects/helm_charts/pipelines-control-service/**
 
 .control_service_base_build:
@@ -106,7 +106,7 @@ control_service_integration_test:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
-control_service_publish_vdk_job_builder_image:
+control_service_publish_job_builder_image:
   image: docker:19.03.8
   services:
     - docker:19.03.8-dind
@@ -118,14 +118,14 @@ control_service_publish_vdk_job_builder_image:
   script:
     - apk add --no-cache bash
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-    - cd projects/control-service/projects/vdk_job_builder
+    - cd projects/control-service/projects/job-builder
     - bash -ex ./publish-vdk-job-builder.sh
   retry: !reference [.control_service_retry, retry_options]
   only:
     refs:
       - main
     changes:
-      - projects/control-service/projects/vdk_job_builder/version.txt
+      - projects/control-service/projects/job-builder/version.txt
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt

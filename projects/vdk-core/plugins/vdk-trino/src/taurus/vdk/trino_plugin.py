@@ -70,6 +70,11 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         "INSERT_SELECT - target is created, data from source is inserted into target, source is dropped;\n"
         "RENAME - source is renamed to target;\n",
     )
+    config_builder.add(
+        key="TRINO_INGEST_BATCH_SIZE",
+        default_value=10000,
+        description="The size of the batch of rows ingested in a single database transaction",
+    )
 
 
 LINEAGE_LOGGER_KEY = StoreKey[LineageLogger]("trino-lineage-logger")
