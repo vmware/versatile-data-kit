@@ -1,7 +1,7 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import os
 import json
+import os
 
 from click.testing import CliRunner
 from py._path.local import LocalPath
@@ -108,17 +108,21 @@ def test_execute_start_output_json(httpserver: PluginHTTPServer, tmpdir: LocalPa
 
     runner = CliRunner()
     result = runner.invoke(
-        execute, ["-n", job_name, "-t", team_name, "--start", "-u", rest_api_url, "-o", "json"]
+        execute,
+        ["-n", job_name, "-t", team_name, "--start", "-u", rest_api_url, "-o", "json"],
     )
     json_output = json.loads(result.output)
 
     assert job_name == json_output.get("job_name")
     assert team_name == json_output.get("team")
-    
-def test_execute_with_exception(httpserver: PluginHTTPServer, tmpdir:LocalPath):
+
+
+def test_execute_with_exception(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
-    result = runner.invoke(execute, ["--start", "-n", "job_name", "-t", "team_name", "-u", "localhost"])
-    
+    result = runner.invoke(
+        execute, ["--start", "-n", "job_name", "-t", "team_name", "-u", "localhost"]
+    )
+
     assert (
         result.exit_code == 2
     ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"

@@ -1,11 +1,13 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import logging
 import socket
 import time
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
+
 from retrying import retry
-
-
 from taurus.vdk.heartbeat.config import Config
 from taurus.vdk.heartbeat.heartbeat_test import HeartbeatTest
 from taurus.vdk.heartbeat.job_controller import JobController

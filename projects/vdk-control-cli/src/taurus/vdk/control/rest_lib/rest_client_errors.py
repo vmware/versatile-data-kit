@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import functools
 import json
@@ -48,8 +48,10 @@ class ApiClientErrorDecorator:
                 result = fn(*args, **kwargs)
                 return result
             except ApiException as ex:
-                log.debug(f"An API Exception occurred in {fn.__module__}.{fn.__name__}",
-                f"The Exception class was: {ex}")
+                log.debug(
+                    f"An API Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"The Exception class was: {ex}",
+                )
 
                 body = self._get_error(ex)
                 vdk_ex = VDKException(
@@ -65,8 +67,10 @@ class ApiClientErrorDecorator:
                 )
                 raise vdk_ex from ex
             except HTTPError as ex:
-                log.debug(f"An HTTP Exception occurred in {fn.__module__}.{fn.__name__}",
-                f"The Exception class was: {ex}")
+                log.debug(
+                    f"An HTTP Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"The Exception class was: {ex}",
+                )
 
                 vdk_ex = VDKException(
                     what=self.what,

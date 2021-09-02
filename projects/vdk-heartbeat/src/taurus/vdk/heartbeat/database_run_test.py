@@ -1,15 +1,21 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import logging
 import socket
 import time
 import uuid
 from abc import abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
+from typing import Any
+from typing import Dict
+from typing import List
+
 from retrying import retry
 from taurus.vdk.heartbeat.config import Config
 from taurus.vdk.heartbeat.heartbeat_test import HeartbeatTest
 from taurus.vdk.heartbeat.tracing import LogDecorator
 from taurus.vdk.heartbeat.util import closing_noexcept_on_close
-from typing import Dict, Any, List
 
 log = logging.getLogger(__name__)
 
@@ -70,7 +76,9 @@ class DatabaseHeartbeatTest(HeartbeatTest):
         pass
 
     @abstractmethod
-    def _select_data(self, db: str, table: str, column_filters: Dict[str, str]) -> List[List]:
+    def _select_data(
+        self, db: str, table: str, column_filters: Dict[str, str]
+    ) -> List[List]:
         """
         select data from a table (select * from db.table where column_filers ...)
         :param db: the database or schema name
@@ -89,15 +97,23 @@ class DatabaseHeartbeatTest(HeartbeatTest):
     @LogDecorator(log)
     def setup(self):
         log.info(f"create table {self.config.DATABASE_TEST_DB}.{self.table_source}")
-        self._create_table(db=self.config.DATABASE_TEST_DB,
-                           table_name=self.table_source,
-                           columns={'uuid': str, 'hostname': str, 'pa__arrival_ts': datetime})
+        self._create_table(
+            db=self.config.DATABASE_TEST_DB,
+            table_name=self.table_source,
+            columns={"uuid": str, "hostname": str, "pa__arrival_ts": datetime},
+        )
 
-        row = dict(pa__arrival_ts=self.load_timestamp, uuid=self.uuid_value, hostname=self.hostname)
-        log.info(f"insert initial row into source table {self.config.DATABASE_TEST_DB}.{self.table_source}: {row}")
-        self._insert_table_row(db=self.config.DATABASE_TEST_DB,
-                               table=self.table_source,
-                               row=row)
+        row = dict(
+            pa__arrival_ts=self.load_timestamp,
+            uuid=self.uuid_value,
+            hostname=self.hostname,
+        )
+        log.info(
+            f"insert initial row into source table {self.config.DATABASE_TEST_DB}.{self.table_source}: {row}"
+        )
+        self._insert_table_row(
+            db=self.config.DATABASE_TEST_DB, table=self.table_source, row=row
+        )
 
     def __exit__(self, *exc):
         self.clean_up()
@@ -111,19 +127,21 @@ class DatabaseHeartbeatTest(HeartbeatTest):
     @retry(stop_max_attempt_number=7, wait_exponential_multiplier=2000)
     def _execute_query(self, query):
         with closing_noexcept_on_close(self.conn.cursor()) as cursor:
-            log.info(f'Executing query: {query}')
+            log.info(f"Executing query: {query}")
             try:
                 cursor.execute(query)
                 try:
                     res = cursor.fetchall()
                 except Exception as pe:
                     res = None
-                    if str(pe) in ('No results.  Previous SQL was not a query.',  # message in pyodbc
-                                   'Trying to fetch results on an operation with no results.',  # message in impyla
-                                   'no results to fetch',  # psycopg: ProgrammingError: no results to fetch
-                                   ):
+                    if str(pe) in (
+                        "No results.  Previous SQL was not a query.",  # message in pyodbc
+                        "Trying to fetch results on an operation with no results.",  # message in impyla
+                        "no results to fetch",  # psycopg: ProgrammingError: no results to fetch
+                    ):
                         log.debug(
-                            "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE).")
+                            "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE)."
+                        )
                     else:
                         log.debug("Fetching all results from query FAILED.")
                         raise
@@ -133,23 +151,26 @@ class DatabaseHeartbeatTest(HeartbeatTest):
             return res
 
     def _delete_old_leftover_records(self, table):
-        log.info("Deleting leftover records from previous tests in table: {table}".format(table=table))
+        log.info(
+            "Deleting leftover records from previous tests in table: {table}".format(
+                table=table
+            )
+        )
         one_day_ago_ts = datetime.now() - timedelta(days=1)
         one_day_ago_ts = int(time.mktime(one_day_ago_ts.timetuple()))
-        self._execute_query('''alter table {db}.{table} drop if exists partition (pa__arrival_ts < {ts});'''.format(
-            db=self.config.DATABASE_TEST_DB,
-            table=table,
-            ts=one_day_ago_ts
-        ))
+        self._execute_query(
+            """alter table {db}.{table} drop if exists partition (pa__arrival_ts < {ts});""".format(
+                db=self.config.DATABASE_TEST_DB, table=table, ts=one_day_ago_ts
+            )
+        )
 
     def _get_records_from_dest_table(self, query_source) -> List[List]:
         return self._select_data(
             db=self.config.DATABASE_TEST_DB,
             table=self.table_destination,
             column_filters=dict(
-                query_source=query_source,
-                uuid=self.uuid_value,
-                hostname=self.hostname)
+                query_source=query_source, uuid=self.uuid_value, hostname=self.hostname
+            ),
         )
 
     def _clean_up_records(self, db, table):
@@ -157,9 +178,11 @@ class DatabaseHeartbeatTest(HeartbeatTest):
         try:
             self._delete_table(db, table)
         except Exception as e:
-            log.warning(f"Failed to clean up test table {table} "
-                        f"Exception {e}"
-                        "There maybe some left-overs in the database that need to be clean manually.")
+            log.warning(
+                f"Failed to clean up test table {table} "
+                f"Exception {e}"
+                "There maybe some left-overs in the database that need to be clean manually."
+            )
 
     @LogDecorator(log)
     def execute_test(self):
@@ -171,10 +194,12 @@ class DatabaseHeartbeatTest(HeartbeatTest):
         record_count = 0
         expected_record_count = 3
         caught_exception = None
-        while record_count < expected_record_count and \
-                time.time() - start_time < self.config.RUN_TEST_TIMEOUT_SECONDS:
+        while (
+            record_count < expected_record_count
+            and time.time() - start_time < self.config.RUN_TEST_TIMEOUT_SECONDS
+        ):
 
-            log.info("Search for records with uuid = {uuid}".format(uuid=self.uuid_value))
+            log.info(f"Search for records with uuid = {self.uuid_value}")
             caught_exception = None
             try:
                 py_result = self._get_records_from_dest_table("python")
@@ -189,37 +214,53 @@ class DatabaseHeartbeatTest(HeartbeatTest):
                 if record_count != expected_record_count:
                     log.info(
                         "Records are not available yet. Waiting {} seconds before trying again.".format(
-                            wait_time_seconds))
+                            wait_time_seconds
+                        )
+                    )
                     time.sleep(wait_time_seconds)
             except Exception as e:
                 caught_exception = e
 
                 log.info(
                     "Error while querying for results. Waiting {} seconds before trying again.".format(
-                        wait_time_seconds))
+                        wait_time_seconds
+                    )
+                )
                 time.sleep(wait_time_seconds)
 
-        self.assertTrue(caught_exception is None, f"verification failed with {caught_exception}", caught_exception)
+        self.assertTrue(
+            caught_exception is None,
+            f"verification failed with {caught_exception}",
+            caught_exception,
+        )
         # We expect to have 1 record coming from python script and 1 record coming from sql script.
         # (>=, because the heartbeat job, could have been executed more than once)
 
-        self.assertTrue(int(py_record_count) >= 1,
-                        f"destination table {self.table_destination} not updated by python (20_move_data.py)")
-        self.assertTrue(int(sql_record_count) >= 1,
-                        f"destination table {self.table_destination} not updated by SQL (30_move_data.sql)")
-        self.assertTrue(int(load_record_count) >= 1,
-                        f"destination table {self.table_destination} not updated by python load (20_move_data.py)")
+        self.assertTrue(
+            int(py_record_count) >= 1,
+            f"destination table {self.table_destination} not updated by python (20_move_data.py)",
+        )
+        self.assertTrue(
+            int(sql_record_count) >= 1,
+            f"destination table {self.table_destination} not updated by SQL (30_move_data.sql)",
+        )
+        self.assertTrue(
+            int(load_record_count) >= 1,
+            f"destination table {self.table_destination} not updated by python load (20_move_data.py)",
+        )
         log.info("Database test verification passed successfully.")
 
     def assertTrue(self, condition, error, exception=None):
-        msg = "\nWhat: Database test failed.\n" \
-              f"Why: Error was {error}." \
-              f"Most probably, the heartbeat data job (name: {self.config.job_name}) " \
-              f"failed during this test execution or there were Database related issues.\n" \
-              "Consequences: Test failure indicates an issue with Control Service deployment or SDK -" \
-              " a regression or infrastructure dependency issue.\n" \
-              "Countermeasures: Check the error message. Check the Data Job status and logs in Kubernetes. " \
-              " Check if Control service or VDK have not regressed.\n"
+        msg = (
+            "\nWhat: Database test failed.\n"
+            f"Why: Error was {error}."
+            f"Most probably, the heartbeat data job (name: {self.config.job_name}) "
+            f"failed during this test execution or there were Database related issues.\n"
+            "Consequences: Test failure indicates an issue with Control Service deployment or SDK -"
+            " a regression or infrastructure dependency issue.\n"
+            "Countermeasures: Check the error message. Check the Data Job status and logs in Kubernetes. "
+            " Check if Control service or VDK have not regressed.\n"
+        )
         if condition:
             log.info("Database test is successful.")
         else:
