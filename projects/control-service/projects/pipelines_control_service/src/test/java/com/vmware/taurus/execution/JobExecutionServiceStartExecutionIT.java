@@ -94,7 +94,7 @@ public class JobExecutionServiceStartExecutionIT {
    @Test
    public void testStartDataJobExecution_correctDataJobDeployment_shouldStartDataJobExecution() throws ApiException {
       String opId = "test-op-id";
-      String startedBy = "startedBy";
+      String startedBy = "startedBy" + "/" + operationContext.getUser();
       String cronJobName = "test-cron-job";
 
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);

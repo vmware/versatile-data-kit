@@ -73,6 +73,9 @@ Changelog has the following sections:
 - Bug Fixes - Fixes of bugs/regressions
 - Breaking Changes: any changes that break Versatile Data Kit's backward-compatibility
 
+Each component project maintains its own CHANGELOG.
+Go to projects/component-name/CHANGELOG.md to see the changelog of the component
+
 # CI
 
 We are using CI as a code based on Gitlab CI.

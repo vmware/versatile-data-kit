@@ -35,17 +35,7 @@ payload: dict = {"some_data": "some_test_data", "more_data": "more_test_data"}
 )
 class IngestToTrinoTests(TestCase):
     def test_ingest_to_trino(self):
-        # create table first, as the ingestion fails otherwise
         runner = CliEntryBasedTestRunner(trino_plugin)
-        create_table_result = runner.invoke(
-            [
-                "trino-query",
-                "--query",
-                "CREATE TABLE test_table (some_data varchar, more_data varchar)",
-            ]
-        )
-
-        cli_assert_equal(0, create_table_result)
 
         ingest_job_result = runner.invoke(
             [

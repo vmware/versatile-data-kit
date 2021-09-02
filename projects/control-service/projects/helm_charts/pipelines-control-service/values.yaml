@@ -12,7 +12,7 @@ global: {}
 image:
    registry: registry.hub.docker.com/versatiledatakit
    repository: pipelines-control-service
-   tag: "53f2621"
+   tag: "04e00a2"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -25,7 +25,7 @@ image:
 deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
-  tag: "1.0.5"
+  tag: "1.1"
 
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)

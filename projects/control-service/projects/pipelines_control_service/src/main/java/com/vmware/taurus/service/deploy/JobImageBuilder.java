@@ -42,22 +42,24 @@ public class JobImageBuilder {
    private String gitUsername;
    @Value("${datajobs.git.password}")
    private String gitPassword;
-   @Value("${datajobs.aws.region}")
+   @Value("${datajobs.aws.region:}")
    private String awsRegion;
-   @Value("${datajobs.aws.accessKeyId}")
+   @Value("${datajobs.aws.accessKeyId:}")
    private String awsAccessKeyId;
-   @Value("${datajobs.aws.secretAccessKey}")
+   @Value("${datajobs.aws.secretAccessKey:}")
    private String awsSecretAccessKey;
    @Value("${datajobs.docker.repositoryUrl}")
    private String dockerRepositoryUrl;
    @Value("${datajobs.docker.registryType}")
    private String registryType;
-   @Value("${datajobs.docker.registryUsername}")
+   @Value("${datajobs.docker.registryUsername:}")
    private String registryUsername;
-   @Value("${datajobs.docker.registryPassword}")
+   @Value("${datajobs.docker.registryPassword:}")
    private String registryPassword;
    @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
    private String deploymentDataJobBaseImage;
+   @Value("${datajobs.deployment.builder.extraArgs:}")
+   private String extraArgs;
 
    private final ControlKubernetesService controlKubernetesService;
    private final DockerRegistryService dockerRegistryService;
@@ -77,7 +79,7 @@ public class JobImageBuilder {
 
    /**
     * Builds and pushes a docker image for a data job.
-    * Runs a docker-in-docker job on k8s which is responsible for building and pushing the data job image.
+    * Runs a  job on k8s which is responsible for building and pushing the data job image.
     * This call will block until the builder job has finished.
     * Notifies the users on failure.
     *
@@ -142,7 +144,7 @@ public class JobImageBuilder {
       controlKubernetesService.createJob(
             builderJobName,
             dockerRegistryService.builderImage(),
-            true,
+            false,
             envs,
             args,
             null,
@@ -212,7 +214,8 @@ public class JobImageBuilder {
             entry("GIT_COMMIT", jobVersion),
             entry("JOB_GITHASH", jobVersion),
             entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-            entry("BASE_IMAGE", deploymentDataJobBaseImage)
+            entry("BASE_IMAGE", deploymentDataJobBaseImage),
+            entry("EXTRA_ARGUMENTS", extraArgs)
       );
    }
 
