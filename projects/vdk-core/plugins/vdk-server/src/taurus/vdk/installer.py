@@ -4,10 +4,12 @@ import time
 import docker
 import logging
 import os
+import pathlib
 import subprocess
 import sys
 import requests
 from kubernetes import client, config, utils
+from taurus.vdk.core.errors import BaseVdkError
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +40,8 @@ class Installer(object):
         """
         Installs all necessary components and configurations.
         """
+        log.info(f"Starting installation of Versatile Data Kit Control Service")
+        self.__current_directory = self.get_current_directory()
         self.__create_docker_registry_container()
         if self.__create_git_server_container():
             self.__configure_git_server_with_error_handling()
@@ -48,6 +52,7 @@ class Installer(object):
         self.__connect_container_to_kind_network(self.git_server_container_name)
         self.__configure_kind_local_docker_registry()
         self.__install_helm_chart()
+        log.info(f"Versatile Data Kit Control Service installed successfully")
 
     def uninstall(self):
         """
@@ -57,6 +62,9 @@ class Installer(object):
         self.__delete_kind_cluster()
         self.__delete_git_server_container()
         self.__delete_docker_registry_container()
+
+    def get_current_directory(self) -> pathlib.Path:
+        return pathlib.Path(__file__).parent.resolve()
 
     def __create_docker_registry_container(self):
         """
@@ -262,7 +270,7 @@ class Installer(object):
                 with open(output_file_name, "w") as output_file:
                     output_file.write(transformed_content)
         except IOError as ex:
-            log.error(f"Error: Failed to transform file {input_file_name} into {output_file_name}. {str(ex)}")
+            raise BaseVdkError(f"Failed to transform file {input_file_name} into {output_file_name}. {str(ex)}")
 
     def __transform_template(self, content: str) -> str:
         return content.format(docker_registry_name=self.docker_registry_container_name,
@@ -273,9 +281,14 @@ class Installer(object):
         Creates a kind cluster with the private Docker registry enabled in containerd.
         """
         temp_file = "kind-cluster-config.yaml"
-        self.__transform_file("kind-cluster-config-template.yaml",
-                              temp_file,
-                              self.__transform_template)
+        try:
+            self.__transform_file(self.__current_directory.joinpath("kind-cluster-config-template.yaml"),
+                                  temp_file,
+                                  self.__transform_template)
+        except Exception as ex:
+            log.error(f"Failed to create Kind cluster. {str(ex)}")
+            exit(1)
+
         try:
             completed_process = subprocess.run(["kind", "create", "cluster",
                                                 "--config=kind-cluster-config.yaml",
@@ -285,7 +298,7 @@ class Installer(object):
             if completed_process.returncode == 1:
                 sys.exit(1)
         except Exception as ex:
-            log.error(f"Error: Failed to create Kind cluster. Make sure you have Kind installed. {str(ex)}")
+            log.error(f"Failed to create Kind cluster. Make sure you have Kind installed. {str(ex)}")
 
     def __delete_kind_cluster(self):
         """
@@ -297,7 +310,7 @@ class Installer(object):
             if completed_process.returncode == 1:
                 sys.exit(1)
         except Exception as ex:
-            log.error(f"Error: Failed to delete Kind cluster. Make sure you have Kind installed. {str(ex)}")
+            log.error(f"Failed to delete Kind cluster. Make sure you have Kind installed. {str(ex)}")
 
     def __configure_kind_local_docker_registry(self):
         """
@@ -309,11 +322,11 @@ class Installer(object):
         with client.ApiClient() as k8s_client:
             try:
                 temp_file = "configmap-local-registry-hosting.yaml"
-                self.__transform_file("configmap-local-registry-hosting-template.yaml",
-                                      temp_file,
-                                      self.__transform_template)
-                utils.create_from_yaml(
-                    k8s_client, temp_file)
+                self.__transform_file(
+                    self.__current_directory.joinpath("configmap-local-registry-hosting-template.yaml"),
+                    temp_file,
+                    self.__transform_template)
+                utils.create_from_yaml(k8s_client, temp_file)
                 if os.path.exists(temp_file):
                     os.remove(temp_file)
             except Exception as ex:
@@ -328,10 +341,10 @@ class Installer(object):
             subprocess.run(["helm", "repo", "update"])
             subprocess.run(["helm", "install", self.helm_installation_name, self.helm_chart_name])
         except Exception as ex:
-            log.error(f"Error: Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}")
+            log.error(f"Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}")
 
     def __uninstall_helm_chart(self):
         try:
             subprocess.run(["helm", "uninstall", self.helm_installation_name])
         except Exception as ex:
-            log.error(f"Error: Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}")
+            log.error(f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}")
