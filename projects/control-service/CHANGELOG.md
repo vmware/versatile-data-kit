@@ -1,15 +1,24 @@
 Changelog
 =========
 
-1.2.6 - Next
+1.2.7 - Next
+----
+* **New feature**
+* **Improvement**
+* **Bug Fixes**
+* **Breaking Changes**
+
+1.2.6 - 31.08.2021
 ----
 
 * **New feature**
+  * Adding support for forwarding logs of the Control Service Server (only) to syslog server <br>
+    Users can now specify environment variable LOGGING_SYS_LOG_HOST and LOGGING_SYS_LOG_PORT to enable forwarding them to syslog.
+
+
 
 * **Improvement**
-
 * **Bug Fixes**
-
 * **Breaking Changes**
 
 1.2.5 - 30.08.2021

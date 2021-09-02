@@ -5,6 +5,7 @@ import logging
 import queue
 import sys
 import threading
+from collections import defaultdict
 from typing import Iterable
 from typing import Optional
 
@@ -16,7 +17,10 @@ from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
 )
 from taurus.vdk.builtin_plugins.ingestion.ingester_utils import AtomicCounter
 from taurus.vdk.core import errors
+from taurus.vdk.core.errors import PlatformServiceError
 from taurus.vdk.core.errors import ResolvableBy
+from taurus.vdk.core.errors import UserCodeError
+from taurus.vdk.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +68,9 @@ class IngesterBase(IIngester):
         )
 
         self._fail_count = AtomicCounter()
+        self._plugin_errors = defaultdict(
+            AtomicCounter
+        )  # something like {UserCodeError: 10, VdkConfigurationError: 2}
         self._success_count = AtomicCounter()
         self._closed = AtomicCounter()
         self._objects_queue: queue.Queue = queue.Queue(
@@ -72,6 +79,10 @@ class IngesterBase(IIngester):
         self._payloads_queue: queue.Queue = queue.Queue(
             ingest_config.get_payloads_queue_size()
         )
+        self._exception_on_failure = (
+            ingest_config.get_should_raise_exception_on_failure()
+        )
+
         self._start_workers()
 
     def send_object_for_ingestion(
@@ -232,9 +243,7 @@ class IngesterBase(IIngester):
         # fetch data in chunks to prevent running out of memory
         for page_number, page in enumerate(ingester_utils.get_page_generator(rows)):
             ingester_utils.validate_column_count(page, column_names)
-            converted_rows = ingester_utils.convert_table(
-                page, column_names, destination_table
-            )
+            converted_rows = ingester_utils.convert_table(page, column_names)
             log.debug(
                 "Posting page {number} with {size} rows for ingestion.".format(
                     number=page_number, size=len(converted_rows)
@@ -264,7 +273,7 @@ class IngesterBase(IIngester):
         :param payload_dict: dict
             Payload to be send to the _objects_queue.
         :param destination_table: string
-            The name of the table, where the data sould be ingested into.
+            The name of the table, where the data should be ingested into.
         :param method: string
             Indicates the ingestion method to be used. E.g.:
                     method="file" -> ingest to file
@@ -298,7 +307,7 @@ class IngesterBase(IIngester):
         current_collection_id = None
         current_destination_table = None
         method = None
-        while True:
+        while self._closed.value == 0:
             try:
                 (
                     payload_dict,
@@ -325,15 +334,22 @@ class IngesterBase(IIngester):
                 continue
 
             # First payload will determine the target and collection_id
-            if not current_target and not current_collection_id and not current_destination_table:
+            if (
+                not current_target
+                and not current_collection_id
+                and not current_destination_table
+            ):
                 current_target = target
                 current_collection_id = collection_id
                 current_destination_table = destination_table
 
-
             # When we get a payload with different than current target/collection_id/destination_table,
             # send the current payload and start aggregating for the new one.
-            if current_target != target or current_collection_id != collection_id or current_destination_table != destination_table:
+            if (
+                current_target != target
+                or current_collection_id != collection_id
+                or current_destination_table != destination_table
+            ):
                 (
                     aggregated_payload,
                     number_of_payloads,
@@ -392,7 +408,7 @@ class IngesterBase(IIngester):
         :param number_of_payloads: int,
             Number of payloads to be dequeued from the _objects_queue.
         :param destination_table: string
-            The name of the table, where the data sould be ingested into.
+            The name of the table, where the data should be ingested into.
         :param method: string
             Indicates the ingestion method to be used. E.g.:
                     method="file" -> ingest to file
@@ -448,7 +464,7 @@ class IngesterBase(IIngester):
         Thread doing final data preparation (adding additional metadata, telemetry
         data, etc.) and ingesting the data.
         """
-        while True:
+        while self._closed.value == 0:
             try:
                 payload = self._payloads_queue.get()
                 payload_dict, destination_table, method, target, collection_id = payload
@@ -462,9 +478,24 @@ class IngesterBase(IIngester):
                     )
 
                     self._success_count.increment()
-                except Exception as e:
+
+                except VdkConfigurationError as e:
+                    self._plugin_errors[VdkConfigurationError].increment()
                     log.warning(
-                        "An error occured while ingesting data. " f"The error was: {e}"
+                        "A configuration error occurred while ingesting data. "
+                        f"The error was: {e}"
+                    )
+                except UserCodeError as e:
+                    self._plugin_errors[UserCodeError].increment()
+                    log.warning(
+                        "An user error occurred while ingesting data. "
+                        f"The error was: {e}"
+                    )
+                except Exception as e:
+                    self._plugin_errors[PlatformServiceError].increment()
+                    log.warning(
+                        "A platform error occurred while ingesting data. "
+                        f"The error was: {e}"
                     )
 
             except Exception as e:
@@ -501,6 +532,62 @@ class IngesterBase(IIngester):
         """
         ingester_utils.wait_completion(
             objects_queue=self._objects_queue, payloads_queue=self._payloads_queue
+        )
+        self.close_now()
+
+    def close_now(self):
+        """
+        Close immediately. The method will not wait for the active queue items to get processed.
+        """
+        if self._closed.get_and_increment() == 0:
+
+            if self._exception_on_failure:
+                self._handle_results()
+
+            log.info(
+                "Ingester statistics: \n\t\t"
+                f"Successful uploads:{self._success_count}\n\t\t"
+                f"Failed uploads:{self._fail_count}\n\t\t"
+                f"ingesting plugin errors:{self._plugin_errors}\n\t\t"
+            )
+
+    def _handle_results(self):
+        if self._plugin_errors.get(UserCodeError, 0).value > 0:
+            self._log_and_throw(
+                to_be_fixed_by=ResolvableBy.USER_ERROR,
+                countermeasures="Ensure data you are sending is aligned with the requirements",
+                why_it_happened="User error occurred. See warning logs for more details. ",
+            )
+        if self._plugin_errors.get(VdkConfigurationError, 0).value > 0:
+            self._log_and_throw(
+                to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
+                countermeasures="Ensure job is properly configured. "
+                "For example make sure that target and method specified are correct",
+            )
+        if (
+            self._plugin_errors.get(PlatformServiceError, 0).value > 0
+            or self._fail_count.value > 0
+        ):
+            self._log_and_throw(
+                to_be_fixed_by=ResolvableBy.PLATFORM_ERROR,
+                countermeasures="There has been temporary failure. "
+                "You can retry the data job again. "
+                "If error persist inspect logs and check ingest plugin documentation.",
+            )
+
+    def _log_and_throw(
+        self,
+        to_be_fixed_by,
+        countermeasures,
+        why_it_happened="Payloads failed to get posted for ingestion",
+    ):
+        errors.log_and_throw(
+            to_be_fixed_by=to_be_fixed_by,
+            log=log,
+            what_happened="Failed to post all data for ingestion successfully.",
+            why_it_happened=why_it_happened,
+            consequences="Some data will not be ingested into Super Collider.",
+            countermeasures=countermeasures,
         )
 
     @staticmethod

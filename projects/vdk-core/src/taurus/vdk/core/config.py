@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import logging
 from collections import OrderedDict
 from dataclasses import dataclass
+from dataclasses import field
 from typing import Any
 
 from taurus.vdk.core.errors import VdkConfigurationError
@@ -11,6 +13,8 @@ from taurus.vdk.core.errors import VdkConfigurationError
 # Consider ConfigValue should be primitive type perhaps? and not just any object
 ConfigValue = Any
 ConfigKey = str
+
+log = logging.getLogger(__name__)
 
 
 def convert_value_to_type_of_default_type(
@@ -51,8 +55,11 @@ class Configuration:
     Use ConfigurationBuilder to build it.
     """
 
-    config_key_to_description: dict[ConfigKey, str]
-    config_key_to_value: dict[ConfigKey, ConfigValue]
+    __config_key_to_description: dict[ConfigKey, str]
+    __config_key_to_value: dict[ConfigKey, ConfigValue]
+    __config_key_to_default_value: dict[ConfigKey, ConfigValue] = field(
+        default_factory=dict
+    )
 
     def __getitem__(self, key: ConfigKey):
         return self.get_value(key)
@@ -66,10 +73,9 @@ class Configuration:
         :param key: the configuration key (e.g db_host, service_uri, etc.)
         :return: the value corresponding to the configuration key
         """
-        try:
-            return self.config_key_to_value[key]
-        except KeyError:
-            return None
+        default_value = self.__config_key_to_default_value.get(key)
+        value = self.__config_key_to_value.get(key, default_value)
+        return value
 
     def get_required_value(self, key: ConfigKey) -> ConfigValue:
         """
@@ -98,10 +104,15 @@ class Configuration:
         :param key: the config key
         :return: description
         """
-        try:
-            return self.config_key_to_description.get(key)
-        except KeyError:
-            return None
+        return self.__config_key_to_description.get(key)
+
+    def list_config_keys(self) -> list[ConfigKey]:
+        """
+        List all added (defined) config keys
+
+        :return: list of key names.
+        """
+        return [k for k in self.__config_key_to_default_value.keys()]
 
 
 @dataclass()
@@ -115,10 +126,12 @@ class ConfigurationBuilder:
 
     __config_key_to_description: dict[ConfigKey, str]
     __config_key_to_value: dict[ConfigKey, ConfigValue]
+    __config_key_to_default_value: dict[ConfigKey, ConfigValue]
 
     def __init__(self):
-        self.__config_key_to_description = OrderedDict()
-        self.__config_key_to_value = OrderedDict()
+        self.__config_key_to_description = dict()
+        self.__config_key_to_default_value = dict()
+        self.__config_key_to_value = dict()
 
     def add(
         self,
@@ -139,7 +152,7 @@ class ConfigurationBuilder:
         TODO: in the future we should require description always and have separate hidden=True/False instead
         :return: self so it can be chained like builder.add(..).set_value(...)...
         """
-        self.set_value(key, default_value)
+        self.__config_key_to_default_value[key] = default_value
         if description and show_default_value:
             self.__add_public(key, description, default_value)
         elif description:
@@ -155,11 +168,7 @@ class ConfigurationBuilder:
         :param value: the configuration value.
         :return: self so it can be chained like builder.set_value(..).add(...)...
         """
-        default_value = (
-            self.__config_key_to_value.get(key)
-            if key in self.__config_key_to_value
-            else None
-        )
+        default_value = self.__config_key_to_default_value.get(key)
         self.__config_key_to_value[key] = convert_value_to_type_of_default_type(
             key, value, default_value
         )
@@ -171,11 +180,17 @@ class ConfigurationBuilder:
 
         :return: list of key names.
         """
-        return [k for k in self.__config_key_to_value.keys()]
+        return [k for k in self.__config_key_to_default_value.keys()]
 
     def __add_public(
         self, key: ConfigKey, description: str, default_value: ConfigValue = None
     ) -> None:
+        if not isinstance(description, str):
+            log.warning(
+                f"Description for key {key} is not of type string. Converting to type string."
+            )
+            description = str(description)
+
         if default_value is not None:
             description += "\nDefault value is: '%s'." % default_value
         self.__config_key_to_description[key] = description
@@ -185,5 +200,7 @@ class ConfigurationBuilder:
         :return: immutable version of the Configuration
         """
         return Configuration(
-            self.__config_key_to_description, self.__config_key_to_value
+            self.__config_key_to_description,
+            self.__config_key_to_value,
+            self.__config_key_to_default_value,
         )

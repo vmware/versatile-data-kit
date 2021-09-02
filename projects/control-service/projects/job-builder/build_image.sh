@@ -74,4 +74,4 @@ cd ..
         --build-arg=job_githash="$JOB_GITHASH"            \
         --build-arg=base_image="$BASE_IMAGE" \
         --build-arg=job_name="$JOB_NAME"     \
-        --context=./data-jobs
+        --context=./data-jobs $EXTRA_ARGUMENTS
