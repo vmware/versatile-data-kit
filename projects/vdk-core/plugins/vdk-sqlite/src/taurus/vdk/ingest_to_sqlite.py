@@ -42,6 +42,20 @@ class IngestToSQLite(IIngesterPlugin):
         :param collection_id:
             an identifier specifying that data from different method invocations belongs to the same collection
         """
+        target = target or self.conf.get_sqlite_file()
+        if not target:
+            errors.log_and_throw(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "Failed to proceed with ingestion",
+                "Target was not supplied as a parameter",
+                "Will not proceed with ingestion",
+                (
+                    "Set target either through the target parameter in send_object_for_ingestion,"
+                    "or through either of the VDK_INGEST_TARGET_DEFAULT or VDK_SQLITE_FILE environment variables"
+                ),
+            )
+
         log.info(
             f"Ingesting payloads for target: {target}; "
             f"collection_id: {collection_id}"
