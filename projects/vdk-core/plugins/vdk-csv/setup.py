@@ -10,7 +10,7 @@ setuptools.setup(
     name="vdk-csv",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description="Versatile Data Kit SDK ingestion plugin to ingest data into a file.",
+    description="Versatile Data Kit SDK CSV plugin to ingest, export, or manipulate csv files.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core", "pandas"],
