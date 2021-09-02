@@ -70,7 +70,7 @@ public class JobUploadTest {
     public void setup() throws GitAPIException, IOException {
         remoteRepositoryDir = Files.createTempDirectory("remote_repo").toFile();
         remoteGit = Git.init().setDirectory(remoteRepositoryDir).call();
-        gitWrapper = new GitWrapper("file://" + remoteRepositoryDir.getAbsolutePath(), gitDataJobsBranch, gitDataJobsRemote);
+        gitWrapper = new GitWrapper("file://" + remoteRepositoryDir.getAbsolutePath(), gitDataJobsBranch, gitDataJobsRemote, true);
 
         jobUpload = new JobUpload(gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
     }
