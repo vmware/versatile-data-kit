@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from taurus.vdk import test_utils
 from taurus.vdk.control.auth.redirect_auth import RedirectAuthentication

@@ -1,12 +1,13 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import logging
-
-from typing import TypeVar
-
 from contextlib import contextmanager
+from typing import TypeVar
 
 log = logging.getLogger(__name__)
 
 T = TypeVar("T")
+
 
 @contextmanager
 def closing_noexcept_on_close(thing: T) -> T:

@@ -1,3 +1,5 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 """
 Reporter class used to track and report on test cases.
 It use junit xml reporting format.
@@ -5,14 +7,16 @@ It use junit xml reporting format.
 It's "singleton" type of module - all methods decorated with TestDecorator will be tracked.
 And when called report_results it will report current results to stderr or optionally to a file.
 """
-
-import sys
-
 import functools
+import sys
 import time
-from junit_xml import TestCase, TestSuite, to_xml_report_string, to_xml_report_file
-from taurus.vdk.heartbeat.config import Config
 from typing import List
+
+from junit_xml import TestCase
+from junit_xml import TestSuite
+from junit_xml import to_xml_report_file
+from junit_xml import to_xml_report_string
+from taurus.vdk.heartbeat.config import Config
 
 
 class _Result:
@@ -24,6 +28,7 @@ class TestDecorator:
     Test Decorator used to mark a method as a test. It will track the result of the
     method - It passes if it returns successfully and fails if it raises an exception.
     """
+
     def __init__(self, name=None):
         self.__name = name
 
