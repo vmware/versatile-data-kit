@@ -1,0 +1,26 @@
+# Copyright (c) 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+image: "python:3.7"
+
+.build-vdk-snowflake:
+  variables:
+    PLUGIN_NAME: vdk-snowflake
+  extends: .build-plugin
+
+build-py37-vdk-snowflake:
+  extends: .build-vdk-snowflake
+  image: "python:3.7"
+
+build-py38-vdk-snowflake:
+  extends: .build-vdk-snowflake
+  image: "python:3.8"
+
+build-py39-vdk-snowflake:
+  extends: .build-vdk-snowflake
+  image: "python:3.9"
+
+# TODO: Uncomment below lines and Fix CI/CD when the plugin is ready
+# release-vdk-snowflake:
+#   variables:
+#     PLUGIN_NAME: vdk-snowflake
+#   extends: .release-plugin
