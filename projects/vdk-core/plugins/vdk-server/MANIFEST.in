@@ -1,4 +1,4 @@
-include src/taurus/vdk/**/*
+include src/taurus/vdk/*
 
 # this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
-# https://stackoverflow.com/questions/7522250/how-to-include-package-data-with-setuptools-distribute
+# https://packaging.python.org/guides/using-manifest-in/
