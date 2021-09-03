@@ -230,7 +230,7 @@ class GraphQLDataFetchersTest {
       strategies.add(new JobFieldStrategyByName());
       strategies.add(new JobFieldStrategyByNextRun());
       strategies.add(new JobFieldStrategyByScheduleCron());
-      strategies.add(new JobFieldStrategyBySourceUrl("gitlab.com/demo-data-jobs.git", "main"));
+      strategies.add(new JobFieldStrategyBySourceUrl("gitlab.com/demo-data-jobs.git", "main", true));
       strategies.add(new JobFieldStrategyByTeam());
 
       return strategies;

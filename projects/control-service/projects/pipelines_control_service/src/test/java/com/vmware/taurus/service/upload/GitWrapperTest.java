@@ -77,7 +77,7 @@ public class GitWrapperTest {
 
         thirdGit.remoteAdd().setUri(repoURI).setName("origin").call();
 
-        gitWrapper = new GitWrapper("", "", "");
+        gitWrapper = new GitWrapper("", "", "", true);
 
         credentialsProvider = new UsernamePasswordCredentialsProvider("example-user", "example-password");
     }
