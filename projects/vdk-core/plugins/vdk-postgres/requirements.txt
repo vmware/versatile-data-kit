@@ -1,0 +1,8 @@
+vdk-core
+psycopg2-binary
+
+# testing requirements
+click
+vdk-test-utils
+pytest-docker
+docker-compose
