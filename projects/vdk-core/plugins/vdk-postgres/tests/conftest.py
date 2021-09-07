@@ -46,8 +46,6 @@ def docker_compose_file(pytestconfig):
 )
 def postgres_service(docker_ip, docker_services):
     """Ensure that Postgres service is up and responsive."""
-    os.system("echo Check open ports:")
-    os.system("ss -lntu")
     runner = CliEntryBasedTestRunner(postgres_plugin)
 
     # give the server some time to start before checking if it is ready

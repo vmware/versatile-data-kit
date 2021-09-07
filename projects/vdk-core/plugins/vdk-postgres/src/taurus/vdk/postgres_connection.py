@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 from typing import List
+from typing import Optional
 
 from taurus.vdk.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
@@ -14,18 +15,18 @@ _log = logging.getLogger(__name__)
 class PostgresConnection(ManagedConnectionBase):
     def __init__(
         self,
-        dsn=None,
+        dsn: str = None,
         connection_factory=None,
         cursor_factory=None,
-        dbname=None,
+        dbname: str = None,
         # database - deprecated alias
-        user=None,
-        password=None,
-        host=None,
-        port=None,
+        user: str = None,
+        password: str = None,
+        host: str = None,
+        port: int = None,
         **kwargs,
     ):
-        """
+        r"""
         See https://www.psycopg.org/docs/module.html
         Create a new database connection.
 
@@ -39,26 +40,37 @@ class PostgresConnection(ManagedConnectionBase):
 
         Or as a mix of both. The basic connection parameters are:
 
-        - *dbname*: the database name
-        - *database*: the database name (only as keyword argument)
-        - *user*: user name used to authenticate
-        - *password*: password used to authenticate
-        - *host*: database host address (defaults to UNIX socket if not provided)
-        - *port*: connection port number (defaults to 5432 if not provided)
+        :param dsn: Optional[str]
+            libpq connection string,
+            https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+        :param connection_factory:
+            Using the *connection_factory* parameter a different class or connections
+            factory can be specified. It should be a callable object taking a dsn
+            argument.
+        :param cursor_factory:
+            Using the *cursor_factory* parameter, a new default cursor factory will be
+            used by cursor().
+        :param dbname: Optional[str]
+            The database name
+        :param database: Optional[str]
+            The database name (only as keyword argument)
+        :param user: Optional[str]
+            User name used to authenticate
+        :param password: Optional[str]
+            Password used to authenticate
+        :param host: Optional[str]
+            Database host address (defaults to UNIX socket if not provided)
+        :param port: Optional[int]
+            Connection port number (defaults to 5432 if not provided)
+        :param \**kwargs:
+            Any other keyword parameter will be passed to the underlying client
+            library: the list of supported parameters depends on the library version.
+            See bellow
 
-        Using the *connection_factory* parameter a different class or connections
-        factory can be specified. It should be a callable object taking a dsn
-        argument.
-
-        Using the *cursor_factory* parameter, a new default cursor factory will be
-        used by cursor().
-
-        Using *async*=True an asynchronous connection will be created. *async_* is
-        a valid alias (for Python versions where ``async`` is a keyword).
-
-        Any other keyword parameter will be passed to the underlying client
-        library: the list of supported parameters depends on the library version.
-
+        :Keyword Arguments:
+            * *async* (boolean) --
+                Using *async*=True an asynchronous connection will be created. *async_* is
+                a valid alias (for Python versions where ``async`` is a keyword).
         """
         super().__init__(_log)
 
