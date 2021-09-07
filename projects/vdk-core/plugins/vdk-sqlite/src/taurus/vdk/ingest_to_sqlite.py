@@ -38,7 +38,7 @@ class IngestToSQLite(IIngesterPlugin):
         :param destination_table:
             the name of the table receiving the payload in the target database
         :param target:
-            the path to the database file; if left None, defaults to VDK_DEFAULT_INGEST_TARGET
+            the path to the database file; if left None, defaults to VDK_INGEST_TARGET_DEFAULT
         :param collection_id:
             an identifier specifying that data from different method invocations belongs to the same collection
         """

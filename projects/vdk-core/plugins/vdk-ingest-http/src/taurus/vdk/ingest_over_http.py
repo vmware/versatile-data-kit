@@ -41,7 +41,7 @@ class IngestOverHttp(IIngesterPlugin):
                 consequences="Will not be able to send the payloads and will throw exception."
                 "Likely the job would fail",
                 countermeasures="Make sure you have set correct target - "
-                "either as VDK_DEFAULT_INGEST_TARGET configuration variable "
+                "either as VDK_INGEST_TARGET_DEFAULT configuration variable "
                 "or passed target to send_**for_ingestion APIs",
             )
 
