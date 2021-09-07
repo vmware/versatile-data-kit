@@ -62,43 +62,46 @@ class IngestOverHttp(IIngesterPlugin):
                 else:
                     obj["@table"] = destination_table
 
-            try:
-                req = requests.post(
-                    url=target,
-                    json=obj,
-                    headers=header,
-                    verify=False,  # nosec # TODO: disabled temporarily for easier testing, it must be configurable
+            self.__send_data(obj, target, header)
+
+    def __send_data(self, data, http_url, headers):
+        try:
+            req = requests.post(
+                url=http_url,
+                json=data,
+                headers=headers,
+                verify=False,  # nosec # TODO: disabled temporarily for easier testing, it must be configurable
+            )
+            if 400 <= req.status_code < 500:
+                errors.log_and_throw(
+                    errors.ResolvableBy.USER_ERROR,
+                    log,
+                    "Failed to sent payload",
+                    f"HTTP Client error. status is {req.status_code} and message was : {req.text}",
+                    "Will not be able to send the payload for ingestion",
+                    "Fix the error and try again ",
                 )
-                if 400 <= req.status_code < 500:
-                    errors.log_and_throw(
-                        errors.ResolvableBy.USER_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        f"HTTP Client error. status is {req.status_code} and message was : {req.text}",
-                        "Will not be able to send the payload for ingestion",
-                        "Fix the error and try again ",
-                    )
-                if req.status_code >= 500:
-                    errors.log_and_throw(
-                        errors.ResolvableBy.PLATFORM_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        f"HTTP Server error. status is {req.status_code} and message was : {req.text}",
-                        "Will not be able to send the payload for ingestion",
-                        "Re-try the operation again. If error persist contact support team. ",
-                    )
-                log.debug(
-                    "Payload was ingested. Request Details: "
-                    f"Status Code: {req.status_code}, \nPayload: {req.text}"
-                )
-            except Exception as e:
-                errors.log_and_rethrow(
+            if req.status_code >= 500:
+                errors.log_and_throw(
                     errors.ResolvableBy.PLATFORM_ERROR,
                     log,
                     "Failed to sent payload",
-                    "Unknown error. Error message was : " + str(e),
+                    f"HTTP Server error. status is {req.status_code} and message was : {req.text}",
                     "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
-                    e,
-                    wrap_in_vdk_error=True,
+                    "Re-try the operation again. If error persist contact support team. ",
                 )
+            log.debug(
+                "Payload was ingested. Request Details: "
+                f"Status Code: {req.status_code}, \nPayload: {req.text}"
+            )
+        except Exception as e:
+            errors.log_and_rethrow(
+                errors.ResolvableBy.PLATFORM_ERROR,
+                log,
+                "Failed to sent payload",
+                "Unknown error. Error message was : " + str(e),
+                "Will not be able to send the payload for ingestion",
+                "See error message for help ",
+                e,
+                wrap_in_vdk_error=True,
+            )
