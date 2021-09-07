@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -13,7 +13,7 @@ setuptools.setup(
     description="Versatile Data Kit SDK plugin provides support for snowflake databases.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "snowflake-sqlalchemy"],
+    install_requires=["vdk-core", "snowflake-connector-python"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={"vdk.plugin.run": ["vdk-snowflake = taurus.vdk.snowflake_plugin"]},
