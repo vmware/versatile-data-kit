@@ -30,7 +30,12 @@ class IngestOverHttp(IIngesterPlugin):
             f"collection_id: {collection_id}"
         )
 
-        # Check if target is passed
+        self.__verify_target(target)
+        self.__amend_payload(payload, destination_table)
+        self.__send_data(payload, target, header)
+
+    @staticmethod
+    def __verify_target(target):
         if not target:
             errors.log_and_throw(
                 errors.ResolvableBy.CONFIG_ERROR,
@@ -45,7 +50,8 @@ class IngestOverHttp(IIngesterPlugin):
                 "or passed target to send_**for_ingestion APIs",
             )
 
-        # TODO: do not make separate http requests for each payload but send them in single http request
+    @staticmethod
+    def __amend_payload(payload, destination_table):
         for obj in payload:
             # TODO: Move all ingestion formatting logic to a separate plugin.
             if not ("@table" in obj):
@@ -62,9 +68,8 @@ class IngestOverHttp(IIngesterPlugin):
                 else:
                     obj["@table"] = destination_table
 
-            self.__send_data(obj, target, header)
-
-    def __send_data(self, data, http_url, headers):
+    @staticmethod
+    def __send_data(data, http_url, headers):
         try:
             req = requests.post(
                 url=http_url,
