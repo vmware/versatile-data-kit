@@ -1,5 +1,6 @@
 vdk-core
 psycopg2-binary
+tabulate
 
 # testing requirements
 click
