@@ -71,6 +71,37 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
             self._db_con = db_con
         return self._db_con
 
+    def cursor(self, *args, **kwargs):
+        if hasattr(self._db_con, "cursor"):
+            return ManagedCursor(self._db_con.cursor(*args, **kwargs), self._log)
+        return super().cursor()
+
+    def commit(self, *args, **kwargs):
+        if hasattr(self._db_con, "commit"):
+            return self._db_con.commit(*args, **kwargs)
+        return super().commit()
+
+    def rollback(self, *args, **kwargs):
+        if hasattr(self._db_con, "rollback"):
+            return self._db_con.rollback(*args, **kwargs)
+        return super().rollback()
+
+    def close(self, *args, **kwargs) -> None:
+        """
+        Close database connection. No op if it is already closed.
+        """
+        try:
+            if self._is_db_con_open:
+                self._log.debug(f"Closing database connection {self} ... ")
+                self._is_db_con_open = False
+                self._db_con.close()
+                self._log.debug("Closing database connection SUCCEEDED.")
+        except Exception as e:
+            self._log.exception(
+                "Closing database connection FAILED. No problem, I'm continuing as if nothing happened.",
+                e,
+            )
+
     # @abstractmethod # inherit optionally
     def _before_cursor_execute(self, cur: ManagedCursor) -> None:
         pass
@@ -171,22 +202,6 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
 
     def __del__(self) -> None:
         self.close()
-
-    def close(self) -> None:
-        """
-        Close database connection. No op if it is already closed.
-        """
-        try:
-            if self._is_db_con_open:
-                self._log.debug(f"Closing database connection {self} ... ")
-                self._is_db_con_open = False
-                self._db_con.close()
-                self._log.debug("Closing database connection SUCCEEDED.")
-        except Exception as e:
-            self._log.exception(
-                "Closing database connection FAILED. No problem, I'm continuing as if nothing happened.",
-                e,
-            )
 
     def __str__(self) -> str:
         return "ManagedConnection[ isConnected:{} {} ]".format(
