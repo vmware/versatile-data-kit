@@ -75,16 +75,16 @@ class Installer(object):
         Creates a Docker registry container with name specified by docker_registry_name,
         unless a container with this name already exists.
         """
-        client = docker.from_env()
+        docker_client = docker.from_env()
         try:
             # Check if a container with that name already exists by inspecting it;
             # If the inspection throws an exception, the container does not exist and we
             # proceed with creating it
-            client.api.inspect_container(self.docker_registry_container_name)
+            docker_client.api.inspect_container(self.docker_registry_container_name)
         except:
             try:
                 # docker run -d --restart=always -p "127.0.0.1:${docker_registry_port}:5000" --name "${docker_registry_name}" registry:2
-                client.containers.run("registry:2",
+                docker_client.containers.run("registry:2",
                                       detach=True,
                                       restart_policy={"Name": "always"},
                                       name=self.docker_registry_container_name,
@@ -93,7 +93,7 @@ class Installer(object):
                 log.error(
                     f"Error: Failed to create Docker registry container {self.docker_registry_container_name}. {str(ex)}")
         finally:
-            client.close
+            docker_client.close()
 
     def __delete_docker_registry_container(self):
         self.__delete_container(self.docker_registry_container_name)
@@ -103,15 +103,15 @@ class Installer(object):
         """
         Deletes the Docker registry container with the specified name.
         """
-        client = docker.from_env()
+        docker_client = docker.from_env()
         try:
-            client.api.inspect_container(container_name)
-            client.api.stop(container_name)
-            client.api.remove_container(container_name)
+            docker_client.api.inspect_container(container_name)
+            docker_client.api.stop(container_name)
+            docker_client.api.remove_container(container_name)
         except Exception as ex:
             log.error(f"Error: Failed to remove Docker container {container_name}. {str(ex)}")
         finally:
-            client.close
+            docker_client.close()
 
     def __restart_git_server_container(self):
         self.__restart_container(self.git_server_container_name)
@@ -121,14 +121,14 @@ class Installer(object):
         """
         Restarts the container with the specified name.
         """
-        client = docker.from_env()
+        docker_client = docker.from_env()
         try:
-            client.api.inspect_container(container_name)
-            client.api.restart(container_name)
+            docker_client.api.inspect_container(container_name)
+            docker_client.api.restart(container_name)
         except Exception as ex:
             log.info(f"Failed to restart Docker container {container_name}. {str(ex)}")
         finally:
-            client.close
+            docker_client.close()
 
     def __create_git_server_container(self) -> bool:
         """
@@ -137,17 +137,17 @@ class Installer(object):
 
         Returns true if the container did not exist and was created successfully; otherwise, false.
         """
-        client = docker.from_env()
+        docker_client = docker.from_env()
         try:
             # Check if a container with that name already exists by inspecting it;
             # If the inspection throws an exception, the container does not exist and we
             # proceed with creating it
-            client.api.inspect_container(self.git_server_container_name)
+            docker_client.api.inspect_container(self.git_server_container_name)
             return False
         except:
             try:
                 # docker run --name=vdk-git-server -p 10022:22 -p 10080:3000 -p 10081:80 gogs/gogs:0.12
-                client.containers.run("gogs/gogs:0.12",
+                docker_client.containers.run("gogs/gogs:0.12",
                                       detach=True,
                                       name=self.git_server_container_name,
                                       ports={'22/tcp': '10022', '3000/tcp': '10080', '80/tcp': '10081'})
@@ -155,7 +155,7 @@ class Installer(object):
             except Exception as ex:
                 log.error(f"Error: Failed to create Git server container {self.git_server_container_name}. {str(ex)}")
         finally:
-            client.close
+            docker_client.close()
 
     def __delete_git_server_container(self):
         self.__delete_container(self.git_server_container_name)
@@ -166,29 +166,29 @@ class Installer(object):
         Connects a Docker container to the Kind cluster network.
         If the container is already connected, an info message is logged.
         """
-        client = docker.from_env()
+        docker_client = docker.from_env()
         try:
             # docker network connect "kind" "{container_name}"
-            client.api.connect_container_to_network(container_name, "kind")
+            docker_client.api.connect_container_to_network(container_name, "kind")
         except Exception as ex:
             log.info(ex)
         finally:
-            client.close
+            docker_client.close()
 
     def __resolve_container_ip(self, container_name):
         """
         Returns the IP of the Docker container with the specified name, registered within the 'kind' network.
         The IP is obtained by inspecting the configuration of the 'kind' network.
         """
-        client = docker.from_env()
+        docker_client = docker.from_env()
         try:
             # Find the id of the "kind" network
             # docker network ls
-            networks = client.api.networks()
+            networks = docker_client.api.networks()
             kind_network = next((n for n in networks if n['Name'] == 'kind'), None)
             # Find the "kind" network configuration
             # docker network inspect "{kind_net_id}"
-            kind_network_details = client.api.inspect_network(kind_network['Id'])
+            kind_network_details = docker_client.api.inspect_network(kind_network['Id'])
             # Extract the container's IP
             containers = kind_network_details['Containers']
             container_id = next((c for c in containers if containers[c]['Name'] == container_name), None)
@@ -197,7 +197,7 @@ class Installer(object):
         except Exception as ex:
             log.info(ex)
         finally:
-            client.close
+            docker_client.close()
 
     @staticmethod
     def __remove_ip_subnet_mask(ip: str) -> str:
