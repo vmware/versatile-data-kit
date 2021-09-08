@@ -109,7 +109,7 @@ def run(ctx: click.Context, data_job_directory: str, arguments: str) -> None:
     Entry point of the CLI run. It start a run (execution) of a data job.
     """
     click.echo(
-        f"Data Jobs Development Kit (VDK){os.linesep}{version.get_version_info()}",
+        f"Versatile Data Kit (VDK){os.linesep}{version.get_version_info()}",
         err=True,
     )
     click.echo("-" * 80, err=True)
