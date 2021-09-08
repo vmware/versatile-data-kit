@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import time
@@ -82,6 +82,9 @@ class TrinoConnection(ManagedConnectionBase):
             request_timeout=self._timeout_seconds,
         )
         return conn
+
+    def cursor(self):
+        return self._connect().cursor()
 
     def execute_query(self, query):
         query_id = str(time.time())

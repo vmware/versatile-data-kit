@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
@@ -37,6 +37,14 @@ class IngestToTrinoTests(TestCase):
     def test_ingest_to_trino(self):
         runner = CliEntryBasedTestRunner(trino_plugin)
 
+        runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                "CREATE TABLE IF NOT EXISTS test_table (some_data varchar, more_data varchar)",
+            ]
+        )
+
         ingest_job_result = runner.invoke(
             [
                 "run",
@@ -59,8 +67,17 @@ class IngestToTrinoTests(TestCase):
             "--------------  --------------\n"
         )
 
-    def test_create_batching_indices(self):
-        pass
+    def test_ingest_to_trino_no_dest_table(self):
+        runner = CliEntryBasedTestRunner(trino_plugin)
 
-    def test_ingest_to_trino_missing_dest_table(self):
-        pass
+        ingest_job_result = runner.invoke(
+            [
+                "run",
+                get_test_job_path(
+                    pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                    "test_ingest_to_trino_job",
+                ),
+            ]
+        )
+
+        assert "TABLE_NOT_FOUND" in ingest_job_result.output
