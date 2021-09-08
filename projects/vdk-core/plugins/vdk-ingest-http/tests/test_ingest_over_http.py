@@ -48,7 +48,7 @@ def test_ingest_over_http(mock_post):
 
     mock_post.assert_called_with(
         headers={"Content-Type": "application/octet-stream"},
-        json=payload,
+        json=[payload],
         url="http://example.com/data-source",
         verify=False,
     )

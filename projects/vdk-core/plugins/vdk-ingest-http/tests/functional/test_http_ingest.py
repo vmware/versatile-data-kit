@@ -27,6 +27,7 @@ def test_http_ingestion(httpserver: PluginHTTPServer):
         {
             "VDK_INGEST_METHOD_DEFAULT": "http",
             "VDK_INGEST_TARGET_DEFAULT": httpserver.url_for("/ingest"),
+            "VDK_INGESTER_PAYLOAD_SIZE_BYTES_THRESHOLD": "1000",
         },
     ):
         # create table first, as the ingestion fails otherwise
@@ -35,4 +36,5 @@ def test_http_ingestion(httpserver: PluginHTTPServer):
         result: Result = runner.invoke(["run", job_path("ingest-job")])
         cli_assert_equal(0, result)
 
-        assert len(httpserver.log) == 100
+        # a single record/row is 100 bytes with 100 records would result is 10 batches of 1000 bytes
+        assert len(httpserver.log) == 10
