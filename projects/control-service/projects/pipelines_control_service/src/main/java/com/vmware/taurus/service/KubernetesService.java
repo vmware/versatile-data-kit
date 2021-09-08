@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -182,7 +182,7 @@ public abstract class KubernetesService implements InitializingBean {
         String deployedBy;
 
         public enum Status {
-            RUNNING, FAILED, FINISHED, SKIPPED
+            RUNNING, FAILED, FINISHED, SKIPPED, CANCELLED;
         }
     }
 
@@ -471,6 +471,30 @@ public abstract class KubernetesService implements InitializingBean {
         }
 
         createNewJob(executionId, jobSpec, jobLabels, jobAnnotations);
+    }
+
+    public void cancelRunningCronJob(String teamName, String jobName, String executionId) throws ApiException {
+        log.info("K8S deleting job for team: {} data job name: {} execution: {}", teamName, jobName, executionId);
+        try {
+            var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
+                    null, null,
+                    null,
+                    null,
+                    "Foreground");
+            //Status of the operation. One of: "Success" or "Failure"
+            if (operationResponse.getStatus().equals("Failure")) {
+                log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
+                throw new ApiException(operationResponse.getCode(), operationResponse.getMessage());
+            }
+
+        } catch (JsonSyntaxException e) {
+            if (e.getCause() instanceof IllegalStateException) {
+                IllegalStateException ise = (IllegalStateException) e.getCause();
+                if (ise.getMessage() != null && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
+                    log.debug("Catching exception because of issue https://github.com/kubernetes-client/java/issues/86", e);
+                else throw e;
+            } else throw e;
+        }
     }
 
     public Set<String> listCronJobs() throws ApiException {

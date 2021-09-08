@@ -1,11 +1,10 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import List
 from typing import Optional
 
 import requests
-
 from taurus.vdk.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from taurus.vdk.core import errors
 
@@ -58,7 +57,7 @@ class IngestOverHttp(IIngesterPlugin):
                         """destination_table argument is empty, or @table key is
                         missing from payload.""",
                         "Payload would not be ingested, and data job may fail.",
-                        "Re-send payload by including @table key/value pair, or pass a destination_table parameter to the ingestion method called."
+                        "Re-send payload by including @table key/value pair, or pass a destination_table parameter to the ingestion method called.",
                     )
                 else:
                     obj["@table"] = destination_table

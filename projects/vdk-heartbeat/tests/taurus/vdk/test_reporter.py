@@ -1,7 +1,7 @@
-from pathlib import Path
-
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import os
-
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -24,7 +24,7 @@ def test_pass():
     reporter._Result.test_cases.clear()
     func_pass()
     assert len(reporter._Result.test_cases) == 1
-    assert reporter._Result.test_cases[0].name == 'func_pass'
+    assert reporter._Result.test_cases[0].name == "func_pass"
 
 
 def test_fail():
@@ -33,7 +33,7 @@ def test_fail():
     with pytest.raises(AttributeError):
         func_fail()
     assert len(reporter._Result.test_cases) == 1
-    assert reporter._Result.test_cases[0].name == 'func_fail'
+    assert reporter._Result.test_cases[0].name == "func_fail"
     assert len(reporter._Result.test_cases[0].failures) == 1
 
 

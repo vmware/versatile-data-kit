@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +13,7 @@ public class DataJobExecutionNotFoundException extends DomainError implements Us
       super(String.format("The Data Job execution '%s' does not exist.", executionId),
             "Likely the Data Job execution have not started or it has expired.",
             "The Data Job execution will not be returned.",
-            "Provide a Data Job execution that already exists or trigger a one and try again.",
+            "Provide a Data Job execution that already exists or trigger one and try again.",
             null);
    }
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from taurus.api.job_input import IJobInput
 from taurus.vdk.trino_utils import TrinoTemplateQueries

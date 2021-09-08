@@ -1,7 +1,9 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import functools
 
 
-class LogDecorator(object):
+class LogDecorator:
     def __init__(self, logger, message=None):
         self.logger = logger
         self.message = message
@@ -16,8 +18,7 @@ class LogDecorator(object):
                 self.logger.debug(f"Finished: {message}.")
                 return result
             except Exception as ex:
-                self.logger.debug("Exception {0}".format(ex))
+                self.logger.debug(f"Exception {ex}")
                 raise
 
         return decorated
-

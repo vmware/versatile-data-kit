@@ -1,12 +1,12 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
 import queue
 import sys
 import threading
-from typing import Iterator
-from typing import List
+from collections import defaultdict
+from typing import Iterable
 from typing import Optional
 
 from taurus.api.job_input import IIngester
@@ -17,7 +17,10 @@ from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
 )
 from taurus.vdk.builtin_plugins.ingestion.ingester_utils import AtomicCounter
 from taurus.vdk.core import errors
-
+from taurus.vdk.core.errors import PlatformServiceError
+from taurus.vdk.core.errors import ResolvableBy
+from taurus.vdk.core.errors import UserCodeError
+from taurus.vdk.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 
@@ -65,6 +68,9 @@ class IngesterBase(IIngester):
         )
 
         self._fail_count = AtomicCounter()
+        self._plugin_errors = defaultdict(
+            AtomicCounter
+        )  # something like {UserCodeError: 10, VdkConfigurationError: 2}
         self._success_count = AtomicCounter()
         self._closed = AtomicCounter()
         self._objects_queue: queue.Queue = queue.Queue(
@@ -73,6 +79,10 @@ class IngesterBase(IIngester):
         self._payloads_queue: queue.Queue = queue.Queue(
             ingest_config.get_payloads_queue_size()
         )
+        self._exception_on_failure = (
+            ingest_config.get_should_raise_exception_on_failure()
+        )
+
         self._start_workers()
 
     def send_object_for_ingestion(
@@ -188,22 +198,37 @@ class IngesterBase(IIngester):
             meaning all method invocations from a data job run will belong to the
             same collection.
         """
-        if not rows or not column_names:
-            raise errors.UserCodeError(
-                error_message=errors.ErrorMessage(
-                    summary="Data was not accepted for ingestion.",
-                    what="Failed to accept data.",
-                    why="`rows` or `column_names` parameter is empty.",
-                    consequences="The data cannot be ingested.",
-                    countermeasures="Check if the data is correctly sent for ingestion.",
-                )
+        if len(column_names) == 0 and destination_table is None:
+            errors.log_and_throw(
+                ResolvableBy.USER_ERROR,
+                log,
+                what_happened="Failed to ingest tabular data",
+                why_it_happened="Either column names or destination table must be specified."
+                "Without at least one of those we cannot determine how data should be ingested and we abort.",
+                consequences="The data will not be ingested and the current call will fail with an exception.",
+                countermeasures="Pass column names or destination table as argument.",
             )
-        if not isinstance(rows, Iterator) or not isinstance(column_names, List):
-            raise errors.UserCodeError(
-                "The rows argument must be an iterator "
-                "and the column_names argument "
-                "must be a list"
+
+        if not ingester_utils.is_iterable(rows):
+            errors.log_and_throw(
+                ResolvableBy.USER_ERROR,
+                log,
+                what_happened="Cannot ingest tabular data",
+                why_it_happened=f"The rows argument must be an iterable but it was type: {type(rows)}",
+                consequences="The data will not be ingested and current call will fail with an exception.",
+                countermeasures="Make sure rows is proper iterator object ",
             )
+
+        if not isinstance(column_names, Iterable):
+            errors.log_and_throw(
+                ResolvableBy.USER_ERROR,
+                log,
+                what_happened="Cannot ingest tabular data",
+                why_it_happened=f"The column_names argument must be a List (or iterable) but it was: {type(rows)}",
+                consequences="The data will not be ingested and current call will fail with an exception.",
+                countermeasures="Make sure column_names is proper List object ",
+            )
+
         log.info(
             "Posting for ingestion data for table {table} with columns {columns} against endpoint {endpoint}".format(
                 table=destination_table, columns=column_names, endpoint=target
@@ -218,9 +243,7 @@ class IngesterBase(IIngester):
         # fetch data in chunks to prevent running out of memory
         for page_number, page in enumerate(ingester_utils.get_page_generator(rows)):
             ingester_utils.validate_column_count(page, column_names)
-            converted_rows = ingester_utils.convert_table(
-                page, column_names, destination_table
-            )
+            converted_rows = ingester_utils.convert_table(page, column_names)
             log.debug(
                 "Posting page {number} with {size} rows for ingestion.".format(
                     number=page_number, size=len(converted_rows)
@@ -250,7 +273,7 @@ class IngesterBase(IIngester):
         :param payload_dict: dict
             Payload to be send to the _objects_queue.
         :param destination_table: string
-            The name of the table, where the data sould be ingested into.
+            The name of the table, where the data should be ingested into.
         :param method: string
             Indicates the ingestion method to be used. E.g.:
                     method="file" -> ingest to file
@@ -282,9 +305,9 @@ class IngesterBase(IIngester):
         current_payload_size_in_bytes = 0
         current_target = None
         current_collection_id = None
-        destination_table = None
+        current_destination_table = None
         method = None
-        while True:
+        while self._closed.value == 0:
             try:
                 (
                     payload_dict,
@@ -311,13 +334,22 @@ class IngesterBase(IIngester):
                 continue
 
             # First payload will determine the target and collection_id
-            if not current_target and not current_collection_id:
+            if (
+                not current_target
+                and not current_collection_id
+                and not current_destination_table
+            ):
                 current_target = target
                 current_collection_id = collection_id
+                current_destination_table = destination_table
 
-            # When we get a payload with different than current target/collection_id,
+            # When we get a payload with different than current target/collection_id/destination_table,
             # send the current payload and start aggregating for the new one.
-            if current_target != target or current_collection_id != collection_id:
+            if (
+                current_target != target
+                or current_collection_id != collection_id
+                or current_destination_table != destination_table
+            ):
                 (
                     aggregated_payload,
                     number_of_payloads,
@@ -325,13 +357,14 @@ class IngesterBase(IIngester):
                 ) = self._queue_payload_for_posting(
                     aggregated_payload,
                     number_of_payloads,
-                    destination_table,
+                    current_destination_table,
                     method,
                     current_target,
                     current_collection_id,
                 )
                 current_target = target
                 current_collection_id = collection_id
+                current_destination_table = destination_table
 
             # We are converting to string to get correct memory size. This may
             # cause performance issues.
@@ -349,7 +382,7 @@ class IngesterBase(IIngester):
                 ) = self._queue_payload_for_posting(
                     aggregated_payload,
                     number_of_payloads,
-                    destination_table,
+                    current_destination_table,
                     method,
                     current_target,
                     current_collection_id,
@@ -375,7 +408,7 @@ class IngesterBase(IIngester):
         :param number_of_payloads: int,
             Number of payloads to be dequeued from the _objects_queue.
         :param destination_table: string
-            The name of the table, where the data sould be ingested into.
+            The name of the table, where the data should be ingested into.
         :param method: string
             Indicates the ingestion method to be used. E.g.:
                     method="file" -> ingest to file
@@ -431,7 +464,7 @@ class IngesterBase(IIngester):
         Thread doing final data preparation (adding additional metadata, telemetry
         data, etc.) and ingesting the data.
         """
-        while True:
+        while self._closed.value == 0:
             try:
                 payload = self._payloads_queue.get()
                 payload_dict, destination_table, method, target, collection_id = payload
@@ -445,10 +478,23 @@ class IngesterBase(IIngester):
                     )
 
                     self._success_count.increment()
-                except Exception as e:
-                    log.warning(
-                        "An error occured while ingesting data. " f"The error was: {e}"
+
+                except VdkConfigurationError as e:
+                    self._plugin_errors[VdkConfigurationError].increment()
+                    # TODO: logging for every error might be too much
+                    # There could be million of uploads and millions of error logs would be hard to use.
+                    # But until we have a way to aggregate the errors and show
+                    # the most relevant errors it's better to make sure we do not hide an issue
+                    # and be verbose.
+                    log.exception(
+                        "A configuration error occurred while ingesting data."
                     )
+                except UserCodeError as e:
+                    self._plugin_errors[UserCodeError].increment()
+                    log.exception("An user error occurred while ingesting data.")
+                except Exception as e:
+                    self._plugin_errors[PlatformServiceError].increment()
+                    log.exception("A platform error occurred while ingesting data.")
 
             except Exception as e:
                 self._fail_count.increment()
@@ -485,14 +531,68 @@ class IngesterBase(IIngester):
         ingester_utils.wait_completion(
             objects_queue=self._objects_queue, payloads_queue=self._payloads_queue
         )
-    
+        self.close_now()
+
+    def close_now(self):
+        """
+        Close immediately. The method will not wait for the active queue items to get processed.
+        """
+        if self._closed.get_and_increment() == 0:
+
+            if self._exception_on_failure:
+                self._handle_results()
+
+            log.info(
+                "Ingester statistics: \n\t\t"
+                f"Successful uploads:{self._success_count}\n\t\t"
+                f"Failed uploads:{self._fail_count}\n\t\t"
+                f"ingesting plugin errors:{self._plugin_errors}\n\t\t"
+            )
+
+    def _handle_results(self):
+        if self._plugin_errors.get(UserCodeError, AtomicCounter(0)).value > 0:
+            self._log_and_throw(
+                to_be_fixed_by=ResolvableBy.USER_ERROR,
+                countermeasures="Ensure data you are sending is aligned with the requirements",
+                why_it_happened="User error occurred. See warning logs for more details. ",
+            )
+        if self._plugin_errors.get(VdkConfigurationError, AtomicCounter(0)).value > 0:
+            self._log_and_throw(
+                to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
+                countermeasures="Ensure job is properly configured. "
+                "For example make sure that target and method specified are correct",
+            )
+        if (
+            self._plugin_errors.get(PlatformServiceError, AtomicCounter(0)).value > 0
+            or self._fail_count.value > 0
+        ):
+            self._log_and_throw(
+                to_be_fixed_by=ResolvableBy.PLATFORM_ERROR,
+                countermeasures="There has been temporary failure. "
+                "You can retry the data job again. "
+                "If error persist inspect logs and check ingest plugin documentation.",
+            )
+
+    def _log_and_throw(
+        self,
+        to_be_fixed_by,
+        countermeasures,
+        why_it_happened="Payloads failed to get posted for ingestion",
+    ):
+        errors.log_and_throw(
+            to_be_fixed_by=to_be_fixed_by,
+            log=log,
+            what_happened="Failed to post all data for ingestion successfully.",
+            why_it_happened=why_it_happened,
+            consequences="Some data will not be ingested.",
+            countermeasures=countermeasures,
+        )
+
     @staticmethod
     def __verify_payload_format(payload_dict: dict):
         if not payload_dict:
             raise errors.UserCodeError(
-                "Payload given to "
-                "ingestion method should "
-                "not be empty."
+                "Payload given to " "ingestion method should " "not be empty."
             )
 
         elif not isinstance(payload_dict, dict):
@@ -500,8 +600,9 @@ class IngesterBase(IIngester):
                 "Payload given to ingestion method should be a "
                 "dictionary, but it is not."
             )
-        
+
         # Check if payload dict is valid json
+        # TODO: optimize the check - we should not need to serialize the payload every time
         try:
             json.dumps(payload_dict)
         except (TypeError, OverflowError, Exception) as e:
@@ -511,5 +612,5 @@ class IngesterBase(IIngester):
                 "Failed to send payload",
                 "JSON Serialization Error. Payload is not json serializable",
                 "Payload may be only partially ingested, or not ingested at all.",
-                f"See error message for help: {str(e)}"
+                f"See error message for help: {str(e)}",
             )

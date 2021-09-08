@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -396,7 +396,7 @@ public class DataJobTerminationStatusIT extends BaseIT {
         assertEquals(SIMPLE_JOB_NAME, dataJobExecution.getJobName());
         assertEquals(executionStatus, dataJobExecution.getStatus());
         assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
-        assertEquals("manual/" + USER_NAME, dataJobExecution.getStartedBy());
+        assertEquals("manual/" + USER_NAME + "/" + "user", dataJobExecution.getStartedBy());
         assertEquals(opId, dataJobExecution.getOpId());
     }
 }

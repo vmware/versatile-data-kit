@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from collections import OrderedDict
@@ -95,12 +95,14 @@ def config_help(ctx: click.Context) -> None:
 
     vars_to_descriptions = {}
     providers_descriptions = {}
-    for k, v in configuration.config_key_to_description.items():
-        if k.startswith("__config_provider__"):
-            name = k[len("__config_provider__") :].strip()
-            providers_descriptions[name] = v
-        else:
-            vars_to_descriptions[k] = v
+    for k in configuration.list_config_keys():
+        description = configuration.get_description(k)
+        if description:
+            if k.startswith("__config_provider__"):
+                name = k[len("__config_provider__") :].strip()
+                providers_descriptions[name] = description
+            else:
+                vars_to_descriptions[k] = description
 
     click.echo(
         CONFIG_HELP.format(

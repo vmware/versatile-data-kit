@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -71,7 +71,8 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
 
    @Override
    public ResponseEntity<Void> dataJobExecutionCancel(String teamName, String jobName, String executionId) {
-      throw new NotImplementedException("Cancel is not implemented");
+      executionService.cancelDataJobExecution(teamName, jobName, executionId);
+      return ResponseEntity.ok().build();
    }
 
    @Override

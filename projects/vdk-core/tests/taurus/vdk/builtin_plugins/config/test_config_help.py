@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from taurus.api.plugin.hook_markers import hookimpl
 from taurus.vdk.builtin_plugins.config.config_help import ConfigHelpPlugin
@@ -20,6 +20,10 @@ class TestConfigPlugin:
         config_builder.add(
             "KEY_WITH_DEFAULT", "to-be-shown-default-value", True, "key with default"
         )
+        config_builder.add("key_bool", False, True, "bool")
+        config_builder.add("key_int", 1, False, "int")
+        config_builder.add("key_no_description", 1)
+        config_builder.add("key_misconfigured_description", None, True, 111)
 
 
 def test_cli_config_help():
@@ -34,3 +38,8 @@ def test_cli_config_help():
     assert "TEST_VARIABLE_KEY" in result.output
     assert "var description" in result.output
     assert "to-be-shown-default-value" in result.output
+    assert "key_bool" in result.output
+    assert "key_int" in result.output
+    assert "key_misconfigured_description" in result.output
+
+    assert "key_no_description" not in result.output

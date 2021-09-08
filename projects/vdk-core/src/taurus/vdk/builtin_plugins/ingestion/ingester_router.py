@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import Callable
@@ -14,11 +14,18 @@ from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
 from taurus.vdk.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from taurus.vdk.core import errors
 from taurus.vdk.core.config import Configuration
+from taurus.vdk.core.errors import ErrorMessage
+from taurus.vdk.core.errors import PlatformServiceError
+from taurus.vdk.core.errors import ResolvableBy
+from taurus.vdk.core.errors import UserCodeError
+from taurus.vdk.core.errors import VdkConfigurationError
 from taurus.vdk.core.statestore import CommonStoreKeys
 from taurus.vdk.core.statestore import StateStore
 
 
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
+
+log = logging.getLogger(__name__)
 
 
 class IngesterRouter(IIngesterRegistry):
@@ -42,7 +49,7 @@ class IngesterRouter(IIngesterRegistry):
         """
         Add new ingester.
         """
-        self._ingester_builders[method] = ingester_plugin
+        self._ingester_builders[method.lower()] = ingester_plugin
 
     def send_object_for_ingestion(
         self,
@@ -55,7 +62,7 @@ class IngesterRouter(IIngesterRegistry):
         # Use the method and target provided by customer, or load the default ones
         # if set. `method` and `target` provided when the method is called take
         # precedence over the ones set with environment variables.
-        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
+        method = (method or self._cfg.get_value("INGEST_METHOD_DEFAULT")).lower()
         target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
         self._log.info(
             "Sending object for ingestion with "
@@ -183,6 +190,16 @@ class IngesterRouter(IIngesterRegistry):
             self._log.error(
                 "Failed to send tabular data for ingestion." f"Exception was: {e}"
             )
+            errors.log_and_rethrow(
+                ResolvableBy.USER_ERROR,
+                self._log,
+                what_happened="Failed to send tabular data for ingestion",
+                why_it_happened=f"Exception was: {e}",
+                consequences="Data is not ingested and the method will raise an exception",
+                countermeasures="Please look the error message and try to fix the error and re-try.",
+                exception=e,
+                wrap_in_vdk_error=True,
+            )
 
     def __initialize_ingester(self, method) -> IngesterBase:
         ingester_plugin = None
@@ -230,13 +247,25 @@ class IngesterRouter(IIngesterRegistry):
                 )
 
         if errors_list:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=self._log,
-                what_happened=f"Failed to clean some of the ingestion queues. Exceptions were: {errors_list}",
-                why_it_happened=f"There were errors while cleaning the queues for: {errors_list.keys()}.",
-                consequences="Some data was partially ingested or not ingested at all.",
-                countermeasures="""
-                Make sure all the data is ingested properly by re-running the job.
-                """,
+            message = ErrorMessage(
+                "Ingesting data failed",
+                f"On close some following ingest queues types reported errors:  {list(errors_list.keys())}.",
+                f"There were errors while closing ingestion. Exceptions were: {errors_list}.",
+                "Some data was partially ingested or not ingested at all.",
+                "Follow the instructions in the error messages and log warnings. "
+                "Make sure to inspect any errors or warning logs generated"
+                "Re-try the job if necessary",
             )
+
+            if any(
+                filter(lambda v: isinstance(v, UserCodeError), errors_list.values())
+            ):
+                raise UserCodeError(message)
+            elif any(
+                filter(
+                    lambda v: isinstance(v, VdkConfigurationError), errors_list.values()
+                )
+            ):
+                raise VdkConfigurationError(message)
+            else:
+                raise PlatformServiceError(message)

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.execution;
 
+import com.google.gson.JsonSyntaxException;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,7 +84,7 @@ public class JobExecutionService {
          annotations.put(JobAnnotation.OP_ID.getValue(), opId);
 
          String startedBy = StringUtils.isNotBlank(jobExecutionRequest.getStartedBy()) ?
-               jobExecutionRequest.getStartedBy() :
+               jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser() :
                operationContext.getUser();
          String startedByBuilt = buildStartedByAnnotationValue(ExecutionType.MANUAL, startedBy);
          annotations.put(JobAnnotation.STARTED_BY.getValue(), startedByBuilt);
@@ -100,6 +102,45 @@ public class JobExecutionService {
          return executionId;
       } catch (ApiException e) {
          throw new KubernetesException(String.format("Cannot start a Data Job '%s' execution with execution id '%s'", jobName, executionId), e);
+      }
+   }
+
+   public void cancelDataJobExecution(String teamName, String jobName, String executionId) {
+      log.info("Attempting to cancel data job execution: {}", executionId);
+
+      try {
+
+         if (!jobsService.jobWithTeamExists(jobName, teamName)) {
+            log.info("No such data job: {} found for team: {} .", jobName, teamName);
+            throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.DataJobNotFound);
+         }
+
+         var jobExecutionOptional = jobExecutionRepository.findById(executionId);
+
+         if (jobExecutionOptional.isEmpty()) {
+            log.info("Execution: {} for data job: {} with team: {} not found!", executionId, teamName, jobName);
+            throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
+         }
+
+         var jobExecution = jobExecutionOptional.get();
+         var jobStatus = jobExecution.getStatus();
+         var acceptedStatusToCancelExecutionSet = Set.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
+         if (!acceptedStatusToCancelExecutionSet.contains(jobStatus)) {
+            log.info("Trying to cancel execution: {} for data job: {} with team: {} but job has status {}!", executionId, teamName, jobName, jobStatus.toString());
+            throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.ExecutionNotRunning);
+         }
+
+         dataJobsKubernetesService.cancelRunningCronJob(teamName, jobName, executionId);
+         log.info("Deleted execution in K8S.");
+         jobExecution.setEndTime(OffsetDateTime.now());
+         jobExecution.setStatus(ExecutionStatus.CANCELLED);
+         jobExecution.setMessage("Job execution cancelled by user.");
+         log.info("Writing cancelled status in database.");
+         jobExecutionRepository.save(jobExecution);
+         log.info("Cancelled data job execution {} successfully.", executionId);
+
+      } catch (ApiException | JsonSyntaxException e) {
+         throw new KubernetesException(String.format("Cannot cancel a Data Job '%s' execution with execution id '%s'", jobName, executionId), e);
       }
    }
 
@@ -246,6 +287,8 @@ public class JobExecutionService {
             return ExecutionStatus.FINISHED;
          case SKIPPED:
             return ExecutionStatus.SKIPPED;
+         case CANCELLED:
+            return ExecutionStatus.CANCELLED;
          default:
             log.warn("Unexpected job status: '" + jobStatus + "' in JobExecutionStatus.Status.");
             return null;

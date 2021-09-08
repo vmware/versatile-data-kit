@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 """
 Ingestion Utilities
@@ -78,7 +78,7 @@ def validate_column_count(data: iter, column_names: iter):
             )
 
 
-def convert_table(table: iter, column_names: iter, table_name: str) -> List[dict]:
+def convert_table(table: iter, column_names: iter) -> List[dict]:
     """
     Converts tabular data into dictionary objects
 
@@ -86,15 +86,11 @@ def convert_table(table: iter, column_names: iter, table_name: str) -> List[dict
        A representation of a two-dimensional array that allows iteration over rows.
     :param column_names: iter
        Names of the table columns.
-    :param table_name: string
-       Value of the `table_name` key, that is mandatory to identify the
-       destination table.
     :return: list of dicts containing the converted table objects.
     """
     converted_rows = []
     for row in table:
         cdf_row = dict()
-        cdf_row["@table"] = table_name
         for index, value in enumerate(row):
             if value is not None:
                 value = _handle_special_types(value)
@@ -124,3 +120,17 @@ def _handle_special_types(value: Any) -> Any:
 def wait_completion(objects_queue: queue.Queue, payloads_queue: queue.Queue):
     objects_queue.join()
     payloads_queue.join()
+
+
+def is_iterable(obj: Any) -> bool:
+    """
+    According to Python doc this is the most reliable way to determine if object is iterable.
+    See https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable
+    :param obj: the object to check
+    :return: true or false :)
+    """
+    try:
+        _ = iter(obj)
+        return True
+    except TypeError:
+        return False

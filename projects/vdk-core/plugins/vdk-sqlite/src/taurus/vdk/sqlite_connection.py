@@ -1,16 +1,30 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import pathlib
 import tempfile
 from typing import List
 
+from taurus.vdk.core.config import Configuration
 from taurus.vdk.util.decorators import closing_noexcept_on_close
+
+SQLITE_FILE = "SQLITE_FILE"
 
 log = logging.getLogger(__name__)
 
 
-class SqLiteConnection:
+class SQLiteConfiguration:
+    def __init__(self, configuration: Configuration):
+        self.__config = configuration
+
+    def get_default_ingest_target(self) -> pathlib.Path:
+        return pathlib.Path(self.__config.get_value("INGEST_TARGET_DEFAULT"))
+
+    def get_sqlite_file(self) -> pathlib.Path:
+        return pathlib.Path(self.__config.get_value(SQLITE_FILE))
+
+
+class SQLiteConnection:
     """
     Create file based sqlite database.
     """

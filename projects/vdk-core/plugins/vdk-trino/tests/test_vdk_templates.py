@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -499,9 +499,6 @@ class TemplateRegressionTests(unittest.TestCase):
                         "active_to_column": "active_to",
                         "active_to_max_value": "9999-12-31",
                         "updated_at_column": "updated_at",
-                        "start_time_column": "start_time",
-                        "end_time_column": "end_time",
-                        "end_time_default_value": "9999-12-31",
                         "test_restore_from_backup": f"{restore_from_backup}",
                         "value_column_1": f"{value_column_1}",
                     }

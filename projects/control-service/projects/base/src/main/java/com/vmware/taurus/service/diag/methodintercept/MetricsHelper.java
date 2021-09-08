@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,6 +17,8 @@ import java.util.*;
 
 @Slf4j
 public class MetricsHelper {
+
+    private final static ObjectMapper mapper = new ObjectMapper();
 
     public void signatureToMetricsAboutJavaMethod(MethodSignature signature, Map<Metrics, Object> metrics) {
         String classNameCanonical = signature.getDeclaringType().getCanonicalName();
@@ -69,11 +71,10 @@ public class MetricsHelper {
         }
         String result = "";
         try {
-            ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             result = mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            log.debug("Failed to convert object to json: {}: {}", obj.getClass(), e);
+            log.debug("Failed to convert object to json: {}: {}", obj.getClass(), e.getMessage());
             result = "" + obj;
         }
         return result;
