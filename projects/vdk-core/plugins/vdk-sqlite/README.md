@@ -20,7 +20,7 @@ For example:
 ```
 
 Data ingestion requires setting either the VDK_SQLITE_FILE,
-or the VDK_DEFAULT_INGEST_TARGET to the path to the SQLite database file,
+or the VDK_INGEST_TARGET_DEFAULT to the path to the SQLite database file,
 or setting the 'target' parameter for the `send_object_for_ingestion` method, and can be done like so:
 ```python
     def run(job_input: IJobInput):
