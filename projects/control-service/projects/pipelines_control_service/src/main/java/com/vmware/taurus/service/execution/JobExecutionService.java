@@ -275,6 +275,8 @@ public class JobExecutionService {
 
       if (isJobExecutionSkipped(jobExecution)) {
          return ExecutionStatus.SKIPPED;
+      } else if (isJobExecutionFailed(jobExecution)) {
+         return ExecutionStatus.FAILED;
       }
 
       var jobStatus = jobExecution.getStatus();
@@ -302,7 +304,21 @@ public class JobExecutionService {
     * @return
     */
    private static boolean isJobExecutionSkipped(KubernetesService.JobExecution jobExecution) {
-      return KubernetesService.PodTerminationMessage.SKIPPED.getValue().equals(StringUtils.trim(jobExecution.getTerminationMessage()));
+      return jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.SKIPPED);
    }
 
+   /**
+    * This is a helper method used to determine if a data job execution's status should be changed to FAILED.
+    *
+    * @param jobExecution
+    * @return
+    */
+   private static boolean isJobExecutionFailed(KubernetesService.JobExecution jobExecution) {
+      return jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.USER_ERROR) ||
+            jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.PLATFORM_ERROR);
+   }
+
+   private static boolean jobExecutionEquals(KubernetesService.JobExecution jobExecution, KubernetesService.PodTerminationMessage podTerminationMessage) {
+      return podTerminationMessage.getValue().equals(StringUtils.trim(jobExecution.getTerminationMessage()));
+   }
 }
