@@ -8,6 +8,7 @@ from typing import Optional
 
 import click
 import pluggy
+from tabulate import tabulate
 from taurus.api.plugin.hook_markers import hookimpl
 from taurus.vdk import trino_config
 from taurus.vdk.builtin_plugins.connection.pep249.interfaces import PEP249Connection
@@ -18,6 +19,7 @@ from taurus.vdk.core.context import CoreContext
 from taurus.vdk.core.errors import UserCodeError
 from taurus.vdk.core.statestore import ImmutableStoreKey
 from taurus.vdk.core.statestore import StoreKey
+from taurus.vdk.ingest_to_trino import IngestToTrino
 from taurus.vdk.lineage import LineageLogger
 from taurus.vdk.trino_connection import TrinoConnection
 from trino.exceptions import TrinoUserError
@@ -120,6 +122,10 @@ def initialize_job(context: JobContext) -> None:
         "periodic_snapshot", pathlib.Path(get_job_path("load/fact/periodic_snapshot"))
     )
 
+    context.ingester.add_ingester_factory_method(
+        "trino", (lambda: IngestToTrino(context))
+    )
+
 
 @hookimpl(hookwrapper=True, trylast=True)
 def run_step(context: JobContext, step: Step) -> None:
@@ -137,9 +143,7 @@ def run_step(context: JobContext, step: Step) -> None:
 def trino_query(ctx: click.Context, query):
     with ctx.obj.state.get(CONNECTION_FUNC_KEY)() as conn:
         res = conn.execute_query(query)
-        import json
-
-        print(json.dumps(res, indent=2))
+        click.echo(tabulate(res))
 
 
 @hookimpl
