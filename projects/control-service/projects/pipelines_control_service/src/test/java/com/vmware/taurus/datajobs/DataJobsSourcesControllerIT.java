@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +33,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -49,7 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class DataJobsSourcesControllerIT {
 
-   private static TemporaryFolder temporaryFolder = new TemporaryFolder();
+   @TempDir
+   static File temporaryFolder;
 
    // team name can have spaces in it so we are purposefully using one with space
    private static final String TEST_TEAM_NAME = "test team";
@@ -63,22 +62,15 @@ public class DataJobsSourcesControllerIT {
    static class SetGitUrlAsTempFolder implements TestExecutionListener {
 
       @Override
-      public void beforeTestExecution(TestContext testContext) throws IOException, GitAPIException {
+      public void beforeTestExecution(TestContext testContext) throws GitAPIException {
          if (testContext.hasApplicationContext()) {
-            temporaryFolder.create();
             GitWrapper bean = testContext.getApplicationContext().getBean(GitWrapper.class);
 
-            var git = Git.init().setDirectory(temporaryFolder.getRoot()).call();
+            var git = Git.init().setDirectory(temporaryFolder).call();
             git.commit().setMessage("Initial commit").call();
-            ReflectionTestUtils.setField(bean, "gitDataJobsUrl", "file://" + temporaryFolder.getRoot());
+            ReflectionTestUtils.setField(bean, "gitDataJobsUrl", "file://" + temporaryFolder);
          }
       }
-
-      @Override
-      public void afterTestMethod(TestContext testContext) {
-         temporaryFolder.delete();
-      }
-
    }
 
 

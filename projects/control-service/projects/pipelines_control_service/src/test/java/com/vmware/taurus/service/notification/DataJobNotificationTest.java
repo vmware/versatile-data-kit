@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.notification;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DataJobNotificationTest {
 
