@@ -38,7 +38,7 @@ class Installer(object):
     git_server_repository_name = "vdk-git-repo"
 
     def __init__(self):
-        self.__current_directory = self.get_current_directory()
+        self.__current_directory = self.__get_current_directory()
 
     def install(self):
         """
@@ -53,10 +53,9 @@ class Installer(object):
         self.__create_kind_cluster()
         self.__connect_container_to_kind_network(self.docker_registry_container_name)
         self.__connect_container_to_kind_network(self.git_server_container_name)
-        self.__git_server_ip = self.__resolve_container_ip(self.git_server_container_name)
         self.__configure_kind_local_docker_registry()
+        self.__install_ingress_prerequisites()
         self.__install_helm_chart()
-        self.__configure_ingress()
         log.info(f"Versatile Data Kit Control Service installed successfully")
 
     def uninstall(self):
@@ -69,7 +68,7 @@ class Installer(object):
         self.__delete_docker_registry_container()
 
     @staticmethod
-    def get_current_directory() -> pathlib.Path:
+    def __get_current_directory() -> pathlib.Path:
         return pathlib.Path(__file__).parent.resolve()
 
     def __create_docker_registry_container(self):
@@ -386,17 +385,21 @@ class Installer(object):
             # is that, currently, the Git server name cannot be resolved within the Job Builder container.
             # The reason for this is unknown, but is suspected to be related to the Kaniko image that is
             # used as a base.
+            git_server_ip = self.__resolve_container_ip(self.git_server_container_name)
             subprocess.run(['helm', 'repo', 'add', self.helm_repo_local_name, self.helm_repo_url])
             subprocess.run(['helm', 'repo', 'update'])
             subprocess.run(['helm', 'install', self.helm_installation_name, self.helm_chart_name,
+                            '--atomic',
+                            '--set', 'service.type=ClusterIP',
                             '--set', 'resources.limits.memory=1G',
                             '--set', 'cockroachdb.statefulset.replicas=1',
                             '--set', 'replicas=1',
+                            '--set', 'ingress.enabled=true',
                             '--set', 'deploymentGitBranch=master',
                             '--set', 'deploymentDockerRegistryType=generic',
                             '--set', f'deploymentDockerRepository={self.docker_registry_container_name}:5000',
                             '--set', f'proxyRepositoryURL=localhost:5000',
-                            '--set', f'deploymentGitUrl={self.__git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git',
+                            '--set', f'deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git',
                             '--set', f'deploymentGitUsername={self.git_server_admin_user}',
                             '--set', f'deploymentGitPassword={self.git_server_admin_password}',
                             '--set', f'uploadGitReadWriteUsername={self.git_server_admin_user}',
@@ -413,7 +416,7 @@ class Installer(object):
         except Exception as ex:
             log.error(f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}")
 
-    def __configure_ingress(self):
+    def __install_ingress_prerequisites(self):
         """
         Configure an Nginx-ingress controller to forward requests from outside the cluster
         to the Control Service.
@@ -448,21 +451,4 @@ class Installer(object):
         finally:
             w.stop()
 
-        # Apply the ingress
-        # There are currently issues when creating the ingress via the kubernetes Python client.
-        # To work around this, we are using a Helm chart to install the ingress object.
-        try:
-            subprocess.run(['helm', 'install', 'ingress', self.__current_directory.joinpath('ingress'),
-                            '--set', f'serviceName={self.helm_installation_name}-svc',
-                            ])
-        except Exception as ex:
-            log.info(ex)
-
-        # try:
-        #     configuration = client.Configuration()
-        #     with client.ApiClient(configuration) as api_client:
-        #         # Create an instance of the API class
-        #         # api_instance = client.ExtensionsV1beta1Api(api_client)
-        #         utils.create_from_yaml(api_client, self.__current_directory.joinpath("ingress-template.yaml"))
-        # except Exception as ex:
-        #     log.info(ex)
+        # The ingress object itself is created later, as part of the Control Service's Helm chart

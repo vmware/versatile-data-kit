@@ -1,3 +1,0 @@
-# This helm chart is used to install a single ingress object, required in order to expose
-# the control service outside the cluster. Ideally this ingress object should be created
-# by using the kubernetes Python client, but there are currently issues with this.

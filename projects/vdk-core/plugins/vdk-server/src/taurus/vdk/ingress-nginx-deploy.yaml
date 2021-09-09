@@ -1,4 +1,5 @@
-# Source: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+# This is a copy of the ingress-nginx manifest for KinD, available here:
+# https://github.com/kubernetes/ingress-nginx/blob/main/deploy/static/provider/kind/deploy.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
