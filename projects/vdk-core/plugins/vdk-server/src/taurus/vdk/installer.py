@@ -8,7 +8,8 @@ import pathlib
 import subprocess
 import sys
 import requests
-from kubernetes import client, config, utils
+from kubernetes import client, config, utils, watch
+
 from taurus.vdk.core.errors import BaseVdkError, ErrorMessage
 
 log = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ class Installer(object):
         self.__git_server_ip = self.__resolve_container_ip(self.git_server_container_name)
         self.__configure_kind_local_docker_registry()
         self.__install_helm_chart()
+        self.__configure_ingress()
         log.info(f"Versatile Data Kit Control Service installed successfully")
 
     def uninstall(self):
@@ -85,10 +87,10 @@ class Installer(object):
             try:
                 # docker run -d --restart=always -p "127.0.0.1:${docker_registry_port}:5000" --name "${docker_registry_name}" registry:2
                 docker_client.containers.run("registry:2",
-                                      detach=True,
-                                      restart_policy={"Name": "always"},
-                                      name=self.docker_registry_container_name,
-                                      ports={'5000/tcp': ('127.0.0.1', self.__docker_registry_port)})
+                                             detach=True,
+                                             restart_policy={"Name": "always"},
+                                             name=self.docker_registry_container_name,
+                                             ports={'5000/tcp': ('127.0.0.1', self.__docker_registry_port)})
             except Exception as ex:
                 log.error(
                     f"Error: Failed to create Docker registry container {self.docker_registry_container_name}. {str(ex)}")
@@ -148,9 +150,9 @@ class Installer(object):
             try:
                 # docker run --name=vdk-git-server -p 10022:22 -p 10080:3000 -p 10081:80 gogs/gogs:0.12
                 docker_client.containers.run("gogs/gogs:0.12",
-                                      detach=True,
-                                      name=self.git_server_container_name,
-                                      ports={'22/tcp': '10022', '3000/tcp': '10080', '80/tcp': '10081'})
+                                             detach=True,
+                                             name=self.git_server_container_name,
+                                             ports={'22/tcp': '10022', '3000/tcp': '10080', '80/tcp': '10081'})
                 return True
             except Exception as ex:
                 log.error(f"Error: Failed to create Git server container {self.git_server_container_name}. {str(ex)}")
@@ -387,12 +389,9 @@ class Installer(object):
             subprocess.run(['helm', 'repo', 'add', self.helm_repo_local_name, self.helm_repo_url])
             subprocess.run(['helm', 'repo', 'update'])
             subprocess.run(['helm', 'install', self.helm_installation_name, self.helm_chart_name,
-                            # '--wait',
-                            # '--debug',
                             '--set', 'resources.limits.memory=1G',
                             '--set', 'cockroachdb.statefulset.replicas=1',
                             '--set', 'replicas=1',
-                            '--set', 'deploymentBuilderImage.tag=1.2', # TODO: Remove when service adopts 1.2
                             '--set', 'deploymentGitBranch=master',
                             '--set', 'deploymentDockerRegistryType=generic',
                             '--set', f'deploymentDockerRepository={self.docker_registry_container_name}:5000',
@@ -413,3 +412,57 @@ class Installer(object):
             subprocess.run(["helm", "uninstall", self.helm_installation_name])
         except Exception as ex:
             log.error(f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}")
+
+    def __configure_ingress(self):
+        """
+        Configure an Nginx-ingress controller to forward requests from outside the cluster
+        to the Control Service.
+
+        See: https://kind.sigs.k8s.io/docs/user/ingress/#ingress-nginx
+        """
+        config.load_kube_config()
+        with client.ApiClient() as k8s_client:
+            try:
+                utils.create_from_yaml(k8s_client, self.__current_directory.joinpath("ingress-nginx-deploy.yaml"))
+            except Exception as ex:
+                log.info(ex)
+
+        # Now the Ingress is all setup, wait until is ready to process requests running:
+        # kubectl wait --namespace ingress-nginx \
+        #   --for=condition=ready pod \
+        #   --selector=app.kubernetes.io/component=controller \
+        #   --timeout=150s
+        w = watch.Watch()
+        k8s_client = client.CoreV1Api()
+        try:
+            for event in w.stream(func=k8s_client.list_namespaced_pod,
+                                  namespace="ingress-nginx",
+                                  label_selector="app.kubernetes.io/component=controller",
+                                  timeout_seconds=150):
+                pod_status = event['object'].status
+                if pod_status.phase == 'Running' and \
+                        next((c for c in pod_status.conditions if c.type == 'Ready' and c.status == 'True'), None):
+                    break
+        except Exception as ex:
+            log.info(ex)
+        finally:
+            w.stop()
+
+        # Apply the ingress
+        # There are currently issues when creating the ingress via the kubernetes Python client.
+        # To work around this, we are using a Helm chart to install the ingress object.
+        try:
+            subprocess.run(['helm', 'install', 'ingress', self.__current_directory.joinpath('ingress'),
+                            '--set', f'serviceName={self.helm_installation_name}-svc',
+                            ])
+        except Exception as ex:
+            log.info(ex)
+
+        # try:
+        #     configuration = client.Configuration()
+        #     with client.ApiClient(configuration) as api_client:
+        #         # Create an instance of the API class
+        #         # api_instance = client.ExtensionsV1beta1Api(api_client)
+        #         utils.create_from_yaml(api_client, self.__current_directory.joinpath("ingress-template.yaml"))
+        # except Exception as ex:
+        #     log.info(ex)
