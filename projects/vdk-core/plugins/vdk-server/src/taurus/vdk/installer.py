@@ -8,7 +8,8 @@ import pathlib
 import subprocess
 import sys
 import requests
-from kubernetes import client, config, utils
+from kubernetes import client, config, utils, watch
+
 from taurus.vdk.core.errors import BaseVdkError, ErrorMessage
 
 log = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ class Installer(object):
     git_server_repository_name = "vdk-git-repo"
 
     def __init__(self):
-        self.__current_directory = self.get_current_directory()
+        self.__current_directory = self.__get_current_directory()
 
     def install(self):
         """
@@ -52,8 +53,8 @@ class Installer(object):
         self.__create_kind_cluster()
         self.__connect_container_to_kind_network(self.docker_registry_container_name)
         self.__connect_container_to_kind_network(self.git_server_container_name)
-        self.__git_server_ip = self.__resolve_container_ip(self.git_server_container_name)
         self.__configure_kind_local_docker_registry()
+        self.__install_ingress_prerequisites()
         self.__install_helm_chart()
         log.info(f"Versatile Data Kit Control Service installed successfully")
 
@@ -67,7 +68,7 @@ class Installer(object):
         self.__delete_docker_registry_container()
 
     @staticmethod
-    def get_current_directory() -> pathlib.Path:
+    def __get_current_directory() -> pathlib.Path:
         return pathlib.Path(__file__).parent.resolve()
 
     def __create_docker_registry_container(self):
@@ -85,10 +86,10 @@ class Installer(object):
             try:
                 # docker run -d --restart=always -p "127.0.0.1:${docker_registry_port}:5000" --name "${docker_registry_name}" registry:2
                 docker_client.containers.run("registry:2",
-                                      detach=True,
-                                      restart_policy={"Name": "always"},
-                                      name=self.docker_registry_container_name,
-                                      ports={'5000/tcp': ('127.0.0.1', self.__docker_registry_port)})
+                                             detach=True,
+                                             restart_policy={"Name": "always"},
+                                             name=self.docker_registry_container_name,
+                                             ports={'5000/tcp': ('127.0.0.1', self.__docker_registry_port)})
             except Exception as ex:
                 log.error(
                     f"Error: Failed to create Docker registry container {self.docker_registry_container_name}. {str(ex)}")
@@ -148,9 +149,9 @@ class Installer(object):
             try:
                 # docker run --name=vdk-git-server -p 10022:22 -p 10080:3000 -p 10081:80 gogs/gogs:0.12
                 docker_client.containers.run("gogs/gogs:0.12",
-                                      detach=True,
-                                      name=self.git_server_container_name,
-                                      ports={'22/tcp': '10022', '3000/tcp': '10080', '80/tcp': '10081'})
+                                             detach=True,
+                                             name=self.git_server_container_name,
+                                             ports={'22/tcp': '10022', '3000/tcp': '10080', '80/tcp': '10081'})
                 return True
             except Exception as ex:
                 log.error(f"Error: Failed to create Git server container {self.git_server_container_name}. {str(ex)}")
@@ -384,20 +385,21 @@ class Installer(object):
             # is that, currently, the Git server name cannot be resolved within the Job Builder container.
             # The reason for this is unknown, but is suspected to be related to the Kaniko image that is
             # used as a base.
+            git_server_ip = self.__resolve_container_ip(self.git_server_container_name)
             subprocess.run(['helm', 'repo', 'add', self.helm_repo_local_name, self.helm_repo_url])
             subprocess.run(['helm', 'repo', 'update'])
             subprocess.run(['helm', 'install', self.helm_installation_name, self.helm_chart_name,
-                            # '--wait',
-                            # '--debug',
+                            '--atomic',
+                            '--set', 'service.type=ClusterIP',
                             '--set', 'resources.limits.memory=1G',
                             '--set', 'cockroachdb.statefulset.replicas=1',
                             '--set', 'replicas=1',
-                            '--set', 'deploymentBuilderImage.tag=1.2', # TODO: Remove when service adopts 1.2
+                            '--set', 'ingress.enabled=true',
                             '--set', 'deploymentGitBranch=master',
                             '--set', 'deploymentDockerRegistryType=generic',
                             '--set', f'deploymentDockerRepository={self.docker_registry_container_name}:5000',
                             '--set', f'proxyRepositoryURL=localhost:5000',
-                            '--set', f'deploymentGitUrl={self.__git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git',
+                            '--set', f'deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git',
                             '--set', f'deploymentGitUsername={self.git_server_admin_user}',
                             '--set', f'deploymentGitPassword={self.git_server_admin_password}',
                             '--set', f'uploadGitReadWriteUsername={self.git_server_admin_user}',
@@ -413,3 +415,40 @@ class Installer(object):
             subprocess.run(["helm", "uninstall", self.helm_installation_name])
         except Exception as ex:
             log.error(f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}")
+
+    def __install_ingress_prerequisites(self):
+        """
+        Configure an Nginx-ingress controller to forward requests from outside the cluster
+        to the Control Service.
+
+        See: https://kind.sigs.k8s.io/docs/user/ingress/#ingress-nginx
+        """
+        config.load_kube_config()
+        with client.ApiClient() as k8s_client:
+            try:
+                utils.create_from_yaml(k8s_client, self.__current_directory.joinpath("ingress-nginx-deploy.yaml"))
+            except Exception as ex:
+                log.info(ex)
+
+        # Now the Ingress is all setup, wait until is ready to process requests running:
+        # kubectl wait --namespace ingress-nginx \
+        #   --for=condition=ready pod \
+        #   --selector=app.kubernetes.io/component=controller \
+        #   --timeout=150s
+        w = watch.Watch()
+        k8s_client = client.CoreV1Api()
+        try:
+            for event in w.stream(func=k8s_client.list_namespaced_pod,
+                                  namespace="ingress-nginx",
+                                  label_selector="app.kubernetes.io/component=controller",
+                                  timeout_seconds=150):
+                pod_status = event['object'].status
+                if pod_status.phase == 'Running' and \
+                        next((c for c in pod_status.conditions if c.type == 'Ready' and c.status == 'True'), None):
+                    break
+        except Exception as ex:
+            log.info(ex)
+        finally:
+            w.stop()
+
+        # The ingress object itself is created later, as part of the Control Service's Helm chart
