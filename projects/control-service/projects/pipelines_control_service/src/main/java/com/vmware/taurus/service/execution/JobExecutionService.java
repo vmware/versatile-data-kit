@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.execution;
 
+import com.google.gson.JsonSyntaxException;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
@@ -138,7 +139,7 @@ public class JobExecutionService {
          jobExecutionRepository.save(jobExecution);
          log.info("Cancelled data job execution {} successfully.", executionId);
 
-      } catch (ApiException e) {
+      } catch (ApiException | JsonSyntaxException e) {
          throw new KubernetesException(String.format("Cannot cancel a Data Job '%s' execution with execution id '%s'", jobName, executionId), e);
       }
    }

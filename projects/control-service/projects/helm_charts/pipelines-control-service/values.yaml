@@ -1,7 +1,7 @@
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 ## Current available global Docker image parameters: imageRegistry and imagePullSecrets
-## Set global.imageRegistry if you use docker proxy to the proxy prefix for versatiledataki.
+## Set global.imageRegistry if you use docker proxy to the proxy prefix for versatiledatakit.
 ##
 global: {}
 #   imageRegistry: myRegistryName
@@ -12,7 +12,7 @@ global: {}
 image:
    registry: registry.hub.docker.com/versatiledatakit
    repository: pipelines-control-service
-   tag: "04e00a2"
+   tag: "b807ee5"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -25,7 +25,7 @@ image:
 deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
-  tag: "1.1"
+  tag: "1.2"
 
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)

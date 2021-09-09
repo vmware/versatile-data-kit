@@ -1,7 +1,10 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import logging
 
 from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.heartbeat_test import create_test_instance, HeartbeatTest
+from taurus.vdk.heartbeat.heartbeat_test import create_test_instance
+from taurus.vdk.heartbeat.heartbeat_test import HeartbeatTest
 from taurus.vdk.heartbeat.job_controller import JobController
 from taurus.vdk.heartbeat.reporter import TestDecorator
 

@@ -1,12 +1,21 @@
 Changelog
 =========
 
-1.2.7 - Next
+1.2.8 - Next
 ----
 * **New feature**
 * **Improvement**
 * **Bug Fixes**
 * **Breaking Changes**
+
+
+1.2.7 - 03.09.2021
+----
+* **Improvement**
+  * Extra arguments can be passed to the data job builder via the DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS environment variable
+  * The name of the user who has triggered manual job executions is now displayed
+  * It is now possible to connect to insecure Git repositories by using the GIT_SSL_ENABLED environment variable
+
 
 1.2.6 - 31.08.2021
 ----
@@ -15,11 +24,6 @@ Changelog
   * Adding support for forwarding logs of the Control Service Server (only) to syslog server <br>
     Users can now specify environment variable LOGGING_SYS_LOG_HOST and LOGGING_SYS_LOG_PORT to enable forwarding them to syslog.
 
-
-
-* **Improvement**
-* **Bug Fixes**
-* **Breaking Changes**
 
 1.2.5 - 30.08.2021
 ----

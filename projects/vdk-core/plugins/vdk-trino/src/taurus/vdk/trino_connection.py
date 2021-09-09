@@ -83,9 +83,6 @@ class TrinoConnection(ManagedConnectionBase):
         )
         return conn
 
-    def cursor(self):
-        return self._connect().cursor()
-
     def execute_query(self, query):
         query_id = str(time.time())
         lineage_data = self._get_lineage_data(query, query_id)

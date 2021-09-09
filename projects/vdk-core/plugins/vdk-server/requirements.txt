@@ -1,0 +1,4 @@
+vdk-core
+click
+docker
+kubernetes

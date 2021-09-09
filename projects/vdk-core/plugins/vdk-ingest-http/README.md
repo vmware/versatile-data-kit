@@ -35,3 +35,15 @@ The payload needs to be a json object, and should contain the `destination_table
 The `method` attribute needs to be provided for the time being.
 <br>
 The `target` attribute should specify the url endpoint, where the data will be ingested.
+
+### Testing
+
+To develop or test locally (from the current directory)
+```bash
+# install dev and test dependencies
+pip install -r requirements
+# install the plugin in editable mode
+pip install -e .
+# run the tests
+pytest
+```

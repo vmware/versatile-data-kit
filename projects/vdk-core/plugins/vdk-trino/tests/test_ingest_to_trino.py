@@ -20,8 +20,6 @@ VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
 
-payload: dict = {"some_data": "some_test_data", "more_data": "more_test_data"}
-
 
 @pytest.mark.usefixtures("trino_service")
 @mock.patch.dict(
@@ -64,11 +62,17 @@ class IngestToTrinoTests(TestCase):
         assert check_result.stdout == (
             "--------------  --------------\n"
             "some_test_data  more_test_data\n"
+            "some_test_data  more_test_data\n"
+            "some_test_data  more_test_data\n"
+            "some_test_data  more_test_data\n"
+            "some_test_data  more_test_data\n"
             "--------------  --------------\n"
         )
 
     def test_ingest_to_trino_no_dest_table(self):
         runner = CliEntryBasedTestRunner(trino_plugin)
+
+        runner.invoke(["trino-query", "--query", "DROP TABLE IF EXISTS test_table"])
 
         ingest_job_result = runner.invoke(
             [

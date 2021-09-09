@@ -1,13 +1,12 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 from unittest import mock
 
 import pytest
-
 from taurus.api.plugin.plugin_registry import PluginException
-from taurus.vdk.core.errors import UserCodeError
 from taurus.vdk.core.errors import PlatformServiceError
+from taurus.vdk.core.errors import UserCodeError
 from taurus.vdk.core.errors import VdkConfigurationError
 from taurus.vdk.ingest_over_http import IngestOverHttp
 
@@ -49,7 +48,7 @@ def test_ingest_over_http(mock_post):
 
     mock_post.assert_called_with(
         headers={"Content-Type": "application/octet-stream"},
-        json=payload,
+        json=[payload],
         url="http://example.com/data-source",
         verify=False,
     )
@@ -71,8 +70,9 @@ def test_ingest_over_http_missing_destination_table(mock_post):
     http_ingester: IngestOverHttp = IngestOverHttp()
 
     with pytest.raises(UserCodeError):
-        http_ingester.ingest_payload(payload=test_payload,
-                                     target="http://example.com/data-source")
+        http_ingester.ingest_payload(
+            payload=test_payload, target="http://example.com/data-source"
+        )
 
 
 @mock.patch("requests.post", side_effect=mocked_requests_post)

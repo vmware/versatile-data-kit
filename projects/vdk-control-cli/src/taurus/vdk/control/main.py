@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import click_log
 from taurus.vdk.control.command_groups.job.download_job import download_job

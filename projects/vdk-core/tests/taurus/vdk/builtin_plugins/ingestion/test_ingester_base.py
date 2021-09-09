@@ -1,9 +1,10 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from datetime import datetime
+from unittest.mock import call
 from unittest.mock import MagicMock
-from unittest.mock import patch, call
-from datetime import datetime
+from unittest.mock import patch
+
 import pytest
 from taurus.api.plugin.plugin_input import IIngesterPlugin
 from taurus.vdk.builtin_plugins.ingestion.ingester_base import IngesterBase
@@ -175,6 +176,16 @@ def test_ingest_payload_multiple_destinations():
 
     assert ingester_base._ingester.ingest_payload.call_count == 2
 
-    assert ingester_base._ingester.ingest_payload.call_args_list[0] == call(collection_id=collection_id, target=target, destination_table=destination_table1, payload=test_expected_payload1)
+    assert ingester_base._ingester.ingest_payload.call_args_list[0] == call(
+        collection_id=collection_id,
+        target=target,
+        destination_table=destination_table1,
+        payload=test_expected_payload1,
+    )
 
-    assert ingester_base._ingester.ingest_payload.call_args_list[1] == call(collection_id=collection_id, target=target, destination_table=destination_table2, payload=test_expected_payload2)
+    assert ingester_base._ingester.ingest_payload.call_args_list[1] == call(
+        collection_id=collection_id,
+        target=target,
+        destination_table=destination_table2,
+        payload=test_expected_payload2,
+    )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,8 +27,10 @@ public class JobFieldStrategyBySourceUrl extends FieldStrategy<V2DataJob> {
 
    public JobFieldStrategyBySourceUrl(
          @Value("${datajobs.git.url}") String gitDataJobsUrl,
-         @Value("${datajobs.git.branch}") String getGitDataJobsBranch) {
-      this.gitDataJobsUrl = GitWrapper.constructCorrectGitUrl(gitDataJobsUrl);
+         @Value("${datajobs.git.branch}") String getGitDataJobsBranch,
+         @Value("${datajobs.git.ssl.enabled}") boolean gitDataJobsSslEnabled) {
+
+      this.gitDataJobsUrl = GitWrapper.constructCorrectGitUrl(gitDataJobsUrl, gitDataJobsSslEnabled);
       this.getGitDataJobsBranch = getGitDataJobsBranch;
    }
 

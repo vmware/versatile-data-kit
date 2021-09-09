@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -60,6 +60,8 @@ public class JobImageBuilder {
    private String deploymentDataJobBaseImage;
    @Value("${datajobs.deployment.builder.extraArgs:}")
    private String extraArgs;
+   @Value("${datajobs.git.ssl.enabled}")
+   private boolean gitDataJobsSslEnabled;
 
    private final ControlKubernetesService controlKubernetesService;
    private final DockerRegistryService dockerRegistryService;
@@ -215,7 +217,8 @@ public class JobImageBuilder {
             entry("JOB_GITHASH", jobVersion),
             entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
             entry("BASE_IMAGE", deploymentDataJobBaseImage),
-            entry("EXTRA_ARGUMENTS", extraArgs)
+            entry("EXTRA_ARGUMENTS", extraArgs),
+            entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled))
       );
    }
 

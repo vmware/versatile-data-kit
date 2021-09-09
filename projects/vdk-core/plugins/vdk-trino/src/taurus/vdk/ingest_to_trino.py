@@ -9,9 +9,7 @@ from taurus.vdk.builtin_plugins.run.job_context import JobContext
 from taurus.vdk.core import errors
 from trino.dbapi import Cursor
 
-TRINO_INGEST_BATCH_SIZE = "TRINO_INGEST_BATCH_SIZE"
-
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class IngestToTrino(IIngesterPlugin):
@@ -42,12 +40,12 @@ class IngestToTrino(IIngesterPlugin):
             an identifier specifying that data from different method invocations belongs to the same collection
         """
 
-        _log.info(
+        log.info(
             f"Ingesting payloads to table: {destination_table} in Trino database; "
             f"collection_id: {collection_id}"
         )
 
-        with self.context.connections.open_connection("TRINO") as conn:
+        with self.context.connections.open_connection("TRINO").connect() as conn:
             cur = conn.cursor()
             self._ingest_payload(destination_table, cur, payload)
 
@@ -67,11 +65,11 @@ class IngestToTrino(IIngesterPlugin):
             params = tuple(obj[field] for obj in payload for field in fields)
             cur.execute(query, params)
             cur.fetchall()
-            _log.debug("Payload was ingested.")
+            log.debug("Payload was ingested.")
         except Exception as e:
             errors.log_and_rethrow(
                 errors.find_whom_to_blame_from_exception(e),
-                _log,
+                log,
                 "Failed to sent payload",
                 "Unknown error. Error message was : " + str(e),
                 "Will not be able to send the payload for ingestion",

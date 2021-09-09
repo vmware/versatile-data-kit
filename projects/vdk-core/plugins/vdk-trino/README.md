@@ -43,12 +43,12 @@ They need to provide LineageLogger implementation and hook this way:
 
 ### Ingestion
 
-This plugin allows users to ingest data to a Trino database. To do so, you must set the expected variables to connect to Trino, plus the following environment variable:
+This plugin allows users to [ingest](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/taurus/api/job_input.py#L90) data to a Trino database, which can be preferable to inserting data manually as it automatically handles serializing, packaging and sending of the data asynchronously with configurable batching and throughput. To do so, you must set the expected variables to connect to Trino, plus the following environment variable:
 ```sh
 export VDK_INGEST_METHOD_DEFAULT=TRINO
 ```
 
-Then, from inside the run function in a Python step, you can use the `send_object_for_ingestion` or `send_tabular_data_for_ingestion` to ingest your data.
+Then, from inside the run function in a Python step, you can use the `send_object_for_ingestion` or `send_tabular_data_for_ingestion` methods to ingest your data.
 # Configuration
 
 Run vdk config-help - search for those prefixed with "TRINO_" to see what configuration options are available.

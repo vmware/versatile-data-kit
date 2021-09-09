@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
@@ -57,7 +57,10 @@ fi
 
 
 # Clone repo into /data-jobs dir to get job's source
-git clone https://$git_username:$git_password@$git_repository ./data-jobs
+git_url_scheme="https"
+[ "$GIT_SSL_ENABLED" = false ] && git_url_scheme="http"
+
+git clone $git_url_scheme://$git_username:$git_password@$git_repository ./data-jobs
 cd ./data-jobs
 git reset --hard $GIT_COMMIT || ( echo ">data-job-not-found<" && exit 1 )
 if [ ! -d ${DATA_JOB_NAME} ]; then

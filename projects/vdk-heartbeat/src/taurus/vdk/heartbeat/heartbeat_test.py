@@ -1,5 +1,8 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import logging
-from abc import abstractmethod, ABC
+from abc import ABC
+from abc import abstractmethod
 
 from taurus.vdk.heartbeat.config import Config
 from taurus.vdk.heartbeat.tracing import LogDecorator
@@ -30,7 +33,7 @@ class HeartbeatTest(ABC):
     @abstractmethod
     def clean_up(self):
         """
-            After the test is finished it cleans up all resources used by the test.
+        After the test is finished it cleans up all resources used by the test.
         """
         pass
 
@@ -38,17 +41,19 @@ class HeartbeatTest(ABC):
     @abstractmethod
     def execute_test(self):
         """
-            Execute the test and run assertion and verification. If method returns then test has passed.
-            If method throws an exception then test has failed.
+        Execute the test and run assertion and verification. If method returns then test has passed.
+        If method throws an exception then test has failed.
         """
         pass
 
 
 def create_test_instance(config: Config) -> HeartbeatTest:
     import importlib
+
     module = importlib.import_module(config.database_test_module_name)
     class_ = getattr(module, config.database_test_class_name)
-    log.info(f"Run test instance: {config.database_test_module_name}.{config.database_test_class_name}")
+    log.info(
+        f"Run test instance: {config.database_test_module_name}.{config.database_test_class_name}"
+    )
     instance = class_(config)
     return instance
-
