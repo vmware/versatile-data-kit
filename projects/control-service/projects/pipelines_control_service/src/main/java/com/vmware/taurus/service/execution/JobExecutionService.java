@@ -202,6 +202,8 @@ public class JobExecutionService {
       // do not update the record
       if (dataJobExecutionPersistedOptional.isPresent() && status != null && status.equals(dataJobExecutionPersistedOptional.get().getStatus())) {
          return;
+      } else if (dataJobExecutionPersistedOptional.isPresent() && dataJobExecutionPersistedOptional.get().getStatus() == ExecutionStatus.CANCELLED) {
+         return; // Cancelled status is set only in control-service. We don't want to override it with older statuses.
       } else if (dataJobExecutionPersistedOptional.isPresent()) {
          dataJobExecutionBuilder = dataJobExecutionPersistedOptional.get().toBuilder();
       } else {
