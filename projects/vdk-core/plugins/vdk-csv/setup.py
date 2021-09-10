@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=["vdk-core", "pandas"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["vdk-csv = taurus.vdk.csv_plugin"]},
+    entry_points={"vdk.plugin.run": ["vdk-csv = vdk.internal.csv_plugin"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

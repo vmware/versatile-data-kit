@@ -4,10 +4,12 @@ from unittest.mock import MagicMock
 from unittest.mock import Mock
 
 import pytest
-from taurus.api.plugin.plugin_input import IPropertiesServiceClient
-from taurus.vdk.builtin_plugins.job_properties.properties_router import PropertiesRouter
-from taurus.vdk.core.config import Configuration
-from taurus.vdk.core.errors import VdkConfigurationError
+from vdk.api.plugin.plugin_input import IPropertiesServiceClient
+from vdk.internal.builtin_plugins.job_properties.properties_router import (
+    PropertiesRouter,
+)
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():

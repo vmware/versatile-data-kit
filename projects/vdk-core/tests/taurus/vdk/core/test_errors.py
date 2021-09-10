@@ -6,10 +6,10 @@ from collections import defaultdict
 from unittest.mock import MagicMock
 
 import pytest
-from taurus.vdk.core import errors
-from taurus.vdk.core.errors import PlatformServiceError
-from taurus.vdk.core.errors import UserCodeError
-from taurus.vdk.core.errors import VdkConfigurationError
+from vdk.internal.core import errors
+from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 

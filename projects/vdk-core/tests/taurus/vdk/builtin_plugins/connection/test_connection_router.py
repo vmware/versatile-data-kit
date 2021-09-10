@@ -3,13 +3,13 @@
 from unittest.mock import MagicMock
 
 import pytest
-from taurus.vdk.builtin_plugins.connection.impl.router import ManagedConnectionRouter
-from taurus.vdk.builtin_plugins.connection.managed_connection_base import (
+from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
+from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from taurus.vdk.builtin_plugins.connection.pep249.interfaces import PEP249Connection
-from taurus.vdk.core.config import Configuration
-from taurus.vdk.core.errors import VdkConfigurationError
+from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.errors import VdkConfigurationError
 
 
 def managed_connection_router():

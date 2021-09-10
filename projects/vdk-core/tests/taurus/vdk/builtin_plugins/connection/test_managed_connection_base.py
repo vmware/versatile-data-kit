@@ -5,11 +5,11 @@ from typing import Tuple
 from unittest.mock import MagicMock
 
 import pytest
-from taurus.vdk.builtin_plugins.connection.managed_connection_base import (
+from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from taurus.vdk.builtin_plugins.connection.pep249.interfaces import PEP249Connection
-from taurus.vdk.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
+from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
+from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 
 log = logging.getLogger(__name__)
 

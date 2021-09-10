@@ -21,7 +21,7 @@ Setting up the development environment can be done in the following way:
 ## Implementing plugins
 
 * You can find a template for implementing plugins in `/plugins/plugin-template`;
-* Include your implementation files inside the `/src/taurus/vdk/` directory, and any tests inside the `/tests/` directory;
+* Include your implementation files inside the `/src/vdk/internal/` directory, and any tests inside the `/tests/` directory;
 * Include your dependencies inside the `requirements.txt` file;
 * Change the name of the plugin package, the plugin itself and the name of the Python file containing the plugin hooks inside the `setup.py` file;
 * Change the name of the build and release jobs and the name variable inside the `.plugin-ci.yml` file to match the name of your plugin;
