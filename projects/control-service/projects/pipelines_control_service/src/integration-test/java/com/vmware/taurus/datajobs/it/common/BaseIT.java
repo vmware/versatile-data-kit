@@ -18,8 +18,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
@@ -50,12 +51,11 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-// TODO: move to junit 5
 @AutoConfigureMockMvc
 @ActiveProfiles({"test", "MockDecoder"})
 @Import({BaseIT.KerberosConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class BaseIT extends KerberosSecurityTestcase {
+public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
    private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
@@ -121,7 +121,7 @@ public class BaseIT extends KerberosSecurityTestcase {
    private ClientAndServer mockWebHookServer;
    private MockServerClient mockWebHookServerClient;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       this.getConf().getProperty("featureflag.security.enabled");
       mockMvc = MockMvcBuilders
@@ -333,7 +333,7 @@ public class BaseIT extends KerberosSecurityTestcase {
               .withBody("{ \"message\": \"Internal Server Error\" }");
    }
 
-   @After
+   @AfterEach
    public void after() {
       if (ownsDataJobsNamespace) {
          try {

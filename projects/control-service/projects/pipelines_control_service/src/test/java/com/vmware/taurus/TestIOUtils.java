@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class TestIOUtils {
+public final class TestIOUtils {
 
    public static void compareDirectories(File expectedDirectory, File actualDirectory) throws IOException {
        Files.walk(expectedDirectory.toPath())

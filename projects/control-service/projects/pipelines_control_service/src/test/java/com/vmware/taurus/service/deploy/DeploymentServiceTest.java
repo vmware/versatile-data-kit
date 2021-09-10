@@ -13,13 +13,15 @@ import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.monitoring.DeploymentMonitor;
 import com.vmware.taurus.service.notification.DataJobNotification;
 import io.kubernetes.client.ApiException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,7 +31,8 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class DeploymentServiceTest {
 
    private static final String OP_ID = "c00b40dcc9904ae6";
@@ -83,7 +86,7 @@ public class DeploymentServiceTest {
 
    private DataJob testDataJob;
 
-   @Before
+   @BeforeEach
    public void setUp() {
 
       // We use lenient here as the mocked methods are indirectly invoked by the JobImageDeployer#updateCronJob

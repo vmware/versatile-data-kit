@@ -11,8 +11,8 @@ import com.vmware.taurus.service.model.JobLabel;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.models.*;
 import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
@@ -57,7 +57,7 @@ public class KubernetesServiceTest {
             List.of(volumeMount), "Always", new KubernetesService.Resources("500m", "1G"),
             new KubernetesService.Resources("2000m", "1G"), null, vdkCommand);
 
-      Assert.assertEquals(expectedVDKContainer, actualVDKContainer);
+      Assertions.assertEquals(expectedVDKContainer, actualVDKContainer);
    }
 
    @Test
@@ -68,22 +68,22 @@ public class KubernetesServiceTest {
       Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();
       Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional = mock.getJobExecutionStatus(v1Job, null);
 
-      Assert.assertTrue(actualJobExecutionStatusOptional.isPresent());
+      Assertions.assertTrue(actualJobExecutionStatusOptional.isPresent());
 
       KubernetesService.JobExecution actualJobExecution = actualJobExecutionStatusOptional.get();
-      Assert.assertNull(actualJobExecution.getExecutionId());
-      Assert.assertNull(actualJobExecution.getJobName());
-      Assert.assertNull(actualJobExecution.getJobVersion());
-      Assert.assertNull(actualJobExecution.getDeployedDate());
-      Assert.assertNull(actualJobExecution.getExecutionType());
-      Assert.assertNull(actualJobExecution.getOpId());
-      Assert.assertNull(actualJobExecution.getResourcesCpuRequest());
-      Assert.assertNull(actualJobExecution.getResourcesCpuLimit());
-      Assert.assertNull(actualJobExecution.getResourcesMemoryRequest());
-      Assert.assertNull(actualJobExecution.getResourcesMemoryLimit());
-      Assert.assertNull(actualJobExecution.getStartTime());
-      Assert.assertNull(actualJobExecution.getEndTime());
-      Assert.assertEquals(KubernetesService.JobExecution.Status.RUNNING, actualJobExecution.getStatus());
+      Assertions.assertNull(actualJobExecution.getExecutionId());
+      Assertions.assertNull(actualJobExecution.getJobName());
+      Assertions.assertNull(actualJobExecution.getJobVersion());
+      Assertions.assertNull(actualJobExecution.getDeployedDate());
+      Assertions.assertNull(actualJobExecution.getExecutionType());
+      Assertions.assertNull(actualJobExecution.getOpId());
+      Assertions.assertNull(actualJobExecution.getResourcesCpuRequest());
+      Assertions.assertNull(actualJobExecution.getResourcesCpuLimit());
+      Assertions.assertNull(actualJobExecution.getResourcesMemoryRequest());
+      Assertions.assertNull(actualJobExecution.getResourcesMemoryLimit());
+      Assertions.assertNull(actualJobExecution.getStartTime());
+      Assertions.assertNull(actualJobExecution.getEndTime());
+      Assertions.assertEquals(KubernetesService.JobExecution.Status.RUNNING, actualJobExecution.getStatus());
    }
 
    @Test
@@ -134,22 +134,22 @@ public class KubernetesServiceTest {
       Mockito.when(mock.getJobExecutionStatus(expectedJob, condition)).thenCallRealMethod();
       Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional = mock.getJobExecutionStatus(expectedJob, condition);
 
-      Assert.assertTrue(actualJobExecutionStatusOptional.isPresent());
+      Assertions.assertTrue(actualJobExecutionStatusOptional.isPresent());
 
       KubernetesService.JobExecution actualJobExecution = actualJobExecutionStatusOptional.get();
-      Assert.assertEquals(kubernetesJobName, actualJobExecution.getExecutionId());
-      Assert.assertEquals(dataJobName, actualJobExecution.getJobName());
-      Assert.assertEquals(jobVersion, actualJobExecution.getJobVersion());
-      Assert.assertEquals(OffsetDateTime.parse(deployedDate), actualJobExecution.getDeployedDate());
-      Assert.assertEquals(executionType, actualJobExecution.getExecutionType());
-      Assert.assertEquals(opId, actualJobExecution.getOpId());
-      Assert.assertEquals(Float.valueOf(cpuRequest), actualJobExecution.getResourcesCpuRequest());
-      Assert.assertEquals(Float.valueOf(cpuLimit), actualJobExecution.getResourcesCpuLimit());
-      Assert.assertEquals(memoryRequest, actualJobExecution.getResourcesMemoryRequest());
-      Assert.assertEquals(memoryLimit, actualJobExecution.getResourcesMemoryLimit());
-      Assert.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(startTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getStartTime());
-      Assert.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(endTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getEndTime());
-      Assert.assertEquals(KubernetesService.JobExecution.Status.FINISHED, actualJobExecution.getStatus());
+      Assertions.assertEquals(kubernetesJobName, actualJobExecution.getExecutionId());
+      Assertions.assertEquals(dataJobName, actualJobExecution.getJobName());
+      Assertions.assertEquals(jobVersion, actualJobExecution.getJobVersion());
+      Assertions.assertEquals(OffsetDateTime.parse(deployedDate), actualJobExecution.getDeployedDate());
+      Assertions.assertEquals(executionType, actualJobExecution.getExecutionType());
+      Assertions.assertEquals(opId, actualJobExecution.getOpId());
+      Assertions.assertEquals(Float.valueOf(cpuRequest), actualJobExecution.getResourcesCpuRequest());
+      Assertions.assertEquals(Float.valueOf(cpuLimit), actualJobExecution.getResourcesCpuLimit());
+      Assertions.assertEquals(memoryRequest, actualJobExecution.getResourcesMemoryRequest());
+      Assertions.assertEquals(memoryLimit, actualJobExecution.getResourcesMemoryLimit());
+      Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(startTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getStartTime());
+      Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(endTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getEndTime());
+      Assertions.assertEquals(KubernetesService.JobExecution.Status.FINISHED, actualJobExecution.getStatus());
    }
 
     // Note that we are testing private functionality and mocking the surrounding methods
@@ -168,14 +168,14 @@ public class KubernetesServiceTest {
             // First we load the internal cronjob template.
             Method loadInternalCronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalCronjobTemplate");
             if(loadInternalCronjobTemplate == null) {
-                Assert.fail("The method 'loadInternalCronjobTemplate' does not exist.");
+                Assertions.fail("The method 'loadInternalCronjobTemplate' does not exist.");
             }
             loadInternalCronjobTemplate.setAccessible(true);
             V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalCronjobTemplate.invoke(service);
             // Prepare the 'checkForMissingEntries' method.
             Method checkForMissingEntries = KubernetesService.class.getDeclaredMethod("checkForMissingEntries", V1beta1CronJob.class);
             if(checkForMissingEntries == null) {
-                Assert.fail("The method 'checkForMissingEntries' does not exist.");
+                Assertions.fail("The method 'checkForMissingEntries' does not exist.");
             }
             checkForMissingEntries.setAccessible(true);
             V1beta1CronJob emptyCronjobToBeFixed = new V1beta1CronJob(); // Worst case scenario to test - empty cronjob.
@@ -183,38 +183,38 @@ public class KubernetesServiceTest {
             // We can't rely on equality check on root metadata/spec level, because if the internal template
             // has missing elements, the equality check will miss them. Instead, we will check the most
             // important elements one by one.
-            Assert.assertNotNull(emptyCronjobToBeFixed.getMetadata());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getMetadata().getAnnotations());
-            Assert.assertEquals(internalCronjobTemplate.getMetadata().getAnnotations(),
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getMetadata());
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getMetadata().getAnnotations());
+            Assertions.assertEquals(internalCronjobTemplate.getMetadata().getAnnotations(),
                     emptyCronjobToBeFixed.getMetadata().getAnnotations());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getSpec());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate().getSpec());
-            Assert.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate().getMetadata());
-            Assert.assertEquals(internalCronjobTemplate.getSpec().getJobTemplate().getSpec().getTemplate().getMetadata().getLabels(),
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getSpec());
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate());
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec());
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate());
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate().getSpec());
+            Assertions.assertNotNull(emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate().getMetadata());
+            Assertions.assertEquals(internalCronjobTemplate.getSpec().getJobTemplate().getSpec().getTemplate().getMetadata().getLabels(),
                     emptyCronjobToBeFixed.getSpec().getJobTemplate().getSpec().getTemplate().getMetadata().getLabels());
 
-            Assert.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
+            Assertions.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
             // Step 3 - create and check the actual cronjob.
             Method[] methods = KubernetesService.class.getDeclaredMethods();
             // This is much easier than describing the whole method signature.
             Optional<Method> method = Arrays.stream(methods).filter(m -> m.getName().equals("cronJobFromTemplate")).findFirst();
             if(method.isEmpty()) {
-                Assert.fail("The method 'cronJobFromTemplate' does not exist.");
+                Assertions.fail("The method 'cronJobFromTemplate' does not exist.");
             }
             method.get().setAccessible(true);
             V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP);
-            Assert.assertEquals("test-job-name", cronjob.getMetadata().getName());
-            Assert.assertEquals("test-job-schedule", cronjob.getSpec().getSchedule());
-            Assert.assertEquals(true, cronjob.getSpec().isSuspend());
-            Assert.assertEquals(Collections.EMPTY_MAP, cronjob.getSpec().getJobTemplate().getMetadata().getLabels());
-            Assert.assertEquals(Collections.EMPTY_MAP, cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations());
+            Assertions.assertEquals("test-job-name", cronjob.getMetadata().getName());
+            Assertions.assertEquals("test-job-schedule", cronjob.getSpec().getSchedule());
+            Assertions.assertEquals(true, cronjob.getSpec().isSuspend());
+            Assertions.assertEquals(Collections.EMPTY_MAP, cronjob.getSpec().getJobTemplate().getMetadata().getLabels());
+            Assertions.assertEquals(Collections.EMPTY_MAP, cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations());
 
         } catch(Exception e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 }
