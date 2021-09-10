@@ -258,7 +258,7 @@ def create(
 def __determine_cloud_local_flags(
     cloud: Optional[bool], local: Optional[bool], rest_api_url: str
 ) -> Tuple[bool, bool]:
-    # determine if we running create in local or create or both modes
+    # determine if we are running create in local or in cloud or in both modes
     # local would only create sample job
     # cloud would only create job in Control Service
     # both - would do both
