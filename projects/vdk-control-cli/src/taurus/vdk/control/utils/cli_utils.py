@@ -66,6 +66,16 @@ def rest_api_url_option(*names, **kwargs):
     return decorator
 
 
+def check_rest_api_url(rest_api_url: str):
+    if not rest_api_url:
+        raise VDKException(
+            what="Cannot connect to the Control Service.",
+            why="The following (mandatory) option is missing (--rest-api-url). Please, provide a valid value.",
+            consequence="Cannot manage (create, execute, delete, etc.) data jobs.",
+            countermeasure="Verify that the --rest-api-url is specified, either directly or via a plugin.",
+        )
+
+
 def check_required_parameters(f):
     """
     A decorator that checks whether the `--rest-api-irl` parameter is specified
@@ -76,13 +86,7 @@ def check_required_parameters(f):
     def check(*args, **kwargs):
         log.debug(f"Passed parameters to function {f}: {args}, {kwargs}")
         rest_api_url = kwargs.get("rest_api_url", "")
-        if not rest_api_url:
-            raise VDKException(
-                what="Cannot connect to the Control Service.",
-                why="The following (mandatory) option is missing (--rest-api-url). Please, provide a valid value.",
-                consequence="Cannot manage (create, execute, delete, etc.) data jobs.",
-                countermeasure="Verify that the --rest-api-url is specified, either directly or via a plugin.",
-            )
+        check_rest_api_url(rest_api_url)
 
         return f(*args, **kwargs)
 
