@@ -14,15 +14,17 @@ import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.models.V1Container;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -33,7 +35,8 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class JobImageDeployerTest {
 
    private static final String TEST_JOB_NAME = "test-job-name";
@@ -69,7 +72,7 @@ public class JobImageDeployerTest {
    private DataJob testDataJob;
 
 
-   @Before
+   @BeforeEach
    public void setUp() {
 
       // We use lenient here as the mocked methods are indirectly invoked by the JobImageDeployer#updateCronJob
@@ -141,6 +144,6 @@ public class JobImageDeployerTest {
               anyList(), any(KubernetesService.Resources.class), any(KubernetesService.Resources.class),
               containerCaptor.capture(), any(V1Container.class), anyList(), anyMap(), anyMap(), anyMap(), anyMap());
       var jobContainer = containerCaptor.getValue();
-      Assert.assertEquals(testDataJob.getName(), jobContainer.getName());
+      Assertions.assertEquals(testDataJob.getName(), jobContainer.getName());
    }
 }

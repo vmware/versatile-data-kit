@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.credentials;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
@@ -36,13 +36,12 @@ public class KerberosCredentialsServiceTestManual {
 
         String principal = "taurus-pipelines-test-user";
         service.deletePrincipal(principal);
-        Assert.assertEquals(false, service.principalExists(principal));
+        Assertions.assertFalse(service.principalExists(principal));
         service.createPrincipal(principal, Optional.of(file));
-        Assert.assertEquals(true, service.principalExists(principal));
-        Assert.assertTrue(file.exists());
-        Assert.assertTrue(file.length() > 0);
+        Assertions.assertTrue(service.principalExists(principal));
+        Assertions.assertTrue(file.exists());
+        Assertions.assertTrue(file.length() > 0);
         service.deletePrincipal(principal);
-        Assert.assertEquals(false, service.principalExists(principal));
+        Assertions.assertFalse(service.principalExists(principal));
     }
-
 }
