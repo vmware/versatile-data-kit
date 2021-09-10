@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from taurus.vdk.builtin_plugins.version.new_version_check import Package
+from vdk.internal.builtin_plugins.version.new_version_check import Package
 
 
 class PackageTests(unittest.TestCase):

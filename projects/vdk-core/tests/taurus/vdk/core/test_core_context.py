@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 from unittest.mock import MagicMock
 
-from taurus.api.plugin.plugin_registry import IPluginRegistry
-from taurus.vdk.core.config import Configuration
-from taurus.vdk.core.context import CoreContext
-from taurus.vdk.core.statestore import StateStore
+from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.context import CoreContext
+from vdk.internal.core.statestore import StateStore
 
 
 def test_core_context_child_context():

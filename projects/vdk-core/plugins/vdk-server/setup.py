@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -17,7 +17,7 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,
-    entry_points={"vdk.plugin.run": ["vdk-server = taurus.vdk.server_plugin"]},
+    entry_points={"vdk.plugin.run": ["vdk-server = vdk.internal.server_plugin"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

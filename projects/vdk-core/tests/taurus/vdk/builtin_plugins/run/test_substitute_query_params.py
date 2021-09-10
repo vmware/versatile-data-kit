@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 from unittest.mock import MagicMock
 
-from taurus.vdk.builtin_plugins.job_properties.inmemproperties import (
+from vdk.internal.builtin_plugins.job_properties.inmemproperties import (
     InMemPropertiesServiceClient,
 )
-from taurus.vdk.builtin_plugins.job_properties.properties_router import PropertiesRouter
-from taurus.vdk.builtin_plugins.run.data_job import JobArguments
-from taurus.vdk.builtin_plugins.run.job_input import JobInput
-from taurus.vdk.core.config import Configuration
+from vdk.internal.builtin_plugins.job_properties.properties_router import (
+    PropertiesRouter,
+)
+from vdk.internal.builtin_plugins.run.data_job import JobArguments
+from vdk.internal.builtin_plugins.run.job_input import JobInput
+from vdk.internal.core.config import Configuration
 
 
 def _get_properties_in_memory():

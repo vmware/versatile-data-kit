@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import cast
 
-from taurus.vdk.builtin_plugins.notification.notification_configuration import (
+from vdk.internal.builtin_plugins.notification.notification_configuration import (
     NotificationConfiguration,
 )
-from taurus.vdk.core.config import Configuration
+from vdk.internal.core.config import Configuration
 
 
 def test_notification():

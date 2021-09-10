@@ -4,11 +4,11 @@ import json
 from unittest import mock
 
 import pytest
-from taurus.api.plugin.plugin_registry import PluginException
-from taurus.vdk.core.errors import PlatformServiceError
-from taurus.vdk.core.errors import UserCodeError
-from taurus.vdk.core.errors import VdkConfigurationError
-from taurus.vdk.ingest_over_http import IngestOverHttp
+from vdk.api.plugin.plugin_registry import PluginException
+from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.ingest_over_http import IngestOverHttp
 
 payload: dict = {
     "@id": "test_id",

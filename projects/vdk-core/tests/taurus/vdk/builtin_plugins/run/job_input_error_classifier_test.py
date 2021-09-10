@@ -6,10 +6,10 @@ import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from taurus.vdk.builtin_plugins.run import data_job
-from taurus.vdk.builtin_plugins.run.job_input_error_classifier import is_user_error
-from taurus.vdk.builtin_plugins.run.job_input_error_classifier import whom_to_blame
-from taurus.vdk.core import errors
+from vdk.internal.builtin_plugins.run import data_job
+from vdk.internal.builtin_plugins.run.job_input_error_classifier import is_user_error
+from vdk.internal.builtin_plugins.run.job_input_error_classifier import whom_to_blame
+from vdk.internal.core import errors
 
 
 class ErrorClassifierTest(unittest.TestCase):

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from taurus.vdk.logging_json import format_template
+from vdk.internal.logging_json import format_template
 
 
 def test_json_logging():

@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 import pytest
 from pluggy import PluginManager
-from taurus.api.plugin.hook_markers import hookimpl
-from taurus.api.plugin.hook_markers import hookspec
-from taurus.api.plugin.plugin_registry import PluginException
-from taurus.vdk.plugin.plugin import PluginRegistry
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.hook_markers import hookspec
+from vdk.api.plugin.plugin_registry import PluginException
+from vdk.internal.plugin.plugin import PluginRegistry
 
 
 class JokesHookSpec:
@@ -63,7 +63,7 @@ def test_plugin_hook_add_and_load_failed(plugin_registry):
 
 def test_cannot_load_entrypoints_plugins():
     with patch(
-        "taurus.vdk.plugin.plugin_manager.VdkPluginManager", spec=PluginManager
+        "vdk.internal.plugin.plugin_manager.VdkPluginManager", spec=PluginManager
     ) as mock_plugin_manager:
         mock_plugin_manager.hook = None
         mock_plugin_manager.load_setuptools_entrypoints.side_effect = Exception("foo")

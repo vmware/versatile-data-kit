@@ -4,9 +4,9 @@ import unittest
 from unittest import mock
 
 import click
-from taurus.api.plugin.plugin_utils import set_defaults_for_all_commands
-from taurus.api.plugin.plugin_utils import set_defaults_for_specific_command
-from taurus.vdk.core.errors import VdkConfigurationError
+from vdk.api.plugin.plugin_utils import set_defaults_for_all_commands
+from vdk.api.plugin.plugin_utils import set_defaults_for_specific_command
+from vdk.internal.core.errors import VdkConfigurationError
 
 
 class TestPluginUtils(unittest.TestCase):

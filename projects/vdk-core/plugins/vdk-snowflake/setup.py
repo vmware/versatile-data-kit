@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=["vdk-core", "snowflake-connector-python"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["vdk-snowflake = taurus.vdk.snowflake_plugin"]},
+    entry_points={"vdk.plugin.run": ["vdk-snowflake = vdk.internal.snowflake_plugin"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
