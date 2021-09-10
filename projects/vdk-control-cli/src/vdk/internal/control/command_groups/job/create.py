@@ -35,15 +35,14 @@ class JobCreate:
             self.validate_job_path(path, name)
 
         if cloud:
-            self.__create_cloud_job(name, team)
+            self.__create_cloud_job(team, name)
         if local:
             job_path = self.__get_job_path(path, name)
-            self.__create_local_job(job_path, team)
+            self.__create_local_job(team, name, job_path)
             if cloud:
-                self.__download_key(job_path, name, path, team)
-            log.info(f"Data Job with name {name} created locally using sample job.")
+                self.__download_key(team, name, path)
 
-    def __create_cloud_job(self, name, team):
+    def __create_cloud_job(self, team, name):
         jobs_api = ApiClientFactory(self.__rest_api_url).get_jobs_api()
         job_config = DataJobConfig(schedule=DataJobSchedule())
         # TODO: currently there's bug and description is not persisted, so it's not exposed to CLI for now
@@ -58,18 +57,20 @@ class JobCreate:
                 )
             else:
                 raise
-        log.info(f"Data Job with name {name} created and registered in cloud.")
+        log.info(
+            f"Data Job with name {name} created and registered in cloud runtime by Control Service."
+        )
 
-    def __create_local_job(self, job_path, team):
+    def __create_local_job(self, team, name, job_path):
         sample_job = self.__vdk_config.get_sample_job_directory
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
         cli_utils.copy_directory(sample_job, job_path)
         local_config = JobConfig(job_path)
         if not local_config.set_team_if_exists(team):
             log.warning(f"Failed to write Data Job team {team} in config.ini.")
+        log.info(f"Data Job with name {name} created locally in {job_path}.")
 
-    def __download_key(self, job_path, name, path, team):
-        log.info(f"Data Job with name {name} created in {job_path}.")
+    def __download_key(self, team, name, path):
         job_download_key = JobDownloadKey(self.__rest_api_url)
         try:
             log.info("Will download keytab of the job now ...")
@@ -172,11 +173,22 @@ Examples:
 
 \b
 # Simplest form which will prompt for necessary info:
+# It will create it locally and created in cloud
+# only if there is control service configured.
 vdk create
 
 \b
-# Create a Data Job without creating local sample folder:
-vdk create --no-sample
+# Create data job in cloud runtime registering it in the Control Service.
+# This will make it possible to use Control Service functionalities.
+vdkcli create --cloud
+
+\b
+# Create local data job folder (from a sample).
+vdkcli create --local
+
+\b
+# You can also specify both - in this case it will create it locally and in cloud
+vdkcli create --local --cloud
 
 \b
 # Create a Data Job without prompts by specifying all necessary fields
@@ -216,7 +228,8 @@ vdk create -n example-job -t super-team -p /home/user/data-jobs
     is_flag=True,
     default=None,
     help="Will not create sample job on local file system (--path parameter is ignored in this case). "
-    "Will only register it in the cloud Control service.",
+    "Will only register it in the cloud Control service."
+    "--no-sample and --no-template are deprecated. Prefer to use --cloud.",
 )
 @click.option(
     "--local",
