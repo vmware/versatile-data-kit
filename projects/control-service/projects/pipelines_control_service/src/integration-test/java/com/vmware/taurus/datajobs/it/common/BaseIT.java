@@ -55,7 +55,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ActiveProfiles({"test", "MockDecoder"})
 @Import({BaseIT.KerberosConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class BaseIT extends KerberosSecurityTestcase {
+public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
    private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
