@@ -52,42 +52,16 @@ spec:
               value: "{{ .Values.notificationOwnerEmail }}"
             - name: NOTIFICATION_OWNER_NAME
               value: "{{ .Values.notificationOwnerName }}"
-            {{- if not .Values.deploymentGitUrl }}
-            - name: GIT_REPO_NAME
-              valueFrom:
-                 secretKeyRef:
-                    name: {{ .Release.Name }}-git-properties
-                    key: git-repo-name
-            - name: GIT_SERVER
-              valueFrom:
-                 secretKeyRef:
-                    name: {{ .Release.Name }}-git-properties
-                    key: git-server
-            {{- end }}
-            {{- if not .Values.deploymentGitUsername }}
-            - name: GIT_DEFAULT_USERNAME
-              valueFrom:
-                 secretKeyRef:
-                    name: {{ .Release.Name }}-git-properties
-                    key: git-username
-            {{- end }}
-            {{- if not .Values.deploymentGitPassword }}
-            - name: GIT_ACCESS_TOKEN
-              valueFrom:
-                 secretKeyRef:
-                    name: {{ .Release.Name }}-git-properties
-                    key: git-access-token
-            {{- end }}
             - name: GIT_URL
-              value: {{ .Values.deploymentGitUrl | default "$(GIT_SERVER)/$(GIT_REPO_NAME).git" | quote }}
+              value: "{{ .Values.deploymentGitUrl }}"
             - name: GIT_BRANCH
               value: "{{ .Values.deploymentGitBranch }}"
             - name: GIT_REMOTE
               value: "{{ .Values.deploymentGitRemote }}"
             - name: GIT_USERNAME
-              value: {{ .Values.deploymentGitUsername | default "$(GIT_DEFAULT_USERNAME)" }}
+              value: "{{ .Values.deploymentGitUsername }}"
             - name: GIT_PASSWORD
-              value: {{ .Values.deploymentGitPassword | default "$(GIT_ACCESS_TOKEN)" }}
+              value: "{{ .Values.deploymentGitPassword }}"
             - name: AWS_REGION
               value: "{{ .Values.deploymentEcrAwsRegion }}"
             - name: AWS_ACCESS_KEY_ID
