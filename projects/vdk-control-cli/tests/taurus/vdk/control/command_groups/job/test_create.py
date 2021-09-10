@@ -39,6 +39,25 @@ def test_create_job(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     assert os.path.isfile(os.path.join(jobs_dir, f"{job_name}.keytab"))
 
 
+def test_create_job_prompts(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    team_name = "test-team"
+    job_name = "test-job"
+    jobs_dir, rest_api_url = setup_create(
+        httpserver, tmpdir, 200, 200, job_name, team_name
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        create, ["-u", rest_api_url], input=f"{job_name}\n{team_name}\n{jobs_dir}"
+    )
+
+    job_dir = os.path.join(jobs_dir, job_name)
+    assert_click_status(result, 0)
+    assert os.path.isdir(job_dir)
+    assert os.path.isfile(os.path.join(job_dir, "config.ini"))
+    assert os.path.isfile(os.path.join(jobs_dir, f"{job_name}.keytab"))
+
+
 def test_create_job_configurable_sample_job(
     httpserver: PluginHTTPServer, tmpdir: LocalPath
 ):
@@ -164,16 +183,55 @@ def test_create_job_unable_to_download_keytab(
     assert not os.path.exists(os.path.join(jobs_dir, f"{job_name}.keytab"))
 
 
-def test_create_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+def test_create_without_url_only_local_detected(
+    httpserver: PluginHTTPServer, tmpdir: LocalPath
+):
     jobs_dir = tmpdir.mkdir("jobs")
 
     runner = CliRunner()
     result = runner.invoke(
-        create, ["-n", "job_name", "-t", "team_name", "-p", jobs_dir]
+        create, ["-n", "job-name", "-t", "team_name", "-p", jobs_dir]
+    )
+
+    assert_click_status(result, 0)
+
+
+def test_create_without_url_cloud_flag(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    jobs_dir = tmpdir.mkdir("jobs")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        create, ["-n", "job-name", "-t", "team_name", "-p", jobs_dir, "--cloud"]
     )
 
     assert_click_status(result, 2)
-    assert "what" in result.output and "why" in result.output
+
+
+def test_create_only_local_flag(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    team_name = "test-team"
+    job_name = "test-job"
+    jobs_dir, rest_api_url = setup_create(
+        httpserver, tmpdir, 500, 500, job_name, team_name
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        create,
+        [
+            "-n",
+            "job-name",
+            "-t",
+            "team_name",
+            "-p",
+            jobs_dir,
+            "-u",
+            rest_api_url,
+            "--local",
+        ],
+    )
+
+    # created only locally would not try to contact REST API so it should succeeds.
+    assert_click_status(result, 0)
 
 
 def test_create_with_empty_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
@@ -181,11 +239,10 @@ def test_create_with_empty_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 
     runner = CliRunner()
     result = runner.invoke(
-        create, ["-n", "job_name", "-t", "team_name", "-p", jobs_dir, "-u", ""]
+        create, ["-n", "job-name", "-t", "team_name", "-p", jobs_dir, "-u", ""]
     )
 
-    assert_click_status(result, 2)
-    assert "what" in result.output and "why" in result.output
+    assert_click_status(result, 0)
 
 
 def test_create_with_too_long_job_name(httpserver: PluginHTTPServer, tmpdir: LocalPath):
