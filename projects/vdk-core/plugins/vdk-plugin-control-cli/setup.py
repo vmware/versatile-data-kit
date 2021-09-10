@@ -7,6 +7,7 @@ import setuptools
 """
 Builds a package with the help of setuptools in order for this package to be imported in other projects
 """
+
 __version__ = "0.1.dev2"
 
 setuptools.setup(

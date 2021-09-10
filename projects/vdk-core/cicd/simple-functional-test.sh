@@ -63,16 +63,16 @@ rm -rf dist/*
 python setup.py sdist --formats=gztar && pip install dist/* || fail "vdk-trino plugin Install failed"
 popd || exit
 
-#echo "Install vdk-control-cli plugin"
-#pushd plugins/vdk-plugin-control-cli || exit
-#rm -rf dist/*
-#python setup.py sdist --formats=gztar && pip install --extra-index-url $PIP_EXTRA_INDEX_URL dist/* || fail "vdk-control-cli plugin Install failed"
-#popd || exit
+echo "Install vdk-control-cli plugin"
+pushd plugins/vdk-plugin-control-cli || exit
+rm -rf dist/*
+python setup.py sdist --formats=gztar && pip install --extra-index-url $PIP_EXTRA_INDEX_URL dist/* || fail "vdk-control-cli plugin Install failed"
+popd || exit
 
 echo "Run commands ..."
 vdk  || fail "vdk command failed"
 vdk hello  || fail "vdk hello command failed"
-# vdk deploy --help || fail "vdk-control-cli deploy --help command failed"
+vdk deploy --help || fail "vdk-control-cli deploy --help command failed"
 
 vdk version || fail "vdk version failed"
 

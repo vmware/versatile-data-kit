@@ -4,6 +4,7 @@ import pathlib
 
 import setuptools
 
+
 __version__ = "0.1.dev1"
 
 setuptools.setup(
@@ -20,7 +21,7 @@ setuptools.setup(
         "vdk-sqlite",
         "vdk-ingest-http",
         "vdk-ingest-file",
-        "vdk-server"
+        "vdk-server",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
