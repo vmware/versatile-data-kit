@@ -21,8 +21,8 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={
         "vdk.plugin.run": [
-            "vdk-plugin-control-cli = taurus.vdk.vdk_plugin_control_cli",
-            "vdk-control-service-properties = taurus.vdk.properties_plugin",
+            "vdk-plugin-control-cli = vdk.internal.vdk_plugin_control_cli",
+            "vdk-control-service-properties = vdk.internal.properties_plugin",
         ]
     },
     classifiers=[

@@ -5,7 +5,7 @@ import pathlib
 import shutil
 import tempfile
 
-from taurus.vdk.builtin_plugins.config.job_config import JobConfig
+from vdk.internal.builtin_plugins.config.job_config import JobConfig
 
 
 class TestJobConfig:

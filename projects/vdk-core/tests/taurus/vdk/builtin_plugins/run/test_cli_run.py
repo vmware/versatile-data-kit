@@ -6,15 +6,15 @@ from unittest.mock import MagicMock
 
 import py
 import pytest
-from taurus.api.plugin.plugin_registry import IPluginRegistry
-from taurus.vdk.builtin_plugins.run.cli_run import CliRunImpl
-from taurus.vdk.builtin_plugins.run.data_job import DataJob
-from taurus.vdk.builtin_plugins.run.data_job import DataJobFactory
-from taurus.vdk.builtin_plugins.run.execution_results import ExecutionResult
-from taurus.vdk.core.config import Configuration
-from taurus.vdk.core.context import CoreContext
-from taurus.vdk.core.errors import UserCodeError
-from taurus.vdk.core.statestore import StateStore
+from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.run.cli_run import CliRunImpl
+from vdk.internal.builtin_plugins.run.data_job import DataJob
+from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
+from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.statestore import StateStore
 
 
 @pytest.fixture

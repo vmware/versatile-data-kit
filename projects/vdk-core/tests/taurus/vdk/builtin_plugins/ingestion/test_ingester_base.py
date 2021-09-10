@@ -6,13 +6,13 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
-from taurus.api.plugin.plugin_input import IIngesterPlugin
-from taurus.vdk.builtin_plugins.ingestion.ingester_base import IngesterBase
-from taurus.vdk.builtin_plugins.ingestion.ingester_configuration import (
+from vdk.api.plugin.plugin_input import IIngesterPlugin
+from vdk.internal.builtin_plugins.ingestion.ingester_base import IngesterBase
+from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     IngesterConfiguration,
 )
-from taurus.vdk.core import errors
-from taurus.vdk.core.config import Configuration
+from vdk.internal.core import errors
+from vdk.internal.core.config import Configuration
 
 
 def create_ingester_base() -> IngesterBase:

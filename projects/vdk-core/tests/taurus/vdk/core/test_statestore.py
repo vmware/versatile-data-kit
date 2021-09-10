@@ -3,9 +3,9 @@
 from dataclasses import dataclass
 
 import pytest
-from taurus.vdk.core.statestore import ImmutableStoreKey
-from taurus.vdk.core.statestore import StateStore
-from taurus.vdk.core.statestore import StoreKey
+from vdk.internal.core.statestore import ImmutableStoreKey
+from vdk.internal.core.statestore import StateStore
+from vdk.internal.core.statestore import StoreKey
 
 
 def test_statestore_add_new() -> None:

@@ -6,14 +6,14 @@ from unittest import mock
 from unittest import TestCase
 
 import pytest
-import taurus.vdk.core.errors
-from taurus.vdk import trino_plugin
-from taurus.vdk.builtin_plugins.run.job_context import JobContext
-from taurus.vdk.core.errors import UserCodeError
-from taurus.vdk.ingest_to_trino import IngestToTrino
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
-from taurus.vdk.test_utils.util_funcs import get_test_job_path
+import vdk.internal.core.errors
+from vdk.internal import trino_plugin
+from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.ingest_to_trino import IngestToTrino
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal.test_utils.util_funcs import get_test_job_path
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"

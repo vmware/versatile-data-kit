@@ -6,10 +6,10 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
-from taurus.vdk import postgres_plugin
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
-from taurus.vdk.test_utils.util_funcs import jobs_path_from_caller_directory
+from vdk.internal import postgres_plugin
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal.test_utils.util_funcs import jobs_path_from_caller_directory
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_POSTGRES_DBNAME = "VDK_POSTGRES_DBNAME"
