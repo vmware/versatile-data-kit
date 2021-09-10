@@ -5,27 +5,37 @@
 
 package com.vmware.taurus.service.diag.telemetry;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.Rule;
-import org.junit.Test;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.awaitility.Awaitility.await;
 
 public class TelemetryTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    private WireMockServer wireMockServer;
+
+    @BeforeEach
+    public void setup() {
+        wireMockServer = new WireMockServer(8080);
+        wireMockServer.start();
+    }
+
+    @AfterEach
+    public void teardown() {
+        wireMockServer.stop();
+    }
 
     @Test
     public void test_telemetry_being_send() {
         stubFor(post(urlEqualTo("/test")).willReturn(aResponse().withBody("OK")));
 
-        var telemetry = new Telemetry(wireMockRule.url("/test"));
+        var telemetry = new Telemetry(wireMockServer.url("/test"));
         telemetry.sendAsync("{'key': 'value'}");
 
         await().atMost(5, TimeUnit.SECONDS)
@@ -49,7 +59,7 @@ public class TelemetryTest {
                 .willReturn(aResponse().withStatus(500))
         );
 
-        var telemetry = new Telemetry(wireMockRule.url("/test"));
+        var telemetry = new Telemetry(wireMockServer.url("/test"));
         telemetry.sendAsync("{'key': 'value'}");
 
         await().atMost(5, TimeUnit.SECONDS)
@@ -62,7 +72,7 @@ public class TelemetryTest {
     public void test_telemetry_being_send_failed_client_error() {
         stubFor(post(urlEqualTo("/test")).willReturn(aResponse().withStatus(401)));
 
-        var telemetry = new Telemetry(wireMockRule.url("/test"));
+        var telemetry = new Telemetry(wireMockServer.url("/test"));
         telemetry.sendAsync("{'key': 'value'}");
 
         await().atMost(5, TimeUnit.SECONDS)
@@ -70,5 +80,4 @@ public class TelemetryTest {
                 .untilAsserted(() -> verify(postRequestedFor(urlEqualTo("/test"))
                         .withRequestBody(containing("{'key': 'value'}"))));
     }
-
 }

@@ -5,26 +5,26 @@
 
 package com.vmware.taurus.exception;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SystemErrorTest {
 
-   private static class InvalidSystemError extends SystemError implements UserFacingError {
+    private static class InvalidSystemError extends SystemError implements UserFacingError {
+        InvalidSystemError() {
+            super("bla", "bla", "bla", "bla", null);
+        }
 
-      InvalidSystemError() {
-         super("bla", "bla", "bla", "bla", null);
-      }
+        @Override
+        public HttpStatus getHttpStatus() {
+            return HttpStatus.OK;
+        }
+    }
 
-      @Override
-      public HttpStatus getHttpStatus() {
-         return HttpStatus.OK;
-      }
-   }
-   @Test
-   public void testValidation() {
-      assertThrows(Bug.class, InvalidSystemError::new);
-   }
+    @Test
+    public void testValidation() {
+        assertThrows(Bug.class, InvalidSystemError::new);
+    }
 }
