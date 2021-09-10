@@ -4,13 +4,13 @@ import logging
 from typing import Optional
 
 from requests.auth import AuthBase
+from taurus.vdk.control.auth.auth import Authentication
+from taurus.vdk.control.auth.login_types import LoginTypes
+from taurus.vdk.control_service_properties import Authenticator
+from taurus.vdk.control_service_properties import ControlPlanePropertiesServiceClient
+from taurus.vdk.control_service_properties import NoneAuthenticator
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.internal.control.auth.auth import Authentication
-from vdk.internal.control.auth.login_types import LoginTypes
-from vdk.internal.control_service_properties import Authenticator
-from vdk.internal.control_service_properties import ControlPlanePropertiesServiceClient
-from vdk.internal.control_service_properties import NoneAuthenticator
 from vdk.internal.core.config import ConfigurationBuilder
 
 log = logging.getLogger(__name__)
