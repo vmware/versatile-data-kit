@@ -3,6 +3,8 @@
 import logging
 import os
 import pathlib
+from typing import Optional
+from typing import Tuple
 
 import click
 from taurus.vdk.control.command_groups.job.download_key import JobDownloadKey
@@ -23,23 +25,32 @@ log = logging.getLogger(__name__)
 
 class JobCreate:
     def __init__(self, rest_api_url: str):
-        self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
-        self.job_download_key = JobDownloadKey(rest_api_url)
-        self.vdk_config = VDKConfig()
+        self.__rest_api_url = rest_api_url
+        self.__vdk_config = VDKConfig()
 
     @ApiClientErrorDecorator()
-    def create_job(self, name: str, team: str, path: str, no_sample: bool):
-        self.validate_job_name(name)
+    def create_job(self, name: str, team: str, path: str, cloud: bool, local: bool):
+        self.__validate_job_name(name)
+        if local:
+            self.validate_job_path(path, name)
 
-        if not no_sample:
-            job_path = self.get_job_path(path, name)
+        if cloud:
+            self.__create_cloud_job(name, team)
+        if local:
+            job_path = self.__get_job_path(path, name)
+            self.__create_local_job(job_path, team)
+            if cloud:
+                self.__download_key(job_path, name, path, team)
+            log.info(f"Data Job with name {name} created locally using sample job.")
 
+    def __create_cloud_job(self, name, team):
+        jobs_api = ApiClientFactory(self.__rest_api_url).get_jobs_api()
         job_config = DataJobConfig(schedule=DataJobSchedule())
         # TODO: currently there's bug and description is not persisted, so it's not exposed to CLI for now
         job = DataJob(job_name=name, team=team, description="", config=job_config)
         log.debug(f"Create data job {name} of team {team}: {job}")
         try:
-            self.jobs_api.data_job_create(team_name=team, data_job=job, name=name)
+            jobs_api.data_job_create(team_name=team, data_job=job, name=name)
         except ApiException as e:
             if e.status == 409:
                 log.warning(
@@ -47,34 +58,37 @@ class JobCreate:
                 )
             else:
                 raise
+        log.info(f"Data Job with name {name} created and registered in cloud.")
 
-        if not no_sample:
-            sample_job = self.vdk_config.get_sample_job_directory
-            log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
-            cli_utils.copy_directory(sample_job, job_path)
-            local_config = JobConfig(job_path)
-            if not local_config.set_team_if_exists(team):
-                log.warning(f"Failed to write Data Job team {team} in config.ini.")
+    def __create_local_job(self, job_path, team):
+        sample_job = self.__vdk_config.get_sample_job_directory
+        log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
+        cli_utils.copy_directory(sample_job, job_path)
+        local_config = JobConfig(job_path)
+        if not local_config.set_team_if_exists(team):
+            log.warning(f"Failed to write Data Job team {team} in config.ini.")
 
-            log.info(f"Data Job with name {name} created in {job_path}.")
-
-            try:
-                log.info("Will download keytab of the job now ...")
-                self.job_download_key.download(team, name, path)
-            except Exception as e:
-                log.warning(
-                    VDKException(
-                        what=f"Could not download keytab for data job: {name}",
-                        why=f"Error is: {e}",
-                        consequence="Local execution of the job might fail since the job may not have permissions to some resources",
-                        countermeasure="Try to manually download the data job keytab with vdkcli",
-                    )
+    def __download_key(self, job_path, name, path, team):
+        log.info(f"Data Job with name {name} created in {job_path}.")
+        job_download_key = JobDownloadKey(self.__rest_api_url)
+        try:
+            log.info("Will download keytab of the job now ...")
+            job_download_key.download(team, name, path)
+        except Exception as e:
+            log.warning(
+                VDKException(
+                    what=f"Could not download keytab for data job: {name}",
+                    why=f"Error is: {e}",
+                    consequence="Local execution of the job might fail since the job may not have permissions to some resources",
+                    countermeasure="Try to manually download the data job keytab with vdkcli",
                 )
-        else:
-            log.info(f"Data Job with name {name} created.")
+            )
+
+    def validate_job_path(self, path: str, name: str) -> None:
+        self.__get_job_path(path, name)
 
     @staticmethod
-    def get_job_path(path: str, name: str) -> str:
+    def __get_job_path(path: str, name: str) -> str:
         if path is None:
             path = os.path.abspath(".")
         log.debug(f"Parent path of job is {path}")
@@ -99,7 +113,7 @@ class JobCreate:
         return job_path
 
     @staticmethod
-    def validate_job_name(job_name):
+    def __validate_job_name(job_name):
         countermeasure_str = (
             "Ensure that the job name is between 5 and 45 characters long, "
             "that it contains only alphanumeric characters and dashes, "
@@ -176,8 +190,6 @@ vdkcli create -n example-job -t super-team -p /home/user/data-jobs
     "-n",
     "--name",
     type=click.STRING,
-    required=True,
-    prompt="Job Name",
     help="The data job name. It must be between 6 and 45 characters: lowercase or dash.",
 )
 @click.option(
@@ -185,8 +197,6 @@ vdkcli create -n example-job -t super-team -p /home/user/data-jobs
     "--team",
     type=click.STRING,
     default=load_default_team_name(),
-    required=True,
-    prompt="Job Team",
     help="The team name to which the job should belong to.",
 )
 @click.option(
@@ -199,24 +209,69 @@ vdkcli create -n example-job -t super-team -p /home/user/data-jobs
     " Otherwise the keytab for the job will be placed into the directory.",
 )
 @click.option(
+    "--cloud",
     "--no-sample",
     "--no-template",
     type=click.STRING,
     is_flag=True,
-    default=False,
-    show_default=True,
-    help="Do not create sample job on local file system (--path parameter is ignored in this case).",
+    default=None,
+    help="Will not create sample job on local file system (--path parameter is ignored in this case). "
+    "Will only register it in the cloud Control service.",
+)
+@click.option(
+    "--local",
+    type=click.STRING,
+    is_flag=True,
+    default=None,
+    help="Create sample job on local file system (--path parameter is required in this case).",
 )
 @cli_utils.rest_api_url_option()
-@cli_utils.check_required_parameters
-@click.pass_context
-def create(ctx: click.Context, name, team, path, no_sample, rest_api_url):
-    if not no_sample:
+def create(
+    name: str,
+    team: str,
+    path: str,
+    cloud: Optional[bool],
+    local: Optional[bool],
+    rest_api_url: str,
+) -> None:
+    cmd = JobCreate(rest_api_url)
+
+    cloud, local = __determine_cloud_local_flags(cloud, local, rest_api_url)
+
+    if cloud:
+        cli_utils.check_rest_api_url(rest_api_url)
+
+    name = cli_utils.get_or_prompt("Job Name", name)
+    team = cli_utils.get_or_prompt("Job Team", team)
+    if local:
         path = cli_utils.get_or_prompt(
             "Path to where sample data job will be created locally",
             path,
             os.path.abspath("."),
         )
-    cmd = JobCreate(rest_api_url)
-    cmd.create_job(name, team, path, no_sample)
+        cmd.validate_job_path(path, name)
+
+    cmd.create_job(name, team, path, cloud, local)
     pass
+
+
+def __determine_cloud_local_flags(
+    cloud: Optional[bool], local: Optional[bool], rest_api_url: str
+) -> Tuple[bool, bool]:
+    # determine if we running create in local or create or both modes
+    # local would only create sample job
+    # cloud would only create job in Control Service
+    # both - would do both
+    # if user has explicitly passed cloud and not local we create only job on cloud
+    if cloud and local is None:
+        local = False
+    # if user has explicitly passed local and not cloud we create job only locally
+    if local and cloud is None:
+        cloud = False
+    # otherwise if user have not specified anything we create job on cloud if rest api url is set only and locally
+    # always.
+    if cloud is None:
+        cloud = rest_api_url is not None and rest_api_url != ""
+    if local is None:
+        local = True
+    return cloud, local
