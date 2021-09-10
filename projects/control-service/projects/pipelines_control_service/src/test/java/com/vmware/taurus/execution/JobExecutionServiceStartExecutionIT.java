@@ -19,22 +19,19 @@ import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.vmware.taurus.execution.JobExecutionServiceUtil.buildStartedBy;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionServiceStartExecutionIT {
 
@@ -105,28 +102,28 @@ public class JobExecutionServiceStartExecutionIT {
       Mockito.when(operationContext.getOpId()).thenReturn(opId);
       Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName()))).thenReturn(false);
 
-      Map<String, String> annotations =
-            Map.of(
-                  JobAnnotation.OP_ID.getValue(), opId,
-                  JobAnnotation.STARTED_BY.getValue(), buildStartedBy(startedBy),
-                  JobAnnotation.EXECUTION_TYPE.getValue(), JobExecutionService.ExecutionType.MANUAL.getValue());
+      final Map<String, String> annotations = new LinkedHashMap<>();
+      annotations.put(JobAnnotation.OP_ID.getValue(), opId);
+      annotations.put(JobAnnotation.STARTED_BY.getValue(), buildStartedBy(startedBy));
+      annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), JobExecutionService.ExecutionType.MANUAL.getValue());
+
       Map<String, String> envs = Map.of(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
       String executionId = jobExecutionService.startDataJobExecution(
             actualDataJob.getJobConfig().getTeam(),
             actualDataJob.getName(),
             "",
-            new DataJobExecutionRequest().startedBy(startedBy));
+            new DataJobExecutionRequest().startedBy("startedBy"));
       Mockito.verify(dataJobsKubernetesService).startNewCronJobExecution(Mockito.eq(cronJobName), Mockito.eq(executionId), Mockito.eq(annotations), Mockito.eq(envs));
 
       Optional<DataJobExecution> actualDataJobExecutionOptional = jobExecutionRepository.findById(executionId);
-      Assert.assertTrue(actualDataJobExecutionOptional.isPresent());
+      Assertions.assertTrue(actualDataJobExecutionOptional.isPresent());
       DataJobExecution actualDataJobExecution = actualDataJobExecutionOptional.get();
-      Assert.assertEquals(executionId, actualDataJobExecution.getId());
-      Assert.assertEquals(actualDataJob, actualDataJobExecution.getDataJob());
-      Assert.assertEquals(ExecutionStatus.SUBMITTED, actualDataJobExecution.getStatus());
-      Assert.assertEquals(ExecutionType.MANUAL, actualDataJobExecution.getType());
-      Assert.assertEquals(opId, actualDataJobExecution.getOpId());
-      Assert.assertEquals(buildStartedBy(startedBy), actualDataJobExecution.getStartedBy());
+      Assertions.assertEquals(executionId, actualDataJobExecution.getId());
+      Assertions.assertEquals(actualDataJob, actualDataJobExecution.getDataJob());
+      Assertions.assertEquals(ExecutionStatus.SUBMITTED, actualDataJobExecution.getStatus());
+      Assertions.assertEquals(ExecutionType.MANUAL, actualDataJobExecution.getType());
+      Assertions.assertEquals(opId, actualDataJobExecution.getOpId());
+      Assertions.assertEquals(buildStartedBy(startedBy), actualDataJobExecution.getStartedBy());
    }
 }
