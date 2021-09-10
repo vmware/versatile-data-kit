@@ -9,4 +9,4 @@
 -- A valid query parameter looks like → {parameter}.
 -- Parameters will be automatically replaced if there is a corresponding value existing in the IJobInput properties.
 
-SELECT count ( * ) as test_records from history_staging.hello_world;
+SELECT count ( * ) as test_records from hello_world;

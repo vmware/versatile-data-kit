@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from vacloud.api.job_input import IJobInput
+from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +22,5 @@ def run(job_input: IJobInput):
 
     # Write your python code inside here ... for example:
     job_input.send_object_for_ingestion(
-        payload=dict(id="Hello World"),
-        destination_table="hello_world",
-        collector_id="prototyping-sc.v0",
+        payload=dict(id="Hello World"), destination_table="hello_world"
     )
