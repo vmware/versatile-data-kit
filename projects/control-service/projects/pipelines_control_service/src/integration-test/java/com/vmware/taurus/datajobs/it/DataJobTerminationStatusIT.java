@@ -300,9 +300,9 @@ public class DataJobTerminationStatusIT extends BaseIT {
         Matcher matcher = Pattern.compile(String.format(".*%s=\"([^\"]*)\".*", label), Pattern.CASE_INSENSITIVE).matcher(line);
         assertTrue(matcher.find(), String.format("The metrics %s does not have a matching label %s", metrics, label));
         String actualValue = matcher.group(1);
-        assertEquals(String.format("The metrics %s does not have correct value for label %s. Expected: %s, Actual: %s",
-                metrics, label, expectedValue, actualValue),
-                expectedValue, actualValue);
+        assertEquals(expectedValue, actualValue,
+                String.format("The metrics %s does not have correct value for label %s. Expected: %s, Actual: %s",
+                        metrics, label, expectedValue, actualValue));
     }
 
     private Callable<Boolean> deploymentIsDeleted(String jobDeploymentName) {
