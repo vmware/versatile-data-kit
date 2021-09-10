@@ -7,11 +7,11 @@ from email.mime.text import MIMEText
 from typing import cast
 from unittest.mock import patch
 
-from taurus.vdk.builtin_plugins.notification import notification_base
-from taurus.vdk.builtin_plugins.notification.notification_configuration import (
+from vdk.internal.builtin_plugins.notification import notification_base
+from vdk.internal.builtin_plugins.notification.notification_configuration import (
     SmtpConfiguration,
 )
-from taurus.vdk.core.config import Configuration
+from vdk.internal.core.config import Configuration
 
 job_log_url_template = (
     "https://test.log.com/explorer/?existingChartQuery=%7B%22query"
@@ -36,7 +36,7 @@ smtp_cfg = SmtpConfiguration(
 
 class NotificationTest(unittest.TestCase):
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._email_address_exists"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._email_address_exists"
     )
     def test_get_valid_recipients(self, mock_email_exists):
         mock_email_exists.side_effect = [True, False]
@@ -46,7 +46,7 @@ class NotificationTest(unittest.TestCase):
 
         self.assertEqual(["valid1@test.com"], valid_recipients)
 
-    @patch("taurus.vdk.builtin_plugins.notification.notification_base.LoggingSMTP")
+    @patch("vdk.internal.builtin_plugins.notification.notification_base.LoggingSMTP")
     def test_email_address_exists_valid_email(self, mock_smtp):
         mock_smtp.return_value.rcpt.return_value = (250,)
         email_notification = notification_base.EmailNotification(
@@ -65,13 +65,13 @@ class NotificationTest(unittest.TestCase):
         )
 
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._get_valid_recipients"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._get_valid_recipients"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._build_message"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._build_message"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._send_message"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._send_message"
     )
     def test_notify(
         self, mock_send_message, mock_build_message, mock_get_valid_recipients
@@ -101,13 +101,13 @@ class NotificationTest(unittest.TestCase):
         self.assertEqual("text/html", sent_message.get_content_type())
 
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._get_valid_recipients"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._get_valid_recipients"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._build_message"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._build_message"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._send_message"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._send_message"
     )
     def test_notify_no_recipient_emails(
         self, mock_send_message, mock_build_message, mock_get_valid_recipients
@@ -124,16 +124,16 @@ class NotificationTest(unittest.TestCase):
         self.assertEqual(mock_send_message.call_count, 0)
 
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._get_valid_cc"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._get_valid_cc"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._get_valid_recipients"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._get_valid_recipients"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._build_message"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._build_message"
     )
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.EmailNotification._send_message"
+        "vdk.internal.builtin_plugins.notification.notification_base.EmailNotification._send_message"
     )
     def test_notify_no_valid_emails(
         self,
@@ -155,7 +155,7 @@ class NotificationTest(unittest.TestCase):
         self.assertEqual(mock_build_message.call_count, 1)
         self.assertEqual(mock_send_message.call_count, 1)
 
-    @patch("taurus.vdk.builtin_plugins.notification.notification_base.LoggingSMTP")
+    @patch("vdk.internal.builtin_plugins.notification.notification_base.LoggingSMTP")
     def test_send_email_message(self, mock_smtp):
         msg = notification_base.EmailNotification(
             [], cc, smtp_cfg, sender
@@ -229,7 +229,7 @@ class NotificationTest(unittest.TestCase):
         self._assert_equal_str_without_whitespaces("", actual_chunk)
 
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.UserErrorEmailNotificationMessageBuilder._get_job_log_chunk"
+        "vdk.internal.builtin_plugins.notification.notification_base.UserErrorEmailNotificationMessageBuilder._get_job_log_chunk"
     )
     def test_build_user_error(self, mock_get_job_log_chunk):
         mock_get_job_log_chunk.return_value = "some_chunk"
@@ -344,7 +344,7 @@ class NotificationTest(unittest.TestCase):
         self._assert_equal_str_without_whitespaces(expected_body, actual_body)
 
     @patch(
-        "taurus.vdk.builtin_plugins.notification.notification_base.SuccessEmailNotificationMessageBuilder._get_job_log_chunk"
+        "vdk.internal.builtin_plugins.notification.notification_base.SuccessEmailNotificationMessageBuilder._get_job_log_chunk"
     )
     def test_build_success(self, mock_get_job_log_chunk):
         mock_get_job_log_chunk.return_value = "some_chunk"

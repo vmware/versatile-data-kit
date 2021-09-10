@@ -1,8 +1,8 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pytest
-from taurus.vdk.core.config import ConfigurationBuilder
-from taurus.vdk.core.errors import VdkConfigurationError
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.errors import VdkConfigurationError
 
 
 @pytest.mark.parametrize(
@@ -79,7 +79,7 @@ def test_list_config_keys():
 
 
 def test_conversions():
-    from taurus.vdk.core import config
+    from vdk.internal.core import config
 
     assertEqual(
         "some value",
@@ -110,7 +110,7 @@ def test_conversions():
     )
     assertEqual(1, config.convert_value_to_type_of_default_type("somekey", "1", 2))
 
-    from taurus.vdk.core.errors import VdkConfigurationError
+    from vdk.internal.core.errors import VdkConfigurationError
 
     with pytest.raises(VdkConfigurationError):  # cannot convert 'x' to int
         config.convert_value_to_type_of_default_type("somekey", "x", 1)

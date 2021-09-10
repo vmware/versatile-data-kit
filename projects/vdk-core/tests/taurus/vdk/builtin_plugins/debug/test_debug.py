@@ -1,10 +1,10 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from taurus.api.plugin.hook_markers import hookimpl
-from taurus.api.plugin.hook_markers import hookspec
-from taurus.vdk.builtin_plugins.debug.debug import HookRecorder
-from taurus.vdk.builtin_plugins.debug.debug import ParsedCall
-from taurus.vdk.plugin.plugin import PluginRegistry
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.hook_markers import hookspec
+from vdk.internal.builtin_plugins.debug.debug import HookRecorder
+from vdk.internal.builtin_plugins.debug.debug import ParsedCall
+from vdk.internal.plugin.plugin import PluginRegistry
 
 
 def test_hook_recorder():

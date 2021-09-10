@@ -4,10 +4,10 @@ import pathlib
 from unittest.mock import MagicMock
 
 import pytest
-from taurus.vdk.builtin_plugins.run.data_job import DataJobFactory
-from taurus.vdk.builtin_plugins.templates.template_impl import TemplatesImpl
-from taurus.vdk.core.context import CoreContext
-from taurus.vdk.core.errors import UserCodeError
+from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
+from vdk.internal.builtin_plugins.templates.template_impl import TemplatesImpl
+from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import UserCodeError
 
 
 def test_template_builder():

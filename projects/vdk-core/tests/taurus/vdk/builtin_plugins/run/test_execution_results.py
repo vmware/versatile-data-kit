@@ -3,9 +3,9 @@
 import json
 from datetime import datetime
 
-from taurus.vdk.builtin_plugins.run.execution_results import ExecutionResult
-from taurus.vdk.builtin_plugins.run.execution_results import StepResult
-from taurus.vdk.builtin_plugins.run.run_status import ExecutionStatus
+from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
+from vdk.internal.builtin_plugins.run.execution_results import StepResult
+from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 
 
 class NonJsonSerializable:

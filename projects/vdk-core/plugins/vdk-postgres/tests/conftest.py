@@ -5,8 +5,8 @@ import time
 from unittest import mock
 
 import pytest
-from taurus.vdk import postgres_plugin
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal import postgres_plugin
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_POSTGRES_DBNAME = "VDK_POSTGRES_DBNAME"

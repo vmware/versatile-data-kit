@@ -4,16 +4,16 @@ from typing import Dict
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from taurus.api.plugin.plugin_registry import IPluginRegistry
-from taurus.vdk.builtin_plugins.version import new_version_check_plugin
-from taurus.vdk.builtin_plugins.version import version
-from taurus.vdk.builtin_plugins.version.new_version_check_plugin import new_package
-from taurus.vdk.builtin_plugins.version.new_version_check_plugin import (
+from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.version import new_version_check_plugin
+from vdk.internal.builtin_plugins.version import version
+from vdk.internal.builtin_plugins.version.new_version_check_plugin import new_package
+from vdk.internal.builtin_plugins.version.new_version_check_plugin import (
     NewVersionCheckPlugin,
 )
-from taurus.vdk.core.config import ConfigurationBuilder
-from taurus.vdk.core.context import CoreContext
-from taurus.vdk.core.statestore import StateStore
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
+from vdk.internal.core.statestore import StateStore
 
 
 def build_configuration(plugin, config: Dict):

@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
 
-from taurus.vdk.builtin_plugins.job_properties.datajobs_service_properties import (
+from vdk.internal.builtin_plugins.job_properties.datajobs_service_properties import (
     DataJobsServiceProperties,
 )
-from taurus.vdk.builtin_plugins.job_properties.inmemproperties import (
+from vdk.internal.builtin_plugins.job_properties.inmemproperties import (
     InMemPropertiesServiceClient,
 )
 

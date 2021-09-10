@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import Optional
 
-from taurus.api.job_input import IJobInput
-from taurus.api.plugin.hook_markers import hookimpl
-from taurus.api.plugin.plugin_registry import HookCallResult
-from taurus.vdk.builtin_plugins.run.execution_results import ExecutionResult
-from taurus.vdk.builtin_plugins.run.job_context import JobContext
-from taurus.vdk.builtin_plugins.run.step import Step
-from taurus.vdk.test_utils.util_funcs import DataJobBuilder
+from vdk.api.job_input import IJobInput
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
+from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
+from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.test_utils.util_funcs import DataJobBuilder
 
 
 def failing_runner_func(step: Step, job_input: IJobInput) -> bool:

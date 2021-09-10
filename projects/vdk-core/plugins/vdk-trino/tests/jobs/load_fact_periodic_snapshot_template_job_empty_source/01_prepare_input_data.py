@@ -3,7 +3,7 @@
 """
 Load example input data for a periodic_snapshot template test with empty source.
 """
-from taurus.api.job_input import IJobInput
+from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput) -> None:

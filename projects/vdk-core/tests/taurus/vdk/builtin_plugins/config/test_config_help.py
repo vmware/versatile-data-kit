@@ -1,10 +1,10 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from taurus.api.plugin.hook_markers import hookimpl
-from taurus.vdk.builtin_plugins.config.config_help import ConfigHelpPlugin
-from taurus.vdk.core.config import ConfigurationBuilder
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.config.config_help import ConfigHelpPlugin
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
 
 
 class TestConfigPlugin:

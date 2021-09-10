@@ -1,22 +1,22 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import pytest
 from unittest.mock import patch
-import snowflake
-from taurus.vdk.core import errors
 
-from taurus.vdk.snowflake_connection import SnowflakeConnection
+import pytest
+import snowflake
+from vdk.internal.core import errors
+from vdk.internal.snowflake_connection import SnowflakeConnection
 
 
 @pytest.fixture
 def mock_connect(monkeypatch):
     def mock_connection(*args, **kwargs):
-        if 'account' in kwargs:
-            if kwargs.get('account') != 'localhost':
+        if "account" in kwargs:
+            if kwargs.get("account") != "localhost":
                 raise Exception("The account provided doesn't exist!")
         else:
             return True
-    
+
     monkeypatch.setattr(snowflake.connector, "connect", mock_connection)
 
 
@@ -28,6 +28,6 @@ def test_snowflake_connection_exception(mock_connect):
             password="testpassword",
             warehouse=None,
             database=None,
-            schema=None
+            schema=None,
         )
         conn._connect()

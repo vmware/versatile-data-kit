@@ -3,8 +3,8 @@
 import unittest
 from unittest.mock import MagicMock
 
-from taurus.api.job_input import IProperties
-from taurus.vdk.builtin_plugins.job_properties.cached_properties import (
+from vdk.api.job_input import IProperties
+from vdk.internal.builtin_plugins.job_properties.cached_properties import (
     CachedPropertiesWrapper,
 )
 

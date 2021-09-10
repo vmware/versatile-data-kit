@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import click
 from click.testing import CliRunner
-from taurus.api.plugin.hook_markers import hookimpl
-from taurus.vdk.cli_entry import cli
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.cli_entry import cli
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
 
 
 def test_cli():

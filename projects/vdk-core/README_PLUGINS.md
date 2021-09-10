@@ -24,20 +24,20 @@ Once the plugin is installed, vdk automatically finds it and activates it.
 A plugin is a python module that enhances or changes the behavior of Versatile Data Kit. <br>
 A plugin is simply an implementation of one or more plugin hooks.
 
-See all supported hook function specifications in [specs.py](src/taurus/api/plugin/core_hook_spec.py).
+See all supported hook function specifications in [specs.py](src/vdk/api/plugin/core_hook_spec.py).
 The spec documentation contains details and examples for how a hook can be used.
 
 To create a new plugin, there are only two steps necessary:<br>
 
 * Create your implementation of the plugin's hook(s):
   You will need to mark it with the `hookimpl` decorator.
-  Check out its [documentation here](src/taurus/api/plugin/hook_markers.py) to see how you can configure the hook execution order
+  Check out its [documentation here](src/vdk/api/plugin/hook_markers.py) to see how you can configure the hook execution order
 ```python
 # this is module myproject.pluginmodule, which will be our plugin
 # define hookimpl as follows
 
 # you need to have vdk-core as dependency
-from taurus.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.hook_markers import hookimpl
 
 # name of function must match name of hookspec function
 
@@ -78,7 +78,7 @@ entry_points={ 'vdk.plugin.run': ['name_of_plugin = myproject.pluginmodule'] }
 Versatile Data Kit is used for executing different commands, some of them provided as plugins.
 Using the above hooks, one can extend the functionality of any command by adding monitoring, customizing logging, or adding new options.
 
-Check out the [CoreHookSpec class](src/taurus/api/plugin/core_hook_spec.py) documentation for more details.
+Check out the [CoreHookSpec class](src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
 
 ### Data Job Run (Execution) Cycle
 
@@ -86,4 +86,4 @@ Check out the [CoreHookSpec class](src/taurus/api/plugin/core_hook_spec.py) docu
 
 The above image shows the normal run cycle of a data job. The hooks shown are only invoked when the "vdk run" command is invoked to execute a data job.
 
-Check out the [JobRunSpecs class](src/taurus/api/plugin/core_hook_spec.py) documentation for more details.
+Check out the [JobRunSpecs class](src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
