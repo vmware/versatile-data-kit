@@ -4,7 +4,7 @@ import pathlib
 
 import setuptools
 
-__version__ = "0.1.2"
+__version__ = "0.1.4"
 
 setuptools.setup(
     name="vdk-test-utils",
