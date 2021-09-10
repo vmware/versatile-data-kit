@@ -20,6 +20,7 @@ setuptools.setup(
         "vdk-sqlite",
         "vdk-ingest-http",
         "vdk-ingest-file",
+        "vdk-server"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
