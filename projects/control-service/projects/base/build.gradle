@@ -26,7 +26,9 @@ jar {
 
 version = file('version.txt').text.trim()
 
-// mainClassName = 'com.vmware.taurus.ControlplaneApplication'
+test {
+   useJUnitPlatform()
+}
 
 configurations {
    testImplementation.exclude group: 'com.vaadin.external.google', module: 'android-json'
@@ -70,5 +72,6 @@ dependencies {
    testImplementation versions.'org.awaitility:awaitility'
    testImplementation versions.'com.github.tomakehurst:wiremock'
    testImplementation versions.'org.mockito:mockito-core'
-   testImplementation 'junit:junit'
+   testImplementation 'org.junit.jupiter:junit-jupiter-api'
+   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
