@@ -14,6 +14,7 @@ more than one plugin in a single package. Also note that the contained plugin ma
 
 "plugin_template" is the Python file which contains the plugin hooks for the corresponding plugin.
 """
+
 __version__ = "0.1.0"
 
 setuptools.setup(
