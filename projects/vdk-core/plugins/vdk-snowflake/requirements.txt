@@ -1,5 +1,6 @@
 vdk-core
 click
+tabulate
 
 # testing requirements
 vdk-test-utils
