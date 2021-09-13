@@ -199,13 +199,17 @@ public class JobExecutionService {
       // Optimization:
       // if there is an existing execution in the database and
       // the status has not changed (the new status is equal to the old one)
-      // do not update the record
-      if (dataJobExecutionPersistedOptional.isPresent() && status != null && status.equals(dataJobExecutionPersistedOptional.get().getStatus())) {
-         return;
-      } else if (dataJobExecutionPersistedOptional.isPresent() && dataJobExecutionPersistedOptional.get().getStatus() == ExecutionStatus.CANCELLED) {
-         return; // Cancelled status is set only in control-service. We don't want to override it with older statuses.
-      } else if (dataJobExecutionPersistedOptional.isPresent()) {
-         dataJobExecutionBuilder = dataJobExecutionPersistedOptional.get().toBuilder();
+      // do not update the record. Also, do not update record in case ExecutionStatus is Cancelled
+      // as it can only be set in the control-service. This way we don't override with older statuses.
+      if (dataJobExecutionPersistedOptional.isPresent()) {
+
+         if ((status != null && status.equals(dataJobExecutionPersistedOptional.get().getStatus()))
+                 || (dataJobExecutionPersistedOptional.get().getStatus() == ExecutionStatus.CANCELLED)) {
+            return;
+         } else {
+            dataJobExecutionBuilder = dataJobExecutionPersistedOptional.get().toBuilder();
+         }
+
       } else {
          com.vmware.taurus.service.model.ExecutionType executionType =
                ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
