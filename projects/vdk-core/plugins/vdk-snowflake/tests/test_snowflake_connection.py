@@ -4,7 +4,6 @@ from unittest.mock import patch
 
 import pytest
 import snowflake
-from vdk.internal.core import errors
 from vdk.internal.snowflake_connection import SnowflakeConnection
 
 

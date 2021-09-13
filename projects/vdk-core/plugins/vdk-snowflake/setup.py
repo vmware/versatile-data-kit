@@ -4,6 +4,7 @@ import pathlib
 
 import setuptools
 
+
 __version__ = "0.1.0"
 
 setuptools.setup(
