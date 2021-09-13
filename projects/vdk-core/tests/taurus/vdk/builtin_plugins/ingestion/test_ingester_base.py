@@ -71,15 +71,10 @@ def test_send_object_for_ingestion(mocked_send):
 
 
 def test_send_tabular_data_for_ingestion():
-    test_rows = iter([["testrow0testcol0", 42]])
-    test_columns = ["testcol0", "testcol1"]
+    test_rows = iter([["testrow0testcol0", 42, None]])
+    test_columns = ["testcol0", "testcol1", "testcol2"]
     destination_table = "a_destination_table"
-    converted_row = [
-        {
-            "testcol0": "testrow0testcol0",
-            "testcol1": 42,
-        }
-    ]
+    converted_row = [{"testcol0": "testrow0testcol0", "testcol1": 42, "testcol2": None}]
     method = "test_method"
     target = "some_target"
     collection_id = "test_job|42a420"
