@@ -289,6 +289,7 @@ class Installer:
         log.debug("Configuring Git server...")
         attempt = 1
         max_attempts = 10
+        ex_as_string = ""
         successful = False
         while not successful and attempt <= max_attempts:
             try:
@@ -296,18 +297,16 @@ class Installer:
                 successful = True
             except Exception as ex:
                 ex_as_string = str(ex)
-                if "Connection reset by peer" in ex_as_string:
-                    log.debug(
-                        f"Failed to configure git server. Will reattempt in 2 seconds..."
-                    )
-                    attempt += 1
-                    time.sleep(2)
-                    continue
-                if "/user/login" not in ex_as_string:
-                    log.error(f"Failed to configure git server. {ex_as_string}")
-                    sys.exit(1)
+                log.debug(
+                    f"Failed to configure git server. Will reattempt in 2 seconds..."
+                )
+                attempt += 1
+                time.sleep(2)
         if successful:
             log.debug("Git server configured successfully")
+        else:
+            log.error(f"Failed to configure git server. {ex_as_string}")
+            sys.exit(1)
 
     def __configure_git_server(self):
         """
@@ -423,7 +422,7 @@ class Installer:
                 sys.exit(1)
 
             try:
-                completed_process = subprocess.run(
+                result = subprocess.run(
                     [
                         "kind",
                         "create",
@@ -436,11 +435,13 @@ class Installer:
                 )
                 if os.path.exists(temp_file):
                     os.remove(temp_file)
-                if completed_process.returncode == 1:
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
                     log.info(
-                        f'Kind cluster "{self.kind_cluster_name}" already exists. '
+                        f'Failed to create Kind cluster "{self.kind_cluster_name}". '
                         "If you have a previous installation, remove it by running `vdk server -u` and try again."
                     )
+                    log.info(stderr_as_str)
                     sys.exit(0)
             except Exception as ex:
                 log.error(
@@ -454,10 +455,13 @@ class Installer:
         """
         log.info(f'Deleting Kind cluster "{self.kind_cluster_name}"...')
         try:
-            subprocess.run(
+            result = subprocess.run(
                 ["kind", "delete", "cluster", "--name", self.kind_cluster_name],
                 capture_output=True,
             )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error(stderr_as_str)
         except Exception as ex:
             log.error(
                 f"Failed to delete Kind cluster. Make sure you have Kind installed. {str(ex)}"
@@ -510,7 +514,7 @@ class Installer:
                 git_server_ip = self.__resolve_container_ip(
                     self.git_server_container_name
                 )
-                subprocess.run(
+                result = subprocess.run(
                     [
                         "helm",
                         "repo",
@@ -520,8 +524,16 @@ class Installer:
                     ],
                     capture_output=True,
                 )
-                subprocess.run(["helm", "repo", "update"], capture_output=True)
-                subprocess.run(
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.error(stderr_as_str)
+                    exit(result.returncode)
+                result = subprocess.run(["helm", "repo", "update"], capture_output=True)
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.error(stderr_as_str)
+                    exit(result.returncode)
+                result = subprocess.run(
                     [
                         "helm",
                         "install",
@@ -563,6 +575,10 @@ class Installer:
                     ],
                     capture_output=True,
                 )
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.error(stderr_as_str)
+                    exit(result.returncode)
         except Exception as ex:
             log.error(
                 f"Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}"
@@ -572,9 +588,13 @@ class Installer:
     def __uninstall_helm_chart(self):
         log.info("Uninstalling Control Service...")
         try:
-            subprocess.run(
+            result = subprocess.run(
                 ["helm", "uninstall", self.helm_installation_name], capture_output=True
             )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error(stderr_as_str)
+                exit(result.returncode)
         except Exception as ex:
             log.error(
                 f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}"
