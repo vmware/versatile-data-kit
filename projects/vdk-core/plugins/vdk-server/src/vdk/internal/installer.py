@@ -234,9 +234,10 @@ class Installer:
             log.error(
                 f'Failed to connect Docker container "{container_name}" to Kind network. {str(ex)}'
             )
+        else:
+            log.debug(f'Docker container "{container_name}" connected successfully')
         finally:
             docker_client.close()
-        log.debug(f'Docker container "{container_name}" connected successfully')
 
     def __resolve_container_ip(self, container_name):
         """
@@ -288,9 +289,11 @@ class Installer:
         log.debug("Configuring Git server...")
         attempt = 1
         max_attempts = 10
-        while attempt <= max_attempts:
+        successful = False
+        while not successful and attempt <= max_attempts:
             try:
                 self.__configure_git_server()
+                successful = True
             except Exception as ex:
                 ex_as_string = str(ex)
                 if "Connection reset by peer" in ex_as_string:
@@ -303,8 +306,8 @@ class Installer:
                 if "/user/login" not in ex_as_string:
                     log.error(f"Failed to configure git server. {ex_as_string}")
                     sys.exit(1)
-            break
-        log.debug("Git server configured successfully")
+        if successful:
+            log.debug("Git server configured successfully")
 
     def __configure_git_server(self):
         """
