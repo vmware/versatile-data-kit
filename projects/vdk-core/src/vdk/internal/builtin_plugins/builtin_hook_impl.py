@@ -23,6 +23,9 @@ from vdk.internal.builtin_plugins.job_properties.properties_api_plugin import (
     PropertiesApiPlugin,
 )
 from vdk.internal.builtin_plugins.notification.notification import NotificationPlugin
+from vdk.internal.builtin_plugins.termination_message.writer import (
+    TerminationMessageWriterPlugin,
+)
 from vdk.internal.builtin_plugins.version.new_version_check_plugin import (
     NewVersionCheckPlugin,
 )
@@ -100,6 +103,7 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     # TODO: should be in run package only
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(TerminationMessageWriterPlugin())
 
 
 @hookimpl(tryfirst=True)
