@@ -59,7 +59,7 @@ class JobList:
             if len(jobs) > 0:
                 click.echo(tabulate(jobs, headers="keys"))
             else:
-                click.echo("No data jobs.")
+                click.echo("No Data Jobs.")
         else:
             click.echo(json.dumps(list(jobs)))
 
@@ -187,7 +187,7 @@ class FilterOperation(Enum):
 
 @click.command(
     name="list",
-    help="List Data jobs that have been created in cloud."
+    help="List Data Jobs that have been created in cloud."
     """
 
 Examples:

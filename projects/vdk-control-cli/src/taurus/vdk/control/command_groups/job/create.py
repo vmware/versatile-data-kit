@@ -166,22 +166,22 @@ class JobCreate:
 
 
 @click.command(
-    help="""Creates a new data job in cloud and locally.
+    help="""Create a new Data Job in cloud and/or locally.
 
 Examples:
 
 \b
-# Simplest form and will prompt for necessary info:
+# Simplest form which will prompt for necessary info:
 vdkcli create
 
 \b
-# Create data job without creating local sample folder:
+# Create a Data Job without creating local sample folder:
 vdkcli create --no-sample
 
 \b
-# Create job without prompts by specifying all necessary fields
-# This will create job with name "example" that belongs to team 'super-team'
-# and create sample template of the job in /home/user/data-jobs/example-job
+# Create a Data Job without prompts by specifying all necessary fields
+# This will create a Data Job with name "example" that belongs to team 'super-team'
+# and create a sample template of the job in /home/user/data-jobs/example-job
 vdkcli create -n example-job -t super-team -p /home/user/data-jobs
 
 """
