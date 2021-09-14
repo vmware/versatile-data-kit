@@ -137,7 +137,7 @@ def run_step(context: JobContext, step: Step) -> None:
             raise UserCodeError() from exc_value
 
 
-@click.command(name="trino-query", help="executes SQL query against Trino")
+@click.command(name="trino-query", help="Execute a SQL query against a Trino database.")
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
 def trino_query(ctx: click.Context, query):

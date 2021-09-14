@@ -65,16 +65,15 @@ def generate_config_list_help(variable_to_description_map):
 
 
 @click.command(
-    help="Configuration help."
-    "Prints details on all possible configuration options of vdk ."
-    "It includes all configuration options added by plugins"
+    help="Print details on configuration options of vdk. "
+    "It includes all configuration options added by plugins."
     """
 
 Examples:
 
 \b
 # if we call config-help we get similar output to one below.
-# first we provide details on how those configuration can be set (e.g environment varibales, files, etc)
+# first we provide details on how those configuration can be set (e.g environment variables, files, etc)
 # Next list of all possible configuration variables supported.
 vdk config-help
 

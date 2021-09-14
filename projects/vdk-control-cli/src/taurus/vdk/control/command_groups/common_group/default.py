@@ -10,7 +10,7 @@ from taurus.vdk.control.configuration.defaults_config import write_default_team_
 
 @click.command(
     name="set-default",
-    help="Set the defaults that will be used in the commands of the tool.",
+    help="Set defaults that will be used in the commands of the tool.",
 )
 @click.option(
     "-t",
@@ -26,6 +26,7 @@ def set_default_command(ctx, team: str):
 
 @click.command(
     name="reset-default",
+    short_help="Reset the defaults that will be used in the commands of the tool.",
     help="Reset the defaults that will be used in the commands of the tool.",
 )
 @click.option(

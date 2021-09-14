@@ -33,7 +33,7 @@ class JobDownloadKey:
 
 @click.command(
     name="download-key",
-    help="Download Data Job keytab. Keytab is used to authenticate against Data Plane."
+    help="Download a Data Job keytab. A keytab is used to authenticate against the Control Service."
     "Operators of Control Service can configure default credentials for a data job to authenticate "
     "against databases or APIs used during data job run. "
     """

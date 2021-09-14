@@ -26,7 +26,7 @@ class DeployOperation(Enum):
 
 
 @click.command(
-    help="Deploys a data job. "
+    help="Deploy a Data Job. "
     "Deployment takes both the build/code (job's directory) "
     "and the deploy specific properties (config.ini) "
     "and is ready for immediate execution in the execution environment"
@@ -35,16 +35,16 @@ class DeployOperation(Enum):
 Examples:
 
 \b
-# This will deploy the data job in directory example-job (it takes a few minutes)
-# Will be prompted to confirm job name
+# This will deploy the Data Job in directory example-job (it takes a few minutes)
+# You will be prompted to confirm job name
 vdkcli deploy -p /home/user/data-jobs/example-job
 
 \b
-# Then we can check what is latest version deployed
+# Then we can check what is the latest deployed version
 vdkcli deploy --show -n example-job -t job-team
 
 \b
-# Disable a data job
+# Disable a Data Job
 vdkcli deploy --disable -n example-job -t job-team
 
 \b
@@ -53,13 +53,13 @@ new_version=`vdkcli deploy -p /home/user/data-jobs/example-job -o json | jq '.jo
 while ! vdkcli deploy --show -o json -n example-job -t job-team | grep $new_version ; do echo "waiting ..."; sleep 10; done
 
 \b
-# Deploy multiple data jobs in a single command
+# Deploy multiple Data Jobs in a single command
 echo "Job1
 job2
 job3" | xargs -I {JOB} vdkcli deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOBS>/{JOB}
                """
 )
-@click.option("-n", "--name", type=click.STRING, help="The data job name.")
+@click.option("-n", "--name", type=click.STRING, help="The Data Job name.")
 @click.option(
     "-t",
     "--team",
@@ -73,12 +73,12 @@ job3" | xargs -I {JOB} vdkcli deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_
     "operation",
     flag_value=DeployOperation.CREATE,
     default=True,
-    help="Create a new deployment of a data job. "
-    "You must set job path (--job-path) with the directory of the data job. "
+    help="Create a new deployment of a Data Job. "
+    "You must set job path (--job-path) with the directory of the Data Job. "
     "If there is a currently executing Data Job with the previous deployment version it will continue "
     "until its execution is finished. "
     "Any subsequent execution will use the new deployment. "
-    "If there are no changes of the data job, no new version is created. "
+    "If there are no changes of the Data Job, no new version is created. "
     "--create is the default behaviour of the deploy command so you can generally omit this flag.",
 )
 @click.option(
