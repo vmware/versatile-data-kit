@@ -51,7 +51,9 @@ class Installer:
         """
         Installs all necessary components and configurations.
         """
-        log.info(f"Starting installation of Versatile Data Kit Control Service")
+        log.info(
+            f"Starting installation of Versatile Data Kit Control Service (this may take several minutes)"
+        )
         self.__create_kind_cluster()
         self.__create_docker_registry_container()
         self.__create_git_server_container()
@@ -65,7 +67,9 @@ class Installer:
         self.__install_helm_chart()
         log.info(f"Versatile Data Kit Control Service installed successfully")
         log.info(
-            "You can now use the other vdk commands to create, run, and deploy jobs"
+            "You can now use the other vdk commands to create, run, and deploy jobs. For example:\n"
+            "vdk create -n example-job -t my-team --local --cloud\n"
+            'vdk deploy -n example-job -t my-team -p ./example-job -r "initial deployment"'
         )
 
     def uninstall(self):
@@ -289,6 +293,7 @@ class Installer:
         log.debug("Configuring Git server...")
         attempt = 1
         max_attempts = 10
+        back_off_time_secs = 10
         ex_as_string = ""
         successful = False
         while not successful and attempt <= max_attempts:
@@ -296,16 +301,17 @@ class Installer:
                 self.__configure_git_server()
                 successful = True
             except Exception as ex:
-                ex_as_string = str(ex)
                 log.debug(
-                    f"Failed to configure git server. Will reattempt in 2 seconds..."
+                    f"Failed to configure Git server. Will reattempt in {back_off_time_secs} seconds..."
                 )
+                ex_as_string = str(ex)
+                log.debug(ex_as_string)
                 attempt += 1
-                time.sleep(2)
+                time.sleep(back_off_time_secs)
         if successful:
             log.debug("Git server configured successfully")
         else:
-            log.error(f"Failed to configure git server. {ex_as_string}")
+            log.error(f"Failed to configure Git server. {ex_as_string}")
             sys.exit(1)
 
     def __configure_git_server(self):
@@ -594,13 +600,12 @@ class Installer:
             if result.returncode != 0:
                 stderr_as_str = result.stderr.decode("utf-8")
                 log.error(stderr_as_str)
-                exit(result.returncode)
+            else:
+                log.info("Control Service uninstalled successfully")
         except Exception as ex:
             log.error(
                 f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}"
             )
-        else:
-            log.info("Control Service uninstalled successfully")
 
     def __install_ingress_prerequisites(self):
         """
