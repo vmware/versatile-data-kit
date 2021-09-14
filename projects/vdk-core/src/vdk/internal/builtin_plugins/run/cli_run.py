@@ -81,12 +81,12 @@ class CliRunImpl:
 
 
 @click.command(
-    help="Runs a data job. "
+    help="Run a Data Job. "
     """
      Examples:
 
      \b
-     # This will run the data job from directory example-job (it takes a few minutes)
+     # This will run the Data Job from directory example-job (it takes a few minutes)
      vdk run /home/user/data-jobs/example-job
 
 """

@@ -89,7 +89,7 @@ class HookRecorder:
         return [call for call in self.calls]
 
 
-@click.command(help="Print hello")
+@click.command(help="Print hello and the CLI context.")
 @click.pass_context
 def hello(ctx: click.Context) -> None:
     """

@@ -50,7 +50,7 @@ def initialize_job(context: JobContext) -> None:
 
 
 @click.command(
-    name="sqlite-query", help="executes SQL query against local SQlite database."
+    name="sqlite-query", help="Execute a SQL query against a local SQlite database."
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context

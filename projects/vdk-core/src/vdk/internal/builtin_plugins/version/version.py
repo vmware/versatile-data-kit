@@ -75,7 +75,7 @@ def get_version_info():
     )
 
 
-@click.command(help="Prints the version of the client and exits")
+@click.command(help="Print the version of the client.")
 @click.pass_context
 def version(ctx: click.Context):
     # all necessary info is printed by LogVersionInfoPlugin
