@@ -80,7 +80,7 @@ class JobCreate:
                     what=f"Could not download keytab for data job: {name}",
                     why=f"Error is: {e}",
                     consequence="Local execution of the job might fail since the job may not have permissions to some resources",
-                    countermeasure="Try to manually download the data job keytab with vdkcli",
+                    countermeasure="Try to manually download the data job keytab with vdk",
                 )
             )
 
@@ -172,17 +172,17 @@ Examples:
 
 \b
 # Simplest form which will prompt for necessary info:
-vdkcli create
+vdk create
 
 \b
 # Create a Data Job without creating local sample folder:
-vdkcli create --no-sample
+vdk create --no-sample
 
 \b
 # Create a Data Job without prompts by specifying all necessary fields
 # This will create a Data Job with name "example" that belongs to team 'super-team'
 # and create a sample template of the job in /home/user/data-jobs/example-job
-vdkcli create -n example-job -t super-team -p /home/user/data-jobs
+vdk create -n example-job -t super-team -p /home/user/data-jobs
 
 """
 )

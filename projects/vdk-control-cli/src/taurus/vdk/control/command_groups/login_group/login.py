@@ -17,11 +17,11 @@ Examples:
 
 \b
 # Login using interactive login - will open browser to redirect to corporate SSO to login
-vdkcli login
+vdk login
 
 \b
 # Login using non-interactive login - in other words using api token (also called refresh token)
-vdkcli login -t api-token -a 3ece313f612db1f03629313d847
+vdk login -t api-token -a 3ece313f612db1f03629313d847
                """
 )
 @click.option(
@@ -36,7 +36,7 @@ vdkcli login -t api-token -a 3ece313f612db1f03629313d847
     First, create client using https://console.developers.google.com/apis/credentials/oauthclient
       redirect_uri should be set to http://127.0.0.1  (without the port)
 
-    Execute: vdkcli login --oauth2-discovery-url https://accounts.google.com/o/oauth2/v2/auth\?scope\=profile --oauth2-exchange-url
+    Execute: vdk login --oauth2-discovery-url https://accounts.google.com/o/oauth2/v2/auth\?scope\=profile --oauth2-exchange-url
     https://oauth2.googleapis.com/token --client-id 1234-example.apps.googleusercontent.com
     --client-secret 1234-example-secret
 

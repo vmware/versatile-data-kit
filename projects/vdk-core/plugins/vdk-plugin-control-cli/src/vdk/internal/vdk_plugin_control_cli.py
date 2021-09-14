@@ -21,26 +21,21 @@ from taurus.vdk.plugin import control_plugin_manager
 from vdk.api.plugin.hook_markers import hookimpl
 
 
-def __replace_vdkcli_with_vdk(command):
-    command.help = str.replace(command.help, "vdkcli", "vdk")
-    return command
-
-
 @hookimpl
 def vdk_command_line(root_command: click.Group):
-    root_command.add_command(__replace_vdkcli_with_vdk(login))
-    root_command.add_command(__replace_vdkcli_with_vdk(logout))
-    root_command.add_command(__replace_vdkcli_with_vdk(delete))
-    root_command.add_command(__replace_vdkcli_with_vdk(create))
-    root_command.add_command(__replace_vdkcli_with_vdk(download_key))
-    root_command.add_command(__replace_vdkcli_with_vdk(list_command))
-    root_command.add_command(__replace_vdkcli_with_vdk(deploy))
-    root_command.add_command(__replace_vdkcli_with_vdk(execute))
-    root_command.add_command(__replace_vdkcli_with_vdk(download_job))
-    root_command.add_command(__replace_vdkcli_with_vdk(set_default_command))
-    root_command.add_command(__replace_vdkcli_with_vdk(reset_default_command))
-    root_command.add_command(__replace_vdkcli_with_vdk(show_command))
-    root_command.add_command(__replace_vdkcli_with_vdk(properties_command))
+    root_command.add_command(login)
+    root_command.add_command(logout)
+    root_command.add_command(delete)
+    root_command.add_command(create)
+    root_command.add_command(download_key)
+    root_command.add_command(list_command)
+    root_command.add_command(deploy)
+    root_command.add_command(execute)
+    root_command.add_command(download_job)
+    root_command.add_command(set_default_command)
+    root_command.add_command(reset_default_command)
+    root_command.add_command(show_command)
+    root_command.add_command(properties_command)
 
     plugins = control_plugin_manager.Plugins()
     default_options = DefaultOptions(plugins)
