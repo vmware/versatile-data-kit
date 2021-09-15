@@ -15,6 +15,8 @@ from kubernetes import client
 from kubernetes import config
 from kubernetes import utils
 from kubernetes import watch
+from taurus.vdk.control.configuration.defaults_config import reset_default_rest_api_url
+from taurus.vdk.control.configuration.defaults_config import write_default_rest_api_url
 from vdk.internal.core.errors import BaseVdkError
 from vdk.internal.core.errors import ErrorMessage
 
@@ -83,6 +85,7 @@ class Installer:
         self.__delete_kind_cluster()
         self.__delete_git_server_container()
         self.__delete_docker_registry_container()
+        self.__cleanup_configuration()
         log.info(f"Versatile Data Kit Control Service uninstalled successfully")
 
     @staticmethod
@@ -459,7 +462,7 @@ class Installer:
                         f'Failed to create Kind cluster "{self.kind_cluster_name}". '
                         "If you have a previous installation, remove it by running `vdk server -u` and try again."
                     )
-                    log.info(stderr_as_str)
+                    log.info(f"Stderr output: {stderr_as_str}")
                     sys.exit(0)
             except Exception as ex:
                 log.error(
@@ -480,7 +483,7 @@ class Installer:
             )
             if result.returncode != 0:
                 stderr_as_str = result.stderr.decode("utf-8")
-                log.error(stderr_as_str)
+                log.error(f"Stderr output: {stderr_as_str}")
         except Exception as ex:
             log.error(
                 f'Failed to delete Kind cluster "{self.kind_cluster_name}". Make sure you have Kind installed. {str(ex)}'
@@ -545,12 +548,12 @@ class Installer:
                 )
                 if result.returncode != 0:
                     stderr_as_str = result.stderr.decode("utf-8")
-                    log.error(stderr_as_str)
+                    log.error(f"Stderr output: {stderr_as_str}")
                     exit(result.returncode)
                 result = subprocess.run(["helm", "repo", "update"], capture_output=True)
                 if result.returncode != 0:
                     stderr_as_str = result.stderr.decode("utf-8")
-                    log.error(stderr_as_str)
+                    log.error(f"Stderr output: {stderr_as_str}")
                     exit(result.returncode)
                 result = subprocess.run(
                     [
@@ -596,7 +599,7 @@ class Installer:
                 )
                 if result.returncode != 0:
                     stderr_as_str = result.stderr.decode("utf-8")
-                    log.error(stderr_as_str)
+                    log.error(f"Stderr output: {stderr_as_str}")
                     exit(result.returncode)
         except Exception as ex:
             log.error(
@@ -612,7 +615,7 @@ class Installer:
             )
             if result.returncode != 0:
                 stderr_as_str = result.stderr.decode("utf-8")
-                log.error(stderr_as_str)
+                log.error(f"Stderr output: {stderr_as_str}")
             else:
                 log.info("Control Service uninstalled successfully")
         except Exception as ex:
@@ -678,21 +681,18 @@ class Installer:
     def __finalize_configuration():
         log.info("Finalizing installation...")
         try:
-            result = subprocess.run(
-                [
-                    "vdk",
-                    "set-default",
-                    "-u",
-                    "http://localhost:8092",
-                ],
-                capture_output=True,
-            )
-            if result.returncode != 0:
-                stderr_as_str = result.stderr.decode("utf-8")
-                log.error("Failed to finalize configuration")
-                log.error(stderr_as_str)
-                exit(result.returncode)
+            write_default_rest_api_url("http://localhost:8092")
         except Exception as ex:
-            log.error(f"Failed to finalize configuration. {str(ex)}")
+            log.error(f"Failed to finalize installation. {str(ex)}")
+            exit(1)
+        log.info("Done")
+
+    @staticmethod
+    def __cleanup_configuration():
+        log.info("Cleaning up...")
+        try:
+            reset_default_rest_api_url()
+        except Exception as ex:
+            log.error(f"Failed to clean up. {str(ex)}")
             exit(1)
         log.info("Done")
