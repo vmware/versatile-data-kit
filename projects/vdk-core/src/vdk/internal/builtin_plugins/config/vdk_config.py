@@ -46,7 +46,7 @@ class CoreConfigDefinitionPlugin:
         # TODO: Get currently supported db types
         db_default_type_description = (
             "Default DB connection provided by VDK when executing a data job. "
-            "All sql queries, templates/load that interacts with the Data Warehouse would be against that database."
+            "All sql queries, templates/loads would be against that database."
             "Different database types can be configured with plugins. "
             "Current supported database types: TODO \n"
         )

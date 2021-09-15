@@ -13,10 +13,10 @@ def run(job_input: IJobInput):
 
     VDK provides to every python step an object - job_input - that has methods for:
 
-    * executing queries to OLAP Database.
-    * ingesting data into Data Lake
-    * processing Data Lake data into a dimensional model Data Warehouse.
-    See IJobInput documentation
+    * executing queries to OLAP Database;
+    * ingesting data into a database;
+    * processing data into a database.
+    See IJobInput documentation for more details.
     """
     log.info(f"Starting job step {__name__}")
 

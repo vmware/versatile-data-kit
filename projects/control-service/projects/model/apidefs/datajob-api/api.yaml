@@ -11,7 +11,7 @@ info:
   description: |
     The Data Jobs API of Versatile Data Kit Control Service.
     Data Jobs allows Data Engineers to implement automated pull ingestion (E in ELT)
-    and batch data transformation into Data Warehouse (T in ELT).
+    and batch data transformation into a database (T in ELT).
     See also https://github.com/vmware/versatile-data-kit/wiki/Introduction
 
     The API has resource-oriented URLs, JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.

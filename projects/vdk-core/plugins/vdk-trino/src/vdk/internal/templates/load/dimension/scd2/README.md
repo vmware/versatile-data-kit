@@ -1,6 +1,6 @@
 ### Purpose:
 
-This template can be used to load raw data from Data Lake to target 'Slowly Changing Dimension Type 2' table in Data Warehouse.
+This template can be used to load raw data from a database to target 'Slowly Changing Dimension Type 2' table in a database.
 In summary, it accumulates updates from the data source as versioned records in the target table.
 
 ### Details:
@@ -13,10 +13,10 @@ Explanation of SCD type 2 can be seen here: <https://en.wikipedia.org/wiki/Slowl
 
 ### Template Parameters (template_args):
 
-- target_schema          - Target schema where the versioned data is stored. Typically, a Data Warehouse (DW) schema.
+- target_schema          - Target schema where the versioned data is stored. Typically, a database schema.
 - target_table           - Target table where the versioned data is loaded. Typically, a Slowly Changing Dimension (SCD) of Type 2.
-- source_schema          - Data Lake schema containing the source view.
-- source_view            - Data Lake view where source data is loaded from.
+- source_schema          - database schema containing the source view.
+- source_view            - database view where source data is loaded from.
 - id_column              - Column that holds the natural key of the target table.
 - value_columns          - A list of columns from the source that are considered. Present both in the source and the target tables.
 - tracked_columns        - A sublist of the value columns that are tracked for changes. Present both in the source and the target tables.
