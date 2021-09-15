@@ -16,13 +16,18 @@ Then run help to see what it can do:
 vdkcli --help
 ```
 
+`vdkcli` is the name of the console application only when vdk-control-cli is installed autonomously. Typically,
+it is a dependency of Versatile Data Kit and the console application is `vdk` (hence, all commands in error and help
+messages in this project refer to `vdk`). Keep in mind that if you are using this project autonomously, you should
+use `vdkcli` command instead of `vdk`.
+
 ### Environment variables:
 
-* VDK_AUTHENTICATION_DISABLE  - disables security (vdkcli login will not be required). See Security section.
+* VDK_AUTHENTICATION_DISABLE  - disables security (vdk login will not be required). See Security section.
 * VDK_BASE_CONFIG_FOLDER -  Override local base configuration folder (by default $HOME folder) . Use in case multiple users need to login (e.g in case of automation) on same machine.
 
 ### Security
-By default, all operation require authentication: vdkcli login must have finished successfully.
+By default, all operation require authentication: vdk login must have finished successfully.
 You can disable it with environment variable `VDK_AUTHENTICATION_DISABLE=true`
 This would only work if Control Service which VDK CLI uses also has security disabled.
 
@@ -60,7 +65,7 @@ hookimpl = pluggy.HookimplMarker("vdk_control_cli.plugin")
 # name of function must match name of hookspec function
 @hookimpl
 def get_default_commands_options():
-    # your implementation here ; for example to set defaults for `vdkcli login --type --oauth2-authorization-url` command
+    # your implementation here ; for example to set defaults for `vdk login --type --oauth2-authorization-url` command
     default_options = {
         "login": {
             "auth_type": "api-token", # note values must be valid or the plugin may break the CLI, no checking is done at this point

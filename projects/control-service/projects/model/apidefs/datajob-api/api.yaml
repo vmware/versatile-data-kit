@@ -139,7 +139,7 @@ paths:
         it's best if you request only what you need <br/><br/>
 
         The <b>pageNumber</b> and <b>pageSize</b> arguments are required! Page number should be a <b>number greater than 1</b>,
-        and pageSize <b>should be between 1 and 100 results</b> (per page)
+        and pageSize <b>should be greater than 1</b> (per page)
         Check the latest example for the full list of supported query fields.<br/><br/>
 
         Simplest query that you could make is to fetch the job names

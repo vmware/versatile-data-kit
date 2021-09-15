@@ -43,7 +43,7 @@ Examples:
 \b
 # This will download the data job key in directory data-jobs .
 # It is recommended the the key is next to the data job directory (and not inside)
-vdkcli download-key -n example -p /home/user/data-jobs
+vdk download-key -n example -p /home/user/data-jobs
 
 """,
 )

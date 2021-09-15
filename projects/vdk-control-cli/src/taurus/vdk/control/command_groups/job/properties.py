@@ -193,33 +193,33 @@ class JobProperties:
 
      \b
      # Set single property with key "my-key" and value "my-value".
-     vdkcli properties --set my-key "my-value"
+     vdk properties --set my-key "my-value"
 
      \b
      # Will prompt for the value so it's not printed on the screen.
-     vdkcli properties --set-secret "my-secret"
+     vdk properties --set-secret "my-secret"
 
      \b
      # Update multiple properties at once.
-     vdkcli properties --set "key1" "value1" --set "key2" "value2" --set-secret "secret1" --set-secret "secret2"
+     vdk properties --set "key1" "value1" --set "key2" "value2" --set-secret "secret1" --set-secret "secret2"
 
      \b
      # Use backslash \\ to set them on multiple lines
-     vdkcli properties \\
+     vdk properties \\
         --set "key1" "value1" \\
         --set "key2" "value2"
 
      \b
      # Return the value associated with the given key "my-key"
-     vdkcli properties --get "my-key"
+     vdk properties --get "my-key"
 
      \b
      # Delete a property with key "my-key"
-     vdkcli properties --delete "my-key"
+     vdk properties --delete "my-key"
 
      \b
      # List all properties
-     vdkcli properties --list
+     vdk properties --list
 
                     """,
     hidden=True,
