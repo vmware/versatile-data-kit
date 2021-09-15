@@ -3,7 +3,7 @@
 import logging
 import time
 
-from taurus.api.job_input import IJobInput
+from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
 
