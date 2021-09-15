@@ -497,10 +497,9 @@ public abstract class KubernetesService implements InitializingBean {
 
         } catch (ApiException e) {
             //If no response body is present this might be a transport layer failure.
-            if (e.getCode() == 404 && e.getResponseBody() != null) {
-                log.debug("Job execution: {} team: {}, job: {} cannot be found in K8S. Will set its status to Cancelled in the DB.",
-                        executionId, teamName, jobName);
-                log.debug("Catching ApiException, because response code is 404 and has response body.", e);
+            if (e.getCode() == 404) {
+                log.debug("Job execution: {} team: {}, job: {} cannot be found. K8S response body {}. Will set its status to Cancelled in the DB.",
+                        executionId, teamName, jobName, e.getResponseBody());
             } else throw e;
         }
     }

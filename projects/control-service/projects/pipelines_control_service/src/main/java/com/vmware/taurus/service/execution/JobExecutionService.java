@@ -187,56 +187,56 @@ public class JobExecutionService {
             .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
    }
 
-   public void updateJobExecution(DataJob dataJob, KubernetesService.JobExecution jobExecution) {
+   public void updateJobExecution(final DataJob dataJob, final KubernetesService.JobExecution jobExecution) {
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
+         return;
       }
 
-      Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
-            jobExecutionRepository.findById(jobExecution.getExecutionId());
-      com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder;
-      ExecutionStatus status = getJobExecutionStatus(jobExecution);
+      final Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
+              jobExecutionRepository.findById(jobExecution.getExecutionId());
+      final ExecutionStatus status = getJobExecutionStatus(jobExecution);
+      //This set contains all the statuses that should not be changed to something else if present in the DB.
+      //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
+      var finalStatusSet = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
+                                                 ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
+
+      if (dataJobExecutionPersistedOptional.isPresent() &&
+              (dataJobExecutionPersistedOptional.get().getStatus() == status ||
+                      finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
+         return;
+      }
+
       // Optimization:
       // if there is an existing execution in the database and
       // the status has not changed (the new status is equal to the old one)
-      // do not update the record. Also, do not update record in case ExecutionStatus is Cancelled
-      // as it can only be set in the control-service. This way we don't override with older statuses.
-      if (dataJobExecutionPersistedOptional.isPresent()) {
-
-         if ((status != null && status.equals(dataJobExecutionPersistedOptional.get().getStatus()))
-                 || (dataJobExecutionPersistedOptional.get().getStatus() == ExecutionStatus.CANCELLED)) {
-            return;
-         } else {
-            dataJobExecutionBuilder = dataJobExecutionPersistedOptional.get().toBuilder();
-         }
-
-      } else {
-         com.vmware.taurus.service.model.ExecutionType executionType =
-               ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
-                     com.vmware.taurus.service.model.ExecutionType.MANUAL :
-                     com.vmware.taurus.service.model.ExecutionType.SCHEDULED;
-         dataJobExecutionBuilder = com.vmware.taurus.service.model.DataJobExecution.builder()
-               .id(jobExecution.getExecutionId())
-               .dataJob(dataJob)
-               .type(executionType);
-      }
+      // do not update the record
+      final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder =
+              dataJobExecutionPersistedOptional.isPresent() ?
+                      dataJobExecutionPersistedOptional.get().toBuilder() :
+                      com.vmware.taurus.service.model.DataJobExecution.builder()
+                              .id(jobExecution.getExecutionId())
+                              .dataJob(dataJob)
+                              .type(ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
+                                      com.vmware.taurus.service.model.ExecutionType.MANUAL :
+                                      com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
-            .status(status)
-            .message(getJobExecutionApiMessage(status, jobExecution))
-            .opId(jobExecution.getOpId())
-            .startTime(jobExecution.getStartTime())
-            .endTime(jobExecution.getEndTime())
-            .vdkVersion("") // TODO [miroslavi] VDK version should come from the termination message
-            .jobVersion(jobExecution.getJobVersion())
-            .jobSchedule(jobExecution.getJobSchedule())
-            .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
-            .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())
-            .resourcesMemoryRequest(jobExecution.getResourcesMemoryRequest())
-            .resourcesMemoryLimit(jobExecution.getResourcesMemoryLimit())
-            .lastDeployedDate(jobExecution.getDeployedDate())
-            .lastDeployedBy(jobExecution.getDeployedBy())
-            .build();
+              .status(status)
+              .message(getJobExecutionApiMessage(status, jobExecution))
+              .opId(jobExecution.getOpId())
+              .startTime(jobExecution.getStartTime())
+              .endTime(jobExecution.getEndTime())
+              .vdkVersion("") // TODO [miroslavi] VDK version should come from the termination message
+              .jobVersion(jobExecution.getJobVersion())
+              .jobSchedule(jobExecution.getJobSchedule())
+              .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
+              .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())
+              .resourcesMemoryRequest(jobExecution.getResourcesMemoryRequest())
+              .resourcesMemoryLimit(jobExecution.getResourcesMemoryLimit())
+              .lastDeployedDate(jobExecution.getDeployedDate())
+              .lastDeployedBy(jobExecution.getDeployedBy())
+              .build();
       jobExecutionRepository.save(dataJobExecution);
    }
 
