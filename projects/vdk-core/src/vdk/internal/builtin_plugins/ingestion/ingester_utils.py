@@ -92,9 +92,8 @@ def convert_table(table: iter, column_names: iter) -> List[dict]:
     for row in table:
         cdf_row = dict()
         for index, value in enumerate(row):
-            if value is not None:
-                value = _handle_special_types(value)
-                cdf_row[column_names[index]] = value
+            value = _handle_special_types(value)
+            cdf_row[column_names[index]] = value
         converted_rows.append(cdf_row)
 
     return converted_rows

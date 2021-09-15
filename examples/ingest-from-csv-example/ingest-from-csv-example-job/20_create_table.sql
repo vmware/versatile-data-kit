@@ -3,7 +3,6 @@ CREATE TABLE noaa_ghcn_data_1763 (
     Date         NVARCHAR,
     Element      NVARCHAR,
     ElementValue NVARCHAR,
-    DataValue    NVARCHAR,
     MFlag        NVARCHAR,
     QFlag        NVARCHAR,
     SFlag        NVARCHAR,

@@ -1,4 +1,5 @@
 vdk-core
 click
+click-spinner
 docker
 kubernetes

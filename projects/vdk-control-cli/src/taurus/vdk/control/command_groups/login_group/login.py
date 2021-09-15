@@ -10,7 +10,7 @@ from taurus.vdk.control.utils.cli_utils import extended_option
 
 
 @click.command(
-    help="Authentication against the Control Service. The received request token will be cached so no "
+    help="Authenticate against the Control Service. The received request token will be cached so no "
     "further login is required. Use logout command to remove the credentials"
     """
 Examples:

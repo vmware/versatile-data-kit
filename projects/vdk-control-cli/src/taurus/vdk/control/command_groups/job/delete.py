@@ -33,7 +33,7 @@ class JobDelete:
 
 
 @click.command(
-    help="Deletes a data job from the cloud. "
+    help="Delete a Data Job from the cloud. "
     "This will remove all deployed instances and free all resources for the job "
     "(including any provision keytab credentials and permissions for the Data Job will be revoked). "
     "The local directory of the job will not be deleted."
@@ -44,7 +44,7 @@ class JobDelete:
     type=click.STRING,
     required=True,
     prompt="Job Name",
-    help="The data job name.",
+    help="The Data Job name.",
 )
 @click.option(
     "-t",

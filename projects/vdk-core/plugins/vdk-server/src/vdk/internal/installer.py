@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 
+import click_spinner
 import docker
 import requests
 from kubernetes import client
@@ -50,46 +51,83 @@ class Installer:
         """
         Installs all necessary components and configurations.
         """
-        log.info(f"Starting installation of Versatile Data Kit Control Service")
-        self.__create_docker_registry_container()
-        if self.__create_git_server_container():
-            self.__configure_git_server_with_error_handling()
-            self.__create_git_repository()
-            self.__restart_git_server_container()
+        log.info(
+            f"Starting installation of Versatile Data Kit Control Service (this may take several minutes)"
+        )
         self.__create_kind_cluster()
+        self.__create_docker_registry_container()
+        self.__create_git_server_container()
+        self.__configure_git_server_with_error_handling()
+        self.__create_git_repository()
+        self.__restart_git_server_container()
         self.__connect_container_to_kind_network(self.docker_registry_container_name)
         self.__connect_container_to_kind_network(self.git_server_container_name)
         self.__configure_kind_local_docker_registry()
         self.__install_ingress_prerequisites()
         self.__install_helm_chart()
+        self.__finalize_configuration()
         log.info(f"Versatile Data Kit Control Service installed successfully")
+        log.info(
+            "You can now use the other vdk commands to create, run, and deploy jobs. For example:\n"
+            "vdk create -n example-job -t my-team -p . --local --cloud\n"
+            'vdk deploy -n example-job -t my-team -p ./example-job -r "initial deployment"'
+        )
 
     def uninstall(self):
         """
         Uninstalls all components.
         """
-        self.__uninstall_helm_chart()
+        log.info("Starting uninstallation of Versatile Data Kit Control Service...")
+        # No need to uninstall the helm chart as it will be deleted as part of the cluster deletion
+        # self.__uninstall_helm_chart()
         self.__delete_kind_cluster()
         self.__delete_git_server_container()
         self.__delete_docker_registry_container()
+        log.info(f"Versatile Data Kit Control Service uninstalled successfully")
 
     @staticmethod
     def __get_current_directory() -> pathlib.Path:
         return pathlib.Path(__file__).parent.resolve()
+
+    @staticmethod
+    def __docker_container_exists(container_name) -> bool:
+        """
+        Searches for a Docker container with a specified name.
+        """
+        docker_client = docker.from_env()
+        try:
+            return next(
+                (
+                    c
+                    for c in docker_client.api.containers(all=True)
+                    if f"/{container_name}" in c["Names"]
+                ),
+                None,
+            )
+        except Exception as ex:
+            log.error(f"Failed to search for a Docker container. {str(ex)}")
+            sys.exit(1)
+        finally:
+            docker_client.close()
 
     def __create_docker_registry_container(self):
         """
         Creates a Docker registry container with name specified by docker_registry_name,
         unless a container with this name already exists.
         """
+        log.info(
+            f'Creating Docker registry container "{self.docker_registry_container_name}"...'
+        )
         docker_client = docker.from_env()
         try:
-            # Check if a container with that name already exists by inspecting it;
-            # If the inspection throws an exception, the container does not exist and we
-            # proceed with creating it
-            docker_client.api.inspect_container(self.docker_registry_container_name)
-        except:
-            try:
+            if self.__docker_container_exists(self.docker_registry_container_name):
+                log.info(
+                    f'A container "{self.docker_registry_container_name}" already exists. '
+                    "Either delete or rename this container."
+                )
+                sys.exit(1)
+            else:
+                # Create the Docker registry container
                 # docker run -d --restart=always -p "127.0.0.1:${docker_registry_port}:5000" --name "${docker_registry_name}" registry:2
                 docker_client.containers.run(
                     "registry:2",
@@ -98,32 +136,38 @@ class Installer:
                     name=self.docker_registry_container_name,
                     ports={"5000/tcp": ("127.0.0.1", self.__docker_registry_port)},
                 )
-            except Exception as ex:
-                log.error(
-                    f"Error: Failed to create Docker registry container {self.docker_registry_container_name}. {str(ex)}"
+                log.info(
+                    f'Docker registry container "{self.docker_registry_container_name}" created'
                 )
+        except Exception as ex:
+            log.error(
+                f'Failed to create Docker registry container "{self.docker_registry_container_name}". {str(ex)}'
+            )
+            sys.exit(1)
         finally:
             docker_client.close()
 
     def __delete_docker_registry_container(self):
         self.__delete_container(self.docker_registry_container_name)
 
-    @staticmethod
-    def __delete_container(container_name: str):
+    def __delete_container(self, container_name: str):
         """
         Deletes the Docker registry container with the specified name.
         """
-        docker_client = docker.from_env()
-        try:
-            docker_client.api.inspect_container(container_name)
-            docker_client.api.stop(container_name)
-            docker_client.api.remove_container(container_name)
-        except Exception as ex:
-            log.error(
-                f"Error: Failed to remove Docker container {container_name}. {str(ex)}"
-            )
-        finally:
-            docker_client.close()
+        if self.__docker_container_exists(container_name):
+            log.info(f'Deleting Docker container "{container_name}"...')
+            docker_client = docker.from_env()
+            try:
+                docker_client.api.stop(container_name)
+                docker_client.api.remove_container(container_name)
+            except Exception as ex:
+                log.error(
+                    f'Failed to remove Docker container "{container_name}". {str(ex)}'
+                )
+            else:
+                log.info(f'Docker container "{container_name}" deleted successfully')
+            finally:
+                docker_client.close()
 
     def __restart_git_server_container(self):
         self.__restart_container(self.git_server_container_name)
@@ -133,31 +177,37 @@ class Installer:
         """
         Restarts the container with the specified name.
         """
+        log.debug(f'Restarting Docker container "{container_name}"...')
         docker_client = docker.from_env()
         try:
-            docker_client.api.inspect_container(container_name)
             docker_client.api.restart(container_name)
         except Exception as ex:
-            log.info(f"Failed to restart Docker container {container_name}. {str(ex)}")
+            log.error(
+                f'Failed to restart Docker container "{container_name}". {str(ex)}'
+            )
+            sys.exit(1)
+        else:
+            log.debug(f'Docker container "{container_name}" restarted successfully')
         finally:
             docker_client.close()
 
-    def __create_git_server_container(self) -> bool:
+    def __create_git_server_container(self):
         """
         Creates a Git server container with name specified by docker_registry_name,
         unless a container with this name already exists.
 
         Returns true if the container did not exist and was created successfully; otherwise, false.
         """
+        log.info(f'Creating Git server container "{self.git_server_container_name}"...')
         docker_client = docker.from_env()
         try:
-            # Check if a container with that name already exists by inspecting it;
-            # If the inspection throws an exception, the container does not exist and we
-            # proceed with creating it
-            docker_client.api.inspect_container(self.git_server_container_name)
-            return False
-        except:
-            try:
+            if self.__docker_container_exists(self.git_server_container_name):
+                log.info(
+                    f'A container "{self.git_server_container_name}" already exists. '
+                    "Either delete or rename this container."
+                )
+                sys.exit(1)
+            else:
                 # docker run --name=vdk-git-server -p 10022:22 -p 10080:3000 -p 10081:80 gogs/gogs:0.12
                 docker_client.containers.run(
                     "gogs/gogs:0.12",
@@ -165,11 +215,14 @@ class Installer:
                     name=self.git_server_container_name,
                     ports={"22/tcp": "10022", "3000/tcp": "10080", "80/tcp": "10081"},
                 )
-                return True
-            except Exception as ex:
-                log.error(
-                    f"Error: Failed to create Git server container {self.git_server_container_name}. {str(ex)}"
+                log.info(
+                    f'Git server container "{self.docker_registry_container_name}" created'
                 )
+        except Exception as ex:
+            log.error(
+                f'Failed to create Git server container "{self.git_server_container_name}". {str(ex)}'
+            )
+            sys.exit(1)
         finally:
             docker_client.close()
 
@@ -182,12 +235,17 @@ class Installer:
         Connects a Docker container to the Kind cluster network.
         If the container is already connected, an info message is logged.
         """
+        log.debug(f'Connecting Docker container "{container_name}" to Kind network...')
         docker_client = docker.from_env()
         try:
             # docker network connect "kind" "{container_name}"
             docker_client.api.connect_container_to_network(container_name, "kind")
         except Exception as ex:
-            log.info(ex)
+            log.error(
+                f'Failed to connect Docker container "{container_name}" to Kind network. {str(ex)}'
+            )
+        else:
+            log.debug(f'Docker container "{container_name}" connected successfully')
         finally:
             docker_client.close()
 
@@ -238,24 +296,29 @@ class Installer:
         The request may fail even if the installation was successful. This happens due to automatic redirect
         to /user/login after installation, which fails and in turn causes the entire request to fail.
         """
+        log.debug("Configuring Git server...")
         attempt = 1
-        max_attempts = 5
-        while attempt <= max_attempts:
+        max_attempts = 10
+        back_off_time_secs = 10
+        ex_as_string = ""
+        successful = False
+        while not successful and attempt <= max_attempts:
             try:
                 self.__configure_git_server()
+                successful = True
             except Exception as ex:
+                log.debug(
+                    f"Failed to configure Git server. Will reattempt in {back_off_time_secs} seconds..."
+                )
                 ex_as_string = str(ex)
-                if "Connection reset by peer" in ex_as_string:
-                    log.debug(
-                        f"Failed to configure git server. Will reattempt in 2 seconds..."
-                    )
-                    attempt += 1
-                    time.sleep(2)
-                    continue
-                if "/user/login" not in ex_as_string:
-                    log.error(f"Error: Failed to configure git server. {ex_as_string}")
-                    sys.exit(1)
-                break
+                log.debug(ex_as_string)
+                attempt += 1
+                time.sleep(back_off_time_secs)
+        if successful:
+            log.debug("Git server configured successfully")
+        else:
+            log.error(f"Failed to configure Git server. {ex_as_string}")
+            sys.exit(1)
 
     def __configure_git_server(self):
         """
@@ -304,6 +367,7 @@ class Installer:
         # "description": "This is a VDK repository",
         # "private": false
         # }'
+        log.debug(f'Creating Git repository "{self.git_server_repository_name}"...')
         try:
             credentials = (
                 f"{self.git_server_admin_user}:{self.git_server_admin_password}"
@@ -324,8 +388,13 @@ class Installer:
                 },
             )
         except Exception as ex:
-            log.error(f"Error: Failed to create git repository. {str(ex)}")
+            log.error(
+                f'Failed to create git repository "{self.git_server_repository_name}". {str(ex)}'
+            )
             sys.exit(1)
+        log.debug(
+            f'Git repository "{self.git_server_repository_name}" created successfully'
+        )
 
     @staticmethod
     def __transform_file(input_file_name, output_file_name, transformation):
@@ -353,51 +422,71 @@ class Installer:
         """
         Creates a kind cluster with the private Docker registry enabled in containerd.
         """
-        temp_file = "kind-cluster-config.yaml"
-        try:
-            self.__transform_file(
-                self.__current_directory.joinpath("kind-cluster-config-template.yaml"),
-                temp_file,
-                self.__transform_template,
-            )
-        except Exception as ex:
-            log.error(f"Failed to create Kind cluster. {str(ex)}")
-            exit(1)
-
-        try:
-            completed_process = subprocess.run(
-                [
-                    "kind",
-                    "create",
-                    "cluster",
-                    "--config=kind-cluster-config.yaml",
-                    "--name",
-                    self.kind_cluster_name,
-                ]
-            )
-            if os.path.exists(temp_file):
-                os.remove(temp_file)
-            if completed_process.returncode == 1:
+        log.info(f'Creating Kind cluster "{self.kind_cluster_name}"...')
+        with click_spinner.spinner():
+            temp_file = "kind-cluster-config.yaml"
+            try:
+                self.__transform_file(
+                    self.__current_directory.joinpath(
+                        "kind-cluster-config-template.yaml"
+                    ),
+                    temp_file,
+                    self.__transform_template,
+                )
+            except Exception as ex:
+                log.error(
+                    f'Failed to create Kind cluster "{self.kind_cluster_name}". {str(ex)}'
+                )
                 sys.exit(1)
-        except Exception as ex:
-            log.error(
-                f"Failed to create Kind cluster. Make sure you have Kind installed. {str(ex)}"
-            )
+
+            try:
+                result = subprocess.run(
+                    [
+                        "kind",
+                        "create",
+                        "cluster",
+                        "--config=kind-cluster-config.yaml",
+                        "--name",
+                        self.kind_cluster_name,
+                    ],
+                    capture_output=True,
+                )
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.info(
+                        f'Failed to create Kind cluster "{self.kind_cluster_name}". '
+                        "If you have a previous installation, remove it by running `vdk server -u` and try again."
+                    )
+                    log.info(stderr_as_str)
+                    sys.exit(0)
+            except Exception as ex:
+                log.error(
+                    f'Failed to create Kind cluster "{self.kind_cluster_name}". Make sure you have Kind installed. {str(ex)}'
+                )
+                sys.exit(1)
+        log.info(f'Kind cluster "{self.kind_cluster_name}" created')
 
     def __delete_kind_cluster(self):
         """
         Deletes the kind cluster.
         """
+        log.info(f'Deleting Kind cluster "{self.kind_cluster_name}"...')
         try:
-            completed_process = subprocess.run(
-                ["kind", "delete", "cluster", "--name", self.kind_cluster_name]
+            result = subprocess.run(
+                ["kind", "delete", "cluster", "--name", self.kind_cluster_name],
+                capture_output=True,
             )
-            if completed_process.returncode == 1:
-                sys.exit(1)
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error(stderr_as_str)
         except Exception as ex:
             log.error(
-                f"Failed to delete Kind cluster. Make sure you have Kind installed. {str(ex)}"
+                f'Failed to delete Kind cluster "{self.kind_cluster_name}". Make sure you have Kind installed. {str(ex)}'
             )
+        else:
+            log.info(f'Kind cluster "{self.kind_cluster_name}" deleted successfully')
 
     def __configure_kind_local_docker_registry(self):
         """
@@ -405,6 +494,7 @@ class Installer:
 
         See: https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
         """
+        log.debug("Configuring Kind local Docker registry...")
         config.load_kube_config()
         with client.ApiClient() as k8s_client:
             try:
@@ -420,12 +510,15 @@ class Installer:
                 if os.path.exists(temp_file):
                     os.remove(temp_file)
             except Exception as ex:
-                log.info(ex)
+                log.error(f"Failed to configure local Docker registry. {str(ex)}")
+                sys.exit(1)
+        log.debug("Local Docker registry configured successfully")
 
     def __install_helm_chart(self):
         """
         Install the VDK Control Service's Helm Chart with all necessary configurations.
         """
+        log.info("Installing Control Service in Kind cluster...")
         try:
             # helm repo add vdk-gitlab https://gitlab.com/api/v4/projects/28814611/packages/helm/stable
             # helm repo update
@@ -436,60 +529,92 @@ class Installer:
             # is that, currently, the Git server name cannot be resolved within the Job Builder container.
             # The reason for this is unknown, but is suspected to be related to the Kaniko image that is
             # used as a base.
-            git_server_ip = self.__resolve_container_ip(self.git_server_container_name)
-            subprocess.run(
-                ["helm", "repo", "add", self.helm_repo_local_name, self.helm_repo_url]
-            )
-            subprocess.run(["helm", "repo", "update"])
-            subprocess.run(
-                [
-                    "helm",
-                    "install",
-                    self.helm_installation_name,
-                    self.helm_chart_name,
-                    "--atomic",
-                    "--set",
-                    "service.type=ClusterIP",
-                    "--set",
-                    "resources.limits.memory=1G",
-                    "--set",
-                    "cockroachdb.statefulset.replicas=1",
-                    "--set",
-                    "replicas=1",
-                    "--set",
-                    "ingress.enabled=true",
-                    "--set",
-                    "deploymentGitBranch=master",
-                    "--set",
-                    "deploymentDockerRegistryType=generic",
-                    "--set",
-                    f"deploymentDockerRepository={self.docker_registry_container_name}:5000",
-                    "--set",
-                    f"proxyRepositoryURL=localhost:5000",
-                    "--set",
-                    f"deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git",
-                    "--set",
-                    f"deploymentGitUsername={self.git_server_admin_user}",
-                    "--set",
-                    f"deploymentGitPassword={self.git_server_admin_password}",
-                    "--set",
-                    f"uploadGitReadWriteUsername={self.git_server_admin_user}",
-                    "--set",
-                    f"uploadGitReadWritePassword={self.git_server_admin_password}",
-                    "--set",
-                    "extraEnvVars.GIT_SSL_ENABLED=false",
-                    "--set",
-                    "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
-                ]
-            )
+            with click_spinner.spinner():
+                git_server_ip = self.__resolve_container_ip(
+                    self.git_server_container_name
+                )
+                result = subprocess.run(
+                    [
+                        "helm",
+                        "repo",
+                        "add",
+                        self.helm_repo_local_name,
+                        self.helm_repo_url,
+                    ],
+                    capture_output=True,
+                )
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.error(stderr_as_str)
+                    exit(result.returncode)
+                result = subprocess.run(["helm", "repo", "update"], capture_output=True)
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.error(stderr_as_str)
+                    exit(result.returncode)
+                result = subprocess.run(
+                    [
+                        "helm",
+                        "install",
+                        self.helm_installation_name,
+                        self.helm_chart_name,
+                        "--atomic",
+                        "--set",
+                        "service.type=ClusterIP",
+                        "--set",
+                        "resources.limits.memory=1G",
+                        "--set",
+                        "cockroachdb.statefulset.replicas=1",
+                        "--set",
+                        "replicas=1",
+                        "--set",
+                        "ingress.enabled=true",
+                        "--set",
+                        "deploymentGitBranch=master",
+                        "--set",
+                        "deploymentDockerRegistryType=generic",
+                        "--set",
+                        f"deploymentDockerRepository={self.docker_registry_container_name}:5000",
+                        "--set",
+                        "proxyRepositoryURL=localhost:5000",
+                        "--set",
+                        f"deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git",
+                        "--set",
+                        f"deploymentGitUsername={self.git_server_admin_user}",
+                        "--set",
+                        f"deploymentGitPassword={self.git_server_admin_password}",
+                        "--set",
+                        f"uploadGitReadWriteUsername={self.git_server_admin_user}",
+                        "--set",
+                        f"uploadGitReadWritePassword={self.git_server_admin_password}",
+                        "--set",
+                        "extraEnvVars.GIT_SSL_ENABLED=false",
+                        "--set",
+                        "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
+                    ],
+                    capture_output=True,
+                )
+                if result.returncode != 0:
+                    stderr_as_str = result.stderr.decode("utf-8")
+                    log.error(stderr_as_str)
+                    exit(result.returncode)
         except Exception as ex:
             log.error(
                 f"Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}"
             )
+            sys.exit(1)
 
     def __uninstall_helm_chart(self):
+        log.info("Uninstalling Control Service...")
         try:
-            subprocess.run(["helm", "uninstall", self.helm_installation_name])
+            result = subprocess.run(
+                ["helm", "uninstall", self.helm_installation_name], capture_output=True
+            )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error(stderr_as_str)
+            else:
+                log.info("Control Service uninstalled successfully")
         except Exception as ex:
             log.error(
                 f"Failed to uninstall Helm chart. Make sure you have Helm installed. {str(ex)}"
@@ -502,43 +627,72 @@ class Installer:
 
         See: https://kind.sigs.k8s.io/docs/user/ingress/#ingress-nginx
         """
-        config.load_kube_config()
-        with client.ApiClient() as k8s_client:
-            try:
-                utils.create_from_yaml(
-                    k8s_client,
-                    self.__current_directory.joinpath("ingress-nginx-deploy.yaml"),
-                )
-            except Exception as ex:
-                log.info(ex)
+        log.info("Installing prerequisites...")
+        with click_spinner.spinner():
+            config.load_kube_config()
+            with client.ApiClient() as k8s_client:
+                try:
+                    utils.create_from_yaml(
+                        k8s_client,
+                        self.__current_directory.joinpath("ingress-nginx-deploy.yaml"),
+                    )
+                except Exception as ex:
+                    log.error(f"Failed to install ingres controller. {str(ex)}")
+                    sys.exit(1)
 
-        # Now the Ingress is all setup, wait until is ready to process requests running:
-        # kubectl wait --namespace ingress-nginx \
-        #   --for=condition=ready pod \
-        #   --selector=app.kubernetes.io/component=controller \
-        #   --timeout=150s
-        w = watch.Watch()
-        k8s_client = client.CoreV1Api()
-        try:
-            for event in w.stream(
-                func=k8s_client.list_namespaced_pod,
-                namespace="ingress-nginx",
-                label_selector="app.kubernetes.io/component=controller",
-                timeout_seconds=150,
-            ):
-                pod_status = event["object"].status
-                if pod_status.phase == "Running" and next(
-                    (
-                        c
-                        for c in pod_status.conditions
-                        if c.type == "Ready" and c.status == "True"
-                    ),
-                    None,
+            # Now the Ingress is all setup, wait until is ready to process requests running:
+            # kubectl wait --namespace ingress-nginx \
+            #   --for=condition=ready pod \
+            #   --selector=app.kubernetes.io/component=controller \
+            #   --timeout=150s
+            w = watch.Watch()
+            k8s_client = client.CoreV1Api()
+            try:
+                for event in w.stream(
+                    func=k8s_client.list_namespaced_pod,
+                    namespace="ingress-nginx",
+                    label_selector="app.kubernetes.io/component=controller",
+                    timeout_seconds=180,
                 ):
-                    break
-        except Exception as ex:
-            log.info(ex)
-        finally:
-            w.stop()
+                    pod_status = event["object"].status
+                    if pod_status.phase == "Running" and next(
+                        (
+                            c
+                            for c in pod_status.conditions
+                            if c.type == "Ready" and c.status == "True"
+                        ),
+                        None,
+                    ):
+                        break
+            except Exception as ex:
+                log.info(
+                    f"Failed to wait for the ingress controller to start. {str(ex)}"
+                )
+            finally:
+                w.stop()
+        log.info("Done")
 
         # The ingress object itself is created later, as part of the Control Service's Helm chart
+
+    @staticmethod
+    def __finalize_configuration():
+        log.info("Finalizing installation...")
+        try:
+            result = subprocess.run(
+                [
+                    "vdk",
+                    "set-default",
+                    "-u",
+                    "http://localhost:8092",
+                ],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error("Failed to finalize configuration")
+                log.error(stderr_as_str)
+                exit(result.returncode)
+        except Exception as ex:
+            log.error(f"Failed to finalize configuration. {str(ex)}")
+            exit(1)
+        log.info("Done")

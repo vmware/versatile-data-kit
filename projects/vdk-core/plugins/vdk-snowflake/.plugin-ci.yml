@@ -19,8 +19,7 @@ build-py39-vdk-snowflake:
   extends: .build-vdk-snowflake
   image: "python:3.9"
 
-# TODO: Uncomment below lines and Fix CI/CD when the plugin is ready
-# release-vdk-snowflake:
-#   variables:
-#     PLUGIN_NAME: vdk-snowflake
-#   extends: .release-plugin
+release-vdk-snowflake:
+  variables:
+    PLUGIN_NAME: vdk-snowflake
+  extends: .release-plugin
