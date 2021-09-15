@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 The cli enables you to conveniently create by template, deploy, list and manage Data Jobs in the Cloud.
 
-See commands below. For each command you can see its help for more details. For example: vdkcli create --help
+See commands below. For each command you can see its help for more details. For example: vdk create --help
 
 \b
 Following environment variables can be used to customize the CLI (usually you want to leave them by default):
@@ -48,11 +48,11 @@ Examples:
 
 \b
 # Show help of deploy command (can be done for each command)
-vdkcli deploy --help
+vdk deploy --help
 
 \b
 # Set default team for all commands
-vdkcli set-default --team taurus
+vdk set-default --team taurus
 """
 )
 @click.option(

@@ -37,26 +37,26 @@ Examples:
 \b
 # This will deploy the Data Job in directory example-job (it takes a few minutes)
 # You will be prompted to confirm job name
-vdkcli deploy -p /home/user/data-jobs/example-job
+vdk deploy -p /home/user/data-jobs/example-job
 
 \b
 # Then we can check what is the latest deployed version
-vdkcli deploy --show -n example-job -t job-team
+vdk deploy --show -n example-job -t job-team
 
 \b
 # Disable a Data Job
-vdkcli deploy --disable -n example-job -t job-team
+vdk deploy --disable -n example-job -t job-team
 
 \b
 # Deploy job and wait until deployed
-new_version=`vdkcli deploy -p /home/user/data-jobs/example-job -o json | jq '.job_version'`
-while ! vdkcli deploy --show -o json -n example-job -t job-team | grep $new_version ; do echo "waiting ..."; sleep 10; done
+new_version=`vdk deploy -p /home/user/data-jobs/example-job -o json | jq '.job_version'`
+while ! vdk deploy --show -o json -n example-job -t job-team | grep $new_version ; do echo "waiting ..."; sleep 10; done
 
 \b
 # Deploy multiple Data Jobs in a single command
 echo "Job1
 job2
-job3" | xargs -I {JOB} vdkcli deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOBS>/{JOB}
+job3" | xargs -I {JOB} vdk deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOBS>/{JOB}
                """
 )
 @click.option("-n", "--name", type=click.STRING, help="The Data Job name.")

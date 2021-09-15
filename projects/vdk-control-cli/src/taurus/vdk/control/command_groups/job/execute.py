@@ -72,7 +72,7 @@ class JobExecute:
             click.echo(
                 f"Execution of Data Job {name} started. "
                 f"See execution status using: \n\n"
-                f"vdkcli execute --show --execution-id {execution_id} -n {name} -t {team}"
+                f"vdk execute --show --execution-id {execution_id} -n {name} -t {team}"
             )
         elif output == OutputFormat.JSON.value:
             result = {
@@ -109,15 +109,15 @@ Examples:
 \b
 # Start new remote execution of Data Job 'example-job'
 # As an output it will print how to get starts and it's execution ID:
-vdkcli execute --start -n example-job -t "Example Team"
+vdk execute --start -n example-job -t "Example Team"
 
 \b
 # Check status of a currently executing Data Job:
-vdkcli execute --show --execution-id example-job-1619094633811-cc49d  -n example-job -t "Example Team"
+vdk execute --show --execution-id example-job-1619094633811-cc49d  -n example-job -t "Example Team"
 
 \b
 # List recent execution of a Data Job:
-vdkcli execute --list -n example-job -t "Example Team"
+vdk execute --list -n example-job -t "Example Team"
                """,
     hidden=True,
 )
@@ -146,7 +146,7 @@ vdkcli execute --list -n example-job -t "Example Team"
     help="Wait for current job execution (if any) to finish "
     "(if specified execution id wait for execution with given id to finish)."
     "Require --execution-id to be provided. "
-    "Should be printed when using vdkcli execute --start",
+    "Should be printed when using vdk execute --start",
 )
 @click.option(
     "--cancel",
@@ -154,7 +154,7 @@ vdkcli execute --list -n example-job -t "Example Team"
     hidden=True,
     flag_value=ExecuteOperation.CANCEL,
     help="Cancels a job execution. Requires --execution-id to be provided. "
-    "Should be printed when using vdkcli execute --start",
+    "Should be printed when using vdk execute --start",
 )
 @click.option(
     "--list",
@@ -167,7 +167,7 @@ vdkcli execute --list -n example-job -t "Example Team"
     "operation",
     flag_value=ExecuteOperation.SHOW,
     help="Shows details Data Job Executions. Requires --execution-id to be provided. "
-    "Should be printed when using vdkcli execute --start",
+    "Should be printed when using vdk execute --start",
 )
 @cli_utils.rest_api_url_option()
 @cli_utils.output_option()
