@@ -11,6 +11,7 @@ import com.vmware.taurus.service.model.*;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.OffsetDateTime;
+import java.util.Random;
 
 public final class RepositoryUtil {
 
@@ -31,6 +32,16 @@ public final class RepositoryUtil {
          DataJob dataJob,
          ExecutionStatus executionStatus) {
 
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message");
+   }
+
+   public static DataJobExecution createDataJobExecution(
+         JobExecutionRepository jobExecutionRepository,
+         String executionId,
+         DataJob dataJob,
+         ExecutionStatus executionStatus,
+         String message) {
+
       var expectedJobExecution = DataJobExecution.builder()
             .id(executionId)
             .dataJob(dataJob)
@@ -41,7 +52,7 @@ public final class RepositoryUtil {
             .resourcesCpuLimit(2F)
             .resourcesMemoryRequest(500)
             .resourcesMemoryLimit(1000)
-            .message("test_message")
+            .message(message)
             .lastDeployedBy("test_user")
             .lastDeployedDate(OffsetDateTime.now())
             .jobVersion("test_version")

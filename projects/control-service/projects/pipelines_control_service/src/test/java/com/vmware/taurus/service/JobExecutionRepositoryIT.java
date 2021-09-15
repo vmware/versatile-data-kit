@@ -113,4 +113,15 @@ public class JobExecutionRepositoryIT {
       Assertions.assertNotNull(actualJobExecutions);
       Assertions.assertTrue(actualJobExecutions.isEmpty());
    }
+
+   @Test
+   public void testFindDataJobExecutionsByDataJobName_existingDataJobExecution_shouldReturnResult2() {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+      String executionId = "test-execution-id";
+      ExecutionStatus executionStatus = ExecutionStatus.RUNNING;
+      DataJobExecution expectedJobExecution =
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, executionId, actualDataJob, executionStatus);
+
+   }
 }
