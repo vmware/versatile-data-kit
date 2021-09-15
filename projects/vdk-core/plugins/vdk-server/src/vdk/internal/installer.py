@@ -83,6 +83,7 @@ class Installer:
         self.__delete_kind_cluster()
         self.__delete_git_server_container()
         self.__delete_docker_registry_container()
+        self.__cleanup_configuration()
         log.info(f"Versatile Data Kit Control Service uninstalled successfully")
 
     @staticmethod
@@ -689,10 +690,32 @@ class Installer:
             )
             if result.returncode != 0:
                 stderr_as_str = result.stderr.decode("utf-8")
-                log.error("Failed to finalize configuration")
+                log.error("Failed to finalize installation")
                 log.error(stderr_as_str)
                 exit(result.returncode)
         except Exception as ex:
-            log.error(f"Failed to finalize configuration. {str(ex)}")
+            log.error(f"Failed to finalize installation. {str(ex)}")
+            exit(1)
+        log.info("Done")
+
+    @staticmethod
+    def __cleanup_configuration():
+        log.info("Cleaning up...")
+        try:
+            result = subprocess.run(
+                [
+                    "vdk",
+                    "reset-default",
+                    "-u",
+                ],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error("Failed to clean up")
+                log.error(stderr_as_str)
+                exit(result.returncode)
+        except Exception as ex:
+            log.error(f"Failed to clean up. {str(ex)}")
             exit(1)
         log.info("Done")
