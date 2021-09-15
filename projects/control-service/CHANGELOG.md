@@ -6,6 +6,8 @@ Changelog
 * **New feature**
 * **Improvement**
 * **Bug Fixes**
+  * Data job execution status fix
+    In case of failed data job execution due to the User Error the execution status will be marked as Failed instead of Finished.
 * **Breaking Changes**
 
 
