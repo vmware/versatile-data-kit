@@ -1,5 +1,5 @@
 # Versatile Data Kit Service
-Versatile Data Kit is a platform that enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation into Data Warehouse (T in ELT).
+Versatile Data Kit is a platform that enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation into a database (T in ELT).
 
 ## Prerequisites
 - Kubernetes 1.15+

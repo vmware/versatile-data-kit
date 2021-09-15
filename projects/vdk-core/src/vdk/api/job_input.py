@@ -299,8 +299,8 @@ class ITemplate:
 
         Templates are pieces of reusable code, which is common to use cases of different customers of VDK.
         Templates are executed in the context of a Data Job..
-        They provide an easy solution to common tasks of loading data to a data warehouse or ingesting data in a common way.
-        For example there are templaets for:
+        They provide an easy solution to common tasks of loading data to a database or ingesting data in a common way.
+        For example there are templates for:
         * Slowly Changing Dimension Type 1 strategy overwrites the data in target table with the data defined in the source
         * Slowly Changing Dimension Type 2 accumulates updates from the data source as versioned records in the target table
 
