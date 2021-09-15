@@ -72,10 +72,10 @@ If you click right button on the `tests` folder you should now see `Run 'pytest 
 Release means it's uploaded in PIP Repository. <br>
 Versioning follows https://semver.org
 
-* Bump version in [version.txt](./version.txt)
-    * This would trigger a release step git Gitlab CI if build/tests are successful.
-* Update [CHANGELOG.md](./CHANGELOG.md) (for major or minor version updates or user facing patch updates)
-* It is recommended that the release commit does not contain any other changes.
+The CI would set automatically patch version and make new release on each commit to main with successful CI Pipeline.
+
+* To bump major or minor version edit [version.txt](./version.txt)
+* [CHANGELOG.md](./CHANGELOG.md) should be updated when the change is introduced. When major or minor version is bumped, create new section for it only.
 
 ## Running VDK CLI locally
 

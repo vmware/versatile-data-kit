@@ -65,10 +65,11 @@ class Installer:
         self.__configure_kind_local_docker_registry()
         self.__install_ingress_prerequisites()
         self.__install_helm_chart()
+        self.__finalize_configuration()
         log.info(f"Versatile Data Kit Control Service installed successfully")
         log.info(
             "You can now use the other vdk commands to create, run, and deploy jobs. For example:\n"
-            "vdk create -n example-job -t my-team --local --cloud\n"
+            "vdk create -n example-job -t my-team -p . --local --cloud\n"
             'vdk deploy -n example-job -t my-team -p ./example-job -r "initial deployment"'
         )
 
@@ -76,10 +77,13 @@ class Installer:
         """
         Uninstalls all components.
         """
-        self.__uninstall_helm_chart()
+        log.info("Starting uninstallation of Versatile Data Kit Control Service...")
+        # No need to uninstall the helm chart as it will be deleted as part of the cluster deletion
+        # self.__uninstall_helm_chart()
         self.__delete_kind_cluster()
         self.__delete_git_server_container()
         self.__delete_docker_registry_container()
+        log.info(f"Versatile Data Kit Control Service uninstalled successfully")
 
     @staticmethod
     def __get_current_directory() -> pathlib.Path:
@@ -133,11 +137,11 @@ class Installer:
                     ports={"5000/tcp": ("127.0.0.1", self.__docker_registry_port)},
                 )
                 log.info(
-                    f"Docker registry container {self.docker_registry_container_name} created"
+                    f'Docker registry container "{self.docker_registry_container_name}" created'
                 )
         except Exception as ex:
             log.error(
-                f"Failed to create Docker registry container {self.docker_registry_container_name}. {str(ex)}"
+                f'Failed to create Docker registry container "{self.docker_registry_container_name}". {str(ex)}'
             )
             sys.exit(1)
         finally:
@@ -158,7 +162,7 @@ class Installer:
                 docker_client.api.remove_container(container_name)
             except Exception as ex:
                 log.error(
-                    f"Failed to remove Docker container {container_name}. {str(ex)}"
+                    f'Failed to remove Docker container "{container_name}". {str(ex)}'
                 )
             else:
                 log.info(f'Docker container "{container_name}" deleted successfully')
@@ -178,7 +182,9 @@ class Installer:
         try:
             docker_client.api.restart(container_name)
         except Exception as ex:
-            log.error(f"Failed to restart Docker container {container_name}. {str(ex)}")
+            log.error(
+                f'Failed to restart Docker container "{container_name}". {str(ex)}'
+            )
             sys.exit(1)
         else:
             log.debug(f'Docker container "{container_name}" restarted successfully')
@@ -210,11 +216,11 @@ class Installer:
                     ports={"22/tcp": "10022", "3000/tcp": "10080", "80/tcp": "10081"},
                 )
                 log.info(
-                    f"Git server container {self.docker_registry_container_name} created"
+                    f'Git server container "{self.docker_registry_container_name}" created'
                 )
         except Exception as ex:
             log.error(
-                f"Failed to create Git server container {self.git_server_container_name}. {str(ex)}"
+                f'Failed to create Git server container "{self.git_server_container_name}". {str(ex)}'
             )
             sys.exit(1)
         finally:
@@ -382,9 +388,13 @@ class Installer:
                 },
             )
         except Exception as ex:
-            log.error(f"Failed to create git repository. {str(ex)}")
+            log.error(
+                f'Failed to create git repository "{self.git_server_repository_name}". {str(ex)}'
+            )
             sys.exit(1)
-        log.debug("Git repository created successfully")
+        log.debug(
+            f'Git repository "{self.git_server_repository_name}" created successfully'
+        )
 
     @staticmethod
     def __transform_file(input_file_name, output_file_name, transformation):
@@ -424,7 +434,9 @@ class Installer:
                     self.__transform_template,
                 )
             except Exception as ex:
-                log.error(f"Failed to create Kind cluster. {str(ex)}")
+                log.error(
+                    f'Failed to create Kind cluster "{self.kind_cluster_name}". {str(ex)}'
+                )
                 sys.exit(1)
 
             try:
@@ -451,8 +463,9 @@ class Installer:
                     sys.exit(0)
             except Exception as ex:
                 log.error(
-                    f"Failed to create Kind cluster. Make sure you have Kind installed. {str(ex)}"
+                    f'Failed to create Kind cluster "{self.kind_cluster_name}". Make sure you have Kind installed. {str(ex)}'
                 )
+                sys.exit(1)
         log.info(f'Kind cluster "{self.kind_cluster_name}" created')
 
     def __delete_kind_cluster(self):
@@ -470,7 +483,7 @@ class Installer:
                 log.error(stderr_as_str)
         except Exception as ex:
             log.error(
-                f"Failed to delete Kind cluster. Make sure you have Kind installed. {str(ex)}"
+                f'Failed to delete Kind cluster "{self.kind_cluster_name}". Make sure you have Kind installed. {str(ex)}'
             )
         else:
             log.info(f'Kind cluster "{self.kind_cluster_name}" deleted successfully')
@@ -660,3 +673,26 @@ class Installer:
         log.info("Done")
 
         # The ingress object itself is created later, as part of the Control Service's Helm chart
+
+    @staticmethod
+    def __finalize_configuration():
+        log.info("Finalizing installation...")
+        try:
+            result = subprocess.run(
+                [
+                    "vdk",
+                    "set-default",
+                    "-u",
+                    "http://localhost:8092",
+                ],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error("Failed to finalize configuration")
+                log.error(stderr_as_str)
+                exit(result.returncode)
+        except Exception as ex:
+            log.error(f"Failed to finalize configuration. {str(ex)}")
+            exit(1)
+        log.info("Done")

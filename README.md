@@ -34,11 +34,8 @@ pip install quickstart-vdk
 ```bash
 # see Help to see what you can do
 vdk --help
-# create a new job and start playing around.
-vdk run first-job-directory
 ```
-
-For more see [Getting Started page](https://github.com/vmware/versatile-data-kit/wiki/getting-started)
+Check out the [Getting Started page](https://github.com/vmware/versatile-data-kit/wiki/getting-started) to create and run your first Data Job.
 
 # Documentation
 
