@@ -12,8 +12,10 @@ from enum import Enum
 from enum import unique
 
 import click
+from taurus.vdk.control.configuration.defaults_config import load_default_rest_api_url
 from taurus.vdk.control.configuration.vdk_config import VDKConfig
 from taurus.vdk.control.exception.vdk_exception import VDKException
+
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +61,8 @@ def rest_api_url_option(*names, **kwargs):
             type=click.STRING,
             cls=extended_option(hide_if_default=True),
             help="The base REST API URL. It looks like http://server (without path e.g. /data-jobs)",
-            default=VDKConfig().control_service_rest_api_url,
+            default=VDKConfig().control_service_rest_api_url
+            or load_default_rest_api_url(),
             **kwargs,
         )(f)
 
