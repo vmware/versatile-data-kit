@@ -194,11 +194,11 @@ Examples:
 
 \b
 # List all jobs for team taurus
-vdkcli list -t taurus
+vdk list -t taurus
 
 \b
 # List all jobs for team taurus in json format
-vdkcli list -t taurus -o json
+vdk list -t taurus -o json
                 """,
 )
 @click.option(

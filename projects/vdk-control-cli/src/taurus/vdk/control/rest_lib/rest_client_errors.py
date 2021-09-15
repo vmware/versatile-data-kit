@@ -36,7 +36,7 @@ class ApiClientErrorDecorator:
                     "You may have a spelling mistake or the data job has not been created",
                     consequences="Operation cannot complete.",
                     countermeasures="Make sure that the data job name and team name  are spelled correctly (it is is case-sensitive) . "
-                    "Make sure you have run  vdkcli create  before doing any other operations on a data job.",
+                    "Make sure you have run vdk create before doing any other operations on a data job.",
                 )
 
             return error

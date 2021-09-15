@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 class VDKConfig:
-    # we want the same op id for the single execution of vdkcli hence static variable
+    # we want the same op id for the single execution of vdk hence static variable
     import uuid
 
     _op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
@@ -26,7 +26,7 @@ class VDKConfig:
         op id is also persisted by vdk as system column.
 
         One simplistic example of how it can be used - we can see from logs of
-        vdkcli the op id (fa89cca9c6f146cd)
+        vdk the op id (fa89cca9c6f146cd)
         `2021-02-14 10:15:21,97710.0 [DEBUG] taurus.vdk vdk_config:88
         read_credentials[OpId:fa89cca9c6f146cd]- Reading vdk credential ...`
 

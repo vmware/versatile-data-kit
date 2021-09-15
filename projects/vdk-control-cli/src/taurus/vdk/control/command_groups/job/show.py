@@ -68,7 +68,7 @@ Examples:
 
 \b
 # List all jobs for team taurus
-vdkcli show -n job-name -t team-name
+vdk show -n job-name -t team-name
                 """,
     hidden=True,
 )
