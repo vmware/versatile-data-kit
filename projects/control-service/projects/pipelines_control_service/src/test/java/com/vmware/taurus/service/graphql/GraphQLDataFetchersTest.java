@@ -158,11 +158,6 @@ class GraphQLDataFetchersTest {
       assertThrows(GraphQLException.class, () -> {
          findDataJobs.get(dataFetchingEnvironment);
       });
-
-      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(101);
-      assertThrows(GraphQLException.class, () -> {
-         findDataJobs.get(dataFetchingEnvironment);
-      });
    }
 
    @Test

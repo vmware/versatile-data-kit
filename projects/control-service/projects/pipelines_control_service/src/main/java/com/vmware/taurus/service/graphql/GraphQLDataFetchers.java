@@ -146,8 +146,8 @@ public class GraphQLDataFetchers {
    }
 
    private static void validateInput(int pageSize, int pageNumber) {
-      if (pageSize < 1 || pageSize > 100) {
-         throw new GraphQLException("Page size cannot be less than 1 and greater than 100");
+      if (pageSize < 1) {
+         throw new GraphQLException("Page size cannot be less than 1");
       }
       if (pageNumber < 1) {
          throw new GraphQLException("Page cannot be less than 1");
