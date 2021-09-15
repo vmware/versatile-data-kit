@@ -64,6 +64,7 @@ vdk-control-cli-release:
   before_script:
     - cd projects/vdk-control-cli
   script:
+    - echo "$(cat version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID" > version.txt
     - build_info_file="src/taurus/vdk/control/vdk_control_build_info.py"
     - echo "" > $build_info_file # clear build info file first
     - echo "RELEASE_VERSION='$(cat version.txt)'" >> $build_info_file
@@ -77,5 +78,4 @@ vdk-control-cli-release:
   only:
     refs:
       - main
-    changes:
-      - projects/vdk-control-cli/version.txt
+    changes: *vdk_control_cli_changes_locations
