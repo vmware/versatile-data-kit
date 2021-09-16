@@ -16,7 +16,7 @@ from junit_xml import TestCase
 from junit_xml import TestSuite
 from junit_xml import to_xml_report_file
 from junit_xml import to_xml_report_string
-from taurus.vdk.heartbeat.config import Config
+from vdk.internal.heartbeat.config import Config
 
 
 class _Result:

@@ -69,7 +69,7 @@ class Config:
             self.get_value("RUN_TEST_TIMEOUT_SECONDS", "1200")
         )
 
-        # The Taurus Control Service API URL (http://url/data-jobs) without data-jobs suffix
+        # The Control Service API URL (http://url/data-jobs) without data-jobs suffix
         self.control_api_url = self.get_value("CONTROL_API_URL")
 
         # Job name deployed during the test
@@ -89,7 +89,7 @@ class Config:
             "DATAJOB_DIRECTORY_NAME", "impala"
         )
         self.database_test_module_name = self.get_value(
-            "JOB_RUN_TEST_MODULE_NAME", "taurus.vdk.heartbeat.impala_database_test"
+            "JOB_RUN_TEST_MODULE_NAME", "vdk.internal.heartbeat.impala_database_test"
         )
         self.database_test_class_name = self.get_value(
             "JOB_RUN_TEST_CLASS_NAME", "ImpalaDatabaseHeartbeatTest"

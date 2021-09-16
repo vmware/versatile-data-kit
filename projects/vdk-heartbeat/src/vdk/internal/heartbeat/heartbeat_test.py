@@ -4,8 +4,8 @@ import logging
 from abc import ABC
 from abc import abstractmethod
 
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.tracing import LogDecorator
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.tracing import LogDecorator
 
 log = logging.getLogger(__name__)
 

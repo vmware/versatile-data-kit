@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.heartbeat_test import create_test_instance
-from taurus.vdk.heartbeat.heartbeat_test import HeartbeatTest
-from taurus.vdk.heartbeat.job_controller import JobController
-from taurus.vdk.heartbeat.reporter import TestDecorator
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.heartbeat_test import create_test_instance
+from vdk.internal.heartbeat.heartbeat_test import HeartbeatTest
+from vdk.internal.heartbeat.job_controller import JobController
+from vdk.internal.heartbeat.reporter import TestDecorator
 
 log = logging.getLogger(__name__)
 
