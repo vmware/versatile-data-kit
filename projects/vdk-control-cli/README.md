@@ -52,7 +52,7 @@ If a plugin is installed, vdk automatically finds and integrates it.
 A plugin is python module that enhances or changes the behaviour of the vdk cli. <br>
 A plugin contains one or multiple hook functions.
 
-See all supported hook function specifications that can be implemented in [specs.py](src/taurus/vdk/api/plugin/specs.py)
+See all supported hook function specifications that can be implemented in [specs.py](src/vdk/api/control/plugin/specs.py)
 
 In order to create a new plugin there are only 2 steps:<br>
 
@@ -60,7 +60,7 @@ In order to create a new plugin there are only 2 steps:<br>
 ```python
 # define hookimpl as follows (library requirement: pluggy)
 hookimpl = pluggy.HookimplMarker("vdk_control_cli.plugin")
-# though it's better to use `taurus.vdk.plugin.markers.hookimpl` from vdk-control-cli python package
+# though it's better to use `vdk.internal.control.plugin.markers.hookimpl` from vdk-control-cli python package
 
 # name of function must match name of hookspec function
 @hookimpl
