@@ -36,7 +36,7 @@ pip install -i https://test.pypi.org/simple/ vdk-heartbeat
 You can run the test locally, part of your CICD or schedule it to run periodically. <br>
 
 The test is passed or fail test. <br> If it fails it returns non-zero error code and prints the error.<br>
-It also produces tests.xml file in junit xml format.
+It also produces a tests.xml file in junit xml format.
 
 * Specify configuration in environment variables or in a file (use the file for things that can be in source control)
 * Example:
