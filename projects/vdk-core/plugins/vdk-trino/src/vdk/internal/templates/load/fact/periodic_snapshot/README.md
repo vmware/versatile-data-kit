@@ -1,6 +1,6 @@
 ### Purpose:
 
-This template can be used to load raw data from Data Lake to target 'Snapshot Periodic Fact Table' in Data Warehouse.
+This template can be used to load raw data from a database to target 'Snapshot Periodic Fact Table' in a database.
 In summary, it appends a snapshot of records observed between time t1 and t2 from the source table to the target table,
 truncating all present target table records observed after t1.
 
@@ -14,10 +14,10 @@ truncating all present target table records observed after t1.
 
 ### Template Parameters (template_args):
 
-- target_schema   - Data Warehouse schema, where target data is loaded
-- target_table    - Data Warehouse table of DW type 'Snapshot Periodic Fact Table', where target data is loaded
-- source_schema   - Data Lake schema, where source raw data is loaded from
-- source_view     - Data Lake view, where source raw data is loaded from
+- target_schema   - database schema, where target data is loaded
+- target_table    - database table of type 'Snapshot Periodic Fact Table', where target data is loaded
+- source_schema   - database schema, where source raw data is loaded from
+- source_view     - database view, where source raw data is loaded from
 - last_arrival_ts - Timestamp column, on which increments to target_table are done
 
 ### Prerequisites:
@@ -31,7 +31,7 @@ In order to use this template you need to ensure the following:
 ### Sample Usage:
 
 Say there is SDDC-related 'Snapshot Periodic Fact Table' called 'fact_sddc_daily' in 'history' schema.
-Updating it with the latest raw data from the Data Lake (from source view called 'vw_fact_sddc_daily' in 'default' schema) is done in the following manner:
+Updating it with the latest raw data from a database (from source view called 'vw_fact_sddc_daily' in 'default' schema) is done in the following manner:
 
 ```python
 def run(job_input):
