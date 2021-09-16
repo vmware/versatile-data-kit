@@ -48,7 +48,7 @@ vdk-control-cli-release-acceptance-test:
     - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
     - vdkcli version
     - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
-    - export JOB_NAME=vdk-control-cli-release-test-job-$(date +%s)
+    - export JOB_NAME=vdkcli-release-job-$(date +%s)
     - vdk-heartbeat -f cicd/release_test_heartbeat_config.ini
   artifacts:
     when: always
