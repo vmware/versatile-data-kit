@@ -12,6 +12,9 @@ from taurus_datajob_api import DataJobsPropertiesApi
 from taurus_datajob_api import DataJobsSourcesApi
 from urllib3 import Retry
 from vdk.internal.control.auth.auth import Authentication
+from vdk.internal.control.configuration.defaults_config import (
+    load_default_authentication_disable,
+)
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 
 log = logging.getLogger(__name__)
@@ -40,7 +43,10 @@ class ApiClientFactory:
         )
         self.config.client_side_validation = False
         self.config.verify_ssl = self.vdk_config.http_verify_ssl
-        if self.vdk_config.authentication_disabled:
+        if (
+            self.vdk_config.authentication_disabled
+            or load_default_authentication_disable()
+        ):
             log.info("Authentication is disabled.")
         else:
             auth = Authentication()
