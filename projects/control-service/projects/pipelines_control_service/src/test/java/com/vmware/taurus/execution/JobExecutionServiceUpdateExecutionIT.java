@@ -41,7 +41,6 @@ public class JobExecutionServiceUpdateExecutionIT {
    @AfterEach
    public void cleanUp() {
       jobsRepository.deleteAll();
-      jobExecutionRepository.deleteAll();
    }
 
    @Test
