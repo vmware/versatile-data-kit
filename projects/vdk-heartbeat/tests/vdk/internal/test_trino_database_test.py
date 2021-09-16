@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-'''
 from datetime import datetime
 from unittest.mock import MagicMock
 
@@ -96,8 +95,3 @@ def test_select_data():
         "float_column=6.02214076"
     )
     assert queries[0] == expected
-'''
-
-
-def test_dummy():
-    assert True

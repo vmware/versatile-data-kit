@@ -307,9 +307,8 @@ public class DataJobStatusMonitorTest {
 
     @Test
     @Order(17)
-    public void testRecordJobExecutionStatusSkipped_existingDataJobAndExistingExecution_shouldRecordExecution() {
-        var expectedTerminationMessage = "Skipping job execution due to another parallel running execution.";
-        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", expectedTerminationMessage, JobExecution.Status.RUNNING);
+    public void testRecordJobExecutionStatusSkipped_existingDataJobAndNonExistingExecution_shouldRecordExecution() {
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", null, JobExecution.Status.RUNNING);
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
@@ -318,6 +317,17 @@ public class DataJobStatusMonitorTest {
 
     @Test
     @Order(18)
+    public void testRecordJobExecutionStatusSkipped_existingDataJobAndExistingExecution_shouldRecordExecution() {
+        var expectedTerminationMessage = "Skipping job execution due to another parallel running execution.";
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", expectedTerminationMessage, JobExecution.Status.SKIPPED);
+        dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
+        Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
+
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution);
+    }
+
+    @Test
+    @Order(19)
     public void testRecordJobExecutionStatus_nonExistingDataJobAndNonExistingExecution_shouldNotRecordExecution() {
         JobExecution jobExecution = buildJobExecutionStatus(randomId("data-job-"), randomId("job-"), PodTerminationMessage.SUCCESS.getValue());
         dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);

@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-"""
 import os
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -55,8 +54,3 @@ def test_file_generation(tmpdir):
     file_content = Path(test_junit_xml).read_text()
     assert 'name="func_fail"' in file_content
     assert 'name="func_pass"' in file_content
-"""
-
-
-def test_dummy():
-    assert True

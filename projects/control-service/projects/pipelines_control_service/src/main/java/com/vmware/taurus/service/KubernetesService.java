@@ -494,6 +494,13 @@ public abstract class KubernetesService implements InitializingBean {
                     log.debug("Catching exception because of issue https://github.com/kubernetes-client/java/issues/86", e);
                 else throw e;
             } else throw e;
+
+        } catch (ApiException e) {
+            //If no response body is present this might be a transport layer failure.
+            if (e.getCode() == 404) {
+                log.debug("Job execution: {} team: {}, job: {} cannot be found. K8S response body {}. Will set its status to Cancelled in the DB.",
+                        executionId, teamName, jobName, e.getResponseBody());
+            } else throw e;
         }
     }
 
