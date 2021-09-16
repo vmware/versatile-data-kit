@@ -49,9 +49,10 @@ class Heartbeat:
 
             job_controller.disable_deployment()
 
-            job_controller.check_job_execution_finished()
-            job_controller.start_job_execution()
-            job_controller.check_job_execution_finished()
+            if self._config.check_manual_job_execution:
+                job_controller.check_job_execution_finished()
+                job_controller.start_job_execution()
+                job_controller.check_job_execution_finished()
 
             self.clean(run_test, job_controller)
             log.info("Heartbeat has finished successfully.")
