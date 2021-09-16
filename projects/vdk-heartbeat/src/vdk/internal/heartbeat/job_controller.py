@@ -9,8 +9,8 @@ import subprocess
 import tempfile
 import time
 
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.tracing import LogDecorator
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.tracing import LogDecorator
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class JobController:
         )
 
     def _execute(self, command):
-        # base_command = [f"python", "-m", "taurus.vdk.control.main"]
+        # base_command = [f"python", "-m", "vdk.internal.control.main"]
         base_command = [self.config.vdk_command_name]
         full_command = base_command + command
         log.debug(f"Command: {full_command}")
@@ -359,10 +359,10 @@ class JobController:
         if self.config.data_job_directory_parent:
             vdk_heartbeat_data_job_path = self.config.data_job_directory_parent
         else:
-            import taurus.vdk.vdk_heartbeat_data_job
+            import vdk.internal.vdk_heartbeat_data_job
 
             vdk_heartbeat_data_job_path = (
-                taurus.vdk.vdk_heartbeat_data_job.__path__._path[0]
+                vdk.internal.vdk_heartbeat_data_job.__path__._path[0]
             )
         source_data_job_directory = os.path.abspath(
             os.path.join(

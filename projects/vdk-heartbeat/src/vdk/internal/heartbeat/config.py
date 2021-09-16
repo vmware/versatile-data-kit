@@ -69,7 +69,7 @@ class Config:
             self.get_value("RUN_TEST_TIMEOUT_SECONDS", "1200")
         )
 
-        # The Taurus Control Service API URL (http://url/data-jobs) without data-jobs suffix
+        # The Control Service API URL (http://url/data-jobs) without data-jobs suffix
         self.control_api_url = self.get_value("CONTROL_API_URL")
 
         # Job name deployed during the test
@@ -114,7 +114,7 @@ class Config:
         taurus.vdk.heartbeat.impala_database_test (default)
         """
         self.database_test_module_name = self.get_value(
-            "JOB_RUN_TEST_MODULE_NAME", "taurus.vdk.heartbeat.impala_database_test"
+            "JOB_RUN_TEST_MODULE_NAME", "vdk.internal.heartbeat.impala_database_test"
         )
         """
         Control the class name of the "run_test" executed when job is schedudled in cloud.
