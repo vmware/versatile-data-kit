@@ -76,21 +76,57 @@ class Config:
         self.job_name = self.get_value(
             "JOB_NAME", f"vdk-heartbeat-data-job-{job_suffix}"
         )
-        self.job_version = self.get_value("JOB_VERSION", "HEAD")
+        """
+        The team of the data job ot use.
+        """
         self.job_team = self.get_value("JOB_TEAM", "taurus")
+        """
+            If set to true it will set job notifications to be sent on deploy and execution of the test jobs.
+        """
         self.job_notification_mail = self.get_value(
             "JOB_NOTIFICATION_MAIL", None, is_required=False
         )
+        """
+        The location where data jobs directories can be found.
+        Leave empty (default) to user embedded data jobs in vdk-heartbeat.
+        """
         self.data_job_directory_parent = self.get_value(
             "DATAJOB_DIRECTORY_PARENT", None, is_required=False
         )
-        # by default possible options are: impala, trino, simple
+        """
+        Control the location of hte data job name with parent directory specified by DATAJOB_DIRECTORY_PARENT
+        If DATAJOB_DIRECTORY_PARENT is left by default vdk-heartbeat provides following options:
+        impala, trino, simple, empty
+        JOB_RUN_TEST_* should be set accordingly.
+        """
         self.data_job_directory_name = self.get_value(
             "DATAJOB_DIRECTORY_NAME", "impala"
         )
+        """
+        Control the module name of the "run_test" executed when job is scheduled in cloud.
+        Generally should be used alongside JOB_RUN_TEST_CLASS_NAME, DATAJOB_DIRECTORY_NAME
+
+        the module name (it can be provided by external application)
+        In vdk-heartbeat following are supported:
+        taurus.vdk.heartbeat.empty_run_test
+        taurus.vdk.heartbeat.simple_run_test
+        taurus.vdk.heartbeat.trino_database_test
+        taurus.vdk.heartbeat.impala_database_test (default)
+        """
         self.database_test_module_name = self.get_value(
             "JOB_RUN_TEST_MODULE_NAME", "taurus.vdk.heartbeat.impala_database_test"
         )
+        """
+        Control the class name of the "run_test" executed when job is schedudled in cloud.
+        Generally should be used alongside JOB_RUN_TEST_MODULE_NAME, DATAJOB_DIRECTORY_NAME
+
+        the module name (it can be provided by external application)
+        In vdk-heartbeat following are supported:
+        EmptyRunTest
+        SimpleRunTest
+        TrinoDatabaseRunTest
+        ImpalaDatabaseHeartbeatTest (default)
+        """
         self.database_test_class_name = self.get_value(
             "JOB_RUN_TEST_CLASS_NAME", "ImpalaDatabaseHeartbeatTest"
         )
