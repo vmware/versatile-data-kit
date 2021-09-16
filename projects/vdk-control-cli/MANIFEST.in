@@ -1,4 +1,4 @@
-include src/taurus/vdk/control/job/sample_job/*
+include src/vdk/internal/control/job/sample_job/*
 include version.txt
 
 # this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
