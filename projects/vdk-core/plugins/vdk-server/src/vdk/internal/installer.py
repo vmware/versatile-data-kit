@@ -15,8 +15,12 @@ from kubernetes import client
 from kubernetes import config
 from kubernetes import utils
 from kubernetes import watch
-from taurus.vdk.control.configuration.defaults_config import reset_default_rest_api_url
-from taurus.vdk.control.configuration.defaults_config import write_default_rest_api_url
+from vdk.internal.control.configuration.defaults_config import (
+    reset_default_rest_api_url,
+)
+from vdk.internal.control.configuration.defaults_config import (
+    write_default_rest_api_url,
+)
 from vdk.internal.core.errors import BaseVdkError
 from vdk.internal.core.errors import ErrorMessage
 
