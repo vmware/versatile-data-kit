@@ -3,7 +3,7 @@
 from datetime import datetime
 from unittest.mock import MagicMock
 
-from taurus.vdk.heartbeat.trino_database_test import TrinoDatabaseRunTest
+from vdk.internal.heartbeat.trino_database_test import TrinoDatabaseRunTest
 
 
 def test_create_table():
