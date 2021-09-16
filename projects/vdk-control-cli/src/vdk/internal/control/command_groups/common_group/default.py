@@ -43,7 +43,7 @@ from vdk.internal.control.configuration.defaults_config import write_default_tea
     type=click.STRING,
     is_flag=True,
     default=None,
-    help="Disables authentication.",
+    help="Disables authentication for all the commands that operate against the Control Service.",
 )
 @click.pass_context
 def set_default_command(
