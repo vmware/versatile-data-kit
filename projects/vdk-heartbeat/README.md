@@ -52,7 +52,7 @@ Users can replace the data job being deployed and executed and the run test whic
 See [config.py](src/taurus/vdk/heartbeat/config.py) DATAJOB_DIRECTORY_* and JOB_RUN_TEST_* configuration options.
 
 
-## Build and test and release
+## Build, test, and release
 
 See or run `cicd/build.sh` to build and test the project locally.
 
