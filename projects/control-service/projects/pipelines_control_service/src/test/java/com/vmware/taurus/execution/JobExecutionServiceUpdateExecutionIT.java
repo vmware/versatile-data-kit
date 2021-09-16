@@ -144,7 +144,7 @@ public class JobExecutionServiceUpdateExecutionIT {
    }
 
    @Test
-   public void testUpdateJobExecution_DnStatusSubmittedAndUpdateStatusRunning_UpdateExpected() {
+   public void testUpdateJobExecution_DbStatusSubmittedAndUpdateStatusRunning_UpdateExpected() {
       //control test which makes sure the status gets updated if in submitted
       testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.SUBMITTED, KubernetesService.JobExecution.Status.RUNNING, ExecutionStatus.RUNNING);
    }
