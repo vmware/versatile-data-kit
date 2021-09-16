@@ -5,6 +5,7 @@ Changelog
 ----
 * **New feature**
 * **Improvement**
+  * GraphQL endpoint now does not have limit for fetching data jobs, which was previously 100 jobs per page.
 * **Bug Fixes**
   * Data job execution status fix
     In case of failed data job execution due to the User Error the execution status will be marked as Failed instead of Finished.
