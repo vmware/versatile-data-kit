@@ -14,7 +14,7 @@ It simulates Data Engineer workflow:
 * Deploys the data job with pre-defined scripts to run on a scheduled basis (every minute)
 * Different data jobs and run tests can be run depending o configuration.
   * This way it can run in different modes. See [config.py](src/taurus/vdk/heartbeat/config.py) DATAJOB_DIRECTORY_* and JOB_RUN_TEST_* configuration options.
-* Undeploys and deletes the data job
+* Undeploys and deletes the data job.
 
 ## Prerequisites
 
