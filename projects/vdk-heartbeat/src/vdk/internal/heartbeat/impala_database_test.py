@@ -8,9 +8,9 @@ from datetime import datetime
 from datetime import timedelta
 
 from retrying import retry
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.heartbeat_test import HeartbeatTest
-from taurus.vdk.heartbeat.tracing import LogDecorator
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.heartbeat_test import HeartbeatTest
+from vdk.internal.heartbeat.tracing import LogDecorator
 
 log = logging.getLogger(__name__)
 

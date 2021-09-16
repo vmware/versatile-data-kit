@@ -5,9 +5,9 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from taurus.vdk.heartbeat import reporter
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.reporter import TestDecorator
+from vdk.internal.heartbeat import reporter
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.reporter import TestDecorator
 
 
 @TestDecorator()

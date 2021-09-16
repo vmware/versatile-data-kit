@@ -3,10 +3,10 @@
 import logging
 
 import click
-from taurus.vdk.heartbeat import log_config
-from taurus.vdk.heartbeat import reporter
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.hearbeat import Heartbeat
+from vdk.internal.heartbeat import log_config
+from vdk.internal.heartbeat import reporter
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.hearbeat import Heartbeat
 
 log = logging.getLogger(__name__)
 
