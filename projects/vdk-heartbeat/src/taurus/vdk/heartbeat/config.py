@@ -136,6 +136,15 @@ class Config:
         self.clean_up_on_failure = self._string_to_bool(
             self.get_value("CLEAN_UP_ON_FAILURE", "true", False)
         )
+        """
+        Flag is used to check if manual execution needs to be run as part of the heartbeat test.
+        In manual execution - it will disable the scheduled execution and start manually execution
+        and wait it to finish successfully. It will not verify the logic (e.g it will not run run_test for a second time).
+        It defaults to True.
+        """
+        self.check_manual_job_execution = self._string_to_bool(
+            self.get_value("CHECK_MANUAL_JOB_EXECUTION", "true", False)
+        )
 
         """
         Set file path to the JUNIT XML Test report file. If left empty , the file will not be generated.
