@@ -98,6 +98,16 @@ class Installer:
         self.__cleanup_configuration()
         log.info(f"Versatile Data Kit Control Service uninstalled successfully")
 
+    def check_status(self):
+        if (
+            self.__get_kind_cluster()
+            and self.__docker_container_exists(self.git_server_container_name)
+            and self.__docker_container_exists(self.docker_registry_container_name)
+        ):
+            log.info("The Versatile Data Kit Control Service is installed")
+        else:
+            log.info("No installation found")
+
     @staticmethod
     def __get_current_directory() -> pathlib.Path:
         return pathlib.Path(__file__).parent.resolve()
@@ -500,6 +510,32 @@ class Installer:
             )
         else:
             log.info(f'Kind cluster "{self.kind_cluster_name}" deleted successfully')
+
+    def __get_kind_cluster(self) -> bool:
+        """
+        Checks whether the kind cluster exists.
+        """
+        try:
+            result = subprocess.run(
+                [
+                    "kind",
+                    "get",
+                    "clusters",
+                ],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                stderr_as_str = result.stderr.decode("utf-8")
+                log.error(f"Stderr output: {stderr_as_str}")
+                sys.exit(result.returncode)
+            stdout_as_str = result.stdout.decode("utf-8")
+            return self.kind_cluster_name in stdout_as_str.splitlines()
+        except Exception as ex:
+            log.error(
+                f'Failed to obtain information about the Kind cluster "{self.kind_cluster_name}". '
+                f"Make sure you have Kind installed. {str(ex)}"
+            )
+            sys.exit(1)
 
     def __configure_kind_local_docker_registry(self):
         """
