@@ -50,3 +50,16 @@ vdk-heartbeat -f heartbeat_config.ini
 Users can replace the data job being deployed and executed and the run test which is used to verify the job run/execution.
 
 See [config.py](src/taurus/vdk/heartbeat/config.py) DATAJOB_DIRECTORY_* and JOB_RUN_TEST_* configuration options.
+
+
+## Build and test and release
+
+See or run `cicd/build.sh` to build and test the project locally.
+
+### Release
+
+Releases are made to PyPI. <br>
+Versioning follows https://semver.org.
+
+* A release step in Gitlab CI is automatically triggered after merging changes if build/tests are successful.
+* Update major or minor version when necessary only.
