@@ -7,8 +7,8 @@ from typing import Dict
 from typing import List
 from typing import Type
 
-from taurus.vdk.heartbeat.config import Config
-from taurus.vdk.heartbeat.database_run_test import DatabaseHeartbeatTest
+from vdk.internal.heartbeat.config import Config
+from vdk.internal.heartbeat.database_run_test import DatabaseHeartbeatTest
 
 log = logging.getLogger(__name__)
 
