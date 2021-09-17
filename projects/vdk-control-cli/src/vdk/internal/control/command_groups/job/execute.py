@@ -83,6 +83,13 @@ class JobExecute:
             click.echo(json.dumps(result))
 
     @ApiClientErrorDecorator()
+    def cancel(self, name:str, team: str, execution_id: str):
+            click.echo("Cancelling data job execution. Might take some time.")
+            response = self.execution_api.data_job_execution_cancel(team_name=team, job_name=name, execution_id=execution_id)
+            log.debug(f"Response: {response}")
+            click.echo("Job cancelled succesfully.")
+            
+    @ApiClientErrorDecorator()
     def show(self, name: str, team: str, execution_id: str, output: OutputFormat):
         execution: DataJobExecution = self.execution_api.data_job_execution_read(
             team_name=team, job_name=name, execution_id=execution_id
@@ -139,6 +146,12 @@ vdk execute --list -n example-job -t "Example Team"
     help="Start execution of a Data Job. ",
 )
 @click.option(
+    "--cancel",
+    "operation",
+    flag_value=ExecuteOperation.CANCEL,
+    help="Cancel a running Data Job execuiton."
+)
+@click.option(
     "--wait",
     "operation",
     hidden=True,
@@ -186,8 +199,9 @@ def execute(name, team, execution_id, operation, rest_api_url, output):
         cmd.list(name, team, output)
     elif operation == ExecuteOperation.CANCEL:
         name = get_or_prompt("Job Name", name)
-        # cmd.cancel(name, team)
-        click.echo("Operation cancel not implemented")
+        team = get_or_prompt("Job Team", team)
+        execution_id = get_or_prompt("Job Execution ID", execution_id)
+        cmd.cancel(name, team, execution_id)
     elif operation == ExecuteOperation.WAIT:
         name = get_or_prompt("Job Name", name)
         # cmd.wait(name, team)
