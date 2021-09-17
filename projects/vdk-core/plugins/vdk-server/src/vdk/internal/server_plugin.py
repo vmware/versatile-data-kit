@@ -29,20 +29,34 @@ log = logging.getLogger(__name__)
     "-u",
     "--uninstall",
     is_flag=True,
-    help="Removes a previous Control Service installation",
+    help="Removes a previous Control Service installation.",
 )
-def server(install, uninstall):
+@click.option(
+    "--status",
+    is_flag=True,
+    help="Returns whether a local Control Service is currently installed.",
+)
+def server(install, uninstall, status):
+    flags = 0
+    if install:
+        flags += 1
+    if uninstall:
+        flags += 1
+    if status:
+        flags += 1
 
-    if (not install and not uninstall) or (install and uninstall):
+    if flags != 1:
         click.echo(
-            "Exactly one of --install or --uninstall options should be specified"
+            "Exactly one of --install, --uninstall, or --status options should be specified"
         )
     else:
         installer = Installer()
         if install:
             installer.install()
-        else:
+        elif uninstall:
             installer.uninstall()
+        else:
+            installer.check_status()
 
 
 @hookimpl
