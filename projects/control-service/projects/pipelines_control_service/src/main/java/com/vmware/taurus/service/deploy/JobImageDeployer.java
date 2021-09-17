@@ -197,6 +197,9 @@ public class JobImageDeployer {
       jobContainerEnvVars.putAll(vdkEnvs);
       jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
 
+      // The job command is used to start the data job. We rely on this implementation
+      // for passing extra arguments to the KubernetesService. If this implementation is
+      // changed we will need to change the startNewCronJobExecution method in KubernetesService
       var jobCommand = List.of(
               "/bin/bash",
               "-c",
@@ -208,7 +211,6 @@ public class JobImageDeployer {
               jobContainerEnvVars, List.of(),
               List.of(volumeMount, secretVolumeMount), "Always", defaultConfigurations.dataJobRequests(),
               defaultConfigurations.dataJobLimits(), null, jobCommand);
-
       var vdkCommand = List.of(
               "/bin/bash",
               "-c",

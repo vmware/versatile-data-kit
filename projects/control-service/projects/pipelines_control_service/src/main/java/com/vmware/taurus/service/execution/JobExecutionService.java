@@ -83,7 +83,7 @@ public class JobExecutionService {
    public String startDataJobExecution(String teamName, String jobName, String deploymentId, DataJobExecutionRequest jobExecutionRequest) {
       // TODO: deployment ID support
       // TODO: dataJobExecutionRequest args are ignored currently
-
+      var extraJobArguments = jobExecutionRequest.getArgs();
       DataJob dataJob = jobsService.getByNameAndTeam(jobName, teamName).orElseThrow(() -> new DataJobNotFoundException(jobName));
 
       JobDeploymentStatus jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase())
@@ -95,7 +95,6 @@ public class JobExecutionService {
          if (dataJobsKubernetesService.isRunningJob(jobName)) {
             throw new DataJobAlreadyRunningException(jobName);
          }
-
          Map<String, String> annotations = new LinkedHashMap<>();
 
          String opId = operationContext.getOpId();
@@ -112,7 +111,7 @@ public class JobExecutionService {
          envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
          // Start K8S Job
-         dataJobsKubernetesService.startNewCronJobExecution(jobDeploymentStatus.getCronJobName(), executionId, annotations, envs);
+         dataJobsKubernetesService.startNewCronJobExecution(jobDeploymentStatus.getCronJobName(), executionId, annotations, envs, extraJobArguments);
 
          // Save Data Job execution
          saveDataJobExecution(dataJob, executionId, opId, com.vmware.taurus.service.model.ExecutionType.MANUAL, ExecutionStatus.SUBMITTED, startedByBuilt);

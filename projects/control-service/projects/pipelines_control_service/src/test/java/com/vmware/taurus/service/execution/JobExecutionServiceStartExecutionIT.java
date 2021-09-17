@@ -18,8 +18,8 @@ import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -113,7 +113,7 @@ public class JobExecutionServiceStartExecutionIT {
             actualDataJob.getName(),
             "",
             new DataJobExecutionRequest().startedBy("startedBy"));
-      Mockito.verify(dataJobsKubernetesService).startNewCronJobExecution(Mockito.eq(cronJobName), Mockito.eq(executionId), Mockito.eq(annotations), Mockito.eq(envs));
+      Mockito.verify(dataJobsKubernetesService).startNewCronJobExecution(Mockito.eq(cronJobName), Mockito.eq(executionId), Mockito.eq(annotations), Mockito.eq(envs), Mockito.any());
 
       Optional<DataJobExecution> actualDataJobExecutionOptional = jobExecutionRepository.findById(executionId);
       Assertions.assertTrue(actualDataJobExecutionOptional.isPresent());

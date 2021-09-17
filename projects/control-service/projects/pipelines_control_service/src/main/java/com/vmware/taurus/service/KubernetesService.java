@@ -6,7 +6,10 @@
 package com.vmware.taurus.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.vmware.taurus.exception.KubernetesException;
@@ -434,7 +437,8 @@ public abstract class KubernetesService implements InitializingBean {
             .collect(Collectors.toList());
    }
 
-    public void startNewCronJobExecution(String cronJobName, String executionId, Map<String, String> annotations, Map<String, String> envs) throws ApiException {
+    public void startNewCronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
+                                         Map<String, String> envs, Map<String, Object> extraJobArguments) throws ApiException {
         var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null, null, null);
 
         Optional<V1beta1JobTemplateSpec> jobTemplateSpec = Optional.ofNullable(cron)
@@ -464,12 +468,40 @@ public abstract class KubernetesService implements InitializingBean {
               .map(v1PodSpec -> v1PodSpec.getContainers())
               .map(v1Containers -> v1Containers.get(0))
               .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' is not properly defined.", cronJobName)));
-
         if (!CollectionUtils.isEmpty(envs)) {
             envs.forEach((name, value) -> v1Container.addEnvItem(new V1EnvVar().name(name).value(value)));
         }
 
+        if (!CollectionUtils.isEmpty(extraJobArguments)) {
+           addExtraJobArgumentsToVdkContainer(v1Container, extraJobArguments, cronJobName);
+        }
+
         createNewJob(executionId, jobSpec, jobLabels, jobAnnotations);
+    }
+
+    private void addExtraJobArgumentsToVdkContainer(V1Container container, Map<String, Object> extraJobArguments,
+                                                    String cronJobName) throws ApiException {
+        var commandList = new ArrayList<>(container.getCommand()); // create a new List, since old might be immutable.
+
+        if (commandList.size() < 3 || !Iterables.getLast(commandList).contains("vdk run")) {
+            // If current job template definition changes we will throw an exception and will have to change this implementation.
+            log.debug("Command list: {}", commandList);
+            throw new ApiException(String.format("K8S Cron Job '%s' is not properly defined.", cronJobName));
+        }
+
+        try {
+            var jobArgumentsJsonString = new ObjectMapper().writeValueAsString(extraJobArguments);
+            var vdkRunCommand = Iterables.getLast(commandList); // vdk run command is last in the list
+
+            vdkRunCommand += " --arguments '" + jobArgumentsJsonString + "'";
+            commandList.set(commandList.size() - 1, vdkRunCommand); // override old vdk command for command with new arguments
+
+            container.setCommand(commandList);
+        } catch (JsonProcessingException e) {
+            log.debug("JsonProcessingException", e);
+            var errMessage = "Cannot start job execution. Could not parse provided arguments to JSON format due to: " + e.getMessage();
+            throw new ApiException(errMessage);
+        }
     }
 
     public void cancelRunningCronJob(String teamName, String jobName, String executionId) throws ApiException {
