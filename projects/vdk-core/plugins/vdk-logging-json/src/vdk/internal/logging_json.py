@@ -13,12 +13,11 @@ format_template = (
     '"lineno":"%(lineno)s","funcname":"%(funcName)s","attemptid":"{attempt_id}","message":"%(message)s"'
 )
 
-# this class serves to escape newline characters in the log message
-# as according to https://stackoverflow.com/questions/42068/how-do-i-handle-newlines-in-json
+# this class serves to convert newline characters to tabs
 # it is currently experimental and might be removed
 class RemoveNewlinesFormatter(logging.Formatter):
     def format(self, record):
-        record.msg = record.msg.replace("\n", "\\n")
+        record.msg = record.msg.replace("\n", "\t")
         return super().format(record)
 
 
