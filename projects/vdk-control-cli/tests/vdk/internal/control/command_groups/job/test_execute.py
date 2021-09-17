@@ -43,6 +43,39 @@ def test_execute(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     )
 
 
+def test_cancel(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+    team_name = "test-team"
+    job_name = "test-job"
+    execution_id = "test-execution"
+
+    httpserver.expect_request(
+        uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{execution_id}",
+        method="DELETE",
+    ).respond_with_response(Response(status=200, headers={}))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        execute,
+        [
+            "-n",
+            job_name,
+            "-t",
+            team_name,
+            "-i",
+            execution_id,
+            "--cancel",
+            "-u",
+            rest_api_url,
+        ],
+    )
+
+    assert result.exit_code == 0, (
+        f"result exit code is not 0, result output: {result.output}, "
+        f"result.exception: {result.exception}"
+    )
+
+
 def test_execute_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
     result = runner.invoke(execute, ["-n", "job_name", "-t", "team_name"])
