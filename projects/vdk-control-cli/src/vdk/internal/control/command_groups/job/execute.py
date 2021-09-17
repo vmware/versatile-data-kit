@@ -83,12 +83,14 @@ class JobExecute:
             click.echo(json.dumps(result))
 
     @ApiClientErrorDecorator()
-    def cancel(self, name:str, team: str, execution_id: str):
-            click.echo("Cancelling data job execution. Might take some time.")
-            response = self.execution_api.data_job_execution_cancel(team_name=team, job_name=name, execution_id=execution_id)
-            log.debug(f"Response: {response}")
-            click.echo("Job cancelled succesfully.")
-            
+    def cancel(self, name: str, team: str, execution_id: str):
+        click.echo("Cancelling data job execution. Might take some time...")
+        response = self.execution_api.data_job_execution_cancel(
+            team_name=team, job_name=name, execution_id=execution_id
+        )
+        log.debug(f"Response: {response}")
+        click.echo("Job cancelled succesfully.")
+
     @ApiClientErrorDecorator()
     def show(self, name: str, team: str, execution_id: str, output: OutputFormat):
         execution: DataJobExecution = self.execution_api.data_job_execution_read(
@@ -123,6 +125,10 @@ vdk execute --start -n example-job -t "Example Team"
 vdk execute --show --execution-id example-job-1619094633811-cc49d  -n example-job -t "Example Team"
 
 \b
+# Cancel a currently executing Data Job:
+vdk execute --cancel -t "Example Team" -n example-job -i example-job-1619094633811-cc49d
+
+\b
 # List recent execution of a Data Job:
 vdk execute --list -n example-job -t "Example Team"
                """,
@@ -146,12 +152,6 @@ vdk execute --list -n example-job -t "Example Team"
     help="Start execution of a Data Job. ",
 )
 @click.option(
-    "--cancel",
-    "operation",
-    flag_value=ExecuteOperation.CANCEL,
-    help="Cancel a running Data Job execuiton."
-)
-@click.option(
     "--wait",
     "operation",
     hidden=True,
@@ -164,9 +164,8 @@ vdk execute --list -n example-job -t "Example Team"
 @click.option(
     "--cancel",
     "operation",
-    hidden=True,
     flag_value=ExecuteOperation.CANCEL,
-    help="Cancels a job execution. Requires --execution-id to be provided. "
+    help="Cancels a running or submitted Data Job execution. Requires --execution-id to be provided. "
     "Should be printed when using vdk execute --start",
 )
 @click.option(
