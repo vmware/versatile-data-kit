@@ -45,6 +45,7 @@ service:
    # loadBalancerSourceRanges:
    # loadBalancerIP:
    # clusterIP
+   # additionalLabels:
 
 ### Ingress resource parameters
 ingress:
