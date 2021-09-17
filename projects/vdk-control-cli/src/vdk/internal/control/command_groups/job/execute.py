@@ -7,6 +7,7 @@ from enum import Enum
 from enum import unique
 
 import click
+import click_spinner
 from tabulate import tabulate
 from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
@@ -85,11 +86,12 @@ class JobExecute:
     @ApiClientErrorDecorator()
     def cancel(self, name: str, team: str, execution_id: str):
         click.echo("Cancelling data job execution. Might take some time...")
-        response = self.execution_api.data_job_execution_cancel(
-            team_name=team, job_name=name, execution_id=execution_id
-        )
-        log.debug(f"Response: {response}")
-        click.echo("Job cancelled succesfully.")
+        with click_spinner.spinner():
+            response = self.execution_api.data_job_execution_cancel(
+                team_name=team, job_name=name, execution_id=execution_id
+            )
+            log.debug(f"Response: {response}")
+        click.echo("Job cancelled successfully.")
 
     @ApiClientErrorDecorator()
     def show(self, name: str, team: str, execution_id: str, output: OutputFormat):
