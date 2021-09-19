@@ -21,6 +21,7 @@ import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 
@@ -89,5 +90,10 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
       URI location = currentContextPathBuilderSupplier.get().path(contextPath).build();
 
       return ResponseEntity.accepted().location(location).build();
+   }
+
+   @Override
+   public ResponseEntity<String> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
+      return ResponseEntity.ok("");
    }
 }
