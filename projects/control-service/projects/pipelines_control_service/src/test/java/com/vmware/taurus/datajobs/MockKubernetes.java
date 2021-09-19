@@ -8,7 +8,7 @@ package com.vmware.taurus.datajobs;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.kubernetes.client.ApiException;
 import org.mockito.invocation.InvocationOnMock;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +30,9 @@ import static org.mockito.Mockito.*;
 
 /**
  * Registers a bean with a partially functional mock implementation of a {@link KubernetesService}
+ * Since the mock implementation keep state of the kubernetes service resources created.
+ * If cleaning that state after each test method is necessary it is a good idea to use DirtiesContext annotation on the test method.
+ * See https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/test/annotation/DirtiesContext.html
  */
 @Profile("MockKubernetes")
 @Configuration
@@ -80,13 +83,15 @@ public class MockKubernetes {
       doAnswer(inv -> crons.put(inv.getArgument(0), inv))
               .when(mock).createCronJob(anyString(), anyString(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any(), any());
       doAnswer(inv -> crons.put(inv.getArgument(0), inv))
+              .when(mock).createCronJob(anyString(), anyString(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+      doAnswer(inv -> crons.put(inv.getArgument(0), inv))
               .when(mock).updateCronJob(anyString(), anyString(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any(), any());
       doAnswer(inv -> crons.keySet()).when(mock).listCronJobs();
       doAnswer(inv -> crons.remove(inv.getArgument(0))).when(mock).deleteCronJob(anyString());
       doAnswer(inv -> {
-         JobDeployment deployment = null;
+         JobDeploymentStatus deployment = null;
          if (crons.containsKey(inv.getArgument(0))) {
-            deployment = new JobDeployment();
+            deployment = new JobDeploymentStatus();
             deployment.setMode("release");
             deployment.setCronJobName(inv.getArgument(0));
             deployment.setImageName("image-name");
@@ -126,5 +131,6 @@ public class MockKubernetes {
          return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
       }).when(mock).watchJob(anyString(), anyInt(), any());
 
+      doAnswer(inv -> "logs").when(mock).getJobLogs(anyString(), anyInt());
    }
 }

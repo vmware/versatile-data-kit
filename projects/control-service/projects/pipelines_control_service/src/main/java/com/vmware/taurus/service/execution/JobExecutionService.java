@@ -49,6 +49,20 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobEnvVar;
+import com.vmware.taurus.service.model.*;
+import io.kubernetes.client.ApiException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -61,7 +75,7 @@ import com.vmware.taurus.service.model.JobEnvVar;
 @Service
 public class JobExecutionService {
 
-   @AllArgsConstructor
+    @AllArgsConstructor
    public enum ExecutionType {
       MANUAL("manual"),
       SCHEDULED("scheduled");
@@ -292,6 +306,31 @@ public class JobExecutionService {
          jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
          dataJobExecutionsToBeUpdated
                .forEach(dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
+      }
+   }
+
+   public Optional<String> getJobExecutionLogs(String teamName, String jobName, String executionId, Integer tailLines) {
+      // we use readJobExecution to check that execution exists
+      var execution = readJobExecution(teamName, jobName, executionId);
+
+      // if execution.getLogsUrl()
+      // TODO: should we return redirect link ? Or we can let users (e.g CLI) to decide which to use themselves
+      // for example CLI may decide to use logsUrl if it is not empty otherwise it would use Execution Logging API
+
+      // TODO: we need to consider how to throttle memory and api requests ...
+      //  Maybe cache file on disk? Or limit concurrent logging api requests? or limit max lines
+      //  caching logs on disk may help reduce requests toward Kubernetes API as well
+      //  (for example: use logs from disk and max 1 req per minute toward API)
+
+      if (tailLines != null && tailLines <= 0) {
+         tailLines = null;
+      }
+
+      try {
+         return dataJobsKubernetesService.getJobLogs(executionId, tailLines);
+      } catch (Exception e) {
+         var msg = String.format("Failed to get logs for job execution %s (job: %s, team: %s)", executionId, jobName, teamName);
+         throw new KubernetesException(msg, e);
       }
    }
 
