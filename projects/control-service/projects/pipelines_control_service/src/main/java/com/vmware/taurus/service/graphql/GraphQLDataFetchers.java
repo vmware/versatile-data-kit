@@ -9,21 +9,28 @@ import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.DataJobQueryVariables;
+import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
 import com.vmware.taurus.service.model.DataJobPage;
-import com.vmware.taurus.service.model.Filter;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import graphql.GraphQLException;
 import graphql.GraphqlErrorException;
 import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -39,46 +46,63 @@ public class GraphQLDataFetchers {
    private final JobFieldStrategyFactory strategyFactory;
    private final JobsRepository jobsRepository;
    private final DeploymentService deploymentService;
+   private final ExecutionDataFetcher executionDataFetcher;
 
    public DataFetcher<Object> findAllAndBuildDataJobPage() {
       return dataFetchingEnvironment -> {
-         int pageNumber = dataFetchingEnvironment.getArgument("pageNumber");
-         int pageSize = dataFetchingEnvironment.getArgument("pageSize");
-         String search = dataFetchingEnvironment.getArgument("search");
-         List<Filter> filters = convertFilters(dataFetchingEnvironment.getArgument("filter"));
-         validateInput(pageSize, pageNumber);
-
+         DataJobQueryVariables queryVar = fetchDataJobQueryVariables(dataFetchingEnvironment);
          List<V2DataJob> allDataJob = StreamSupport.stream(jobsRepository.findAll().spliterator(), false)
                .map(ToApiModelConverter::toV2DataJob)
                .collect(Collectors.toList());
 
-         DataFetchingFieldSelectionSet requestedFields = dataFetchingEnvironment.getSelectionSet();
-         final Criteria<V2DataJob> filterCriteria = populateCriteria(filters);
-
-         List<V2DataJob> dataJobsFiltered = populateDataJobsByRequestedFields(requestedFields, allDataJob).stream()
+         final Criteria<V2DataJob> filterCriteria = populateCriteria(queryVar.getFilters());
+         List<V2DataJob> dataJobsFiltered = populateDataJobsByRequestedFields(dataFetchingEnvironment, allDataJob).stream()
                .filter(filterCriteria.getPredicate())
-               .filter(computeSearch(requestedFields, search))
+               .filter(computeSearch(dataFetchingEnvironment.getSelectionSet(), queryVar.getSearch()))
                .sorted(filterCriteria.getComparator())
                .collect(Collectors.toList());
 
          int count = dataJobsFiltered.size();
 
-         List<Object> resultList = dataJobsFiltered.stream()
-               .skip((long) (pageNumber - 1) * pageSize)
-               .limit(pageSize)
+         List<V2DataJob> dataJobList = dataJobsFiltered.stream()
+               .skip((long) (queryVar.getPageNumber() - 1) * queryVar.getPageSize())
+               .limit(queryVar.getPageSize())
                .collect(Collectors.toList());
 
-         return buildDataJobPage(pageSize, count, resultList);
+         List<V2DataJob> resultList = populateDataJobsPostPagination(dataJobList, dataFetchingEnvironment);
+
+         return buildDataJobPage(queryVar.getPageSize(), count, new ArrayList<>(resultList));
       };
+   }
+
+   private List<V2DataJob> populateDataJobsPostPagination(List<V2DataJob> allDataJob, DataFetchingEnvironment dataFetchingEnvironment) {
+      if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())) {
+         executionDataFetcher.populateExecutions(allDataJob, dataFetchingEnvironment);
+      }
+
+      return allDataJob;
+   }
+
+   private DataJobQueryVariables fetchDataJobQueryVariables(DataFetchingEnvironment dataFetchingEnvironment) {
+      DataJobQueryVariables queryVariables = new DataJobQueryVariables();
+
+      queryVariables.setPageNumber(dataFetchingEnvironment.getArgument("pageNumber"));
+      queryVariables.setPageSize(dataFetchingEnvironment.getArgument("pageSize"));
+      GraphQLUtils.validatePageInput(queryVariables.getPageSize(), queryVariables.getPageNumber());
+      queryVariables.setSearch(dataFetchingEnvironment.getArgument("search"));
+      queryVariables.setFilters(GraphQLUtils.convertFilters(dataFetchingEnvironment.getArgument("filter")));
+
+      return queryVariables;
    }
 
    /**
     * Alter each data job in order to populate fields that are requested from the GraphQL body
-    * @param requestedFields Requested fields from GraphQL query, parsed from the env
+    * @param dataFetchingEnvironment Environment holder of the graphql requests
     * @param allDataJob      List of the data jobs which will be altered
     * @return Altered data job list
     */
-   private List<V2DataJob> populateDataJobsByRequestedFields(DataFetchingFieldSelectionSet requestedFields, List<V2DataJob> allDataJob) {
+   private List<V2DataJob> populateDataJobsByRequestedFields(DataFetchingEnvironment dataFetchingEnvironment, List<V2DataJob> allDataJob) {
+      DataFetchingFieldSelectionSet requestedFields = dataFetchingEnvironment.getSelectionSet();
       if (requestedFields.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())) {
          populateDeployments(allDataJob);
       }
@@ -88,19 +112,6 @@ public class GraphQLDataFetchers {
             .forEach(strategy -> strategy.getValue().alterFieldData(dataJob)));
 
       return allDataJob;
-   }
-
-   private List<Filter> convertFilters(ArrayList<LinkedHashMap<String, String>> rawFilters) {
-      List<Filter> filters = new ArrayList<>();
-      if (rawFilters != null && !rawFilters.isEmpty()) {
-         rawFilters.forEach(map -> {
-            if (map != null && !map.isEmpty()) {
-               Filter.Direction direction = map.get("sort") == null ? null : Filter.Direction.valueOf(map.get("sort"));
-               filters.add(new Filter(map.get("property"), map.get("pattern"), direction));
-            }
-         });
-      }
-      return filters;
    }
 
    private Criteria<V2DataJob> populateCriteria(List<Filter> filterList) {
@@ -145,23 +156,6 @@ public class GraphQLDataFetchers {
       return predicate == null ? Objects::nonNull : predicate;
    }
 
-   private static void validateInput(int pageSize, int pageNumber) {
-      if (pageSize < 1) {
-         throw new GraphQLException("Page size cannot be less than 1");
-      }
-      if (pageNumber < 1) {
-         throw new GraphQLException("Page cannot be less than 1");
-      }
-   }
-
-   private static DataJobPage buildDataJobPage(int pageSize, int count, List<Object> pageList) {
-      var dataJobPage = new DataJobPage();
-      dataJobPage.setContent(pageList);
-      dataJobPage.setTotalPages(((count - 1) / pageSize + 1));
-      dataJobPage.setTotalItems(count);
-      return dataJobPage;
-   }
-
    private List<V2DataJob> populateDeployments(List<V2DataJob> allDataJob) {
       Map<String, JobDeploymentStatus> deploymentStatuses = deploymentService.readDeployments()
             .stream().collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
@@ -175,5 +169,13 @@ public class GraphQLDataFetchers {
          }
       });
       return allDataJob;
+   }
+
+   private static DataJobPage buildDataJobPage(int pageSize, int count, List<Object> pageList) {
+      var dataJobPage = new DataJobPage();
+      dataJobPage.setContent(pageList);
+      dataJobPage.setTotalPages(((count - 1) / pageSize + 1));
+      dataJobPage.setTotalItems(count);
+      return dataJobPage;
    }
 }

@@ -7,8 +7,9 @@ package com.vmware.taurus.service.graphql.strategy.datajob;
 
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -37,7 +38,7 @@ class JobFieldStrategyByNameTest {
    @Test
    void testJobNameStrategy_whenComputingValidCriteriaWithoutFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(dataJob -> dataJob.getConfig().getDescription()));
-      Filter baseFilter = new Filter("random", null, Filter.Direction.DESC);
+      Filter baseFilter = new Filter("random", null, Sort.Direction.DESC);
       V2DataJob a = createDummyJob("A");
       V2DataJob b = createDummyJob("B");
 
@@ -50,7 +51,7 @@ class JobFieldStrategyByNameTest {
    @Test
    void testJobNameStrategy_whenComputingValidCriteriaWithFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(dataJob -> dataJob.getConfig().getDescription()));
-      Filter baseFilter = new Filter("jobName", "A", Filter.Direction.ASC);
+      Filter baseFilter = new Filter("jobName", "A", Sort.Direction.ASC);
       V2DataJob a = createDummyJob("a");
       V2DataJob b = createDummyJob("b");
 
