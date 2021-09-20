@@ -64,8 +64,8 @@ type DataJobExecution {
     resourcesCpuLimit: Float
     resourcesMemoryRequest: Int
     resourcesMemoryLimit: Int
-    lastDeployedDate: String
-    lastDeployedBy: String
+    deployedDate: String
+    deployedBy: String
     logsUrl: String
 }
 

@@ -198,6 +198,40 @@ paths:
         }<br/>
         </pre><br/>
 
+        Data jobs execution could also be searched by providing arguments to the <b>execution</b> field.
+        Same as parent query arguments, the <b>pageNumber</b> and <b>pageSize</b> arguments are required! Page number should be a <b>number greater than 1</b>,
+        and pageSize <b>should be between 1 and 100 results</b> (per page). You can also <b>filter</b> using the similar object structure as the parent query,
+        but currently <b>filtering is not supported</b>, you can only provide field for sorting.
+        This query will search
+        <pre>
+        {<br/>
+          jobs(<br/>
+            pageNumber: 1,<br/>
+            pageSize: 25,<br/>
+          ) {<br/>
+            content {<br/>
+              jobName,<br/>
+              deployments {<br/>
+                id<br/>
+                executions(<br/>
+                  pageNumber: 1,<br/>
+                  pageSize: 5<br/>
+                  filter: [{<br/>
+                    property: "deployments.executions.startTime",<br/>
+                    sort: "DESC",<br/>
+                  }],<br/>
+                ) {<br/>
+                  id
+                  status
+                  startTime
+                  endTime
+                {</br>
+              }<br/>
+            }<br/>
+          }<br/>
+        }<br/>
+        </pre><br/>
+
         Full example of currently available for fetching fields. Note that if you combine searching and filtering, first
         it will apply filters and then within filtered jobs it will apply the search, vice versa is currently not supported:
         <pre>
@@ -240,6 +274,33 @@ paths:
                 enabled<br/>
                 jobVersion<br/>
                 mode<br/>
+                executions(<br/>
+                  pageNumber: 1,<br/>
+                  pageSize: 25<br/>
+                  filter: [{<br/>
+                    property: "deployments.executions.status",<br/>
+                    sort: "ASC",<br/>
+                  }],<br/>
+                ) {<br/>
+                  id<br/>
+                  type<br/>
+                  status<br/>
+                  message<br/>
+                  startTime<br/>
+                  endTime<br/>
+                  opId<br/>
+                  vkdVersion<br/>
+                  jobVersion<br/>
+                  jobSchedule<br/>
+                  resourcesCpuRequest<br/>
+                  resourcesCpuLimit</br>
+                  resourcesMemoryRequest</br>
+                  resourcesMemoryLimit</br>
+                  deployedDate</br>
+                  deployedBy</br>
+                  startedBy</br>
+                  logsUrl</br>
+                }<br/>
               }<br/>
             }<br/>
             totalPages<br/>
