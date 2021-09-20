@@ -5,20 +5,18 @@
 
 package com.vmware.taurus.service.execution;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.google.gson.JsonSyntaxException;
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
-import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.exception.*;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsService;
-import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.deploy.DeploymentService;
-import com.vmware.taurus.service.deploy.JobImageDeployer;
-import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,10 +25,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
+import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.datajobs.ToModelApiConverter;
+import com.vmware.taurus.exception.DataJobAlreadyRunningException;
+import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
+import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
+import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
+import com.vmware.taurus.exception.DataJobExecutionStatusNotValidException;
+import com.vmware.taurus.exception.DataJobNotFoundException;
+import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
+import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.JobImageDeployer;
+import com.vmware.taurus.service.diag.OperationContext;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.JobAnnotation;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
+import com.vmware.taurus.service.model.JobEnvVar;
 
 
 /**
@@ -238,6 +256,43 @@ public class JobExecutionService {
               .lastDeployedBy(jobExecution.getDeployedBy())
               .build();
       jobExecutionRepository.save(dataJobExecution);
+   }
+
+   /**
+    * We need to keep in sync all job executions in the database
+    * in case of Control Service downtime or missed Kubernetes Job Event
+    * <p>
+    * This method synchronizes Data Job Executions in the database
+    * with the actual running jobs in Kubernetes.
+    * <p>
+    * Note: It takes into account the executions that are started concurrently during
+    * the synchronization or delayed Kubernetes Job Events by synchronizing
+    * only executions that are started before now() - 3 minutes.
+    *
+    * @param runningJobExecutionIds running job identifiers in Kubernetes
+    */
+   public void syncJobExecutionStatuses(List<String> runningJobExecutionIds) {
+      if (runningJobExecutionIds == null) {
+         return;
+      }
+
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
+            jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
+                        List.of(ExecutionStatus.RUNNING), OffsetDateTime.now().minusMinutes(3))
+                  .stream()
+                  .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
+                  .map(dataJobExecution -> {
+                     dataJobExecution.setStatus(ExecutionStatus.FINISHED);
+                     dataJobExecution.setMessage("Status is set by VDK Control Service");
+                     return dataJobExecution;
+                  })
+                  .collect(Collectors.toList());
+
+      if (!dataJobExecutionsToBeUpdated.isEmpty()) {
+         jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
+         dataJobExecutionsToBeUpdated
+               .forEach(dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
+      }
    }
 
    private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, KubernetesService.JobExecution jobExecution) {

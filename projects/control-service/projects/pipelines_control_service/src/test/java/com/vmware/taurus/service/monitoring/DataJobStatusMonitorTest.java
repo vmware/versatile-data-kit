@@ -144,7 +144,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(new DataJob(s.getJobName(), new JobConfig())));
 
         dataJobStatusMonitor.watchJobs();
@@ -170,7 +170,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
         dataJobStatusMonitor.watchJobs();
 
@@ -188,7 +188,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
         dataJobStatusMonitor.watchJobs();
 
@@ -206,7 +206,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(
                 new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), null)));
 
@@ -230,7 +230,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(
                 new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), null)));
 
@@ -260,7 +260,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(12)
     public void testWatchJobsWhenExceptionIsThrown() throws IOException, ApiException {
-        doThrow(new ApiException()).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        doThrow(new ApiException()).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
         Assertions.assertDoesNotThrow(() -> dataJobStatusMonitor.watchJobs());
     }

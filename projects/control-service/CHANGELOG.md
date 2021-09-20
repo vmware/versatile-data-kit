@@ -9,6 +9,8 @@ Changelog
 * **Bug Fixes**
   * Data job execution status fix
     In case of failed data job execution due to the User Error the execution status will be marked as Failed instead of Finished.
+  * Data Job Execution statuses synchronization
+    This will keep in sync all job executions in the database in case of Control Service downtime or missed Kubernetes Job Event.
 * **Breaking Changes**
 
 

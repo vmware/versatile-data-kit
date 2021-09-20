@@ -93,12 +93,17 @@ public class DataJobStatusMonitor {
     @SchedulerLock(name = "watchJobs_schedulerLock")
     public void watchJobs() {
         try {
-            dataJobsKubernetesService.watchJobs(labelsToWatch,
-                    s -> {
-                        log.info("Termination message of job {} with execution {}: {}",
-                                s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
-                        recordJobExecutionStatus(s);
-                    }, lastWatchTime);
+            dataJobsKubernetesService.watchJobs(
+                  labelsToWatch,
+                  s -> {
+                      log.info("Termination message of job {} with execution {}: {}",
+                            s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
+                      recordJobExecutionStatus(s);
+                  },
+                  runningJobExecutionIds -> {
+                    jobExecutionService.syncJobExecutionStatuses(runningJobExecutionIds);
+                  },
+                  lastWatchTime);
             // Move the lastWatchTime one minute into the past to account for events that
             // could have happened after the watch has completed until now
             lastWatchTime = System.currentTimeMillis() - ONE_MINUTE_MILLIS;
