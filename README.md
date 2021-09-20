@@ -10,9 +10,8 @@ It can be called by the workflow engine with the goal of making data engineers m
 (for example, it ensures data applications are packaged, versioned and deployed correctly,
 while dealing with credentials, retries, reconnects, etc.).
 Everything exposed by Versatile Data Kit provides built-in monitoring, troubleshooting,
-and smart notification capabilities.
-(for example, tracking both code and data modifications and the relations between them
-enables engineers to troubleshoot more quickly and provides an easy revert to a stable version)
+and smart notification capabilities. For example, tracking both code and data modifications and the relations between them
+enables engineers to troubleshoot more quickly and provides an easy revert to a stable version.
 
 Versatile Data Kit consists of:
 
