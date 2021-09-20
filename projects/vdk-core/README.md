@@ -3,7 +3,7 @@
 To build or contribute, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 Versatile Data Kit enables data engineers, data scientists and data analysts to develop, deploy, run, and manage data processing workloads (called "Data Job").
-A "Data Job" enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation into a Data Warehouse (T in ELT).
+A "Data Job" enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation into a database (T in ELT).
 
 ## Build
 

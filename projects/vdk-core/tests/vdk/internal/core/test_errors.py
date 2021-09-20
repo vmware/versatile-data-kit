@@ -1,0 +1,212 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+import logging
+import unittest
+from collections import defaultdict
+from unittest.mock import MagicMock
+
+import pytest
+from vdk.internal.core import errors
+from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
+
+log = logging.getLogger(__name__)
+
+
+class ErrorsTest(unittest.TestCase):
+    def setUp(self):
+        errors.BLAMEES = defaultdict(list)
+
+    def tearDown(self):
+        errors.BLAMEES = defaultdict(list)
+
+    def test_get_blamee_overall_none(self):
+        blamee = errors.get_blamee_overall()
+        self.assertEqual(blamee, None, "There are no errors")
+
+    def test_get_blamee_overall_platform(self):
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.PLATFORM_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! SRE",
+        )
+        blamee = errors.get_blamee_overall()
+        self.assertEqual(
+            blamee, errors.ResolvableBy.PLATFORM_ERROR, "Platform exception"
+        )
+
+    def test_get_blamee_overall_owner(self):
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.USER_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! Owner",
+        )
+        blamee = errors.get_blamee_overall()
+        self.assertEqual(blamee, errors.ResolvableBy.USER_ERROR, "Owner exception")
+
+    def test_get_blamee_overall_both(self):
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.PLATFORM_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! SRE",
+        )
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.USER_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! Owner",
+        )
+        blamee = errors.get_blamee_overall()
+        self.assertEqual(blamee, errors.ResolvableBy.USER_ERROR, "Owner exception")
+
+    def test_throws_correct_type(self):
+        with self.assertRaises(errors.BaseVdkError) as context:
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
+                log=log,
+                what_happened="(WHAT)",
+                why_it_happened="(WHY)",
+                consequences="(CON)",
+                countermeasures="(MES)",
+            )
+        self.assertTrue(isinstance(context.exception, errors.PlatformServiceError))
+
+        with self.assertRaises(errors.BaseVdkError) as context:
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                log=log,
+                what_happened="(WHAT)",
+                why_it_happened="(WHY)",
+                consequences="(CON)",
+                countermeasures="(MES)",
+            )
+        self.assertTrue(isinstance(context.exception, errors.UserCodeError))
+
+    def test_exception_error_message_required(self):
+        with self.assertRaises(TypeError):
+            errors.DomainError()
+
+    def test_exception_matcher_empty_exception(self):
+        self.assertTrue(
+            errors.exception_matches(
+                e=errors.DomainError(""),
+                classname_with_package=f"{errors.__name__}.DomainError",
+                exception_message_matcher_regex=".*",
+            )
+        )
+
+    def test_exception_matcher_exception_with_text(self):
+        self.assertTrue(
+            errors.exception_matches(
+                e=errors.DomainError("Some.text.that/should?match!regex"),
+                classname_with_package=f"{errors.__name__}.DomainError",
+                exception_message_matcher_regex=r"^.*\..*\..*\/.*\?.*!regex$",
+            )
+        )
+
+    def test_exception_matcher_exception_with_wrong_class(self):
+        self.assertFalse(
+            errors.exception_matches(
+                e=errors.DomainError("Doesn't matter what the text is"),
+                classname_with_package="wrong.class.package",
+                exception_message_matcher_regex="^.*$",
+            )
+        )
+
+    def test_exception_matche_exception_with_not_matching_message(self):
+        self.assertFalse(
+            errors.exception_matches(
+                e=errors.DomainError("This string doesn't contain question mark"),
+                classname_with_package=f"{errors.__name__}.DomainError",
+                exception_message_matcher_regex=r"^.*\?.*$",
+            )
+        )
+
+    def test_log_and_rethrow(self):
+        log = MagicMock(spec=logging.Logger)
+        with pytest.raises(IndexError):
+            errors.log_and_rethrow(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "w",
+                "w",
+                "c",
+                "c",
+                IndexError("foo"),
+                False,
+            )
+        log.exception.assert_called_once()
+
+    def test_log_and_rethrow_and_log_once_only(self):
+        log = MagicMock(spec=logging.Logger)
+        error = IndexError("foo")
+        with pytest.raises(IndexError):
+            errors.log_and_rethrow(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "w",
+                "w",
+                "c",
+                "c",
+                error,
+                False,
+            )
+
+        with pytest.raises(IndexError):
+            errors.log_and_rethrow(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "w",
+                "w",
+                "c",
+                "c",
+                error,
+                False,
+            )
+
+        log.exception.assert_called_once()
+
+    def test_log_and_rethrow_wrap(self):
+        log = MagicMock(spec=logging.Logger)
+
+        with pytest.raises(UserCodeError):
+            errors.log_and_rethrow(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "w",
+                "w",
+                "c",
+                "c",
+                IndexError("foo"),
+                True,
+            )
+        with pytest.raises(PlatformServiceError):
+            errors.log_and_rethrow(
+                errors.ResolvableBy.PLATFORM_ERROR,
+                log,
+                "w",
+                "w",
+                "c",
+                "c",
+                IndexError("foo"),
+                True,
+            )
+        with pytest.raises(VdkConfigurationError):
+            errors.log_and_rethrow(
+                errors.ResolvableBy.CONFIG_ERROR,
+                log,
+                "w",
+                "w",
+                "c",
+                "c",
+                IndexError("foo"),
+                True,
+            )

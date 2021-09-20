@@ -1,7 +1,22 @@
 Changelog
 =========
 
-VDK Control CLI 1.1 - (10.08.2021)
+VDK Control CLI 1.1
+------
+* **New feature**
+
+* **Improvement**
+    * vdk create to handle cases without control service better:
+      Introduced vdk create --local to create job only locally from sample
+      vdk create without arguments would create job locally and try to detect if it can created in cloud
+      vdk create --cloud - always created in cloud only and fail if it cannot
+
+* **Bug Fixes**
+
+* **Breaking changes**
+
+
+VDK Control CLI 1.0 - (10.08.2021)
 ------
 
 First release of VDK Control CLI.

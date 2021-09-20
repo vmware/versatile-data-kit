@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -21,7 +21,7 @@ class JobFieldStrategyBySourceUrlTest {
    private static final String GIT_REPO_URL_RAW = "gitlab.com/taurus/jobs.git";
    private static final String GIT_REPO_URL_FORMATTED = "https://gitlab.com/taurus/jobs";
    private static final String GIT_REPO_BRANCH = "main";
-   private final JobFieldStrategyBySourceUrl strategyBySourceUrl = new JobFieldStrategyBySourceUrl(GIT_REPO_URL_RAW, GIT_REPO_BRANCH);
+   private final JobFieldStrategyBySourceUrl strategyBySourceUrl = new JobFieldStrategyBySourceUrl(GIT_REPO_URL_RAW, GIT_REPO_BRANCH, true);
 
    @Test
    void testJobSourceUrlStrategy_whenGettingStrategyName_shouldBeSpecific() {

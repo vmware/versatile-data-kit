@@ -1,8 +1,8 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from taurus.vdk.logging_ltsv import format_template
+from vdk.internal.logging_ltsv import format_template
 
 
 def test_ltsv_logging():

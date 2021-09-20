@@ -1,10 +1,11 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
 import setuptools
 
-__version__ = "0.1.2"
+
+__version__ = "0.1.4"
 
 setuptools.setup(
     name="vdk-test-utils",

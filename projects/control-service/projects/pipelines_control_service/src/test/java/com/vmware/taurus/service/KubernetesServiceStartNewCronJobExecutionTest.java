@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,8 +10,7 @@ import com.vmware.taurus.service.model.JobEnvVar;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.apis.BatchV1beta1Api;
 import io.kubernetes.client.models.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -31,7 +30,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
       Exception exception = Assertions.assertThrows(ApiException.class, () ->
             kubernetesService.startNewCronJobExecution(jobName, "test-execution-id", Collections.emptyMap(), Collections.emptyMap()));
 
-      Assert.assertEquals(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", jobName), exception.getMessage());
+      Assertions.assertEquals(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", jobName), exception.getMessage());
    }
 
    @Test
@@ -43,7 +42,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
       Exception exception = Assertions.assertThrows(ApiException.class, () ->
             kubernetesService.startNewCronJobExecution(jobName, "dada", Collections.emptyMap(), Collections.emptyMap()));
 
-      Assert.assertEquals(String.format("K8S Cron Job '%s' is not properly defined.", jobName), exception.getMessage());
+      Assertions.assertEquals(String.format("K8S Cron Job '%s' is not properly defined.", jobName), exception.getMessage());
    }
 
    @Test
@@ -73,7 +72,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                   Mockito.anyMap(),
                   Mockito.anyMap());
 
-      Assert.assertEquals(executionId, executionIdArgumentCaptor.getValue());
+      Assertions.assertEquals(executionId, executionIdArgumentCaptor.getValue());
 
       Optional<List<V1EnvVar>> actualV1EnvVarsOptional = Optional.ofNullable(v1JobSpecArgumentCaptor.getValue())
             .map(v1JobSpec -> v1JobSpec.getTemplate())
@@ -81,12 +80,12 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
             .map(v1PodSpec -> v1PodSpec.getContainers())
             .map(v1Containers -> v1Containers.get(0))
             .map(v1Container -> v1Container.getEnv());
-      Assert.assertTrue(actualV1EnvVarsOptional.isPresent());
+      Assertions.assertTrue(actualV1EnvVarsOptional.isPresent());
 
       List<V1EnvVar> actualV1EnvVars = actualV1EnvVarsOptional.get();
-      Assert.assertEquals(2, actualV1EnvVars.size());
-      Assert.assertTrue(actualV1EnvVars.contains(vdkOpIdEnv));
-      Assert.assertTrue(actualV1EnvVars.contains(testEnv));
+      Assertions.assertEquals(2, actualV1EnvVars.size());
+      Assertions.assertTrue(actualV1EnvVars.contains(vdkOpIdEnv));
+      Assertions.assertTrue(actualV1EnvVars.contains(testEnv));
    }
 
    @Test
@@ -124,12 +123,12 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                   labelsArgumentCaptor.capture(),
                   annotationsArgumentCaptor.capture());
 
-      Assert.assertEquals(executionId, executionIdArgumentCaptor.getValue());
-      Assert.assertNotNull(labelsArgumentCaptor.getValue());
-      Assert.assertFalse(labelsArgumentCaptor.getValue().isEmpty());
-      Assert.assertEquals(expectedResult.getSpec().getJobTemplate().getMetadata().getLabels(), labelsArgumentCaptor.getValue());
+      Assertions.assertEquals(executionId, executionIdArgumentCaptor.getValue());
+      Assertions.assertNotNull(labelsArgumentCaptor.getValue());
+      Assertions.assertFalse(labelsArgumentCaptor.getValue().isEmpty());
+      Assertions.assertEquals(expectedResult.getSpec().getJobTemplate().getMetadata().getLabels(), labelsArgumentCaptor.getValue());
 
-      Assert.assertEquals(expectedAnnotations, annotationsArgumentCaptor.getValue());
+      Assertions.assertEquals(expectedAnnotations, annotationsArgumentCaptor.getValue());
    }
 
    private KubernetesService mockKubernetesService(String jobName, V1beta1CronJob result) throws ApiException {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -58,9 +58,10 @@ public class GitWrapper {
     public GitWrapper(
           @Value("${datajobs.git.url}") String gitDataJobsUrl,
           @Value("${datajobs.git.branch}") String gitDataJobsBranch,
-          @Value("${datajobs.git.remote}") String gitDataJobsRemote) {
+          @Value("${datajobs.git.remote}") String gitDataJobsRemote,
+          @Value("${datajobs.git.ssl.enabled}") boolean gitDataJobsSslEnabled) {
 
-        this.gitDataJobsUrl = constructCorrectGitUrl(gitDataJobsUrl);
+        this.gitDataJobsUrl = constructCorrectGitUrl(gitDataJobsUrl, gitDataJobsSslEnabled);
         this.gitDataJobsBranch = gitDataJobsBranch;
         this.gitDataJobsRemote = gitDataJobsRemote;
     }
@@ -130,10 +131,11 @@ public class GitWrapper {
         git.add().addFilepattern(FILE_PATTERN).setUpdate(true).call();
     }
 
-    public static String constructCorrectGitUrl(String gitDataJobsUrl) {
+    public static String constructCorrectGitUrl(String gitDataJobsUrl, boolean gitDataJobsSslEnabled) {
         URI u =  URI.create(gitDataJobsUrl);
         if (StringUtils.isBlank(u.getScheme())) {
-            return "https://" + u.toString();
+            String scheme = gitDataJobsSslEnabled ? "https" : "http";
+            return scheme + "://" + u.toString();
         }
         return gitDataJobsUrl;
     }

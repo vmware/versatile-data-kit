@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
@@ -7,13 +7,13 @@ from unittest import mock
 
 from click.testing import Result
 from functional.run import util
-from taurus.vdk.core.errors import VdkConfigurationError
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
-from taurus.vdk.test_utils.util_funcs import get_test_job_path
-from taurus.vdk.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
-from taurus.vdk.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
-from taurus.vdk.test_utils.util_plugins import SqLite3MemoryDbPlugin
+from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal.test_utils.util_funcs import get_test_job_path
+from vdk.internal.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
+from vdk.internal.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
+from vdk.internal.test_utils.util_plugins import SqLite3MemoryDbPlugin
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 

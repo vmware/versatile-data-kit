@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # TODO: consider evolving in more sophisticated manner:
@@ -52,8 +52,8 @@ python setup.py sdist --formats=gztar && pip install dist/* || fail "VDK Install
 
 function restore_vdk_in_editable_mode {
   pip install -e .
-  pip install -e --extra-index-url $PIP_EXTRA_INDEX_URL ./plugins/vdk-trino
-  pip install -e --extra-index-url $PIP_EXTRA_INDEX_URL ./plugins/vdk-plugin-control-cli
+  pip install --extra-index-url $PIP_EXTRA_INDEX_URL -e ./plugins/vdk-trino
+  pip install --extra-index-url $PIP_EXTRA_INDEX_URL -e ./plugins/vdk-plugin-control-cli
 }
 trap restore_vdk_in_editable_mode EXIT
 

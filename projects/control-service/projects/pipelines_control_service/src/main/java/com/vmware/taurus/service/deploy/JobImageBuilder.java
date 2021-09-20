@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -42,22 +42,26 @@ public class JobImageBuilder {
    private String gitUsername;
    @Value("${datajobs.git.password}")
    private String gitPassword;
-   @Value("${datajobs.aws.region}")
+   @Value("${datajobs.aws.region:}")
    private String awsRegion;
-   @Value("${datajobs.aws.accessKeyId}")
+   @Value("${datajobs.aws.accessKeyId:}")
    private String awsAccessKeyId;
-   @Value("${datajobs.aws.secretAccessKey}")
+   @Value("${datajobs.aws.secretAccessKey:}")
    private String awsSecretAccessKey;
    @Value("${datajobs.docker.repositoryUrl}")
    private String dockerRepositoryUrl;
    @Value("${datajobs.docker.registryType}")
    private String registryType;
-   @Value("${datajobs.docker.registryUsername}")
+   @Value("${datajobs.docker.registryUsername:}")
    private String registryUsername;
-   @Value("${datajobs.docker.registryPassword}")
+   @Value("${datajobs.docker.registryPassword:}")
    private String registryPassword;
    @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
    private String deploymentDataJobBaseImage;
+   @Value("${datajobs.deployment.builder.extraArgs:}")
+   private String extraArgs;
+   @Value("${datajobs.git.ssl.enabled}")
+   private boolean gitDataJobsSslEnabled;
 
    private final ControlKubernetesService controlKubernetesService;
    private final DockerRegistryService dockerRegistryService;
@@ -77,7 +81,7 @@ public class JobImageBuilder {
 
    /**
     * Builds and pushes a docker image for a data job.
-    * Runs a docker-in-docker job on k8s which is responsible for building and pushing the data job image.
+    * Runs a  job on k8s which is responsible for building and pushing the data job image.
     * This call will block until the builder job has finished.
     * Notifies the users on failure.
     *
@@ -142,7 +146,7 @@ public class JobImageBuilder {
       controlKubernetesService.createJob(
             builderJobName,
             dockerRegistryService.builderImage(),
-            true,
+            false,
             envs,
             args,
             null,
@@ -158,11 +162,11 @@ public class JobImageBuilder {
       log.debug("Finished watching builder job {}. Condition is: {}", builderJobName, condition);
       String logs = null;
       try {
-         log.debug("Get logs of builder job {}", builderJobName);
+         log.info("Get logs of builder job {}", builderJobName);
          logs = controlKubernetesService.getPodLogs(builderJobName);
       } catch (Exception e) {
          // wrap in Kubernetes exception in case it's ApiException - in order to log more details.
-         String message = new KubernetesException("Could not get pod" + builderJobName + " logs", e).getMessage();
+         String message = new KubernetesException("Could not get pod " + builderJobName + " logs", e).getMessage();
          log.warn("Could not find logs from builder job {}; reason: {}", builderJobName, message);
       }
       if (!condition.isSuccess()) {
@@ -212,7 +216,9 @@ public class JobImageBuilder {
             entry("GIT_COMMIT", jobVersion),
             entry("JOB_GITHASH", jobVersion),
             entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-            entry("BASE_IMAGE", deploymentDataJobBaseImage)
+            entry("BASE_IMAGE", deploymentDataJobBaseImage),
+            entry("EXTRA_ARGUMENTS", extraArgs),
+            entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled))
       );
    }
 

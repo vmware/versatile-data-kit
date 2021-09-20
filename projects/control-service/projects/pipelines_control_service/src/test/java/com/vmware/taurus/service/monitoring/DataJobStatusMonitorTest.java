@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -144,7 +144,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(new DataJob(s.getJobName(), new JobConfig())));
 
         dataJobStatusMonitor.watchJobs();
@@ -170,7 +170,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
         dataJobStatusMonitor.watchJobs();
 
@@ -188,7 +188,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
         dataJobStatusMonitor.watchJobs();
 
@@ -206,7 +206,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(
                 new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), null)));
 
@@ -230,7 +230,7 @@ public class DataJobStatusMonitorTest {
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
             return null;
-        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(
                 new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), null)));
 
@@ -260,7 +260,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(12)
     public void testWatchJobsWhenExceptionIsThrown() throws IOException, ApiException {
-        doThrow(new ApiException()).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), anyLong());
+        doThrow(new ApiException()).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
         Assertions.assertDoesNotThrow(() -> dataJobStatusMonitor.watchJobs());
     }
@@ -307,9 +307,8 @@ public class DataJobStatusMonitorTest {
 
     @Test
     @Order(17)
-    public void testRecordJobExecutionStatusSkipped_existingDataJobAndExistingExecution_shouldRecordExecution() {
-        var expectedTerminationMessage = "Skipping job execution due to another parallel running execution.";
-        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", expectedTerminationMessage, JobExecution.Status.RUNNING);
+    public void testRecordJobExecutionStatusSkipped_existingDataJobAndNonExistingExecution_shouldRecordExecution() {
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", null, JobExecution.Status.RUNNING);
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
@@ -318,6 +317,17 @@ public class DataJobStatusMonitorTest {
 
     @Test
     @Order(18)
+    public void testRecordJobExecutionStatusSkipped_existingDataJobAndExistingExecution_shouldRecordExecution() {
+        var expectedTerminationMessage = "Skipping job execution due to another parallel running execution.";
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", expectedTerminationMessage, JobExecution.Status.SKIPPED);
+        dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
+        Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
+
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution);
+    }
+
+    @Test
+    @Order(19)
     public void testRecordJobExecutionStatus_nonExistingDataJobAndNonExistingExecution_shouldNotRecordExecution() {
         JobExecution jobExecution = buildJobExecutionStatus(randomId("data-job-"), randomId("job-"), PodTerminationMessage.SUCCESS.getValue());
         dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);

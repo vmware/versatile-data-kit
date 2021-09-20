@@ -1,12 +1,12 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import time
 from unittest import mock
 
 import pytest
-from taurus.vdk import trino_plugin
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal import trino_plugin
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
 
 VDK_TRINO_HOST = "VDK_TRINO_HOST"
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"

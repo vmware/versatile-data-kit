@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -14,6 +14,7 @@ more than one plugin in a single package. Also note that the contained plugin ma
 
 "plugin_template" is the Python file which contains the plugin hooks for the corresponding plugin.
 """
+
 __version__ = "0.1.0"
 
 setuptools.setup(
@@ -26,7 +27,7 @@ setuptools.setup(
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["plugin-template = taurus.vdk.plugin_template"]},
+    entry_points={"vdk.plugin.run": ["plugin-template = vdk.internal.plugin_template"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

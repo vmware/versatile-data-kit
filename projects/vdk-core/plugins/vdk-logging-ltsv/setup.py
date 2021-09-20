@@ -1,8 +1,9 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
 import setuptools
+
 
 __version__ = "0.1.0"
 
@@ -16,7 +17,7 @@ setuptools.setup(
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["vdk-logging-ltsv = taurus.vdk.logging_ltsv"]},
+    entry_points={"vdk.plugin.run": ["vdk-logging-ltsv = vdk.internal.logging_ltsv"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

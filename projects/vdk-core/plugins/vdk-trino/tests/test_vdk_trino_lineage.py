@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
@@ -6,11 +6,11 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
-from taurus.api.plugin.hook_markers import hookimpl
-from taurus.vdk import trino_plugin
-from taurus.vdk.lineage import LineageLogger
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
-from taurus.vdk.trino_plugin import LINEAGE_LOGGER_KEY
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal import trino_plugin
+from vdk.internal.lineage import LineageLogger
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal.trino_plugin import LINEAGE_LOGGER_KEY
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"

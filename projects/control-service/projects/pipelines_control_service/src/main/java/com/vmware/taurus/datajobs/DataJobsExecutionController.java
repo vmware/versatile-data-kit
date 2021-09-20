@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -89,5 +89,10 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
       URI location = currentContextPathBuilderSupplier.get().path(contextPath).build();
 
       return ResponseEntity.accepted().location(location).build();
+   }
+
+   @Override
+   public ResponseEntity<String> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
+      return ResponseEntity.ok("");
    }
 }

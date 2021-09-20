@@ -1,8 +1,8 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from taurus.api.job_input import IJobInput
+from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput) -> None:

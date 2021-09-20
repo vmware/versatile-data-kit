@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,7 +7,7 @@ package com.vmware.taurus.service.credentials;
 
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import io.kubernetes.client.ApiException;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,8 +54,8 @@ public class JobCredentialsServiceTest {
         ArgumentCaptor<Map<String, byte[]>> argCaptor = ArgumentCaptor.forClass(Map.class);
 
         verify(kubernetesService, only()).saveSecretData(eq(secretName), argCaptor.capture());
-        Assert.assertTrue(argCaptor.getValue().containsKey("keytab"));
-        Assert.assertArrayEquals("keytab-data".getBytes(), argCaptor.getValue().get("keytab"));
+        Assertions.assertTrue(argCaptor.getValue().containsKey("keytab"));
+        Assertions.assertArrayEquals("keytab-data".getBytes(), argCaptor.getValue().get("keytab"));
     }
 
     @Test

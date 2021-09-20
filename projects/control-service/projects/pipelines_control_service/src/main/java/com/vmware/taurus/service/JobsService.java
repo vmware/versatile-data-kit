@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -88,6 +89,8 @@ public class JobsService {
     *  In addition it will contain WebHookResult in case the WebHookRequest returns 4xx error.
     */
    public JobOperationResult createJob(DataJob jobInfo) {
+      Objects.requireNonNull(jobInfo);
+      Objects.requireNonNull(jobInfo.getJobConfig());
       if (jobsRepository.existsById(jobInfo.getName())) {
          return JobOperationResult.builder()
                  .completed(false)

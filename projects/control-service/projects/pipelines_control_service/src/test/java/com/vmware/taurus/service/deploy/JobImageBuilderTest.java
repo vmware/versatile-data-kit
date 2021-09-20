@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,13 +11,13 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.ApiException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JobImageBuilderTest {
    private static final String TEST_JOB_NAME = "test-job-name";
    private static final String TEST_IMAGE_NAME = "test-image-name";
@@ -54,11 +54,12 @@ public class JobImageBuilderTest {
 
    private DataJob testDataJob;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       ReflectionTestUtils.setField(jobImageBuilder, "dockerRepositoryUrl", "test-docker-repository");
       ReflectionTestUtils.setField(jobImageBuilder, "registryType", "ecr");
       ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", "python:3.7-slim");
+      ReflectionTestUtils.setField(jobImageBuilder, "extraArgs", "");
 
       JobConfig jobConfig = new JobConfig();
       jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
@@ -86,11 +87,11 @@ public class JobImageBuilderTest {
       var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
 
       verify(kubernetesService).createJob(
-            eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(true), any(), any(),
+            eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(false), any(), any(),
             any(), any(), eq(JobImageBuilder.BUILDER_IMAGE_PULL_POLICY), any(), any());
 
       verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
-      Assert.assertTrue(result);
+      Assertions.assertTrue(result);
    }
 
    @Test
@@ -112,9 +113,9 @@ public class JobImageBuilderTest {
 
       verify(kubernetesService, times(2)).deleteJob(TEST_BUILDER_IMAGE_NAME);
       verify(kubernetesService).createJob(
-            eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(true), any(), any(),
+            eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(false), any(), any(),
             any(), any(), eq(JobImageBuilder.BUILDER_IMAGE_PULL_POLICY), any(), any());
-      Assert.assertTrue(result);
+      Assertions.assertTrue(result);
    }
 
    @Test
@@ -133,7 +134,7 @@ public class JobImageBuilderTest {
             any(), any(), anyString(), any(), any());
       verify(notificationHelper, never())
             .verifyBuilderResult(anyString(), any(), any(), any(), anyString(), anyBoolean());
-      Assert.assertTrue(result);
+      Assertions.assertTrue(result);
    }
 
    @Test
@@ -154,12 +155,12 @@ public class JobImageBuilderTest {
       var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
 
       verify(kubernetesService).createJob(
-            eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(true), any(), any(),
+            eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(false), any(), any(),
             any(), any(), eq(JobImageBuilder.BUILDER_IMAGE_PULL_POLICY), any(), any());
 
 
       // verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME); // not called in case of an error
       verify(notificationHelper).verifyBuilderResult(TEST_BUILDER_JOB_NAME, testDataJob, jobDeployment, builderJobResult, TEST_BUILDER_LOGS, true);
-      Assert.assertFalse(result);
+      Assertions.assertFalse(result);
    }
 }

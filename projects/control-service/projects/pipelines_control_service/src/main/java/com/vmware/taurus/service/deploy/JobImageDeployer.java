@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -296,6 +296,6 @@ public class JobImageDeployer {
 
    // Public for integration testing purposes
    public static String getCronJobName(String jobName) {
-      return jobName + KubernetesService.LATEST_VERSION_SUFFIX;
+      return jobName;
    }
 }

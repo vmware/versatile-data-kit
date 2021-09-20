@@ -1,0 +1,29 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-csv:
+  variables:
+    PLUGIN_NAME: vdk-csv
+  extends: .build-plugin
+
+build-py37-vdk-csv:
+  extends: .build-vdk-csv
+  image: "python:3.7"
+
+
+build-py38-vdk-csv:
+  extends: .build-vdk-csv
+  image: "python:3.8"
+
+
+build-py39-vdk-csv:
+  extends: .build-vdk-csv
+  image: "python:3.9"
+
+
+release-vdk-csv:
+  variables:
+    PLUGIN_NAME: vdk-csv
+  extends: .release-plugin

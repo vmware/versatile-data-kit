@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 cd "$(dirname $0)" || exit 1
@@ -8,7 +8,7 @@ cd ..
 
 echo "$(cat version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID" > version.txt
 
-build_info_file="src/taurus/vdk/vdk_build_info.py"
+build_info_file="src/vdk/internal/vdk_build_info.py"
 echo "" > $build_info_file # clear build info file first
 
 echo "RELEASE_VERSION='$(cat version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID'" >> $build_info_file

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 from email.message import Message
@@ -7,11 +7,11 @@ from unittest import mock
 from click.testing import Result
 from functional.run import util
 from smtpdfix import SMTPDFix
-from taurus.vdk.core import errors
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
-from taurus.vdk.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
-from taurus.vdk.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
+from vdk.internal.core import errors
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
+from vdk.internal.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 
 os.environ["SMTPD_SSL_CERTS_PATH"] = "."
 

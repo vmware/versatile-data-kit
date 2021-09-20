@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.notification;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DataJobNotificationTest {
 

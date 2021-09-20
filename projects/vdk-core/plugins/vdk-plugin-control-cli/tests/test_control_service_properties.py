@@ -1,13 +1,13 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 
 import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
-from taurus.vdk.control_service_properties import ControlPlanePropertiesServiceClient
-from taurus.vdk.core.errors import PlatformServiceError
-from taurus.vdk.core.errors import UserCodeError
-from taurus.vdk.core.errors import VdkConfigurationError
+from vdk.internal.control_service_properties import ControlPlanePropertiesServiceClient
+from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
 from werkzeug import Request
 from werkzeug import Response
 

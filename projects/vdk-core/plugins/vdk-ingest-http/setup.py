@@ -1,8 +1,9 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
 import setuptools
+
 
 __version__ = "0.1.0"
 
@@ -17,7 +18,7 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={
-        "vdk.plugin.run": ["vdk-ingest-http = taurus.vdk.ingest_http_plugin"]
+        "vdk.plugin.run": ["vdk-ingest-http = vdk.internal.ingest_http_plugin"]
     },
     classifiers=[
         "Development Status :: 4 - Beta",

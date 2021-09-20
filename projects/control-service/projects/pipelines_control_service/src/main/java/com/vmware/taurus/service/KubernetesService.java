@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -71,7 +71,6 @@ import static java.util.function.Predicate.not;
 public abstract class KubernetesService implements InitializingBean {
 
     public static final String LABEL_PREFIX = "com.vmware.taurus";
-    public static final String LATEST_VERSION_SUFFIX = "-latest";
     private static final int WATCH_JOBS_TIMEOUT_SECONDS = 300;
     private static final String K8S_DATA_JOB_TEMPLATE_RESOURCE ="k8s-data-job-template.yaml";
 
@@ -475,16 +474,32 @@ public abstract class KubernetesService implements InitializingBean {
 
     public void cancelRunningCronJob(String teamName, String jobName, String executionId) throws ApiException {
         log.info("K8S deleting job for team: {} data job name: {} execution: {}", teamName, jobName, executionId);
-        var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
-                null, null,
-                null,
-                null,
-                "Foreground");
+        try {
+            var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
+                    null, null,
+                    null,
+                    null,
+                    "Foreground");
+            //Status of the operation. One of: "Success" or "Failure"
+            if (operationResponse.getStatus().equals("Failure")) {
+                log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
+                throw new ApiException(operationResponse.getCode(), operationResponse.getMessage());
+            }
 
-        //Status of the operation. One of: "Success" or "Failure"
-        if (operationResponse.getStatus().equals("Failure")) {
-            log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
-            throw new ApiException(operationResponse.getCode(), operationResponse.getMessage());
+        } catch (JsonSyntaxException e) {
+            if (e.getCause() instanceof IllegalStateException) {
+                IllegalStateException ise = (IllegalStateException) e.getCause();
+                if (ise.getMessage() != null && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
+                    log.debug("Catching exception because of issue https://github.com/kubernetes-client/java/issues/86", e);
+                else throw e;
+            } else throw e;
+
+        } catch (ApiException e) {
+            //If no response body is present this might be a transport layer failure.
+            if (e.getCode() == 404) {
+                log.debug("Job execution: {} team: {}, job: {} cannot be found. K8S response body {}. Will set its status to Cancelled in the DB.",
+                        executionId, teamName, jobName, e.getResponseBody());
+            } else throw e;
         }
     }
 
@@ -634,7 +649,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     public String getPodLogs(String podName) throws IOException, ApiException {
-        log.debug("Get logs for pod {}", podName);
+        log.info("Get logs for pod {}", podName);
         Optional<V1Pod> pod = getPod(podName);
 
         String logs = "";
@@ -643,6 +658,7 @@ public abstract class KubernetesService implements InitializingBean {
 
             try (BufferedReader br = new BufferedReader(new InputStreamReader(podLogs.streamNamespacedPodLog(pod.get()), Charsets.UTF_8))) {
                 // The builder logs are relatively small so we can afford to load it all in memory for easier processing.
+                log.info("Retrieving logs for Pod with name: {}", podName);
                 logs = br.lines().peek(s -> log.debug("[{}] {}", podName, s)).collect(Collectors.joining(System.lineSeparator()));
             }
         }
@@ -917,9 +933,13 @@ public abstract class KubernetesService implements InitializingBean {
      * @throws ApiException
      * @throws IOException
      */
-    public void watchJobs(Map<String, String> labelsToWatch, Consumer<JobExecution> watcher, long lastWatchTime)
-            throws IOException, ApiException {
-        watchJobs(labelsToWatch, watcher, lastWatchTime, WATCH_JOBS_TIMEOUT_SECONDS);
+    public void watchJobs(
+          Map<String, String> labelsToWatch,
+          Consumer<JobExecution> watcher,
+          Consumer<List<String>> runningJobExecutionsConsumer,
+          long lastWatchTime) throws IOException, ApiException {
+
+        watchJobs(labelsToWatch, watcher, runningJobExecutionsConsumer, lastWatchTime, WATCH_JOBS_TIMEOUT_SECONDS);
     }
 
     /**
@@ -939,11 +959,14 @@ public abstract class KubernetesService implements InitializingBean {
      * @throws ApiException
      * @throws IOException
      */
-    public void watchJobs(Map<String, String> labelsToWatch, Consumer<JobExecution> watcher,
-                          long lastWatchTime, Integer timeoutSeconds)
-            throws ApiException, IOException {
-        Objects.requireNonNull(watcher, "The watcher cannot be null");
+    public void watchJobs(
+          Map<String, String> labelsToWatch,
+          Consumer<JobExecution> watcher,
+          Consumer<List<String>> runningJobExecutionsConsumer,
+          long lastWatchTime,
+          Integer timeoutSeconds) throws ApiException, IOException {
 
+        Objects.requireNonNull(watcher, "The watcher cannot be null");
         log.info("Start watching jobs with labels: {}", labelsToWatch);
 
         // Job change detection implementation:
@@ -951,14 +974,23 @@ public abstract class KubernetesService implements InitializingBean {
         String labelSelector = buildLabelSelector(labelsToWatch);
         String resourceVersion;
         try {
-            var jobList = new BatchV1Api(client).listNamespacedJob(
-                    namespace, "false", null, null, labelSelector, null, null, null, null);
+            var jobList = new BatchV1Api(client)
+                  .listNamespacedJob(namespace, "false", null, null, labelSelector, null, null, null, null);
+            List<String> runningExecutionIds = new ArrayList<>();
+
             jobList.getItems().forEach(job -> {
                 var condition = getJobCondition(job);
-                if (condition != null && condition.getCompletionTime() > lastWatchTime) {
+
+                if (condition == null) {
+                    Optional.ofNullable(job.getMetadata())
+                          .map(V1ObjectMeta::getName)
+                          .ifPresent(executionId -> runningExecutionIds.add(executionId));
+                } else if (condition.getCompletionTime() > lastWatchTime) {
                     getJobExecutionStatus(job, condition).ifPresent(watcher);
                 }
             });
+
+            runningJobExecutionsConsumer.accept(runningExecutionIds);
             resourceVersion = jobList.getMetadata().getResourceVersion();
         } catch (ApiException ex) {
             log.info("Failed to list jobs for watching. Error was: {}", ex.getMessage());
@@ -1380,7 +1412,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (cronJob != null) {
          deployment = new JobDeploymentStatus();
          deployment.setEnabled(!cronJob.getSpec().isSuspend());
-         deployment.setDataJobName(StringUtils.removeEnd(cronJob.getMetadata().getName(), LATEST_VERSION_SUFFIX));
+         deployment.setDataJobName(cronJob.getMetadata().getName());
          deployment.setMode("release"); // TODO: Get from cron job config when we support testing environments
          deployment.setCronJobName(cronJobName == null ? cronJob.getMetadata().getName() : cronJobName);
 

@@ -1,13 +1,54 @@
 Changelog
 =========
 
+1.2.9 - Next
+----
+* **New feature**
+  * Current Execution Logging API introduced (experimental).
+    While users are executing remotely a data job they can monitor their logs now.s
 
-1.2.5 - Next
+* **Improvement**
+  * GraphQL endpoint now does not have limit for fetching data jobs, which was previously 100 jobs per page.
+
+* **Bug Fixes**
+  * Data job execution status fix
+    In case of failed data job execution due to the User Error the execution status will be marked as Failed instead of Finished.
+
+  * Data Job Execution statuses synchronization
+    This will keep in sync all job executions in the database in case of Control Service downtime or missed Kubernetes Job Event.
+
+* **Breaking Changes**
+  * Removed '-latest' suffix from the К8S Cron Job name
+
+
+1.2.7 - 03.09.2021
+----
+* **Improvement**
+  * Extra arguments can be passed to the data job builder via the DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS environment variable
+  * The name of the user who has triggered manual job executions is now displayed
+  * It is now possible to connect to insecure Git repositories by using the GIT_SSL_ENABLED environment variable
+
+
+1.2.6 - 31.08.2021
 ----
 
 * **New feature**
+  * Adding support for forwarding logs of the Control Service Server (only) to syslog server <br>
+    Users can now specify environment variable LOGGING_SYS_LOG_HOST and LOGGING_SYS_LOG_PORT to enable forwarding them to syslog.
+
+
+1.2.5 - 30.08.2021
+----
+
+* **New feature**
+  * implement DELETE Job execution REST API<br>
+    Users can now cancel started data job execution in self-service manner using REST API
+
 
 * **Improvement**
+  * Switch Job Builder image to use kaniko<br>
+    This will enable Control Servie to run in more secure kubernetes (pod security - no privilege run, seccomp/apparmor profiles enabled)
+    It will enable to use local docker registry (without ssl) for easier deployment for prototype purposes
 
 * **Bug Fixes**
 

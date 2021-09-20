@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,8 +13,8 @@ import io.kubernetes.client.models.V1Job;
 import io.kubernetes.client.models.V1JobCondition;
 import io.kubernetes.client.models.V1JobList;
 import io.kubernetes.client.models.V1JobStatus;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class KubernetesServiceIsRunningJobTest {
@@ -83,6 +83,6 @@ public class KubernetesServiceIsRunningJobTest {
       Mockito.when(kubernetesService.initBatchV1Api()).thenReturn(batchV1Api);
       boolean actualResult = kubernetesService.isRunningJob("test-job");
 
-      Assert.assertEquals(expectedResult, actualResult);
+      Assertions.assertEquals(expectedResult, actualResult);
    }
 }

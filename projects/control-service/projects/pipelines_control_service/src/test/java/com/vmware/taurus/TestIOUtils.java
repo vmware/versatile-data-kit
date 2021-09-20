@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class TestIOUtils {
+public final class TestIOUtils {
 
    public static void compareDirectories(File expectedDirectory, File actualDirectory) throws IOException {
        Files.walk(expectedDirectory.toPath())

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -158,11 +158,6 @@ class GraphQLDataFetchersTest {
       assertThrows(GraphQLException.class, () -> {
          findDataJobs.get(dataFetchingEnvironment);
       });
-
-      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(101);
-      assertThrows(GraphQLException.class, () -> {
-         findDataJobs.get(dataFetchingEnvironment);
-      });
    }
 
    @Test
@@ -230,7 +225,7 @@ class GraphQLDataFetchersTest {
       strategies.add(new JobFieldStrategyByName());
       strategies.add(new JobFieldStrategyByNextRun());
       strategies.add(new JobFieldStrategyByScheduleCron());
-      strategies.add(new JobFieldStrategyBySourceUrl("gitlab.com/demo-data-jobs.git", "main"));
+      strategies.add(new JobFieldStrategyBySourceUrl("gitlab.com/demo-data-jobs.git", "main", true));
       strategies.add(new JobFieldStrategyByTeam());
 
       return strategies;

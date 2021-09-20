@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # TODO: deprecate and switch with officially supported docker image builders

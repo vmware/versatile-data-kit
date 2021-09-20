@@ -1,57 +1,86 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service;
 
-import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder;
+import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.webhook.PostCreateWebHookProvider;
 import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.monitoring.DataJobInfoMonitor;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class JobsServiceTest {
 
-   @Test
-   public void testUpdateMissing() {
-      var testInst = createTestInstance();
-      assertFalse(testInst.updateJob(new DataJob("hello", null, null)));
-   }
+    @Mock
+    private JobsRepository jobsRepository;
+    @Mock
+    private DataJobInfoMonitor dataJobInfoMonitor;
 
-   @Test
-   public void testCreateConflict() {
-      var testInst = createTestInstance();
-      assertTrue(testInst.createJob(new DataJob("hello", new JobConfig(), null)).isCompleted());
-      assertFalse(testInst.createJob(new DataJob("hello", null, null)).isCompleted());
-      assertNotNull(testInst.getByName("hello").get().getJobConfig());
-   }
+    @Test
+    public void testCreateUpdateMissing() {
+        var testInst = createTestInstance();
+        assertThrows(NullPointerException.class, () -> testInst.createJob(null).isCompleted());
+        assertThrows(NullPointerException.class, () -> testInst.createJob(new DataJob("hello", null, null)).isCompleted());
 
-   private JobsService createTestInstance() {
-      var dataJobInfoMonitorMock = mock(DataJobInfoMonitor.class);
-      doAnswer(method -> {
-         Supplier<DataJob> supplier = method.getArgument(0);
-         supplier.get();
-         return null;
-      }).when(dataJobInfoMonitorMock).updateDataJobInfo(Mockito.any());
-      return new JobsService(RepositoryFactoryBuilder.builder().mock(JobsRepository.class),
-              mock(DeploymentService.class),
-              mock(JobCredentialsService.class),
-              mock(WebHookRequestBodyProvider.class),
-              mock(PostCreateWebHookProvider.class),
-              mock(PostDeleteWebHookProvider.class),
-              dataJobInfoMonitorMock);
-   }
+        var job = new DataJob("hello", null, null);
+        doAnswer(method -> 1)
+                .when(jobsRepository).updateDataJobLatestJobDeploymentStatusByName(
+                eq(job.getName()), Mockito.any(DeploymentStatus.class));
+        assertFalse(testInst.updateJob(job));
+    }
+
+    @Test
+    public void testCreateConflict() {
+        var testInst = createTestInstance();
+        var job = new DataJob("hello", new JobConfig(), null);
+
+        doAnswer(method -> job).when(jobsRepository)
+                .save(job);
+        doAnswer(method -> 1).when(jobsRepository)
+                .updateDataJobLatestJobDeploymentStatusByName(eq(job.getName()), Mockito.any(DeploymentStatus.class));
+        doAnswer(m -> Optional.of(job)).when(jobsRepository)
+                .findById(eq(job.getName()));
+
+        assertTrue(testInst.createJob(job).isCompleted());
+        assertNotNull(testInst.getByName("hello").get().getJobConfig());
+    }
+
+    private JobsService createTestInstance() {
+        doAnswer(method -> {
+            Supplier<DataJob> supplier = method.getArgument(0);
+            supplier.get();
+            return null;
+        }).when(dataJobInfoMonitor).updateDataJobInfo(Mockito.any());
+        return new JobsService(jobsRepository,
+                mock(DeploymentService.class),
+                mock(JobCredentialsService.class),
+                mock(WebHookRequestBodyProvider.class),
+                mock(PostCreateWebHookProvider.class),
+                mock(PostDeleteWebHookProvider.class),
+                dataJobInfoMonitor);
+    }
 }

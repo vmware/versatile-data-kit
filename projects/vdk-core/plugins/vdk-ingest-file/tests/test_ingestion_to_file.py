@@ -1,10 +1,10 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 from unittest.mock import mock_open
 from unittest.mock import patch
 
-from taurus.vdk.ingestion_to_file import IngestionToFile
+from vdk.internal.ingestion_to_file import IngestionToFile
 
 
 def test_ingestion_to_file():

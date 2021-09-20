@@ -1,4 +1,4 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -8,11 +8,11 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
-from taurus.vdk import trino_plugin
-from taurus.vdk.test_utils.util_funcs import cli_assert_equal
-from taurus.vdk.test_utils.util_funcs import CliEntryBasedTestRunner
-from taurus.vdk.test_utils.util_funcs import get_test_job_path
-from taurus.vdk.trino_utils import TrinoTemplateQueries
+from vdk.internal import trino_plugin
+from vdk.internal.test_utils.util_funcs import cli_assert_equal
+from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.internal.test_utils.util_funcs import get_test_job_path
+from vdk.internal.trino_utils import TrinoTemplateQueries
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
@@ -499,9 +499,6 @@ class TemplateRegressionTests(unittest.TestCase):
                         "active_to_column": "active_to",
                         "active_to_max_value": "9999-12-31",
                         "updated_at_column": "updated_at",
-                        "start_time_column": "start_time",
-                        "end_time_column": "end_time",
-                        "end_time_default_value": "9999-12-31",
                         "test_restore_from_backup": f"{restore_from_backup}",
                         "value_column_1": f"{value_column_1}",
                     }

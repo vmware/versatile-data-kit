@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,9 +15,8 @@ import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.kubernetes.client.ApiException;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics;
@@ -30,7 +29,6 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
@@ -43,16 +41,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-// TODO: move to junit 5
 @AutoConfigureMetrics
-@RunWith(SpringRunner.class)
 @Import({DataJobTerminationStatusIT.TaskExecutorConfig.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 public class DataJobTerminationStatusIT extends BaseIT {
@@ -214,7 +209,9 @@ public class DataJobTerminationStatusIT extends BaseIT {
         // Validate that all metrics for the executed data job are correctly exposed
         // First, validate that there is a taurus_datajob_info metrics for the data job
         var match = findMetricsWithLabel(scrape, INFO_METRICS, "data_job", SIMPLE_JOB_NAME);
-        assertTrue(String.format("Could not find %s metrics for the data job %s", INFO_METRICS, SIMPLE_JOB_NAME), match.isPresent());
+        assertTrue(match.isPresent(),
+                String.format("Could not find %s metrics for the data job %s",
+                        INFO_METRICS, SIMPLE_JOB_NAME));
 
         // Validate the labels of the taurus_datajob_info metrics
         String line = match.get();
@@ -225,7 +222,9 @@ public class DataJobTerminationStatusIT extends BaseIT {
 
         // Validate that there is a taurus_datajob_info metrics for the data job
         match = findMetricsWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", SIMPLE_JOB_NAME);
-        assertTrue(String.format("Could not find %s metrics for the data job %s", TERMINATION_STATUS_METRICS, SIMPLE_JOB_NAME), match.isPresent());
+        assertTrue(match.isPresent(),
+                String.format("Could not find %s metrics for the data job %s",
+                        TERMINATION_STATUS_METRICS, SIMPLE_JOB_NAME));
 
         // Validate that the metrics has a value of 0.0 (i.e. Success)
         System.out.println(match.get().trim());
@@ -236,7 +235,7 @@ public class DataJobTerminationStatusIT extends BaseIT {
         checkDataJobExecutionStatus(executionId, DataJobExecution.StatusEnum.FINISHED, opId);
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         log.info("Cleaning up deployments");
 
@@ -299,11 +298,11 @@ public class DataJobTerminationStatusIT extends BaseIT {
     private static void assertLabelEquals(String metrics, String expectedValue, String label, String line) {
         // Label value is captured in the first regex group
         Matcher matcher = Pattern.compile(String.format(".*%s=\"([^\"]*)\".*", label), Pattern.CASE_INSENSITIVE).matcher(line);
-        assertTrue(String.format("The metrics %s does not have a matching label %s", metrics, label), matcher.find());
+        assertTrue(matcher.find(), String.format("The metrics %s does not have a matching label %s", metrics, label));
         String actualValue = matcher.group(1);
-        assertEquals(String.format("The metrics %s does not have correct value for label %s. Expected: %s, Actual: %s",
-                metrics, label, expectedValue, actualValue),
-                expectedValue, actualValue);
+        assertEquals(expectedValue, actualValue,
+                String.format("The metrics %s does not have correct value for label %s. Expected: %s, Actual: %s",
+                        metrics, label, expectedValue, actualValue));
     }
 
     private Callable<Boolean> deploymentIsDeleted(String jobDeploymentName) {
@@ -396,7 +395,7 @@ public class DataJobTerminationStatusIT extends BaseIT {
         assertEquals(SIMPLE_JOB_NAME, dataJobExecution.getJobName());
         assertEquals(executionStatus, dataJobExecution.getStatus());
         assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
-        assertEquals("manual/" + USER_NAME, dataJobExecution.getStartedBy());
+        assertEquals("manual/" + USER_NAME + "/" + "user", dataJobExecution.getStartedBy());
         assertEquals(opId, dataJobExecution.getOpId());
     }
 }

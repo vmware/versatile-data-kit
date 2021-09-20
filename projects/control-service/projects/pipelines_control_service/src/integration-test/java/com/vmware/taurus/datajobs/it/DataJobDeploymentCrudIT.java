@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,12 +14,11 @@ import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +28,6 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Optional;
@@ -40,8 +38,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// TODO: move to junit 5
-@RunWith(SpringRunner.class)
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 public class DataJobDeploymentCrudIT extends BaseIT {
@@ -63,7 +59,7 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
    }
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       String dataJobRequestBody = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_NAME);
 
@@ -105,10 +101,10 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
       DataJobVersion testDataJobVersion = new ObjectMapper()
             .readValue(jobUploadResult.getResponse().getContentAsString(), DataJobVersion.class);
-      Assert.assertNotNull(testDataJobVersion);
+      Assertions.assertNotNull(testDataJobVersion);
 
       String testJobVersionSha = testDataJobVersion.getVersionSha();
-      Assert.assertFalse(StringUtils.isBlank(testJobVersionSha));
+      Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
       // Setup
       String dataJobDeploymentRequestBody = getDataJobDeploymentRequestBody(testJobVersionSha);
@@ -145,13 +141,13 @@ public class DataJobDeploymentCrudIT extends BaseIT {
       String jobDeploymentName = JobImageDeployer.getCronJobName(TEST_JOB_NAME);
       // Verify job deployment created
       Optional<JobDeploymentStatus> cronJobOptional = dataJobsKubernetesService.readCronJob(jobDeploymentName);
-      Assert.assertTrue(cronJobOptional.isPresent());
+      Assertions.assertTrue(cronJobOptional.isPresent());
       JobDeploymentStatus cronJob = cronJobOptional.get();
-      Assert.assertEquals(testJobVersionSha, cronJob.getGitCommitSha());
-      Assert.assertEquals(DataJobMode.RELEASE.toString(), cronJob.getMode());
-      Assert.assertEquals(true, cronJob.getEnabled());
-      Assert.assertTrue(cronJob.getImageName().endsWith(testJobVersionSha));
-      Assert.assertEquals("user", cronJob.getLastDeployedBy());
+      Assertions.assertEquals(testJobVersionSha, cronJob.getGitCommitSha());
+      Assertions.assertEquals(DataJobMode.RELEASE.toString(), cronJob.getMode());
+      Assertions.assertEquals(true, cronJob.getEnabled());
+      Assertions.assertTrue(cronJob.getImageName().endsWith(testJobVersionSha));
+      Assertions.assertEquals("user", cronJob.getLastDeployedBy());
 
       // Execute get job deployment with no user
       mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
@@ -183,9 +179,9 @@ public class DataJobDeploymentCrudIT extends BaseIT {
       // Verify response
       DataJobDeploymentStatus jobDeployment = mapper.readValue(result.getResponse().getContentAsString(),
               DataJobDeploymentStatus.class);
-      Assert.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
-      Assert.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
-      Assert.assertEquals(true, jobDeployment.getEnabled());
+      Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
+      Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
+      Assertions.assertEquals(true, jobDeployment.getEnabled());
 
       // Execute disable deployment no user
       mockMvc.perform(patch(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
@@ -218,9 +214,9 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
       // Verify deployment disabled
       cronJobOptional = dataJobsKubernetesService.readCronJob(jobDeploymentName);
-      Assert.assertTrue(cronJobOptional.isPresent());
+      Assertions.assertTrue(cronJobOptional.isPresent());
       cronJob = cronJobOptional.get();
-      Assert.assertEquals(false, cronJob.getEnabled());
+      Assertions.assertEquals(false, cronJob.getEnabled());
 
       // Execute delete deployment with no user
       mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
@@ -252,10 +248,10 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
       // Verify deployment deleted
       cronJobOptional = dataJobsKubernetesService.readCronJob(jobDeploymentName);
-      Assert.assertTrue(cronJobOptional.isEmpty());
+      Assertions.assertTrue(cronJobOptional.isEmpty());
    }
 
-   @After
+   @AfterEach
    public void cleanUp() throws Exception {
       mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s/sources",
             TEST_TEAM_NAME,

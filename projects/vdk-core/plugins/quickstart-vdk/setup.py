@@ -1,8 +1,9 @@
-# Copyright (c) 2021 VMware, Inc.
+# Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
 import setuptools
+
 
 __version__ = "0.1.dev1"
 
@@ -20,6 +21,7 @@ setuptools.setup(
         "vdk-sqlite",
         "vdk-ingest-http",
         "vdk-ingest-file",
+        "vdk-server",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

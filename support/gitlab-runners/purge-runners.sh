@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 RUNNER_NAME="vdk-gitlab-runner"
 
 NAMESPACE="cicd"

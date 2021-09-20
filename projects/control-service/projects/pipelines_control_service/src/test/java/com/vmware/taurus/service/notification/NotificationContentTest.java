@@ -1,20 +1,17 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.notification;
 
 import com.vmware.taurus.service.model.JobConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.util.ArrayList;
-import java.util.List;
-
-import static junit.framework.TestCase.fail;
+import java.util.Collections;
 
 public class NotificationContentTest {
 
@@ -36,12 +33,12 @@ public class NotificationContentTest {
                             "<p>Best,<br/>Example Name</p>\n";
 
 
-            Assert.assertEquals(notificationContent.getSender().getAddress(), expectedSender.getAddress());
-            Assert.assertArrayEquals(notificationContent.getRecipients(), expectedRecipients);
-            Assert.assertEquals(notificationContent.getSubject(), expectedSubject);
-            Assert.assertEquals(notificationContent.getContent(), expectedContent);
+            Assertions.assertEquals(notificationContent.getSender().getAddress(), expectedSender.getAddress());
+            Assertions.assertArrayEquals(notificationContent.getRecipients(), expectedRecipients);
+            Assertions.assertEquals(notificationContent.getSubject(), expectedSubject);
+            Assertions.assertEquals(notificationContent.getContent(), expectedContent);
         } catch (AddressException e) {
-            fail("Unexpected exception" + e.toString());
+            Assertions.fail("Unexpected exception" + e.toString());
         }
     }
 
@@ -51,7 +48,7 @@ public class NotificationContentTest {
         try {
             new NotificationContent(jobConfig, "run", "failure", "Example Name", "@vmware.com");
         } catch (AddressException e) {
-            Assert.assertEquals("Missing local name", e.getMessage());
+            Assertions.assertEquals("Missing local name", e.getMessage());
         }
     }
 
@@ -79,29 +76,25 @@ public class NotificationContentTest {
                             "<p>Best,<br/>Example Name</p>\n";
 
 
-            Assert.assertEquals(notificationContent.getSender().getAddress(), expectedSender.getAddress());
-            Assert.assertArrayEquals(notificationContent.getRecipients(), expectedRecipients);
-            Assert.assertEquals(notificationContent.getSubject(), expectedSubject);
-            Assert.assertEquals(notificationContent.getContent(), expectedContent);
+            Assertions.assertEquals(notificationContent.getSender().getAddress(), expectedSender.getAddress());
+            Assertions.assertArrayEquals(notificationContent.getRecipients(), expectedRecipients);
+            Assertions.assertEquals(notificationContent.getSubject(), expectedSubject);
+            Assertions.assertEquals(notificationContent.getContent(), expectedContent);
         } catch (AddressException e) {
-            fail("Unexpected exception" + e.toString());
+            Assertions.fail("Unexpected exception" + e.toString());
         }
     }
 
     private JobConfig createValidJobConfigStub() {
         JobConfig jobConfig = new JobConfig();
-        List receivers = new ArrayList();
-        receivers.add("receiver@vmware.com");
-        jobConfig.setNotifiedOnJobDeploy(receivers);
+        jobConfig.setNotifiedOnJobDeploy(Collections.singletonList("receiver@vmware.com"));
         jobConfig.setJobName("test_job");
         return jobConfig;
     }
 
     private JobConfig createInvalidJobConfigStub() {
         JobConfig jobConfig = new JobConfig();
-        List receivers = new ArrayList();
-        receivers.add("@vmware.com");
-        jobConfig.setNotifiedOnJobDeploy(receivers);
+        jobConfig.setNotifiedOnJobDeploy(Collections.singletonList("@vmware.com"));
         jobConfig.setJobName("test_job");
         return jobConfig;
     }

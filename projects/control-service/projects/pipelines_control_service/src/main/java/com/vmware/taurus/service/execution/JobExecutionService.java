@@ -1,23 +1,22 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.execution;
 
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
-import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.exception.*;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsService;
-import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.deploy.DeploymentService;
-import com.vmware.taurus.service.deploy.JobImageDeployer;
-import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.*;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.google.gson.JsonSyntaxException;
 import io.kubernetes.client.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,10 +25,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
+import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.datajobs.ToModelApiConverter;
+import com.vmware.taurus.exception.DataJobAlreadyRunningException;
+import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
+import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
+import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
+import com.vmware.taurus.exception.DataJobExecutionStatusNotValidException;
+import com.vmware.taurus.exception.DataJobNotFoundException;
+import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
+import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.JobImageDeployer;
+import com.vmware.taurus.service.diag.OperationContext;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.JobAnnotation;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
+import com.vmware.taurus.service.model.JobEnvVar;
 
 
 /**
@@ -83,7 +102,7 @@ public class JobExecutionService {
          annotations.put(JobAnnotation.OP_ID.getValue(), opId);
 
          String startedBy = StringUtils.isNotBlank(jobExecutionRequest.getStartedBy()) ?
-               jobExecutionRequest.getStartedBy() :
+               jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser() :
                operationContext.getUser();
          String startedByBuilt = buildStartedByAnnotationValue(ExecutionType.MANUAL, startedBy);
          annotations.put(JobAnnotation.STARTED_BY.getValue(), startedByBuilt);
@@ -138,7 +157,7 @@ public class JobExecutionService {
          jobExecutionRepository.save(jobExecution);
          log.info("Cancelled data job execution {} successfully.", executionId);
 
-      } catch (ApiException e) {
+      } catch (ApiException | JsonSyntaxException e) {
          throw new KubernetesException(String.format("Cannot cancel a Data Job '%s' execution with execution id '%s'", jobName, executionId), e);
       }
    }
@@ -186,51 +205,94 @@ public class JobExecutionService {
             .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
    }
 
-   public void updateJobExecution(DataJob dataJob, KubernetesService.JobExecution jobExecution) {
+   public void updateJobExecution(final DataJob dataJob, final KubernetesService.JobExecution jobExecution) {
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
+         return;
       }
 
-      Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
-            jobExecutionRepository.findById(jobExecution.getExecutionId());
-      com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder;
-      ExecutionStatus status = getJobExecutionStatus(jobExecution);
+      final Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
+              jobExecutionRepository.findById(jobExecution.getExecutionId());
+      final ExecutionStatus status = getJobExecutionStatus(jobExecution);
+      //This set contains all the statuses that should not be changed to something else if present in the DB.
+      //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
+      var finalStatusSet = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
+                                                 ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
+
+      if (dataJobExecutionPersistedOptional.isPresent() &&
+              (dataJobExecutionPersistedOptional.get().getStatus() == status ||
+                      finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
+         return;
+      }
+
       // Optimization:
       // if there is an existing execution in the database and
       // the status has not changed (the new status is equal to the old one)
       // do not update the record
-      if (dataJobExecutionPersistedOptional.isPresent() && status != null && status.equals(dataJobExecutionPersistedOptional.get().getStatus())) {
-         return;
-      } else if (dataJobExecutionPersistedOptional.isPresent()) {
-         dataJobExecutionBuilder = dataJobExecutionPersistedOptional.get().toBuilder();
-      } else {
-         com.vmware.taurus.service.model.ExecutionType executionType =
-               ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
-                     com.vmware.taurus.service.model.ExecutionType.MANUAL :
-                     com.vmware.taurus.service.model.ExecutionType.SCHEDULED;
-         dataJobExecutionBuilder = com.vmware.taurus.service.model.DataJobExecution.builder()
-               .id(jobExecution.getExecutionId())
-               .dataJob(dataJob)
-               .type(executionType);
-      }
+      final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder =
+              dataJobExecutionPersistedOptional.isPresent() ?
+                      dataJobExecutionPersistedOptional.get().toBuilder() :
+                      com.vmware.taurus.service.model.DataJobExecution.builder()
+                              .id(jobExecution.getExecutionId())
+                              .dataJob(dataJob)
+                              .type(ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
+                                      com.vmware.taurus.service.model.ExecutionType.MANUAL :
+                                      com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
-            .status(status)
-            .message(getJobExecutionApiMessage(status, jobExecution))
-            .opId(jobExecution.getOpId())
-            .startTime(jobExecution.getStartTime())
-            .endTime(jobExecution.getEndTime())
-            .vdkVersion("") // TODO [miroslavi] VDK version should come from the termination message
-            .jobVersion(jobExecution.getJobVersion())
-            .jobSchedule(jobExecution.getJobSchedule())
-            .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
-            .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())
-            .resourcesMemoryRequest(jobExecution.getResourcesMemoryRequest())
-            .resourcesMemoryLimit(jobExecution.getResourcesMemoryLimit())
-            .lastDeployedDate(jobExecution.getDeployedDate())
-            .lastDeployedBy(jobExecution.getDeployedBy())
-            .build();
+              .status(status)
+              .message(getJobExecutionApiMessage(status, jobExecution))
+              .opId(jobExecution.getOpId())
+              .startTime(jobExecution.getStartTime())
+              .endTime(jobExecution.getEndTime())
+              .vdkVersion("") // TODO [miroslavi] VDK version should come from the termination message
+              .jobVersion(jobExecution.getJobVersion())
+              .jobSchedule(jobExecution.getJobSchedule())
+              .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
+              .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())
+              .resourcesMemoryRequest(jobExecution.getResourcesMemoryRequest())
+              .resourcesMemoryLimit(jobExecution.getResourcesMemoryLimit())
+              .lastDeployedDate(jobExecution.getDeployedDate())
+              .lastDeployedBy(jobExecution.getDeployedBy())
+              .build();
       jobExecutionRepository.save(dataJobExecution);
+   }
+
+   /**
+    * We need to keep in sync all job executions in the database
+    * in case of Control Service downtime or missed Kubernetes Job Event
+    * <p>
+    * This method synchronizes Data Job Executions in the database
+    * with the actual running jobs in Kubernetes.
+    * <p>
+    * Note: It takes into account the executions that are started concurrently during
+    * the synchronization or delayed Kubernetes Job Events by synchronizing
+    * only executions that are started before now() - 3 minutes.
+    *
+    * @param runningJobExecutionIds running job identifiers in Kubernetes
+    */
+   public void syncJobExecutionStatuses(List<String> runningJobExecutionIds) {
+      if (runningJobExecutionIds == null) {
+         return;
+      }
+
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
+            jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
+                        List.of(ExecutionStatus.RUNNING), OffsetDateTime.now().minusMinutes(3))
+                  .stream()
+                  .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
+                  .map(dataJobExecution -> {
+                     dataJobExecution.setStatus(ExecutionStatus.FINISHED);
+                     dataJobExecution.setMessage("Status is set by VDK Control Service");
+                     return dataJobExecution;
+                  })
+                  .collect(Collectors.toList());
+
+      if (!dataJobExecutionsToBeUpdated.isEmpty()) {
+         jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
+         dataJobExecutionsToBeUpdated
+               .forEach(dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
+      }
    }
 
    private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, KubernetesService.JobExecution jobExecution) {
@@ -263,7 +325,7 @@ public class JobExecutionService {
    }
 
    private static String getExecutionId(String jobName) {
-      return String.format("%s-%s-%s", jobName, Instant.now().toEpochMilli(), UUID.randomUUID().toString().substring(0, 5));
+      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
    }
 
    private static String buildStartedByAnnotationValue(ExecutionType executionType, String startedBy) {
@@ -274,6 +336,8 @@ public class JobExecutionService {
 
       if (isJobExecutionSkipped(jobExecution)) {
          return ExecutionStatus.SKIPPED;
+      } else if (isJobExecutionFailed(jobExecution)) {
+         return ExecutionStatus.FAILED;
       }
 
       var jobStatus = jobExecution.getStatus();
@@ -301,7 +365,21 @@ public class JobExecutionService {
     * @return
     */
    private static boolean isJobExecutionSkipped(KubernetesService.JobExecution jobExecution) {
-      return KubernetesService.PodTerminationMessage.SKIPPED.getValue().equals(StringUtils.trim(jobExecution.getTerminationMessage()));
+      return jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.SKIPPED);
    }
 
+   /**
+    * This is a helper method used to determine if a data job execution's status should be changed to FAILED.
+    *
+    * @param jobExecution
+    * @return
+    */
+   private static boolean isJobExecutionFailed(KubernetesService.JobExecution jobExecution) {
+      return jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.USER_ERROR) ||
+            jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.PLATFORM_ERROR);
+   }
+
+   private static boolean jobExecutionEquals(KubernetesService.JobExecution jobExecution, KubernetesService.PodTerminationMessage podTerminationMessage) {
+      return podTerminationMessage.getValue().equals(StringUtils.trim(jobExecution.getTerminationMessage()));
+   }
 }

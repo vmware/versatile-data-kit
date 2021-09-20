@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 VMware, Inc.
+ * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,22 +11,17 @@ import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.model.DataJob;
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
-// TODO: move to junit 5
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 public class DataJobCrudIT extends BaseIT {
 
@@ -48,7 +43,7 @@ public class DataJobCrudIT extends BaseIT {
                   lambdaMatcher(s -> s.endsWith(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME,
                           TEST_JOB_NAME)))));
       //Validate - the job is created
-      Assert.assertTrue(jobsRepository.existsById(TEST_JOB_NAME));
+      Assertions.assertTrue(jobsRepository.existsById(TEST_JOB_NAME));
 
       // Execute create job with no user
       mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
@@ -68,15 +63,15 @@ public class DataJobCrudIT extends BaseIT {
       // Validate keytab created
       var keytabSecretName = JobCredentialsService.getJobKeytabKubernetesSecretName(TEST_JOB_NAME);
       var keytabSecretData = dataJobsKubernetesService.getSecretData(keytabSecretName);
-      Assert.assertFalse(keytabSecretData.isEmpty());
-      Assert.assertTrue(keytabSecretData.containsKey("keytab"));
-      Assert.assertTrue(ArrayUtils.isNotEmpty(keytabSecretData.get("keytab")));
+      Assertions.assertFalse(keytabSecretData.isEmpty());
+      Assertions.assertTrue(keytabSecretData.containsKey("keytab"));
+      Assertions.assertTrue(ArrayUtils.isNotEmpty(keytabSecretData.get("keytab")));
 
       // Validate persisted job
       var jobFromDbOptional= jobsRepository.findById(TEST_JOB_NAME);
-      Assert.assertTrue(jobFromDbOptional.isPresent());
+      Assertions.assertTrue(jobFromDbOptional.isPresent());
       var jobFromDb = jobFromDbOptional.get();
-      Assert.assertEquals(TEST_JOB_SCHEDULE, jobFromDb.getJobConfig().getSchedule());
+      Assertions.assertEquals(TEST_JOB_SCHEDULE, jobFromDb.getJobConfig().getSchedule());
 
       // Execute list jobs
       // deprecated jobsList in favour of jobsQuery
@@ -183,10 +178,10 @@ public class DataJobCrudIT extends BaseIT {
 
       // Validate keytab deleted
       keytabSecretData = dataJobsKubernetesService.getSecretData(keytabSecretName);
-      Assert.assertTrue(keytabSecretData.isEmpty());
+      Assertions.assertTrue(keytabSecretData.isEmpty());
 
       // Validate job deleted from db
-      Assert.assertFalse(jobsRepository.existsById(TEST_JOB_NAME));
+      Assertions.assertFalse(jobsRepository.existsById(TEST_JOB_NAME));
 
       testDataJobPostDeleteWebHooks();
    }
@@ -201,7 +196,7 @@ public class DataJobCrudIT extends BaseIT {
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isBadRequest());
       // Validate - the job is NOT created
-      Assert.assertFalse(jobsRepository.existsById(TEST_CLIENT_ERROR_JOB_NAME));
+      Assertions.assertFalse(jobsRepository.existsById(TEST_CLIENT_ERROR_JOB_NAME));
 
       // Post Create WebHook will prevent job creation and the result will be error 503 with no job created
       String internalServerErrorDataJobRequestBody = getDataJobRequestBody(TEST_INTERNAL_ERROR_TEAM,
@@ -212,7 +207,7 @@ public class DataJobCrudIT extends BaseIT {
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isServiceUnavailable());
       // Validate - the job is NOT created
-      Assert.assertFalse(jobsRepository.existsById(TEST_INTERNAL_ERROR_JOB_NAME));
+      Assertions.assertFalse(jobsRepository.existsById(TEST_INTERNAL_ERROR_JOB_NAME));
 
       // Post Create WebHook will retry 2 times and finally will allow job creation
       String retriedErrorDataJobRequestBody = getDataJobRequestBody(TEST_INTERNAL_ERROR_RETRIED_TEAM,
@@ -223,7 +218,7 @@ public class DataJobCrudIT extends BaseIT {
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isCreated());
       // Validate - the job is created
-      Assert.assertTrue(jobsRepository.existsById(TEST_INTERNAL_ERROR_RETRIED_JOB_NAME));
+      Assertions.assertTrue(jobsRepository.existsById(TEST_INTERNAL_ERROR_RETRIED_JOB_NAME));
    }
 
    private void testDataJobPostDeleteWebHooks() throws Exception {
@@ -238,7 +233,7 @@ public class DataJobCrudIT extends BaseIT {
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isBadRequest());
       // Validate - the job is NOT deleted
-      Assert.assertTrue(jobsRepository.existsById(TEST_CLIENT_ERROR_JOB_NAME));
+      Assertions.assertTrue(jobsRepository.existsById(TEST_CLIENT_ERROR_JOB_NAME));
       //Clean Up
       jobsRepository.delete(clientErrorEntity);
 
@@ -253,7 +248,7 @@ public class DataJobCrudIT extends BaseIT {
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isServiceUnavailable());
       // Validate - the job is NOT deleted
-      Assert.assertTrue(jobsRepository.existsById(TEST_INTERNAL_ERROR_JOB_NAME));
+      Assertions.assertTrue(jobsRepository.existsById(TEST_INTERNAL_ERROR_JOB_NAME));
       //Clean Up
       jobsRepository.delete(internalServerEntity);
 
@@ -268,7 +263,7 @@ public class DataJobCrudIT extends BaseIT {
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
       // Validate - the job is deleted
-      Assert.assertFalse(jobsRepository.existsById(TEST_INTERNAL_ERROR_RETRIED_JOB_NAME));
+      Assertions.assertFalse(jobsRepository.existsById(TEST_INTERNAL_ERROR_RETRIED_JOB_NAME));
       //Clean Up
       jobsRepository.delete(internalServerEntity);
    }
