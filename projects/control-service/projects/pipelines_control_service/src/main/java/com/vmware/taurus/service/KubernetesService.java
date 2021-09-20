@@ -71,7 +71,6 @@ import static java.util.function.Predicate.not;
 public abstract class KubernetesService implements InitializingBean {
 
     public static final String LABEL_PREFIX = "com.vmware.taurus";
-    public static final String LATEST_VERSION_SUFFIX = "-latest";
     private static final int WATCH_JOBS_TIMEOUT_SECONDS = 300;
     private static final String K8S_DATA_JOB_TEMPLATE_RESOURCE ="k8s-data-job-template.yaml";
 
@@ -1413,7 +1412,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (cronJob != null) {
          deployment = new JobDeploymentStatus();
          deployment.setEnabled(!cronJob.getSpec().isSuspend());
-         deployment.setDataJobName(StringUtils.removeEnd(cronJob.getMetadata().getName(), LATEST_VERSION_SUFFIX));
+         deployment.setDataJobName(cronJob.getMetadata().getName());
          deployment.setMode("release"); // TODO: Get from cron job config when we support testing environments
          deployment.setCronJobName(cronJobName == null ? cronJob.getMetadata().getName() : cronJobName);
 
