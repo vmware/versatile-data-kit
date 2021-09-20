@@ -325,7 +325,7 @@ public class JobExecutionService {
    }
 
    private static String getExecutionId(String jobName) {
-      return String.format("%s-%s-%s", jobName, Instant.now().toEpochMilli(), UUID.randomUUID().toString().substring(0, 5));
+      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
    }
 
    private static String buildStartedByAnnotationValue(ExecutionType executionType, String startedBy) {

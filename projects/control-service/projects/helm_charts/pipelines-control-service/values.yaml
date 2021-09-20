@@ -471,7 +471,7 @@ alerting:
                       * on(data_job) group_left(email_notified_on_success)
                         avg by(data_job, email_notified_on_success) (taurus_datajob_info{email_notified_on_success!=""}) == bool 0)
                     * on(data_job) group_left(job_name)
-                      topk by(data_job) (1, label_replace(kube_job_status_completion_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
+                      topk by(data_job) (1, label_replace(kube_job_status_completion_time, "data_job", "$1", "job_name", "(.*)-.*")) != 0,
                     "execution_id", "$1", "job_name", "(.*)")`}}
          JobDelay:
             enabled: true
@@ -506,7 +506,7 @@ alerting:
                {{`label_replace(
                   label_replace(
                     (kube_cronjob_next_schedule_time > 0) - time(),
-                    "data_job", "$1", "cronjob", "(.+)-latest")
+                    "data_job", "$1", "cronjob", "(.+)")
                   * on(data_job) group_left(email_notified_on_platform_error)
                     avg by(data_job, email_notified_on_platform_error) (taurus_datajob_info{email_notified_on_platform_error!=""})
                <
@@ -549,7 +549,7 @@ alerting:
                       * on(data_job) group_left(email_notified_on_platform_error)
                         avg by(data_job, email_notified_on_platform_error) (taurus_datajob_info{email_notified_on_platform_error!=""}) == bool 1)
                     * on(data_job) group_left(job_name)
-                      topk by(data_job) (1, label_replace(kube_job_failed * on(job_name) group_left() kube_job_status_start_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
+                      topk by(data_job) (1, label_replace(kube_job_failed * on(job_name) group_left() kube_job_status_start_time, "data_job", "$1", "job_name", "(.*)-.*")) != 0,
                     "execution_id", "$1", "job_name", "(.*)"),
                     "short_execution_id", "$1", "execution_id", "([a-zA-Z -_]{1,58}).*")`}}
          JobFailureUser:
@@ -587,7 +587,7 @@ alerting:
                       * on(data_job) group_left(email_notified_on_user_error)
                         avg by(data_job, email_notified_on_user_error) (taurus_datajob_info{email_notified_on_user_error!=""}) == bool 3)
                     * on(data_job) group_left(job_name)
-                      topk by(data_job) (1, label_replace(kube_job_status_start_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
+                      topk by(data_job) (1, label_replace(kube_job_status_start_time, "data_job", "$1", "job_name", "(.*)-.*")) != 0,
                     "execution_id", "$1", "job_name", "(.*)"),
                     "short_execution_id", "$1", "execution_id", "([a-zA-Z -_]{1,58}).*")`}}
 
