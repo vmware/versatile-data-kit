@@ -90,4 +90,9 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
 
       return ResponseEntity.accepted().location(location).build();
    }
+
+   @Override
+   public ResponseEntity<String> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
+      return ResponseEntity.ok("");
+   }
 }
