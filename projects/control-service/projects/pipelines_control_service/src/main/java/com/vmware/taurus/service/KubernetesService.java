@@ -650,7 +650,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     public String getPodLogs(String podName) throws IOException, ApiException {
-        log.debug("Get logs for pod {}", podName);
+        log.info("Get logs for pod {}", podName);
         Optional<V1Pod> pod = getPod(podName);
 
         String logs = "";
@@ -659,6 +659,7 @@ public abstract class KubernetesService implements InitializingBean {
 
             try (BufferedReader br = new BufferedReader(new InputStreamReader(podLogs.streamNamespacedPodLog(pod.get()), Charsets.UTF_8))) {
                 // The builder logs are relatively small so we can afford to load it all in memory for easier processing.
+                log.info("Retrieving logs for Pod with name: {}", podName);
                 logs = br.lines().peek(s -> log.debug("[{}] {}", podName, s)).collect(Collectors.joining(System.lineSeparator()));
             }
         }

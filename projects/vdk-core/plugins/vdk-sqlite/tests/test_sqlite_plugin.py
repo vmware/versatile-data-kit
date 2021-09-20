@@ -91,3 +91,33 @@ def test_sqlite_ingestion_missing_dest_table(tmpdir):
             destination_table="test_table",
             target=str(tmpdir) + "vdk-sqlite.db",
         )
+
+
+def test_sqlite_ingestion_column_names_mismatch(tmpdir):
+    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": db_dir,
+        },
+    ):
+        # create table first, as the ingestion fails otherwise
+        runner = CliEntryBasedTestRunner(sqlite_plugin)
+        runner.invoke(
+            [
+                "sqlite-query",
+                "--query",
+                "CREATE TABLE test_table (wrong_column_name TEXT, more_data TEXT)",
+            ]
+        )
+
+        mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
+        sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
+
+        with raises(UserCodeError):
+            sqlite_ingester.ingest_payload(
+                payload=[payload],
+                destination_table="test_table",
+                target=db_dir,
+            )
