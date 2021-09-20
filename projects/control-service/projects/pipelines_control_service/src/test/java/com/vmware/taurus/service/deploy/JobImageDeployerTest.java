@@ -40,7 +40,7 @@ import static org.mockito.Mockito.*;
 public class JobImageDeployerTest {
 
    private static final String TEST_JOB_NAME = "test-job-name";
-   private static final String TEST_CRONJOB_NAME = TEST_JOB_NAME + "-latest";
+   private static final String TEST_CRONJOB_NAME = TEST_JOB_NAME;
    private static final String TEST_JOB_IMAGE_NAME = "test-job-image-name";
    private static final String TEST_JOB_SCHEDULE = "*/5 * * * *";
    private static final String TEST_BUILDER_JOB_NAME = "builder-test-job-name";
@@ -113,9 +113,9 @@ public class JobImageDeployerTest {
       when(kubernetesService.listCronJobs()).thenReturn(Set.of(TEST_CRONJOB_NAME));
       doThrow(new ApiException("foo", 422, Collections.emptyMap(), "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{}," +
               "\"status\":\"Failure\",\"message\":\"CronJob.batch " +
-              "\\\"foo-latest\\\" is invalid: spec.schedule: Invalid value: \\\"a * * * *\\\": " +
+              "\\\"foo\\\" is invalid: spec.schedule: Invalid value: \\\"a * * * *\\\": " +
               "Failed to parse int from a: strconv.Atoi: parsing \\\"a\\\": invalid syntax\",\"reason\":" +
-              "\"Invalid\",\"details\":{\"name\":\"foo-latest\",\"group\":\"batch\",\"kind\":\"CronJob\",\"causes\":" +
+              "\"Invalid\",\"details\":{\"name\":\"foo\",\"group\":\"batch\",\"kind\":\"CronJob\",\"causes\":" +
               "[{\"reason\":\"FieldValueInvalid\",\"message\":\"Invalid value: \\\"a * * * *\\\": Failed to parse int from a:" +
               " strconv.Atoi: parsing \\\"a\\\": invalid syntax\",\"field\":\"spec.schedule\"}]},\"code\":422}"))
               .when(kubernetesService)

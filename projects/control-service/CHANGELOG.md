@@ -1,15 +1,24 @@
 Changelog
 =========
 
-1.2.8 - Next
+1.2.9 - Next
 ----
 * **New feature**
+  * Current Execution Logging API introduced (experimental).
+    While users are executing remotely a data job they can monitor their logs now.s
+
 * **Improvement**
   * GraphQL endpoint now does not have limit for fetching data jobs, which was previously 100 jobs per page.
+
 * **Bug Fixes**
   * Data job execution status fix
     In case of failed data job execution due to the User Error the execution status will be marked as Failed instead of Finished.
+
+  * Data Job Execution statuses synchronization
+    This will keep in sync all job executions in the database in case of Control Service downtime or missed Kubernetes Job Event.
+
 * **Breaking Changes**
+  * Removed '-latest' suffix from the К8S Cron Job name
 
 
 1.2.7 - 03.09.2021

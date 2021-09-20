@@ -1,9 +1,11 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import collections
 import logging
 import pathlib
 from contextlib import closing
 from sqlite3 import Cursor
+from sqlite3.dbapi2 import ProgrammingError
 from typing import List
 from typing import Optional
 
@@ -69,23 +71,54 @@ class IngestToSQLite(IIngesterPlugin):
     def __ingest_payload(
         self, destination_table: str, payload: List[dict], cur: Cursor
     ) -> None:
-        query = self.__create_query(destination_table, cur)
+        fields, query = self.__create_query(destination_table, cur)
 
         for obj in payload:
             try:
                 cur.execute(query, obj)
                 log.debug("Payload was ingested.")
             except Exception as e:
-                errors.log_and_rethrow(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    "Unknown error. Error message was : " + str(e),
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
-                    e,
-                    wrap_in_vdk_error=True,
-                )
+                if collections.Counter(fields) != collections.Counter(obj.keys()):
+                    errors.log_and_rethrow(
+                        errors.ResolvableBy.USER_ERROR,
+                        log,
+                        "Failed to sent payload",
+                        f"""
+                        One or more column names in the input data did NOT
+                        match corresponding column names in the database.
+                           Input Table Columns: {list(obj.keys())}
+                        Database Table Columns: {fields}
+                        """,
+                        "Will not be able to send the payload for ingestion",
+                        "See error message for help ",
+                        e,
+                        wrap_in_vdk_error=True,
+                    )
+                elif isinstance(e, ProgrammingError):
+                    errors.log_and_rethrow(
+                        errors.ResolvableBy.USER_ERROR,
+                        log,
+                        "Failed to sent payload",
+                        f"""
+                        An issue with the SQL query occured. The error message
+                        was: {str(e)}
+                        """,
+                        "Will not be able to send the payload for ingestion",
+                        "See error message for help ",
+                        e,
+                        wrap_in_vdk_error=True,
+                    )
+                else:
+                    errors.log_and_rethrow(
+                        errors.ResolvableBy.PLATFORM_ERROR,
+                        log,
+                        "Failed to sent payload",
+                        "Unknown error. Error message was : " + str(e),
+                        "Will not be able to send the payload for ingestion",
+                        "See error message for help ",
+                        e,
+                        wrap_in_vdk_error=True,
+                    )
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: Cursor
@@ -115,6 +148,8 @@ class IngestToSQLite(IIngesterPlugin):
                 f"SELECT name FROM PRAGMA_TABLE_INFO('{destination_table}')"
             ).fetchall()
         ]
-        # the returned fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (:val1, :val2, :val3)'
+        # the query fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (:val1, :val2, :val3)'
         # assuming dest_table is the destination_table and val1, val2, val3 are the fields of that table
-        return f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':'+field for field in fields])})"
+        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':'+field for field in fields])})"
+
+        return fields, query

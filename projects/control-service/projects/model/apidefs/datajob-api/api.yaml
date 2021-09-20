@@ -38,9 +38,8 @@ info:
     <b>API Evolution</b><br>
     In the following sections, there are some terms that have a special meaning in the context of the APIs.
     <br><br>
-    <li> <i>Stable</i> - The implementation of the API has been battle-tested (has been in production for some time - probably at least a month).
-                         The API is a subject to semantic versioning model and will follow
-                         deprecation policy.
+    <li> <i>Stable</i> - The implementation of the API has been battle-tested (has been in production for some time).
+                         The API is a subject to semantic versioning model and will follow deprecation policy.
     <li> <i>Experimental</i> - May disappear without notice and is not a subject to semantic versioning.
                                Implementation of the API is not considered stable nor well tested.
                                Generally this is given to clients to experiment within testing environment. Must not be used in production.
@@ -789,6 +788,56 @@ paths:
         in: path
         required: true
 
+  '/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{execution_id}/logs':
+    summary: Data Job Execution Logs.
+    get:
+      tags:
+        - Data Jobs Execution
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      operationId: dataJobLogsDownload
+      summary: |
+          Download data job logs.
+          This API is guranteed to provide logs only if the jobs is currently running.
+          For logs from older job executions - use logsUrl field passed by GET execution API or jobsQuery API. | (Experimental)
+      description: <i>(Introduced in v1.2.9)</i>
+      parameters:
+        -  name: team_name
+           description: Team Name
+           schema:
+             type: string
+           in: path
+           required: true
+        - name: job_name
+          description: Data Job Name.
+          schema:
+            type: string
+          in: path
+          required: true
+        - name: execution_id
+          description: Execution ID.
+          schema:
+            type: string
+          in: path
+          required: true
+        - name: tail_lines
+          description: tail_lines when set to positive value, the number of lines from the end of the logs to return.
+          schema:
+            type: integer
+            default: 0
+            example: 10
+          required: false
+          in: query
+
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/properties':
     summary: |
       Data Job properties API.
@@ -1140,6 +1189,13 @@ components:
           description: User or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
           type: string
           example: schedule/runtime
+        logs_url:
+          description: |
+            URL link to persisted logs in central location. Logs generally should be available for longer time.
+            The link is available only if operators have configured it during installation of Control Service.
+            During install operators can conifgure logs to be presisted to log aggregator service whose link can be exposed here.
+          type: string
+          example: http://logs/jobs?filter=job-name
         message:
           description: Message (usually error) during execution
           type: string
@@ -1485,7 +1541,7 @@ tags:
       Data job code/build - all python, SQL files, and requirements.txt of the data job.
       NOTE: deploymentID and mode are not implemented, so they are ignored.
   - name: Data Jobs Execution
-    description: Experimental API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
+    description: API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
   - name: Data Jobs Properties
     description: |
       Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.

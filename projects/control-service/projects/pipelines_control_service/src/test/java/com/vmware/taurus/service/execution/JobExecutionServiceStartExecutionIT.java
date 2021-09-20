@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.execution;
+package com.vmware.taurus.service.execution;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
@@ -15,7 +15,6 @@ import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
@@ -30,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.vmware.taurus.execution.JobExecutionServiceUtil.buildStartedBy;
+import static com.vmware.taurus.service.execution.JobExecutionServiceUtil.buildStartedBy;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionServiceStartExecutionIT {
