@@ -12,6 +12,7 @@ Changelog
   * Data Job Execution statuses synchronization
     This will keep in sync all job executions in the database in case of Control Service downtime or missed Kubernetes Job Event.
 * **Breaking Changes**
+  * Removed '-latest' suffix from the К8S Cron Job name
 
 
 1.2.7 - 03.09.2021

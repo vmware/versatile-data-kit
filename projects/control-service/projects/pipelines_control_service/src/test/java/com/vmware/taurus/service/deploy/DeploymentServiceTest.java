@@ -37,7 +37,7 @@ public class DeploymentServiceTest {
 
    private static final String OP_ID = "c00b40dcc9904ae6";
    private static final String TEST_JOB_NAME = "test-job-name";
-   private static final String TEST_CRONJOB_NAME = TEST_JOB_NAME + "-latest";
+   private static final String TEST_CRONJOB_NAME = TEST_JOB_NAME;
    private static final String TEST_JOB_IMAGE_NAME = "test-job-image-name";
    private static final String TEST_JOB_SCHEDULE = "*/5 * * * *";
    private static final String TEST_BUILDER_JOB_NAME = "builder-test-job-name";
