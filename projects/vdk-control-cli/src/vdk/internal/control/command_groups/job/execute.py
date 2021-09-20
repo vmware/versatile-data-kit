@@ -7,6 +7,7 @@ from enum import Enum
 from enum import unique
 
 import click
+import click_spinner
 from tabulate import tabulate
 from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
@@ -83,6 +84,16 @@ class JobExecute:
             click.echo(json.dumps(result))
 
     @ApiClientErrorDecorator()
+    def cancel(self, name: str, team: str, execution_id: str):
+        click.echo("Cancelling data job execution. Might take some time...")
+        with click_spinner.spinner():
+            response = self.execution_api.data_job_execution_cancel(
+                team_name=team, job_name=name, execution_id=execution_id
+            )
+            log.debug(f"Response: {response}")
+        click.echo("Job cancelled successfully.")
+
+    @ApiClientErrorDecorator()
     def show(self, name: str, team: str, execution_id: str, output: OutputFormat):
         execution: DataJobExecution = self.execution_api.data_job_execution_read(
             team_name=team, job_name=name, execution_id=execution_id
@@ -114,6 +125,10 @@ vdk execute --start -n example-job -t "Example Team"
 \b
 # Check status of a currently executing Data Job:
 vdk execute --show --execution-id example-job-1619094633811-cc49d  -n example-job -t "Example Team"
+
+\b
+# Cancel a currently executing Data Job:
+vdk execute --cancel -t "Example Team" -n example-job -i example-job-1619094633811-cc49d
 
 \b
 # List recent execution of a Data Job:
@@ -151,9 +166,8 @@ vdk execute --list -n example-job -t "Example Team"
 @click.option(
     "--cancel",
     "operation",
-    hidden=True,
     flag_value=ExecuteOperation.CANCEL,
-    help="Cancels a job execution. Requires --execution-id to be provided. "
+    help="Cancels a running or submitted Data Job execution. Requires --execution-id to be provided. "
     "Should be printed when using vdk execute --start",
 )
 @click.option(
@@ -186,8 +200,9 @@ def execute(name, team, execution_id, operation, rest_api_url, output):
         cmd.list(name, team, output)
     elif operation == ExecuteOperation.CANCEL:
         name = get_or_prompt("Job Name", name)
-        # cmd.cancel(name, team)
-        click.echo("Operation cancel not implemented")
+        team = get_or_prompt("Job Team", team)
+        execution_id = get_or_prompt("Job Execution ID", execution_id)
+        cmd.cancel(name, team, execution_id)
     elif operation == ExecuteOperation.WAIT:
         name = get_or_prompt("Job Name", name)
         # cmd.wait(name, team)

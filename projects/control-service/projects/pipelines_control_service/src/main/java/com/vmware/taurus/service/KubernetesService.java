@@ -650,7 +650,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     public String getPodLogs(String podName) throws IOException, ApiException {
-        log.debug("Get logs for pod {}", podName);
+        log.info("Get logs for pod {}", podName);
         Optional<V1Pod> pod = getPod(podName);
 
         String logs = "";
@@ -659,6 +659,7 @@ public abstract class KubernetesService implements InitializingBean {
 
             try (BufferedReader br = new BufferedReader(new InputStreamReader(podLogs.streamNamespacedPodLog(pod.get()), Charsets.UTF_8))) {
                 // The builder logs are relatively small so we can afford to load it all in memory for easier processing.
+                log.info("Retrieving logs for Pod with name: {}", podName);
                 logs = br.lines().peek(s -> log.debug("[{}] {}", podName, s)).collect(Collectors.joining(System.lineSeparator()));
             }
         }
@@ -933,9 +934,13 @@ public abstract class KubernetesService implements InitializingBean {
      * @throws ApiException
      * @throws IOException
      */
-    public void watchJobs(Map<String, String> labelsToWatch, Consumer<JobExecution> watcher, long lastWatchTime)
-            throws IOException, ApiException {
-        watchJobs(labelsToWatch, watcher, lastWatchTime, WATCH_JOBS_TIMEOUT_SECONDS);
+    public void watchJobs(
+          Map<String, String> labelsToWatch,
+          Consumer<JobExecution> watcher,
+          Consumer<List<String>> runningJobExecutionsConsumer,
+          long lastWatchTime) throws IOException, ApiException {
+
+        watchJobs(labelsToWatch, watcher, runningJobExecutionsConsumer, lastWatchTime, WATCH_JOBS_TIMEOUT_SECONDS);
     }
 
     /**
@@ -955,11 +960,14 @@ public abstract class KubernetesService implements InitializingBean {
      * @throws ApiException
      * @throws IOException
      */
-    public void watchJobs(Map<String, String> labelsToWatch, Consumer<JobExecution> watcher,
-                          long lastWatchTime, Integer timeoutSeconds)
-            throws ApiException, IOException {
-        Objects.requireNonNull(watcher, "The watcher cannot be null");
+    public void watchJobs(
+          Map<String, String> labelsToWatch,
+          Consumer<JobExecution> watcher,
+          Consumer<List<String>> runningJobExecutionsConsumer,
+          long lastWatchTime,
+          Integer timeoutSeconds) throws ApiException, IOException {
 
+        Objects.requireNonNull(watcher, "The watcher cannot be null");
         log.info("Start watching jobs with labels: {}", labelsToWatch);
 
         // Job change detection implementation:
@@ -967,14 +975,23 @@ public abstract class KubernetesService implements InitializingBean {
         String labelSelector = buildLabelSelector(labelsToWatch);
         String resourceVersion;
         try {
-            var jobList = new BatchV1Api(client).listNamespacedJob(
-                    namespace, "false", null, null, labelSelector, null, null, null, null);
+            var jobList = new BatchV1Api(client)
+                  .listNamespacedJob(namespace, "false", null, null, labelSelector, null, null, null, null);
+            List<String> runningExecutionIds = new ArrayList<>();
+
             jobList.getItems().forEach(job -> {
                 var condition = getJobCondition(job);
-                if (condition != null && condition.getCompletionTime() > lastWatchTime) {
+
+                if (condition == null) {
+                    Optional.ofNullable(job.getMetadata())
+                          .map(V1ObjectMeta::getName)
+                          .ifPresent(executionId -> runningExecutionIds.add(executionId));
+                } else if (condition.getCompletionTime() > lastWatchTime) {
                     getJobExecutionStatus(job, condition).ifPresent(watcher);
                 }
             });
+
+            runningJobExecutionsConsumer.accept(runningExecutionIds);
             resourceVersion = jobList.getMetadata().getResourceVersion();
         } catch (ApiException ex) {
             log.info("Failed to list jobs for watching. Error was: {}", ex.getMessage());

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.execution;
+package com.vmware.taurus.service.execution;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
@@ -11,7 +11,6 @@ import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
 import com.vmware.taurus.exception.DataJobNotFoundException;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
-import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import org.junit.jupiter.api.Assertions;

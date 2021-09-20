@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.execution;
+package com.vmware.taurus.service.execution;
 
 import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
