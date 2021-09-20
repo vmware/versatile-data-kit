@@ -40,12 +40,33 @@ public final class RepositoryUtil {
          String executionId,
          DataJob dataJob,
          ExecutionStatus executionStatus,
+         OffsetDateTime startTime) {
+
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message", startTime);
+   }
+
+   public static DataJobExecution createDataJobExecution(
+         JobExecutionRepository jobExecutionRepository,
+         String executionId,
+         DataJob dataJob,
+         ExecutionStatus executionStatus,
          String message) {
+
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, message, OffsetDateTime.now());
+   }
+
+   public static DataJobExecution createDataJobExecution(
+         JobExecutionRepository jobExecutionRepository,
+         String executionId,
+         DataJob dataJob,
+         ExecutionStatus executionStatus,
+         String message,
+         OffsetDateTime startTime) {
 
       var expectedJobExecution = DataJobExecution.builder()
             .id(executionId)
             .dataJob(dataJob)
-            .startTime(OffsetDateTime.now())
+            .startTime(startTime)
             .type(ExecutionType.MANUAL)
             .status(executionStatus)
             .resourcesCpuRequest(1F)

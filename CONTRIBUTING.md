@@ -64,7 +64,7 @@ In short, it looks like this:
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
 # Changelog
-It's important to update [CHANGELOG](CHANGELOG.md) with any adjustments to the project.
+It's important to update CHANGELOG.md with any adjustments to the project.
 Versioning of all components follows https://semver.org
 
 Changelog has the following sections:

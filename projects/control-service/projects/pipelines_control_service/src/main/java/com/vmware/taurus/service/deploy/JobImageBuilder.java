@@ -162,11 +162,11 @@ public class JobImageBuilder {
       log.debug("Finished watching builder job {}. Condition is: {}", builderJobName, condition);
       String logs = null;
       try {
-         log.debug("Get logs of builder job {}", builderJobName);
+         log.info("Get logs of builder job {}", builderJobName);
          logs = controlKubernetesService.getPodLogs(builderJobName);
       } catch (Exception e) {
          // wrap in Kubernetes exception in case it's ApiException - in order to log more details.
-         String message = new KubernetesException("Could not get pod" + builderJobName + " logs", e).getMessage();
+         String message = new KubernetesException("Could not get pod " + builderJobName + " logs", e).getMessage();
          log.warn("Could not find logs from builder job {}; reason: {}", builderJobName, message);
       }
       if (!condition.isSuccess()) {

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.execution;
+package com.vmware.taurus.service.execution;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
@@ -25,8 +25,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static com.vmware.taurus.execution.JobExecutionServiceUtil.assertDataJobExecutionListValid;
-import static com.vmware.taurus.execution.JobExecutionServiceUtil.assertDataJobExecutionValid;
+import static com.vmware.taurus.service.execution.JobExecutionServiceUtil.assertDataJobExecutionListValid;
+import static com.vmware.taurus.service.execution.JobExecutionServiceUtil.assertDataJobExecutionValid;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ControlplaneApplication.class)

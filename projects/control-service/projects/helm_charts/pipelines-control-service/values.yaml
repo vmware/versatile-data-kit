@@ -453,11 +453,11 @@ alerting:
                severity: info
                source: data-pipelines
             annotations:
-               email_to: |-
+               email_to: >-
                   {{`{{ $labels.email_notified_on_success | reReplaceAll ";" "," }}`}}
-               subject: |-
+               subject: >-
                   {{`[success][data job run] {{ $labels.data_job }}`}}
-               content: |-
+               content: >-
                   {{`Dear Versatile Data Kit user,<br>
                   The last execution of your data job <strong>{{ $labels.data_job }}</strong> succeeded.
                   <p>
@@ -465,7 +465,7 @@ alerting:
                   </p>
                   Best,<br>
                   Versatile Data Kit Support`}}
-            expr: |-
+            expr: >-
                {{`label_replace(
                         (avg by(data_job) (taurus_datajob_termination_status)
                       * on(data_job) group_left(email_notified_on_success)
@@ -475,25 +475,36 @@ alerting:
                     "execution_id", "$1", "job_name", "(.*)")`}}
          JobDelay:
             enabled: true
-            for: 1m
+            for: 5m
             labels:
                severity: info
                source: data-pipelines
             annotations:
-               email_to: |-
+               email_to: >-
                   {{`{{ $labels.email_notified_on_platform_error | reReplaceAll ";" "," }}`}}
-               subject: |-
-                  {{`[platform error][data job delay] {{ $labels.data_job }}`}}
-               content: |-
-                  {{`Dear Versatile Data Kit user,<br>
+               subject: >-
+                  {{`[data job delay] {{ $labels.data_job }}`}}
+               content: >-
+                  {{`Dear Versatile Data Kit user,
+                  <p>
                   Your data job <strong>{{ $labels.data_job }}</strong> was delayed for more than {{ $value | printf "-(%f) / 60" | query | first | value | printf "%.f" }} minutes.
+                  </p>
+                  <p>
+                  WHAT HAPPENED: The Data Job has been delayed from its expected execution schedule.<br>
+                  WHY IT HAPPENED: Possible reason for this is that the Data Job execution is taking so long that the next scheduled execution could not start in time. Or, there could be a platform error preventing the Data Job execution from starting.<br>
+                  CONSEQUENCES: Your Data Job execution did not start in time, or, potentially, did not start at all.<br>
+                  COUNTERMEASURES: Please review the executions of your latest data job runs and if they take longer than expected, increase the scheduled interval by modifying the schedule_cron property or increase the notification_delay_period_minutes property in the config.ini file and redeploy the Data Job.
+                  </p>
                   <p>
                   The sender mailbox is not monitored, please do not reply to this email.
                   </p>
                   Best,<br>
                   Versatile Data Kit Support`}}
-            expr: |-
+            ## Add an "execution_id" label with value equal to data_job to allow JobDelay alerts
+            ## to not be grouped together by Alertmanager
+            expr: >-
                {{`label_replace(
+                  label_replace(
                     (kube_cronjob_next_schedule_time > 0) - time(),
                     "data_job", "$1", "cronjob", "(.+)-latest")
                   * on(data_job) group_left(email_notified_on_platform_error)
@@ -501,7 +512,8 @@ alerting:
                <
                   on(data_job)
                   group_right(email_notified_on_platform_error)
-                  -(min by(data_job) (taurus_datajob_notification_delay) * 60)`}}
+                  -(min by(data_job) (taurus_datajob_notification_delay) * 60),
+               "execution_id", "$1", "data_job", "(.*)")`}}
          JobFailurePlatform:
             enabled: true
             for: 1m
@@ -509,26 +521,37 @@ alerting:
                severity: info
                source: data-pipelines
             annotations:
-               email_to: |-
+               email_to: >-
                   {{`{{ $labels.email_notified_on_platform_error | reReplaceAll ";" "," }}`}}
-               subject: |-
+               subject: >-
                   {{`[platform error][data job run] {{ $labels.data_job }}`}}
-               content: |-
-                  {{`Dear Versatile Data Kit user,<br>
+               content: >-
+                  {{`Dear Versatile Data Kit user,
+                  <p>
                   The last execution of your data job <strong>{{ $labels.data_job }}</strong> has failed.
+                  </p>
+                  <p>
+                  There has been a platform error. Here are the details:<br>
+                  WHAT HAPPENED: The last execution of your Data Job has failed.<br>
+                  WHY IT HAPPENED: There has been a platform error. The Data Job has been restarted automatically up to 3 times but all of the attempts failed.<br>
+                  CONSEQUENCES: Your Data Job execution did not complete successfully.<br>
+                  COUNTERMEASURES: No customer action is required. If you want to receive notifications on successful executions or you don't want to receive notifications on execution failures, you can set it up in the config.ini file and redeploy the Data Job.
+                  </p>
                   <p>
                   The sender mailbox is not monitored, please do not reply to this email.
                   </p>
                   Best,<br>
                   Versatile Data Kit Support`}}
-            expr: |-
+            expr: >-
                {{`label_replace(
-                        (avg by(data_job) (taurus_datajob_termination_status)
+                  label_replace(
+                        (max by(data_job) (taurus_datajob_termination_status)
                       * on(data_job) group_left(email_notified_on_platform_error)
                         avg by(data_job, email_notified_on_platform_error) (taurus_datajob_info{email_notified_on_platform_error!=""}) == bool 1)
                     * on(data_job) group_left(job_name)
-                      topk by(data_job) (1, label_replace(kube_job_status_completion_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
-                    "execution_id", "$1", "job_name", "(.*)")`}}
+                      topk by(data_job) (1, label_replace(kube_job_failed * on(job_name) group_left() kube_job_status_start_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
+                    "execution_id", "$1", "job_name", "(.*)"),
+                    "short_execution_id", "$1", "execution_id", "([a-zA-Z -_]{1,58}).*")`}}
          JobFailureUser:
             enabled: true
             for: 1m
@@ -536,26 +559,37 @@ alerting:
                severity: info
                source: data-pipelines
             annotations:
-               email_to: |-
+               email_to: >-
                   {{`{{ $labels.email_notified_on_user_error | reReplaceAll ";" "," }}`}}
-               subject: |-
+               subject: >-
                   {{`[user error][data job run] {{ $labels.data_job }}`}}
-               content: |-
-                  {{`Dear Versatile Data Kit user,<br>
+               content: >-
+                  {{`Dear Versatile Data Kit user,
+                  <p>
                   The last execution of your data job <strong>{{ $labels.data_job }}</strong> has failed.
+                  </p>
+                  <p>
+                  An error in the Data Job code occurred. The error should be resolved by data job owner. Here are the details:<br>
+                  WHAT HAPPENED: The last execution of your Data Job has failed.<br>
+                  WHY IT HAPPENED: The reasons for the failure could be: the job run out of memory, a query references tables or columns that do not exist, there is a logical error in the code, etc.<br>
+                  CONSEQUENCES: Your Data Job execution did not complete successfully.<br>
+                  COUNTERMEASURES: Inspect the logs of the Data Job execution and get clues about the error. Fix the problem and then redeploy the Data Job. If you want to receive notifications on successful executions or you don't want to receive notifications on execution failures, you can set it up in the config.ini file and redeploy the Data Job.
+                  </p>
                   <p>
                   The sender mailbox is not monitored, please do not reply to this email.
                   </p>
                   Best,<br>
                   Versatile Data Kit Support`}}
-            expr: |-
+            expr: >-
                {{`label_replace(
-                        (avg by(data_job) (taurus_datajob_termination_status)
+                  label_replace(
+                        (max by(data_job) (taurus_datajob_termination_status)
                       * on(data_job) group_left(email_notified_on_user_error)
                         avg by(data_job, email_notified_on_user_error) (taurus_datajob_info{email_notified_on_user_error!=""}) == bool 3)
                     * on(data_job) group_left(job_name)
-                      topk by(data_job) (1, label_replace(kube_job_status_completion_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
-                    "execution_id", "$1", "job_name", "(.*)")`}}
+                      topk by(data_job) (1, label_replace(kube_job_status_start_time, "data_job", "$1", "job_name", "(.*)-latest.*")) != 0,
+                    "execution_id", "$1", "job_name", "(.*)"),
+                    "short_execution_id", "$1", "execution_id", "([a-zA-Z -_]{1,58}).*")`}}
 
 ## Synchronization mechanism for consistent metrics. The time format is number in milliseconds
 monitoringSync:
