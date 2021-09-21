@@ -174,7 +174,7 @@ Examples:
 \b
 # Simplest form which will prompt for necessary info:
 # It will create it locally and created in cloud
-# only if there is control service configured.
+# only if there is a Control Service configured.
 vdk create
 
 \b
