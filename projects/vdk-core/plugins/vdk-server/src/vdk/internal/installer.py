@@ -338,7 +338,7 @@ class Installer:
                 attempt += 1
                 time.sleep(back_off_time_secs)
         if successful:
-            log.debug("Git server configured successfully")
+            log.info("Git server configured successfully")
         else:
             log.error(f"Failed to configure Git server. {ex_as_string}")
             sys.exit(1)
@@ -647,6 +647,8 @@ class Installer:
                     stderr_as_str = result.stderr.decode("utf-8")
                     log.error(f"Stderr output: {stderr_as_str}")
                     exit(result.returncode)
+                else:
+                    log.info("Control Service installed successfully")
         except Exception as ex:
             log.error(
                 f"Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}"
