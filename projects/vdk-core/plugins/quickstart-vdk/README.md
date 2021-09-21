@@ -1,9 +1,10 @@
-This is the first VDK packaging that users would install to play around with it.
+# Quickstart-VDK
+
+This is the first VDK packaging that users would install to play around with.
 
 It packages:
 
 * Plugin for a local database to get started quickly
-* Plugin for Big Data database (Presto) to start feeling the full cycle
 * Plugin for job management (vdk-control-cli)
 * Plugin for local Control Service installation (vdk-server)
 

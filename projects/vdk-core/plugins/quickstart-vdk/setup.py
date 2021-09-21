@@ -17,7 +17,6 @@ setuptools.setup(
     install_requires=[
         "vdk-core",
         "vdk-plugin-control-cli",
-        "vdk-trino",
         "vdk-sqlite",
         "vdk-ingest-http",
         "vdk-ingest-file",
