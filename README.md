@@ -25,8 +25,12 @@ Versatile Data Kit consists of:
 #### Install Versatile Data Kit SDK
 
 ```bash
+pip install -U pip setuptools wheel
 pip install quickstart-vdk
 ```
+Note that Versatile Data Kit requires Python 3.7+.
+
+See the [Installation page](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-sdk) for more details.
 
 #### Use
 
