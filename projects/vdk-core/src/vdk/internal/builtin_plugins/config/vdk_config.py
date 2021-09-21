@@ -47,8 +47,7 @@ class CoreConfigDefinitionPlugin:
         db_default_type_description = (
             "Default DB connection provided by VDK when executing a data job. "
             "All sql queries, templates/loads would be against that database."
-            "Different database types can be configured with plugins. "
-            "Current supported database types: TODO \n"
+            "Different database types can be configured with plugins. \n"
         )
         config_builder.add(DB_DEFAULT_TYPE, None, True, db_default_type_description)
 
