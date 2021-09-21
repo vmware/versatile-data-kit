@@ -1,7 +1,7 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices\
 # Creating data job base image with support for Oracle.
 
-ARG base_image=harbor-repo.vmware.com/dockerhub-proxy-cache/library/python:3.7-slim
+ARG base_image=python:3.7-slim
 FROM $base_image
 
 # Set the working directory
