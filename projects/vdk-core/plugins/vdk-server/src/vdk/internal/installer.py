@@ -135,7 +135,7 @@ class Installer:
 
     def __create_docker_registry_container(self):
         """
-        Creates a Docker registry container with name specified by docker_registry_name,
+        Creates a Docker registry container with name specified by docker_registry_container_name,
         unless a container with this name already exists.
         """
         log.info(
@@ -216,7 +216,7 @@ class Installer:
 
     def __create_git_server_container(self):
         """
-        Creates a Git server container with name specified by docker_registry_name,
+        Creates a Git server container with name specified by git_server_container_name,
         unless a container with this name already exists.
 
         Returns true if the container did not exist and was created successfully; otherwise, false.
@@ -239,7 +239,7 @@ class Installer:
                     ports={"22/tcp": "10022", "3000/tcp": "10080", "80/tcp": "10081"},
                 )
                 log.info(
-                    f'Git server container "{self.docker_registry_container_name}" created'
+                    f'Git server container "{self.git_server_container_name}" created'
                 )
         except Exception as ex:
             log.error(
@@ -338,7 +338,7 @@ class Installer:
                 attempt += 1
                 time.sleep(back_off_time_secs)
         if successful:
-            log.debug("Git server configured successfully")
+            log.info("Git server configured successfully")
         else:
             log.error(f"Failed to configure Git server. {ex_as_string}")
             sys.exit(1)
@@ -647,6 +647,8 @@ class Installer:
                     stderr_as_str = result.stderr.decode("utf-8")
                     log.error(f"Stderr output: {stderr_as_str}")
                     exit(result.returncode)
+                else:
+                    log.info("Control Service installed successfully")
         except Exception as ex:
             log.error(
                 f"Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}"
