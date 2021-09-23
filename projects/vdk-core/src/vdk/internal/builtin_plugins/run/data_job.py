@@ -119,7 +119,7 @@ class DataJobDefaultHookImplPlugin:
                 what_happened="Data Job execution has failed.",
                 why_it_happened="Data Job has no steps.",
                 consequences="Data job execution will not continue.",
-                countermeasures="Please include at least 1 step in your Data Job.",
+                countermeasures="Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
             )
 
         try:
