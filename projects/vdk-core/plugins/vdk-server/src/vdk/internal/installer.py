@@ -688,7 +688,7 @@ class Installer:
                         self.__current_directory.joinpath("ingress-nginx-deploy.yaml"),
                     )
                 except Exception as ex:
-                    log.error(f"Failed to install ingres controller. {str(ex)}")
+                    log.error(f"Failed to install ingress controller. {str(ex)}")
                     sys.exit(1)
 
             # Now the Ingress is all setup, wait until is ready to process requests running:

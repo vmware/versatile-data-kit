@@ -414,6 +414,8 @@ spec:
           secret:
             secretName: ingress-nginx-admission
 ---
+## Note: This component is currently disabled as it cannot be installed by the Kubernetes client for Python.
+
 ## Source: ingress-nginx/templates/controller-ingressclass.yaml
 ## We don't support namespaced ingressClass yet
 ## So a ClusterRole and a ClusterRoleBinding is required
@@ -432,42 +434,46 @@ spec:
 #spec:
 #  controller: k8s.io/ingress-nginx
 ---
+## Note: The ValidatingWebhookConfiguration causes problems with the Ingress installation on some machines.
+## The error in question is:
+## Internal error occurred: failed calling webhook "validate.nginx.ingress.kubernetes.io": Post https://ingress-nginx-controller-admission.ingress-nginx.svc:443/networking/v1/ingresses?timeout=10s: dial tcp 10.96.170.241:443: connect: connection refused
+
 # Source: ingress-nginx/templates/admission-webhooks/validating-webhook.yaml
 # before changing this value, check the required kubernetes version
 # https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#prerequisites
-apiVersion: admissionregistration.k8s.io/v1
-kind: ValidatingWebhookConfiguration
-metadata:
-  labels:
-    helm.sh/chart: ingress-nginx-4.0.1
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/version: 1.0.0
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: admission-webhook
-  name: ingress-nginx-admission
-webhooks:
-  - name: validate.nginx.ingress.kubernetes.io
-    matchPolicy: Equivalent
-    rules:
-      - apiGroups:
-          - networking.k8s.io
-        apiVersions:
-          - v1
-        operations:
-          - CREATE
-          - UPDATE
-        resources:
-          - ingresses
-    failurePolicy: Fail
-    sideEffects: None
-    admissionReviewVersions:
-      - v1
-    clientConfig:
-      service:
-        namespace: ingress-nginx
-        name: ingress-nginx-controller-admission
-        path: /networking/v1/ingresses
+#apiVersion: admissionregistration.k8s.io/v1
+#kind: ValidatingWebhookConfiguration
+#metadata:
+#  labels:
+#    helm.sh/chart: ingress-nginx-4.0.1
+#    app.kubernetes.io/name: ingress-nginx
+#    app.kubernetes.io/instance: ingress-nginx
+#    app.kubernetes.io/version: 1.0.0
+#    app.kubernetes.io/managed-by: Helm
+#    app.kubernetes.io/component: admission-webhook
+#  name: ingress-nginx-admission
+#webhooks:
+#  - name: validate.nginx.ingress.kubernetes.io
+#    matchPolicy: Equivalent
+#    rules:
+#      - apiGroups:
+#          - networking.k8s.io
+#        apiVersions:
+#          - v1
+#        operations:
+#          - CREATE
+#          - UPDATE
+#        resources:
+#          - ingresses
+#    failurePolicy: Fail
+#    sideEffects: None
+#    admissionReviewVersions:
+#      - v1
+#    clientConfig:
+#      service:
+#        namespace: ingress-nginx
+#        name: ingress-nginx-controller-admission
+#        path: /networking/v1/ingresses
 ---
 # Source: ingress-nginx/templates/admission-webhooks/job-patch/serviceaccount.yaml
 apiVersion: v1
