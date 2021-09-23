@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonSyntaxException;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import io.kubernetes.client.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -75,7 +76,7 @@ import java.util.stream.Collectors;
 @Service
 public class JobExecutionService {
 
-    @AllArgsConstructor
+   @AllArgsConstructor
    public enum ExecutionType {
       MANUAL("manual"),
       SCHEDULED("scheduled");
@@ -309,7 +310,7 @@ public class JobExecutionService {
       }
    }
 
-   public Optional<String> getJobExecutionLogs(String teamName, String jobName, String executionId, Integer tailLines) {
+   public DataJobExecutionLogs getJobExecutionLogs(String teamName, String jobName, String executionId, Integer tailLines) {
       // we use readJobExecution to check that execution exists
       var execution = readJobExecution(teamName, jobName, executionId);
 
@@ -327,7 +328,10 @@ public class JobExecutionService {
       }
 
       try {
-         return dataJobsKubernetesService.getJobLogs(executionId, tailLines);
+         var logs = dataJobsKubernetesService.getJobLogs(executionId, tailLines);
+         DataJobExecutionLogs executionLogs = new DataJobExecutionLogs();
+         executionLogs.setLogs(logs.orElseGet(() -> ""));
+         return executionLogs;
       } catch (Exception e) {
          var msg = String.format("Failed to get logs for job execution %s (job: %s, team: %s)", executionId, jobName, teamName);
          throw new KubernetesException(msg, e);

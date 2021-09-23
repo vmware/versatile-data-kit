@@ -8,6 +8,7 @@ package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.api.DataJobsExecutionApi;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.execution.JobExecutionService;
@@ -92,8 +93,8 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
    }
 
    @Override
-   public ResponseEntity<String> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
-      Optional<String> logs = executionService.getJobExecutionLogs(teamName, jobName, executionId, tailLines);
-      return ResponseEntity.ok(logs.orElseGet(() -> ""));
+   public ResponseEntity<DataJobExecutionLogs> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
+      DataJobExecutionLogs logs = executionService.getJobExecutionLogs(teamName, jobName, executionId, tailLines);
+      return ResponseEntity.ok(logs);
    }
 }

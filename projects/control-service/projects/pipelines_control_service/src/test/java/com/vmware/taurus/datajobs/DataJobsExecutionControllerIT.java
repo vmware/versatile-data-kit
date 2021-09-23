@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.datajobs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
