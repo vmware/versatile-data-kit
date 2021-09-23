@@ -29,24 +29,24 @@ Examples:
 # This will ingest a CSV file into table with the same name as the csv file
 # revenue.csv will be ingested into table revenue.
 # Column names are inferred from the top row of the csv file.
-vdkcli ingest-csv -f revenue.csv
+vdk ingest-csv -f revenue.csv
 
 \b
 # This will ingest a CSV file into table passed as argument
-vdkcli ingest-csv -f revenue.csv --table-name my_revenue_table
+vdk ingest-csv -f revenue.csv --table-name my_revenue_table
 
 \b
 # This will ingest a CSV file
 # But we will switch the delimiter to tab instead of comma
 # Effectively ingesting TSV (tab-separate) file.
-vdkcli ingest-csv -f revenue.tsv --options='{"sep": "\\t"}'
+vdk ingest-csv -f revenue.tsv --options='{"sep": "\\t"}'
 
 \b
 # This will ingest a CSV file.
 # We will use custom column names.
-vdkcli ingest-csv -f revenue.csv --options='{"names": ["gender", "os", "visits", "age", "revenue"]}'
+vdk ingest-csv -f revenue.csv --options='{"names": ["gender", "os", "visits", "age", "revenue"]}'
 
-               """,
+ """,
     no_args_is_help=True,
 )
 @click.option(
