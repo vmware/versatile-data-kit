@@ -104,15 +104,27 @@ class DataJobDefaultHookImplPlugin:
     @hookimpl(trylast=True)
     def run_job(context: JobContext) -> ExecutionResult:
         """The script that runs the actual run of the data job.
-        It executes the provided steps starting from context.степс in sequential order
+        It executes the provided steps starting from context.steps in sequential order
         """
         start_time = datetime.utcnow()
         execution_status = None
         exception = None
+        steps = context.step_builder.get_steps()
         step_results = []
+
+        if len(steps) == 0:
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                log=log,
+                what_happened="Data Job execution has failed.",
+                why_it_happened="Data Job has no steps.",
+                consequences="Data job execution will not continue.",
+                countermeasures="Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
+            )
+
         try:
             execution_status = ExecutionStatus.SUCCESS
-            for current in context.step_builder.get_steps():
+            for current in steps:
                 res = context.core_context.plugin_registry.hook().run_step(
                     context=context, step=current
                 )
