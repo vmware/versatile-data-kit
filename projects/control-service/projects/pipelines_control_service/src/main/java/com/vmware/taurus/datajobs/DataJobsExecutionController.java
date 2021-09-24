@@ -8,12 +8,12 @@ package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.api.DataJobsExecutionApi;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -21,6 +21,7 @@ import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 
@@ -92,7 +93,8 @@ public class DataJobsExecutionController implements DataJobsExecutionApi {
    }
 
    @Override
-   public ResponseEntity<String> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
-      return ResponseEntity.ok("");
+   public ResponseEntity<DataJobExecutionLogs> dataJobLogsDownload(String teamName, String jobName, String executionId, Integer tailLines) {
+      DataJobExecutionLogs logs = executionService.getJobExecutionLogs(teamName, jobName, executionId, tailLines);
+      return ResponseEntity.ok(logs);
    }
 }

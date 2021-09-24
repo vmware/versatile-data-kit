@@ -5,21 +5,20 @@
 
 package com.vmware.taurus.datajobs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles({"MockKubernetes", "MockKerberos", "unittest", "MockTelemetry"})
@@ -29,28 +28,44 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DataJobsExecutionControllerIT {
 
    private static final String TEST_TEAM_NAME = "test-team";
+   private static final String TEST_JOB_NAME = "test-job";
 
    @Autowired
    private MockMvc mockMvc;
 
-   private final ObjectMapper mapper = new ObjectMapper();
-
    @Test
    @WithMockUser
+   @DirtiesContext
    public void testDataJobExecutionStartNotFound() throws Exception {
-      String jobName = "test-job";
-      String deploymentId = "dummy";
-      DataJobExecutionRequest executionRequest = new DataJobExecutionRequest();
-      executionRequest.setStartedBy("unit-test");
-      String body = mapper.writeValueAsString(executionRequest);
-
-      String url = String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-              TEST_TEAM_NAME, jobName, deploymentId);
-      mockMvc.perform(post(url).content(body).contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isNotFound());
-
+      ResultActions mockExecution = TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+      mockExecution.andExpect(status().isNotFound());
    }
 
    // TODO: test all methods
+
+   @Test
+   @WithMockUser
+   @DirtiesContext
+   public void testDataJobExecutionLogs() throws Exception {
+      TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+      TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+      ResultActions mockExecution = TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+      var location = mockExecution.andReturn().getResponse().getHeader("Location");
+      String id = location.substring(location.lastIndexOf('/') + 1);
+
+      String url = String.format("/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", TEST_TEAM_NAME, TEST_JOB_NAME, id);
+      mockMvc.perform(get(url)).andExpect(status().isOk());
+   }
+
+   @Test
+   @WithMockUser
+   @DirtiesContext
+   public void testDataJobExecutionLogsNoExecution() throws Exception {
+      TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+      TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+
+      String url = String.format("/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", TEST_TEAM_NAME, TEST_JOB_NAME, "no-exec");
+      mockMvc.perform(get(url)).andExpect(status().isNotFound());
+   }
 
 }
