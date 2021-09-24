@@ -79,6 +79,7 @@ def get_version_info():
 @click.pass_context
 def version(ctx: click.Context):
     # all necessary info is printed by LogVersionInfoPlugin
-    click.echo(f"Versatile Data Kit (VDK){os.linesep}{get_version_info()}", err=True)
-    click.echo("-" * 80, err=True)
+    log.info(
+        f"Versatile Data Kit (VDK){os.linesep}{get_version_info()}{os.linesep + '-' * 80}"
+    )
     pass
