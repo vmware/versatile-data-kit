@@ -153,8 +153,10 @@ class JobDeploy:
                 f"Request to deploy Data Job {name} using version {job_version} finished successfully.\n"
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
                 f"If notified_on_job_deploy option in config.ini is configured then "
-                f"notification will be sent on successful deploy or in case of an error.\n"
-                f"You can also vdk deploy --show to see if the job is deployed successfully."
+                f"notification will be sent on successful deploy or in case of an error.\n\n"
+                f"You can also execute `vdk deploy --show -t {team} -n {name}` and compare the printed version "
+                f"to the one of the newly deployed job - {job_version} - to verify that the deployment "
+                f"was successful."
             )
         else:
             result = {
@@ -213,6 +215,10 @@ class JobDeploy:
                     enabled=d.enabled,
                 ),
                 deployments,
+            )
+            click.echo(
+                "You can compare the version seen here to the one seen when "
+                "deploying to verify your deployment was successful."
             )
             if output == OutputFormat.TEXT.value:
                 click.echo("")

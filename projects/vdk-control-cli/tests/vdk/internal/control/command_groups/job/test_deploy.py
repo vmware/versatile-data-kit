@@ -288,7 +288,10 @@ def test_deploy_show_with_json_output(httpserver: PluginHTTPServer, tmpdir: Loca
     ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
 
     try:
-        json_result = json.loads(result.output)
+        json_result = json.loads(
+            result.output[110:]
+        )  # the slice is because of a help message printed at the start
+        # which cannot be decoded as json
     except JSONDecodeError as error:
         assert False, f"failed to parse the response as a JSON object, error: {error}"
     assert isinstance(json_result, list)
