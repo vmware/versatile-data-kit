@@ -4,6 +4,8 @@ Changelog
 1.2.10 - Next
 ----
 * **New feature**
+  * Current Execution Logging API introduced (experimental).
+    While users are executing remotely a data job they can monitor their logs now.
 
 * **Improvement**
 
