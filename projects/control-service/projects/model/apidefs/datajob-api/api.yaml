@@ -856,11 +856,7 @@ paths:
         - Data Jobs Execution
       responses:
         '200':
-          description: Success
-          content:
-            text/plain:
-              schema:
-                type: string
+          $ref: '#/components/responses/ExecutionLogs'
         '400':
           $ref: '#/components/responses/Error'
         '404':
@@ -1267,6 +1263,14 @@ components:
         deployment:
           $ref: '#/components/schemas/DataJobDeployment'
 
+    DataJobExecutionLogs:
+      description: Executions of a Data Job
+      type: object
+      properties:
+        logs:
+          description: The logs of the data job execution.
+          type: string
+
     DataJobProperties:
       description: Properties of a Data Job
       type: object
@@ -1565,6 +1569,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobExecution'
+      description: Execution details
+    ExecutionLogs:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DataJobExecutionLogs'
       description: Deployment properties
     Properties:
       content:

@@ -4,6 +4,8 @@ import logging
 
 from vacloud.api.job_input import IJobInput
 
+# TODO: migrate to vdk.api
+
 log = logging.getLogger(__name__)
 
 
