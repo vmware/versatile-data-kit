@@ -154,7 +154,9 @@ class JobDeploy:
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
                 f"If notified_on_job_deploy option in config.ini is configured then "
                 f"notification will be sent on successful deploy or in case of an error.\n"
-                f"You can also vdk deploy --show to see if the job is deployed successfully."
+                f"You can also execute `vdk deploy --show` and compare the printed version "
+                f"to the one of the newly deployed job - {job_version} - to verify that the deployment "
+                f"was successful."
             )
         else:
             result = {
