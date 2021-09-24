@@ -10,9 +10,9 @@ from vdk.internal.core.statestore import CommonStoreKeys
 
 # the labels follow the labelling recommendations found here: http://ltsv.org/
 format_template = (
-    '{"@timestamp":"%(asctime)s","created":"%(created)f","jobname":"{job_name}",'
+    '"@timestamp":"%(asctime)s","created":"%(created)f","jobname":"{job_name}",'
     '"level":"%(levelname)s","modulename":"%(name)s","filename":"%(filename)s",'
-    '"lineno":"%(lineno)s","funcname":"%(funcName)s","attemptid":"{attempt_id}","message":"%(message)s"}'
+    '"lineno":"%(lineno)s","funcname":"%(funcName)s","attemptid":"{attempt_id}","message":"%(message)s"'
 )
 
 
@@ -32,9 +32,9 @@ class RemoveNewlinesFormatter(logging.Formatter):
 
 @hookimpl(tryfirst=True)
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    format_copy = format_template[::-1][::-1].format(
-        job_name="", attempt_id=""
-    )  # this hacky thing copies the format_template string
+    format_copy = (
+        "{" + format_template.format(job_name="", attempt_id="") + "}"
+    )  # appending the braces
     for handler in logging.getLogger().handlers:
         formatter = RemoveNewlinesFormatter(fmt=format_copy)
 
@@ -46,11 +46,9 @@ def initialize_job(context: JobContext) -> None:
     attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
     job_name = context.name
 
-    f_format = format_template[:-1][
-        1:
-    ]  # stripping the braces as they don't play well with .format
-    detailed_format = f_format.format(job_name=job_name, attempt_id=attempt_id)
-    detailed_format = "{" + detailed_format + "}"  # re-appending the braces
+    detailed_format = (
+        "{" + format_template.format(job_name=job_name, attempt_id=attempt_id) + "}"
+    )  # appending the braces
 
     for handler in logging.getLogger().handlers:
         formatter = RemoveNewlinesFormatter(fmt=detailed_format)
