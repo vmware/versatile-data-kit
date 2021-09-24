@@ -150,7 +150,7 @@ Only the following options can be set with config.ini: {[e.value for e in JobCon
             and self.__job_path.is_dir()
             and self.__job_path.joinpath("config.ini").exists()
         ):
-            print("Detected config.ini. Will try to read config.ini.")
+            log.info("Detected config.ini. Will try to read config.ini.")
 
             job_config = JobConfig(self.__job_path)
             config_builder.set_value(JobConfigKeys.TEAM, job_config.get_team())
