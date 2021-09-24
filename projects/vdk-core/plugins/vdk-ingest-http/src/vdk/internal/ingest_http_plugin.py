@@ -16,8 +16,6 @@ log = logging.getLogger(__name__)
 
 @hookimpl
 def initialize_job(context: JobContext) -> None:
-    log.info("Initialize data job with IngestHttp Plugin.")
-
     def new_ingester() -> IIngesterPlugin:
         ingester_plugin = IngestOverHttp()
 
