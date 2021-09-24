@@ -147,6 +147,15 @@ class Config:
         )
 
         """
+        Flag is used to check if Trino template execution needs to be run as part of the heartbeat test.
+        If set to true, the vdk_heartbeat_data_job/trino job will perform a step which will execute a template.
+        It defaults to True.
+        """
+        self.check_template_execution = self._string_to_bool(
+            self.get_value("CHECK_TEMPLATE_EXECUTION", "true", False)
+        )
+
+        """
         Set file path to the JUNIT XML Test report file. If left empty , the file will not be generated.
         The file does not need to exists but all parent directories must exist.
         """
