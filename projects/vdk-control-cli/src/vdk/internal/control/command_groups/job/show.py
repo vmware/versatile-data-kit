@@ -90,4 +90,3 @@ vdk show -n job-name -t team-name
 def show_command(name, team, rest_api_url, output):
     cmd = JobShow(rest_api_url, output)
     cmd.show_job(name, team)
-    pass
