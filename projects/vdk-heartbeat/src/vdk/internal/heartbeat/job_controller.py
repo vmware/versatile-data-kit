@@ -129,6 +129,24 @@ class JobController:
         )
 
     @LogDecorator(log)
+    def show_last_job_execution_logs(self):
+        res = self._execute(
+            [
+                "execute",
+                "-u",
+                self.config.control_api_url,
+                "--logs",
+                "-n",
+                self.config.job_name,
+                "-t",
+                self.config.job_team,
+            ]
+        )
+        log.info(
+            f"Team {self.config.job_team}, Job: {self.config.job_name} Logs:\n {res}"
+        )
+
+    @LogDecorator(log)
     def check_deployments(self, enabled=True, timeout_seconds=600):
         start = time.time()
         deployments = None
