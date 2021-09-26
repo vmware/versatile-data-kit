@@ -15,11 +15,11 @@ log = logging.getLogger(__name__)
 
 
 class JobDelete:
-    def __init__(self, rest_api_url):
+    def __init__(self, rest_api_url: str):
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
 
     @ApiClientErrorDecorator()
-    def delete_job(self, name, team):
+    def delete_job(self, name: str, team: str):
         log.debug(f"Delete data job {name} of team {team}")
         self.jobs_api.data_job_delete(team_name=team, job_name=name)
         log.info(
@@ -58,8 +58,7 @@ class JobDelete:
 @click.confirmation_option(prompt="Are you sure you want to delete the data job?")
 @cli_utils.rest_api_url_option()
 @cli_utils.check_required_parameters
-@click.pass_context
-def delete(ctx: click.Context, name, team, rest_api_url):
+def delete(name: str, team: str, rest_api_url: str):
     cmd = JobDelete(rest_api_url)
     cmd.delete_job(name, team)
     pass
