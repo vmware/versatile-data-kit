@@ -65,7 +65,6 @@ job3" | xargs -I {JOB} vdk deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOB
     "--team",
     type=click.STRING,
     default=load_default_team_name(),
-    required=True,
     help="The team name to which the job should belong to.",
 )
 @click.option(
@@ -145,19 +144,24 @@ def deploy(name, team, job_version, job_path, operation, reason, rest_api_url, o
     cmd = JobDeploy(rest_api_url, output)
     if operation == DeployOperation.UPDATE:
         name = get_or_prompt("Job Name", name)
+        team = get_or_prompt("Job Team", team)
         job_version = get_or_prompt("Job Version", job_version)
         return cmd.update(name, team, job_version, output)
     if operation == DeployOperation.ENABLE:
         name = get_or_prompt("Job Name", name)
+        team = get_or_prompt("Job Team", team)
         return cmd.enable(name, team)
     if operation == DeployOperation.DISABLE:
         name = get_or_prompt("Job Name", name)
+        team = get_or_prompt("Job Team", team)
         return cmd.disable(name, team)
     if operation == DeployOperation.REMOVE:
         name = get_or_prompt("Job Name", name)
+        team = get_or_prompt("Job Team", team)
         return cmd.remove(name, team)
     if operation == DeployOperation.SHOW:
         name = get_or_prompt("Job Name", name)
+        team = get_or_prompt("Job Team", team)
         return cmd.show(name, team, output)
     if operation == DeployOperation.CREATE:
         job_path = get_or_prompt("Job Path", job_path)
