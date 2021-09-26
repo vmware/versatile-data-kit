@@ -664,6 +664,10 @@ class Installer:
                         "extraEnvVars.GIT_SSL_ENABLED=false",
                         "--set",
                         "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
+                        "--set",
+                        "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
+                        "--set",
+                        "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
                     ],
                     capture_output=True,
                 )
