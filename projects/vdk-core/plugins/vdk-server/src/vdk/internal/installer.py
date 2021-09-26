@@ -80,9 +80,11 @@ class Installer:
         self.__finalize_configuration()
         log.info(f"Versatile Data Kit Control Service installed successfully")
         log.info(
-            "You can now use the other vdk commands to create, run, and deploy jobs. For example:\n"
-            "vdk create -n example-job -t my-team -p . --local --cloud\n"
-            'vdk deploy -n example-job -t my-team -p ./example-job -r "initial deployment"'
+            "\n"
+            "You can now use the other vdk commands to create, run, and deploy jobs. "
+            "Run vdk --help to see all commands and examples"
+            "For example:\n"
+            "vdk create -n example-job -t my-team -p . --local --cloud \n"
         )
 
     def uninstall(self):
