@@ -4,7 +4,7 @@
 Load example input data for an scd2 template test.
 """
 from vdk.api.job_input import IJobInput
-from vdk.internal.trino_utils import TrinoTemplateQueries
+from vdk.plugin.trino.trino_utils import TrinoTemplateQueries
 
 
 def run(job_input: IJobInput) -> None:
