@@ -4,10 +4,12 @@ import json
 
 import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
-from vdk.internal.control_service_properties import ControlPlanePropertiesServiceClient
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
+from vdk.plugin.control_cli_plugin.control_service_properties import (
+    ControlPlanePropertiesServiceClient,
+)
 from werkzeug import Request
 from werkzeug import Response
 

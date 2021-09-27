@@ -25,9 +25,9 @@ For example
 vdk-trino comes with pre-defined templates for SQL transformations
 
 * SCD1 - [Slowly Changing Dimension type 1](https://en.wikipedia.org/wiki/Slowly_changing_dimension#Type_1:_overwrite):
-  - [See usage documentation here](src/vdk/internal/templates/load/dimension/scd1/README.md)
+  - [See usage documentation here](src/vdk/plugin/trino/templates/load/dimension/scd1/README.md)
 * SCD2 - [Slowly Changing Dimension Type 2](https://en.wikipedia.org/wiki/Slowly_changing_dimension#Type_2:_add_new_row):
-  - [See usage documentation here](src/vdk/internal/templates/load/dimension/scd2/README.md)
+  - [See usage documentation here](src/vdk/plugin/trino/templates/load/dimension/scd2/README.md)
 
 ### Lineage
 

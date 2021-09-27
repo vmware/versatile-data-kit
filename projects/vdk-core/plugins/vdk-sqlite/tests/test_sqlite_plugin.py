@@ -5,14 +5,14 @@ from unittest import mock
 
 from click.testing import Result
 from pytest import raises
-from vdk.internal import sqlite_plugin
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
-from vdk.internal.ingest_to_sqlite import IngestToSQLite
-from vdk.internal.sqlite_connection import SQLiteConfiguration
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_funcs import jobs_path_from_caller_directory
+from vdk.plugin.sqlite import sqlite_plugin
+from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
+from vdk.plugin.sqlite.sqlite_connection import SQLiteConfiguration
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
 payload: dict = {"some_data": "some_test_data", "more_data": "more_test_data"}
 

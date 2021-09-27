@@ -27,7 +27,11 @@ setuptools.setup(
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["plugin-template = vdk.internal.plugin_template"]},
+    entry_points={
+        "vdk.plugin.run": [
+            "plugin-template = vdk.plugin.plugin_template.plugin_template"
+        ]
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
