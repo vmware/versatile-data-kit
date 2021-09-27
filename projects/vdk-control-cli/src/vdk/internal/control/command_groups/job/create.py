@@ -29,7 +29,9 @@ class JobCreate:
         self.__vdk_config = VDKConfig()
 
     @ApiClientErrorDecorator()
-    def create_job(self, name: str, team: str, path: str, cloud: bool, local: bool):
+    def create_job(
+        self, name: str, team: str, path: str, cloud: bool, local: bool
+    ) -> None:
         self.__validate_job_name(name)
         if local:
             self.validate_job_path(path, name)
@@ -42,7 +44,7 @@ class JobCreate:
             if cloud:
                 self.__download_key(team, name, path)
 
-    def __create_cloud_job(self, team, name):
+    def __create_cloud_job(self, team: str, name: str) -> None:
         jobs_api = ApiClientFactory(self.__rest_api_url).get_jobs_api()
         job_config = DataJobConfig(schedule=DataJobSchedule())
         # TODO: currently there's bug and description is not persisted, so it's not exposed to CLI for now
@@ -61,7 +63,7 @@ class JobCreate:
             f"Data Job with name {name} created and registered in cloud runtime by Control Service."
         )
 
-    def __create_local_job(self, team, name, job_path):
+    def __create_local_job(self, team: str, name: str, job_path: str) -> None:
         sample_job = self.__vdk_config.get_sample_job_directory
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
         cli_utils.copy_directory(sample_job, job_path)
@@ -114,7 +116,7 @@ class JobCreate:
         return job_path
 
     @staticmethod
-    def __validate_job_name(job_name):
+    def __validate_job_name(job_name: str) -> None:
         countermeasure_str = (
             "Ensure that the job name is between 5 and 45 characters long, "
             "that it contains only alphanumeric characters and dashes, "
