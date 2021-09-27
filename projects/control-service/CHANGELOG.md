@@ -1,17 +1,28 @@
 Changelog
 =========
 
-1.2.10 - Next
+1.2.12 - Next
 ----
 * **New feature**
-  * Current Execution Logging API introduced (experimental).
-    While users are executing remotely a data job they can monitor their logs now.
 
 * **Improvement**
 
 * **Bug Fixes**
 
 * **Breaking Changes**
+
+1.2.11 - 27.10.2021
+----
+
+* **Bug Fixes**
+  * Fixed helm chart to give correct permission to read logs
+    This would fix Logging API to work and should fix the deployment notification on user error which was not sending notifications
+
+1.2.10 - 23.10.2021
+----
+* **New feature**
+  * Current Execution Logging API introduced (experimental).
+    While users are executing remotely a data job they can monitor their logs now.
 
 
 1.2.9 - 21.09.2021

@@ -80,9 +80,11 @@ class Installer:
         self.__finalize_configuration()
         log.info(f"Versatile Data Kit Control Service installed successfully")
         log.info(
-            "You can now use the other vdk commands to create, run, and deploy jobs. For example:\n"
-            "vdk create -n example-job -t my-team -p . --local --cloud\n"
-            'vdk deploy -n example-job -t my-team -p ./example-job -r "initial deployment"'
+            "\n"
+            "You can now use the other vdk commands to create, run, and deploy jobs. "
+            "Run vdk --help to see all commands and examples"
+            "For example:\n"
+            "vdk create -n example-job -t my-team -p . --local --cloud \n"
         )
 
     def uninstall(self):
@@ -611,7 +613,29 @@ class Installer:
                         "--set",
                         "service.type=ClusterIP",
                         "--set",
-                        "resources.limits.memory=1G",
+                        "deploymentBuilderResourcesDefault.limits.cpu=0",
+                        "--set",
+                        "deploymentBuilderResourcesDefault.requests.cpu=0",
+                        "--set",
+                        "deploymentBuilderResourcesDefault.limits.memory=0",
+                        "--set",
+                        "deploymentBuilderResourcesDefault.requests.memory=0",
+                        "--set",
+                        "deploymentDefaultDataJobsResources.limits.cpu=0",
+                        "--set",
+                        "deploymentDefaultDataJobsResources.requests.cpu=0",
+                        "--set",
+                        "deploymentDefaultDataJobsResources.limits.memory=0",
+                        "--set",
+                        "deploymentDefaultDataJobsResources.requests.memory=0",
+                        "--set",
+                        "resources.limits.cpu=0",
+                        "--set",
+                        "resources.requests.cpu=0",
+                        "--set",
+                        "resources.limits.memory=0",
+                        "--set",
+                        "resources.requests.memory=0",
                         "--set",
                         "cockroachdb.statefulset.replicas=1",
                         "--set",
@@ -640,6 +664,10 @@ class Installer:
                         "extraEnvVars.GIT_SSL_ENABLED=false",
                         "--set",
                         "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
+                        "--set",
+                        "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
+                        "--set",
+                        "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
                     ],
                     capture_output=True,
                 )

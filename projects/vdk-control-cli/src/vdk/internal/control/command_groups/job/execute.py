@@ -45,7 +45,7 @@ class JobExecute:
         self.__execution_api = ApiClientFactory(rest_api_url).get_execution_api()
 
     @staticmethod
-    def __model_executions(executions, output: OutputFormat):
+    def __model_executions(executions, output: OutputFormat) -> str:
         def transform_execution(e: DataJobExecution):
             d = e.to_dict()
             d["job_version"] = e.deployment.job_version
@@ -60,7 +60,7 @@ class JobExecute:
             return cli_utils.json_format(list(executions))
 
     @ApiClientErrorDecorator()
-    def start(self, name: str, team: str, output: OutputFormat):
+    def start(self, name: str, team: str, output: OutputFormat) -> None:
         execution_request = DataJobExecutionRequest(
             started_by=f"vdk-control-cli", args={}
         )
@@ -92,7 +92,7 @@ class JobExecute:
             click.echo(json.dumps(result))
 
     @ApiClientErrorDecorator()
-    def cancel(self, name: str, team: str, execution_id: str):
+    def cancel(self, name: str, team: str, execution_id: str) -> None:
         click.echo("Cancelling data job execution. Might take some time...")
         with click_spinner.spinner():
             response = self.__execution_api.data_job_execution_cancel(
@@ -102,14 +102,16 @@ class JobExecute:
         click.echo("Job cancelled successfully.")
 
     @ApiClientErrorDecorator()
-    def show(self, name: str, team: str, execution_id: str, output: OutputFormat):
+    def show(
+        self, name: str, team: str, execution_id: str, output: OutputFormat
+    ) -> None:
         execution: DataJobExecution = self.__execution_api.data_job_execution_read(
             team_name=team, job_name=name, execution_id=execution_id
         )
         click.echo(self.__model_executions([execution], output))
 
     @ApiClientErrorDecorator()
-    def list(self, name: str, team: str, output: OutputFormat):
+    def list(self, name: str, team: str, output: OutputFormat) -> None:
         executions: list[
             DataJobExecution
         ] = self.__execution_api.data_job_execution_list(team_name=team, job_name=name)
@@ -139,7 +141,7 @@ class JobExecute:
         return execution
 
     @ApiClientErrorDecorator()
-    def logs(self, name: str, team: str, execution_id: str):
+    def logs(self, name: str, team: str, execution_id: str) -> None:
         execution = self.__get_execution_to_log(name, team, execution_id)
         if not execution:
             log.info("No executions found.")
@@ -257,7 +259,14 @@ vdk execute --logs -n example-job -t "Example Team" --execution-id example-job-1
 @cli_utils.rest_api_url_option()
 @cli_utils.output_option()
 @cli_utils.check_required_parameters
-def execute(name, team, execution_id, operation, rest_api_url, output):
+def execute(
+    name: str,
+    team: str,
+    execution_id: str,
+    operation: str,
+    rest_api_url: str,
+    output: str,
+) -> None:
     cmd = JobExecute(rest_api_url)
     if operation == ExecuteOperation.START:
         name = get_or_prompt("Job Name", name)
