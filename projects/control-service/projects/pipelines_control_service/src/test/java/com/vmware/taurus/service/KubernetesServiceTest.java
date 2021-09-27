@@ -8,13 +8,11 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobLabel;
-import io.kubernetes.client.apis.BatchV1beta1Api;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.models.*;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
@@ -22,8 +20,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-
-import static org.mockito.ArgumentMatchers.any;
 
 public class KubernetesServiceTest {
 
@@ -220,130 +216,6 @@ public class KubernetesServiceTest {
             e.printStackTrace();
             Assertions.fail(e.getMessage());
         }
-    }
-
-    @Test
-    public void testStartCronJobWithExtraArgumentForVdkRun() {
-
-        try {
-            ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
-            var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
-            Map<String, Object> extraArgs = Map.of("argument1", "value1");
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), extraArgs, "test-job");
-            Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
-            var capturedSpec = specCaptor.getValue();
-            var capturedCommand = capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
-            //check if command arg starts correctly
-            Assertions.assertEquals("export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/" +
-                    "site-packages/ && /vdk/vdk run ./test-job --arguments '{\"argument1\":\"value1\"}'", capturedCommand);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assertions.fail(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testStartCronJobWithExtraArgumentsForVdkRun() {
-
-        try {
-            ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
-            var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
-            Map<String, Object> extraArgs = Map.of("argument1", "value1", "argument2", "value2");
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), extraArgs, "test-job");
-            Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
-            var capturedSpec = specCaptor.getValue();
-            var capturedCommand = capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
-            //check if command arg starts correctly
-            Assertions.assertTrue(capturedCommand.startsWith("export PYTHONPATH=/usr/local/lib/python3.7/si" +
-                    "te-packages:/vdk/site-packages/ && /vdk/vdk run ./test-job --arguments '{"), "Vdk run command string invalid.");
-            //extra arguments passed as a map, print order might be different.
-            Assertions.assertTrue(capturedCommand.contains("\"argument2\":\"value2\""), "Second argument not present.");
-            Assertions.assertTrue(capturedCommand.contains("\"argument1\":\"value1\""), "First argument not present.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assertions.fail(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testStartCronJobWithNullArgumentsForVdkRun() {
-
-        try {
-            ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
-            var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), null, "test-job");
-
-            Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
-            var capturedSpec = specCaptor.getValue();
-            var capturedCommand = capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
-            //check if command arg hasn't changed.
-            Assertions.assertEquals("export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/" +
-                            "site-packages/ && /vdk/vdk run ./test-job", capturedCommand);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assertions.fail(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testStartCronJobWithEmptyArgumentsForVdkRun() {
-
-        try {
-            ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
-            var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), Map.of(), "test-job");
-
-            Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
-            var capturedSpec = specCaptor.getValue();
-            var capturedCommand = capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
-            //check if command arg hasn't changed.
-            Assertions.assertEquals("export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/" +
-                    "site-packages/ && /vdk/vdk run ./test-job", capturedCommand);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assertions.fail(e.getMessage());
-        }
-    }
-
-    private KubernetesService getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
-
-        V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
-        KubernetesService testService = Mockito.mock(KubernetesService.class);
-        BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
-        Mockito.when(testService.initBatchV1beta1Api()).thenReturn(mockBatch);
-        Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any(), any(), any())).thenReturn(internalCronjobTemplate);
-        Mockito.doNothing().when(testService).createNewJob(any(), any(), any(), any());
-        Mockito.doCallRealMethod().when(testService).startNewCronJobExecution(any(), any(), any(), any(), any(), any());
-
-        return testService;
-    }
-
-    private V1beta1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
-        KubernetesService service = new DataJobsKubernetesService("default", "someConfig");
-        // V1betaCronJob initializing snippet copied from tests above, using reflection
-        service.afterPropertiesSet();
-        Method loadInternalCronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalCronjobTemplate");
-        if(loadInternalCronjobTemplate == null) {
-            Assertions.fail("The method 'loadInternalCronjobTemplate' does not exist.");
-        }
-        loadInternalCronjobTemplate.setAccessible(true);
-        V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalCronjobTemplate.invoke(service);
-        var container = internalCronjobTemplate.getSpec()
-                                                           .getJobTemplate()
-                                                           .getSpec()
-                                                           .getTemplate()
-                                                           .getSpec()
-                                                           .getContainers()
-                                                           .get(0);
-
-        var newCommand = new ArrayList<String>(container.getCommand());
-        newCommand.set(2, "export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && /vdk/vdk run ./test-job");
-        container.setCommand(newCommand);
-        return internalCronjobTemplate;
     }
 
 }

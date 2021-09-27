@@ -7,7 +7,6 @@ package com.vmware.taurus.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
@@ -220,6 +219,9 @@ public abstract class KubernetesService implements InitializingBean {
 
     @Autowired
     private UserAgentService userAgentService;
+
+    @Autowired
+    private JobCommandProvider jobCommandProvider;
 
     /**
      *
@@ -491,10 +493,7 @@ public abstract class KubernetesService implements InitializingBean {
         }
 
         try {
-            var jobCommandProvider = new JobCommandProvider(jobName);
-            var jobArgumentsJsonString = new ObjectMapper().writeValueAsString(extraJobArguments);
-            var newCommand = jobCommandProvider.getJobCommand(jobArgumentsJsonString); // vdk run command is last in the list
-
+            var newCommand = jobCommandProvider.getJobCommand(jobName, extraJobArguments); // vdk run command is last in the list
             container.setCommand(newCommand);
         } catch (JsonProcessingException e) {
             log.debug("JsonProcessingException", e);

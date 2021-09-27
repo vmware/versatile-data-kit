@@ -5,17 +5,13 @@
 
 package com.vmware.taurus.service.deploy;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import com.google.gson.Gson;
+import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.credentials.JobCredentialsService;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.ApiException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +21,9 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.credentials.JobCredentialsService;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.model.JobAnnotation;
-import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeployment;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.vmware.taurus.service.model.JobLabel;
-import com.vmware.taurus.service.notification.NotificationContent;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
 
 /**
  * Takes care of deploying a Data Job in Kubernetes and scheduling it to run.
@@ -65,6 +52,7 @@ public class JobImageDeployer {
    private final DataJobDefaultConfigurations defaultConfigurations;
    private final DeploymentProgress deploymentProgress;
    private final KubernetesResources kubernetesResources;
+   private final JobCommandProvider jobCommandProvider;
 
    public Optional<JobDeploymentStatus> readScheduledJob(String dataJobName) {
       Optional<JobDeploymentStatus> jobDeployment = dataJobsKubernetesService.readCronJob(getCronJobName(dataJobName));
@@ -197,8 +185,7 @@ public class JobImageDeployer {
       jobContainerEnvVars.putAll(vdkEnvs);
       jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
 
-      var jobCommandProvider = new JobCommandProvider(jobName);
-      var jobCommand = jobCommandProvider.getJobCommand();
+      var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
       // The job name is used as the container name. This is something that we rely on later,
       // when watching for pod modifications in DataJobStatusMonitor.watchPods

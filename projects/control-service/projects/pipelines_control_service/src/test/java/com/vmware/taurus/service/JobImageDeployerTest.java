@@ -32,6 +32,7 @@ public class JobImageDeployerTest {
     private DataJobDefaultConfigurations dataJobDefaultConfigurations;
     private DeploymentProgress deploymentProgress;
     private KubernetesResources kubernetesResources;
+    private JobCommandProvider jobCommandProvider;
 
     @BeforeEach
     public void setUp() {
@@ -41,9 +42,10 @@ public class JobImageDeployerTest {
         dataJobDefaultConfigurations = Mockito.mock(DataJobDefaultConfigurations.class);
         deploymentProgress = Mockito.mock(DeploymentProgress.class);
         kubernetesResources = Mockito.mock(KubernetesResources.class);
+        jobCommandProvider = Mockito.mock(JobCommandProvider.class);
 
         jobImageDeployer = new JobImageDeployer(jobCredentialsService, dataJobsKubernetesService, vdkOptionsReader,
-                dataJobDefaultConfigurations, deploymentProgress, kubernetesResources);
+                dataJobDefaultConfigurations, deploymentProgress, kubernetesResources, jobCommandProvider);
 
     }
 

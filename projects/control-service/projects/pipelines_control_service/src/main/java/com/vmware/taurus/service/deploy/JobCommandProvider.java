@@ -5,33 +5,54 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides the command list for the K8S' data job
  * container. The command list executes the data job, by calling
  * vdk run ...
  */
+@Component
 public class JobCommandProvider {
     private List<String> command;
 
-    public JobCommandProvider(String jobName) {
+    public JobCommandProvider() {
+
         this.command = List.of(
                 "/bin/bash",
                 "-c",
-                String.format("export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && /vdk/vdk run ./%s", jobName)
+                "export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && /vdk/vdk run"
         );
     }
 
-    public List<String> getJobCommand() {
-        return command;
+    private String getJobNameArgument(String jobName) {
+        return String.format(" ./%s", jobName);
     }
 
-    public List<String> getJobCommand(String extraArguments) {
+    private String getExtraArguments(String arguments) {
+        return String.format(" --arguments '%s'", arguments);
+    }
+
+    public List<String> getJobCommand(String jobName) {
+
         return List.of(
                 command.get(0),
                 command.get(1),
-                command.get(2) + String.format(" --arguments '%s'", extraArguments)
+                command.get(2) + getJobNameArgument(jobName)
+        );
+    }
+
+    public List<String> getJobCommand(String jobName, Map<String, Object> extraArguments) throws JsonProcessingException {
+        var arguments = new ObjectMapper().writeValueAsString(extraArguments);
+        return List.of(
+                command.get(0),
+                command.get(1),
+                command.get(2) + getJobNameArgument(jobName) + getExtraArguments(arguments)
         );
     }
 }
