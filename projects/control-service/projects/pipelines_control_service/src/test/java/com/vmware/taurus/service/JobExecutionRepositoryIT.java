@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
@@ -104,7 +107,30 @@ public class JobExecutionRepositoryIT {
    }
 
    @Test
-   public void testFindDataJobExecutionsByDataJobNameAndStatusIn_nonExistingDataJobExecution_shouldReturnEmptyResult() {
+   void testFindFirst5ByDataJobNameOrderByStartTimeDesc_existingDataJobExecutions_shouldReturnValidResult() {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
+      DataJobExecution expectedJobExecution3 =
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
+      DataJobExecution expectedJobExecution4 =
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+
+
+      Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Order.desc("id")));
+      var actualJobExecutions =
+            jobExecutionRepository.findDataJobExecutionsByDataJobName(actualDataJob.getName(), pageable);
+
+      Assertions.assertNotNull(actualJobExecutions);
+      Assertions.assertEquals(2, actualJobExecutions.size());
+      Assertions.assertEquals(expectedJobExecution4, actualJobExecutions.get(0));
+      Assertions.assertEquals(expectedJobExecution3, actualJobExecutions.get(1));
+
+   }
+
+   @Test
+   void testFindDataJobExecutionsByDataJobNameAndStatusIn_nonExistingDataJobExecution_shouldReturnEmptyResult() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       var actualJobExecutions =

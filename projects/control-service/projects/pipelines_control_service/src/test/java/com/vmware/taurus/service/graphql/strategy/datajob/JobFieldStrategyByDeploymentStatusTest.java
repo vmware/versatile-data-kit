@@ -8,9 +8,10 @@ package com.vmware.taurus.service.graphql.strategy.datajob;
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,7 +42,7 @@ class JobFieldStrategyByDeploymentStatusTest {
    @Test
    void testJobDeploymentStatusStrategy_whenComputingValidCriteriaWithoutFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(V2DataJob::getJobName));
-      Filter baseFilter = new Filter("random", null, Filter.Direction.DESC);
+      Filter baseFilter = new Filter("random", null, Sort.Direction.DESC);
       V2DataJob a = createDummyJob(JobFieldStrategyByDeploymentStatus.DeploymentStatus.ENABLED);
       V2DataJob b = createDummyJob(JobFieldStrategyByDeploymentStatus.DeploymentStatus.DISABLED);
 
@@ -59,7 +60,7 @@ class JobFieldStrategyByDeploymentStatusTest {
       V2DataJob b = createDummyJob(JobFieldStrategyByDeploymentStatus.DeploymentStatus.DISABLED);
       V2DataJob c = createDummyJob(JobFieldStrategyByDeploymentStatus.DeploymentStatus.NOT_DEPLOYED);
 
-      Filter enabledFilter = new Filter("deployments.status", "enabled", Filter.Direction.ASC);
+      Filter enabledFilter = new Filter("deployments.status", "enabled", Sort.Direction.ASC);
       Criteria<V2DataJob> criteriaForEnabledJobs = strategyByDeploymentStatus.computeFilterCriteria(baseCriteria, enabledFilter);
 
       assertThat(criteriaForEnabledJobs.getPredicate().test(a)).isTrue();
@@ -69,14 +70,14 @@ class JobFieldStrategyByDeploymentStatusTest {
       assertThat(criteriaForEnabledJobs.getComparator().compare(c, b)).isPositive();
       assertThat(criteriaForEnabledJobs.getComparator().compare(a, c)).isNegative();
 
-      Filter disabledFilter = new Filter("deployments.status", "disabled", Filter.Direction.ASC);
+      Filter disabledFilter = new Filter("deployments.status", "disabled", Sort.Direction.ASC);
       Criteria<V2DataJob> criteriaForDisabledJobs = strategyByDeploymentStatus.computeFilterCriteria(baseCriteria, disabledFilter);
 
       assertThat(criteriaForDisabledJobs.getPredicate().test(a)).isFalse();
       assertThat(criteriaForDisabledJobs.getPredicate().test(b)).isTrue();
       assertThat(criteriaForDisabledJobs.getPredicate().test(c)).isFalse();
 
-      Filter notDeployedFilter = new Filter("deployments.status", "not_deployed", Filter.Direction.ASC);
+      Filter notDeployedFilter = new Filter("deployments.status", "not_deployed", Sort.Direction.ASC);
       Criteria<V2DataJob> criteriaForNotDeployedJobs = strategyByDeploymentStatus.computeFilterCriteria(baseCriteria, notDeployedFilter);
 
       assertThat(criteriaForNotDeployedJobs.getPredicate().test(a)).isFalse();
