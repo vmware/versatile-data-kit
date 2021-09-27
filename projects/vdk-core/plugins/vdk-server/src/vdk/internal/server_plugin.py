@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
     help="Removes a previous Control Service installation.",
 )
 @click.option(
+    "-s",
     "--status",
     is_flag=True,
     help="Returns whether a local Control Service is currently installed.",

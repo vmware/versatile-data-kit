@@ -31,7 +31,7 @@ class JobDeploy:
     ZIP_ARCHIVE_TYPE = "zip"
     ARCHIVE_SUFFIX = "-archive"
 
-    def __init__(self, rest_api_url, output):
+    def __init__(self, rest_api_url: str, output):
         self.deploy_api = ApiClientFactory(rest_api_url).get_deploy_api()
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
         self.job_sources_api = ApiClientFactory(rest_api_url).get_jobs_sources_api()
@@ -41,7 +41,7 @@ class JobDeploy:
         self.__job_archive = JobArchive()
 
     @staticmethod
-    def __detect_keytab_files_in_job_directory(job_path):
+    def __detect_keytab_files_in_job_directory(job_path: str) -> None:
         keytab_glob = os.path.join(job_path, "**/*.keytab")
         keytab_files = glob.glob(keytab_glob, recursive=True)
         if keytab_files:
@@ -53,7 +53,7 @@ class JobDeploy:
             )
 
     @staticmethod
-    def __validate_datajob(job_path, job_config, team):
+    def __validate_datajob(job_path: str, job_config: JobConfig, team: str) -> None:
         log.debug(
             "Validate data job does not have credentials in its directory (keytab file)"
         )
@@ -75,7 +75,7 @@ class JobDeploy:
         # TODO: we may use https://github.com/Yelp/detect-secrets to make sure users do not accidentally pass secrets
 
     @staticmethod
-    def __check_value(key, value):
+    def __check_value(key: str, value: str) -> str:
         if not value:
             raise VDKException(
                 what="Cannot extract job configuration.",
@@ -85,7 +85,7 @@ class JobDeploy:
             )
         return value
 
-    def __read_data_job(self, name, team):
+    def __read_data_job(self, name: str, team: str) -> DataJob:
         try:
             return self.jobs_api.data_job_read(team_name=team, job_name=name)
         except ApiException as e:
@@ -97,7 +97,7 @@ class JobDeploy:
             ) from e
 
     @staticmethod
-    def __archive_binary(job_archive_path):
+    def __archive_binary(job_archive_path: str) -> bytes:
         log.debug(f"Read archive binary: {job_archive_path}")
         with open(job_archive_path, "rb") as job_archive_file:
             # Read the whole file at once
@@ -105,7 +105,7 @@ class JobDeploy:
             return job_archive_binary
 
     @staticmethod
-    def __cleanup_archive(archive_path):
+    def __cleanup_archive(archive_path: str) -> None:
         try:
             log.debug(f"Remove temp archive {archive_path}")
             os.remove(archive_path)
@@ -119,7 +119,9 @@ class JobDeploy:
                 )
             )
 
-    def __update_data_job_deploy_configuration(self, job_path, name, team):
+    def __update_data_job_deploy_configuration(
+        self, job_path: str, name: str, team: str
+    ) -> None:
         job: DataJob = self.__read_data_job(name, team)
         local_config = JobConfig(job_path)
         schedule = self.__check_value("schedule_cron", local_config.get_schedule_cron())
@@ -139,7 +141,7 @@ class JobDeploy:
         self.jobs_api.data_job_update(team_name=team, job_name=name, data_job=job)
 
     @ApiClientErrorDecorator()
-    def update(self, name, team, job_version, output):
+    def update(self, name: str, team: str, job_version: str, output: str) -> None:
         deployment = DataJobDeployment(
             job_version=job_version, mode="release", enabled=True
         )
@@ -166,7 +168,7 @@ class JobDeploy:
             click.echo(json.dumps(result))
 
     @ApiClientErrorDecorator()
-    def disable(self, name, team):
+    def disable(self, name: str, team: str) -> None:
         enable = Enable(enabled=False)
         log.debug(f"Disable Deployment of a job {name} of team {team}")
         self.deploy_api.deployment_enable(
@@ -178,7 +180,7 @@ class JobDeploy:
         log.info(f"Deployment of Data Job {name} disabled.")
 
     @ApiClientErrorDecorator()
-    def enable(self, name, team):
+    def enable(self, name: str, team: str) -> None:
         enable = Enable(enabled=True)
         log.debug(f"Enable Deployment of a job {name} of team {team}")
         self.deploy_api.deployment_enable(
@@ -190,7 +192,7 @@ class JobDeploy:
         log.info(f"Deployment of Data Job {name} enabled.")
 
     @ApiClientErrorDecorator()
-    def remove(self, name, team):
+    def remove(self, name: str, team: str) -> None:
         log.debug(f"Remove Deployment of a job {name} of team {team}")
         self.deploy_api.deployment_delete(
             team_name=team, job_name=name, deployment_id=self.__deployment_id
@@ -198,7 +200,7 @@ class JobDeploy:
         log.info(f"Deployment of Data Job {name} removed.")
 
     @ApiClientErrorDecorator()
-    def show(self, name, team, output):
+    def show(self, name: str, team: str, output: str) -> None:
         log.debug(f"Get list of deployments for job {name} of team {team} ")
         deployments = self.deploy_api.deployment_list(team_name=team, job_name=name)
         log.debug(
@@ -232,7 +234,9 @@ class JobDeploy:
                 click.echo(json.dumps([]))
 
     @ApiClientErrorDecorator()
-    def create(self, name, team, job_path, reason, output):
+    def create(
+        self, name: str, team: str, job_path: str, reason: str, output: str
+    ) -> None:
         log.debug(
             f"Create Deployment of a job {name} of team {team} with local path {job_path} and reason {reason}"
         )
