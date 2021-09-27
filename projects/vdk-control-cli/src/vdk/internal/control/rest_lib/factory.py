@@ -43,16 +43,11 @@ class ApiClientFactory:
         )
         self.config.client_side_validation = False
         self.config.verify_ssl = self.vdk_config.http_verify_ssl
-        if (
-            self.vdk_config.authentication_disabled
-            or load_default_authentication_disable()
-        ):
-            log.info("Authentication is disabled.")
-        else:
-            auth = Authentication()
-            # For now there's no need to add auto-update since this is called usually in a shell script
-            # and each command will have short execution life even when multiple requests to API are made.
-            self.config.access_token = auth.read_access_token()
+
+        auth = Authentication()
+        # For now there's no need to add auto-update since this is called usually in a shell script
+        # and each command will have short execution life even when multiple requests to API are made.
+        self.config.access_token = auth.read_access_token()
 
     def _new_api_client(self):
         api_client = ApiClient(self.config)

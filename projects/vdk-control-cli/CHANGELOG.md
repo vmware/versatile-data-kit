@@ -10,6 +10,8 @@ VDK Control CLI 1.1
       Introduced vdk create --local to create job only locally from sample
       vdk create without arguments would create job locally and try to detect if it can created in cloud
       vdk create --cloud - always created in cloud only and fail if it cannot
+    * Auto-detect if authentication is necessary
+      This remove the need of explicit variable to set/unset authentication. Now vdkcli would detect automatically.
 
 * **Bug Fixes**
 
