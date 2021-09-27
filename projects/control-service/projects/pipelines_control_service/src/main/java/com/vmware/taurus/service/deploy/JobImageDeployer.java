@@ -197,13 +197,8 @@ public class JobImageDeployer {
       jobContainerEnvVars.putAll(vdkEnvs);
       jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
 
-      // The job command is used to start the data job. We rely on this implementation
-      // for passing extra arguments to the KubernetesService. If this implementation is
-      // changed we will need to change the startNewCronJobExecution method in KubernetesService
-      var jobCommand = List.of(
-              "/bin/bash",
-              "-c",
-              String.format("export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && /vdk/vdk run ./%s", jobName));
+      var jobCommandProvider = new JobCommandProvider(jobName);
+      var jobCommand = jobCommandProvider.getJobCommand();
 
       // The job name is used as the container name. This is something that we rely on later,
       // when watching for pod modifications in DataJobStatusMonitor.watchPods

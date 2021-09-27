@@ -229,7 +229,7 @@ public class KubernetesServiceTest {
             ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
             var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
             Map<String, Object> extraArgs = Map.of("argument1", "value1");
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), extraArgs);
+            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), extraArgs, "test-job");
             Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
             var capturedSpec = specCaptor.getValue();
             var capturedCommand = capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
@@ -250,7 +250,7 @@ public class KubernetesServiceTest {
             ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
             var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
             Map<String, Object> extraArgs = Map.of("argument1", "value1", "argument2", "value2");
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), extraArgs);
+            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), extraArgs, "test-job");
             Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
             var capturedSpec = specCaptor.getValue();
             var capturedCommand = capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
@@ -273,7 +273,7 @@ public class KubernetesServiceTest {
         try {
             ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
             var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), null);
+            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), null, "test-job");
 
             Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
             var capturedSpec = specCaptor.getValue();
@@ -294,7 +294,7 @@ public class KubernetesServiceTest {
         try {
             ArgumentCaptor<V1JobSpec> specCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
             var testService = getMockKubernetesServiceForVdkRunExtraArgsTests();
-            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), Map.of());
+            testService.startNewCronJobExecution("test-job", "test-id", new HashMap<>(), new HashMap<>(), Map.of(), "test-job");
 
             Mockito.verify(testService).createNewJob(Mockito.any(), specCaptor.capture(), Mockito.any(), Mockito.any());
             var capturedSpec = specCaptor.getValue();
@@ -317,7 +317,7 @@ public class KubernetesServiceTest {
         Mockito.when(testService.initBatchV1beta1Api()).thenReturn(mockBatch);
         Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any(), any(), any())).thenReturn(internalCronjobTemplate);
         Mockito.doNothing().when(testService).createNewJob(any(), any(), any(), any());
-        Mockito.doCallRealMethod().when(testService).startNewCronJobExecution(any(), any(), any(), any(), any());
+        Mockito.doCallRealMethod().when(testService).startNewCronJobExecution(any(), any(), any(), any(), any(), any());
 
         return testService;
     }

@@ -111,7 +111,7 @@ public class JobExecutionService {
          envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
          // Start K8S Job
-         dataJobsKubernetesService.startNewCronJobExecution(jobDeploymentStatus.getCronJobName(), executionId, annotations, envs, extraJobArguments);
+         dataJobsKubernetesService.startNewCronJobExecution(jobDeploymentStatus.getCronJobName(), executionId, annotations, envs, extraJobArguments, jobName);
 
          // Save Data Job execution
          saveDataJobExecution(dataJob, executionId, opId, com.vmware.taurus.service.model.ExecutionType.MANUAL, ExecutionStatus.SUBMITTED, startedByBuilt);
