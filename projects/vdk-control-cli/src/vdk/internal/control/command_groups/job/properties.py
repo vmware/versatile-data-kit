@@ -54,7 +54,7 @@ class JobProperties:
             deployment_id=self.deployment_id,
         )
 
-    def __list_properties(self, remote_props: Dict[str, Any]):
+    def __list_properties(self, remote_props: Dict[str, Any]) -> None:
         if self.output == OutputFormat.TEXT.value:
             if len(remote_props) > 0:
                 click.echo(
@@ -69,7 +69,7 @@ class JobProperties:
             click.echo(json.dumps(remote_props))
 
     @staticmethod
-    def _to_bool(value):
+    def _to_bool(value: str) -> bool:
         if value == "true" or value == "True":
             return True
         if value == "false" or value == "False":
@@ -77,7 +77,7 @@ class JobProperties:
         raise ValueError("bool cast accept only True/true/False/false values.")
 
     @staticmethod
-    def __cast(key: str, new_value: str, value_type: Type):
+    def __cast(key: str, new_value: str, value_type: Type) -> Any:
         try:
             log.debug(f"Cast {key} to type {value_type}")
             if value_type == bool:
@@ -122,7 +122,7 @@ class JobProperties:
         return merged
 
     @ApiClientErrorDecorator()
-    def get(self, key: str):
+    def get(self, key: str) -> None:
         remote_props = self.__get_all_remote_properties()
         if key in remote_props:
             self.__list_properties({key: remote_props[key]})
@@ -130,12 +130,12 @@ class JobProperties:
             self.__list_properties({})
 
     @ApiClientErrorDecorator()
-    def list(self):
+    def list(self) -> None:
         remote_props = self.__get_all_remote_properties()
         self.__list_properties(remote_props)
 
     @ApiClientErrorDecorator()
-    def update_properties(self, new_properties: Dict[str, str]):
+    def update_properties(self, new_properties: Dict[str, str]) -> None:
         remote_props = self.__get_all_remote_properties()
         merged_props = self.__merge_props(new_properties, remote_props)
         self.properties_api.data_job_properties_update(
@@ -146,7 +146,7 @@ class JobProperties:
         )
 
     @ApiClientErrorDecorator()
-    def overwrite_properties(self, new_properties: Dict[str, str]):
+    def overwrite_properties(self, new_properties: Dict[str, str]) -> None:
         self.properties_api.data_job_properties_update(
             team_name=self.team,
             job_name=self.job_name,
@@ -155,7 +155,7 @@ class JobProperties:
         )
 
     @ApiClientErrorDecorator()
-    def delete_keys(self, delete_keys: Tuple[str]):
+    def delete_keys(self, delete_keys: Tuple[str]) -> None:
         props = self.__get_all_remote_properties()
         for key in delete_keys:
             props.pop(key)
@@ -167,7 +167,7 @@ class JobProperties:
         )
 
     @ApiClientErrorDecorator()
-    def delete_all_job_properties(self):
+    def delete_all_job_properties(self) -> None:
         self.properties_api.data_job_properties_update(
             team_name=self.team,
             job_name=self.job_name,

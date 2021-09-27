@@ -189,6 +189,7 @@ control_service_deploy_testing_data_pipelines:
   image: proum/aws-iam-authenticator
   script:
     - apk --no-cache add bash openssl curl git gettext
+    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
@@ -207,7 +208,7 @@ control_service_post_deployment_test:
   script:
     - set -x
     - pip install quickstart-vdk
-    - pip install vdk-heartbeat
+    - pip install vdk-heartbeat[trino]
     - vdk version
     - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
     - vdk-heartbeat -f projects/control-service/cicd/post_deploy_test_heartbeat_config.ini
@@ -225,6 +226,7 @@ control_service_release:
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
+    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - helm plugin install https://github.com/chartmuseum/helm-push
     - cd projects/control-service/projects/helm_charts

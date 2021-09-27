@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from vdk.internal.logging_json import format_template
+from vdk.plugin.logging_json.logging_json import format_template
 
 
 def test_json_logging():

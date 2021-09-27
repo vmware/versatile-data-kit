@@ -15,6 +15,7 @@ import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.kubernetes.client.ApiException;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.lang.Error;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -310,9 +312,20 @@ public class DataJobTerminationStatusIT extends BaseIT {
     }
 
     private void checkDataJobExecutionStatus(String executionId, DataJobExecution.StatusEnum executionStatus, String opId) throws Exception {
-        testDataJobExecutionRead(executionId, executionStatus, opId);
-        testDataJobExecutionList(executionId, executionStatus, opId);
-        testDataJobDeploymentExecutionList(executionId, executionStatus, opId);
+        try {
+            testDataJobExecutionRead(executionId, executionStatus, opId);
+            testDataJobExecutionList(executionId, executionStatus, opId);
+            testDataJobDeploymentExecutionList(executionId, executionStatus, opId);
+            testDataJobExecutionLogs(executionId, executionStatus, opId);
+        } catch (Error e) {
+            try {
+                // print logs in case execution has failed
+                MvcResult dataJobExecutionLogsResult = getExecuteLogs(executionId);
+                log.info("Job Execution {} logs:\n{}", executionId, dataJobExecutionLogsResult.getResponse().getContentAsString());
+            } catch(Error ignore) {
+            }
+            throw e;
+        }
     }
 
     private void testDataJobExecutionRead(String executionId, DataJobExecution.StatusEnum executionStatus, String opId) {
@@ -382,6 +395,23 @@ public class DataJobTerminationStatusIT extends BaseIT {
               .collect(Collectors.toList());
         assertEquals(1, dataJobExecutions.size());
         assertDataJobExecutionValid(executionId, executionStatus, opId, dataJobExecutions.get(0));
+    }
+
+    private void testDataJobExecutionLogs(String executionId, DataJobExecution.StatusEnum executionStatus, String opId) throws Exception {
+        MvcResult dataJobExecutionLogsResult = getExecuteLogs(executionId);
+        assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
+    }
+
+    @NotNull
+    private MvcResult getExecuteLogs(String executionId) throws Exception {
+        String dataJobExecutionListUrl = String.format(
+                "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs",
+                TEST_TEAM_NAME, SIMPLE_JOB_NAME, executionId);
+        MvcResult dataJobExecutionLogsResult = mockMvc.perform(get(dataJobExecutionListUrl)
+                        .with(user(USER_NAME)))
+                .andExpect(status().isOk())
+                .andReturn();
+        return dataJobExecutionLogsResult;
     }
 
     private void assertDataJobExecutionValid(

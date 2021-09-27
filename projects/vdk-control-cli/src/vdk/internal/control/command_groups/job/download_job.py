@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
+from typing import Optional
 
 import click
 import click_spinner
+from urllib3 import HTTPResponse
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.job.job_archive import JobArchive
@@ -16,19 +18,19 @@ log = logging.getLogger(__name__)
 
 
 class JobDownloadSource:
-    def __init__(self, rest_api_url):
+    def __init__(self, rest_api_url: str):
         self.sources_api = ApiClientFactory(rest_api_url).get_jobs_sources_api()
         self.__job_archive = JobArchive()
 
     @ApiClientErrorDecorator()
-    def download(self, team, name, path):
+    def download(self, team: str, name: str, path: str):
         log.debug(f"Download job {name} of team {team} into parent {path}")
         self.__validate_job_path(path, name)
         job_archive_path = os.path.join(path, f"{name}.zip")
         try:
             log.info(f"Downloading data job {name} in {path}/{name} ...")
             with click_spinner.spinner():
-                response = self.sources_api.data_job_sources_download(
+                response: HTTPResponse = self.sources_api.data_job_sources_download(
                     team_name=team, job_name=name, _preload_content=False
                 )
                 self.__write_response_to_archive(job_archive_path, response)
@@ -41,15 +43,13 @@ class JobDownloadSource:
             self.__cleanup_archive(job_archive_path)
 
     @staticmethod
-    def __write_response_to_archive(job_archive_path, response):
+    def __write_response_to_archive(job_archive_path: str, response: HTTPResponse):
         log.debug(f"Write data job source to {job_archive_path}")
         with open(job_archive_path, "wb") as w:
             w.write(response.data)
 
     @staticmethod
-    def __validate_job_path(path, name):
-        if path is None:
-            path = os.path.abspath(".")
+    def __validate_job_path(path: str, name: str):
         job_path = os.path.join(path, name)
         if os.path.exists(job_path):
             raise VDKException(
@@ -58,10 +58,9 @@ class JobDownloadSource:
                 consequence="Cannot download the job and will abort.",
                 countermeasure=f"Delete or move directory {job_path} or change --path location",
             )
-        return job_path
 
     @staticmethod
-    def __cleanup_archive(archive_path):
+    def __cleanup_archive(archive_path: str):
         try:
             os.remove(archive_path)
         except OSError as e:
@@ -113,7 +112,7 @@ class JobDownloadSource:
 )
 @cli_utils.rest_api_url_option()
 @cli_utils.check_required_parameters
-def download_job(name, team, path, rest_api_url):
+def download_job(name: str, team: str, path: str, rest_api_url: str):
     cmd = JobDownloadSource(rest_api_url)
     cmd.download(team, name, path)
 

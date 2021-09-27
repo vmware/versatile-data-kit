@@ -1,20 +1,42 @@
 Changelog
 =========
 
-1.2.9 - Next
+1.2.12 - Next
+----
+* **New feature**
+
+* **Improvement**
+
+* **Bug Fixes**
+
+* **Breaking Changes**
+
+1.2.11 - 27.10.2021
+----
+
+* **Bug Fixes**
+  * Fixed helm chart to give correct permission to read logs
+    This would fix Logging API to work and should fix the deployment notification on user error which was not sending notifications
+
+1.2.10 - 23.10.2021
 ----
 * **New feature**
   * Current Execution Logging API introduced (experimental).
-    While users are executing remotely a data job they can monitor their logs now.s
+    While users are executing remotely a data job they can monitor their logs now.
+
+
+1.2.9 - 21.09.2021
+----
+* **New feature**
 
 * **Improvement**
   * GraphQL endpoint now does not have limit for fetching data jobs, which was previously 100 jobs per page.
 
 * **Bug Fixes**
-  * Data job execution status fix
+  * Data job execution status fix <br>
     In case of failed data job execution due to the User Error the execution status will be marked as Failed instead of Finished.
 
-  * Data Job Execution statuses synchronization
+  * Data Job Execution statuses synchronization <br>
     This will keep in sync all job executions in the database in case of Control Service downtime or missed Kubernetes Job Event.
 
 * **Breaking Changes**
