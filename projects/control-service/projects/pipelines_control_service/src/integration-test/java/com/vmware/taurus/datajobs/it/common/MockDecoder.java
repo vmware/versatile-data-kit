@@ -33,18 +33,18 @@ import static org.mockito.Mockito.when;
 @Configuration
 public class MockDecoder {
 
-    @Bean
-    @Primary
-    public JwtDecoder jwtDecoder() {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(IdTokenClaimNames.SUB, "sub123");
-        claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
-        claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
-        claims.put(IdTokenClaimNames.AZP, "clientId");
-        Jwt jwt = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
-                Collections.singletonMap("header1", "value1"), claims);
-        JwtDecoder jwtDecoder = mock(JwtDecoder.class);
-        when(jwtDecoder.decode(any())).thenReturn(jwt);
-        return jwtDecoder;
-    }
+//    @Bean
+//    @Primary
+//    public JwtDecoder jwtDecoder() {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put(IdTokenClaimNames.SUB, "sub123");
+//        claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
+//        claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
+//        claims.put(IdTokenClaimNames.AZP, "clientId");
+//        Jwt jwt = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
+//                Collections.singletonMap("header1", "value1"), claims);
+//        JwtDecoder jwtDecoder = mock(JwtDecoder.class);
+//        when(jwtDecoder.decode(any())).thenReturn(jwt);
+//        return jwtDecoder;
+//    }
 }
