@@ -26,7 +26,7 @@ class JobShow:
         self.execution_api = ApiClientFactory(rest_api_url).get_execution_api()
         self.output = output
 
-    def __read_data_job(self, name, team) -> DataJob:
+    def __read_data_job(self, name: str, team: str) -> DataJob:
         try:
             return self.jobs_api.data_job_read(team_name=team, job_name=name)
         except ApiException as e:
@@ -37,10 +37,12 @@ class JobShow:
                 countermeasure="Use VDK CLI create command to create the job first.",
             ) from e
 
-    def __read_deployments(self, job_name, team) -> List[DataJobDeploymentStatus]:
+    def __read_deployments(
+        self, job_name: str, team: str
+    ) -> List[DataJobDeploymentStatus]:
         return self.deploy_api.deployment_list(team_name=team, job_name=job_name)
 
-    def __read_executions(self, job_name, team) -> List[DataJobExecution]:
+    def __read_executions(self, job_name: str, team: str) -> List[DataJobExecution]:
         return self.execution_api.data_job_execution_list(
             team_name=team, job_name=job_name
         )
@@ -87,6 +89,6 @@ vdk show -n job-name -t team-name
 @cli_utils.rest_api_url_option()
 @cli_utils.output_option()
 @cli_utils.check_required_parameters
-def show_command(name, team, rest_api_url, output):
+def show_command(name: str, team: str, rest_api_url: str, output: str):
     cmd = JobShow(rest_api_url, output)
     cmd.show_job(name, team)

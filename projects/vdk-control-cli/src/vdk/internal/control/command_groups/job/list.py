@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 
 class JobList:
-    def __init__(self, rest_api_url):
+    def __init__(self, rest_api_url: str):
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
 
     @ApiClientErrorDecorator()
