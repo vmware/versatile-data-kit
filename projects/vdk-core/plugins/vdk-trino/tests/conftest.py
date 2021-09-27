@@ -5,8 +5,8 @@ import time
 from unittest import mock
 
 import pytest
-from vdk.internal import trino_plugin
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.trino import trino_plugin
 
 VDK_TRINO_HOST = "VDK_TRINO_HOST"
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"

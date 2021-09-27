@@ -7,13 +7,13 @@ from unittest import TestCase
 
 import pytest
 import vdk.internal.core.errors
-from vdk.internal import trino_plugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.errors import UserCodeError
-from vdk.internal.ingest_to_trino import IngestToTrino
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_funcs import get_test_job_path
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import get_test_job_path
+from vdk.plugin.trino import trino_plugin
+from vdk.plugin.trino.ingest_to_trino import IngestToTrino
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"

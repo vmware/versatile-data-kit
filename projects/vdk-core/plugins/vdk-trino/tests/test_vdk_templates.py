@@ -8,11 +8,11 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
-from vdk.internal import trino_plugin
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_funcs import get_test_job_path
-from vdk.internal.trino_utils import TrinoTemplateQueries
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import get_test_job_path
+from vdk.plugin.trino import trino_plugin
+from vdk.plugin.trino.trino_utils import TrinoTemplateQueries
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"

@@ -4,7 +4,7 @@ from typing import List
 from unittest.mock import mock_open
 from unittest.mock import patch
 
-from vdk.internal.ingestion_to_file import IngestionToFile
+from vdk.plugin.ingest_file.ingestion_to_file import IngestionToFile
 
 
 def test_ingestion_to_file():

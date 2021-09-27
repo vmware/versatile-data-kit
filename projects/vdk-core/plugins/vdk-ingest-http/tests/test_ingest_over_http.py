@@ -8,7 +8,7 @@ from vdk.api.plugin.plugin_registry import PluginException
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
-from vdk.internal.ingest_over_http import IngestOverHttp
+from vdk.plugin.ingest_http.ingest_over_http import IngestOverHttp
 
 payload: dict = {
     "@id": "test_id",
