@@ -8,6 +8,7 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.DataJobExecutionIdAndEndTime;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.OffsetDateTime;
@@ -29,6 +30,8 @@ import java.util.List;
 public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String> {
 
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
+
+   List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
 
    List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
 

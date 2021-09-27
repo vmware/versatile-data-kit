@@ -9,7 +9,7 @@ import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;

@@ -13,8 +13,9 @@ import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.model.V2DataJobSchedule;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -105,7 +106,7 @@ class JobFieldStrategyByNextRunTest {
    @Test
    void testJobNextRunStrategy_whenComputingValidCriteriaWithoutFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(V2DataJob::getJobName));
-      Filter baseFilter = new Filter("random", null, Filter.Direction.DESC);
+      Filter baseFilter = new Filter("random", null, Sort.Direction.DESC);
       V2DataJob a = createDummyJob("5 4 * * *");
       V2DataJob b = createDummyJob("5 6 * * *"); // later than previous
 
@@ -128,7 +129,7 @@ class JobFieldStrategyByNextRunTest {
    void testJobNextRunStrategy_whenComputingValidCriteriaWithFilter_shouldReturnValidCriteria() {
       Criteria<V2DataJob> baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(V2DataJob::getJobName));
       Filter baseFilter = new Filter("config.schedule.nextRunEpochSeconds",
-            String.format("%d-%d",getNextWeek(), getSecondMonthOfNextYear()), Filter.Direction.ASC);
+            String.format("%d-%d",getNextWeek(), getSecondMonthOfNextYear()), Sort.Direction.ASC);
       V2DataJob a = createDummyJob("5 4 1 1 1");
       V2DataJob b = createDummyJob("5 6 * * *"); // later than previous
 
