@@ -4,7 +4,7 @@ import logging
 
 from vdk.api.job_input import IJobInput
 from vdk.internal.core import errors
-from vdk.plugin.trino_utils import TrinoTemplateQueries
+from vdk.plugin.trino.trino_utils import TrinoTemplateQueries
 
 log = logging.getLogger(__name__)
 
