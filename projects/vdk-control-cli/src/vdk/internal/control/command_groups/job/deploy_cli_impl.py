@@ -218,11 +218,11 @@ class JobDeploy:
                 ),
                 deployments,
             )
-            click.echo(
-                "You can compare the version seen here to the one seen when "
-                "deploying to verify your deployment was successful."
-            )
             if output == OutputFormat.TEXT.value:
+                click.echo(
+                    "You can compare the version seen here to the one seen when "
+                    "deploying to verify your deployment was successful."
+                )
                 click.echo("")
                 click.echo(tabulate(deployments, headers="keys"))
             else:
