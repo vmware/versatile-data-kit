@@ -24,7 +24,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.plugin.plugin import PluginRegistry
-from vdk.internal.test_utils.util_plugins import TestPropertiesPlugin
+from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 
 
 def cli_assert(is_true, result: Result) -> None:
