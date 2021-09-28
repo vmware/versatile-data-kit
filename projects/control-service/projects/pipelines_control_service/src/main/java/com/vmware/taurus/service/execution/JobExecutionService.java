@@ -298,6 +298,7 @@ public class JobExecutionService {
                   .map(dataJobExecution -> {
                      dataJobExecution.setStatus(ExecutionStatus.FINISHED);
                      dataJobExecution.setMessage("Status is set by VDK Control Service");
+                     dataJobExecution.setEndTime(OffsetDateTime.now());
                      return dataJobExecution;
                   })
                   .collect(Collectors.toList());
