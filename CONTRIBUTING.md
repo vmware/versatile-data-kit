@@ -61,6 +61,8 @@ In short, it looks like this:
   We aim to follow https://chris.beams.io/posts/git-commit;
 - projects/*/CHANGELOG.md Next version section should be updated accordingly.
 
+Familiarize with [recommendations written here](https://github.com/vmware/versatile-data-kit/wiki/How-to-prepare-a-new-PR).
+
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
 # Changelog
