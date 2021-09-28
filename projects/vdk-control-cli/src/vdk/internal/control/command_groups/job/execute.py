@@ -17,6 +17,7 @@ from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionLogs
 from taurus_datajob_api import DataJobExecutionRequest
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
+from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
@@ -59,10 +60,27 @@ class JobExecute:
         elif output == OutputFormat.JSON.value:
             return cli_utils.json_format(list(executions))
 
+    @staticmethod
+    def __validate_and_parse_args(arguments: str) -> str:
+        try:
+            if arguments:
+                return json.loads(arguments)
+            else:
+                return {}
+        except Exception as e:
+            vdk_ex = VDKException(
+                what="Failed to validate job arguments.",
+                why=str(e),
+                consequence="I will not make the API call.",
+                countermeasure="Make sure provided --arguments is a valid JSON string.",
+            )
+            raise vdk_ex
+
     @ApiClientErrorDecorator()
-    def start(self, name: str, team: str, output: OutputFormat) -> None:
+    def start(self, name: str, team: str, output: OutputFormat, arguments: str) -> None:
         execution_request = DataJobExecutionRequest(
-            started_by=f"vdk-control-cli", args={}
+            started_by=f"vdk-control-cli",
+            args=self.__validate_and_parse_args(arguments),
         )
         log.debug(f"Starting job with request {execution_request}")
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
@@ -178,6 +196,10 @@ Examples:
 # Start new remote execution of Data Job 'example-job'
 # As an output it will print how to get starts and it's execution ID:
 vdk execute --start -n example-job -t "Example Team"
+\b
+# Start a new remote execution of Data Job 'example-job' with extra arguments
+# Arguments are passed to each step. Arguments must be a valid JSON object with key/value pairs.
+vdk execute --start -n example-job -t "Example Team" --arguments '{"key1": "value1", "key2": "value2"}'
 
 \b
 # Check status of a currently executing Data Job:
@@ -258,19 +280,20 @@ vdk execute --logs -n example-job -t "Example Team" --execution-id example-job-1
 )
 @cli_utils.rest_api_url_option()
 @cli_utils.output_option()
+@click.option(
+    "--arguments",
+    type=click.STRING,
+    required=False,
+    help="Pass arguments when starting a data job. "
+    "Those arguments will be passed to each step. "
+    "Must be in valid JSON format",
+)
 @cli_utils.check_required_parameters
-def execute(
-    name: str,
-    team: str,
-    execution_id: str,
-    operation: str,
-    rest_api_url: str,
-    output: str,
-) -> None:
+def execute(name, team, execution_id, operation, rest_api_url, output, arguments) -> None:
     cmd = JobExecute(rest_api_url)
     if operation == ExecuteOperation.START:
         name = get_or_prompt("Job Name", name)
-        cmd.start(name, team, output)
+        cmd.start(name, team, output, arguments)
     elif operation == ExecuteOperation.SHOW:
         name = get_or_prompt("Job Name", name)
         execution_id = get_or_prompt("Job Execution ID", execution_id)
