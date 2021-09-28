@@ -4,6 +4,7 @@ Changelog
 1.2.12 - Next
 ----
 * **New feature**
+  * JSON-formatted logging is available via the LOGGING_FORMAT=JSON environment variable.
 
 * **Improvement**
 
