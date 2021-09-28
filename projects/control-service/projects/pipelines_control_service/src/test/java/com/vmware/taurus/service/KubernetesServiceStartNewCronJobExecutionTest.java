@@ -28,7 +28,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
       KubernetesService kubernetesService = mockKubernetesService(jobName, null);
 
       Exception exception = Assertions.assertThrows(ApiException.class, () ->
-            kubernetesService.startNewCronJobExecution(jobName, "test-execution-id", Collections.emptyMap(), Collections.emptyMap()));
+            kubernetesService.startNewCronJobExecution(jobName, "test-execution-id", Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "test-name"));
 
       Assertions.assertEquals(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", jobName), exception.getMessage());
    }
@@ -40,7 +40,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
       KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
 
       Exception exception = Assertions.assertThrows(ApiException.class, () ->
-            kubernetesService.startNewCronJobExecution(jobName, "dada", Collections.emptyMap(), Collections.emptyMap()));
+            kubernetesService.startNewCronJobExecution(jobName, "dada", Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "test-name"));
 
       Assertions.assertEquals(String.format("K8S Cron Job '%s' is not properly defined.", jobName), exception.getMessage());
    }
@@ -61,7 +61,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                                                 .addEnvItem(testEnv)))))));
 
       KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
-      kubernetesService.startNewCronJobExecution(jobName, executionId, Collections.emptyMap(), Map.of(vdkOpIdEnv.getName(), vdkOpIdEnv.getValue()));
+      kubernetesService.startNewCronJobExecution(jobName, executionId, Collections.emptyMap(), Map.of(vdkOpIdEnv.getName(), vdkOpIdEnv.getValue()), Collections.emptyMap(), "test-name");
 
       ArgumentCaptor<String> executionIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
       ArgumentCaptor<V1JobSpec> v1JobSpecArgumentCaptor = ArgumentCaptor.forClass(V1JobSpec.class);
@@ -111,7 +111,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                                           .addContainersItem(new V1Container()))))));
 
       KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
-      kubernetesService.startNewCronJobExecution(jobName, executionId, inputAnnotations, Map.of(vdkOpIdEnv.getName(), vdkOpIdEnv.getValue()));
+      kubernetesService.startNewCronJobExecution(jobName, executionId, inputAnnotations, Map.of(vdkOpIdEnv.getName(), vdkOpIdEnv.getValue()), Collections.emptyMap(), "test-name");
 
       ArgumentCaptor<String> executionIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
       ArgumentCaptor<Map> labelsArgumentCaptor = ArgumentCaptor.forClass(Map.class);
@@ -134,7 +134,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
    private KubernetesService mockKubernetesService(String jobName, V1beta1CronJob result) throws ApiException {
       KubernetesService kubernetesService = Mockito.mock(KubernetesService.class);
       Mockito.doCallRealMethod().when(kubernetesService)
-            .startNewCronJobExecution(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyMap());
+            .startNewCronJobExecution(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(), Mockito.any());
 
       BatchV1beta1Api batchV1beta1Api = Mockito.mock(BatchV1beta1Api.class);
       Mockito.when(batchV1beta1Api

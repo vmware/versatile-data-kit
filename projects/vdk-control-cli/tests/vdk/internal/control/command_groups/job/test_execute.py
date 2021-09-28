@@ -263,3 +263,80 @@ def test_execute_logs_with_external_log_url(
         )
         test_utils.assert_click_status(result, 0)
         mock_browser_open.assert_called_once_with("http://external-service-job-logs")
+
+
+def test_execute_start_extra_arguments_invalid_json(
+    httpserver: PluginHTTPServer, tmpdir: LocalPath
+):
+    rest_api_url = httpserver.url_for("")
+    team_name = "test-team"
+    job_name = "test-job"
+
+    httpserver.expect_request(
+        uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/production/executions",
+        method="POST",
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        execute,
+        [
+            "-n",
+            job_name,
+            "-t",
+            team_name,
+            "--start",
+            "-u",
+            rest_api_url,
+            "--arguments",
+            '{key1": "value1", "key2": "value2"}',
+        ],
+    )
+
+    assert (
+        result.exit_code == 2
+    ), f"Result exit code not 2. result output {result.output}, exc: {result.exc_info}"
+    assert "Failed to validate job arguments" in result.output
+    assert "what" and "why" in result.output
+    assert "Make sure provided --arguments is a valid JSON string." in result.output
+
+
+def test_execute_start_extra_arguments(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+    team_name = "test-team"
+    job_name = "test-job"
+    arguments = '{"key1": "value1", "key2": "value2"}'
+
+    httpserver.expect_request(
+        uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/production/executions",
+        method="POST",
+        json=json.loads(
+            '{"args": {"key1": "value1", "key2": "value2"}, "started_by": "vdk-control-cli"}'
+        ),
+    ).respond_with_response(
+        Response(
+            status=200,
+            headers=dict(
+                Location=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/foo"
+            ),
+        )
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        execute,
+        [
+            "-n",
+            job_name,
+            "-t",
+            team_name,
+            "--start",
+            "-u",
+            rest_api_url,
+            "--arguments",
+            arguments,
+        ],
+    )
+    assert (
+        result.exit_code == 0
+    ), f"Result exit code not 0. result output {result.output}, exc: {result.exc_info}"
