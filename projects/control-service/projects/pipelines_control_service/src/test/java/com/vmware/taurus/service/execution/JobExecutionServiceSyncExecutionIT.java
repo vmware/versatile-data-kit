@@ -8,6 +8,7 @@ package com.vmware.taurus.service.execution;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +23,7 @@ import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 
 @ExtendWith(SpringExtension.class)
@@ -192,5 +194,9 @@ public class JobExecutionServiceSyncExecutionIT {
 
       Assert.assertEquals(1, dataJobExecutionsAfterSync.size());
       Assert.assertEquals(expectedJobExecution3.getId(), dataJobExecutionsAfterSync.get(0).getId());
+
+      DataJobExecution actualFinishedExecution = jobExecutionRepository.findById(expectedJobExecution4.getId()).get();
+      Assert.assertEquals("Status is set by VDK Control Service", actualFinishedExecution.getMessage());
+      Assert.assertNotNull(actualFinishedExecution.getEndTime());
    }
 }
