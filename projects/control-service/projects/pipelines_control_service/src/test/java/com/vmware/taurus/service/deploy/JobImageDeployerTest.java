@@ -18,10 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -65,6 +62,9 @@ public class JobImageDeployerTest {
 
    @Mock
    private KubernetesResources kubernetesResources;
+
+   @Spy
+   private JobCommandProvider jobCommandProvider; // We need this to inject it into the deployer
 
    @InjectMocks
    private JobImageDeployer jobImageDeployer;

@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -71,6 +72,9 @@ public class DeploymentServiceTest {
 
    @Mock
    private JobCredentialsService jobCredentialsService;
+
+   @Spy
+   private JobCommandProvider jobCommandProvider; // We need this to inject it into the deployer
 
    @InjectMocks
    private DeploymentProgress deploymentProgress;
