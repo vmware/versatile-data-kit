@@ -14,7 +14,7 @@ import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.model.V2DataJobSchedule;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
 import graphql.GraphqlErrorException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

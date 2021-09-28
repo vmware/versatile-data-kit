@@ -7,7 +7,8 @@ package com.vmware.taurus.service.graphql.strategy;
 
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
-import com.vmware.taurus.service.model.Filter;
+import com.vmware.taurus.service.graphql.model.Filter;
+import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 
 import java.util.Comparator;
@@ -74,8 +75,8 @@ public abstract class FieldStrategy<T> {
     * @param direction ASC or DESC direction
     * @return true if DESC, false if ASC
     */
-   protected boolean invertSorting(Filter.Direction direction) {
-      return Filter.Direction.DESC.equals(direction);
+   protected boolean invertSorting(Sort.Direction direction) {
+      return Sort.Direction.DESC.equals(direction);
    }
 
    /**

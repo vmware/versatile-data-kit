@@ -694,6 +694,26 @@ public abstract class KubernetesService implements InitializingBean {
         return logs;
     }
 
+    public Optional<String> getJobLogs(String jobName, Integer tailLines) throws ApiException, IOException {
+       var job = getJob(jobName);
+       if (job.isPresent()) {
+           var pods = listJobPods(job.get());
+           if (pods.size() > 0) {
+               var pod = pods.get(pods.size() - 1);
+               PodLogs podLogs = new PodLogs(client);
+
+               try (BufferedReader br = new BufferedReader(new InputStreamReader(podLogs.streamNamespacedPodLog(pod.getMetadata().getNamespace(),
+                       pod.getMetadata().getName(),
+                       pod.getSpec().getContainers().get(0).getName(),
+                       null, tailLines, true), Charsets.UTF_8))) {
+                    String logs = br.lines().collect(Collectors.joining(System.lineSeparator()));
+                    return Optional.of(logs);
+               }
+           }
+       }
+       return Optional.empty();
+    }
+
     public JobStatusCondition watchJob(String jobName, int timeoutSeconds, Consumer<JobStatus> watcher) throws ApiException, IOException, InterruptedException {
         log.debug("Watch job {}; timeoutSeconds: {}", jobName, timeoutSeconds);
         JobStatusCondition condition = null;

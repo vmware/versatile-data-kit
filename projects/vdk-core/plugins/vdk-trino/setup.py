@@ -18,7 +18,7 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,
-    entry_points={"vdk.plugin.run": ["vdk-trino = vdk.internal.trino_plugin"]},
+    entry_points={"vdk.plugin.run": ["vdk-trino = vdk.plugin.trino.trino_plugin"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

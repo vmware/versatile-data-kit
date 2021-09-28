@@ -22,8 +22,8 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={
         "vdk.plugin.run": [
-            "vdk-plugin-control-cli = vdk.internal.vdk_plugin_control_cli",
-            "vdk-control-service-properties = vdk.internal.properties_plugin",
+            "vdk-plugin-control-cli = vdk.plugin.control_cli_plugin.vdk_plugin_control_cli",
+            "vdk-control-service-properties = vdk.plugin.control_cli_plugin.properties_plugin",
         ]
     },
     classifiers=[

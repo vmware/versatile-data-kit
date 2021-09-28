@@ -7,10 +7,10 @@ from unittest import mock
 import pytest
 from click.testing import Result
 from vdk.api.plugin.hook_markers import hookimpl
-from vdk.internal import trino_plugin
-from vdk.internal.lineage import LineageLogger
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.trino_plugin import LINEAGE_LOGGER_KEY
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.trino import trino_plugin
+from vdk.plugin.trino.lineage import LineageLogger
+from vdk.plugin.trino.trino_plugin import LINEAGE_LOGGER_KEY
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"

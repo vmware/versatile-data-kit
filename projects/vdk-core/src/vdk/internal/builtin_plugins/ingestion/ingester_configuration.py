@@ -53,12 +53,32 @@ def add_definitions(config_builder: ConfigurationBuilder):
     )
     config_builder.add(
         key=INGESTER_PAYLOAD_SIZE_BYTES_THRESHOLD,
-        default_value=2097152,  # Size is limited to 2MB (2*1024*1024)
+        default_value=500 * 1024,  # Set default to 500KB
         description="""
-        Aggregated payload threshold. If the combined size of two or more payloads
+        Aggregated payload threshold in bytes (when uncompressed). If the combined size of two or more payloads
         passed to the `send_object_for_ingestion()` or
         `send_tabular_data_for_ingestion()` methods is below this threshold, they
         will be bundled together, before being send to the ingestion plugin.
+        Ingester make sure to send batches of data in approximately that size.
+        Adjust size so that it is optimize for ingestion method. For example in Kafka 1KB may be better value.
+        This is similar to INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS and INGESTER_PAYLOADS_QUEUE_SIZE.
+        """,
+    )
+    config_builder.add(
+        key=INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS,
+        default_value=2,
+        description="""
+        Wait time in seconds, that a ingester thread is waiting for receiving a payload, before it continues with the next one.
+        If payloads sit in the queue more than specified time they'd be bundled together and send to the ingestion plugin.
+        This is similar to INGESTER_PAYLOAD_SIZE_BYTES_THRESHOLD and INGESTER_PAYLOADS_QUEUE_SIZE.
+        """,
+    )
+    config_builder.add(
+        key=INGESTER_PAYLOADS_QUEUE_SIZE,
+        default_value=50,
+        description="""
+        If the number of payloads buffer reach this limit, they'd be bundled together and send to the ingestion plugin.
+        This is similar to INGESTER_PAYLOAD_SIZE_BYTES_THRESHOLD and INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS.
         """,
     )
     config_builder.add(
@@ -66,15 +86,7 @@ def add_definitions(config_builder: ConfigurationBuilder):
         default_value=10000,
         description="""
         The maximum number of payloads that can be stored for ingestion at any
-        given time.
-        """,
-    )
-    config_builder.add(
-        key=INGESTER_PAYLOADS_QUEUE_SIZE,
-        default_value=50,
-        description="""
-        The maximum number of payloads that can be processed by the Versatile Data
-        Kit at any given time.
+        given time. When limit is reach send_*_for_ingestion method would effctively block unitl the queue is freed.
         """,
     )
     config_builder.add(
@@ -88,12 +100,4 @@ def add_definitions(config_builder: ConfigurationBuilder):
         description="When set to true, if there is an ingesting error, and we fail to ingest some data,"
         " ingester will raise an exception at the end - during finalize_job phase (plugin hook)."
         "By default this will cause the data job to fail (this behaviour can be overridden by plugins).",
-    )
-    config_builder.add(
-        key=INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS,
-        default_value=2,
-        description="""
-        Wait time in seconds, that a thread is waiting for receiving a payload,
-        before it continues with the next one.
-        """,
     )

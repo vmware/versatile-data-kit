@@ -5,10 +5,10 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
-from vdk.internal import snowflake_plugin
-from vdk.internal.snowflake_connection import SnowflakeConnection
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.snowflake import snowflake_plugin
+from vdk.plugin.snowflake.snowflake_connection import SnowflakeConnection
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def mocked_connection(monkeypatch):
         return [["Query successfully executed."]]
 
     monkeypatch.delattr(
-        "vdk.internal.snowflake_connection.SnowflakeConnection._connect"
+        "vdk.plugin.snowflake.snowflake_connection.SnowflakeConnection._connect"
     )
     monkeypatch.setattr(SnowflakeConnection, "execute_query", mock_execute_query)
 

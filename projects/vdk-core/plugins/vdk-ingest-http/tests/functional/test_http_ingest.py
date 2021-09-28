@@ -6,10 +6,10 @@ from unittest import mock
 
 from click.testing import Result
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
-from vdk.internal import ingest_http_plugin
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_funcs import get_test_job_path
+from vdk.plugin.ingest_http import ingest_http_plugin
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import get_test_job_path
 from werkzeug import Response
 
 

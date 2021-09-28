@@ -17,7 +17,9 @@ setuptools.setup(
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["vdk-logging-json = vdk.internal.logging_json"]},
+    entry_points={
+        "vdk.plugin.run": ["vdk-logging-json = vdk.plugin.logging_json.logging_json"]
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

@@ -4,6 +4,7 @@ import logging
 import os
 
 import click
+from urllib3 import HTTPResponse
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
@@ -13,13 +14,13 @@ log = logging.getLogger(__name__)
 
 
 class JobDownloadKey:
-    def __init__(self, rest_api_url):
+    def __init__(self, rest_api_url: str):
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
 
     @ApiClientErrorDecorator()
-    def download(self, team, name, path):
+    def download(self, team: str, name: str, path: str):
         keytab_file_path = os.path.join(path, f"{name}.keytab")
-        response = self.jobs_api.data_job_keytab_download(
+        response: HTTPResponse = self.jobs_api.data_job_keytab_download(
             team_name=team, job_name=name, _preload_content=False
         )
         with open(keytab_file_path, "wb") as w:
@@ -77,9 +78,7 @@ vdk download-key -n example -p /home/user/data-jobs
     " It should be in the same directory as the Data Job directory.",
 )
 @cli_utils.rest_api_url_option()
-@click.pass_context
 @cli_utils.check_required_parameters
-def download_key(ctx: click.Context, name, team, path, rest_api_url):
+def download_key(name: str, team: str, path: str, rest_api_url: str):
     cmd = JobDownloadKey(rest_api_url)
     cmd.download(team, name, path)
-    pass

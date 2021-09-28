@@ -18,7 +18,9 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={
-        "vdk.plugin.run": ["vdk-ingest-file = vdk.internal.ingest_file_plugin"]
+        "vdk.plugin.run": [
+            "vdk-ingest-file = vdk.plugin.ingest_file.ingest_file_plugin"
+        ]
     },
     classifiers=[
         "Development Status :: 4 - Beta",

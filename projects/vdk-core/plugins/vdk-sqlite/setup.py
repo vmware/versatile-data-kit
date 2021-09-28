@@ -15,5 +15,5 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,
-    entry_points={"vdk.plugin.run": ["vdk-sqlite = vdk.internal.sqlite_plugin"]},
+    entry_points={"vdk.plugin.run": ["vdk-sqlite = vdk.plugin.sqlite.sqlite_plugin"]},
 )
