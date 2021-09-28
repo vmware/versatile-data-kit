@@ -26,7 +26,7 @@ class RemoveNewlinesFormatter(logging.Formatter):
         self.default_msec_format = "%s.%03dZ"
 
     def format(self, record):
-        record.msg = record.msg.replace("\n", "\\n")
+        # record.msg = record.msg.replace("\n", "\\n")
         return super().format(record)
 
 
