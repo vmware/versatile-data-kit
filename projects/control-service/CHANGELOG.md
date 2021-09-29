@@ -1,10 +1,9 @@
 Changelog
 =========
 
-1.2.12 - Next
+1.2.13 - Next
 ----
 * **New feature**
-  * JSON-formatted logging is available via the LOGGING_FORMAT=JSON environment variable.
 
 * **Improvement**
 
@@ -12,14 +11,22 @@ Changelog
 
 * **Breaking Changes**
 
-1.2.11 - 27.10.2021
+1.2.12 - 29.09.2021
+----
+* **New feature**
+  * JSON-formatted logging is available via the LOGGING_FORMAT=JSON environment variable.
+
+* **Improvement**
+  * The Data Job Execution statuses synchronization takes into account SUBMITTED status.
+
+1.2.11 - 27.09.2021
 ----
 
 * **Bug Fixes**
   * Fixed helm chart to give correct permission to read logs
     This would fix Logging API to work and should fix the deployment notification on user error which was not sending notifications
 
-1.2.10 - 23.10.2021
+1.2.10 - 23.09.2021
 ----
 * **New feature**
   * Current Execution Logging API introduced (experimental).
