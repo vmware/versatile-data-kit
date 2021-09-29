@@ -46,6 +46,7 @@ class Heartbeat:
             job_controller.show_job_details()
 
             run_test.execute_test()
+            job_controller.show_last_job_execution_logs()
 
             job_controller.disable_deployment()
 
@@ -59,6 +60,7 @@ class Heartbeat:
         except:
             log.info("Heartbeat has failed.")
             job_controller.show_job_details()
+            job_controller.show_last_job_execution_logs()
             if self._config.clean_up_on_failure:
                 log.info("Heartbeat clean up on failure.")
                 self.clean(run_test, job_controller)
