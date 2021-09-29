@@ -6,6 +6,8 @@ Changelog
 * **New feature**
 
 * **Improvement**
+  * Implement a new OAuth2 claim/role-based authorization model, which can work instead or in complement
+    of the existing webhook-based authorization.
 
 * **Bug Fixes**
 

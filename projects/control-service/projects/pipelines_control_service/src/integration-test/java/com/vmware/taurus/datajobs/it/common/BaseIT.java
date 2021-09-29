@@ -52,7 +52,7 @@ import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @AutoConfigureMockMvc
-@ActiveProfiles({"test", "MockDecoder"})
+@ActiveProfiles({"test"})
 @Import({BaseIT.KerberosConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class BaseIT extends KerberosSecurityTestcaseJunit5 {
@@ -123,7 +123,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
    @BeforeEach
    public void before() throws Exception {
-      this.getConf().getProperty("featureflag.security.enabled");
       mockMvc = MockMvcBuilders
               .webAppContextSetup(context)
               .apply(springSecurity())
