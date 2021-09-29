@@ -126,10 +126,23 @@ public class JobExecutionService {
          envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
          // Start K8S Job
-         dataJobsKubernetesService.startNewCronJobExecution(jobDeploymentStatus.getCronJobName(), executionId, annotations, envs, extraJobArguments, jobName);
+         dataJobsKubernetesService.startNewCronJobExecution(
+               jobDeploymentStatus.getCronJobName(),
+               executionId,
+               annotations,
+               envs,
+               extraJobArguments,
+               jobName);
 
          // Save Data Job execution
-         saveDataJobExecution(dataJob, executionId, opId, com.vmware.taurus.service.model.ExecutionType.MANUAL, ExecutionStatus.SUBMITTED, startedByBuilt);
+         saveDataJobExecution(
+               dataJob,
+               executionId,
+               opId,
+               com.vmware.taurus.service.model.ExecutionType.MANUAL,
+               ExecutionStatus.SUBMITTED,
+               startedByBuilt,
+               OffsetDateTime.now());
 
          return executionId;
       } catch (ApiException e) {
@@ -292,7 +305,7 @@ public class JobExecutionService {
 
       List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
             jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
-                        List.of(ExecutionStatus.RUNNING), OffsetDateTime.now().minusMinutes(3))
+                        List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING), OffsetDateTime.now().minusMinutes(3))
                   .stream()
                   .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
                   .map(dataJobExecution -> {
@@ -353,7 +366,8 @@ public class JobExecutionService {
          String opId,
          com.vmware.taurus.service.model.ExecutionType executionType,
          ExecutionStatus executionStatus,
-         String startedBy) {
+         String startedBy,
+         OffsetDateTime startTime) {
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = com.vmware.taurus.service.model.DataJobExecution.builder()
             .id(executionId)
@@ -362,6 +376,7 @@ public class JobExecutionService {
             .type(executionType)
             .status(executionStatus)
             .startedBy(startedBy)
+            .startTime(startTime)
             .build();
 
       jobExecutionRepository.save(dataJobExecution);
