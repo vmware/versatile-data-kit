@@ -6,11 +6,15 @@
 package com.vmware.taurus.security;
 
 import com.vmware.taurus.base.FeatureFlags;
+import io.swagger.models.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -47,7 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String AUTHORITY_PREFIX = "SCOPE_";
 
-   private final FeatureFlags featureFlags;
+    private final FeatureFlags featureFlags;
 
     private final String jwksUri;
     private final String issuer;
@@ -70,26 +74,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.issuer = issuer;
         this.authoritiesClaimName = authoritiesClaimName;
         this.customClaimName = customClaimName;
-        this.authorizedCustomClaimValues = parseCspOrgIds(authorizedCustomClaimValues);
+        this.authorizedCustomClaimValues = parseOrgIds(authorizedCustomClaimValues);
         this.authorizedRoles = parseRoles(authorizedRoles);
     }
 
-   @Override
-   protected void configure(HttpSecurity http) throws Exception {
-      if (featureFlags.isSecurityEnabled()) {
-         enableSecurity(http);
-      } else {
-         log.info("Security is disabled.");
-         http
-                 .csrf().disable()
-                 .authorizeRequests()
-                 .anyRequest().anonymous();
-      }
-   }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        if (featureFlags.isSecurityEnabled()) {
+            enableSecurity(http);
+        } else {
+            log.info("Security is disabled.");
+            http
+                    .csrf().disable()
+                    .authorizeRequests()
+                    .anyRequest().anonymous();
+        }
+    }
 
-   @Override
+    @Override
     public void configure(WebSecurity web) {
-      web.ignoring().antMatchers(
+        web.ignoring().antMatchers(
                 "/",
                 "/v2/api-docs",
                 "/swagger-resources/**",
@@ -98,17 +102,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/webjars/**",
                 // There should not be sensitive data in prometheus, and it makes
                 // integration with the monitoring system easier if no auth is necessary.
-              "/data-jobs/debug/prometheus",
-              // TODO: likely /data-jobs/debug is too permissive
-              // but until we can expose them in swagger they are very hard to use with Auth.
-              "/data-jobs/debug/**");
-   }
+                "/data-jobs/debug/prometheus",
+                // TODO: likely /data-jobs/debug is too permissive
+                // but until we can expose them in swagger they are very hard to use with Auth.
+                "/data-jobs/debug/**");
+    }
 
-   private void enableSecurity(HttpSecurity http) throws Exception {
-      log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
-      http
-              .anonymous().disable()
-              .csrf().disable()
+    private void enableSecurity(HttpSecurity http) throws Exception {
+        log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
+        http
+                .anonymous().disable()
+                .csrf().disable()
                 .authorizeRequests(authorizeRequests -> {
                     if (!authorizedRoles.isEmpty()) {
                         authorizeRequests
@@ -118,20 +122,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     authorizeRequests.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer().jwt()
-                .jwtAuthenticationConverter(cspJwtAuthenticationConverter());
-        ;
+                .jwtAuthenticationConverter(jwtAuthenticationConverter());
     }
 
     @Bean
-    public JwtAuthenticationConverter cspJwtAuthenticationConverter() {
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(cspJwtGrantedAuthoritiesConverter());
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
 
         return jwtAuthenticationConverter;
     }
 
     @Bean
-    public JwtGrantedAuthoritiesConverter cspJwtGrantedAuthoritiesConverter() {
+    public JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         // The Authority Prefix cannot be empty
         grantedAuthoritiesConverter.setAuthorityPrefix(AUTHORITY_PREFIX);
@@ -140,23 +143,28 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
 
         return grantedAuthoritiesConverter;
-   }
+    }
 
+    /**
+     * Instantiate the jwtDecoder bean only when security is enabled to avoid having to specify the
+     * required issuer property with disabled authorization.
+     */
     @Bean
+    @ConditionalOnExpression("not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('')")
     public JwtDecoder jwtDecoder() {
         OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefaultWithIssuer(issuer);
-        OAuth2TokenValidator<Jwt> cspOrgValidator = new CustomClaimTokenValidator(customClaimName, authorizedCustomClaimValues);
-        OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(cspOrgValidator, defaultValidators);
+        OAuth2TokenValidator<Jwt> customTokenValidator = new CustomClaimTokenValidator(customClaimName, authorizedCustomClaimValues);
+        OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(customTokenValidator, defaultValidators);
 
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
         jwtDecoder.setJwtValidator(validator);
         return jwtDecoder;
     }
 
-    private Set<String> parseCspOrgIds(String roles) {
-        if (!StringUtils.isBlank(roles)) {
-            return Arrays.stream(roles.split(","))
-                    .filter(role -> !role.isBlank())
+    private Set<String> parseOrgIds(String orgIds) {
+        if (!StringUtils.isBlank(orgIds)) {
+            return Arrays.stream(orgIds.split(","))
+                    .filter(id -> !id.isBlank())
                     .collect(Collectors.toSet());
         }
         return Collections.emptySet();

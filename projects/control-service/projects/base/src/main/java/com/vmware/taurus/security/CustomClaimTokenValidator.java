@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.security;
 
+import lombok.AllArgsConstructor;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -18,15 +19,11 @@ import java.util.Set;
  * resource based on a claim in the token. The name of the claim and the
  * allowed values are configurable.
  */
+@AllArgsConstructor
 public class CustomClaimTokenValidator implements OAuth2TokenValidator<Jwt> {
 
     private final String customClaimName;
     private final Set<String> authorizedCustomClaimValues;
-
-    public CustomClaimTokenValidator(String customClaimName, Set<String> authorizedCustomClaimValues) {
-        this.customClaimName = customClaimName;
-        this.authorizedCustomClaimValues = authorizedCustomClaimValues;
-    }
 
     @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {

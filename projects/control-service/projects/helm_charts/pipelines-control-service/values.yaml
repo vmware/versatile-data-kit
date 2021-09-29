@@ -294,7 +294,7 @@ security:
       jwtJwkSetUri: ""
 
       ## [ Required if security.enabled = True ]
-      jwtIssuerUrl: "https://gaz-preview.csp-vidm-prod.com"
+      jwtIssuerUrl: ""
 
    ## Feature flag to enable/disable authorization
    authorizationEnabled: false
@@ -332,15 +332,19 @@ security:
       ## What JWT token claim (aka attribute/field) will fetch the username from.
       jwtClaimUsername: "username"
 
-      ## The CSP Auth Token doesn't contain the user permissions in the default location - the authorities
+      ## The below four properties are used to authorized requests based on claim values (e.g. organization ids)
+      ## and, optionally, based on roles. This type of authorization works in conjunction with the webhook-based
+      ## one so if both are configured, both will take effect: first the claim values and roles, then the webhook.
+      ##
+      ## Name of a claim in the JWT token that needs to be validated.
+      ## An example use case would be to validate if an organization id is allowed to access and modify resources.
+      customClaimName: "context_name"
+      ## A comma separated list of allowed values (e.g. list of authorized organization ids) for the JWT claim
+      ## specified in "security.authorization.customClaimName". If the list is empty, the claim is not validated.
+      authorizedCustomClaimValues:
+      ## The Auth Token doesn't contain the user permissions in the default location - the authorities
       ## field of the JWT token. This property specifies a custom location for the authorities field.
       authoritiesClaimName: "perms"
-      ## Name of a claim in the JWT token that needs to be validated.
-      ## An example use case would be to validate if a CSP Organization Id is allowed to access and modify resources.
-      customClaimName: "context_name"
-      ## A comma separated list of allowed values for the JWT claim specified in "security.authorization.customClaimName".
-      ## If the list is empty, the claim is not validated. E.g. list of authorized CSP Organization Ids.
-      authorizedCustomClaimValues:
       ## A comma separated list of roles. Users whose tokens contain at least one of the roles
       ## are allowed to access and modify resources. If the list is empty, roles are not validated.
       ## E.g. "f399c40d-fb5e-4d24-8041-20b82471c6be/taurus:service-owner,65ecda65-2975-4a9c-b982-ccf52755296d/tpcs:admin"
