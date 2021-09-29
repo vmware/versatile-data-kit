@@ -129,6 +129,24 @@ class JobController:
         )
 
     @LogDecorator(log)
+    def show_last_job_execution_logs(self):
+        res = self._execute(
+            [
+                "execute",
+                "-u",
+                self.config.control_api_url,
+                "--logs",
+                "-n",
+                self.config.job_name,
+                "-t",
+                self.config.job_team,
+            ]
+        )
+        log.info(
+            f"Team {self.config.job_team}, Job: {self.config.job_name} Logs:\n {res}"
+        )
+
+    @LogDecorator(log)
     def check_deployments(self, enabled=True, timeout_seconds=600):
         start = time.time()
         deployments = None
@@ -385,6 +403,7 @@ def run(job_input):
     props['table_destination'] = "{self.config.DATABASE_TEST_TABLE_DESTINATION}"
     props['table_load_destination'] = "{self.config.DATABASE_TEST_TABLE_LOAD_DESTINATION}"
     props['job_name'] = "{self.config.job_name}"
+    props['execute_template'] = "{self.config.check_template_execution}"
     job_input.set_all_properties(props)
         """
 
