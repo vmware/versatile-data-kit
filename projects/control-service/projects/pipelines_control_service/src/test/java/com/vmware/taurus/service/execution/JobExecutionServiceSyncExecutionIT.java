@@ -53,16 +53,14 @@ public class JobExecutionServiceSyncExecutionIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsBeforeSync.size());
       jobExecutionService.syncJobExecutionStatuses(List.of(expectedJobExecution1.getId(), expectedJobExecution3.getId()));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(2, dataJobExecutionsAfterSync.size());
       Assert.assertEquals(expectedJobExecution1.getId(), dataJobExecutionsAfterSync.get(0).getId());
@@ -78,17 +76,15 @@ public class JobExecutionServiceSyncExecutionIT {
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(2));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(2));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsBeforeSync.size());
       jobExecutionService.syncJobExecutionStatuses(List.of(expectedJobExecution1.getId(), expectedJobExecution3.getId()));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(3, dataJobExecutionsAfterSync.size());
       Assert.assertEquals(expectedJobExecution1.getId(), dataJobExecutionsAfterSync.get(0).getId());
@@ -104,17 +100,15 @@ public class JobExecutionServiceSyncExecutionIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsBeforeSync.size());
       jobExecutionService.syncJobExecutionStatuses(Collections.emptyList());
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(0, dataJobExecutionsAfterSync.size());
    }
@@ -128,12 +122,11 @@ public class JobExecutionServiceSyncExecutionIT {
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution4 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsBeforeSync.size());
       jobExecutionService.syncJobExecutionStatuses(List.of(
@@ -142,8 +135,7 @@ public class JobExecutionServiceSyncExecutionIT {
             expectedJobExecution3.getId(),
             expectedJobExecution4.getId()));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsAfterSync.size());
    }
@@ -154,17 +146,15 @@ public class JobExecutionServiceSyncExecutionIT {
 
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.SUBMITTED, OffsetDateTime.now().minusMinutes(5));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsBeforeSync.size());
       jobExecutionService.syncJobExecutionStatuses(null);
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(4, dataJobExecutionsAfterSync.size());
    }
@@ -181,16 +171,14 @@ public class JobExecutionServiceSyncExecutionIT {
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution4 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
 
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(2, dataJobExecutionsBeforeSync.size());
       Assert.assertEquals(expectedJobExecution3.getId(), dataJobExecutionsBeforeSync.get(0).getId());
       Assert.assertEquals(expectedJobExecution4.getId(), dataJobExecutionsBeforeSync.get(1).getId());
 
       jobExecutionService.syncJobExecutionStatuses(List.of(expectedJobExecution1.getId(), expectedJobExecution3.getId()));
-      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
-            jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(actualDataJob.getName(), List.of(ExecutionStatus.RUNNING));
+      List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync = findRunningDataJobExecutions(actualDataJob.getName());
 
       Assert.assertEquals(1, dataJobExecutionsAfterSync.size());
       Assert.assertEquals(expectedJobExecution3.getId(), dataJobExecutionsAfterSync.get(0).getId());
@@ -198,5 +186,9 @@ public class JobExecutionServiceSyncExecutionIT {
       DataJobExecution actualFinishedExecution = jobExecutionRepository.findById(expectedJobExecution4.getId()).get();
       Assert.assertEquals("Status is set by VDK Control Service", actualFinishedExecution.getMessage());
       Assert.assertNotNull(actualFinishedExecution.getEndTime());
+   }
+
+   private List<com.vmware.taurus.service.model.DataJobExecution> findRunningDataJobExecutions(String dataJobName) {
+      return jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(dataJobName, List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING));
    }
 }
