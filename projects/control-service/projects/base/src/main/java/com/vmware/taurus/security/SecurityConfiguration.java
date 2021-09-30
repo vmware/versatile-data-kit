@@ -7,14 +7,33 @@ package com.vmware.taurus.security;
 
 import com.vmware.taurus.base.FeatureFlags;
 import io.swagger.models.HttpMethod;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Authentication and Authorization configuration.
@@ -26,56 +45,138 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  *     spring.security.oauth2.resourceserver.jwt.jwk-set-uri</li></ul>
  */
 @EnableWebSecurity
-@RequiredArgsConstructor
 @Slf4j
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-   private final FeatureFlags featureFlags;
+    private static final String AUTHORITY_PREFIX = "SCOPE_";
 
-   @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}")
-   private String jwksUri;
+    private final FeatureFlags featureFlags;
 
-   @Override
-   protected void configure(HttpSecurity http) throws Exception {
-      if (featureFlags.isSecurityEnabled()) {
-         enableSecurity(http);
-      } else {
-         log.info("Security is disabled.");
-         http
-                 .csrf().disable()
-                 .authorizeRequests()
-                 .anyRequest().anonymous();
-      }
-   }
+    private final String jwksUri;
+    private final String issuer;
+    private final String authoritiesClaimName;
+    private final String customClaimName;
+    private final Set<String> authorizedCustomClaimValues;
+    private final Set<String> authorizedRoles;
 
-   @Override
-   public void configure(WebSecurity web) throws Exception {
-      web.ignoring().antMatchers(
-               "/",  "/v2/api-docs",  "/configuration/ui",
-              "/swagger-resources/**", "/configuration/**",
-              "/swagger-ui.html",  "/webjars/**",
-              // There should not be sensitive data in prometheus
-              // and it makes integration with monitoring system easier if no auth is necessary.
-              "/data-jobs/debug/prometheus",
-              // TODO: likely /data-jobs/debug is too permissive
-              // but until we can expose them in swagger they are very hard to use with Auth.
-              "/data-jobs/debug/**");
-   }
+    @Autowired
+    public SecurityConfiguration(
+            FeatureFlags featureFlags,
+            @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") String jwksUri,
+            @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuer,
+            @Value("${datajobs.authorization.authorities-claim-name:}") String authoritiesClaimName,
+            @Value("${datajobs.authorization.custom-claim-name:}") String customClaimName,
+            @Value("${datajobs.authorization.authorized-custom-claim-values:}") String authorizedCustomClaimValues,
+            @Value("${datajobs.authorization.authorized-roles:}") String authorizedRoles) {
+        this.featureFlags = featureFlags;
+        this.jwksUri = jwksUri;
+        this.issuer = issuer;
+        this.authoritiesClaimName = authoritiesClaimName;
+        this.customClaimName = customClaimName;
+        this.authorizedCustomClaimValues = parseOrgIds(authorizedCustomClaimValues);
+        this.authorizedRoles = parseRoles(authorizedRoles);
+    }
 
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        if (featureFlags.isSecurityEnabled()) {
+            enableSecurity(http);
+        } else {
+            log.info("Security is disabled.");
+            http
+                    .csrf().disable()
+                    .authorizeRequests()
+                    .anyRequest().anonymous();
+        }
+    }
 
-   private void enableSecurity(HttpSecurity http) throws Exception {
-      log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
-      http
-              .anonymous().disable()
-              .csrf().disable()
-              .authorizeRequests(authorizeRequests ->
-                      authorizeRequests // TODO authorization ...
-                              .antMatchers(String.valueOf(HttpMethod.POST), "/foo/**").hasAuthority("SCOPE_message:write")
-                              .anyRequest().authenticated()
-              )
-              .oauth2ResourceServer().jwt();
-   }
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers(
+                "/",
+                "/v2/api-docs",
+                "/swagger-resources/**",
+                "/configuration/**",
+                "/swagger-ui.html",
+                "/webjars/**",
+                // There should not be sensitive data in prometheus, and it makes
+                // integration with the monitoring system easier if no auth is necessary.
+                "/data-jobs/debug/prometheus",
+                // TODO: likely /data-jobs/debug is too permissive
+                // but until we can expose them in swagger they are very hard to use with Auth.
+                "/data-jobs/debug/**");
+    }
 
+    private void enableSecurity(HttpSecurity http) throws Exception {
+        log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
+        http
+                .anonymous().disable()
+                .csrf().disable()
+                .authorizeRequests(authorizeRequests -> {
+                    if (!authorizedRoles.isEmpty()) {
+                        authorizeRequests
+                                .antMatchers("/**")
+                                .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
+                    }
+                    authorizeRequests.anyRequest().authenticated();
+                })
+                .oauth2ResourceServer().jwt()
+                .jwtAuthenticationConverter(jwtAuthenticationConverter());
+    }
 
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
+
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        // The Authority Prefix cannot be empty
+        grantedAuthoritiesConverter.setAuthorityPrefix(AUTHORITY_PREFIX);
+        if (!authoritiesClaimName.isEmpty()) {
+            grantedAuthoritiesConverter.setAuthoritiesClaimName(authoritiesClaimName);
+        }
+
+        return grantedAuthoritiesConverter;
+    }
+
+    /**
+     * Instantiate the jwtDecoder bean only when security is enabled to avoid having to specify the
+     * required issuer property with disabled authorization.
+     */
+    @Bean
+    @ConditionalOnExpression("not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('')")
+    public JwtDecoder jwtDecoder() {
+        OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefaultWithIssuer(issuer);
+        OAuth2TokenValidator<Jwt> customTokenValidator = new CustomClaimTokenValidator(customClaimName, authorizedCustomClaimValues);
+        OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(customTokenValidator, defaultValidators);
+
+        NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
+        jwtDecoder.setJwtValidator(validator);
+        return jwtDecoder;
+    }
+
+    private Set<String> parseOrgIds(String orgIds) {
+        if (!StringUtils.isBlank(orgIds)) {
+            return Arrays.stream(orgIds.split(","))
+                    .filter(id -> !id.isBlank())
+                    .collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+    }
+
+    private Set<String> parseRoles(String roles) {
+        if (!StringUtils.isBlank(roles)) {
+            return Arrays.stream(roles.split(","))
+                    .filter(role -> !role.isBlank())
+                    .map(role -> AUTHORITY_PREFIX + role)
+                    .collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+    }
 }

@@ -121,6 +121,16 @@ spec:
               value: "{{ .Values.security.authorizationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_WEBHOOK_ENDPOINT
               value: "{{ .Values.security.authorization.webhookUri }}"
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              value: "{{ .Values.security.oauth2.jwtIssuerUrl }}"
+            - name: AUTHORITIES_CLAIM_NAME
+              value: "{{ .Values.security.authorization.authoritiesClaimName }}"
+            - name: CUSTOM_CLAIM_NAME
+              value: "{{ .Values.security.authorization.customClaimName }}"
+            - name: AUTHORIZED_CUSTOM_CLAIM_VALUES
+              value: "{{ .Values.security.authorization.authorizedCustomClaimValues }}"
+            - name: AUTHORIZED_ROLES
+              value: "{{ .Values.security.authorization.authorizedRoles }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_ENDPOINT
               value: "{{ .Values.webHooks.postCreate.webhookUri }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_INTERNAL_ERRORS_RETRIES
