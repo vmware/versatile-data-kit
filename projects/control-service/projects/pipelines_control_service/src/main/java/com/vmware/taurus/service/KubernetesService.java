@@ -11,7 +11,9 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vmware.taurus.exception.*;
+import com.vmware.taurus.exception.JsonDissectException;
+import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.exception.KubernetesJobDefinitionException;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
@@ -1458,29 +1460,34 @@ public abstract class KubernetesService implements InitializingBean {
 
    private Optional<JobDeploymentStatus> mapCronJobToDeploymentStatus(V1beta1CronJob cronJob, String cronJobName) {
       JobDeploymentStatus deployment = null;
-      if (cronJob != null) {
-         deployment = new JobDeploymentStatus();
-         deployment.setEnabled(!cronJob.getSpec().isSuspend());
-         deployment.setDataJobName(cronJob.getMetadata().getName());
-         deployment.setMode("release"); // TODO: Get from cron job config when we support testing environments
-         deployment.setCronJobName(cronJobName == null ? cronJob.getMetadata().getName() : cronJobName);
+        if (cronJob != null) {
+            deployment = new JobDeploymentStatus();
+            deployment.setEnabled(!cronJob.getSpec().isSuspend());
+            deployment.setDataJobName(cronJob.getMetadata().getName());
+            deployment.setMode("release"); // TODO: Get from cron job config when we support testing environments
+            deployment.setCronJobName(cronJobName == null ? cronJob.getMetadata().getName() : cronJobName);
 
-         if (cronJob.getMetadata() != null && cronJob.getMetadata().getAnnotations() != null) {
-            deployment.setLastDeployedBy(cronJob.getMetadata().getAnnotations().get("lastDeployedBy"));
-            deployment.setLastDeployedDate(cronJob.getMetadata().getAnnotations().get("lastDeployedDate"));
-         } else {
-            deployment.setLastDeployedBy("noDataAvailable");
-            deployment.setLastDeployedDate("noDataAvailable");
-         }
+            // all fields until pod spec are required so no need to check for null
+            var annotations = cronJob.getSpec().getJobTemplate().getMetadata().getAnnotations();
+            if (annotations != null) {
+                deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
+                deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+            }
 
-         List<V1Container> containers = cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getContainers();
-         if (!containers.isEmpty()) {
-            String image = containers.get(0).getImage(); // TODO: Have 2 containers. 1 for VDK and 1 for the job.
-            deployment.setImageName(image); // TODO do we really need to return image_name?
-            String tag = image.split(":")[1];
-            deployment.setGitCommitSha(tag);
-         }
-      }
+            List<V1Container> containers = cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getContainers();
+            if (!containers.isEmpty()) {
+                String image = containers.get(0).getImage(); // TODO: Have 2 containers. 1 for VDK and 1 for the job.
+                deployment.setImageName(image); // TODO do we really need to return image_name?
+            }
+            var labels = cronJob.getSpec().getJobTemplate().getMetadata().getLabels();
+            if (labels.containsKey(JobLabel.VERSION.getValue())) {
+                deployment.setGitCommitSha(labels.get(JobLabel.VERSION.getValue()));
+            } else {
+                // Legacy approach to get version:
+                String[] parts = deployment.getImageName().split(":");
+                deployment.setGitCommitSha(parts[parts.length - 1]);
+            }
+        }
 
       return Optional.ofNullable(deployment);
    }

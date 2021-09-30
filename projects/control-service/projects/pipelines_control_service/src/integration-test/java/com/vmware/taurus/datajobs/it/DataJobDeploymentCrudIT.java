@@ -30,6 +30,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -167,6 +169,17 @@ public class DataJobDeploymentCrudIT extends BaseIT {
               .andExpect(status().isOk())
               .andReturn();
 
+      // Verify response
+      DataJobDeploymentStatus jobDeployment = mapper.readValue(result.getResponse().getContentAsString(),
+              DataJobDeploymentStatus.class);
+      Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
+      Assertions.assertEquals(true, jobDeployment.getEnabled());
+      Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
+      Assertions.assertEquals(true, jobDeployment.getEnabled());
+      Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
+      // just check some valid date is returned. It would be too error-prone/brittle to verify exact time.
+      DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
+
       // Execute get job deployment with wrong team
       mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
               TEST_TEAM_WRONG_NAME,
@@ -175,13 +188,6 @@ public class DataJobDeploymentCrudIT extends BaseIT {
               .with(user("user"))
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isNotFound());
-
-      // Verify response
-      DataJobDeploymentStatus jobDeployment = mapper.readValue(result.getResponse().getContentAsString(),
-              DataJobDeploymentStatus.class);
-      Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
-      Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
-      Assertions.assertEquals(true, jobDeployment.getEnabled());
 
       // Execute disable deployment no user
       mockMvc.perform(patch(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
