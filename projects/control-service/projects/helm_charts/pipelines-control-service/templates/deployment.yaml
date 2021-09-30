@@ -4,6 +4,9 @@ metadata:
   name: {{ .Release.Name }}-dep
   namespace: {{ .Release.Namespace }}
   labels: {{- include "pipelines-control-service.labels" . | nindent 4 }}
+  {{- if .Values.deploymentAdditionalLabels }}
+  {{- .Values.deploymentAdditionalLabels | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
   strategy:
