@@ -78,6 +78,7 @@ helm upgrade --install --wait --timeout 10m0s $RELEASE_NAME . \
       --set proxyRepositoryURL="$CICD_CONTAINER_REGISTRY_URI/cicd-data-jobs/$RELEASE_NAME" \
       --set security.enabled=true \
       --set security.oauth2.jwtJwkSetUri=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/token-public-key?format=jwks \
+      --set security.oauth2.jwtIssuerUrl=https://gaz-preview.csp-vidm-prod.com \
       --set security.authorizationEnabled=true \
       --set security.authorization.webhookUri=https://httpbin.org/post \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
