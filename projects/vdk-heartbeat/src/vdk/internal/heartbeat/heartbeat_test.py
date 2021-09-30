@@ -50,8 +50,24 @@ class HeartbeatTest(ABC):
 def create_test_instance(config: Config) -> HeartbeatTest:
     import importlib
 
-    module = importlib.import_module(config.database_test_module_name)
-    class_ = getattr(module, config.database_test_class_name)
+    try:
+        module = importlib.import_module(config.database_test_module_name)
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(
+            f"Configured database_test_module_name is not found. Error was: {e}.\n"
+            f"Make sure module {config.database_test_module_name} exists.\n"
+            f"Check if the module name in the configuration is not misspelled "
+            f"or if some 3rd party library needs to be installed to provide it."
+        ) from None
+    try:
+        class_ = getattr(module, config.database_test_class_name)
+    except AttributeError as e:
+        raise AttributeError(
+            f"Configured database_test_class_name is not found. Error was: {e}.\\n"
+            f"Make sure class {config.database_test_class_name} exists.\n"
+            f"Check if the class name in the configuration is not misspelled "
+            f"or if some 3rd party library needs to be installed to provide it."
+        ) from None
     log.info(
         f"Run test instance: {config.database_test_module_name}.{config.database_test_class_name}"
     )
