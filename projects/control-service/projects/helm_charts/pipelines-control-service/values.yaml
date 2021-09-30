@@ -222,6 +222,8 @@ deploymentBuilderResourcesDefault:
       cpu: 250m
       memory: 250Mi
 
+# deploymentAdditionalLabels:
+
 ### WebHooks configuration
 
 webHooks:
