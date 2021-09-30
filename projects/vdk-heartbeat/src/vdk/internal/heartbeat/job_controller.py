@@ -142,7 +142,7 @@ class JobController:
                 self.config.job_team,
             ]
         )
-        logs = res.decode("string_escape") if res else res
+        logs = res.decode("unicode_escape") if res else res
         log.info(
             f"Team {self.config.job_team}, Job: {self.config.job_name} Logs:\n {logs}"
         )
