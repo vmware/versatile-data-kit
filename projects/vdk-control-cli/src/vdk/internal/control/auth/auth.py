@@ -3,12 +3,14 @@
 import json
 import logging
 import time
+from typing import Optional
 
 from requests import post
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 from vdk.internal.control.auth.auth_request_values import AuthRequestValues
 from vdk.internal.control.auth.login_types import LoginTypes
+from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.configuration.vdk_config import VDKConfigFolder
 from vdk.internal.control.exception.vdk_exception import VDKException
 
@@ -82,8 +84,9 @@ class AuthenticationCacheSerDe:
 class Authentication:
     REFRESH_TOKEN_GRANT_TYPE = "refresh_token"  # nosec
 
-    def __init__(self, conf=VDKConfigFolder()):
+    def __init__(self, conf=VDKConfigFolder(), vdk_config=VDKConfig()):
         self._conf = conf
+        self.__vdk_config = vdk_config
         self._cache = self.__load_cache()
 
     def __load_cache(self):
@@ -129,12 +132,12 @@ class Authentication:
             + int(token_response.get(AuthRequestValues.EXPIRATION_TIME_KEY.value, "0"))
         )
 
-    def read_access_token(self):
+    def read_access_token(self) -> Optional[str]:
         """
         Read access token from _cache or fetch it from Authorization server.
         If not available in _cache it will get it using provided configuration during VDK CLI login to fetch it.
         If it detects that token is about to expire it will try to refresh it.
-        :return: the access token
+        :return: the access token or None if it cannot detect any credentials.
         """
         if (
             not self._cache.access_token
@@ -159,12 +162,19 @@ class Authentication:
             and self._configured_refresh_token()
         ):
             self.__exchange_refresh_for_access_token()
+        elif (
+            self.__vdk_config.api_token
+            and self.__vdk_config.api_token_authorization_url
+        ):
+            self.update_api_token(self.__vdk_config.api_token)
+            self.update_api_token_authorization_url(
+                self.__vdk_config.api_token_authorization_url
+            )
+            self.__exchange_api_for_access_token()
         else:
-            raise VDKException(
-                what="Not authenticated.",
-                why="Most likely VDK CLI login need to be completed first.",
-                consequence="Operation that require authorization will not work.",
-                countermeasure="Please execute login using VDK CLI login command",
+            log.debug(
+                "No authentication mechanism found. Will not cache access token."
+                "If Control Service authentication is enabled, API calls will fail."
             )
 
     def __exchange_refresh_for_access_token(self):

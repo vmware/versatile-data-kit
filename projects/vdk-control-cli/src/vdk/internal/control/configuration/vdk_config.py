@@ -56,24 +56,16 @@ class VDKConfig:
         return os.getenv("VDK_BASE_CONFIG_FOLDER", str(Path.home()))
 
     @property
-    def authentication_disabled(self) -> bool:
-        return os.getenv("VDK_AUTHENTICATION_DISABLE", "False").lower() in (
-            "true",
-            "1",
-            "t",
-        )
-
-    @property
     def control_service_rest_api_url(self) -> str:
         return os.getenv("VDK_CONTROL_SERVICE_REST_API_URL", None)
 
     @property
-    def api_token_authorization_server_url(self) -> str:
+    def api_token_authorization_url(self) -> str:
         """
         Location of the API Token OAuth2 provider. Same as login --api-token-authorization-server-url
         This is used as default.
         """
-        return os.getenv("VDK_API_TOKEN_AUTHORIZATION_SERVER_URL", None)
+        return os.getenv("VDK_API_TOKEN_AUTHORIZATION_URL", None)
 
     @property
     def api_token(self) -> str:
