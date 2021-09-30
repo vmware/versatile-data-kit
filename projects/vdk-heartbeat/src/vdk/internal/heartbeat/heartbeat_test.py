@@ -66,7 +66,7 @@ def create_test_instance(config: Config) -> HeartbeatTest:
             f"Configured database_test_class_name is not found. Error was: {e}.\\n"
             f"Make sure class {config.database_test_class_name} exists.\n"
             f"Check if the class name in the configuration is not misspelled "
-            f"or if some 3th party library needs to be installed to provide it."
+            f"or if some 3rd party library needs to be installed to provide it."
         ) from None
     log.info(
         f"Run test instance: {config.database_test_module_name}.{config.database_test_class_name}"
