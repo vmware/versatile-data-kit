@@ -1,9 +1,11 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import click
+from vdk.internal.control.auth.apikey_auth import ApiKeyAuthentication
 from vdk.internal.control.auth.auth import Authentication
 from vdk.internal.control.auth.login_types import LoginTypes
 from vdk.internal.control.auth.redirect_auth import RedirectAuthentication
+from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import extended_option
@@ -131,11 +133,8 @@ def login(
                 countermeasure="Please login providing correct API Token. ",
             )
         else:
-            auth = Authentication()
-            auth.update_api_token_authorization_url(api_token_authorization_url)
-            auth.update_api_token(api_token)
-            auth.update_auth_type(auth_type)
-            auth.acquire_and_cache_access_token()
+            apikey_auth = ApiKeyAuthentication(api_token_authorization_url, api_token)
+            apikey_auth.authentication_process()
             click.echo("Login Successful")
     else:
         click.echo(f"Login type: {auth_type} not supported")

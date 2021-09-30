@@ -23,15 +23,20 @@ use `vdkcli` command instead of `vdk`.
 
 ### Environment variables:
 
-* VDK_AUTHENTICATION_DISABLE  - disables security (vdk login will not be required). See Security section.
-* VDK_BASE_CONFIG_FOLDER -  Override local base configuration folder (by default $HOME folder) . Use in case multiple users need to login (e.g in case of automation) on same machine.
+* VDK_BASE_CONFIG_FOLDER -  Override local base configuration folder (by default in $HOME folder). Inside it will create folder .vdk.internal.
+  CLI state may be kept there (login info). Use in case multiple users need to login (e.g in case of automation) on same machine.
+
+* VDK_CONTROL_SERVICE_REST_API_URL - Default Control Service URL to use if not specified as command line argument
+* VDK_API_TOKEN - Default API Token to use if another authentication has not been used with vdk login
+* VDK_API_TOKEN_AUTHORIZATION_URL - Default API token URL to use if another authentication has not been used with vdk login.
 
 ### Security
-By default, all operation require authentication: vdk login must have finished successfully.
-You can disable it with environment variable `VDK_AUTHENTICATION_DISABLE=true`
-This would only work if Control Service which VDK CLI uses also has security disabled.
+If Control Service configured require authentication: vdk login must have finished successfully.
+Or alternatively correct VDK_API_TOKEN_AUTHORIZATION_URL and VDK_API_TOKEN must be set correctly and will behave same as `vdk login -t api-token`.
+If vdk login is used - it take priority over environment variables set VDK_API_TOKEN_AUTHORIZATION_URL and VDK_API_TOKEN
+To clear previous login info (aka logout) use `vdk logout`.
 
-In case of credentials type login flow we start a process on port `31113` to receive the credentials.
+In case of credentials type vdk login flow we start a process on port `31113` to receive the credentials.
 If you already have process running on `31113` you can override the value.
 To override the port set environmental variable `OAUTH_PORT` with free port which the client can use.
 
