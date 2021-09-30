@@ -1,7 +1,17 @@
 Changelog
 =========
 
-1.2.13 - Next
+1.2.14 - Next
+----
+* **New feature**
+
+* **Improvement**
+
+* **Bug Fixes**
+
+* **Breaking Changes**
+
+1.2.13 - 30.09.2021
 ----
 * **New feature**
 
