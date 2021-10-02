@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonSyntaxException;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import io.kubernetes.client.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.datajobs.ToModelApiConverter;
@@ -50,20 +49,6 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobEnvVar;
-import com.vmware.taurus.service.model.*;
-import io.kubernetes.client.ApiException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -210,8 +195,19 @@ public class JobExecutionService {
                      })
                      .collect(Collectors.toList());
 
-
          dataJobExecutions = jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(jobName, modelExecutionStatuses);
+
+         // The VDK Skip plugin relies heavily on running execution status.
+         // In some cases, the execution status in the database may be outdated due to delay.
+         // As a result the next job execution will be skipped. In order to avoid such cases
+         // we must return only running jobs in Kubernetes when a filter (status=RUNNING) is passed to the API.
+         try {
+            if (modelExecutionStatuses.contains(ExecutionStatus.RUNNING) && !dataJobsKubernetesService.isRunningJob(jobName)) {
+               dataJobExecutions.removeIf(dataJobExecution -> ExecutionStatus.RUNNING.equals(dataJobExecution.getStatus()));
+            }
+         } catch (ApiException e) {
+            log.warn("Error while filtering RUNNING job executions.", e);
+         }
       } else {
          dataJobExecutions = jobExecutionRepository.findDataJobExecutionsByDataJobName(jobName);
       }
