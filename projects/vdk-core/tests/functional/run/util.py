@@ -3,7 +3,7 @@
 import os
 import pathlib
 
-from vdk.internal.test_utils.util_funcs import get_test_job_path
+from vdk.plugin.test_utils.util_funcs import get_test_job_path
 
 
 def job_path(job_name: str):
