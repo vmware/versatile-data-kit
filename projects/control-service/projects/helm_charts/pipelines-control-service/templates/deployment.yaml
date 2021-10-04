@@ -20,6 +20,9 @@ spec:
   template:
     metadata:
       labels: {{- include "pipelines-control-service.labels" . | nindent 8 }}
+      {{- if .Values.deploymentAdditionalLabels }}
+      {{- .Values.deploymentAdditionalLabels | nindent 8 }}
+      {{- end }}
       annotations:
         # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
