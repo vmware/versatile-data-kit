@@ -3,8 +3,8 @@
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config.config_help import ConfigHelpPlugin
 from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 
 
 class TestConfigPlugin:

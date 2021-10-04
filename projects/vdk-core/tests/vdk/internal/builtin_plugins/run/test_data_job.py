@@ -8,7 +8,7 @@ from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
-from vdk.internal.test_utils.util_funcs import DataJobBuilder
+from vdk.plugin.test_utils.util_funcs import DataJobBuilder
 
 
 def failing_runner_func(step: Step, job_input: IJobInput) -> bool:
