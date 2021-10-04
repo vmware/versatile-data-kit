@@ -9,11 +9,11 @@ from functional.run import util
 from functional.run.test_run_sql_queries import VDK_DB_DEFAULT_TYPE
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_funcs import get_test_job_path
-from vdk.internal.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
-from vdk.internal.test_utils.util_plugins import SqLite3MemoryDbPlugin
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import get_test_job_path
+from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
+from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
 
 
 class AppendTemplatePlugin:

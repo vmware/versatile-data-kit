@@ -4,8 +4,8 @@ import click
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_utils import set_defaults_for_all_commands
 from vdk.api.plugin.plugin_utils import set_defaults_for_specific_command
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 
 
 def test_set_defaults_for_specific_command():
