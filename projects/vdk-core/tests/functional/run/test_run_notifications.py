@@ -8,10 +8,10 @@ from click.testing import Result
 from functional.run import util
 from smtpdfix import SMTPDFix
 from vdk.internal.core import errors
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
-from vdk.internal.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
+from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 
 os.environ["SMTPD_SSL_CERTS_PATH"] = "."
 

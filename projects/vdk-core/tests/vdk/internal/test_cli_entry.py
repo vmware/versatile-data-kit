@@ -4,8 +4,8 @@ import click
 from click.testing import CliRunner
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.cli_entry import cli
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 
 
 def test_cli():

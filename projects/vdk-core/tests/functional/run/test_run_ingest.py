@@ -5,9 +5,9 @@ from typing import Optional
 
 from click.testing import Result
 from functional.run import util
-from vdk.internal.test_utils.util_funcs import cli_assert_equal
-from vdk.internal.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.internal.test_utils.util_plugins import IngestIntoMemoryPlugin
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 
 
 class FailingIngestIntoMemoryPlugin(IngestIntoMemoryPlugin):
