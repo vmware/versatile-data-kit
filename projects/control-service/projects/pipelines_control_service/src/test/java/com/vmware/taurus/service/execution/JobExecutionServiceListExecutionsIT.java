@@ -12,15 +12,19 @@ import com.vmware.taurus.exception.DataJobExecutionStatusNotValidException;
 import com.vmware.taurus.exception.DataJobNotFoundException;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
-import com.vmware.taurus.service.execution.JobExecutionService;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
+
+import io.kubernetes.client.ApiException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -40,6 +44,9 @@ public class JobExecutionServiceListExecutionsIT {
 
     @Autowired
     private JobExecutionService jobExecutionService;
+
+    @MockBean
+    private DataJobsKubernetesService dataJobsKubernetesService;
 
     @BeforeEach
     public void cleanDatabase() {
@@ -89,7 +96,7 @@ public class JobExecutionServiceListExecutionsIT {
     }
 
     @Test
-    public void testReadJobExecution_existingDataJobExecutionAndValidStatuses_shouldReturnResult() {
+    public void testReadJobExecution_existingDataJobExecutionAndRunningJobInK8S_shouldReturnRunningExecutions() throws ApiException {
         DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
         RepositoryUtil.createDataJobExecution(
               jobExecutionRepository,
@@ -115,6 +122,8 @@ public class JobExecutionServiceListExecutionsIT {
               actualDataJob,
               ExecutionStatus.FINISHED);
 
+        Mockito.when(dataJobsKubernetesService.isRunningJob(actualDataJob.getName())).thenReturn(true);
+
         List<DataJobExecution> actualDataJobExecutions =
               jobExecutionService.listJobExecutions(
                     actualDataJob.getJobConfig().getTeam(),
@@ -126,5 +135,45 @@ public class JobExecutionServiceListExecutionsIT {
 
         assertDataJobExecutionValid(expectedDataJobExecution1,  actualDataJobExecutions.get(0));
         assertDataJobExecutionValid(expectedDataJobExecution2,  actualDataJobExecutions.get(1));
+    }
+
+    @Test
+    public void testReadJobExecution_existingDataJobExecutionAndNotRunningJobInK8S_shouldNotReturnRunningExecutions() throws ApiException {
+        DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+        RepositoryUtil.createDataJobExecution(
+              jobExecutionRepository,
+              "test-id-1",
+              actualDataJob,
+              ExecutionStatus.CANCELLED);
+
+       RepositoryUtil.createDataJobExecution(
+              jobExecutionRepository,
+              "test-id-2",
+              actualDataJob,
+              ExecutionStatus.RUNNING);
+
+        com.vmware.taurus.service.model.DataJobExecution expectedDataJobExecution1 = RepositoryUtil.createDataJobExecution(
+              jobExecutionRepository,
+              "test-id-3",
+              actualDataJob,
+              ExecutionStatus.SUBMITTED);
+
+        RepositoryUtil.createDataJobExecution(
+              jobExecutionRepository,
+              "test-id-4",
+              actualDataJob,
+              ExecutionStatus.FINISHED);
+
+        Mockito.when(dataJobsKubernetesService.isRunningJob(actualDataJob.getName())).thenReturn(false);
+
+        List<DataJobExecution> actualDataJobExecutions =
+              jobExecutionService.listJobExecutions(
+                    actualDataJob.getJobConfig().getTeam(),
+                    actualDataJob.getName(),
+                    List.of(DataJobExecution.StatusEnum.SUBMITTED.getValue(), DataJobExecution.StatusEnum.RUNNING.getValue()));
+
+        Assertions.assertNotNull(actualDataJobExecutions);
+        Assertions.assertEquals(1, actualDataJobExecutions.size());
+        assertDataJobExecutionValid(expectedDataJobExecution1,  actualDataJobExecutions.get(0));
     }
 }
