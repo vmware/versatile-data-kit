@@ -71,14 +71,19 @@ class CoreConfigDefinitionPlugin:
             "",
             True,
             "An identifier to be associated with the current VDK run, "
-            "or an empty string, to auto generate the identifier.",
+            "or an empty string, to auto generate the identifier."
+            "It identifies the trigger that initiated this job. "
+            "It is possible to have N jobs with same OpID (if Job1 started Job2 then Job1.opId = Job2.opId)."
+            "In HTTP requests it is passed as header 'X-OPID' by the Control Service.",
         )
         config_builder.add(
             EXECUTION_ID,
             "",
             True,
-            "An identifier to be associated with the current VDK run, "
-            "or an empty string, to auto generate the identifier.",
+            "An identifier to be associated with the current VDK execution, "
+            "or an empty string, to auto generate the identifier. "
+            "An instance of a running Data Job deployment is called an execution. "
+            "Data Job execution can run a Data Job one or more times. ",
         )
 
 
