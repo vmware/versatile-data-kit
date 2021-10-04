@@ -43,7 +43,7 @@ class ApiClientErrorDecorator:
                     consequences=self.__consequences,
                     countermeasures="Make sure that the data job name and team name are spelled correctly "
                     "(it is case-sensitive) . "
-                    "Make sure you have run vdk create --cloud before doing this operation on a data job.",
+                    "Make sure you have run `vdk create --cloud` before doing this operation on a data job.",
                 )
 
             return error
