@@ -8,6 +8,7 @@ Changelog
 * **Improvement**
 
 * **Bug Fixes**
+  * Fix an error which happens occasionally when listing data jobs or job deployment statuses
 
 * **Breaking Changes**
 
