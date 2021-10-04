@@ -82,26 +82,25 @@ class ConcurrentExecutionChecker:
 
     @staticmethod
     def _authenticate(api_token_authorization_url, api_token, auth_type) -> None:
-        log.info("Authenticating.")
+        log.info(
+            f"Authenticating to check for running data job executions against: {api_token_authorization_url}"
+        )
         auth = Authentication()
         auth.update_api_token_authorization_url(api_token_authorization_url)
         auth.update_api_token(api_token)
         auth.update_auth_type(auth_type)
         auth.acquire_and_cache_access_token()
-        log.info("Login successful.")
-
-
-class ExitWithMessage:
-    def __init__(self) -> None:
-        super.__init__(self)
-
-    @staticmethod
-    def skip_job_run(job_name) -> None:
-        log.info(f"Data job: {job_name} is already running in K8S.")
         log.info(
-            f"Skipping execution and exiting. You can retry the job when it finishes executing in K8S."
+            f"Login successful at: {api_token_authorization_url}, Method: {auth_type}"
         )
-        os._exit(0)
+
+
+def _skip_job_run(job_name) -> None:
+    log.info(f"Data job: {job_name} is already running in K8S.")
+    log.info(
+        f"Skipping execution and exiting. You can retry the job when it finishes executing in K8S."
+    )
+    os._exit(0)
 
 
 def _skip_job_if_necessary(
@@ -137,7 +136,7 @@ def _skip_job_if_necessary(
         if job_running:
             log.info(f"Skipping job {job_name}")
             action.skipped()
-            ExitWithMessage.skip_job_run(job_name)  # calls os._exit(0)
+            _skip_job_run(job_name)  # calls os._exit(0)
             return 1  # All other branches return None
     except Exception as exc:
         log.warning(
@@ -150,15 +149,20 @@ def _skip_job_if_necessary(
 
 @hookimpl(tryfirst=True)
 def run_job(context: JobContext) -> None:
-    log.info("Plugin hook method. Obtaining arguments for skip execution check.")
-    configuration = context.core_context.configuration
-    log_config_type = configuration.get_value(vdk_config.LOG_CONFIG)
-    job_name = context.name
-    job_team = configuration.get_value(JobConfigKeys.TEAM)
-    execution_id = configuration.get_value(vdk_config.EXECUTION_ID)
-    writer_config = WriterConfiguration(configuration)
-    action = WriteToFileAction(writer_config.get_output_file())
+    try:
+        configuration = context.core_context.configuration
+        log_config_type = configuration.get_value(vdk_config.LOG_CONFIG)
+        job_name = context.name
+        job_team = configuration.get_value(JobConfigKeys.TEAM)
+        execution_id = configuration.get_value(vdk_config.EXECUTION_ID)
+        writer_config = WriterConfiguration(configuration)
+        action = WriteToFileAction(writer_config.get_output_file())
 
-    return _skip_job_if_necessary(
-        log_config_type, job_name, execution_id, job_team, action
-    )
+        return _skip_job_if_necessary(
+            log_config_type, job_name, execution_id, job_team, action
+        )
+    except Exception as exc:
+        log.warning(f"Error while setting up arguments: {str(exc)}")
+        log.warning("Catching exception and continuing with execution:")
+        log.warning(exc)
+        return None
