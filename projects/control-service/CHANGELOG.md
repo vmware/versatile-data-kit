@@ -1,13 +1,25 @@
 Changelog
 =========
 
-1.2.14 - Next
+1.2.15 - Next
 ----
 * **New feature**
 
 * **Improvement**
 
 * **Bug Fixes**
+
+* **Breaking Changes**
+
+1.2.14 - 04.10.2021
+----
+* **New feature**
+
+* **Improvement**
+  * Custom labels can now be supplied to the Control Service deployment during Helm chart installation.
+
+* **Bug Fixes**
+  * Fix an error which happens occasionally when listing data jobs or job deployment statuses
 
 * **Breaking Changes**
 
