@@ -237,3 +237,28 @@ control_service_release:
       - main
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+control_service_vdk_heartbeat_release:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  stage: release
+  script:
+    - export CHART_NAME=pipelines-control-service
+    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt)
+    - export VDK_HEARTBEAT_TEST_NAME=$CHART_NAME-integration-tests:$CHART_VERSION
+    - export VDK_HEARTBEAT_IMAGE_NAME="$VDK_DOCKER_REGISTRY_URL/$VDK_HEARTBEAT_TEST_NAME"
+    - docker login $VDK_DOCKER_REGISTRY_URL --username $VDK_DOCKER_REGISTRY_USERNAME --password $VDK_DOCKER_REGISTRY_PASSWORD
+    - cd projects/control-service/cicd
+    - docker build --tag $VDK_HEARTBEAT_IMAGE_NAME -f Dockerfile.vdk.heartbeat .
+    - docker push $VDK_HEARTBEAT_IMAGE_NAME
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
