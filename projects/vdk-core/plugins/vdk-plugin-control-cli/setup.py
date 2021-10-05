@@ -24,6 +24,7 @@ setuptools.setup(
         "vdk.plugin.run": [
             "vdk-plugin-control-cli = vdk.plugin.control_cli_plugin.vdk_plugin_control_cli",
             "vdk-control-service-properties = vdk.plugin.control_cli_plugin.properties_plugin",
+            "vdk-execution-skip = vdk.plugin.control_cli_plugin.execution_skip",
         ]
     },
     classifiers=[
