@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels: {{- include "pipelines-control-service.labels" . | nindent 4 }}
   {{- if .Values.deploymentAdditionalLabels }}
-  {{- .Values.deploymentAdditionalLabels | nindent 4 }}
+  {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 4 }}
   {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
@@ -21,7 +21,7 @@ spec:
     metadata:
       labels: {{- include "pipelines-control-service.labels" . | nindent 8 }}
       {{- if .Values.deploymentAdditionalLabels }}
-      {{- .Values.deploymentAdditionalLabels | nindent 8 }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 8 }}
       {{- end }}
       annotations:
         # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
