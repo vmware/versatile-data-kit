@@ -1,2 +1,0 @@
-click
-vdk-test-utils
