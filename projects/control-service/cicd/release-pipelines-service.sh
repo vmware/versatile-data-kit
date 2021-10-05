@@ -12,7 +12,8 @@ echo "Upload $CHART_NAME version $CHART_VERSION (if version already exists uploa
 helm repo add $HELM_REPO $VDK_HELM_REGISTRY_URL \
       --username $VDK_HELM_REGISTRY_USERNAME \
       --password $VDK_HELM_REGISTRY_PASSWORD
-helm push $CHART_NAME-$CHART_VERSION.tgz $HELM_REPO
+# in v 0.10.0 the name of the push command was changed to cm-push
+helm cm-push $CHART_NAME-$CHART_VERSION.tgz $HELM_REPO
 echo "Check helm repo and new chart is accessible"
 helm repo update
 helm search repo $CHART_NAME --version $CHART_VERSION

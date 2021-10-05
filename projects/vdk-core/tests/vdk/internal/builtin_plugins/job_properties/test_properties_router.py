@@ -1,10 +1,10 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from unittest.mock import MagicMock
-from unittest.mock import Mock
 
 import pytest
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
+from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
@@ -13,15 +13,17 @@ from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():
-    router = PropertiesRouter("foo", Configuration({}, {}))
+    router = PropertiesRouter(
+        "foo", Configuration({}, {JobConfigKeys.TEAM: "test-team"})
+    )
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("default", lambda: mock_client)
 
     router.get_properties_impl().set_all_properties({"a": "b"})
-    mock_client.write_properties.assert_called_with("foo", {"a": "b"})
+    mock_client.write_properties.assert_called_with("foo", "test-team", {"a": "b"})
 
     router.get_properties_impl().get_all_properties()
-    mock_client.read_properties.assert_called_with("foo")
+    mock_client.read_properties.assert_called_with("foo", "test-team")
 
 
 def test_routing_error():
@@ -44,12 +46,12 @@ def test_routing_empty_error():
 
 
 def test_routing_choose_single_registered():
-    router = PropertiesRouter("foo", Configuration({}, {}))
+    router = PropertiesRouter("foo", Configuration({}, {"team": "test-team"}))
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: mock_client)
 
     router.get_properties_impl().set_all_properties({"a": "b"})
-    mock_client.write_properties.assert_called_with("foo", {"a": "b"})
+    mock_client.write_properties.assert_called_with("foo", "test-team", {"a": "b"})
 
 
 def test_routing_choose_default_type_chosen():
@@ -62,7 +64,7 @@ def test_routing_choose_default_type_chosen():
     router.set_properties_factory_method("bar", lambda: bar_mock_client)
 
     router.get_properties_impl().set_all_properties({"a": "b"})
-    foo_mock_client.write_properties.assert_called_with("foo", {"a": "b"})
+    foo_mock_client.write_properties.assert_called_with("foo", None, {"a": "b"})
     bar_mock_client.assert_not_called()
 
 

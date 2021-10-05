@@ -13,7 +13,7 @@ from vdk.internal.builtin_plugins.job_properties.inmemproperties import (
 class DataJobsServicePropertiesTest(unittest.TestCase):
     def setUp(self) -> None:
         self.data_jobs_service_props = DataJobsServiceProperties(
-            "foo", InMemPropertiesServiceClient()
+            "foo", "test-team", InMemPropertiesServiceClient()
         )
 
     def test_data_jobs_service_properties_not_allowed_keys(self):
