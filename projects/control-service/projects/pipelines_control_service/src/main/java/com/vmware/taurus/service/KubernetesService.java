@@ -1480,7 +1480,10 @@ public abstract class KubernetesService implements InitializingBean {
                 deployment.setImageName(image); // TODO do we really need to return image_name?
             }
             var labels = cronJob.getSpec().getJobTemplate().getMetadata().getLabels();
-            if (labels.containsKey(JobLabel.VERSION.getValue())) {
+            if (labels == null) {
+                log.warn("The cronjob of data job '{}' does not have any labels defined.", deployment.getDataJobName());
+            }
+            if (labels != null && labels.containsKey(JobLabel.VERSION.getValue())) {
                 deployment.setGitCommitSha(labels.get(JobLabel.VERSION.getValue()));
             } else {
                 // Legacy approach to get version:

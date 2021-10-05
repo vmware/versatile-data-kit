@@ -4,6 +4,7 @@ import logging
 
 from vdk.api.plugin.plugin_input import IPropertiesFactory
 from vdk.api.plugin.plugin_input import IPropertiesRegistry
+from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.job_properties.cached_properties import (
     CachedPropertiesWrapper,
 )
@@ -32,6 +33,7 @@ class PropertiesRouter(IPropertiesRegistry):
         self.__properties_builders = {}
         self.__cached_properties_impl = None
         self.__job_name = job_name
+        self.__team_name = cfg.get_value(JobConfigKeys.TEAM)
         self.__config = PropertiesConfiguration(cfg)
 
     @LogDecorator(log)
@@ -102,7 +104,7 @@ class PropertiesRouter(IPropertiesRegistry):
                 )
 
             service_properties = DataJobsServiceProperties(
-                self.__job_name, factory_method()
+                self.__job_name, self.__team_name, factory_method()
             )
             return CachedPropertiesWrapper(service_properties)
         except Exception as e:

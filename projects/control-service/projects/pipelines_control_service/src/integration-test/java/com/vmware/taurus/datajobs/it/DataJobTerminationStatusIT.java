@@ -230,8 +230,7 @@ public class DataJobTerminationStatusIT extends BaseIT {
 
         // Validate that the metrics has a value of 0.0 (i.e. Success)
         System.out.println(match.get().trim());
-        // TODO: Temporary disabled since the К8S POD termination message is always null and respectively the termination status is 1.0
-        // assertTrue("The value of the taurus_datajob_termination_status metrics does not match", match.get().trim().endsWith("0.0"));
+        assertTrue(match.get().trim().endsWith("0.0"), "The value of the taurus_datajob_termination_status metrics does not match");
 
         // Check the data job execution status
         checkDataJobExecutionStatus(executionId, DataJobExecution.StatusEnum.FINISHED, opId);
