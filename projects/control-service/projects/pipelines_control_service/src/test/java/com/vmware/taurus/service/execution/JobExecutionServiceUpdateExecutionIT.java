@@ -26,7 +26,7 @@ import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
-import com.vmware.taurus.service.model.ExecutionTerminationMessage;
+import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 
 @ExtendWith(SpringExtension.class)
@@ -172,9 +172,8 @@ public class JobExecutionServiceUpdateExecutionIT {
             .deployedBy("test_deployed_by")
             .deployedDate(OffsetDateTime.now())
             .terminationMessage(actualTerminationMessage).build();
-      ExecutionStatus executionStatus = JobExecutionUtil.getExecutionStatus(expectedJobExecution.getSucceeded());
-      ExecutionTerminationMessage terminationMessage = JobExecutionUtil.getTerminationMessage(executionStatus, expectedJobExecution.getTerminationMessage());
-      jobExecutionService.updateJobExecution(actualDataJob, expectedJobExecution, executionStatus, terminationMessage);
+      ExecutionResult executionResult = JobExecutionResultManager.getResult(expectedJobExecution);
+      jobExecutionService.updateJobExecution(actualDataJob, expectedJobExecution, executionResult);
 
       DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
             actualDataJob.getJobConfig().getTeam(),
@@ -280,10 +279,8 @@ public class JobExecutionServiceUpdateExecutionIT {
               .deployedBy("test_deployed_by")
               .deployedDate(OffsetDateTime.now())
               .terminationMessage("TestMessage").build();
-
-      ExecutionStatus executionStatus = JobExecutionUtil.getExecutionStatus(attemptedExecutionUpdate.getSucceeded());
-      ExecutionTerminationMessage terminationMessage = JobExecutionUtil.getTerminationMessage(executionStatus, attemptedExecutionUpdate.getTerminationMessage());
-      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionStatus, terminationMessage);
+      ExecutionResult executionResult = JobExecutionResultManager.getResult(attemptedExecutionUpdate);
+      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionResult);
       var actualJobExecution = jobExecutionRepository.findById(attemptedExecutionUpdate.getExecutionId()).get();
 
       Assertions.assertEquals(expectedStatus, actualJobExecution.getStatus());
@@ -291,8 +288,8 @@ public class JobExecutionServiceUpdateExecutionIT {
 
    private static String getTerminationMessageJson(String actualTerminationStatus, String vdkVersion) {
       JsonObject actualTerminationMessageJson = new JsonObject();
-      actualTerminationMessageJson.addProperty(JobExecutionUtil.TERMINATION_MESSAGE_ATTRIBUTE_STATUS, actualTerminationStatus);
-      actualTerminationMessageJson.addProperty(JobExecutionUtil.TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, vdkVersion);
+      actualTerminationMessageJson.addProperty(JobExecutionResultManager.TERMINATION_MESSAGE_ATTRIBUTE_STATUS, actualTerminationStatus);
+      actualTerminationMessageJson.addProperty(JobExecutionResultManager.TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, vdkVersion);
 
       return actualTerminationMessageJson.toString();
    }
