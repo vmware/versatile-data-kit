@@ -9,7 +9,7 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService.JobExecution;
-import com.vmware.taurus.service.KubernetesService.PodTerminationMessage;
+import com.vmware.taurus.service.execution.JobExecutionUtil;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
@@ -59,68 +59,68 @@ public class DataJobStatusMonitorTest {
     @Order(1)
     public void testUpdateDataJobTerminationStatusSuccess() {
         var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, TerminationStatus.SUCCESS, randomId("data-job-"));
+                DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
 
         dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
-        Assertions.assertEquals(TerminationStatus.SUCCESS.getValue(), gauges.stream().findFirst().get().value());
+        Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
         var expectedJob = jobsRepository.findById(dataJob.getName());
         Assertions.assertTrue(expectedJob.isPresent());
-        Assertions.assertEquals(TerminationStatus.SUCCESS, expectedJob.get().getLatestJobTerminationStatus());
+        Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, expectedJob.get().getLatestJobTerminationStatus());
     }
 
     @Test
     @Order(2)
     public void testUpdateDataJobTerminationStatusPlatformError() {
         var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, TerminationStatus.PLATFORM_ERROR, randomId("data-job-"));
+                DeploymentStatus.NONE, ExecutionTerminationStatus.PLATFORM_ERROR, randomId("data-job-"));
 
         dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
-        Assertions.assertEquals(TerminationStatus.PLATFORM_ERROR.getValue(), gauges.stream().findFirst().get().value());
+        Assertions.assertEquals(ExecutionTerminationStatus.PLATFORM_ERROR.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
         var expectedJob = jobsRepository.findById(dataJob.getName());
         Assertions.assertTrue(expectedJob.isPresent());
-        Assertions.assertEquals(TerminationStatus.PLATFORM_ERROR, expectedJob.get().getLatestJobTerminationStatus());
+        Assertions.assertEquals(ExecutionTerminationStatus.PLATFORM_ERROR, expectedJob.get().getLatestJobTerminationStatus());
     }
 
     @Test
     @Order(3)
     public void testUpdateDataJobTerminationStatusSkipped() {
         var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, TerminationStatus.SKIPPED, randomId("data-job-"));
+                DeploymentStatus.NONE, ExecutionTerminationStatus.SKIPPED, randomId("data-job-"));
 
         dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
-        Assertions.assertEquals(TerminationStatus.SKIPPED.getValue(), gauges.stream().findFirst().get().value());
+        Assertions.assertEquals(ExecutionTerminationStatus.SKIPPED.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
         var expectedJob = jobsRepository.findById(dataJob.getName());
         Assertions.assertTrue(expectedJob.isPresent());
-        Assertions.assertEquals(TerminationStatus.SKIPPED, expectedJob.get().getLatestJobTerminationStatus());
+        Assertions.assertEquals(ExecutionTerminationStatus.SKIPPED, expectedJob.get().getLatestJobTerminationStatus());
     }
 
     @Test
     @Order(4)
     public void testUpdateDataJobTerminationStatusStatusUserError() {
         var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, TerminationStatus.USER_ERROR, randomId("data-job-"));
+                DeploymentStatus.NONE, ExecutionTerminationStatus.USER_ERROR, randomId("data-job-"));
 
         dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
-        Assertions.assertEquals(TerminationStatus.USER_ERROR.getValue(), gauges.stream().findFirst().get().value());
+        Assertions.assertEquals(ExecutionTerminationStatus.USER_ERROR.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
         var expectedJob = jobsRepository.findById(dataJob.getName());
         Assertions.assertTrue(expectedJob.isPresent());
-        Assertions.assertEquals(TerminationStatus.USER_ERROR, expectedJob.get().getLatestJobTerminationStatus());
+        Assertions.assertEquals(ExecutionTerminationStatus.USER_ERROR, expectedJob.get().getLatestJobTerminationStatus());
     }
 
     @Test
@@ -136,10 +136,10 @@ public class DataJobStatusMonitorTest {
     @Order(6)
     public void testWatchJobs() throws IOException, ApiException {
         var jobStatuses = List.of(
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), PodTerminationMessage.SUCCESS.getValue()),
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), PodTerminationMessage.USER_ERROR.getValue()),
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), PodTerminationMessage.PLATFORM_ERROR.getValue()),
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), PodTerminationMessage.SKIPPED.getValue())
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString()),
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.USER_ERROR.getString()),
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.PLATFORM_ERROR.getString()),
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.SKIPPED.getString())
         );
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
@@ -201,7 +201,7 @@ public class DataJobStatusMonitorTest {
     @Order(9)
     public void testWatchJobsWithTheSameStatus() throws IOException, ApiException {
         var jobStatuses = List.of(
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), PodTerminationMessage.SUCCESS.getValue())
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString())
         );
         doAnswer(inv -> {
             jobStatuses.forEach(inv.getArgument(1));
@@ -241,7 +241,7 @@ public class DataJobStatusMonitorTest {
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
             Assertions.assertTrue(expectedJob.isPresent());
-            Assertions.assertEquals(TerminationStatus.NONE, expectedJob.get().getLatestJobTerminationStatus());
+            Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, expectedJob.get().getLatestJobTerminationStatus());
         });
     }
 
@@ -249,7 +249,7 @@ public class DataJobStatusMonitorTest {
     @Order(11)
     public void testUpdateDataJobTerminationStatusWithoutExecutionId() {
         var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, TerminationStatus.SUCCESS, randomId("data-job-"));
+                DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
 
         dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
 
@@ -268,7 +268,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(13)
     public void testRecordJobExecutionStatus_nullDataJobName_shouldNotRecordExecution() {
-        JobExecution jobExecution = buildJobExecutionStatus(null, randomId("job-"), PodTerminationMessage.SUCCESS.getValue());
+        JobExecution jobExecution = buildJobExecutionStatus(null, randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString());
         dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
@@ -278,7 +278,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(14)
     public void testRecordJobExecutionStatus_emptyDataJobName_shouldNotRecordExecution() {
-        JobExecution jobExecution = buildJobExecutionStatus("", randomId("job-"), PodTerminationMessage.SUCCESS.getValue());
+        JobExecution jobExecution = buildJobExecutionStatus("", randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString());
         dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
@@ -288,7 +288,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(15)
     public void testRecordJobExecutionStatus_existingDataJobAndNonExistingExecution_shouldRecordExecution() {
-        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", PodTerminationMessage.SUCCESS.getValue(), JobExecution.Status.RUNNING);
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", ExecutionTerminationStatus.SUCCESS.getString(), null);
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
@@ -298,7 +298,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(16)
     public void testRecordJobExecutionStatus_existingDataJobAndExistingExecution_shouldUpdateExecution() {
-        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", PodTerminationMessage.SUCCESS.getValue(), JobExecution.Status.FINISHED);
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", ExecutionTerminationStatus.SUCCESS.getString(), true);
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
@@ -308,7 +308,7 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(17)
     public void testRecordJobExecutionStatusSkipped_existingDataJobAndNonExistingExecution_shouldRecordExecution() {
-        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", null, JobExecution.Status.RUNNING);
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", ExecutionTerminationStatus.NONE.getString(), null);
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
@@ -318,18 +318,18 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(18)
     public void testRecordJobExecutionStatusSkipped_existingDataJobAndExistingExecution_shouldRecordExecution() {
-        var expectedTerminationMessage = "Skipping job execution due to another parallel running execution.";
-        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", expectedTerminationMessage, JobExecution.Status.SKIPPED);
+        var expectedExecutionMessage = "Skipping job execution due to another parallel running execution.";
+        JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", ExecutionTerminationStatus.SKIPPED.getString(), true);
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
-        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution);
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, expectedExecutionMessage);
     }
 
     @Test
     @Order(19)
     public void testRecordJobExecutionStatus_nonExistingDataJobAndNonExistingExecution_shouldNotRecordExecution() {
-        JobExecution jobExecution = buildJobExecutionStatus(randomId("data-job-"), randomId("job-"), PodTerminationMessage.SUCCESS.getValue());
+        JobExecution jobExecution = buildJobExecutionStatus(randomId("data-job-"), randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString());
         dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
@@ -340,19 +340,23 @@ public class DataJobStatusMonitorTest {
         return prefix + UUID.randomUUID();
     }
 
-    private static TerminationStatus getTerminationStatus(JobExecution jobExecution) {
-        return DataJobStatusMonitor.getTerminationStatus(jobExecution.getTerminationMessage());
+    private static ExecutionTerminationStatus getTerminationStatus(JobExecution jobExecution) {
+        return JobExecutionUtil
+              .getTerminationMessage(
+                    JobExecutionUtil.getExecutionStatus(jobExecution.getSucceeded()),
+                    jobExecution.getTerminationMessage())
+              .getTerminationStatus();
     }
 
     private static JobExecution buildJobExecutionStatus(String jobName, String executionId, String terminationMessage) {
-        return buildJobExecutionStatus(jobName, executionId, terminationMessage, JobExecution.Status.FINISHED);
+        return buildJobExecutionStatus(jobName, executionId, terminationMessage, true);
     }
 
     private static JobExecution buildJobExecutionStatus(
           String jobName,
           String executionId,
           String terminationMessage,
-          JobExecution.Status status) {
+          Boolean executionSucceeded) {
         return JobExecution.builder()
               .jobName(jobName)
               .executionId(executionId)
@@ -369,11 +373,14 @@ public class DataJobStatusMonitorTest {
               .resourcesMemoryLimit(1000)
               .deployedDate(OffsetDateTime.now())
               .deployedBy("lastDeployedBy")
-              .status(status)
+              .succeeded(executionSucceeded)
               .build();
     }
 
     private void assertDataJobExecutionValid(JobExecution expectedJobExecution, Optional<DataJobExecution> actualJobExecution) {
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, null);
+    }
+    private void assertDataJobExecutionValid(JobExecution expectedJobExecution, Optional<DataJobExecution> actualJobExecution, String expectedExecutionMessage) {
         Assertions.assertTrue(actualJobExecution.isPresent());
 
         DataJobExecution actualDataJobExecution = actualJobExecution.get();
@@ -389,7 +396,7 @@ public class DataJobStatusMonitorTest {
         Assertions.assertEquals(expectedJobExecution.getResourcesCpuLimit(), actualDataJobExecution.getResourcesCpuLimit());
         Assertions.assertEquals(expectedJobExecution.getResourcesMemoryRequest(), actualDataJobExecution.getResourcesMemoryRequest());
         Assertions.assertEquals(expectedJobExecution.getResourcesMemoryLimit(), actualDataJobExecution.getResourcesMemoryLimit());
-        Assertions.assertEquals(expectedJobExecution.getTerminationMessage(), actualDataJobExecution.getMessage());
+        Assertions.assertEquals(expectedExecutionMessage == null ? expectedJobExecution.getTerminationMessage() : expectedExecutionMessage, actualDataJobExecution.getMessage());
         Assertions.assertEquals(expectedJobExecution.getDeployedBy(), actualDataJobExecution.getLastDeployedBy());
         Assertions.assertEquals(expectedJobExecution.getDeployedDate(), actualDataJobExecution.getLastDeployedDate());
     }

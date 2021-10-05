@@ -5,15 +5,10 @@
 
 package com.vmware.taurus.service.execution;
 
-import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.RepositoryUtil;
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsRepository;
-import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.ExecutionStatus;
+import java.time.OffsetDateTime;
+import java.util.Random;
 
+import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.OffsetDateTime;
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.RepositoryUtil;
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.ExecutionTerminationMessage;
+import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ControlplaneApplication.class)
@@ -45,56 +49,116 @@ public class JobExecutionServiceUpdateExecutionIT {
 
    @Test
    public void testUpdateJobExecution_statusFinishedAndTerminationMessageUserError_shouldRecordExecutionStatusFailed() {
+      String actualTerminationStatus = ExecutionTerminationStatus.USER_ERROR.getString();
+      String actualVdkVersion = "1.2.3";
+      String actualTerminationMessage = getTerminationMessageJson(actualTerminationStatus, actualVdkVersion);
+      Boolean actualExecutionSucceeded = true;
+      DataJobExecution.StatusEnum expectedJobExecutionStatus = DataJobExecution.StatusEnum.FAILED;
+
+      // Termination message as Json
       testUpdateJobExecution(
-            KubernetesService.JobExecution.Status.FINISHED,
-            KubernetesService.PodTerminationMessage.USER_ERROR,
-            DataJobExecution.StatusEnum.FAILED);
+            actualExecutionSucceeded,
+            actualTerminationMessage,
+            expectedJobExecutionStatus,
+            actualTerminationStatus,
+            actualVdkVersion);
+
+      // Termination message as String
+      testUpdateJobExecution(
+            actualExecutionSucceeded,
+            actualTerminationStatus,
+            expectedJobExecutionStatus,
+            null,
+            "");
    }
 
    @Test
    public void testUpdateJobExecution_statusFinishedAndTerminationMessagePlatformError_shouldRecordExecutionStatusFailed() {
+      String actualTerminationStatus = ExecutionTerminationStatus.PLATFORM_ERROR.getString();
+      String actualVdkVersion = "1.2.3";
+      String actualTerminationMessage = getTerminationMessageJson(actualTerminationStatus, actualVdkVersion);
+      Boolean actualExecutionSucceeded = true;
+      DataJobExecution.StatusEnum expectedJobExecutionStatus = DataJobExecution.StatusEnum.FINISHED;
+
+      // Termination message as Json
       testUpdateJobExecution(
-            KubernetesService.JobExecution.Status.FINISHED,
-            KubernetesService.PodTerminationMessage.PLATFORM_ERROR,
-            DataJobExecution.StatusEnum.FAILED);
+            actualExecutionSucceeded,
+            actualTerminationMessage,
+            expectedJobExecutionStatus,
+            actualTerminationStatus,
+            actualVdkVersion);
+
+      // Termination message as String
+      testUpdateJobExecution(
+            actualExecutionSucceeded,
+            actualTerminationStatus,
+            expectedJobExecutionStatus,
+            null,
+            "");
    }
 
    @Test
    public void testUpdateJobExecution_statusFinishedAndTerminationMessageSkipped_shouldRecordExecutionStatusSkipped() {
+      String actualTerminationStatus = ExecutionTerminationStatus.SKIPPED.getString();
+      String actualVdkVersion = "1.2.3";
+      String actualTerminationMessage = getTerminationMessageJson(actualTerminationStatus, actualVdkVersion);
+      Boolean actualExecutionSucceeded = true;
+      DataJobExecution.StatusEnum expectedJobExecutionStatus = DataJobExecution.StatusEnum.SKIPPED;
+
+      // Termination message as Json
       testUpdateJobExecution(
-            KubernetesService.JobExecution.Status.FINISHED,
-            KubernetesService.PodTerminationMessage.SKIPPED,
-            DataJobExecution.StatusEnum.SKIPPED,
-            "Skipping job execution due to another parallel running execution.");
+            actualExecutionSucceeded,
+            actualTerminationMessage,
+            expectedJobExecutionStatus,
+            "Skipping job execution due to another parallel running execution.",
+            actualVdkVersion);
+
+      // Termination message as String
+      testUpdateJobExecution(
+            actualExecutionSucceeded,
+            actualTerminationStatus,
+            expectedJobExecutionStatus,
+            "Skipping job execution due to another parallel running execution.",
+            "");
    }
 
    @Test
    public void testUpdateJobExecution_statusFinishedAndTerminationMessageSuccess_shouldRecordExecutionStatusFinish() {
+      String actualTerminationStatus = ExecutionTerminationStatus.SUCCESS.getString();
+      String actualVdkVersion = "1.2.3";
+      String actualTerminationMessage = getTerminationMessageJson(actualTerminationStatus, actualVdkVersion);
+      Boolean actualExecutionSucceeded = true;
+      DataJobExecution.StatusEnum expectedJobExecutionStatus = DataJobExecution.StatusEnum.FINISHED;
+
+      // Termination message as Json
       testUpdateJobExecution(
-            KubernetesService.JobExecution.Status.FINISHED,
-            KubernetesService.PodTerminationMessage.SUCCESS,
-            DataJobExecution.StatusEnum.FINISHED);
+            actualExecutionSucceeded,
+            actualTerminationMessage,
+            expectedJobExecutionStatus,
+            actualTerminationStatus,
+            actualVdkVersion);
+
+      // Termination message as String
+      testUpdateJobExecution(
+            actualExecutionSucceeded,
+            actualTerminationStatus,
+            expectedJobExecutionStatus,
+            null,
+            "");
    }
 
    private void testUpdateJobExecution(
-         KubernetesService.JobExecution.Status actualExecutionStatus,
-         KubernetesService.PodTerminationMessage actualTerminationMessage,
-         DataJobExecution.StatusEnum expectedJobExecutionStatus) {
-
-      testUpdateJobExecution(actualExecutionStatus, actualTerminationMessage, expectedJobExecutionStatus, null);
-   }
-
-   private void testUpdateJobExecution(
-         KubernetesService.JobExecution.Status actualExecutionStatus,
-         KubernetesService.PodTerminationMessage actualTerminationMessage,
+         Boolean actualExecutionSucceeded,
+         String actualTerminationMessage,
          DataJobExecution.StatusEnum expectedJobExecutionStatus,
-         String expectedJobExecutionMessage) {
+         String expectedJobExecutionMessage,
+         String expectedVdkVersion) {
 
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
       KubernetesService.JobExecution expectedJobExecution = KubernetesService.JobExecution.builder()
-            .status(actualExecutionStatus)
+            .succeeded(actualExecutionSucceeded)
             .opId("test_op_id")
-            .executionId("test_execution_id")
+            .executionId("test_execution_id_" + new Random().nextInt())
             .executionType("manual")
             .jobName(actualDataJob.getName())
             .jobVersion("test_job_version")
@@ -107,8 +171,10 @@ public class JobExecutionServiceUpdateExecutionIT {
             .resourcesMemoryRequest(1)
             .deployedBy("test_deployed_by")
             .deployedDate(OffsetDateTime.now())
-            .terminationMessage(actualTerminationMessage.getValue()).build();
-      jobExecutionService.updateJobExecution(actualDataJob, expectedJobExecution);
+            .terminationMessage(actualTerminationMessage).build();
+      ExecutionStatus executionStatus = JobExecutionUtil.getExecutionStatus(expectedJobExecution.getSucceeded());
+      ExecutionTerminationMessage terminationMessage = JobExecutionUtil.getTerminationMessage(executionStatus, expectedJobExecution.getTerminationMessage());
+      jobExecutionService.updateJobExecution(actualDataJob, expectedJobExecution, executionStatus, terminationMessage);
 
       DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
             actualDataJob.getJobConfig().getTeam(),
@@ -116,14 +182,15 @@ public class JobExecutionServiceUpdateExecutionIT {
             expectedJobExecution.getExecutionId());
 
       expectedJobExecutionMessage = expectedJobExecutionMessage != null ? expectedJobExecutionMessage : expectedJobExecution.getTerminationMessage();
-      assertDataJobExecutionValid(expectedJobExecution, expectedJobExecutionStatus, expectedJobExecutionMessage, actualJobExecution);
+      assertDataJobExecutionValid(expectedJobExecution, expectedJobExecutionStatus, expectedJobExecutionMessage, actualJobExecution, expectedVdkVersion);
    }
 
    private void assertDataJobExecutionValid(
          KubernetesService.JobExecution expectedJobExecution,
          DataJobExecution.StatusEnum expectedJobStatus,
          String expectedMessage,
-         DataJobExecution actualJobExecution) {
+         DataJobExecution actualJobExecution,
+         String expectedVdkVersion) {
 
       Assert.assertEquals(expectedJobExecution.getExecutionId(), actualJobExecution.getId());
       Assert.assertEquals(expectedJobExecution.getExecutionType(), actualJobExecution.getType().toString());
@@ -141,42 +208,43 @@ public class JobExecutionServiceUpdateExecutionIT {
       Assert.assertEquals(expectedJobExecution.getResourcesMemoryRequest(), actualJobExecution.getDeployment().getResources().getMemoryRequest());
       Assert.assertEquals(expectedJobExecution.getDeployedDate(), actualJobExecution.getDeployment().getDeployedDate());
       Assert.assertEquals(expectedJobExecution.getDeployedBy(), actualJobExecution.getDeployment().getDeployedBy());
+      Assert.assertEquals(expectedVdkVersion, actualJobExecution.getDeployment().getVdkVersion());
    }
 
    @Test
    public void testUpdateJobExecution_DbStatusSubmittedAndUpdateStatusRunning_UpdateExpected() {
       //control test which makes sure the status gets updated if in submitted
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.SUBMITTED, KubernetesService.JobExecution.Status.RUNNING, ExecutionStatus.RUNNING);
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.SUBMITTED, null, ExecutionStatus.RUNNING);
    }
 
    @Test
    public void testUpdateJobExecution_DbStatusRunningAndUpdateStatusFinished_UpdateExpected() {
       //control test which makes sure the status gets updated if in running
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.RUNNING, KubernetesService.JobExecution.Status.FINISHED, ExecutionStatus.FINISHED);
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.RUNNING, true, ExecutionStatus.FINISHED);
    }
 
    @Test
    public void testUpdateJobExecution_DbStatusFinishedAndUpdateStatusRunning_NoUpdateExpected() {
       //test which makes sure the status doesn't get updated if in finished
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.FINISHED, KubernetesService.JobExecution.Status.RUNNING, ExecutionStatus.FINISHED);
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.FINISHED, null, ExecutionStatus.FINISHED);
    }
 
    @Test
    public void testUpdateJobExecution_DbStatusCancelledAndUpdateStatusRunning_NoUpdateExpected() {
       //test which makes sure the status doesn't get updated if in cancelled
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.CANCELLED, KubernetesService.JobExecution.Status.RUNNING, ExecutionStatus.CANCELLED);
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.CANCELLED, null, ExecutionStatus.CANCELLED);
    }
 
    @Test
    public void testUpdateJobExecution_DbStatusSkippedAndUpdateStatusRunning_NoUpdateExpected() {
       //test which makes sure the status doesn't get updated if in skipped
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.SKIPPED, KubernetesService.JobExecution.Status.RUNNING, ExecutionStatus.SKIPPED);
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.SKIPPED, null, ExecutionStatus.SKIPPED);
    }
 
    @Test
    public void testUpdateJobExecution_DbStatusFailedAndUpdateStatusRunning_NoUpdateExpected() {
       //test which makes sure the status doesn't get updated if in failed
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.FAILED, KubernetesService.JobExecution.Status.RUNNING, ExecutionStatus.FAILED);
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.FAILED, null, ExecutionStatus.FAILED);
    }
 
    /**
@@ -190,13 +258,13 @@ public class JobExecutionServiceUpdateExecutionIT {
     * @param expectedStatus the expected execution status
     */
    private void testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus statusPresentInDb,
-                                                                   KubernetesService.JobExecution.Status attemptedStatusChange,
+                                                                   Boolean attemptedStatusChange,
                                                                    ExecutionStatus expectedStatus) {
       var actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
       var execution = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", actualDataJob, statusPresentInDb);
 
       KubernetesService.JobExecution attemptedExecutionUpdate = KubernetesService.JobExecution.builder()
-              .status(attemptedStatusChange)
+              .succeeded(attemptedStatusChange)
               .opId(execution.getOpId())
               .executionId(execution.getId())
               .executionType("manual")
@@ -213,10 +281,19 @@ public class JobExecutionServiceUpdateExecutionIT {
               .deployedDate(OffsetDateTime.now())
               .terminationMessage("TestMessage").build();
 
-      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate);
+      ExecutionStatus executionStatus = JobExecutionUtil.getExecutionStatus(attemptedExecutionUpdate.getSucceeded());
+      ExecutionTerminationMessage terminationMessage = JobExecutionUtil.getTerminationMessage(executionStatus, attemptedExecutionUpdate.getTerminationMessage());
+      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionStatus, terminationMessage);
       var actualJobExecution = jobExecutionRepository.findById(attemptedExecutionUpdate.getExecutionId()).get();
 
       Assertions.assertEquals(expectedStatus, actualJobExecution.getStatus());
    }
 
+   private static String getTerminationMessageJson(String actualTerminationStatus, String vdkVersion) {
+      JsonObject actualTerminationMessageJson = new JsonObject();
+      actualTerminationMessageJson.addProperty(JobExecutionUtil.TERMINATION_MESSAGE_ATTRIBUTE_STATUS, actualTerminationStatus);
+      actualTerminationMessageJson.addProperty(JobExecutionUtil.TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, vdkVersion);
+
+      return actualTerminationMessageJson.toString();
+   }
 }
