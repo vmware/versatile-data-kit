@@ -4,6 +4,7 @@ import json
 import logging
 from abc import ABC
 from abc import abstractmethod
+from typing import Dict
 from typing import Optional
 
 import requests
@@ -52,7 +53,7 @@ class ControlPlanePropertiesServiceClient(IPropertiesServiceClient):
     def __init__(
         self,
         url_pattern_with_job_name: str,
-        team_name="",
+        team_name: str = "",
         authenticator: Authenticator = NoneAuthenticator(),
         retries: int = 10,
     ):
@@ -85,7 +86,7 @@ class ControlPlanePropertiesServiceClient(IPropertiesServiceClient):
             f"Initialized Properties against {self._url} with team {team_name} and authentication {authenticator}"
         )
 
-    def read_properties(self, job_name):
+    def read_properties(self, job_name: str, team_name: str):
         with self._new_http_session() as session:
             res = session.get(
                 self._url.format(team_name=self._team_name, job_name=job_name),
@@ -105,7 +106,7 @@ class ControlPlanePropertiesServiceClient(IPropertiesServiceClient):
         session.auth = self._authenticator.authenticate()
         return session
 
-    def write_properties(self, job_name, properties):
+    def write_properties(self, job_name: str, team_name: str, properties: Dict):
         """
         We are adding retries on writing properties
         since we are using PUT to overwrite all properties which is idempotent operation.
