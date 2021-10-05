@@ -14,13 +14,7 @@
   script:
     - echo "Build plugin $PLUGIN_NAME"
     - cd plugins/$PLUGIN_NAME || exit 1
-    - pip install -U pip setuptools pre-commit
-    - pre-commit install
-    - pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
-    - extra_index_url=$([[ -n "$PIP_EXTRA_INDEX_URL" ]] && echo "--extra-index-url $PIP_EXTRA_INDEX_URL" || echo "")
-    - pip install -e . $extra_index_url
-    - pip install pytest-cov
-    - pytest --junitxml=tests.xml --cov taurus --cov-report term-missing --cov-report xml:coverage.xml
+    - ../build-plugin.sh
   retry: !reference [.retry, retry_options]
   rules: # we want to trigger build jobs if there are changes to this plugin,
          # but not if there are changes to other plugins or the main directory

@@ -19,14 +19,14 @@ format_template = (
 # this class serves to escape newline characters in the log message
 # as according to https://stackoverflow.com/questions/42068/how-do-i-handle-newlines-in-json
 # it is currently experimental and might be removed
-class RemoveNewlinesFormatter(logging.Formatter):
+class EscapeNewlinesAndQuotesFormatter(logging.Formatter):
     def __init__(self, fmt):
         super().__init__(fmt=fmt)
         self.default_time_format = "%Y-%m-%dT%H:%M:%S"
         self.default_msec_format = "%s.%03dZ"
 
     def format(self, record):
-        record.msg = record.msg.replace("\n", "\\n")
+        record.msg = record.msg.replace("\n", "\\n").replace('"', '\\"')
         return super().format(record)
 
 
@@ -36,7 +36,7 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
         "{" + format_template.format(job_name="", attempt_id="") + "}"
     )  # appending the braces
     for handler in logging.getLogger().handlers:
-        formatter = RemoveNewlinesFormatter(fmt=format_copy)
+        formatter = EscapeNewlinesAndQuotesFormatter(fmt=format_copy)
 
         handler.setFormatter(formatter)
 
@@ -51,6 +51,6 @@ def initialize_job(context: JobContext) -> None:
     )  # appending the braces
 
     for handler in logging.getLogger().handlers:
-        formatter = RemoveNewlinesFormatter(fmt=detailed_format)
+        formatter = EscapeNewlinesAndQuotesFormatter(fmt=detailed_format)
 
         handler.setFormatter(formatter)
