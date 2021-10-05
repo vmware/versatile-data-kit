@@ -110,7 +110,6 @@ class ControlPlanePropertiesServiceClient(IPropertiesServiceClient):
         """
         We are adding retries on writing properties
         since we are using PUT to overwrite all properties which is idempotent operation.
-        :param team_name:
         """
         with self._new_http_session() as session:
             res = session.put(
