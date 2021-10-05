@@ -17,9 +17,9 @@ class InMemPropertiesServiceClient(IPropertiesServiceClient):
     def __init__(self):
         self._props = {}
 
-    def read_properties(self, job_name: str) -> Dict:
+    def read_properties(self, job_name: str, team_name: str) -> Dict:
         res = deepcopy(self._props)
         return res
 
-    def write_properties(self, job_name: str, properties: Dict) -> None:
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> None:
         self._props = deepcopy(properties)

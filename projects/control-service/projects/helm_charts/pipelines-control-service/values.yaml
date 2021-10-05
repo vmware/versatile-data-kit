@@ -12,7 +12,7 @@ global: {}
 image:
    registry: registry.hub.docker.com/versatiledatakit
    repository: pipelines-control-service
-   tag: "cd4533c"
+   tag: "b9a04bb"
 
    ## Specify a imagePullPolicy
    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
