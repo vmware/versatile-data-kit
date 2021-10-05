@@ -32,8 +32,8 @@ def test_read_properties(httpserver: PluginHTTPServer):
     )
     props = ControlPlanePropertiesServiceClient(url, "test-team")
 
-    assert props.read_properties("test-job") == response
-    assert props.read_properties("empty-job") == {}
+    assert props.read_properties("test-job", "test-team") == response
+    assert props.read_properties("empty-job", "test-team") == {}
 
 
 def test_write_properties(httpserver: PluginHTTPServer):
@@ -55,7 +55,7 @@ def test_write_properties(httpserver: PluginHTTPServer):
         + "/data-jobs/for-team/{team_name}/name/{job_name}/deployments/release/properties"
     )
     props = ControlPlanePropertiesServiceClient(url, "test-team")
-    props.write_properties("test-job", data)
+    props.write_properties("test-job", "test-team", data)
 
     assert sent_data == [data]
 
@@ -63,19 +63,19 @@ def test_write_properties(httpserver: PluginHTTPServer):
 def test_read_properties_401_error(httpserver: PluginHTTPServer):
     props = _setup_and_create_properties_client(httpserver, Response(status=401))
     with pytest.raises(VdkConfigurationError):
-        props.read_properties("test-job")
+        props.read_properties("test-job", "test-team")
 
 
 def test_read_properties_403_error(httpserver: PluginHTTPServer):
     props = _setup_and_create_properties_client(httpserver, Response(status=403))
     with pytest.raises(UserCodeError):
-        props.read_properties("test-job")
+        props.read_properties("test-job", "test-team")
 
 
 def test_read_properties_500_error(httpserver: PluginHTTPServer):
     props = _setup_and_create_properties_client(httpserver, Response(status=500))
     with pytest.raises(PlatformServiceError):
-        props.read_properties("test-job")
+        props.read_properties("test-job", "test-team")
 
 
 def _setup_and_create_properties_client(

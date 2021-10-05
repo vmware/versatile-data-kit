@@ -29,17 +29,19 @@ class IPropertiesServiceClient:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def read_properties(self, job_name: str) -> Dict:
+    def read_properties(self, job_name: str, team_name: str) -> Dict:
         """
         Read properties from the backend - returns a dictionary of all properties for the given data job.
+        :param team_name: The name of the team the job belongs to
         :param job_name: the name of the job
         """
         pass
 
     @abstractmethod
-    def write_properties(self, job_name: str, properties: Dict) -> None:
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> None:
         """
         Write properties to the backend service. It overwrites all properties completely.
+        :param team_name: The name of the team the job belongs to
         :param job_name: the name of the job
         :param properties: dictionary with the new job's properties
         """
