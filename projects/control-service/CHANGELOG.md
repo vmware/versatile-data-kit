@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.15 - Next
+1.2.16 - Next
 ----
 * **New feature**
 
