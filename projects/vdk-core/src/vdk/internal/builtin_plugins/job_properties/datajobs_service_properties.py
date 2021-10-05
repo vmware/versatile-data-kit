@@ -23,12 +23,16 @@ class DataJobsServiceProperties(IProperties):
     __VALID_TYPES = [int, float, str, list, dict, type(None)]
 
     def __init__(
-        self, job_name: str, properties_service_client: IPropertiesServiceClient
+        self,
+        job_name: str,
+        team_name: str,
+        properties_service_client: IPropertiesServiceClient,
     ):
         log.debug(
             f"Data Job Properties for job {job_name} with service client: {properties_service_client}"
         )
         self._job_name = job_name
+        self._team_name = team_name
         self._properties_service_client = properties_service_client
 
     def get_property(
@@ -53,7 +57,9 @@ class DataJobsServiceProperties(IProperties):
         """
         :return: all stored properties
         """
-        return self._properties_service_client.read_properties(self._job_name)
+        return self._properties_service_client.read_properties(
+            self._job_name, self._team_name
+        )
 
     def set_all_properties(self, properties: Dict[str, PropertyValue]) -> None:
         """
@@ -64,4 +70,6 @@ class DataJobsServiceProperties(IProperties):
                 k, v, DataJobsServiceProperties.__VALID_TYPES
             )  # throws
 
-        self._properties_service_client.write_properties(self._job_name, properties)
+        self._properties_service_client.write_properties(
+            self._job_name, self._team_name, properties
+        )
