@@ -116,7 +116,7 @@ class JobDeploy:
                     why=f"VDK CLI did not clean up after deploying: {e}",
                     consequence="There is a leftover archive file next to the folder containing the data job",
                     countermeasure="Clean up the archive file manually or leave it",
-                )
+                ).message
             )
 
     def __update_data_job_deploy_configuration(
