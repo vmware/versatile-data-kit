@@ -62,7 +62,8 @@ class IngesterRouter(IIngesterRegistry):
         # Use the method and target provided by customer, or load the default ones
         # if set. `method` and `target` provided when the method is called take
         # precedence over the ones set with environment variables.
-        method = (method or self._cfg.get_value("INGEST_METHOD_DEFAULT")).lower()
+        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
+        method = method.lower() if method is not None else None
         target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
         self._log.info(
             "Sending object for ingestion with "
