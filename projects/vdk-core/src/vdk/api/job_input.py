@@ -164,15 +164,14 @@ class IIngester:
                 specify which plugin is to be used by default for ingestion.
 
             target: Optional[str]
-                target identifies where the data should be ingested into. Specifies
-                a data source and its destination database.
+                target identifies where the data should be ingested into.
 
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+                The value for this parameter depends on the ingest method chosen.
+                For "http" method, it would require an HTTP URL.
+                    Example: http://example.com/<some>/<api>/<endpoint>
+                For "file" method, it would require a file name or path.
 
-                The `__STAGING/__PRODUCTION` can be added at the end of the target if
-                separation of dev/test from production data is required.
+                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
 
                 This parameter does not need to be used, in case the
                 `INGEST_TARGET_DEFAULT` environment variable is set. This can be
@@ -246,16 +245,18 @@ class IIngester:
                 See plugin_input for how to develop a new plugin with new ingest method.
 
             target: Optional[str]
-                target identifies where the data should be ingested into. Specifies
-                a data source and its destination database.
+                target identifies where the data should be ingested into.
 
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+                The value for this parameter depends on the ingest method chosen.
+                For "http" method, it would require an HTTP URL.
+                    Example: http://example.com/<some>/<api>/<endpoint>
+                For "file" method, it would require a file name or path.
+
+                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
 
                 This parameter does not need to be used. In case the
                 `VDK_INGEST_TARGET_DEFAULT` environment variable is set it will be used.
-                 If not plugins  may set default value.
+                 If not, plugins may set a default value.
 
             collection_id: Optional[str]
                 Optional. An identifier to indicate that data from different method
