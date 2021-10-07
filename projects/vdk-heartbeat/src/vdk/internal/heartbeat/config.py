@@ -6,6 +6,7 @@ import logging
 import re
 from os import environ
 from time import time
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -21,8 +22,12 @@ class Config:
             log.info(f"Configuration loaded: {self._config_ini.items()}")
 
         # VDK CLI Arguments for vdkcli login
-        self.vdkcli_api_refresh_token = self.get_value("VDKCLI_OAUTH2_REFRESH_TOKEN")
-        self.vdkcli_oauth2_uri = self.get_value("VDKCLI_OAUTH2_URI")
+        self.vdkcli_api_refresh_token = self._get_atleast_one_value(
+            "VDKCLI_OAUTH2_REFRESH_TOKEN", "VDK_HEARTBEAT_API_TOKEN"
+        )
+        self.vdkcli_oauth2_uri = self._get_atleast_one_value(
+            "VDKCLI_OAUTH2_URI", "VDK_HEARTBEAT_API_TOKEN_AUTH_URL"
+        )
         self.op_id = self.get_value("VDK_HEARTBEAT_OP_ID", Config.DEFAULT_OP_ID)
         table_suffix = re.sub("[^a-z0-9_]", "_", self.op_id.lower())
         job_suffix = re.sub("[^a-z0-9-]", "-", self.op_id.lower())
@@ -70,7 +75,9 @@ class Config:
         )
 
         # The Control Service API URL (http://url/data-jobs) without data-jobs suffix
-        self.control_api_url = self.get_value("CONTROL_API_URL")
+        self.control_api_url = self._get_atleast_one_value(
+            "CONTROL_API_URL", "VDK_HEARTBEAT_CONTROL_SERVICE_URL"
+        )
 
         # Job name deployed during the test
         self.job_name = self.get_value(
@@ -176,6 +183,21 @@ class Config:
                 f"Countermeasures: Set as required configuration either as environment variable or in the config file."
             )
         return value
+
+    def _get_atleast_one_value(self, key1: str, key2: str) -> Optional[str]:
+        value1 = self.get_value(key1, is_required=False)
+        value2 = self.get_value(key2, is_required=False)
+
+        if (value1 is None) and (value2 is None):
+            raise ValueError(
+                "Error occurred:\n"
+                f"What: Cannot configure heartbeat test\n"
+                f"Why: Missing required configuration with either key {key1} or key {key2}\n"
+                f"Consequences: The heartbeat will abort\n"
+                f"Countermeasures: Set as required configuration either as environment variable or in the config file."
+            )
+
+        return value1 if value1 is not None else value2
 
     @staticmethod
     def _string_to_bool(v):

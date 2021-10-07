@@ -289,7 +289,9 @@ vdk execute --logs -n example-job -t "Example Team" --execution-id example-job-1
     "Must be in valid JSON format",
 )
 @cli_utils.check_required_parameters
-def execute(name, team, execution_id, operation, rest_api_url, output, arguments) -> None:
+def execute(
+    name, team, execution_id, operation, rest_api_url, output, arguments
+) -> None:
     cmd = JobExecute(rest_api_url)
     if operation == ExecuteOperation.START:
         name = get_or_prompt("Job Name", name)
