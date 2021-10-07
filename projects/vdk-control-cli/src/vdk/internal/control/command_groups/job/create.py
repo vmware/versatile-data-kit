@@ -84,7 +84,7 @@ class JobCreate:
                     why=f"Error is: {e}",
                     consequence="Local execution of the job might fail since the job may not have permissions to some resources",
                     countermeasure="Try to manually download the data job keytab with vdk",
-                )
+                ).message
             )
 
     def validate_job_path(self, path: str, name: str) -> None:

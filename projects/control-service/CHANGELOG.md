@@ -1,12 +1,22 @@
 Changelog
 =========
 
-1.2.16 - Next
+1.2.17 - Next
 ----
 * **New feature**
 
 * **Improvement**
 
+* **Bug Fixes**
+
+* **Breaking Changes**
+
+1.2.16 - 05.10.2021
+----
+* **New feature**
+
+* **Improvement**
+  * Additional deployment labels are now set using valid YAML instead of a multiline string.
 * **Bug Fixes**
 
 * **Breaking Changes**
