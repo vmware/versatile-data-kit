@@ -4,7 +4,6 @@ import logging
 import os
 from typing import List
 
-from taurus_datajob_api import configuration
 from taurus_datajob_api import DataJobExecution
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
@@ -14,7 +13,6 @@ from vdk.internal.builtin_plugins.termination_message.action import WriteToFileA
 from vdk.internal.builtin_plugins.termination_message.writer_configuration import (
     WriterConfiguration,
 )
-from vdk.internal.control.auth.auth import Authentication
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 
@@ -22,13 +20,17 @@ log = logging.getLogger(__name__)
 
 
 class ConcurrentExecutionChecker:
-    def __init__(
-        self, rest_api_url, api_token, api_token_authorization_url, auth_type
-    ) -> None:
-        ConcurrentExecutionChecker._authenticate(
-            api_token_authorization_url, api_token, auth_type
-        )
-        self.execution_api_client = ApiClientFactory(rest_api_url).get_execution_api()
+    """
+    The class make sure to check if there is another execution of the data job already started.
+    It is used to prevent concurrent executions from getting started in the same time.
+    As often data jobs are not expected to be parallelizable since they do maintain state - for example
+    ingestion job that pulls data since last time it ran and moves it to a warehouse would duplicate it
+    if started concurrently.
+    """
+
+    def __init__(self, rest_api_url: str) -> None:
+        # set as protected instead of private so it can be mocked in unit tests
+        self._execution_api_client = ApiClientFactory(rest_api_url).get_execution_api()
 
     def is_job_execution_running(
         self, job_name, job_team, job_execution_attempt_id
@@ -74,25 +76,11 @@ class ConcurrentExecutionChecker:
             "submitted",
             "running",
         ]  # We query only for running or manual jobs
-        response = self.execution_api_client.data_job_execution_list(
+        response = self._execution_api_client.data_job_execution_list(
             job_name=job_name, team_name=team_name, execution_status=job_status
         )
         log.info(f"Api call returned job execution list: {response}")
         return response
-
-    @staticmethod
-    def _authenticate(api_token_authorization_url, api_token, auth_type) -> None:
-        log.info(
-            f"Authenticating to check for running data job executions against: {api_token_authorization_url}"
-        )
-        auth = Authentication()
-        auth.update_api_token_authorization_url(api_token_authorization_url)
-        auth.update_api_token(api_token)
-        auth.update_auth_type(auth_type)
-        auth.acquire_and_cache_access_token()
-        log.info(
-            f"Login successful at: {api_token_authorization_url}, Method: {auth_type}"
-        )
 
 
 def _skip_job_run(job_name) -> None:
@@ -115,20 +103,13 @@ def _skip_job_if_necessary(
         log.info(
             f"Job : {job_name}, Team : {job_team}, Log config: {log_config}, execution_id: {execution_id}"
         )
-        vdk_config = VDKConfig()
-        # vdk_config.
+        # TODO: Do not use log config type to check if it is a cloud run or not.
         if log_config != "CLOUD":
             logging.info("Local execution, skipping parallel execution check.")
             return None
 
-        rest_api_url = vdk_config.control_service_rest_api_url
-        api_token = vdk_config.api_token
-        auth_url = vdk_config.api_token_authorization_server_url
-        auth_type = "api-token"
-
-        job_checker = ConcurrentExecutionChecker(
-            rest_api_url, api_token, auth_url, auth_type
-        )
+        vdk_cfg = VDKConfig()
+        job_checker = ConcurrentExecutionChecker(vdk_cfg.control_service_rest_api_url)
         job_running = job_checker.is_job_execution_running(
             job_name, job_team, execution_id
         )
