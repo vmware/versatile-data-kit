@@ -223,9 +223,10 @@ control_service_release:
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
-    - export TAG=$(git rev-parse --short HEAD)
+    - export IMAGE_TAG=$(git rev-parse --short HEAD)
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
-    - echo "$(cat version.txt).$CI_PIPELINE_ID" > version.txt
+    - export CHART_NAME=pipelines-control-service
+    - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt).$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - helm plugin install https://github.com/chartmuseum/helm-push --version 0.10.0
     - helm plugin install https://github.com/thynquest/helm-pack --version 0.2.2
