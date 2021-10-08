@@ -15,6 +15,12 @@ def run(job_input: IJobInput) -> None:
         DROP TABLE IF EXISTS "{target_schema}"."{target_table}"
     """
     )
+
+    job_input.execute_query(
+        """
+        DROP VIEW IF EXISTS "{target_schema}"."{target_table}"
+    """
+    )
     job_input.execute_query(
         """
            CREATE TABLE IF NOT EXISTS "{target_schema}"."{target_table}" (
@@ -44,6 +50,12 @@ def run(job_input: IJobInput) -> None:
     )
 
     # Step 2: create a table that represents the delta to be applied
+
+    job_input.execute_query(
+        """
+        DROP VIEW IF EXISTS "{source_schema}"."{source_view}"
+    """
+    )
 
     job_input.execute_query(
         """
