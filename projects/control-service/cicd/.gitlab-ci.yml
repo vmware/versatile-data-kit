@@ -236,7 +236,6 @@ control_service_release:
   only:
     refs:
       - main
-      - external_pull_requests
     changes: *control_service_change_locations
 
 control_service_vdk_heartbeat_release:
@@ -261,5 +260,4 @@ control_service_vdk_heartbeat_release:
   only:
     refs:
       - main
-      - external_pull_requests
     changes: *control_service_change_locations
