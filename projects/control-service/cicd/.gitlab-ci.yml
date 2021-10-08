@@ -248,7 +248,7 @@ control_service_vdk_heartbeat_release:
   stage: release
   script:
     - export CHART_NAME=pipelines-control-service
-    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt)
+    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt).$CI_PIPELINE_ID
     - export VDK_HEARTBEAT_TEST_NAME=$CHART_NAME-integration-tests:$CHART_VERSION
     - export VDK_HEARTBEAT_IMAGE_NAME="$VDK_DOCKER_REGISTRY_URL/$VDK_HEARTBEAT_TEST_NAME"
     - docker login $VDK_DOCKER_REGISTRY_URL --username $VDK_DOCKER_REGISTRY_USERNAME --password $VDK_DOCKER_REGISTRY_PASSWORD
@@ -259,5 +259,4 @@ control_service_vdk_heartbeat_release:
   only:
     refs:
       - main
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+    changes: *control_service_change_locations
