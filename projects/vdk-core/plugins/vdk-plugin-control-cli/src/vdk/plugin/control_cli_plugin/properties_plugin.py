@@ -14,6 +14,9 @@ from vdk.plugin.control_cli_plugin.control_service_properties import (
     ControlPlanePropertiesServiceClient,
 )
 from vdk.plugin.control_cli_plugin.control_service_properties import NoneAuthenticator
+from vdk.plugin.control_cli_plugin.control_service_properties_client import (
+    ControlServicePropertiesServiceClient,
+)
 
 log = logging.getLogger(__name__)
 
@@ -88,28 +91,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
 
 @hookimpl
 def initialize_job(context: JobContext) -> None:
-    conf = context.core_context.configuration
-    auth = NoneAuthenticator()
-    # TODO: it would better to centralize authentication (e.g AuthFactory)
-    # since different components would need it.
-    if conf.get_value(PROPERTIES_API_TOKEN):
-        log.info("PROPERTIES_API_TOKEN is set - we will use API Token authentication")
-        auth = ApiTokenAuthenticator(
-            conf.get_required_value(PROPERTIES_API_TOKEN_AUTHORIZATION_URL),
-            conf.get_value(PROPERTIES_API_TOKEN),
-        )
-    else:
-        log.info("Properties API is configured without authentication")
-    url = conf.get_value(PROPERTIES_API_URL)
-    if url:
-        team = conf.get_value("team")
-        log.debug(f"url: {url}; team: {team}")
-        context.properties.set_properties_factory_method(
-            "default", lambda: ControlPlanePropertiesServiceClient(url, team, auth)
-        )
-    else:
-        log.warning(
-            "Plugin control service properties is installed "
-            "but required configuration (PROPERTIES_API_URL) is not passed."
-            "Control Service based properties will not be setup."
-        )
+
+    context.properties.set_properties_factory_method(
+        "default", lambda: ControlServicePropertiesServiceClient(url)
+    )

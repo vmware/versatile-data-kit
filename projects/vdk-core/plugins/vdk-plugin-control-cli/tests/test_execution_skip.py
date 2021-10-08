@@ -13,12 +13,9 @@ from vdk.plugin.control_cli_plugin.execution_skip import ConcurrentExecutionChec
 
 class ExecutionSkipTest(unittest.TestCase):
     @classmethod
-    @patch(
-        "vdk.plugin.control_cli_plugin.execution_skip.ConcurrentExecutionChecker._authenticate"
-    )
     @patch("vdk.internal.control.rest_lib.factory.ApiClientFactory.__init__")
     @patch("vdk.internal.control.rest_lib.factory.ApiClientFactory.get_execution_api")
-    def setUpClass(cls, login_method, api_factory, get_api):
+    def setUpClass(cls, get_api, api_factory):
         data_job_1 = Mock(DataJobExecution)
         data_job_1.id = "different_id_string"
 
@@ -38,13 +35,16 @@ class ExecutionSkipTest(unittest.TestCase):
         cls.data_job_3 = data_job_3
         cls.data_job_4 = data_job_4
 
-        login_method.return_value = None
         api_factory.return_value = None
         get_api.return_value = None
 
-        cls.checker = ConcurrentExecutionChecker(None, None, None, None)
+        cls.checker = ConcurrentExecutionChecker(None)
         cls.mock_api = Mock(DataJobsExecutionApi)
-        cls.checker.execution_api_client = cls.mock_api
+        # TODO we should not be mocking internal implementation methods or fields
+        # as this would make the test easier to break if impl change without expected behaviour changing
+        # (harder to verify if a refactoring is successful for example)
+        # Try to inject it through ApiClientFactory instead
+        cls.checker._execution_api_client = cls.mock_api
 
     def test_api_call_empty_list(self):
         # Behaviour with empty list
@@ -173,26 +173,16 @@ class ExecutionSkipTest(unittest.TestCase):
     @patch(
         "vdk.plugin.control_cli_plugin.execution_skip.ConcurrentExecutionChecker.is_job_execution_running"
     )
-    @patch(
-        "vdk.plugin.control_cli_plugin.execution_skip.ConcurrentExecutionChecker._authenticate"
-    )
     @patch("vdk.internal.control.rest_lib.factory.ApiClientFactory.__init__")
     @patch("vdk.internal.control.rest_lib.factory.ApiClientFactory.get_execution_api")
-    def test_should_skip_method(
-        self, login_method, api_factory, get_api, is_job_execution_running
-    ):
+    def test_should_skip_method(self, get_api, api_factory, is_job_execution_running):
         # To check SKIPPED status check this to True
         # Beware though as it exits (calls os._exit()) and no results from tests are shown - this is desired behaviour
         is_job_execution_running.return_value = False
 
-        login_method.return_value = None
         api_factory.return_value = None
         get_api.return_value = None
         action = WriteToFileAction("test_skip_file.txt")
 
         # Check if method executes. Test suceeds if no exception thrown
         _skip_job_if_necessary("CLOUD", "test-job", "test-id", "test-team", action)
-
-
-if __name__ == "__main__":
-    unittest.main()

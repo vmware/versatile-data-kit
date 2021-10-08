@@ -19,6 +19,8 @@ from vdk.internal.control.command_groups.login_group.login import login
 from vdk.internal.control.command_groups.logout_group.logout import logout
 from vdk.internal.control.configuration.default_options import DefaultOptions
 from vdk.internal.control.plugin import control_plugin_manager
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.plugin.control_cli_plugin import control_service_configuration
 
 
 @hookimpl
@@ -41,3 +43,9 @@ def vdk_command_line(root_command: click.Group):
     default_options = DefaultOptions(plugins)
     if default_options.get_default_map():
         root_command.context_settings["default_map"] = default_options.get_default_map()
+
+
+@hookimpl(tryfirst=True)
+def vdk_configure(config_builder: ConfigurationBuilder) -> None:
+    """ """
+    control_service_configuration.add_definitions(config_builder)

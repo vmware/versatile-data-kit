@@ -113,18 +113,19 @@ class IngesterBase(IIngester):
             specify which plugin is to be used by default for ingestion.
         :param target: Optional[string]
             (Optional) Used to identify where the data should be ingested into.
-                Specifies a data source and its destination database.
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+                The value for this parameter depends on the ingest method chosen.
+                For "http" method, it would require an HTTP URL.
+                    Example: http://example.com/<some>/<api>/<endpoint>
+                For "file" method, it would require a file name or path.
+
+                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
             This parameter does not need to be used, in case the
             `INGEST_TARGET_DEFAULT` environment variable is set. This can be made by
             plugins, which may set default value, or it can be overwritten by users.
         :param collection_id: Optional[string]
             (Optional) An identifier to indicate that data from different method
             invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the
-            same collection.
+            meaning all method invocations from a data job run will belong to the same collection.
         """
         self.__verify_payload_format(payload_dict=payload)
 
@@ -185,18 +186,19 @@ class IngesterBase(IIngester):
             specify which plugin is to be used by default for ingestion.
         :param target: Optional[string]
             (Optional) Used to identify where the data should be ingested into.
-                Specifies a data source and its destination database.
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+                The value for this parameter depends on the ingest method chosen.
+                For "http" method, it would require an HTTP URL.
+                    Example: http://example.com/<some>/<api>/<endpoint>
+                For "file" method, it would require a file name or path.
+
+                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
             This parameter does not need to be used, in case the
             `INGEST_TARGET_DEFAULT` environment variable is set. This can be made by
             plugins, which may set default value, or it can be overwritten by users.
         :param collection_id: Optional[string]
             (Optional) An identifier to indicate that data from different method
             invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the
-            same collection.
+            meaning all method invocations from a data job run will belong to the same collection.
         """
         if len(column_names) == 0 and destination_table is None:
             errors.log_and_throw(
@@ -280,16 +282,17 @@ class IngesterBase(IIngester):
                     method="http" -> ingest using HTTP POST requests
                     method="kafka" -> ingest to kafka endpoint
         :param target: string
-            Used to identify where the data should be ingested into. Specifies
-                a data source and its destination database.
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+            Used to identify where the data should be ingested into.
+                The value for this parameter depends on the ingest method chosen.
+                For "http" method, it would require an HTTP URL.
+                    Example: http://example.com/<some>/<api>/<endpoint>
+                For "file" method, it would require a file name or path.
+
+                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
         :param collection_id: string
             (Optional) An identifier to indicate that data from different method
             invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the
-            same collection.
+            meaning all method invocations from a data job run will belong to the same collection.
         """
         self._objects_queue.put(
             (payload_dict, destination_table, method, target, collection_id)
@@ -420,11 +423,13 @@ class IngesterBase(IIngester):
             meaning all method invocations from a data job run will belong to the
             same collection.
         :param target: string
-            Used to identify where the data should be ingested into. Specifies
-                a data source and its destination database.
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+            Used to identify where the data should be ingested into.
+                The value for this parameter depends on the ingest method chosen.
+                For "http" method, it would require an HTTP URL.
+                    Example: http://example.com/<some>/<api>/<endpoint>
+                For "file" method, it would require a file name or path.
+
+                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
         """
         if aggregated_payload:
             try:
