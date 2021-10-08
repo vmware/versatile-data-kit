@@ -29,7 +29,7 @@ class ControlServicePropertiesServiceClient(IPropertiesServiceClient):
 
     def read_properties(self, job_name: str, team_name: str):
         data = self.__properties_api.data_job_properties_read(
-            team_name=team_name, job_name=job_name, deployment_id="todo"
+            team_name=team_name, job_name=job_name, deployment_id="TODO"
         )
         return data
 
@@ -37,6 +37,6 @@ class ControlServicePropertiesServiceClient(IPropertiesServiceClient):
         self.__properties_api.data_job_properties_update(
             team_name=team_name,
             job_name=job_name,
-            deployment_id="todo",
+            deployment_id="TODO",
             request_body=properties,
         )

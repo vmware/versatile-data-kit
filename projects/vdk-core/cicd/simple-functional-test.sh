@@ -12,6 +12,8 @@
 echo "Very simple functional/sanity test."
 echo "It just runs the tested commands and expect they will not fail"
 
+export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
+
 
 start=$SECONDS
 
