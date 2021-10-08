@@ -3,7 +3,10 @@
 import configparser
 import pathlib
 from enum import Enum
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Mapping
 
 from vdk.internal.core.config import convert_value_to_type_of_default_type
 
@@ -85,6 +88,12 @@ class JobConfig:
         The default database type used by the job (IMPALA, PRESTO)
         """
         return self._get_value("job", JobConfigKeys.DB_DEFAULT_TYPE)
+
+    def get_vdk_options(self) -> Dict[str, str]:
+        if self._config_ini.has_section("vdk"):
+            return dict(self._config_ini["vdk"])
+        else:
+            return {}
 
     def _get_value(self, section, key):
         if self._config_ini.has_option(section, key):
