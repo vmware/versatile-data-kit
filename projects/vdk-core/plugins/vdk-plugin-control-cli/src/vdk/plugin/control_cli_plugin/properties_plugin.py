@@ -8,7 +8,11 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.control.auth.auth import Authentication
 from vdk.internal.control.auth.login_types import LoginTypes
+from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.plugin.control_cli_plugin.control_service_configuration import (
+    ControlServiceConfiguration,
+)
 from vdk.plugin.control_cli_plugin.control_service_properties import Authenticator
 from vdk.plugin.control_cli_plugin.control_service_properties import (
     ControlPlanePropertiesServiceClient,
@@ -91,7 +95,17 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
 
 @hookimpl
 def initialize_job(context: JobContext) -> None:
-
-    context.properties.set_properties_factory_method(
-        "default", lambda: ControlServicePropertiesServiceClient(url)
-    )
+    conf = ControlServiceConfiguration(context.core_context.configuration)
+    url = conf.control_service_rest_api_url()
+    if url:
+        log.info("Initialize Control Service based Properties client implementation.")
+        context.properties.set_properties_factory_method(
+            "default", lambda: ControlServicePropertiesServiceClient(url)
+        )
+        context.properties.set_properties_factory_method(
+            "control-service", lambda: ControlServicePropertiesServiceClient(url)
+        )
+    else:
+        log.info(
+            "Control Service REST API URL is not configured. Will not initialize Control Service based Properties client implementation."
+        )
