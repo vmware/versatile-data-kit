@@ -26,6 +26,6 @@ If applicable, add screenshots to help explain your problem.
 **Version  (please complete the following information):**
  - OS: [e.g. Windows]
  - Version (e.g print output of `vdk version`)
- 
+
 **Additional context**
 Add any other context about the problem here.
