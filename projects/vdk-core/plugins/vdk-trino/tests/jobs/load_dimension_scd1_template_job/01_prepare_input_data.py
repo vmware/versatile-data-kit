@@ -49,6 +49,7 @@ def run(job_input: IJobInput) -> None:
                DROP TABLE IF EXISTS "{source_schema}"."{source_view}"
            """
     )
+
     job_input.execute_query(
         f"""
             CREATE TABLE IF NOT EXISTS "{source_schema}"."{source_view}" (
