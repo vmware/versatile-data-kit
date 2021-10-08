@@ -225,7 +225,7 @@ control_service_release:
     - apk --no-cache add bash openssl curl git
     - export TAG=$(git rev-parse --short HEAD)
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
-    - echo "$(cat version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID" > version.txt
+    - echo "$(cat version.txt).$CI_PIPELINE_ID" > version.txt
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - helm plugin install https://github.com/chartmuseum/helm-push --version 0.10.0
     - helm plugin install https://github.com/thynquest/helm-pack --version 0.2.2
@@ -234,7 +234,6 @@ control_service_release:
   retry: !reference [.control_service_retry, retry_options]
   only:
     refs:
-      - external_pull_requests
       - main
     changes: *control_service_change_locations
 

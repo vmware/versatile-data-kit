@@ -191,8 +191,7 @@ helm uninstall taurus-data-pipelines
 #### Control Service and Helm Chart
 
 New releases of the Versatile Data Kit Control Service are done automatically on each PR merge. As part of the PR, make sure to do the following:
-* If necessary, update the version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org.
-  Do this only when a change to the MAJOR or MINOR version is required. PATCH version is generated automatically and the one in the file will be ignored.
+* If necessary, update the version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org, but only the MAJOR and MINOR components are specified. The PATCH component is generated automatically during release.
 * Check if [CHANGELOG.md](CHANGELOG.md) needs to be updated. New entries should include <MAJOR>.<MINOR> - <dd>.<MM>.<yyyy> as a heading.
 * Post review and merge to main.
 * The CI/CD automatically triggers the new release so only monitor the CI/CD pipeline.
