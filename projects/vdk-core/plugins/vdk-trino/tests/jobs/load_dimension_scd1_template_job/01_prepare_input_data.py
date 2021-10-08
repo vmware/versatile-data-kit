@@ -12,15 +12,19 @@ def run(job_input: IJobInput) -> None:
     source_schema = job_input.get_arguments().get("source_schema")
     source_view = job_input.get_arguments().get("source_view")
 
+    source_composite_name = f'"{source_schema}"."{source_view}"'
+    target_composite_name = f'"{target_schema}"."{target_table}"'
+    source_data_composite_name = f'"{source_schema}"."{source_view}_data"'
+
     # Step 1: create a new table that represents the current state
     job_input.execute_query(
         f"""
-            DROP TABLE IF EXISTS "{target_schema}"."{target_table}"
+            DROP TABLE IF EXISTS {target_composite_name}
         """
     )
     job_input.execute_query(
         f"""
-            CREATE TABLE IF NOT EXISTS "{target_schema}"."{target_table}" (
+            CREATE TABLE IF NOT EXISTS {target_composite_name} (
               org_id INT,
               org_name VARCHAR,
               org_type VARCHAR,
@@ -32,7 +36,7 @@ def run(job_input: IJobInput) -> None:
     )
     job_input.execute_query(
         f"""
-            INSERT INTO "{target_schema}"."{target_table}" VALUES
+            INSERT INTO {target_composite_name} VALUES
               (2, 'johnlocke@vmware.com'     , 'CUSTOMER_POC'       , 'VMware'           , 1, 6 ),
               (3, 'lilly.johnsonn@goofys.com', 'CUSTOMER'           , 'Goofy''s'          , 2, 16),
               (4, 'jilliandoe@uncanny.ca'    , 'PARTNER_SISO'       , 'Uncanny Company'  , 2, 16),
@@ -46,13 +50,13 @@ def run(job_input: IJobInput) -> None:
     # Step 2: create a new table that represents the next state
     job_input.execute_query(
         f"""
-               DROP TABLE IF EXISTS "{source_schema}"."{source_view}"
+               DROP TABLE IF EXISTS {source_composite_name}
            """
     )
 
     job_input.execute_query(
         f"""
-            CREATE TABLE IF NOT EXISTS "{source_schema}"."{source_view}" (
+            CREATE TABLE IF NOT EXISTS {source_data_composite_name} (
               org_id INT,
               org_name VARCHAR,
               org_type VARCHAR,
@@ -64,7 +68,7 @@ def run(job_input: IJobInput) -> None:
     )
     job_input.execute_query(
         f"""
-            INSERT INTO "{source_schema}"."{source_view}" VALUES
+            INSERT INTO {source_data_composite_name} VALUES
               (1, 'mullen@actual.com'        , 'CUSTOMER_MSP_TENANT', 'actual Master Org', 2, 32),
               (2, 'johnlocke@vmware.com'     , 'CUSTOMER_POC'       , 'VMware'           , 1, 6 ),
               (3, 'lilly.johnsonn@goofys.com', 'CUSTOMER'           , 'Goofy''s'          , 2, 32),
@@ -73,5 +77,17 @@ def run(job_input: IJobInput) -> None:
               (6, 'john.doe@pharmamed.com'   , 'CUSTOMER'           , 'PharmaMed'        , 2, 32),
               (7, 'andrej.maya@acme.com'     , 'PARTNER_SISO'       , 'ACME'             , 2, 32),
               (8, 'guang@vmware.com'         , 'INTERNAL_CORE'      , 'VMware'           , 2, 32)
+        """
+    )
+
+    job_input.execute_query(
+        f"""
+            DROP VIEW IF EXISTS {source_composite_name}
+        """
+    )
+
+    job_input.execute_query(
+        f"""
+            CREATE VIEW {source_composite_name} AS (SELECT * FROM {source_data_composite_name})
         """
     )
