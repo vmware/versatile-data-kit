@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **What is the feature request? What problem does it solve?**
-A clear and concise description of what the problem is.
+A clear and concise description of what problem needs to be solved.
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
