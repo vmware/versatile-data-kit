@@ -226,7 +226,7 @@ control_service_release:
     - export IMAGE_TAG=$(git rev-parse --short HEAD)
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - export CHART_NAME=pipelines-control-service
-    - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt).$CI_PIPELINE_ID"
+    - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - helm plugin install https://github.com/chartmuseum/helm-push --version 0.10.0
     - helm plugin install https://github.com/thynquest/helm-pack --version 0.2.2
@@ -250,7 +250,7 @@ control_service_vdk_heartbeat_release:
   stage: release
   script:
     - export CHART_NAME=pipelines-control-service
-    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt).$CI_PIPELINE_ID
+    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID
     - export VDK_HEARTBEAT_TEST_NAME=$CHART_NAME-integration-tests:$CHART_VERSION
     - export VDK_HEARTBEAT_IMAGE_NAME="$VDK_DOCKER_REGISTRY_URL/$VDK_HEARTBEAT_TEST_NAME"
     - docker login $VDK_DOCKER_REGISTRY_URL --username $VDK_DOCKER_REGISTRY_USERNAME --password $VDK_DOCKER_REGISTRY_PASSWORD
