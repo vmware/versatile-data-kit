@@ -109,7 +109,7 @@ class VDKConfig:
         )
 
     @property
-    def get_sample_job_directory(self) -> str:
+    def sample_job_directory(self) -> str:
         sample_job_dir = os.getenv("VDK_CONTROL_SAMPLE_JOB_DIRECTORY", None)
         if not sample_job_dir:
             import vdk.internal.control.job.sample_job
