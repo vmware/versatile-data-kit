@@ -28,4 +28,4 @@ If applicable, add screenshots to help explain your problem.
  - Version (e.g print output of `vdk version`)
 
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the problem here. Consider attaching logs if there are any.
