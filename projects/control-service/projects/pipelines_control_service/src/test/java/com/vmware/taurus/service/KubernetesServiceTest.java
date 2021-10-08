@@ -83,7 +83,7 @@ public class KubernetesServiceTest {
       Assertions.assertNull(actualJobExecution.getResourcesMemoryLimit());
       Assertions.assertNull(actualJobExecution.getStartTime());
       Assertions.assertNull(actualJobExecution.getEndTime());
-      Assertions.assertEquals(KubernetesService.JobExecution.Status.RUNNING, actualJobExecution.getStatus());
+      Assertions.assertNull(actualJobExecution.getSucceeded());
    }
 
    @Test
@@ -149,7 +149,7 @@ public class KubernetesServiceTest {
       Assertions.assertEquals(memoryLimit, actualJobExecution.getResourcesMemoryLimit());
       Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(startTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getStartTime());
       Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(endTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getEndTime());
-      Assertions.assertEquals(KubernetesService.JobExecution.Status.FINISHED, actualJobExecution.getStatus());
+      Assertions.assertTrue(actualJobExecution.getSucceeded());
    }
 
     // Note that we are testing private functionality and mocking the surrounding methods

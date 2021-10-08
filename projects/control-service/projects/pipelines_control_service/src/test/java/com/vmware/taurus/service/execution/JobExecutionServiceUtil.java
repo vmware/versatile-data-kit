@@ -47,8 +47,4 @@ public class JobExecutionServiceUtil {
       Assertions.assertEquals(expectedDataJobExecution.getResourcesMemoryRequest(), actualDeploymentResources.getMemoryRequest());
       Assertions.assertEquals(expectedDataJobExecution.getResourcesMemoryLimit(), actualDeploymentResources.getMemoryLimit());
    }
-
-   public static String buildStartedBy(String startedBy) {
-      return "manual/" + startedBy;
-   }
 }

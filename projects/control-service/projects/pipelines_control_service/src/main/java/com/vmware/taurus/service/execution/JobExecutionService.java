@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.execution;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -49,6 +48,8 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobEnvVar;
+import com.vmware.taurus.service.model.ExecutionTerminationMessage;
+import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 
 
 /**
@@ -89,7 +90,7 @@ public class JobExecutionService {
       JobDeploymentStatus jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase())
             .orElseThrow(() -> new DataJobDeploymentNotFoundException(jobName));
 
-      String executionId = getExecutionId(JobImageDeployer.getCronJobName(jobName));
+      String executionId = JobExecutionUtil.getExecutionId(JobImageDeployer.getCronJobName(jobName));
 
       try {
          if (dataJobsKubernetesService.isRunningJob(jobName)) {
@@ -103,8 +104,7 @@ public class JobExecutionService {
          String startedBy = StringUtils.isNotBlank(jobExecutionRequest.getStartedBy()) ?
                jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser() :
                operationContext.getUser();
-         String startedByBuilt = buildStartedByAnnotationValue(ExecutionType.MANUAL, startedBy);
-         annotations.put(JobAnnotation.STARTED_BY.getValue(), startedByBuilt);
+         annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
          annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), ExecutionType.MANUAL.getValue());
 
          Map<String, String> envs = new LinkedHashMap<>();
@@ -126,7 +126,7 @@ public class JobExecutionService {
                opId,
                com.vmware.taurus.service.model.ExecutionType.MANUAL,
                ExecutionStatus.SUBMITTED,
-               startedByBuilt,
+               startedBy,
                OffsetDateTime.now());
 
          return executionId;
@@ -228,7 +228,12 @@ public class JobExecutionService {
             .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
    }
 
-   public void updateJobExecution(final DataJob dataJob, final KubernetesService.JobExecution jobExecution) {
+   public void updateJobExecution(
+         final DataJob dataJob,
+         final KubernetesService.JobExecution jobExecution,
+         ExecutionStatus executionStatus,
+         final ExecutionTerminationMessage terminationMessage) {
+
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
          return;
@@ -236,14 +241,15 @@ public class JobExecutionService {
 
       final Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
               jobExecutionRepository.findById(jobExecution.getExecutionId());
-      final ExecutionStatus status = getJobExecutionStatus(jobExecution);
+      executionStatus = JobExecutionUtil.updateExecutionStatusBasedOnTerminationStatus(executionStatus, terminationMessage.getTerminationStatus());
+
       //This set contains all the statuses that should not be changed to something else if present in the DB.
       //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
       var finalStatusSet = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
                                                  ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
 
       if (dataJobExecutionPersistedOptional.isPresent() &&
-              (dataJobExecutionPersistedOptional.get().getStatus() == status ||
+              (dataJobExecutionPersistedOptional.get().getStatus() == executionStatus ||
                       finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
          return;
       }
@@ -263,12 +269,12 @@ public class JobExecutionService {
                                       com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
-              .status(status)
-              .message(getJobExecutionApiMessage(status, jobExecution))
+              .status(executionStatus)
+              .message(getJobExecutionApiMessage(executionStatus, terminationMessage.getTerminationStatus()))
               .opId(jobExecution.getOpId())
               .startTime(jobExecution.getStartTime())
               .endTime(jobExecution.getEndTime())
-              .vdkVersion("") // TODO [miroslavi] VDK version should come from the termination message
+              .vdkVersion(terminationMessage.getVdkVersion())
               .jobVersion(jobExecution.getJobVersion())
               .jobSchedule(jobExecution.getJobSchedule())
               .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
@@ -347,12 +353,12 @@ public class JobExecutionService {
       }
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, KubernetesService.JobExecution jobExecution) {
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, ExecutionTerminationStatus terminationStatus) {
       switch (executionStatus) {
          case SKIPPED:
             return "Skipping job execution due to another parallel running execution.";
          default:
-            return jobExecution.getTerminationMessage();
+            return terminationStatus.getString();
       }
    }
 
@@ -376,64 +382,5 @@ public class JobExecutionService {
             .build();
 
       jobExecutionRepository.save(dataJobExecution);
-   }
-
-   private static String getExecutionId(String jobName) {
-      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
-   }
-
-   private static String buildStartedByAnnotationValue(ExecutionType executionType, String startedBy) {
-      return executionType.getValue() + "/" + startedBy;
-   }
-
-   public static ExecutionStatus getJobExecutionStatus(KubernetesService.JobExecution jobExecution) {
-
-      if (isJobExecutionSkipped(jobExecution)) {
-         return ExecutionStatus.SKIPPED;
-      } else if (isJobExecutionFailed(jobExecution)) {
-         return ExecutionStatus.FAILED;
-      }
-
-      var jobStatus = jobExecution.getStatus();
-      switch (jobStatus) {
-         case RUNNING:
-            return ExecutionStatus.RUNNING;
-         case FAILED:
-            return ExecutionStatus.FAILED;
-         case FINISHED:
-            return ExecutionStatus.FINISHED;
-         case SKIPPED:
-            return ExecutionStatus.SKIPPED;
-         case CANCELLED:
-            return ExecutionStatus.CANCELLED;
-         default:
-            log.warn("Unexpected job status: '" + jobStatus + "' in JobExecutionStatus.Status.");
-            return null;
-      }
-   }
-
-   /**
-    * This is a helper method used to determine if a data job execution's status should be changed to SKIPPED.
-    *
-    * @param jobExecution
-    * @return
-    */
-   private static boolean isJobExecutionSkipped(KubernetesService.JobExecution jobExecution) {
-      return jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.SKIPPED);
-   }
-
-   /**
-    * This is a helper method used to determine if a data job execution's status should be changed to FAILED.
-    *
-    * @param jobExecution
-    * @return
-    */
-   private static boolean isJobExecutionFailed(KubernetesService.JobExecution jobExecution) {
-      return jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.USER_ERROR) ||
-            jobExecutionEquals(jobExecution, KubernetesService.PodTerminationMessage.PLATFORM_ERROR);
-   }
-
-   private static boolean jobExecutionEquals(KubernetesService.JobExecution jobExecution, KubernetesService.PodTerminationMessage podTerminationMessage) {
-      return podTerminationMessage.getValue().equals(StringUtils.trim(jobExecution.getTerminationMessage()));
    }
 }
