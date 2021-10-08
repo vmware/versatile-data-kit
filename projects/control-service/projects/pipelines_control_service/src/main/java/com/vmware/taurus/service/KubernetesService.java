@@ -172,7 +172,7 @@ public abstract class KubernetesService implements InitializingBean {
         String executionType;
         String jobName;
         String terminationMessage;
-        Status status;
+        Boolean succeeded;
         String opId;
         OffsetDateTime startTime;
         OffsetDateTime endTime;
@@ -184,27 +184,12 @@ public abstract class KubernetesService implements InitializingBean {
         Integer resourcesMemoryLimit;
         OffsetDateTime deployedDate;
         String deployedBy;
-
-        public enum Status {
-            RUNNING, FAILED, FINISHED, SKIPPED, CANCELLED;
-        }
     }
 
     @AllArgsConstructor
     private enum ContainerResourceType {
         CPU("cpu"),
         MEMORY("memory");
-
-        @Getter
-        private final String value;
-    }
-
-    @AllArgsConstructor
-    public enum PodTerminationMessage {
-        SUCCESS("Success"),
-        PLATFORM_ERROR("Platform error"),
-        USER_ERROR("User error"),
-        SKIPPED("Skipped");
 
         @Getter
         private final String value;
@@ -856,9 +841,9 @@ public abstract class KubernetesService implements InitializingBean {
             //   - Pod failed to pull one of its images
             //   - Pod was killed in flight due to exceeding its allowed memory (this should be eventually classified
             //     as user error)
-            jobExecutionStatusBuilder.terminationMessage(
-                  lastTerminatedPodState.map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
-                        .orElse(PodTerminationMessage.PLATFORM_ERROR.getValue()));
+            lastTerminatedPodState
+                  .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
+                  .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
         }
         // Job resources
         Optional<V1Container> containerOptional = Optional.ofNullable(job.getSpec())
@@ -964,11 +949,10 @@ public abstract class KubernetesService implements InitializingBean {
                     .orElse(null));
 
         // jobCondition = null means that the Data Job is still running
-        jobExecutionStatusBuilder.status(
+        jobExecutionStatusBuilder.succeeded(
               Optional.ofNullable(jobStatusCondition)
                     .map(JobStatusCondition::isSuccess)
-                    .map(success -> success ? JobExecution.Status.FINISHED : JobExecution.Status.FAILED)
-                    .orElse(JobExecution.Status.RUNNING));
+                    .orElse(null));
 
         return Optional.of(jobExecutionStatusBuilder.build());
     }

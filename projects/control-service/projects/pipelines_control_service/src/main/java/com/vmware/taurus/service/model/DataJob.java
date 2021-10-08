@@ -29,7 +29,8 @@ public class DataJob {
    private DeploymentStatus latestJobDeploymentStatus;
 
    @Column(name = "latest_job_termination_status")
-   private TerminationStatus latestJobTerminationStatus;
+   @Convert(converter = ExecutionTerminationStatusConverter.class)
+   private ExecutionTerminationStatus latestJobTerminationStatus;
 
    @Column(name = "latest_job_execution_id")
    private String latestJobExecutionId;
@@ -46,14 +47,14 @@ public class DataJob {
       this.name = name;
       this.jobConfig = jobConfig;
       this.latestJobDeploymentStatus = DeploymentStatus.NONE;
-      this.latestJobTerminationStatus = TerminationStatus.NONE;
+      this.latestJobTerminationStatus = ExecutionTerminationStatus.NONE;
    }
 
    public DataJob(String name, JobConfig jobConfig, DeploymentStatus deploymentStatus) {
-      this(name, jobConfig, deploymentStatus, TerminationStatus.NONE, null, null);
+      this(name, jobConfig, deploymentStatus, ExecutionTerminationStatus.NONE, null, null);
    }
 
-   public DataJob(String name, JobConfig jobConfig, DeploymentStatus deploymentStatus, TerminationStatus terminationStatus, String latestJobExecutionId) {
+   public DataJob(String name, JobConfig jobConfig, DeploymentStatus deploymentStatus, ExecutionTerminationStatus terminationStatus, String latestJobExecutionId) {
       this(name, jobConfig, deploymentStatus, terminationStatus, latestJobExecutionId, null);
    }
 }

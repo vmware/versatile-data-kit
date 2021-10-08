@@ -29,8 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.vmware.taurus.service.execution.JobExecutionServiceUtil.buildStartedBy;
-
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionServiceStartExecutionIT {
 
@@ -103,7 +101,7 @@ public class JobExecutionServiceStartExecutionIT {
 
       final Map<String, String> annotations = new LinkedHashMap<>();
       annotations.put(JobAnnotation.OP_ID.getValue(), opId);
-      annotations.put(JobAnnotation.STARTED_BY.getValue(), buildStartedBy(startedBy));
+      annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
       annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), JobExecutionService.ExecutionType.MANUAL.getValue());
 
       Map<String, String> envs = Map.of(JobEnvVar.VDK_OP_ID.getValue(), opId);
@@ -123,6 +121,6 @@ public class JobExecutionServiceStartExecutionIT {
       Assertions.assertEquals(ExecutionStatus.SUBMITTED, actualDataJobExecution.getStatus());
       Assertions.assertEquals(ExecutionType.MANUAL, actualDataJobExecution.getType());
       Assertions.assertEquals(opId, actualDataJobExecution.getOpId());
-      Assertions.assertEquals(buildStartedBy(startedBy), actualDataJobExecution.getStartedBy());
+      Assertions.assertEquals(startedBy, actualDataJobExecution.getStartedBy());
    }
 }
