@@ -33,7 +33,7 @@ class PropertiesRouter(IPropertiesRegistry):
         self.__properties_builders = {}
         self.__cached_properties_impl = None
         self.__job_name = job_name
-        self.__team_name = cfg.get_value(JobConfigKeys.TEAM)
+        self.__team_name = cfg.get_value(JobConfigKeys.TEAM.value)
         self.__config = PropertiesConfiguration(cfg)
 
     @LogDecorator(log)

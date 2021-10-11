@@ -51,7 +51,7 @@ def _notify(error_overall, user_error, configuration, state):
 
     if not error_overall:
         recipients = __get_list(
-            configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS)
+            configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value)
         )
         if recipients:
             subject, body = notification_base.SuccessEmailNotificationMessageBuilder(
@@ -68,7 +68,9 @@ def _notify(error_overall, user_error, configuration, state):
 
     if user_error:
         recipients = __get_list(
-            configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR)
+            configuration.get_value(
+                JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value
+            )
         )
         if recipients:
             subject, body = notification_base.UserErrorEmailNotificationMessageBuilder(
@@ -84,7 +86,9 @@ def _notify(error_overall, user_error, configuration, state):
         return
 
     recipients = __get_list(
-        configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR)
+        configuration.get_value(
+            JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR.value
+        )
     )
 
     if recipients:
@@ -109,7 +113,9 @@ class NotificationPlugin:
 
     @hookimpl
     def vdk_exit(self, context: CoreContext, exit_code: int):
-        if context.configuration.get_value(JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS):
+        if context.configuration.get_value(
+            JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value
+        ):
             _notify(
                 errors.get_blamee_overall(),  # TODO: get this from context
                 errors.get_blamee_overall_user_error(),  # TODO: get this from context
