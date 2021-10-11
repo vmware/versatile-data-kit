@@ -56,7 +56,7 @@ def test_routing_choose_single_registered():
 
 def test_routing_choose_default_type_chosen():
     router = PropertiesRouter(
-        "foo", Configuration({}, {"PROPERTIES_DEFAULT_TYPE": "foo"})
+        "foo", Configuration({}, {"properties_default_type": "foo"})
     )
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar_mock_client = MagicMock(spec=IPropertiesServiceClient)

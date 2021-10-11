@@ -35,7 +35,7 @@ def test_cli_config_help():
     # print(result.output)
     assert "test provider" in result.output
     assert "test provider description" in result.output
-    assert "TEST_VARIABLE_KEY" in result.output
+    assert "test_variable_key" in result.output
     assert "var description" in result.output
     assert "to-be-shown-default-value" in result.output
     assert "key_bool" in result.output

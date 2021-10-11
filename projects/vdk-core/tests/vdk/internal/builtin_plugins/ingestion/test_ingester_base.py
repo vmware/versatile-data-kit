@@ -17,12 +17,12 @@ from vdk.internal.core.config import Configuration
 
 def create_ingester_base() -> IngesterBase:
     config_key_value_pairs = {
-        "INGESTER_NUMBER_OF_WORKER_THREADS": 1,
-        "INGESTER_PAYLOAD_SIZE_BYTES_THRESHOLD": 100,
-        "INGESTER_OBJECTS_QUEUE_SIZE": 1,
-        "INGESTER_PAYLOADS_QUEUE_SIZE": 1,
-        "INGESTER_LOG_UPLOAD_ERRORS": False,
-        "INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS": 2,
+        "ingester_number_of_worker_threads": 1,
+        "ingester_payload_size_bytes_threshold": 100,
+        "ingester_objects_queue_size": 1,
+        "ingester_payloads_queue_size": 1,
+        "ingester_log_upload_errors": False,
+        "ingestion_payload_aggregator_timeout_seconds": 2,
     }
     test_config = Configuration(None, config_key_value_pairs, {})
 

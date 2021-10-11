@@ -14,12 +14,12 @@ from vdk.internal.core.statestore import StateStore
 
 def create_ingester_router(configs) -> IngesterRouter:
     config_key_value_pairs = {
-        "INGESTER_NUMBER_OF_WORKER_THREADS": 1,
-        "INGESTER_PAYLOAD_SIZE_BYTES_THRESHOLD": 100,
-        "INGESTER_OBJECTS_QUEUE_SIZE": 1,
-        "INGESTER_PAYLOADS_QUEUE_SIZE": 1,
-        "INGESTER_LOG_UPLOAD_ERRORS": False,
-        "INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS": 2,
+        "ingester_number_of_worker_threads": 1,
+        "ingester_payload_size_bytes_threshold": 100,
+        "ingester_objects_queue_size": 1,
+        "ingester_payloads_queue_size": 1,
+        "ingester_log_upload_errors": False,
+        "ingestion_payload_aggregator_timeout_seconds": 2,
     }
     config_key_value_pairs.update(configs)
     test_config = Configuration({}, config_key_value_pairs, {})
@@ -29,7 +29,7 @@ def create_ingester_router(configs) -> IngesterRouter:
 
 @patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
 def test_router_send_object_for_ingestion(mock_ingester_base: MagicMock):
-    router = create_ingester_router({"INGEST_METHOD_DEFAULT": "test"})
+    router = create_ingester_router({"ingest_method_default": "test"})
     router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
 
     router.send_object_for_ingestion({"a": "b"})
@@ -53,7 +53,7 @@ def test_router_send_object_for_ingestion_no_default_method(
 
 @patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
 def test_router_send_tabular_data_for_ingestion(mock_ingester_base: MagicMock):
-    router = create_ingester_router({"INGEST_METHOD_DEFAULT": "test"})
+    router = create_ingester_router({"ingest_method_default": "test"})
     router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
 
     router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
