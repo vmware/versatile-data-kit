@@ -63,9 +63,6 @@ control_service_build_image:
       - external_pull_requests
       - main
     changes: *control_service_change_locations
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_integration_test:
   extends: .control_service_base_build
@@ -226,17 +223,20 @@ control_service_release:
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
+    - export IMAGE_TAG=$(git rev-parse --short HEAD)
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - export CHART_NAME=pipelines-control-service
+    - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-    - helm plugin install https://github.com/chartmuseum/helm-push
+    - helm plugin install https://github.com/chartmuseum/helm-push --version 0.10.0
+    - helm plugin install https://github.com/thynquest/helm-pack --version 0.2.2
     - cd projects/control-service/projects/helm_charts
     - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   only:
     refs:
       - main
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+    changes: *control_service_change_locations
 
 control_service_vdk_heartbeat_release:
   image: docker:19.03.8
@@ -249,7 +249,7 @@ control_service_vdk_heartbeat_release:
   stage: release
   script:
     - export CHART_NAME=pipelines-control-service
-    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt)
+    - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID
     - export VDK_HEARTBEAT_TEST_NAME=$CHART_NAME-integration-tests:$CHART_VERSION
     - export VDK_HEARTBEAT_IMAGE_NAME="$VDK_DOCKER_REGISTRY_URL/$VDK_HEARTBEAT_TEST_NAME"
     - docker login $VDK_DOCKER_REGISTRY_URL --username $VDK_DOCKER_REGISTRY_USERNAME --password $VDK_DOCKER_REGISTRY_PASSWORD
@@ -260,5 +260,4 @@ control_service_vdk_heartbeat_release:
   only:
     refs:
       - main
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+    changes: *control_service_change_locations

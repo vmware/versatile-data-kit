@@ -190,12 +190,10 @@ helm uninstall taurus-data-pipelines
 
 #### Control Service and Helm Chart
 
-In order to make new release of Versatile Data Kit Control Service:
-* Update version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org
-* Make sure image.tag (in [values.yaml](projects/helm_charts/pipelines-control-service/values.yaml)) is updated accordingly
-  * look at the latest successful CICD Pipeline on [main](https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines?page=1&scope=all&ref=main) - get tag from logs of [stage pre_release](cicd/.gitlab-ci.yml) and ci job control_service_deploy_testing_data_pipelines. This job is a part of the pre_release pipeline. The new tag string should contain the short git commit hash of the last commit that changed the control-service.
-* Check if [CHANGELOG.md](CHANGELOG.md) needs to be updated.
-* Post review and merge to main. The release commit should not have other changes except those above.
-* CICD automatically triggers new release on each update of the version.txt file - so only monitor CICD pipeline.
+New releases of the Versatile Data Kit Control Service are done automatically on each PR merge. As part of the PR, make sure to do the following:
+* If necessary, update the version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org, but only the MAJOR and MINOR components are specified. The PATCH component is generated automatically during release.
+* Check if [CHANGELOG.md](CHANGELOG.md) needs to be updated. New entries should include <MAJOR>.<MINOR> - <dd>.<MM>.<yyyy> as a heading.
+* Post review and merge to main.
+* The CI/CD automatically triggers the new release so only monitor the CI/CD pipeline.
     * https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines
     * Once released it will be uploaded in Helm repo: https://gitlab.com/api/v4/projects/28814611/packages/helm/stable
