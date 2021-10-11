@@ -7,13 +7,15 @@ package com.vmware.taurus.service.monitoring;
 
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.KubernetesService.PodTerminationMessage;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionService;
+import com.vmware.taurus.service.execution.JobExecutionUtil;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobLabel;
-import com.vmware.taurus.service.model.TerminationStatus;
+import com.vmware.taurus.service.model.ExecutionTerminationMessage;
+import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.ApiException;
 import io.micrometer.core.instrument.Gauge;
@@ -112,22 +114,6 @@ public class DataJobStatusMonitor {
         }
     }
 
-    public static TerminationStatus getTerminationStatus(String terminationMessage) {
-        if (PodTerminationMessage.SUCCESS.getValue().equals(terminationMessage)) {
-            return TerminationStatus.SUCCESS;
-        }
-        if (PodTerminationMessage.PLATFORM_ERROR.getValue().equals(terminationMessage)) {
-            return TerminationStatus.PLATFORM_ERROR;
-        }
-        if (PodTerminationMessage.USER_ERROR.getValue().equals(terminationMessage)) {
-            return TerminationStatus.USER_ERROR;
-        }
-        if (PodTerminationMessage.SKIPPED.getValue().equals(terminationMessage)){
-            return TerminationStatus.SKIPPED;
-        }
-        return TerminationStatus.NONE;
-    }
-
     /**
      * Creates a gauge to expose execution status about the specified data job.
      * If a gauge already exists for the job, it is updated if needed.
@@ -179,7 +165,7 @@ public class DataJobStatusMonitor {
                     statusGauges.put(dataJobName, gauge);
                     log.info("The termination status gauge for data job {} was created", dataJobName);
                 }
-                currentStatuses.put(dataJobName, dataJob.getLatestJobTerminationStatus().getValue());
+                currentStatuses.put(dataJobName, dataJob.getLatestJobTerminationStatus().getInteger());
             });
 
             return true;
@@ -197,7 +183,9 @@ public class DataJobStatusMonitor {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
         String executionId = jobStatus.getExecutionId();
-        var terminationStatus = getTerminationStatus(jobStatus.getTerminationMessage());
+        ExecutionStatus jobExecutionStatus = JobExecutionUtil.getExecutionStatus(jobStatus.getSucceeded());
+        ExecutionTerminationMessage terminationMessage = JobExecutionUtil
+              .getTerminationMessage(jobExecutionStatus, jobStatus.getTerminationMessage());
 
         if (StringUtils.isBlank(dataJobName)) {
             log.warn("Data job name is empty");
@@ -211,9 +199,9 @@ public class DataJobStatusMonitor {
         }
 
         var dataJob = dataJobOptional.get();
-        updateDataJobTerminationStatus(() -> saveTerminationStatus(dataJob, executionId, terminationStatus));
+        updateDataJobTerminationStatus(() -> saveTerminationStatus(dataJob, executionId, terminationMessage.getTerminationStatus()));
 
-        jobExecutionService.updateJobExecution(dataJob, jobStatus);
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, jobExecutionStatus, terminationMessage);
     }
 
     private boolean isChanged(final Gauge gauge, final Tags newTags) {
@@ -233,7 +221,7 @@ public class DataJobStatusMonitor {
      */
     private Gauge createGauge(final String dataJobName, final Tags tags) {
         return Gauge.builder(GAUGE_METRIC_NAME, currentStatuses,
-                map -> map.getOrDefault(dataJobName, TerminationStatus.NONE.getValue()))
+                map -> map.getOrDefault(dataJobName, ExecutionTerminationStatus.NONE.getInteger()))
                 .tags(tags)
                 .description("Termination status of data job executions (0 - Success, 1 - Platform error, 3 - User error)")
                 .register(meterRegistry);
@@ -268,7 +256,7 @@ public class DataJobStatusMonitor {
      * @param terminationStatus The termination status of the job.
      * @return The updated data job, or null, if no job with this name does not exist.
      */
-    private DataJob saveTerminationStatus(DataJob dataJob, String executionId, TerminationStatus terminationStatus) {
+    private DataJob saveTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
         if (dataJob.getLatestJobTerminationStatus() == terminationStatus &&
                 StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
             return dataJob;
