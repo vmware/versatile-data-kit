@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.17 - Next
+MAJOR.MINOR - dd.MM.yyyy
 ----
 * **New feature**
 
@@ -10,40 +10,36 @@ Changelog
 * **Bug Fixes**
 
 * **Breaking Changes**
+
+
+1.3 - 08.10.2021
+----
+* **Improvement**
+  * Switch to a new versioning model where the patch version is automatically generated.
+  * Control Service is now automatically released on every PR merge.
+
 
 1.2.16 - 05.10.2021
 ----
-* **New feature**
-
 * **Improvement**
   * Additional deployment labels are now set using valid YAML instead of a multiline string.
-* **Bug Fixes**
 
-* **Breaking Changes**
 
 1.2.14 - 04.10.2021
 ----
-* **New feature**
-
 * **Improvement**
   * Custom labels can now be supplied to the Control Service deployment during Helm chart installation.
 
 * **Bug Fixes**
   * Fix an error which happens occasionally when listing data jobs or job deployment statuses
 
-* **Breaking Changes**
 
 1.2.13 - 30.09.2021
 ----
-* **New feature**
-
 * **Improvement**
   * Implement a new OAuth2 claim/role-based authorization model, which can work instead or in complement
     of the existing webhook-based authorization.
 
-* **Bug Fixes**
-
-* **Breaking Changes**
 
 1.2.12 - 29.09.2021
 ----
@@ -53,12 +49,13 @@ Changelog
 * **Improvement**
   * The Data Job Execution statuses synchronization takes into account SUBMITTED status.
 
+
 1.2.11 - 27.09.2021
 ----
-
 * **Bug Fixes**
   * Fixed helm chart to give correct permission to read logs
     This would fix Logging API to work and should fix the deployment notification on user error which was not sending notifications
+
 
 1.2.10 - 23.09.2021
 ----
@@ -69,8 +66,6 @@ Changelog
 
 1.2.9 - 21.09.2021
 ----
-* **New feature**
-
 * **Improvement**
   * GraphQL endpoint now does not have limit for fetching data jobs, which was previously 100 jobs per page.
 
@@ -95,7 +90,6 @@ Changelog
 
 1.2.6 - 31.08.2021
 ----
-
 * **New feature**
   * Adding support for forwarding logs of the Control Service Server (only) to syslog server <br>
     Users can now specify environment variable LOGGING_SYS_LOG_HOST and LOGGING_SYS_LOG_PORT to enable forwarding them to syslog.
@@ -103,41 +97,26 @@ Changelog
 
 1.2.5 - 30.08.2021
 ----
-
 * **New feature**
   * implement DELETE Job execution REST API<br>
     Users can now cancel started data job execution in self-service manner using REST API
-
 
 * **Improvement**
   * Switch Job Builder image to use kaniko<br>
     This will enable Control Servie to run in more secure kubernetes (pod security - no privilege run, seccomp/apparmor profiles enabled)
     It will enable to use local docker registry (without ssl) for easier deployment for prototype purposes
 
-* **Bug Fixes**
-
-* **Breaking Changes**
-
 
 1.2.4 - 27.08.2021
 ---
-* **New feature**
-
-* **Improvement**
-
 * **Bug Fixes**
   * Non-accurate control-service image tag fix
   * Data Job deployment fix
     Fixed data jobs deployment failures that emit 'ERROR: restart transaction' due to DeploymentMonitor.recordDeploymentStatus.
 
-* **Breaking Changes**
-
 
 1.2.2 - 19.08.2021
 ----
-
-* **New feature**
-
 * **Improvement**
   * Expose data job base image as configuration
     Data job base image used to run deployed data job can be configured using helm now.
@@ -145,22 +124,13 @@ Changelog
 * **Bug Fixes**
   * Generating javadoc fix
 
-* **Breaking Changes**
-
 
 1.2.1 - 18.08.2021
 ----
-
-* **New feature**
-
 * **Improvement**
   * Make the image registry in the helm chart configurable.
     Configure registry part of docker images used for control-service API, job builder image and VDK distribution image.
     This make it easier to use docker cache proxies.
-
-* **Bug Fixes**
-
-* **Breaking Changes**
 
 
 1.2.0 - 17.08.2021
@@ -192,9 +162,3 @@ Initial release of Control Service in the public VDK Helm repository.
   - GET Sources API implementation
   - Configurable data job template can be provided via Helm
   - Data Job Execution API that allows clients to execute their jobs remotely.
-
-* **Improvement**
-
-* **Bug Fixes**
-
-* **Breaking Changes**
