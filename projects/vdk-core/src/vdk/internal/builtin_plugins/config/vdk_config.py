@@ -175,3 +175,6 @@ Only the following options can be set with config.ini: {[e.value for e in JobCon
                 JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
                 job_config.get_enable_attempt_notifications(),
             )
+
+            for key, value in job_config.get_vdk_options().items():
+                config_builder.set_value(key, value)
