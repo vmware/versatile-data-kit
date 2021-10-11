@@ -79,6 +79,20 @@ class TestJobConfig:
         self.assertEqual(False, cfg.get_enable_attempt_notifications())
         # this is the only important default no need to verify the others.
 
+    def test_vdk_options_empty(self):
+        self.assertEqual({}, self._cfg.get_vdk_options())
+
+    def test_vdk_options(self):
+        self._write_to_config_ini(
+            self._test_dir,
+            """
+            [vdk]
+            a=b
+        """,
+        )
+        cfg = JobConfig(self._test_dir)
+        self.assertEqual({"a": "b"}, cfg.get_vdk_options())
+
     @staticmethod
     def assertEqual(lhs, rhs):
         assert lhs == rhs
