@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.execution;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -48,7 +49,7 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobEnvVar;
-import com.vmware.taurus.service.model.ExecutionTerminationMessage;
+import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 
 
@@ -90,7 +91,7 @@ public class JobExecutionService {
       JobDeploymentStatus jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase())
             .orElseThrow(() -> new DataJobDeploymentNotFoundException(jobName));
 
-      String executionId = JobExecutionUtil.getExecutionId(JobImageDeployer.getCronJobName(jobName));
+      String executionId = getExecutionId(JobImageDeployer.getCronJobName(jobName));
 
       try {
          if (dataJobsKubernetesService.isRunningJob(jobName)) {
@@ -228,11 +229,14 @@ public class JobExecutionService {
             .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
    }
 
+   /**
+    * Updates job execution in database. It does NOT update job execution when the execution status
+    * has not changed or if the status is not in the correct order (e.g. from FINISHED to RUNNING).
+    */
    public void updateJobExecution(
          final DataJob dataJob,
          final KubernetesService.JobExecution jobExecution,
-         ExecutionStatus executionStatus,
-         final ExecutionTerminationMessage terminationMessage) {
+         ExecutionResult executionResult) {
 
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
@@ -241,16 +245,20 @@ public class JobExecutionService {
 
       final Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
               jobExecutionRepository.findById(jobExecution.getExecutionId());
-      executionStatus = JobExecutionUtil.updateExecutionStatusBasedOnTerminationStatus(executionStatus, terminationMessage.getTerminationStatus());
 
       //This set contains all the statuses that should not be changed to something else if present in the DB.
       //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
       var finalStatusSet = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
                                                  ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
+      ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
       if (dataJobExecutionPersistedOptional.isPresent() &&
-              (dataJobExecutionPersistedOptional.get().getStatus() == executionStatus ||
+              (dataJobExecutionPersistedOptional.get().getStatus() == executionResult.getExecutionStatus() ||
                       finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
+         log.debug("The job execution will NOT be updated due to the incorrect status. " +
+               "Execution status to be updated {}. New execution status {}",
+               dataJobExecutionPersistedOptional.get().getStatus(),
+               executionResult.getExecutionStatus());
          return;
       }
 
@@ -270,11 +278,11 @@ public class JobExecutionService {
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
-              .message(getJobExecutionApiMessage(executionStatus, terminationMessage.getTerminationStatus()))
+              .message(getJobExecutionApiMessage(executionStatus, executionResult.getTerminationStatus()))
               .opId(jobExecution.getOpId())
               .startTime(jobExecution.getStartTime())
               .endTime(jobExecution.getEndTime())
-              .vdkVersion(terminationMessage.getVdkVersion())
+              .vdkVersion(executionResult.getVdkVersion())
               .jobVersion(jobExecution.getJobVersion())
               .jobSchedule(jobExecution.getJobSchedule())
               .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
@@ -382,5 +390,9 @@ public class JobExecutionService {
             .build();
 
       jobExecutionRepository.save(dataJobExecution);
+   }
+
+   private static String getExecutionId(String jobName) {
+      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
    }
 }

@@ -9,12 +9,11 @@ import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionService;
-import com.vmware.taurus.service.execution.JobExecutionUtil;
+import com.vmware.taurus.service.execution.JobExecutionResultManager;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobLabel;
-import com.vmware.taurus.service.model.ExecutionTerminationMessage;
+import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.ApiException;
@@ -183,9 +182,7 @@ public class DataJobStatusMonitor {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
         String executionId = jobStatus.getExecutionId();
-        ExecutionStatus jobExecutionStatus = JobExecutionUtil.getExecutionStatus(jobStatus.getSucceeded());
-        ExecutionTerminationMessage terminationMessage = JobExecutionUtil
-              .getTerminationMessage(jobExecutionStatus, jobStatus.getTerminationMessage());
+        ExecutionResult executionResult = JobExecutionResultManager.getResult(jobStatus);
 
         if (StringUtils.isBlank(dataJobName)) {
             log.warn("Data job name is empty");
@@ -199,9 +196,9 @@ public class DataJobStatusMonitor {
         }
 
         var dataJob = dataJobOptional.get();
-        updateDataJobTerminationStatus(() -> saveTerminationStatus(dataJob, executionId, terminationMessage.getTerminationStatus()));
+        updateDataJobTerminationStatus(() -> saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus()));
 
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, jobExecutionStatus, terminationMessage);
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
     }
 
     private boolean isChanged(final Gauge gauge, final Tags newTags) {

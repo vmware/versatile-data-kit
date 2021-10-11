@@ -9,7 +9,7 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService.JobExecution;
-import com.vmware.taurus.service.execution.JobExecutionUtil;
+import com.vmware.taurus.service.execution.JobExecutionResultManager;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
@@ -341,11 +341,7 @@ public class DataJobStatusMonitorTest {
     }
 
     private static ExecutionTerminationStatus getTerminationStatus(JobExecution jobExecution) {
-        return JobExecutionUtil
-              .getTerminationMessage(
-                    JobExecutionUtil.getExecutionStatus(jobExecution.getSucceeded()),
-                    jobExecution.getTerminationMessage())
-              .getTerminationStatus();
+        return JobExecutionResultManager.getResult(jobExecution).getTerminationStatus();
     }
 
     private static JobExecution buildJobExecutionStatus(String jobName, String executionId, String terminationMessage) {
