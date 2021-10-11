@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import json
 import logging
 from typing import List
 
@@ -26,8 +27,34 @@ class EscapeNewlinesAndQuotesFormatter(logging.Formatter):
         self.default_msec_format = "%s.%03dZ"
 
     def format(self, record):
-        record.msg = record.msg.replace("\n", "\\n").replace('"', '\\"')
-        return super().format(record)
+        """
+        This method closely follows the cpython implementation of Formatter.format with some particular differences,
+        namely that any exceptions and any relevant stack trace and appended as part of the message, and that the
+        message has any newlines and double quotes in it escaped.
+        For comparison see here:
+        https://github.com/python/cpython/blob/96cf5a63d2dbadaebf236362b4c7c09c51fda55c/Lib/logging/__init__.py#L668
+        """
+        message = record.getMessage()
+        if self.usesTime():
+            record.asctime = self.formatTime(record, self.datefmt)
+        #
+        if record.exc_info:
+            # Cache the traceback text to avoid converting it multiple times
+            # (it's constant anyway)
+            if not record.exc_text:
+                record.exc_text = self.formatException(record.exc_info)
+        if record.exc_text:
+            if message[-1:] != "\n":
+                message += "\n"
+            message = message + record.exc_text
+        if record.stack_info:
+            if message[-1:] != "\n":
+                message += "\n"
+            message += self.formatStack(record.stack_info)
+        record.message = json.dumps(message)[
+            1:-1
+        ]  # json.dumps returns the string with double quotes around it so we slice it
+        return self.formatMessage(record)
 
 
 @hookimpl(tryfirst=True)
