@@ -65,30 +65,30 @@ class SmtpConfiguration:
 
 def __add_job_notified_configuration_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution "
         "failure caused by user code or user configuration problem. "
         "For example: if the job contains an SQL script with syntax error.",
     )
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution failure "
         "caused by a platform problem, including job execution delays.",
     )
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution success.",
     )
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified of job deployment outcome",
     )
     config_builder.add(
-        key=JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
+        key=JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value,
         default_value=False,
         description="Flag to enable or disable the email notifications sent to the recipients listed above "
         "for each data job run attempt.",
@@ -131,30 +131,30 @@ def __add_smtp_configuration_definitions(config_builder):
 
 def __add_job_notified_configuration_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution "
         "failure caused by user code or user configuration problem. "
         "For example: if the job contains an SQL script with syntax error.",
     )
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution failure."
         "caused by a platform problem, including job execution delays.",
     )
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified on job execution success.",
     )
     config_builder.add(
-        key=JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY,
+        key=JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY.value,
         default_value="",
         description="Semicolon-separated list of email addresses to be notified of job deployment outcome.",
     )
     config_builder.add(
-        key=JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
+        key=JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value,
         default_value=False,
         description="Flag to enable or disable the email notifications sent to the recipients listed above "
         "for each data job run attempt.",

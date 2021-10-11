@@ -140,8 +140,6 @@ class JobConfigIniPlugin:
         description = f"""Used only during vdk run  - load configuration specified in
 config.ini file in the data job's root directory.
 It can be overridden by environment variables configuration (set by operators in Cloud deployment or by users locally).
-config.ini loads only specific configuration and is used for legacy reasons.
-Only the following options can be set with config.ini: {[e.value for e in JobConfigKeys]}
          """
 
         config_builder.add(
@@ -158,21 +156,24 @@ Only the following options can be set with config.ini: {[e.value for e in JobCon
             log.info("Detected config.ini. Will try to read config.ini.")
 
             job_config = JobConfig(self.__job_path)
-            config_builder.set_value(JobConfigKeys.TEAM, job_config.get_team())
+            config_builder.set_value(JobConfigKeys.TEAM.value, job_config.get_team())
             config_builder.set_value(
-                JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR,
+                JobConfigKeys.TEAM, job_config.get_team()
+            )  # kept for backward compatibility
+            config_builder.set_value(
+                JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value,
                 job_config.get_contacts_notified_on_job_failure_user_error(),
             )
             config_builder.set_value(
-                JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS,
+                JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value,
                 job_config.get_contacts_notified_on_job_success(),
             )
             config_builder.set_value(
-                JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR,
+                JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR.value,
                 job_config.get_contacts_notified_on_job_failure_platform_error(),
             )
             config_builder.set_value(
-                JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
+                JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value,
                 job_config.get_enable_attempt_notifications(),
             )
 

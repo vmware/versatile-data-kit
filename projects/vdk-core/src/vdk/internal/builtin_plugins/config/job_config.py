@@ -38,31 +38,35 @@ class JobConfig:
         Teams is a way to group data jobs that belong together and are managed by same people.
         It will control who has permissions to manages the data job.
         """
-        return self._get_value("owner", JobConfigKeys.TEAM)
+        return self._get_value("owner", JobConfigKeys.TEAM.value)
 
     def get_contacts_notified_on_job_failure_user_error(self) -> List[str]:
         """
         List of email addresses to be notified on job execution failure caused by user code or user configuration problem
         """
-        return self._get_contacts(JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR)
+        return self._get_contacts(
+            JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value
+        )
 
     def get_contacts_notified_on_job_failure_platform_error(self) -> List[str]:
         """
         List of email addresses to be notified on job execution failure caused by a platform problem.
         """
-        return self._get_contacts(JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR)
+        return self._get_contacts(
+            JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR.value
+        )
 
     def get_contacts_notified_on_job_success(self) -> List[str]:
         """
         List of email addresses to be notified on job execution success.
         """
-        return self._get_contacts(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS)
+        return self._get_contacts(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value)
 
     def get_contacts_notified_on_job_deploy(self) -> List[str]:
         """
         List of email addresses to be notified of job deployment outcome.
         """
-        return self._get_contacts(JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY)
+        return self._get_contacts(JobConfigKeys.NOTIFIED_ON_JOB_DEPLOY.value)
 
     def get_enable_attempt_notifications(self) -> bool:
         """
@@ -70,7 +74,7 @@ class JobConfig:
         (in other words each automatic retry will sent an email).
         """
         enable_attempt_notif_value = self._get_value(
-            "contacts", JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS
+            "contacts", JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value
         )
         if (
             enable_attempt_notif_value == ""
@@ -78,7 +82,7 @@ class JobConfig:
             return False
         else:
             return convert_value_to_type_of_default_type(
-                JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS,
+                JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value,
                 enable_attempt_notif_value,
                 False,
             )
@@ -87,7 +91,7 @@ class JobConfig:
         """
         The default database type used by the job (IMPALA, PRESTO)
         """
-        return self._get_value("job", JobConfigKeys.DB_DEFAULT_TYPE)
+        return self._get_value("job", JobConfigKeys.DB_DEFAULT_TYPE.value)
 
     def get_vdk_options(self) -> Dict[str, str]:
         if self._config_ini.has_section("vdk"):
