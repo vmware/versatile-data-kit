@@ -65,7 +65,7 @@ public class JobExecutionResultManager {
     *   <li>If K8S Job succeeded is null (which means there is no K8S Job condition
     *   because the job is already running), then the execution status will be RUNNING</li>
     *   <li>If the K8S Job succeeded is true, then the execution status will be FINISHED</li>
-    *   <li>If K8S Job succeeded is false, then the execution status will be RUNNING</li>
+    *   <li>If K8S Job succeeded is false, then the execution status will be FAILED</li>
     * </ul>
     *
     * @param executionSucceeded
@@ -87,14 +87,14 @@ public class JobExecutionResultManager {
 
    /**
     * Determines the job execution termination status based on
-    * the K8S Pod termination status (e.g. SUCCESS, USER_ERROR, PLATFORM_ERROR, etc.)
+    * the K8S Pod termination message (e.g. SUCCESS, USER_ERROR, PLATFORM_ERROR, etc.)
     *
-    * @param terminationStatusString termination status returned from K8S Pod (e.g. "Success", "User error", etc.)
-    * @return if there is a K8S Pod termination status returns appropriate termination status otherwise returns NONE
+    * @param podTerminationMessage termination message returned by K8S Pod (e.g. "Success", "User error", etc.)
+    * @return if there is a K8S Pod termination message returns appropriate termination status otherwise returns NONE
     */
-   private static ExecutionTerminationStatus getTerminationStatus(String terminationStatusString) {
+   private static ExecutionTerminationStatus getTerminationStatus(String podTerminationMessage) {
       return Arrays.stream(ExecutionTerminationStatus.values())
-            .filter(status -> status.getString().equals(terminationStatusString))
+            .filter(status -> status.getString().equals(podTerminationMessage))
             .findAny()
             .orElse(ExecutionTerminationStatus.NONE);
    }
