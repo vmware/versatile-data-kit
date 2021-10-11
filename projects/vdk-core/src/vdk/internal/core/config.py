@@ -47,6 +47,10 @@ def convert_value_to_type_of_default_type(
     return v
 
 
+def _normalize_config_key(key: ConfigKey):
+    return str(key).lower()
+
+
 @dataclass(frozen=True)
 class Configuration:
     """
@@ -62,6 +66,7 @@ class Configuration:
     )
 
     def __getitem__(self, key: ConfigKey):
+        key = _normalize_config_key(key)
         return self.get_value(key)
 
     def get_value(self, key: ConfigKey) -> ConfigValue:
@@ -73,6 +78,7 @@ class Configuration:
         :param key: the configuration key (e.g db_host, service_uri, etc.)
         :return: the value corresponding to the configuration key
         """
+        key = _normalize_config_key(key)
         default_value = self.__config_key_to_default_value.get(key)
         value = self.__config_key_to_value.get(key, default_value)
         return value
@@ -87,6 +93,7 @@ class Configuration:
         :return: the value corresponding to the configuration key
         :raises VdkConfigurationError
         """
+        key = _normalize_config_key(key)
         value = self.get_value(key)
         if value is None:
             raise VdkConfigurationError(
@@ -104,6 +111,7 @@ class Configuration:
         :param key: the config key
         :return: description
         """
+        key = _normalize_config_key(key)
         return self.__config_key_to_description.get(key)
 
     def list_config_keys(self) -> list[ConfigKey]:
@@ -152,6 +160,7 @@ class ConfigurationBuilder:
         TODO: in the future we should require description always and have separate hidden=True/False instead
         :return: self so it can be chained like builder.add(..).set_value(...)...
         """
+        key = _normalize_config_key(key)
         self.__config_key_to_default_value[key] = default_value
         if description and show_default_value:
             self.__add_public(key, description, default_value)
@@ -168,6 +177,7 @@ class ConfigurationBuilder:
         :param value: the configuration value.
         :return: self so it can be chained like builder.set_value(..).add(...)...
         """
+        key = _normalize_config_key(key)
         default_value = self.__config_key_to_default_value.get(key)
         self.__config_key_to_value[key] = convert_value_to_type_of_default_type(
             key, value, default_value

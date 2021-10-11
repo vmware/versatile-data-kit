@@ -95,9 +95,9 @@ class PropertiesRouter(IPropertiesRegistry):
                 errors.log_and_throw(
                     errors.ResolvableBy.CONFIG_ERROR,
                     log,
-                    "",  # set by handler
-                    f"Too many choices.",
-                    f"",  # set by handler
+                    "Properties API client cannot be chosen.",  # set by handler
+                    f"Too many choices for properties client implementation.",
+                    f"Properties API functionality does not work.",  # set by handler
                     f"Configure which properties client implementation "
                     f"to use with properties_default_type config option. "
                     f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())}",

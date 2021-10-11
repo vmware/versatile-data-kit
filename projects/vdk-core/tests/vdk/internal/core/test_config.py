@@ -43,6 +43,21 @@ def test_unknown_key():
     assert cfg.get_value("key") == 1
 
 
+def test_key_case_insensitive():
+    builder = ConfigurationBuilder()
+    builder.add("key_1", 1)
+    builder.add("key_2", 2)
+    builder.set_value("KEY_1", 11)
+
+    cfg = builder.build()
+
+    assert cfg.get_value("key_1") == 11
+    assert cfg.get_value("KEY_1") == 11
+    assert cfg.get_value("Key_1") == 11
+    assert cfg.get_value("key_2") == 2
+    assert cfg.get_value("KEY_2") == 2
+
+
 @pytest.mark.parametrize(
     "key, value",
     (
