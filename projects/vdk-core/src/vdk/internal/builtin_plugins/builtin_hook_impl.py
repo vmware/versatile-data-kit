@@ -4,6 +4,7 @@ import logging
 import time
 import uuid
 from datetime import datetime
+from os import getenv
 from typing import List
 
 import click
@@ -37,6 +38,9 @@ from vdk.internal.plugin.plugin import PluginRegistry
 
 log = logging.getLogger(__name__)
 
+VDK_EXECUTION_ID = "VDK_EXECUTION_ID"
+VDK_ATTEMPT_ID = "VDK_ATTEMPT_ID"
+
 
 class RuntimeStateInitializePlugin:
     """
@@ -50,30 +54,48 @@ class RuntimeStateInitializePlugin:
 
         Configuration can override an attempt/op/execution id.
 
-        Otherwise each is auto-generated in format:
-        * Attempt id format is "execution_id-random_suffix"
-        * Execution id format is "op_id-random_suffix"
+        Attempt id and Execution id are extracted from env variables.
+        IF not present they are auto-generated.
+
+        If auto generated:
+        * Attempt id format is random string.
+        * Execution id is attempt id if not present in env.
         * Op Id is random string.
         """
         op_id = context.configuration.get_value(vdk_config.OP_ID)
         execution_id = context.configuration.get_value(vdk_config.EXECUTION_ID)
         attempt_id = context.configuration.get_value(vdk_config.ATTEMPT_ID)
 
+        if not attempt_id:
+            attempt_id = f"{str(uuid.uuid4())[:6]}"
+
+        if not execution_id:
+            execution_id = attempt_id
+
         if not op_id:
             op_id = str(int(time.time()))
 
-        if not execution_id:
-            execution_id = f"{op_id}-{str(uuid.uuid4())[:6]}"
-
-        if not attempt_id:
-            attempt_id = f"{execution_id}-{str(uuid.uuid4())[:6]}"
-
+        log.info(
+            f"Setting: OP_ID: {op_id}, ATTEMPT_ID: {attempt_id}, EXECUTION_ID: {execution_id}"
+        )
         context.state.set(CommonStoreKeys.OP_ID, op_id)
         context.state.set(CommonStoreKeys.EXECUTION_ID, execution_id)
         context.state.set(CommonStoreKeys.ATTEMPT_ID, attempt_id)
 
         context.state.set(CommonStoreKeys.VDK_VERSION, vdk_build_info.RELEASE_VERSION)
         context.state.set(CommonStoreKeys.START_TIME, datetime.utcnow())
+
+    def _set_ids_from_env(self, context: CoreContext):
+        """
+        Private method used to set the attempt id and
+        execution id from values present in the environment.
+        We are not setting  attempt id or execution id anywhere.
+        """
+        attempt_id = getenv(VDK_ATTEMPT_ID, None)
+        context.state.set(CommonStoreKeys.ATTEMPT_ID, attempt_id)
+        print(f"attmptid:{attempt_id}")
+        execution_id = getenv(VDK_EXECUTION_ID, None)
+        context.state.set(CommonStoreKeys.EXECUTION_ID, execution_id)
 
 
 @hookimpl
