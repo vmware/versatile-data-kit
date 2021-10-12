@@ -8,6 +8,7 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +37,7 @@ public class JobsRepositoryIT {
    public void testLoadEmbedded() {
       JobConfig config = new JobConfig();
       config.setSchedule("schedule");
-      var entity = new DataJob("hello", config, DeploymentStatus.NONE);
+      var entity = new DataJob("hello", config, DeploymentStatus.NONE, ExecutionTerminationStatus.USER_ERROR, "1234");
       var savedEntity = repository.save(entity);
       Assertions.assertEquals(entity, savedEntity);
 
