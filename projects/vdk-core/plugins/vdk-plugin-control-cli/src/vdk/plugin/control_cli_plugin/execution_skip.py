@@ -15,8 +15,11 @@ from vdk.internal.builtin_plugins.termination_message.writer_configuration impor
 )
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.statestore import CommonStoreKeys
 
 log = logging.getLogger(__name__)
+EXECUTION_SKIP_CHECKER_ENABLED = "EXECUTION_SKIP_CHECKER_ENABLED"
 
 
 class ConcurrentExecutionChecker:
@@ -129,13 +132,30 @@ def _skip_job_if_necessary(
 
 
 @hookimpl(tryfirst=True)
+def vdk_configure(config_builder: ConfigurationBuilder):
+    config_builder.add(
+        key=EXECUTION_SKIP_CHECKER_ENABLED,
+        default_value=True,
+        description="Set to false if you want to disable execution skipping logic entirely.",
+    )
+
+
+@hookimpl(tryfirst=True)
 def run_job(context: JobContext) -> None:
     try:
         configuration = context.core_context.configuration
+
+        if not configuration.get_value(EXECUTION_SKIP_CHECKER_ENABLED):
+            log.info(
+                "Skipping logic is turned off. Continuing with current execution without checking for another running execution."
+            )
+            return None
+
         log_config_type = configuration.get_value(vdk_config.LOG_CONFIG)
         job_name = context.name
         job_team = configuration.get_value(JobConfigKeys.TEAM)
-        execution_id = configuration.get_value(vdk_config.EXECUTION_ID)
+
+        execution_id = context.core_context.state.get(CommonStoreKeys.EXECUTION_ID)
         writer_config = WriterConfiguration(configuration)
         action = WriteToFileAction(writer_config.get_output_file())
 
