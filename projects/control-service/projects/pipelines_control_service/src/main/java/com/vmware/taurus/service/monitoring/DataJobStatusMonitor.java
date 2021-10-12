@@ -97,7 +97,7 @@ public class DataJobStatusMonitor {
             dataJobsKubernetesService.watchJobs(
                   labelsToWatch,
                   s -> {
-                      log.info("Termination message of job {} with execution {}: {}",
+                      log.info("Termination message of Data Job {} with execution {}: {}",
                             s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
                       recordJobExecutionStatus(s);
                   },
@@ -155,16 +155,18 @@ public class DataJobStatusMonitor {
                 var gauge = statusGauges.getOrDefault(dataJobName, null);
                 var newTags = createGaugeTags(dataJob);
                 if (isChanged(gauge, newTags)) {
-                    log.info("The last termination status of data job {} has changed", dataJobName);
+                    log.info("The last termination status of Data Job {} has changed", dataJobName);
                     removeGauge(dataJobName);
                 }
 
+                currentStatuses.put(dataJobName, dataJob.getLatestJobTerminationStatus().getInteger());
                 if (!statusGauges.containsKey(dataJobName)) {
                     gauge = createGauge(dataJobName, newTags);
                     statusGauges.put(dataJobName, gauge);
-                    log.info("The termination status gauge for data job {} was created", dataJobName);
+                    log.info("The termination status gauge for Data Job {} was created", dataJobName);
                 }
-                currentStatuses.put(dataJobName, dataJob.getLatestJobTerminationStatus().getInteger());
+                log.debug("The termination status gauge value for Data Job {} with execution {} was changed to: {}",
+                        dataJobName, dataJob.getLatestJobExecutionId(), dataJob.getLatestJobTerminationStatus());
             });
 
             return true;
@@ -231,16 +233,36 @@ public class DataJobStatusMonitor {
                 "execution_id", dataJob.getLatestJobExecutionId());
     }
 
+    /**
+     * Removes the gauges and cleans up the state associated with the specified data job.
+     * <p>
+     * This method is synchronized.
+     *
+     * @param dataJobNameSupplier A supplier of the name of the data job whose gauge is to be removed.
+     */
+    public void removeDataJobInfo(final Supplier<String> dataJobNameSupplier) {
+        lock.lock();
+        try {
+            final var jobName = Objects.requireNonNullElse(dataJobNameSupplier, () -> null).get();
+            removeGauge(jobName);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     private void removeGauge(final String dataJobName) {
         if (StringUtils.isNotBlank(dataJobName)) {
             var gauge = statusGauges.getOrDefault(dataJobName, null);
             if (gauge != null) {
                 meterRegistry.remove(gauge);
                 statusGauges.remove(dataJobName);
-                log.info("The termination status gauge for data job {} was removed", dataJobName);
+                currentStatuses.remove(dataJobName);
+                log.info("The termination status gauge for Data Job {} was removed", dataJobName);
+            } else {
+                log.info("The termination status gauge for Data Job {} cannot be removed: gauge not found", dataJobName);
             }
         } else {
-            log.warn("Data job name is empty");
+            log.warn("The termination status gauge cannot be removed: Data Job name is empty");
         }
     }
 
@@ -261,6 +283,9 @@ public class DataJobStatusMonitor {
 
         dataJob.setLatestJobTerminationStatus(terminationStatus);
         dataJob.setLatestJobExecutionId(executionId);
+
+        log.debug("Update termination status of Data Job {} with execution {} to {}",
+                dataJob.getName(), executionId, terminationStatus);
 
         return jobsRepository.save(dataJob);
     }
