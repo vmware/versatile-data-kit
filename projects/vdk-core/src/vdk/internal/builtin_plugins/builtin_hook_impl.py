@@ -55,25 +55,31 @@ class RuntimeStateInitializePlugin:
         Configuration can override an attempt/op/execution id.
 
         Attempt id and Execution id are extracted from env variables.
-        IF not present they are auto-generated.
+        If not present they are auto generated.
 
         If auto generated:
         * Attempt id format is random string.
         * Execution id is attempt id if not present in env.
-        * Op Id is random string.
+        * Op Id is a random string.
         """
         op_id = context.configuration.get_value(vdk_config.OP_ID)
         execution_id = context.configuration.get_value(vdk_config.EXECUTION_ID)
         attempt_id = context.configuration.get_value(vdk_config.ATTEMPT_ID)
 
         if not attempt_id:
-            attempt_id = f"{str(uuid.uuid4())[:6]}"
+            # UUID is 36 chars
+            attempt_id = (
+                f"{str(uuid.uuid4())}-{str(int(time.time()))}-{str(uuid.uuid4())[:5]}"
+            )
+            log.info(
+                f"Attempt ID not found in env or configuration. Using auto generated attempt_id: {attempt_id}"
+            )
 
         if not execution_id:
-            execution_id = attempt_id
+            execution_id = attempt_id[:-6]
 
         if not op_id:
-            op_id = str(int(time.time()))
+            op_id = execution_id
 
         log.info(
             f"Setting: OP_ID: {op_id}, ATTEMPT_ID: {attempt_id}, EXECUTION_ID: {execution_id}"
@@ -84,18 +90,6 @@ class RuntimeStateInitializePlugin:
 
         context.state.set(CommonStoreKeys.VDK_VERSION, vdk_build_info.RELEASE_VERSION)
         context.state.set(CommonStoreKeys.START_TIME, datetime.utcnow())
-
-    def _set_ids_from_env(self, context: CoreContext):
-        """
-        Private method used to set the attempt id and
-        execution id from values present in the environment.
-        We are not setting  attempt id or execution id anywhere.
-        """
-        attempt_id = getenv(VDK_ATTEMPT_ID, None)
-        context.state.set(CommonStoreKeys.ATTEMPT_ID, attempt_id)
-        print(f"attmptid:{attempt_id}")
-        execution_id = getenv(VDK_EXECUTION_ID, None)
-        context.state.set(CommonStoreKeys.EXECUTION_ID, execution_id)
 
 
 @hookimpl
