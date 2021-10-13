@@ -54,9 +54,9 @@ class RuntimeStateInitializePlugin:
         If not present they are auto generated.
 
         If auto generated:
-        * Attempt id format is random string.
-        * Execution id is attempt id if not present in env.
-        * Op Id is a random string.
+        * Attempt id format is uuid + timestamp + five random chars.
+        * Execution id is attempt id minus last 6 chars.
+        * Op id is equal to execution id.
         """
         op_id = context.configuration.get_value(vdk_config.OP_ID)
         execution_id = context.configuration.get_value(vdk_config.EXECUTION_ID)
