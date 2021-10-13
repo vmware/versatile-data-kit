@@ -159,14 +159,15 @@ public class DataJobStatusMonitor {
                     removeGauge(dataJobName);
                 }
 
+                Integer previousTerminationStatus = currentStatuses.get(dataJobName);
                 currentStatuses.put(dataJobName, dataJob.getLatestJobTerminationStatus().getInteger());
                 if (!statusGauges.containsKey(dataJobName)) {
                     gauge = createGauge(dataJobName, newTags);
                     statusGauges.put(dataJobName, gauge);
                     log.info("The termination status gauge for Data Job {} was created", dataJobName);
                 }
-                log.debug("The termination status gauge value for Data Job {} with execution {} was changed to: {}",
-                        dataJobName, dataJob.getLatestJobExecutionId(), dataJob.getLatestJobTerminationStatus());
+                log.debug("The termination status gauge value for Data Job {} with execution {} was changed from {} to {}",
+                        dataJobName, dataJob.getLatestJobExecutionId(), previousTerminationStatus, dataJob.getLatestJobTerminationStatus());
             });
 
             return true;
@@ -281,11 +282,12 @@ public class DataJobStatusMonitor {
             return dataJob;
         }
 
+        ExecutionTerminationStatus previousTerminationStatus = dataJob.getLatestJobTerminationStatus();
         dataJob.setLatestJobTerminationStatus(terminationStatus);
         dataJob.setLatestJobExecutionId(executionId);
 
-        log.debug("Update termination status of Data Job {} with execution {} to {}",
-                dataJob.getName(), executionId, terminationStatus);
+        log.debug("Update termination status of Data Job {} with execution {} from {} to {}",
+                dataJob.getName(), executionId, previousTerminationStatus, terminationStatus);
 
         return jobsRepository.save(dataJob);
     }
