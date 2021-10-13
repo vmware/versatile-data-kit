@@ -4,7 +4,6 @@ import logging
 import time
 import uuid
 from datetime import datetime
-from os import getenv
 from typing import List
 
 import click
