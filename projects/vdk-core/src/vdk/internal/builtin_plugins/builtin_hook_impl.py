@@ -37,9 +37,6 @@ from vdk.internal.plugin.plugin import PluginRegistry
 
 log = logging.getLogger(__name__)
 
-VDK_EXECUTION_ID = "VDK_EXECUTION_ID"
-VDK_ATTEMPT_ID = "VDK_ATTEMPT_ID"
-
 
 class RuntimeStateInitializePlugin:
     """
