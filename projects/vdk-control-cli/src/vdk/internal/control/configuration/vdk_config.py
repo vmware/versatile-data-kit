@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
+import pathlib
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -146,8 +147,10 @@ class VDKConfigFolder:
                 self.vdk_config_folder
             ):
                 try:
-                    os.mkdir(self.vdk_config_folder)
-                except OSError as e:
+                    pathlib.Path(self.vdk_config_folder).mkdir(
+                        parents=True, exist_ok=True
+                    )
+                except Exception as e:
                     raise VDKException(
                         what="Configuration folder was not created and user is not logged in",
                         why=f"Cannot create: {self.vdk_config_folder} configuration folder: {str(e)}",
