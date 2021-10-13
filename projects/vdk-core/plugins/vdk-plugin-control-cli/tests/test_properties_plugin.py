@@ -50,3 +50,25 @@ def test_properties_plugin(httpserver: PluginHTTPServer):
         )
         cli_assert_equal(0, result)
         assert properties_data == {"original": 1, "new": 2}
+
+
+def test_properties_plugin_no_url_configured():
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_PROPERTIES_DEFAULT_TYPE": "control-service",
+        },
+    ):
+        runner = CliEntryBasedTestRunner(vdk_plugin_control_cli, properties_plugin)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("simple-job")]
+        )
+        # job that do not use properties should succeed
+        cli_assert_equal(0, result)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("properties-job")]
+        )
+        # but jobs that do use properties should fail.
+        cli_assert_equal(1, result)
