@@ -18,6 +18,7 @@ JOB_GITHASH = "JOB_GITHASH"
 LOG_CONFIG = "LOG_CONFIG"
 LOG_LEVEL_VDK = "LOG_LEVEL_VDK"
 WORKING_DIR = "WORKING_DIR"
+ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
 OP_ID = "OP_ID"
 
@@ -70,20 +71,33 @@ class CoreConfigDefinitionPlugin:
             OP_ID,
             "",
             True,
-            "An identifier to be associated with the current VDK run, "
-            "or an empty string, to auto generate the identifier."
             "It identifies the trigger that initiated this job. "
-            "It is possible to have N jobs with same OpID (if Job1 started Job2 then Job1.opId = Job2.opId)."
+            "If left empty it will be auto-generated."
+            "OP ID is similar to trace ID in open tracing."
+            "It enable tracing multiple operations across difference services and datasets"
+            "For example, it is possible to have N jobs with same OpID (if Job1 started Job2 then Job1.opId = "
+            "Job2.opId). "
             "In HTTP requests it is passed as header 'X-OPID' by the Control Service.",
         )
         config_builder.add(
             EXECUTION_ID,
             "",
             True,
-            "An identifier to be associated with the current VDK execution, "
-            "or an empty string, to auto generate the identifier. "
+            "An identifier to be associated with the current VDK execution."
+            "If left empty it will be auto-generated. "
             "An instance of a running Data Job deployment is called an execution. "
-            "Data Job execution can run a Data Job one or more times. ",
+            "Data Job execution can run a Data Job one or more times. "
+            "It can be passed externally (in case of external re-tries are considered part of 1 execution).",
+        )
+        config_builder.add(
+            ATTEMPT_ID,
+            "",
+            True,
+            "An identifier to be associated with the current VDK execution attempt."
+            "If left empty it will be auto-generated. "
+            "An instance of a running Data Job deployment is called an execution. "
+            "Data Job execution can run a Data Job one or more times."
+            "Each distinct run would a single attempt.",
         )
 
 

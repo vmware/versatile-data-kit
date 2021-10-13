@@ -64,7 +64,7 @@ class JobCreate:
         )
 
     def __create_local_job(self, team: str, name: str, job_path: str) -> None:
-        sample_job = self.__vdk_config.get_sample_job_directory
+        sample_job = self.__vdk_config.sample_job_directory
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
         cli_utils.copy_directory(sample_job, job_path)
         local_config = JobConfig(job_path)

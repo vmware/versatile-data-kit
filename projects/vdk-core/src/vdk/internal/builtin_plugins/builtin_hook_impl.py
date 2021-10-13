@@ -10,6 +10,7 @@ import click
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal import vdk_build_info
+from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.config_help import ConfigHelpPlugin
 from vdk.internal.builtin_plugins.config.log_config import LoggingPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import CoreConfigDefinitionPlugin
@@ -43,15 +44,6 @@ class RuntimeStateInitializePlugin:
     """
 
     @hookimpl(tryfirst=True)
-    def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
-        """
-        Some job attributes like op_id can be passed externally as configuration.
-        """
-        config_builder.add(CommonStoreKeys.OP_ID.key, None)
-        config_builder.add(CommonStoreKeys.EXECUTION_ID.key, None)
-        config_builder.add(CommonStoreKeys.ATTEMPT_ID.key, None)
-
-    @hookimpl(tryfirst=True)
     def vdk_initialize(self, context: CoreContext) -> None:
         """
         Setup common state attributes of the app (CommonStoreKeys).
@@ -63,9 +55,9 @@ class RuntimeStateInitializePlugin:
         * Execution id format is "op_id-random_suffix"
         * Op Id is random string.
         """
-        op_id = context.configuration.get_value(CommonStoreKeys.OP_ID.key)
-        execution_id = context.configuration.get_value(CommonStoreKeys.EXECUTION_ID.key)
-        attempt_id = context.configuration.get_value(CommonStoreKeys.ATTEMPT_ID.key)
+        op_id = context.configuration.get_value(vdk_config.OP_ID)
+        execution_id = context.configuration.get_value(vdk_config.EXECUTION_ID)
+        attempt_id = context.configuration.get_value(vdk_config.ATTEMPT_ID)
 
         if not op_id:
             op_id = str(int(time.time()))

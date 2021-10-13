@@ -3,7 +3,7 @@
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.0
+    rev: v4.0.1
     hooks:
     -   id: check-yaml
         args: ['--unsafe']
@@ -16,20 +16,20 @@ repos:
     -   id: trailing-whitespace
     -   id: check-executables-have-shebangs
 -   repo: https://github.com/psf/black
-    rev: 21.5b1
+    rev: 21.9b0
     hooks:
     -   id: black
         language_version: python3.7
 # ensure pydoc is up-to standard
 -   repo: https://github.com/pycqa/pydocstyle
-    rev: 6.0.0
+    rev: 6.1.1
     hooks:
         -   id: pydocstyle
             args: # http://www.pydocstyle.org/en/stable/error_codes.html --convention=pep257 seems too much?
                 - --select=D101,D103,D300
                 - --match='(?!test_).*\.py'
 -   repo: https://github.com/pre-commit/mirrors-pylint
-    rev: 'v3.0.0a3'
+    rev: 'v3.0.0a4'
     hooks:
         -   id: pylint
             args: [--exit-zero]
@@ -39,13 +39,13 @@ repos:
 #        -   id: mypy
 #            files: ^(src/|tests/|plugins/)
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.5.0
+    rev: v2.6.0
     hooks:
         -   id: reorder-python-imports
             args: [--py37-plus, '--application-directories=.:src']
 # use latest python syntax
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.19.1
+    rev: v2.29.0
     hooks:
         -   id: pyupgrade
             args: [--py37-plus]

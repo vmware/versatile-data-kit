@@ -189,5 +189,10 @@ public class DataJobInfoMonitorTest {
       var expectedJob = jobsRepository.findById("data-job");
       Assertions.assertTrue(expectedJob.isPresent());
       Assertions.assertEquals(60, expectedJob.get().getJobConfig().getNotificationDelayPeriodMinutes());
+
+      dataJobInfoMonitor.removeDataJobInfo(() -> "data-job");
+
+      gauges = meterRegistry.find(DataJobInfoMonitor.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+      Assertions.assertEquals(0, gauges.size());
    }
 }

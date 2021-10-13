@@ -299,10 +299,11 @@ public class DataJobStatusMonitorTest {
     @Order(16)
     public void testRecordJobExecutionStatus_existingDataJobAndExistingExecution_shouldUpdateExecution() {
         JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", ExecutionTerminationStatus.SUCCESS.getString(), true);
+        Optional<DataJobExecution> jobExecutionBeforeUpdate = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
-        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution);
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, jobExecutionBeforeUpdate.get().getStartTime());
     }
 
     @Test
@@ -320,10 +321,11 @@ public class DataJobStatusMonitorTest {
     public void testRecordJobExecutionStatusSkipped_existingDataJobAndExistingExecution_shouldRecordExecution() {
         var expectedExecutionMessage = "Skipping job execution due to another parallel running execution.";
         JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", ExecutionTerminationStatus.SKIPPED.getString(), true);
+        Optional<DataJobExecution> jobExecutionBeforeUpdate = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
         dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
-        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, expectedExecutionMessage);
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, expectedExecutionMessage, jobExecutionBeforeUpdate.get().getStartTime());
     }
 
     @Test
@@ -374,9 +376,14 @@ public class DataJobStatusMonitorTest {
     }
 
     private void assertDataJobExecutionValid(JobExecution expectedJobExecution, Optional<DataJobExecution> actualJobExecution) {
-        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, null);
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, null, null);
     }
-    private void assertDataJobExecutionValid(JobExecution expectedJobExecution, Optional<DataJobExecution> actualJobExecution, String expectedExecutionMessage) {
+
+    private void assertDataJobExecutionValid(JobExecution expectedJobExecution, Optional<DataJobExecution> actualJobExecution, OffsetDateTime startTime) {
+        assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, null, startTime);
+    }
+
+    private void assertDataJobExecutionValid(JobExecution expectedJobExecution, Optional<DataJobExecution> actualJobExecution, String expectedExecutionMessage, OffsetDateTime startTime) {
         Assertions.assertTrue(actualJobExecution.isPresent());
 
         DataJobExecution actualDataJobExecution = actualJobExecution.get();
@@ -385,7 +392,7 @@ public class DataJobStatusMonitorTest {
         MatcherAssert.assertThat(expectedJobExecution.getExecutionType(), IsEqualIgnoringCase.equalToIgnoringCase(actualDataJobExecution.getType().name()));
         Assertions.assertEquals(expectedJobExecution.getJobVersion(), actualDataJobExecution.getJobVersion());
         Assertions.assertEquals(expectedJobExecution.getJobSchedule(), actualDataJobExecution.getJobSchedule());
-        Assertions.assertEquals(expectedJobExecution.getStartTime(), actualDataJobExecution.getStartTime());
+        Assertions.assertEquals(startTime == null ? expectedJobExecution.getStartTime() : startTime, actualDataJobExecution.getStartTime());
         Assertions.assertEquals(expectedJobExecution.getEndTime(), actualDataJobExecution.getEndTime());
         Assertions.assertEquals(expectedJobExecution.getOpId(), actualDataJobExecution.getOpId());
         Assertions.assertEquals(expectedJobExecution.getResourcesCpuRequest(), actualDataJobExecution.getResourcesCpuRequest());

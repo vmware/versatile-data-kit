@@ -9,18 +9,25 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.Arrays;
 
+import com.google.common.primitives.Ints;
+
 @Converter
-public class ExecutionTerminationStatusConverter implements AttributeConverter<ExecutionTerminationStatus, Integer> {
+public class ExecutionTerminationStatusConverter implements AttributeConverter<ExecutionTerminationStatus, String> {
 
    @Override
-   public Integer convertToDatabaseColumn(ExecutionTerminationStatus terminationStatus) {
-      return terminationStatus != null ? terminationStatus.getInteger() : null;
+   public String convertToDatabaseColumn(ExecutionTerminationStatus terminationStatus) {
+      return terminationStatus != null ? String.valueOf(terminationStatus.getInteger()) : null;
    }
 
    @Override
-   public ExecutionTerminationStatus convertToEntityAttribute(Integer dbData) {
+   public ExecutionTerminationStatus convertToEntityAttribute(String dbValueString) {
+      if (dbValueString == null) {
+         return null;
+      }
+
+      Integer dbValueInteger = Ints.tryParse(dbValueString);
       return Arrays.stream(ExecutionTerminationStatus.values())
-            .filter(terminationStatus -> terminationStatus.getInteger().equals(dbData))
+            .filter(terminationStatus -> terminationStatus.getInteger().equals(dbValueInteger))
             .findAny()
             .orElse(null);
    }
