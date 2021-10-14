@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 
@@ -61,9 +63,9 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
+        dataJobStatusMonitor.updateDataJobTerminationStatus(jobsRepository.save(dataJob));
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
         Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
@@ -78,9 +80,9 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.PLATFORM_ERROR, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
+        dataJobStatusMonitor.updateDataJobTerminationStatus(jobsRepository.save(dataJob));
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
         Assertions.assertEquals(ExecutionTerminationStatus.PLATFORM_ERROR.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
@@ -95,9 +97,9 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.SKIPPED, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
+        dataJobStatusMonitor.updateDataJobTerminationStatus(jobsRepository.save(dataJob));
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
         Assertions.assertEquals(ExecutionTerminationStatus.SKIPPED.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
@@ -112,9 +114,9 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.USER_ERROR, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
+        dataJobStatusMonitor.updateDataJobTerminationStatus(jobsRepository.save(dataJob));
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
         Assertions.assertEquals(ExecutionTerminationStatus.USER_ERROR.getInteger().doubleValue(), gauges.stream().findFirst().get().value());
 
@@ -126,9 +128,9 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(5)
     public void testUpdateDataJobsTerminationStatusWithoutJobs() {
-        dataJobStatusMonitor.updateDataJobsTerminationStatus(Collections::emptyList);
+        dataJobStatusMonitor.updateDataJobsTerminationStatus(Collections.emptyList());
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
     }
 
@@ -149,7 +151,7 @@ public class DataJobStatusMonitorTest {
 
         dataJobStatusMonitor.watchJobs();
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(5, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
@@ -174,7 +176,7 @@ public class DataJobStatusMonitorTest {
 
         dataJobStatusMonitor.watchJobs();
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(5, gauges.size());
         Assertions.assertEquals(5, jobsRepository.count());
     }
@@ -192,7 +194,7 @@ public class DataJobStatusMonitorTest {
 
         dataJobStatusMonitor.watchJobs();
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(5, gauges.size());
         Assertions.assertEquals(5, jobsRepository.count());
     }
@@ -212,7 +214,7 @@ public class DataJobStatusMonitorTest {
 
         dataJobStatusMonitor.watchJobs();
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(6, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
@@ -236,7 +238,7 @@ public class DataJobStatusMonitorTest {
 
         dataJobStatusMonitor.watchJobs();
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(7, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
@@ -251,9 +253,9 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatus(() -> jobsRepository.save(dataJob));
+        dataJobStatusMonitor.updateDataJobTerminationStatus(jobsRepository.save(dataJob));
 
-        var gauges = meterRegistry.find(DataJobStatusMonitor.GAUGE_METRIC_NAME).gauges();
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(7, gauges.size());
     }
 

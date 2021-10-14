@@ -15,13 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataJobStatusMonitorSync {
 
-    private final DataJobStatusMonitor dataJobInfoMonitor;
-
+    private final DataJobStatusMonitor dataJobStatusMonitor;
     private final JobsRepository jobsRepository;
 
     @Autowired
-    public DataJobStatusMonitorSync(DataJobStatusMonitor dataJobInfoMonitor, JobsRepository jobsRepository) {
-        this.dataJobInfoMonitor = dataJobInfoMonitor;
+    public DataJobStatusMonitorSync(DataJobStatusMonitor dataJobStatusMonitor, JobsRepository jobsRepository) {
+        this.dataJobStatusMonitor = dataJobStatusMonitor;
         this.jobsRepository = jobsRepository;
     }
 
@@ -29,8 +28,6 @@ public class DataJobStatusMonitorSync {
             fixedDelayString = "${datajobs.monitoring.sync.interval:5000}",
             initialDelayString = "${datajobs.monitoring.sync.initial.delay:10000}")
     public void updateDataJobStatus() {
-        if (!dataJobInfoMonitor.updateDataJobsTerminationStatus(jobsRepository::findAll)) {
-            log.debug("There are no data jobs");
-        }
+        dataJobStatusMonitor.updateDataJobsTerminationStatus(jobsRepository.findAll());
     }
 }

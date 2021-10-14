@@ -8,18 +8,15 @@ package com.vmware.taurus.service.monitoring;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
-import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
+import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.ExecutionTerminationStatus;
+import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.ApiException;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.lang3.StringUtils;
@@ -32,39 +29,33 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
 @Slf4j
 @Component
 public class DataJobStatusMonitor {
 
-    public static final String GAUGE_METRIC_NAME = "taurus.datajob.termination.status";
     private static final long ONE_MINUTE_MILLIS = TimeUnit.MINUTES.toMillis(1);
 
-    private final DataJobsKubernetesService dataJobsKubernetesService;
-    private final MeterRegistry meterRegistry;
-    private final JobsRepository jobsRepository;
-    private final JobExecutionService jobExecutionService;
     private final Map<String, String> labelsToWatch = Collections.singletonMap(JobLabel.TYPE.getValue(), "DataJob");
-    private final Map<String, Gauge> statusGauges = new ConcurrentHashMap<>();
-    private final Map<String, Integer> currentStatuses = new ConcurrentHashMap<>();
-    private final ReentrantLock lock = new ReentrantLock(true);
+
+    private final JobsRepository jobsRepository;
+    private final DataJobsKubernetesService dataJobsKubernetesService;
+    private final JobExecutionService jobExecutionService;
+    private final DataJobMetrics dataJobMetrics;
+
     private long lastWatchTime = 0;
 
     @Autowired
     public DataJobStatusMonitor(
-            DataJobsKubernetesService dataJobsKubernetesService,
-            MeterRegistry meterRegistry,
             JobsRepository jobsRepository,
-            JobExecutionService jobExecutionService) {
-
+            DataJobsKubernetesService dataJobsKubernetesService,
+            JobExecutionService jobExecutionService,
+            DataJobMetrics dataJobMetrics) {
         this.dataJobsKubernetesService = dataJobsKubernetesService;
-        this.meterRegistry = meterRegistry;
         this.jobsRepository = jobsRepository;
         this.jobExecutionService = jobExecutionService;
+        this.dataJobMetrics = dataJobMetrics;
     }
 
     /**
@@ -86,7 +77,7 @@ public class DataJobStatusMonitor {
      *     this by sharing the lastWatchTime amongst the nodes.</li>
      * </ol>
      *
-     * @see   <a href="https://github.com/lukas-krecan/ShedLock">ShedLock</a>
+     * @see <a href="https://github.com/lukas-krecan/ShedLock">ShedLock</a>
      */
     @Scheduled(
             fixedDelayString = "${datajobs.status.watch.interval:1000}",
@@ -95,16 +86,16 @@ public class DataJobStatusMonitor {
     public void watchJobs() {
         try {
             dataJobsKubernetesService.watchJobs(
-                  labelsToWatch,
-                  s -> {
-                      log.info("Termination message of Data Job {} with execution {}: {}",
-                            s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
-                      recordJobExecutionStatus(s);
-                  },
-                  runningJobExecutionIds -> {
-                    jobExecutionService.syncJobExecutionStatuses(runningJobExecutionIds);
-                  },
-                  lastWatchTime);
+                    labelsToWatch,
+                    s -> {
+                        log.info("Termination message of Data Job {} with execution {}: {}",
+                                s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
+                        recordJobExecutionStatus(s);
+                    },
+                    runningJobExecutionIds -> {
+                        jobExecutionService.syncJobExecutionStatuses(runningJobExecutionIds);
+                    },
+                    lastWatchTime);
             // Move the lastWatchTime one minute into the past to account for events that
             // could have happened after the watch has completed until now
             lastWatchTime = System.currentTimeMillis() - ONE_MINUTE_MILLIS;
@@ -115,70 +106,37 @@ public class DataJobStatusMonitor {
 
     /**
      * Creates a gauge to expose execution status about the specified data job.
-     * If a gauge already exists for the job, it is updated if needed.
-     * <p>
-     * This method is synchronized.
+     * If a gauge already exists for the job, it is updated if necessary.
      *
-     * @param dataJobSupplier A supplier of the data job for which to create or update a gauge.
+     * @param dataJob The data job for which to create or update a gauge.
      */
-    public void updateDataJobTerminationStatus(final Supplier<DataJob> dataJobSupplier) {
-        updateDataJobsTerminationStatus(() -> {
-            final var dataJob = Objects.requireNonNullElse(dataJobSupplier, () -> null).get();
-            return dataJob == null ? Collections.emptyList() : Collections.singletonList(dataJob);
-        });
+    public void updateDataJobTerminationStatus(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
+
+        if (dataJob.getLatestJobTerminationStatus() == null ||
+                StringUtils.isEmpty(dataJob.getLatestJobExecutionId())) {
+            return;
+        }
+
+        dataJobMetrics.updateTerminationStatusGauge(dataJob);
     }
 
     /**
      * Creates a gauge to expose termination status for each of the specified data jobs.
-     * If a gauge already exists for any of the jobs, it is updated if needed.
-     * <p>
-     * This method is synchronized.
+     * If a gauge already exists for any of the jobs, it is updated if necessary.
      *
-     * @param dataJobsSupplier A supplier of the data jobs for which to create or update gauges.
-     * @return true if the supplier produced at least one job; otherwise, false.
+     * @param dataJobs The data jobs for which to create or update gauges.
      */
-    public boolean updateDataJobsTerminationStatus(final Supplier<Iterable<DataJob>> dataJobsSupplier) {
-        lock.lock();
-        try {
-            var dataJobs = Objects.requireNonNullElse(dataJobsSupplier, Collections::emptyList).get().iterator();
-            if (!dataJobs.hasNext()) {
-                return false;
-            }
+    public void updateDataJobsTerminationStatus(final Iterable<DataJob> dataJobs) {
+        Objects.requireNonNull(dataJobs);
 
-            dataJobs.forEachRemaining(dataJob -> {
-                if (dataJob.getLatestJobTerminationStatus() == null ||
-                        StringUtils.isEmpty(dataJob.getLatestJobExecutionId())) {
-                    return;
-                }
-
-                var dataJobName = dataJob.getName();
-                var gauge = statusGauges.getOrDefault(dataJobName, null);
-                var newTags = createGaugeTags(dataJob);
-                if (isChanged(gauge, newTags)) {
-                    log.info("The last termination status of Data Job {} has changed", dataJobName);
-                    removeGauge(dataJobName);
-                }
-
-                Integer previousTerminationStatus = currentStatuses.get(dataJobName);
-                currentStatuses.put(dataJobName, dataJob.getLatestJobTerminationStatus().getInteger());
-                if (!statusGauges.containsKey(dataJobName)) {
-                    gauge = createGauge(dataJobName, newTags);
-                    statusGauges.put(dataJobName, gauge);
-                    log.info("The termination status gauge for Data Job {} was created", dataJobName);
-                }
-                log.debug("The termination status gauge value for Data Job {} with execution {} was changed from {} to {}",
-                        dataJobName, dataJob.getLatestJobExecutionId(), previousTerminationStatus, dataJob.getLatestJobTerminationStatus());
-            });
-
-            return true;
-        } finally {
-            lock.unlock();
-        }
+        dataJobs.forEach(this::updateDataJobTerminationStatus);
     }
 
     /**
      * Record Data Job execution status. It will record when a job has started, finished, failed or skipped.
-     * @param jobStatus - the job status of the job. The same information is send as telemetry by Measureable annotation.
+     *
+     * @param jobStatus - the job status of the job. The same information is sent as telemetry by Measureable annotation.
      */
     @Measurable(includeArg = 0, argName = "execution_status")
     void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
@@ -199,72 +157,24 @@ public class DataJobStatusMonitor {
         }
 
         var dataJob = dataJobOptional.get();
-        updateDataJobTerminationStatus(() -> saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus()));
+        if (shouldUpdateTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus())) {
+            dataJob = saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus());
+            updateDataJobTerminationStatus(dataJob);
+        }
 
         jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
     }
 
-    private boolean isChanged(final Gauge gauge, final Tags newTags) {
-        if (gauge == null) {
+
+    private boolean shouldUpdateTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
+        if (terminationStatus == null ||
+                terminationStatus == ExecutionTerminationStatus.NONE ||
+                terminationStatus == ExecutionTerminationStatus.SKIPPED) {
+            log.debug("The termination status of data job {} will not be updated. New status is: {}", dataJob.getName(), terminationStatus);
             return false;
         }
-
-        var existingTags = gauge.getId().getTags();
-        return !newTags.stream().allMatch(existingTags::contains);
-    }
-
-    /**
-     * Creates and registers a termination status gauge for the data job with the specified name,
-     *
-     * @param dataJobName The name of the data job for which to create gauge.
-     * @param tags        The labels of the new gauge.
-     */
-    private Gauge createGauge(final String dataJobName, final Tags tags) {
-        return Gauge.builder(GAUGE_METRIC_NAME, currentStatuses,
-                map -> map.getOrDefault(dataJobName, ExecutionTerminationStatus.NONE.getInteger()))
-                .tags(tags)
-                .description("Termination status of data job executions (0 - Success, 1 - Platform error, 3 - User error)")
-                .register(meterRegistry);
-    }
-
-    private Tags createGaugeTags(final DataJob dataJob) {
-        Objects.requireNonNull(dataJob);
-        return Tags.of(
-                "data_job", dataJob.getName(),
-                "execution_id", dataJob.getLatestJobExecutionId());
-    }
-
-    /**
-     * Removes the gauges and cleans up the state associated with the specified data job.
-     * <p>
-     * This method is synchronized.
-     *
-     * @param dataJobNameSupplier A supplier of the name of the data job whose gauge is to be removed.
-     */
-    public void removeDataJobInfo(final Supplier<String> dataJobNameSupplier) {
-        lock.lock();
-        try {
-            final var jobName = Objects.requireNonNullElse(dataJobNameSupplier, () -> null).get();
-            removeGauge(jobName);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    private void removeGauge(final String dataJobName) {
-        if (StringUtils.isNotBlank(dataJobName)) {
-            var gauge = statusGauges.getOrDefault(dataJobName, null);
-            if (gauge != null) {
-                meterRegistry.remove(gauge);
-                statusGauges.remove(dataJobName);
-                currentStatuses.remove(dataJobName);
-                log.info("The termination status gauge for Data Job {} was removed", dataJobName);
-            } else {
-                log.info("The termination status gauge for Data Job {} cannot be removed: gauge not found", dataJobName);
-            }
-        } else {
-            log.warn("The termination status gauge cannot be removed: Data Job name is empty");
-        }
+        return dataJob.getLatestJobTerminationStatus() != terminationStatus ||
+                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId);
     }
 
     /**
@@ -274,19 +184,14 @@ public class DataJobStatusMonitor {
      * @param dataJob           the data job to be updated
      * @param executionId       The execution identifier.
      * @param terminationStatus The termination status of the job.
-     * @return The updated data job, or null, if no job with this name does not exist.
+     * @return The updated data job.
      */
     private DataJob saveTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        if (dataJob.getLatestJobTerminationStatus() == terminationStatus &&
-                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
-            return dataJob;
-        }
-
         ExecutionTerminationStatus previousTerminationStatus = dataJob.getLatestJobTerminationStatus();
         dataJob.setLatestJobTerminationStatus(terminationStatus);
         dataJob.setLatestJobExecutionId(executionId);
 
-        log.debug("Update termination status of Data Job {} with execution {} from {} to {}",
+        log.debug("Update termination status of data job {} with execution {} from {} to {}",
                 dataJob.getName(), executionId, previousTerminationStatus, terminationStatus);
 
         return jobsRepository.save(dataJob);

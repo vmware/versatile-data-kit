@@ -11,7 +11,7 @@ import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.monitoring.DataJobInfoMonitor;
+import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.webhook.WebHookRequestBody;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import com.vmware.taurus.service.webhook.WebHookResult;
@@ -47,7 +47,7 @@ public class JobsService {
    private final WebHookRequestBodyProvider webHookRequestBodyProvider;
    private final PostCreateWebHookProvider postCreateWebHookProvider;
    private final PostDeleteWebHookProvider postDeleteWebHookProvider;
-   private final DataJobInfoMonitor dataJobInfoMonitor;
+   private final DataJobMetrics dataJobMetrics;
 
 
    public JobOperationResult deleteJob(String name) {
@@ -59,13 +59,11 @@ public class JobsService {
 
       WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostDeleteBody(jobsRepository.findById(name).get());
       Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
-      if(isInvocationSuccessful(resultHolder)) {
-         dataJobInfoMonitor.removeDataJobInfo(() -> {
-            credentialsService.deleteJobCredentials(name);
-            deploymentService.deleteDeployment(name);
-            jobsRepository.deleteById(name);
-            return name;
-         });
+      if (isInvocationSuccessful(resultHolder)) {
+         credentialsService.deleteJobCredentials(name);
+         deploymentService.deleteDeployment(name);
+         jobsRepository.deleteById(name);
+         dataJobMetrics.clearGauges(name);
 
          return JobOperationResult.builder()
                  .completed(true)
@@ -101,12 +99,12 @@ public class JobsService {
       Optional<WebHookResult> resultHolder = postCreateWebHookProvider.invokeWebHook(requestBody);
       if(isInvocationSuccessful(resultHolder)) {
          // Save the data job and update the job info metrics
-         dataJobInfoMonitor.updateDataJobInfo(() -> {
-            if (jobInfo.getJobConfig().isGenerateKeytab()) {
-               credentialsService.createJobCredentials(jobInfo.getName());
-            }
-            return jobsRepository.save(jobInfo);
-         });
+         if (jobInfo.getJobConfig().isGenerateKeytab()) {
+            credentialsService.createJobCredentials(jobInfo.getName());
+         }
+         var dataJob = jobsRepository.save(jobInfo);
+         dataJobMetrics.updateInfoGauge(dataJob);
+         dataJobMetrics.updateNotificationDelayGauge(dataJob);
 
          return JobOperationResult.builder()
                  .completed(true)
@@ -140,8 +138,10 @@ public class JobsService {
     * @return if the job existed
     */
    public boolean updateJob(DataJob jobInfo) {
-      return dataJobInfoMonitor.updateDataJobInfo(() ->
-              jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null);
+      var dataJob = jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null;
+      dataJobMetrics.updateInfoGauge(dataJob);
+      dataJobMetrics.updateNotificationDelayGauge(dataJob);
+      return dataJob != null;
    }
 
    /**

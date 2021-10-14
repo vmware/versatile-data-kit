@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 public class DataJobInfoMonitorSync {
 
    private final DataJobInfoMonitor dataJobInfoMonitor;
-
    private final JobsRepository jobsRepository;
 
    @Autowired
@@ -29,8 +28,6 @@ public class DataJobInfoMonitorSync {
          fixedDelayString = "${datajobs.monitoring.sync.interval}",
          initialDelayString = "${datajobs.monitoring.sync.initial.delay}")
    public void updateDataJobInfo() {
-      if (!dataJobInfoMonitor.updateDataJobsInfo(jobsRepository::findAll)) {
-         log.debug("There are no data jobs");
-      }
+      dataJobInfoMonitor.updateDataJobsInfo(jobsRepository.findAll());
    }
 }

@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -40,9 +39,9 @@ public class DataJobStatusMonitorSyncTest {
 
         dataJobStatusMonitorSync.updateDataJobStatus();
 
-        var dataJobsCaptor = ArgumentCaptor.forClass(Supplier.class);
+        var dataJobsCaptor = ArgumentCaptor.forClass(Iterable.class);
         Mockito.verify(dataJobStatusMonitor, Mockito.times(1)).updateDataJobsTerminationStatus(dataJobsCaptor.capture());
 
-        Assertions.assertEquals(dataJobsCaptor.getValue().get(), mockJobs);
+        Assertions.assertEquals(dataJobsCaptor.getValue(), mockJobs);
     }
 }

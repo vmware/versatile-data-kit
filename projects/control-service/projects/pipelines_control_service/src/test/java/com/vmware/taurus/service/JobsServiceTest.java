@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service;
 
-import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.webhook.PostCreateWebHookProvider;
 import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -13,7 +12,7 @@ import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.monitoring.DataJobInfoMonitor;
+import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +23,11 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -37,8 +38,6 @@ public class JobsServiceTest {
 
     @Mock
     private JobsRepository jobsRepository;
-    @Mock
-    private DataJobInfoMonitor dataJobInfoMonitor;
 
     @Test
     public void testCreateUpdateMissing() {
@@ -70,17 +69,12 @@ public class JobsServiceTest {
     }
 
     private JobsService createTestInstance() {
-        doAnswer(method -> {
-            Supplier<DataJob> supplier = method.getArgument(0);
-            supplier.get();
-            return null;
-        }).when(dataJobInfoMonitor).updateDataJobInfo(Mockito.any());
         return new JobsService(jobsRepository,
                 mock(DeploymentService.class),
                 mock(JobCredentialsService.class),
                 mock(WebHookRequestBodyProvider.class),
                 mock(PostCreateWebHookProvider.class),
                 mock(PostDeleteWebHookProvider.class),
-                dataJobInfoMonitor);
+                mock(DataJobMetrics.class));
     }
 }
