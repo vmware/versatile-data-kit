@@ -36,6 +36,7 @@ public class DataJobInfoMonitor {
    private final MeterRegistry meterRegistry;
 
    private final Map<String, Gauge> infoGauges = new ConcurrentHashMap<>();
+   private final Map<String, Gauge> delayGauges = new ConcurrentHashMap<>();
    private final ReentrantLock lock = new ReentrantLock(true);
    private final Map<String, Integer> currentDelays = new ConcurrentHashMap<>();
 
@@ -93,7 +94,7 @@ public class DataJobInfoMonitor {
             var newTags = createGaugeTags(dataJob);
             if (isChanged(gauge, newTags)) {
                log.info("The configuration of data job {} has changed", dataJobName);
-               removeGauge(dataJobName);
+               removeInfoGauge(dataJobName);
             }
 
             if (!infoGauges.containsKey(dataJobName)) {
@@ -102,8 +103,9 @@ public class DataJobInfoMonitor {
                log.info("The info gauge for data job {} was created", dataJobName);
             }
 
-            if (!currentDelays.containsKey(dataJobName)) {
-               createNotificationDelayGauge(dataJobName);
+            if (!delayGauges.containsKey(dataJobName)) {
+               gauge = createNotificationDelayGauge(dataJobName);
+               delayGauges.put(dataJobName, gauge);
                log.info("The notification delay gauge for data job {} was created", dataJobName);
             }
             currentDelays.put(dataJobName,
@@ -117,7 +119,7 @@ public class DataJobInfoMonitor {
    }
 
    /**
-    * Removes the gauge associated with the specified data job.
+    * Removes the gauges and cleans up the state associated with the specified data job.
     * <p>
     * This method is synchronized.
     *
@@ -127,22 +129,41 @@ public class DataJobInfoMonitor {
       lock.lock();
       try {
          final var jobName = Objects.requireNonNullElse(dataJobNameSupplier, () -> null).get();
-         removeGauge(jobName);
+         removeInfoGauge(jobName);
+         removeNotificationDelayGauge(jobName);
       } finally {
          lock.unlock();
       }
    }
 
-   private void removeGauge(final String dataJobName) {
+   private void removeInfoGauge(final String dataJobName) {
       if (StringUtils.isNotBlank(dataJobName)) {
          var gauge = infoGauges.getOrDefault(dataJobName, null);
          if (gauge != null) {
             meterRegistry.remove(gauge);
             infoGauges.remove(dataJobName);
             log.info("The info gauge for data job {} was removed", dataJobName);
+         } else {
+            log.info("The info gauge for data job {} cannot be removed: gauge not found", dataJobName);
          }
       } else {
-         log.warn("Data job name is empty");
+         log.warn("The info gauge cannot be removed: data job name is empty");
+      }
+   }
+
+   private void removeNotificationDelayGauge(final String dataJobName) {
+      if (StringUtils.isNotBlank(dataJobName)) {
+         var gauge = delayGauges.getOrDefault(dataJobName, null);
+         if (gauge != null) {
+            meterRegistry.remove(gauge);
+            delayGauges.remove(dataJobName);
+            currentDelays.remove(dataJobName);
+            log.info("The notification delay gauge for data job {} was removed", dataJobName);
+         } else {
+            log.info("The notification delay gauge for data job {} cannot be removed: gauge not found", dataJobName);
+         }
+      } else {
+         log.warn("The notification delay gauge cannot be removed: data job name is empty");
       }
    }
 
@@ -162,8 +183,8 @@ public class DataJobInfoMonitor {
             .register(meterRegistry);
    }
 
-   private void createNotificationDelayGauge(final String dataJobName) {
-      Gauge.builder(TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME, currentDelays,
+   private Gauge createNotificationDelayGauge(final String dataJobName) {
+      return Gauge.builder(TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME, currentDelays,
               map -> map.getOrDefault(dataJobName, 0))
               .tags(Tags.of("data_job", dataJobName))
               .description("The time (in minutes) a job execution is allowed to be delayed from its schedule before an alert is triggered")

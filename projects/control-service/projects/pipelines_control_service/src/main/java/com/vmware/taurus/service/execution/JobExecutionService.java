@@ -45,12 +45,12 @@ import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobEnvVar;
-import com.vmware.taurus.service.model.ExecutionResult;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 
 
 /**
@@ -252,6 +252,10 @@ public class JobExecutionService {
                                                  ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
       ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
+      // Optimization:
+      // if there is an existing execution in the database and
+      // the status has not changed (the new status is equal to the old one)
+      // do not update the record
       if (dataJobExecutionPersistedOptional.isPresent() &&
               (dataJobExecutionPersistedOptional.get().getStatus() == executionResult.getExecutionStatus() ||
                       finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
@@ -262,25 +266,21 @@ public class JobExecutionService {
          return;
       }
 
-      // Optimization:
-      // if there is an existing execution in the database and
-      // the status has not changed (the new status is equal to the old one)
-      // do not update the record
       final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder =
-              dataJobExecutionPersistedOptional.isPresent() ?
-                      dataJobExecutionPersistedOptional.get().toBuilder() :
-                      com.vmware.taurus.service.model.DataJobExecution.builder()
-                              .id(jobExecution.getExecutionId())
-                              .dataJob(dataJob)
-                              .type(ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
-                                      com.vmware.taurus.service.model.ExecutionType.MANUAL :
-                                      com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
+            dataJobExecutionPersistedOptional.isPresent() ?
+                  dataJobExecutionPersistedOptional.get().toBuilder() :
+                  com.vmware.taurus.service.model.DataJobExecution.builder()
+                        .id(jobExecution.getExecutionId())
+                        .dataJob(dataJob)
+                        .startTime(jobExecution.getStartTime())
+                        .type(ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
+                              com.vmware.taurus.service.model.ExecutionType.MANUAL :
+                              com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
               .message(getJobExecutionApiMessage(executionStatus, executionResult.getTerminationStatus()))
               .opId(jobExecution.getOpId())
-              .startTime(jobExecution.getStartTime())
               .endTime(jobExecution.getEndTime())
               .vdkVersion(executionResult.getVdkVersion())
               .jobVersion(jobExecution.getJobVersion())
