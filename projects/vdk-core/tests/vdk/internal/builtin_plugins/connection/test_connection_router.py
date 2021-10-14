@@ -3,6 +3,9 @@
 from unittest.mock import MagicMock
 
 import pytest
+from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
@@ -20,7 +23,7 @@ def managed_connection_router():
         def _connect(self) -> PEP249Connection:
             return mock_conn
 
-    router = ManagedConnectionRouter(conf)
+    router = ManagedConnectionRouter(conf, MagicMock(spec=ConnectionHookSpec))
     router.add_open_connection_factory_method(
         "TEST_DB", lambda: TestManagedConnection()
     )
@@ -36,7 +39,7 @@ def test_router_open_connection():
 
 def test_router_raw_connection():
     conf = MagicMock(spec=Configuration)
-    router = ManagedConnectionRouter(conf)
+    router = ManagedConnectionRouter(conf, MagicMock(spec=ConnectionHookSpec))
 
     mock_conn = MagicMock(spec=PEP249Connection)
     router.add_open_connection_factory_method("RAW_DB", lambda: mock_conn)

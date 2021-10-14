@@ -1,14 +1,26 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import types
 from typing import Any
 from typing import cast
 from typing import Collection
-from typing import List
-from typing import Tuple
-from typing import Union
+from typing import Container
+from typing import Optional
 
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.hook_markers import hookspec
+from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+    ConnectionHookSpec,
+)
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
+from vdk.internal.builtin_plugins.connection.recovery_cursor import OperationRecovery
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
+from vdk.internal.builtin_plugins.run import job_input_error_classifier
+from vdk.internal.core import errors
+from vdk.internal.core.context import CoreContext
 
 
 class ManagedCursor(PEP249Cursor):
@@ -16,38 +28,146 @@ class ManagedCursor(PEP249Cursor):
     PEP249 Cursor
     """
 
-    def __init__(self, cursor: Any, log: logging.Logger = None) -> None:
+    def __init__(
+        self,
+        cursor: Any,
+        log: logging.Logger = None,
+        connection_hook_spec: ConnectionHookSpec = None,
+    ):
         if not log:
             log = logging.getLogger(__name__)
         super().__init__(cursor, log)
-        self._cur = cursor
-        self._log = log
+        self.__connection_hook_spec = connection_hook_spec
+
+    def __getattr__(self, attr):
+        """
+        Dynamic interception and delegation of any (non-overridden) attribute access.
+        In case an attribute is not explicitly managed (customized by overriding e.g. execute()) -
+        this attribute is looked up then the call is delegated, ensuring default behaviour success path.
+
+        First, the non-managed attribute call is redirected to the wrapped native cursor if attribute available,
+        otherwise to the superclass if attribute is present.
+        If the attribute is not specified by both the native cursor nor the superclass, an AttributeError is raised.
+
+        Default behaviour availability unblocks various ManagedCursor usages that rely on
+        currently not explicitly defined in the scope of ManagedCursor attributes.
+        E.g. SQLAlchemy dependency that uses the ManagedCursor, does require some specific attributes available.
+
+        For more details on customizing attributes access, see PEP562.
+        """
+        # native cursor
+        if hasattr(self._cursor, attr):
+            if isinstance(getattr(self._cursor, attr), types.MethodType):
+
+                def method(*args, **kwargs):
+                    return getattr(self._cursor, attr)(*args, **kwargs)
+
+                return method
+            return getattr(self._cursor, attr)
+        # superclass
+        if hasattr(super(), attr):
+            if isinstance(getattr(super(), attr), types.MethodType):
+
+                def method(*args, **kwargs):
+                    return getattr(super(), attr)(*args, **kwargs)
+
+                return method
+            return getattr(super(), attr)
+        raise AttributeError
 
     def execute(
-        self, operation: str, parameters: Union[List, Tuple] = None
+        self, operation: str, parameters: Optional[Container] = None
     ) -> None:  # @UnusedVariable
-        self._log.debug("Executing query:\n%s" % operation)
+        managed_operation, decoration_cursor = (
+            ManagedOperation(operation, parameters),
+            None,
+        )
+        if self.__connection_hook_spec:
+            if self.__connection_hook_spec.validate_operation.get_hookimpls():
+                self._log.debug("Validating query:\n%s" % operation)
+                self.__connection_hook_spec.validate_operation(
+                    operation=operation, parameters=parameters
+                )
+
+            if self.__connection_hook_spec.decorate_operation.get_hookimpls():
+                self._log.debug("Decorating query:\n%s" % operation)
+                decoration_cursor = DecorationCursor(self._cursor, self._log)
+
+                self.__connection_hook_spec.decorate_operation(
+                    decoration_cursor=decoration_cursor,
+                    managed_operation=managed_operation,
+                )
+
+        self._log.info(
+            "Executing query:\n%s" % managed_operation.get_operation_decorated()
+        )
         try:
-            if parameters:
-                self._cur.execute(operation, parameters)
-            else:
-                self._cur.execute(operation)
-            self._log.debug("Executing query SUCCEEDED.")
-        except:
-            self._log.debug("Executing query FAILED.")
-            raise
+            super().execute(*managed_operation.get_decorated())
+            self._log.info("Executing query SUCCEEDED.")
+        except Exception as e:
+            try:
+                self._recover_operation(e, managed_operation, decoration_cursor)
+            except Exception as e:
+                if job_input_error_classifier.is_user_error(e):
+                    blamee = errors.ResolvableBy.USER_ERROR
+                else:
+                    blamee = errors.ResolvableBy.PLATFORM_ERROR
+                errors.log_and_rethrow(
+                    blamee,
+                    self._log,
+                    what_happened="Executing query FAILED.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    exception=e,
+                )
 
     def fetchall(self) -> Collection[Collection[Any]]:
-        self._log.debug("Fetching all results from query ...")
+        self._log.info("Fetching all results from query ...")
         try:
-            res = self._cur.fetchall()
-            self._log.debug("Fetching all results from query SUCCEEDED.")
+            res = self._cursor.fetchall()
+            self._log.info("Fetching all results from query SUCCEEDED.")
             return cast(Collection[Collection[Any]], res)
         except:
-            self._log.debug("Fetching all results from query FAILED.")
+            self._log.info("Fetching all results from query FAILED.")
             raise
 
     def close(self) -> None:
-        self._log.debug("Closing DB cursor ...")
-        self._cur.close()
-        self._log.debug("Closing DB cursor SUCCEEDED.")
+        self._log.info("Closing DB cursor ...")
+        self._cursor.close()
+        self._log.info("Closing DB cursor SUCCEEDED.")
+
+    def _recover_operation(self, exception, managed_operation, decoration_cursor):
+        # TODO: configurable generic re-try.
+        if (
+            not self.__connection_hook_spec
+            or not self.__connection_hook_spec.recover_operation.get_hookimpls()
+        ):
+            raise exception
+
+        recovery_cursor = RecoveryCursor(
+            self._cursor,
+            self._log,
+            OperationRecovery(exception, managed_operation),
+            decoration_cursor,
+            self.__connection_hook_spec.decorate_operation,
+        )
+        self._log.debug(
+            f"Recovery of query {managed_operation.get_operation_decorated()}"
+        )
+        try:
+            self.__connection_hook_spec.recover_operation(
+                recovery_cursor=recovery_cursor
+            )
+            self._log.debug(
+                f"Recovery of query SUCCEEDED "
+                f"after {(recovery_cursor.get_operation_recovery().get_retries())} retries."
+            )
+        except Exception as e:
+            self._log.debug(
+                f"Recovery of query FAILED "
+                f"after {(recovery_cursor.get_operation_recovery().get_retries())} retries."
+            )
+            if type(e) is type(exception) and e.args == exception.args:  # re-raised
+                raise exception
+            raise e from exception  # keep track of originating one

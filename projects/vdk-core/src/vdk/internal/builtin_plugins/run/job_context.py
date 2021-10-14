@@ -13,6 +13,9 @@ from vdk.api.plugin.plugin_input import IIngesterRegistry
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.api.plugin.plugin_input import IPropertiesRegistry
 from vdk.api.plugin.plugin_input import ITemplateRegistry
+from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRouter
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
@@ -74,7 +77,10 @@ class JobContext:
         self.step_builder = StepBuilder()
         self.job_args = job_args
 
-        self.connections = ManagedConnectionRouter(core_context.configuration)
+        self.connections = ManagedConnectionRouter(
+            core_context.configuration,
+            cast(ConnectionHookSpec, core_context.plugin_registry.hook()),
+        )
         self.templates = cast(ITemplateRegistry, templates)
         self.ingester = IngesterRouter(core_context.configuration, core_context.state)
 

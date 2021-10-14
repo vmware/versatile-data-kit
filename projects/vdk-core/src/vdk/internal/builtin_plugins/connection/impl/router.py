@@ -7,6 +7,9 @@ from typing import Union
 
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.internal.builtin_plugins.config.vdk_config import DB_DEFAULT_TYPE
+from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.internal.builtin_plugins.connection.impl.wrapped_connection import (
     WrappedConnection,
 )
@@ -26,8 +29,9 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
     In both cases dbtype must match the string in which the plugin register itself with.
     """
 
-    def __init__(self, cfg: Configuration):
+    def __init__(self, cfg: Configuration, connection_hook_spec: ConnectionHookSpec):
         self._cfg: Configuration = cfg
+        self._connection_hook_spec = connection_hook_spec
         self._log: logging.Logger = logging.getLogger(__name__)
         self._connections: Dict[str, ManagedConnectionBase] = dict()
         self._connection_builders: Dict[
@@ -90,6 +94,8 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
         conn = self._connection_builders[dbtype]()
         if isinstance(conn, ManagedConnectionBase):
             self._connections[dbtype] = conn
+            if not conn._connection_hook_spec:
+                conn._connection_hook_spec = self._connection_hook_spec
         elif conn is None:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
@@ -105,6 +111,6 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
             log = logging.getLogger(conn.__class__.__name__)
             conn.close()  # we will let ManagedConnection to open it when needed.
             self._connections[dbtype] = WrappedConnection(
-                log, self._connection_builders[dbtype]
+                log, self._connection_builders[dbtype], self._connection_hook_spec
             )
         return self._connections[dbtype]

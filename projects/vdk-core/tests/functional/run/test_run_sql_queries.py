@@ -67,7 +67,7 @@ def test_run_managed_connection_and_check_query_comments():
     )
 
     cli_assert_equal(0, result)
-    assert len(db_plugin.statements_history) == 2
+    assert len(db_plugin.statements_history) == 3
     # assert those are automatically added as comments
     assert all(
         ["-- op_id" in statement for statement in db_plugin.statements_history]

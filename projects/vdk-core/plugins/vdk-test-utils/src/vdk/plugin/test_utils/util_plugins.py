@@ -16,9 +16,12 @@ from vdk.api.plugin.plugin_input import IPropertiesServiceClient
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
+from vdk.internal.builtin_plugins.connection.managed_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
+from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.context import CoreContext
 from vdk.internal.util.decorators import closing_noexcept_on_close
 
 DB_TYPE_SQLITE_MEMORY = "SQLITE_MEMORY"
@@ -77,17 +80,9 @@ class SqLite3MemoryDbPlugin:
 
 
 class SqLite3MemoryConnection(ManagedConnectionBase):
-    def _before_cursor_execute(self, cur: ManagedCursor) -> None:
-        super()._before_cursor_execute(cur)
-
     def __init__(self, history: List):
-        super().__init__(logging.getLogger(__name__))
-        self.history = history
+        super().__init__(logging.getLogger(__name__), None)
         self.db = SqLite3MemoryDb()
-
-    def _cursor_execute(self, cur: ManagedCursor, query: str) -> None:
-        self.history.append(query)
-        super()._cursor_execute(cur, query)
 
     def _connect(self) -> PEP249Connection:
         return self.db.new_connection()
@@ -105,6 +100,12 @@ class DecoratedSqLite3MemoryDbPlugin:
         context.connections.add_open_connection_factory_method(
             DB_TYPE_SQLITE_MEMORY, self.new_connection
         )
+
+    @hookimpl(trylast=True)
+    def decorate_operation(
+        self, decoration_cursor: DecorationCursor, managed_operation: ManagedOperation
+    ) -> None:
+        self.statements_history.append(managed_operation.get_operation_decorated())
 
 
 class TestPropertiesServiceClient(IPropertiesServiceClient):

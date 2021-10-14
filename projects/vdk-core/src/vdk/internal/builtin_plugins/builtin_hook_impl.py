@@ -16,6 +16,12 @@ from vdk.internal.builtin_plugins.config.log_config import LoggingPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import CoreConfigDefinitionPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import EnvironmentVarsConfigPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import JobConfigIniPlugin
+from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+    ConnectionHookSpec,
+)
+from vdk.internal.builtin_plugins.connection.connection_plugin import (
+    QueryDecoratorPlugin,
+)
 from vdk.internal.builtin_plugins.debug.debug import DebugPlugins
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration_plugin import (
     IngesterConfigurationPlugin,
@@ -96,6 +102,9 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())
     plugin_registry.load_plugin_with_hooks_impl(TerminationMessageWriterPlugin())
+    # connection plugins
+    plugin_registry.add_hook_specs(ConnectionHookSpec)
+    plugin_registry.load_plugin_with_hooks_impl(QueryDecoratorPlugin())
 
 
 @hookimpl(tryfirst=True)
