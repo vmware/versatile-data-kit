@@ -61,10 +61,4 @@ def initialize_job(context: JobContext) -> None:
     job_name = context.name
 
     for handler in logging.getLogger().handlers:
-        handler.setFormatter(
-            EcsJsonFormatter(
-                job_name=job_name,
-                attempt_id=attempt_id,
-                exclude_fields=["ecs", "process"],
-            )
-        )
+        handler.setFormatter(EcsJsonFormatter(job_name=job_name, attempt_id=attempt_id))
