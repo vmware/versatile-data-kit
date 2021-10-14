@@ -63,16 +63,22 @@ class RuntimeStateInitializePlugin:
         attempt_id = context.configuration.get_value(vdk_config.ATTEMPT_ID)
 
         if not attempt_id:
-            # UUID is 36 chars
-            attempt_id = (
-                f"{str(uuid.uuid4())}-{str(int(time.time()))}-{str(uuid.uuid4())[:5]}"
-            )
-            log.info(
-                f"Attempt ID not found in env or configuration. Using auto generated attempt_id: {attempt_id}"
-            )
+            # Generate attempt id if execution id not present.
+            if not execution_id:
+                # UUID is 36 chars
+                attempt_id = f"{str(uuid.uuid4())}-{str(int(time.time()))}-{str(uuid.uuid4())[:5]}"
+            # Use execution id to generate attempt id.
+            else:
+                attempt_id = f"{execution_id}-{str(uuid.uuid4())[:5]}"
+            # If env is cloud we must print a warning.
+            if context.configuration.get_value(vdk_config.LOG_CONFIG) == "CLOUD":
+                log.warning(
+                    f"Attempt ID not found in env or configuration. Using auto generated attempt_id: {attempt_id}"
+                )
 
         if not execution_id:
-            execution_id = attempt_id[:-6]
+            # Delete everything after the last '-' character in the attempt id (inclusive)
+            execution_id = "-".join(attempt_id.split("-")[:-1])
 
         if not op_id:
             op_id = execution_id
