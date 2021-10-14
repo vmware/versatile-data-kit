@@ -13,7 +13,9 @@ from typing import Optional
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.decoration_cursor import (
+    DecorationCursor,
+)
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
