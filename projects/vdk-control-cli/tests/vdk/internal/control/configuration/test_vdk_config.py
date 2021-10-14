@@ -47,6 +47,12 @@ def test_config_folder_named_file_exists_error():
                 VDKConfigFolder(dir_path)
 
 
+def test_config_folder_parent_paths_created():
+    with tempfile.TemporaryDirectory() as dir_path:
+        config_path = os.path.join(dir_path, "parent_dir", ".vdk_dir")
+        VDKConfigFolder(config_path)
+
+
 # TODO: Check why os.chmod(cred_file_mock, stat.S_IREAD) don't change permissions in the gitlab runner container
 # def test_credentials_file_bad_permissions_exists_error():
 #    with tempfile.TemporaryDirectory() as dir_path:

@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from vdk.plugin.logging_json.logging_json import EscapeNewlinesAndQuotesFormatter
-from vdk.plugin.logging_json.logging_json import format_template
-
-
-def test_json_logging():
-    for handler in logging.getLogger(__name__).handlers:
-        assert handler.formatter._fmt == format_template
+from vdk.plugin.logging_json.logging_json import EcsJsonFormatter
 
 
 def test_formatter():
-    formatter = EscapeNewlinesAndQuotesFormatter(fmt="")
+    formatter = EcsJsonFormatter(
+        job_name="", attempt_id="", exclude_fields=["ecs", "process"]
+    )
 
     log_record = logging.LogRecord(
         name="",
@@ -22,12 +18,29 @@ def test_formatter():
         msg="test-string",
         args=(),
         exc_info=None,
+        func="",
     )
 
-    assert formatter.format(log_record) == "test-string"
+    # we slice the result at the 43rd character to skip the timestamp since it'll be different every time
+    result = formatter.format(log_record)
+    assert result[43:] == (
+        '"message": "test-string", "level": "LEVEL 1", '
+        '"lineno": 1, "filename": "", "modulename": "", '
+        '"funcname": "", "jobname": "", "attemptid": ""}'
+    )
 
     log_record.msg = "test\nstring\nwith\nnewlines"
-    assert formatter.format(log_record) == "test\\nstring\\nwith\\nnewlines"
+    result = formatter.format(log_record)
+    assert result[43:] == (
+        '"message": "test\\nstring\\nwith\\nnewlines", '
+        '"level": "LEVEL 1", "lineno": 1, "filename": "", '
+        '"modulename": "", "funcname": "", "jobname": "", "attemptid": ""}'
+    )
 
     log_record.msg = 'test"string"with"double"quotes'
-    assert formatter.format(log_record) == 'test\\"string\\"with\\"double\\"quotes'
+    result = formatter.format(log_record)
+    assert result[43:] == (
+        '"message": "test\\"string\\"with\\"double\\"quotes", '
+        '"level": "LEVEL 1", "lineno": 1, "filename": "", '
+        '"modulename": "", "funcname": "", "jobname": "", "attemptid": ""}'
+    )

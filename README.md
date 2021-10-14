@@ -1,3 +1,19 @@
+![Versatile Data Kit](./support/images/versatile-data-kit.svg)
+
+<p align="center">
+    <a href="https://github.com/badges/shields/pulse" alt="Activity">
+        <img src="https://img.shields.io/github/commit-activity/m/vmware/versatile-data-kit" /></a>
+    <a href="https://github.com/badges/shields/graphs/contributors" alt="Last Activity">
+        <img src="https://img.shields.io/github/last-commit/vmware/versatile-data-kit" alt="Last Activity"></a>
+    <a href="https://github.com/vmware/versatile-data-kit/blob/main/LICENSE" alt="License">
+        <img src="https://img.shields.io/github/license/vmware/versatile-data-kit" alt="license"></a>
+    <a href="https://github.com/pre-commit/pre-commit">
+        <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit"></a>
+    <a href="https://github.com/vmware/versatile-data-kit">
+        <img src="https://gitlab.com/vmware-analytics/versatile-data-kit/badges/main/pipeline.svg" alt="build status"></a>
+    <!-- TODO: code coverage -->
+</p>
+
 # Overview
 
 Versatile Data Kit is a data engineering framework that enables Data Engineers to develop, troubleshoot, deploy, run, and manage data processing workloads (referred to as "Data Jobs").
