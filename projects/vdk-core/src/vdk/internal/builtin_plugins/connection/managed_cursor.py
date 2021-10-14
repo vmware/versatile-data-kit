@@ -108,10 +108,11 @@ class ManagedCursor(PEP249Cursor):
             try:
                 self._recover_operation(e, managed_operation, decoration_cursor)
             except Exception as e:
-                if job_input_error_classifier.is_user_error(e):
-                    blamee = errors.ResolvableBy.USER_ERROR
-                else:
-                    blamee = errors.ResolvableBy.PLATFORM_ERROR
+                # todo: error classification
+                # if job_input_error_classifier.is_user_error(e):
+                blamee = errors.ResolvableBy.USER_ERROR
+                # else:
+                #     blamee = errors.ResolvableBy.PLATFORM_ERROR
                 errors.log_and_rethrow(
                     blamee,
                     self._log,
