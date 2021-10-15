@@ -57,13 +57,34 @@ public class DataJobMetrics {
     }
 
     /**
+     * Creates a "taurus.datajob.info" and a "taurus.datajob.notification.delay" gauge for the specified data job
+     * if they do not exist. If a gauge already exists, but it has different tags, the existing gauge is deleted
+     * and a new one is created. If the data job does not have a configuration, no gauges are created.
+     *
+     * @param dataJob The data job for which to update the gauges.
+     */
+    public void updateInfoGauges(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
+
+        lock.lock();
+        try {
+            updateInfoGauge(dataJob);
+            updateNotificationDelayGauge(dataJob);
+        } catch (Exception e) {
+            log.warn("An exception occurred while updating the info gauges of data job {}", dataJob.getName(), e);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * Creates a "taurus.datajob.info" gauge for the specified data job if one does not exist.
      * If a gauge already exists, but it has different tags, the existing gauge is deleted and a new one is created.
      * If the data job does not have a configuration, no gauge is created.
      *
      * @param dataJob The data job for which to update the gauge.
      */
-    public void updateInfoGauge(final DataJob dataJob) {
+    private void updateInfoGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
         lock.lock();
@@ -96,7 +117,7 @@ public class DataJobMetrics {
      *
      * @param dataJob The data job for which to update the gauge.
      */
-    public void updateNotificationDelayGauge(final DataJob dataJob) {
+    private void updateNotificationDelayGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
         lock.lock();
@@ -175,7 +196,7 @@ public class DataJobMetrics {
         return gauge;
     }
 
-    public void removeInfoGauge(final String dataJobName) {
+    private void removeInfoGauge(final String dataJobName) {
         lock.lock();
         try {
             if (StringUtils.isNotBlank(dataJobName)) {
@@ -205,7 +226,7 @@ public class DataJobMetrics {
         return gauge;
     }
 
-    public void removeNotificationDelayGauge(final String dataJobName) {
+    private void removeNotificationDelayGauge(final String dataJobName) {
         lock.lock();
         try {
             if (StringUtils.isNotBlank(dataJobName)) {
@@ -236,7 +257,7 @@ public class DataJobMetrics {
         return gauge;
     }
 
-    public void removeTerminationStatusGauge(final String dataJobName) {
+    private void removeTerminationStatusGauge(final String dataJobName) {
         lock.lock();
         try {
             if (StringUtils.isNotBlank(dataJobName)) {

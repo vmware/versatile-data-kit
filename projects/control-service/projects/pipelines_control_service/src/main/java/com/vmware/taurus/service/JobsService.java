@@ -103,8 +103,7 @@ public class JobsService {
             credentialsService.createJobCredentials(jobInfo.getName());
          }
          var dataJob = jobsRepository.save(jobInfo);
-         dataJobMetrics.updateInfoGauge(dataJob);
-         dataJobMetrics.updateNotificationDelayGauge(dataJob);
+         dataJobMetrics.updateInfoGauges(dataJob);
 
          return JobOperationResult.builder()
                  .completed(true)
@@ -139,8 +138,7 @@ public class JobsService {
     */
    public boolean updateJob(DataJob jobInfo) {
       var dataJob = jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null;
-      dataJobMetrics.updateInfoGauge(dataJob);
-      dataJobMetrics.updateNotificationDelayGauge(dataJob);
+      dataJobMetrics.updateInfoGauges(dataJob);
       return dataJob != null;
    }
 

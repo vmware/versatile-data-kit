@@ -31,8 +31,7 @@ public class DataJobInfoMonitor {
    public void updateDataJobInfo(final DataJob dataJob) {
       Objects.requireNonNull(dataJob);
 
-      dataJobMetrics.updateInfoGauge(dataJob);
-      dataJobMetrics.updateNotificationDelayGauge(dataJob);
+      dataJobMetrics.updateInfoGauges(dataJob);
    }
 
    /**

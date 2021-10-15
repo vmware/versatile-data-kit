@@ -152,11 +152,16 @@ public class DataJobStatusMonitorTest {
         dataJobStatusMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(5, gauges.size());
+        // We had 1 gauge from previous tests and added 4 more; but data jobs with last termination status SKIPPED
+        // have no metrics exposed; so effectively the expected number of gauges is 4
+        Assertions.assertEquals(4, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
             Assertions.assertTrue(expectedJob.isPresent());
-            Assertions.assertEquals(getTerminationStatus(s), expectedJob.get().getLatestJobTerminationStatus());
+            ExecutionTerminationStatus expectedStatus = getTerminationStatus(s);
+            if (expectedStatus != ExecutionTerminationStatus.SKIPPED) {
+                Assertions.assertEquals(expectedStatus, expectedJob.get().getLatestJobTerminationStatus());
+            }
         });
     }
 
@@ -177,7 +182,7 @@ public class DataJobStatusMonitorTest {
         dataJobStatusMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(5, gauges.size());
+        Assertions.assertEquals(4, gauges.size());
         Assertions.assertEquals(5, jobsRepository.count());
     }
 
@@ -195,7 +200,7 @@ public class DataJobStatusMonitorTest {
         dataJobStatusMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(5, gauges.size());
+        Assertions.assertEquals(4, gauges.size());
         Assertions.assertEquals(5, jobsRepository.count());
     }
 
@@ -210,12 +215,12 @@ public class DataJobStatusMonitorTest {
             return null;
         }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(
-                new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), null)));
+                new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), s.getExecutionId())));
 
         dataJobStatusMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(6, gauges.size());
+        Assertions.assertEquals(5, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
             Assertions.assertTrue(expectedJob.isPresent());
@@ -239,7 +244,7 @@ public class DataJobStatusMonitorTest {
         dataJobStatusMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(7, gauges.size());
+        Assertions.assertEquals(5, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
             Assertions.assertTrue(expectedJob.isPresent());
@@ -256,7 +261,7 @@ public class DataJobStatusMonitorTest {
         dataJobStatusMonitor.updateDataJobTerminationStatus(jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(7, gauges.size());
+        Assertions.assertEquals(5, gauges.size());
     }
 
     @Test
