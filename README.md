@@ -1,9 +1,9 @@
 ![Versatile Data Kit](./support/images/versatile-data-kit.svg)
 
 <p align="center">
-    <a href="https://github.com/badges/shields/pulse" alt="Activity">
+    <a href="https://github.com/vmware/versatile-data-kit/pulse" alt="Activity">
         <img src="https://img.shields.io/github/commit-activity/m/vmware/versatile-data-kit" /></a>
-    <a href="https://github.com/badges/shields/graphs/contributors" alt="Last Activity">
+    <a href="https://github.com/vmware/versatile-data-kit/contributors" alt="Last Activity">
         <img src="https://img.shields.io/github/last-commit/vmware/versatile-data-kit" alt="Last Activity"></a>
     <a href="https://github.com/vmware/versatile-data-kit/blob/main/LICENSE" alt="License">
         <img src="https://img.shields.io/github/license/vmware/versatile-data-kit" alt="license"></a>
@@ -11,7 +11,10 @@
         <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit"></a>
     <a href="https://github.com/vmware/versatile-data-kit">
         <img src="https://gitlab.com/vmware-analytics/versatile-data-kit/badges/main/pipeline.svg" alt="build status"></a>
-    <!-- TODO: code coverage -->
+    <a href="https://twitter.com/intent/tweet?text=Wow: @VDKProject">
+        <img src="https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FVDKProject" alt="twitter"/></a>
+
+<!-- TODO: code coverage -->
 </p>
 
 # Overview
@@ -65,7 +68,7 @@ Official documentation for Versatile Data Kit can be found [here](https://github
 If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CONTRIBUTING.md).
 
 # Contacts
-You can join our public Slack workspace by clicking [here](https://join.slack.com/t/versatiledata-rgg2437/shared_invite/zt-tvnl62c3-qP0EUYJZJxb6Ws_eQWyDtQ) or request to join our mailing list by emailing [here](mailto:join-versatiledatakit@groups.vmware.com?subject=Invite%20me%20to%20the%20VDK%20mailing%20list).
+Join our [public slack workspace](https://join.slack.com/t/versatiledata-rgg2437/shared_invite/zt-tvnl62c3-qP0EUYJZJxb6Ws_eQWyDtQ) or [our mailing list](mailto:join-versatiledatakit@groups.vmware.com?subject=Invite%20me%20to%20the%20VDK%20mailing%20list) or [follow us on twitter](https://twitter.com/intent/follow?screen_name=VDKProject).
 
 # Code of Conduct
 Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels and mailing lists is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
