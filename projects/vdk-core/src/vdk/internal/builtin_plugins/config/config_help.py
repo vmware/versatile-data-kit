@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import re
 from collections import OrderedDict
 from textwrap import wrap
 from typing import cast
@@ -14,10 +15,16 @@ log = logging.getLogger(__name__)
 CONFIG_HELP = """
 Configuring VDK is done via:
 {config_providers}
------
+-----------
 
 List of configuration variables:
 {config_variables}
+
+------------
+
+How to set them?\n
+The above listed configuration variables can be set using following configuration providers:\n
+{config_providers}
 """
 
 
@@ -38,6 +45,16 @@ def description_line_wrapping(description, description_start=40, description_len
     return "\n".join(wrapped_text_list)
 
 
+def description_cleanup(config_variable: str, description: str, description_start: int):
+    if description:
+        description = re.sub(" +", " ", description)
+        description = re.sub("\n ", "\n", description)
+        description = description.strip()
+        if len(config_variable) > description_start:
+            description = "  " + description
+    return description
+
+
 # Description length can be configured by changing the default value for description_length
 def formatted_configuration_help(
     config_variable, description, description_start=40, description_length=60
@@ -45,6 +62,7 @@ def formatted_configuration_help(
     config_variable = config_variable.strip()
     padding = " " * (description_start - len(config_variable))
     conf_help = "{config_var}{padding}{description}"
+    description = description_cleanup(config_variable, description, description_start)
     return conf_help.format(
         config_var=config_variable,
         padding=padding,
