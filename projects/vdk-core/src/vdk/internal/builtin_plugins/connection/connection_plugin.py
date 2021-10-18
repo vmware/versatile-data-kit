@@ -3,6 +3,7 @@
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
@@ -18,15 +19,14 @@ class QueryDecoratorPlugin:
         self._op_id = context.state.get(CommonStoreKeys.OP_ID)
 
     @hookimpl
-    def decorate_operation(
-        self, decoration_cursor: DecorationCursor, managed_operation: ManagedOperation
-    ) -> None:
-        managed_operation.set_operation_decorated(
+    def decorate_operation(self, cursor: DecorationCursor) -> None:
+        managed_operation = cursor.get_managed_operation()
+        managed_operation.set_operation(
             "\n".join(
                 ["-- job_name: {job_name}", "-- op_id: {op_id}", "{operation}"]
             ).format(
                 job_name=self._job_name,
                 op_id=self._op_id,
-                operation=managed_operation.get_operation_decorated(),
+                operation=managed_operation.get_operation(),
             )
         )

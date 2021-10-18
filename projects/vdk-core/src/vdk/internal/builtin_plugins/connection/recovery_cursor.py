@@ -5,57 +5,56 @@ from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOpe
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 
 
-class OperationRecovery:
-    def __init__(self, exception, managed_operation: ManagedOperation):
-        self.__exception = exception
-        self.__managed_operation = managed_operation
-        self.__retries = 0
-
-    def get_exception(self):
-        return self.__exception
-
-    def get_managed_operation(self):
-        return self.__managed_operation
-
-    def get_retries(self):
-        return self.__retries
-
-    def retries_increment(self):
-        self.__retries += 1
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, OperationRecovery):
-            return False
-        return (
-            self.__operation == o.get_operation()
-            and self.__parameters == o.get_parameters()
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.__operation, self.__parameters))
-
-
 class RecoveryCursor(PEP249Cursor):
+    """
+    Extends PEP249Cursor to provide:
+        * query and parameters executed
+        * exception that occurred during execution
+        * tooling for operation recovery
+    """
+
     def __init__(
         self,
         native_cursor: PEP249Cursor,
         log,
-        operation_recovery: OperationRecovery,
-        decoration_cursor: DecorationCursor,
+        exception,
+        managed_operation: ManagedOperation,
         decoration_operation_callback,
     ):
         super().__init__(native_cursor, log)
-        self.__operation_recovery = operation_recovery
-        self.__decoration_cursor = decoration_cursor
+        self.__exception = exception
+        self.__managed_operation = managed_operation
         self.__decoration_operation_callback = decoration_operation_callback
+        self.__retries = 0
 
-    def get_operation_recovery(self) -> OperationRecovery:
-        return self.__operation_recovery
+    def get_exception(self) -> Exception:
+        """
+        Retrieve the exception to recover from.
+
+        :return: Exception
+            Query and parameters DTO
+        """
+        return self.__exception
+
+    def get_managed_operation(self) -> ManagedOperation:
+        """
+        Retrieve operation DTO to curate the query and parameters.
+
+        :return: ManagedOperation
+            Query and parameters DTO
+        """
+        return self.__managed_operation
 
     def get_retries(self) -> int:
-        return self.__operation_recovery.get_retries()
+        """
+        Fetch retries made using retry_operation().
 
-    def execute(self, operation, parameters=None):
+        :return: int
+            Number of operation retries performed
+        """
+        return self.__retries
+
+    def execute(self, operation, parameters=None) -> None:
         """
         Execute an additional query purposed for the recovery of the original operation.
 
@@ -66,39 +65,40 @@ class RecoveryCursor(PEP249Cursor):
         if self.__decoration_operation_callback:
             self._log.debug("Before executing recovery query:\n%s" % operation)
             self.__decoration_operation_callback(
-                decoration_cursor=self.__decoration_cursor,
-                managed_operation=managed_operation,
+                cursor=DecorationCursor(self._cursor, self._log, managed_operation)
             )
-
         self._log.info(
-            "Executing recovery query:\n%s"
-            % managed_operation.get_operation_decorated()
+            "Executing recovery query:\n%s" % managed_operation.get_operation()
         )
         try:
-            super().execute(*managed_operation.get_decorated())
+            super().execute(*managed_operation.get_operation_parameters_tuple())
             self._log.info("Executing recovery query SUCCEEDED.")
         except Exception as e:
-            self.__operation_recovery.retries_increment()
+            self.retries_increment()
             self._log.warning("Executing recovery query FAILED.", e)
             raise e
 
-    def retry_operation(self):
+    def retry_operation(self) -> None:
         """
         Retry original operation to recover.
         """
         # could potentially enforce max retries here globally - in favour of per custom error handler
-        operation_recovery = self.__operation_recovery
-        operation_recovery.retries_increment()
 
-        retry_number = operation_recovery.get_retries()
+        self.retries_increment()
+        retry_number = self.get_retries()
 
         self._log.info(
             f"Retrying attempt #{retry_number} "
-            f"for query:\n{operation_recovery.get_managed_operation().get_operation_decorated()}"
+            f"for query:\n{self.get_managed_operation().get_operation()}"
         )
         try:
-            super().execute(*operation_recovery.get_managed_operation().get_decorated())
+            super().execute(
+                *self.get_managed_operation().get_operation_parameters_tuple()
+            )
             self._log.info(f"Retrying attempt #{retry_number} for query SUCCEEDED.")
         except Exception as e:
             self._log.warning(f"Retrying attempt #{retry_number} for query FAILED.", e)
             raise e
+
+    def retries_increment(self) -> None:
+        self.__retries += 1

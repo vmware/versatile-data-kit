@@ -61,11 +61,10 @@ class ManagedCursorTests(unittest.TestCase):
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
 
-        def mock_decorate(
-            decoration_cursor: DecorationCursor, managed_operation: ManagedOperation
-        ):
-            managed_operation.set_operation_decorated(
-                f"decorated {managed_operation.get_operation_decorated()}"
+        def mock_decorate(cursor: DecorationCursor):
+            managed_operation = cursor.get_managed_operation()
+            managed_operation.set_operation(
+                f"decorated {managed_operation.get_operation()}"
             )
 
         mock_connection_hook_spec.decorate_operation.side_effect = mock_decorate
@@ -104,11 +103,10 @@ class ManagedCursorTests(unittest.TestCase):
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
 
-        def mock_decorate(
-            decoration_cursor: DecorationCursor, managed_operation: ManagedOperation
-        ):
-            managed_operation.set_operation_decorated(
-                f"decorated {managed_operation.get_operation_decorated()}"
+        def mock_decorate(cursor: DecorationCursor):
+            managed_operation = cursor.get_managed_operation()
+            managed_operation.set_operation(
+                f"decorated {managed_operation.get_operation()}"
             )
 
         def mock_recover(recovery_cursor: RecoveryCursor):
@@ -141,11 +139,10 @@ class ManagedCursorTests(unittest.TestCase):
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
 
-        def mock_decorate(
-            decoration_cursor: DecorationCursor, managed_operation: ManagedOperation
-        ):
-            managed_operation.set_operation_decorated(
-                f"decorated {managed_operation.get_operation_decorated()}"
+        def mock_decorate(cursor: DecorationCursor):
+            managed_operation = cursor.get_managed_operation()
+            managed_operation.set_operation(
+                f"decorated {managed_operation.get_operation()}"
             )
 
         def mock_recover(recovery_cursor: RecoveryCursor):

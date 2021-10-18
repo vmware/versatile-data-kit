@@ -104,10 +104,8 @@ class DecoratedSqLite3MemoryDbPlugin:
         )
 
     @hookimpl(trylast=True)
-    def decorate_operation(
-        self, decoration_cursor: DecorationCursor, managed_operation: ManagedOperation
-    ) -> None:
-        self.statements_history.append(managed_operation.get_operation_decorated())
+    def decorate_operation(self, cursor: DecorationCursor) -> None:
+        self.statements_history.append(cursor.get_managed_operation().get_operation())
 
 
 class TestPropertiesServiceClient(IPropertiesServiceClient):

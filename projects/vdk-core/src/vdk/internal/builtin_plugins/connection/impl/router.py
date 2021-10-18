@@ -5,11 +5,11 @@ from typing import Callable
 from typing import Dict
 from typing import Union
 
-from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
-from vdk.internal.builtin_plugins.config.vdk_config import DB_DEFAULT_TYPE
-from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
+from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
+from vdk.internal.builtin_plugins.config.vdk_config import DB_DEFAULT_TYPE
 from vdk.internal.builtin_plugins.connection.impl.wrapped_connection import (
     WrappedConnection,
 )

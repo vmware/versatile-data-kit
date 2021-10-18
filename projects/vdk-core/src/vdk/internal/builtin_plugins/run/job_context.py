@@ -9,13 +9,13 @@ from typing import cast
 from vdk.api.job_input import IJobArguments
 from vdk.api.job_input import IJobInput
 from vdk.api.job_input import ITemplate
+from vdk.api.plugin.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.api.plugin.plugin_input import IIngesterRegistry
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.api.plugin.plugin_input import IPropertiesRegistry
 from vdk.api.plugin.plugin_input import ITemplateRegistry
-from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
-    ConnectionHookSpec,
-)
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRouter
 from vdk.internal.builtin_plugins.job_properties.properties_router import (

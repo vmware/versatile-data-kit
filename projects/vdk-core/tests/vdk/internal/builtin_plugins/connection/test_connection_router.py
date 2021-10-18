@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter

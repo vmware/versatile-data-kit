@@ -3,15 +3,13 @@
 import logging
 from typing import Any
 from typing import Callable
-from typing import Dict
 
-from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 
 

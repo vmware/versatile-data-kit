@@ -8,19 +8,14 @@ from typing import Collection
 from typing import Container
 from typing import Optional
 
-from vdk.api.plugin.hook_markers import hookimpl
-from vdk.api.plugin.hook_markers import hookspec
-from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
-from vdk.internal.builtin_plugins.connection.recovery_cursor import OperationRecovery
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
-from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.core import errors
-from vdk.internal.core.context import CoreContext
 
 
 class ManagedCursor(PEP249Cursor):
@@ -91,22 +86,19 @@ class ManagedCursor(PEP249Cursor):
 
             if self.__connection_hook_spec.decorate_operation.get_hookimpls():
                 self._log.debug("Decorating query:\n%s" % operation)
-                decoration_cursor = DecorationCursor(self._cursor, self._log)
-
-                self.__connection_hook_spec.decorate_operation(
-                    decoration_cursor=decoration_cursor,
-                    managed_operation=managed_operation,
+                decoration_cursor = DecorationCursor(
+                    self._cursor, self._log, managed_operation
                 )
 
-        self._log.info(
-            "Executing query:\n%s" % managed_operation.get_operation_decorated()
-        )
+                self.__connection_hook_spec.decorate_operation(cursor=decoration_cursor)
+
+        self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         try:
-            super().execute(*managed_operation.get_decorated())
+            super().execute(*managed_operation.get_operation_parameters_tuple())
             self._log.info("Executing query SUCCEEDED.")
         except Exception as e:
             try:
-                self._recover_operation(e, managed_operation, decoration_cursor)
+                self._recover_operation(e, managed_operation)
             except Exception as e:
                 # todo: error classification
                 # if job_input_error_classifier.is_user_error(e):
@@ -138,7 +130,7 @@ class ManagedCursor(PEP249Cursor):
         self._cursor.close()
         self._log.info("Closing DB cursor SUCCEEDED.")
 
-    def _recover_operation(self, exception, managed_operation, decoration_cursor):
+    def _recover_operation(self, exception, managed_operation):
         # TODO: configurable generic re-try.
         if (
             not self.__connection_hook_spec
@@ -149,25 +141,23 @@ class ManagedCursor(PEP249Cursor):
         recovery_cursor = RecoveryCursor(
             self._cursor,
             self._log,
-            OperationRecovery(exception, managed_operation),
-            decoration_cursor,
+            exception,
+            managed_operation,
             self.__connection_hook_spec.decorate_operation,
         )
-        self._log.debug(
-            f"Recovery of query {managed_operation.get_operation_decorated()}"
-        )
+        self._log.debug(f"Recovery of query {managed_operation.get_operation()}")
         try:
             self.__connection_hook_spec.recover_operation(
                 recovery_cursor=recovery_cursor
             )
             self._log.debug(
                 f"Recovery of query SUCCEEDED "
-                f"after {(recovery_cursor.get_operation_recovery().get_retries())} retries."
+                f"after {(recovery_cursor.get_retries())} retries."
             )
         except Exception as e:
             self._log.debug(
                 f"Recovery of query FAILED "
-                f"after {(recovery_cursor.get_operation_recovery().get_retries())} retries."
+                f"after {(recovery_cursor.get_retries())} retries."
             )
             if type(e) is type(exception) and e.args == exception.args:  # re-raised
                 raise exception

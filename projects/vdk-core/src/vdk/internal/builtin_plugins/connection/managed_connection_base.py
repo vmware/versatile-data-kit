@@ -6,10 +6,8 @@ from abc import abstractmethod
 from types import TracebackType
 from typing import Any
 from typing import cast
-from typing import Container
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Type
 
 from tenacity import before_sleep_log
@@ -18,13 +16,11 @@ from tenacity import retry_if_exception_type
 from tenacity import stop_after_attempt
 from tenacity import wait_exponential
 from vdk.api.job_input import IManagedConnection
-from vdk.internal.builtin_plugins.connection.connection_hook_spec import (
+from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
-from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.core import errors
 from vdk.internal.util.decorators import closing_noexcept_on_close
