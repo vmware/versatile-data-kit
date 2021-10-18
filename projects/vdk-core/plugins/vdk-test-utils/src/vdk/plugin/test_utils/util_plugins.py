@@ -16,8 +16,6 @@ from vdk.api.plugin.plugin_input import IPropertiesServiceClient
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
-from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.context import CoreContext
@@ -25,9 +23,7 @@ from vdk.internal.util.decorators import closing_noexcept_on_close
 
 # Commenting this due to dependency from/to vdk-core,
 # TODO: enable after managed cursor merge
-# from vdk.internal.builtin_plugins.connection.decoration_cursor import (
-#     DecorationCursor,
-# )
+# from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 
 DB_TYPE_SQLITE_MEMORY = "SQLITE_MEMORY"
 
