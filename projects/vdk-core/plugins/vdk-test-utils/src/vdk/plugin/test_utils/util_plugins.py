@@ -104,8 +104,8 @@ class DecoratedSqLite3MemoryDbPlugin:
 
     # TODO: enable after managed cursor merge
     # @hookimpl(trylast=True)
-    # def decorate_operation(self, cursor: DecorationCursor) -> None:
-    #     self.statements_history.append(cursor.get_managed_operation().get_operation())
+    # def decorate_operation(self, decoration_cursor: DecorationCursor) -> None:
+    #     self.statements_history.append(decoration_cursor.get_managed_operation().get_operation())
 
 
 class TestPropertiesServiceClient(IPropertiesServiceClient):

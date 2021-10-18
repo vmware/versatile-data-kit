@@ -90,7 +90,9 @@ class ManagedCursor(PEP249Cursor):
                     self._cursor, self._log, managed_operation
                 )
 
-                self.__connection_hook_spec.decorate_operation(cursor=decoration_cursor)
+                self.__connection_hook_spec.decorate_operation(
+                    decoration_cursor=decoration_cursor
+                )
 
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         try:

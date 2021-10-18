@@ -61,8 +61,8 @@ class ManagedCursorTests(unittest.TestCase):
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
 
-        def mock_decorate(cursor: DecorationCursor):
-            managed_operation = cursor.get_managed_operation()
+        def mock_decorate(decoration_cursor: DecorationCursor):
+            managed_operation = decoration_cursor.get_managed_operation()
             managed_operation.set_operation(
                 f"decorated {managed_operation.get_operation()}"
             )
@@ -103,8 +103,8 @@ class ManagedCursorTests(unittest.TestCase):
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
 
-        def mock_decorate(cursor: DecorationCursor):
-            managed_operation = cursor.get_managed_operation()
+        def mock_decorate(decoration_cursor: DecorationCursor):
+            managed_operation = decoration_cursor.get_managed_operation()
             managed_operation.set_operation(
                 f"decorated {managed_operation.get_operation()}"
             )
@@ -139,8 +139,8 @@ class ManagedCursorTests(unittest.TestCase):
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
 
-        def mock_decorate(cursor: DecorationCursor):
-            managed_operation = cursor.get_managed_operation()
+        def mock_decorate(decoration_cursor: DecorationCursor):
+            managed_operation = decoration_cursor.get_managed_operation()
             managed_operation.set_operation(
                 f"decorated {managed_operation.get_operation()}"
             )

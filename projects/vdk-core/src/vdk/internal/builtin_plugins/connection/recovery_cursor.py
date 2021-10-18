@@ -65,7 +65,9 @@ class RecoveryCursor(PEP249Cursor):
         if self.__decoration_operation_callback:
             self._log.debug("Before executing recovery query:\n%s" % operation)
             self.__decoration_operation_callback(
-                cursor=DecorationCursor(self._cursor, self._log, managed_operation)
+                decoration_cursor=DecorationCursor(
+                    self._cursor, self._log, managed_operation
+                )
             )
         self._log.info(
             "Executing recovery query:\n%s" % managed_operation.get_operation()

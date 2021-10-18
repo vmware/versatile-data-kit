@@ -51,7 +51,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
             self._log = logging.getLogger(__name__)
         self._is_db_con_open: bool = db_con is not None
         self._db_con: Optional[PEP249Connection] = db_con
-        self._connection_hook_spec = connection_hook_spec
+        self._connection_hook_spec: ConnectionHookSpec = connection_hook_spec
 
     def __getattr__(self, attr):
         """
@@ -85,6 +85,8 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
             return getattr(super(), attr)
         raise AttributeError
 
+    # Retry to connect on exception and backoff exponentially in
+    # 30s, 1m, 2m, 4m
     @retry(
         stop=stop_after_attempt(5),
         wait=wait_exponential(multiplier=30, min=30, max=240),
@@ -188,8 +190,6 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                 e,
             )
 
-    # Retry to connect on exception and backoff exponentially in
-    # 30s, 1m, 2m, 4m
     @abstractmethod
     def _connect(self) -> PEP249Connection:
         """

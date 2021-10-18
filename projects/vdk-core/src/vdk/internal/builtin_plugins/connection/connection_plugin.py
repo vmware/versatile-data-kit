@@ -19,8 +19,8 @@ class QueryDecoratorPlugin:
         self._op_id = context.state.get(CommonStoreKeys.OP_ID)
 
     @hookimpl
-    def decorate_operation(self, cursor: DecorationCursor) -> None:
-        managed_operation = cursor.get_managed_operation()
+    def decorate_operation(self, decoration_cursor: DecorationCursor) -> None:
+        managed_operation = decoration_cursor.get_managed_operation()
         managed_operation.set_operation(
             "\n".join(
                 ["-- job_name: {job_name}", "-- op_id: {op_id}", "{operation}"]

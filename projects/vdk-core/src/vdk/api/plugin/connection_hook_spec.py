@@ -53,19 +53,19 @@ class ConnectionHookSpec:
         pass
 
     @hookspec
-    def decorate_operation(self, cursor: DecorationCursor) -> None:
+    def decorate_operation(self, decoration_cursor: DecorationCursor) -> None:
         """
         Curates the operation and parameters.
         If an exception is raised, the cursor execution will be suspended.
 
         E.g.
         @hookimpl
-        decorate_operation(self, cursor):
-            managed_operation = cursor.get_managed_operation()
+        decorate_operation(decoration_cursor: DecorationCursor):
+            managed_operation = decoration_cursor.get_managed_operation()
             managed_operation.set_operation("prefix" +
                                              managed_operation.get_operation())
 
-        :param cursor: DecorationCursor
+        :param decoration_cursor: DecorationCursor
             A PEP249Cursor implementation purposed for query and parameters decoration.
             Provides operation details and tooling.
         :param managed_operation: ManagedOperation
