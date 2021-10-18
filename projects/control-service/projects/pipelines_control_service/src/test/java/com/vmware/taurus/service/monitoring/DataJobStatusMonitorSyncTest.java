@@ -40,7 +40,7 @@ public class DataJobStatusMonitorSyncTest {
         dataJobStatusMonitorSync.updateDataJobStatus();
 
         var dataJobsCaptor = ArgumentCaptor.forClass(Iterable.class);
-        Mockito.verify(dataJobStatusMonitor, Mockito.times(1)).updateDataJobsTerminationStatus(dataJobsCaptor.capture());
+        Mockito.verify(dataJobStatusMonitor, Mockito.times(1)).updateDataJobsTerminationStatusGauge(dataJobsCaptor.capture());
 
         Assertions.assertEquals(dataJobsCaptor.getValue(), mockJobs);
     }

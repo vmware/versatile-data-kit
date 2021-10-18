@@ -110,7 +110,7 @@ public class DataJobStatusMonitor {
      *
      * @param dataJob The data job for which to create or update a gauge.
      */
-    public void updateDataJobTerminationStatus(final DataJob dataJob) {
+    public void updateDataJobTerminationStatusGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
         if (dataJob.getLatestJobTerminationStatus() == null ||
@@ -127,10 +127,10 @@ public class DataJobStatusMonitor {
      *
      * @param dataJobs The data jobs for which to create or update gauges.
      */
-    public void updateDataJobsTerminationStatus(final Iterable<DataJob> dataJobs) {
+    public void updateDataJobsTerminationStatusGauge(final Iterable<DataJob> dataJobs) {
         Objects.requireNonNull(dataJobs);
 
-        dataJobs.forEach(this::updateDataJobTerminationStatus);
+        dataJobs.forEach(this::updateDataJobTerminationStatusGauge);
     }
 
     /**
@@ -159,7 +159,7 @@ public class DataJobStatusMonitor {
         var dataJob = dataJobOptional.get();
         if (shouldUpdateTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus())) {
             dataJob = saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus());
-            updateDataJobTerminationStatus(dataJob);
+            updateDataJobTerminationStatusGauge(dataJob);
         }
 
         jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);

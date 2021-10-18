@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.vmware.taurus.service.Utilities.join;
 
@@ -49,8 +48,6 @@ public class DataJobMetrics {
     private final Map<String, Integer> currentDelays = new ConcurrentHashMap<>();
     private final Map<String, Integer> currentStatuses = new ConcurrentHashMap<>();
 
-    private final ReentrantLock lock = new ReentrantLock(true);
-
     @Autowired
     public DataJobMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
@@ -66,15 +63,8 @@ public class DataJobMetrics {
     public void updateInfoGauges(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
-        lock.lock();
-        try {
-            updateInfoGauge(dataJob);
-            updateNotificationDelayGauge(dataJob);
-        } catch (Exception e) {
-            log.warn("An exception occurred while updating the info gauges of data job {}", dataJob.getName(), e);
-        } finally {
-            lock.unlock();
-        }
+        updateInfoGauge(dataJob);
+        updateNotificationDelayGauge(dataJob);
     }
 
     /**
@@ -87,7 +77,6 @@ public class DataJobMetrics {
     private void updateInfoGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
-        lock.lock();
         try {
             var dataJobName = dataJob.getName();
             if (dataJob.getJobConfig() == null) {
@@ -105,8 +94,6 @@ public class DataJobMetrics {
             infoGauges.computeIfAbsent(dataJobName, name -> createInfoGauge(name, newTags));
         } catch (Exception e) {
             log.warn("An exception occurred while updating the info gauge of data job {}", dataJob.getName(), e);
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -120,7 +107,6 @@ public class DataJobMetrics {
     private void updateNotificationDelayGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
-        lock.lock();
         try {
             var dataJobName = dataJob.getName();
             if (dataJob.getJobConfig() == null) {
@@ -133,8 +119,6 @@ public class DataJobMetrics {
             delayGauges.computeIfAbsent(dataJobName, this::createNotificationDelayGauge);
         } catch (Exception e) {
             log.warn("An exception occurred while updating the notification delay gauge of data job {}", dataJob.getName(), e);
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -147,7 +131,6 @@ public class DataJobMetrics {
     public void updateTerminationStatusGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
-        lock.lock();
         try {
             var dataJobName = dataJob.getName();
             var gauge = statusGauges.getOrDefault(dataJobName, null);
@@ -167,8 +150,6 @@ public class DataJobMetrics {
             }
         } catch (Exception e) {
             log.warn("An exception occurred while updating the termination status gauge of data job {}", dataJob.getName(), e);
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -177,14 +158,9 @@ public class DataJobMetrics {
      * @param dataJobName The name of the data job for which to clear all gauges.
      */
     public void clearGauges(final String dataJobName) {
-        lock.lock();
-        try {
-            removeInfoGauge(dataJobName);
-            removeNotificationDelayGauge(dataJobName);
-            removeTerminationStatusGauge(dataJobName);
-        } finally {
-            lock.unlock();
-        }
+        removeInfoGauge(dataJobName);
+        removeNotificationDelayGauge(dataJobName);
+        removeTerminationStatusGauge(dataJobName);
     }
 
     private Gauge createInfoGauge(final String dataJobName, final Tags tags) {
@@ -197,7 +173,6 @@ public class DataJobMetrics {
     }
 
     private void removeInfoGauge(final String dataJobName) {
-        lock.lock();
         try {
             if (StringUtils.isNotBlank(dataJobName)) {
                 var gauge = infoGauges.getOrDefault(dataJobName, null);
@@ -211,8 +186,8 @@ public class DataJobMetrics {
             } else {
                 log.warn("The info gauge cannot be removed: data job name is empty");
             }
-        } finally {
-            lock.unlock();
+        } catch (Exception e) {
+            log.warn("An exception occurred while removing the info gauge of data job {}", dataJobName, e);
         }
     }
 
@@ -227,7 +202,6 @@ public class DataJobMetrics {
     }
 
     private void removeNotificationDelayGauge(final String dataJobName) {
-        lock.lock();
         try {
             if (StringUtils.isNotBlank(dataJobName)) {
                 var gauge = delayGauges.getOrDefault(dataJobName, null);
@@ -242,8 +216,8 @@ public class DataJobMetrics {
             } else {
                 log.warn("The notification delay gauge cannot be removed: data job name is empty");
             }
-        } finally {
-            lock.unlock();
+        } catch (Exception e) {
+            log.warn("An exception occurred while removing the notification delay gauge of data job {}", dataJobName, e);
         }
     }
 
@@ -258,7 +232,6 @@ public class DataJobMetrics {
     }
 
     private void removeTerminationStatusGauge(final String dataJobName) {
-        lock.lock();
         try {
             if (StringUtils.isNotBlank(dataJobName)) {
                 var gauge = statusGauges.getOrDefault(dataJobName, null);
@@ -273,8 +246,8 @@ public class DataJobMetrics {
             } else {
                 log.warn("The termination status gauge cannot be removed: data job name is empty");
             }
-        } finally {
-            lock.unlock();
+        } catch (Exception e) {
+            log.warn("An exception occurred while removing the termination status gauge of data job {}", dataJobName, e);
         }
     }
 
