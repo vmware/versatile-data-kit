@@ -14,9 +14,9 @@ from vdk.internal.builtin_plugins.termination_message.writer import (
 )
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
+from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.statestore import CommonStoreKeys
-from vdk.internal.core.config import Configuration
 
 log = logging.getLogger(__name__)
 EXECUTION_SKIP_CHECKER_ENABLED = "EXECUTION_SKIP_CHECKER_ENABLED"
