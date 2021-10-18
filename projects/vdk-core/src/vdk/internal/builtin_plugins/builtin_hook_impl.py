@@ -55,24 +55,42 @@ class RuntimeStateInitializePlugin:
 
         Configuration can override an attempt/op/execution id.
 
-        Otherwise each is auto-generated in format:
-        * Attempt id format is "execution_id-random_suffix"
-        * Execution id format is "op_id-random_suffix"
-        * Op Id is random string.
+        Attempt id and Execution id are extracted from env variables.
+        If not present they are auto generated.
+
+        If auto generated:
+        * Attempt id format is uuid + timestamp + five random chars.
+        * Execution id is attempt id minus last 6 chars.
+        * Op id is equal to execution id.
         """
         op_id = context.configuration.get_value(vdk_config.OP_ID)
         execution_id = context.configuration.get_value(vdk_config.EXECUTION_ID)
         attempt_id = context.configuration.get_value(vdk_config.ATTEMPT_ID)
 
-        if not op_id:
-            op_id = str(int(time.time()))
+        if not attempt_id:
+            # Generate attempt id if execution id not present.
+            if not execution_id:
+                # UUID is 36 chars
+                attempt_id = f"{str(uuid.uuid4())}-{str(int(time.time()))}-{str(uuid.uuid4())[:5]}"
+            # Use execution id to generate attempt id.
+            else:
+                attempt_id = f"{execution_id}-{str(uuid.uuid4())[:5]}"
+            # If env is cloud we must print a warning.
+            if context.configuration.get_value(vdk_config.LOG_CONFIG) == "CLOUD":
+                log.warning(
+                    f"Attempt ID not found in env or configuration. Using auto generated attempt_id: {attempt_id}"
+                )
 
         if not execution_id:
-            execution_id = f"{op_id}-{str(uuid.uuid4())[:6]}"
+            # Delete everything after the last '-' character in the attempt id (inclusive)
+            execution_id = "-".join(attempt_id.split("-")[:-1])
 
-        if not attempt_id:
-            attempt_id = f"{execution_id}-{str(uuid.uuid4())[:6]}"
+        if not op_id:
+            op_id = execution_id
 
+        log.info(
+            f"Setting: OP_ID: {op_id}, ATTEMPT_ID: {attempt_id}, EXECUTION_ID: {execution_id}"
+        )
         context.state.set(CommonStoreKeys.OP_ID, op_id)
         context.state.set(CommonStoreKeys.EXECUTION_ID, execution_id)
         context.state.set(CommonStoreKeys.ATTEMPT_ID, attempt_id)
