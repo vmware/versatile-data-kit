@@ -1,5 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import logging
 import pathlib
 from dataclasses import dataclass
@@ -29,7 +31,7 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class JobArguments(IJobArguments):
-    arguments: Dict
+    arguments: dict
 
     def get_arguments(self) -> dict:
         return self.arguments
@@ -38,10 +40,10 @@ class JobArguments(IJobArguments):
 class DataJobFactory:
     @staticmethod
     def new_datajob(
-        data_job_directory: Optional[pathlib.Path],
+        data_job_directory: pathlib.Path | None,
         core_context: CoreContext,
-        name: Optional[str] = None,
-    ):
+        name: str | None = None,
+    ) -> DataJob:
         """
         Create a new data job
         :param data_job_directory: the source code of the data job that will be executed
@@ -203,9 +205,9 @@ class DataJob:
 
     def __init__(
         self,
-        data_job_directory: Optional[pathlib.Path],
+        data_job_directory: pathlib.Path | None,
         core_context: CoreContext,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         if data_job_directory is None and name is None:
             raise ValueError(
@@ -228,7 +230,7 @@ class DataJob:
         return self._name
 
     # TODO: this also can be a hook - e.g job run_cycle_algorithm
-    def run(self, args: Dict = None) -> ExecutionResult:
+    def run(self, args: dict = None) -> ExecutionResult:
         """
         This is basic implementation of Data Job run(execution) cycle algorithm.
         All stages are pluggable as hooks.

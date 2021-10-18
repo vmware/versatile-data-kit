@@ -25,6 +25,7 @@ from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStore
 from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
 )
+from vdk.internal.core import errors
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.core.statestore import StateStore
@@ -159,7 +160,9 @@ class JobInput(IJobInput):
         self, template_name: str, template_args: dict
     ) -> ExecutionResult:
         if self.__templates:
-            return self.__templates.execute_template(template_name, template_args)
+            result = self.__templates.execute_template(template_name, template_args)
+
+            return result
         else:
             raise NotImplemented("Templates not wired to JobInput")
 
