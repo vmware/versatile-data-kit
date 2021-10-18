@@ -9,6 +9,7 @@ from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
 )
+from vdk.internal.builtin_plugins.version.version import get_version
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import get_blamee_overall
@@ -48,4 +49,6 @@ class WriterTest(unittest.TestCase):
         vdk.vdk_exit(context, 0)
 
         # Assert that the write() method of the file returned by the open() mocked method is called once
-        mock_file.__enter__.return_value.write.assert_called_once_with("Success\n")
+        mock_file.__enter__.return_value.write.assert_called_once_with(
+            '{"vdk_version": "%s", "status": "Success"}' % get_version()
+        )
