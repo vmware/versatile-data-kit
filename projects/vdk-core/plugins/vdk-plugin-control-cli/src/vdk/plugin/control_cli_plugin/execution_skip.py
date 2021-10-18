@@ -9,12 +9,12 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.internal.builtin_plugins.termination_message.action import WriteToFileAction
-from vdk.internal.builtin_plugins.termination_message.writer_configuration import (
-    WriterConfiguration,
+from vdk.internal.builtin_plugins.termination_message.writer import (
+    TerminationMessageWriterPlugin,
 )
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
+from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.statestore import CommonStoreKeys
 
@@ -99,7 +99,7 @@ def _skip_job_if_necessary(
     job_name: str,
     execution_id: str,
     job_team: str,
-    action: WriteToFileAction,
+    configuration: Configuration,
 ):
     try:
         log.info("Checking if job should be skipped:")
@@ -119,7 +119,10 @@ def _skip_job_if_necessary(
 
         if job_running:
             log.info(f"Skipping job {job_name}")
-            action.skipped()
+            writer_plugin = TerminationMessageWriterPlugin()
+            writer_plugin.write_termination_message(
+                configuration=configuration, execution_skipped=True
+            )
             _skip_job_run(job_name)  # calls os._exit(0)
             return 1  # All other branches return None
     except Exception as exc:
@@ -153,13 +156,10 @@ def run_job(context: JobContext) -> None:
         log_config_type = configuration.get_value(vdk_config.LOG_CONFIG)
         job_name = context.name
         job_team = configuration.get_value(JobConfigKeys.TEAM)
-
-        execution_id = context.core_context.state.get(CommonStoreKeys.EXECUTION_ID)
-        writer_config = WriterConfiguration(configuration)
-        action = WriteToFileAction(writer_config.get_output_file())
+        execution_id = configuration.get_value(vdk_config.EXECUTION_ID)
 
         return _skip_job_if_necessary(
-            log_config_type, job_name, execution_id, job_team, action
+            log_config_type, job_name, execution_id, job_team, configuration
         )
     except Exception as exc:
         log.warning(f"Error while setting up arguments: {str(exc)}")

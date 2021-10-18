@@ -16,8 +16,9 @@ except ImportError as e:
 
 log = logging.getLogger(__name__)
 
+
 # Returns the version of the package named dist_name
-def _version(
+def get_version(
     dist_name="vdk-core",
 ):  # Change default value if project is renamed and does not equal the setuptools metadata.name
     try:
@@ -61,7 +62,7 @@ def list_installed_plugins_versions():
     dist_plugin_pairs = list_installed_plugins()
 
     plugin_list = [
-        plugin + " (from package " + dist + ", version " + _version(dist) + ")"
+        plugin + " (from package " + dist + ", version " + get_version(dist) + ")"
         for dist, plugin in dist_plugin_pairs
     ]
     return "\n".join(plugin_list) if len(plugin_list) > 0 else "None"
@@ -69,7 +70,7 @@ def list_installed_plugins_versions():
 
 def get_version_info():
     return (
-        f"Version: {_version()}{os.linesep}"
+        f"Version: {get_version()}{os.linesep}"
         f"Build details: {build_details()}{os.linesep}{os.linesep}"
         f"Installed plugins:{os.linesep}{list_installed_plugins_versions()}"
     )
