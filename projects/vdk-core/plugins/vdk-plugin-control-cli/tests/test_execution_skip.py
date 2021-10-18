@@ -5,8 +5,8 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 from taurus_datajob_api import DataJobExecution
-from vdk.internal.builtin_plugins.termination_message.action import WriteToFileAction
 from vdk.internal.control.rest_lib.factory import DataJobsExecutionApi
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.control_cli_plugin.execution_skip import _skip_job_if_necessary
 from vdk.plugin.control_cli_plugin.execution_skip import ConcurrentExecutionChecker
 
@@ -182,7 +182,21 @@ class ExecutionSkipTest(unittest.TestCase):
 
         api_factory.return_value = None
         get_api.return_value = None
-        action = WriteToFileAction("test_skip_file.txt")
+
+        configuration = (
+            ConfigurationBuilder()
+            .add(
+                key="TERMINATION_MESSAGE_WRITER_OUTPUT_FILE",
+                default_value="filename.txt",
+            )
+            .add(
+                key="TERMINATION_MESSAGE_WRITER_ENABLED",
+                default_value=True,
+            )
+            .build()
+        )
 
         # Check if method executes. Test suceeds if no exception thrown
-        _skip_job_if_necessary("CLOUD", "test-job", "test-id", "test-team", action)
+        _skip_job_if_necessary(
+            "CLOUD", "test-job", "test-id", "test-team", configuration
+        )
