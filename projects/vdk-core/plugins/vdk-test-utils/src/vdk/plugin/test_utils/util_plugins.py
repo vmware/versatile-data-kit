@@ -13,9 +13,6 @@ from typing import Optional
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
-from vdk.internal.builtin_plugins.connection.decoration_cursor import (
-    DecorationCursor,
-)
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
@@ -25,6 +22,12 @@ from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Conn
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.context import CoreContext
 from vdk.internal.util.decorators import closing_noexcept_on_close
+
+# Commenting this due to dependency from/to vdk-core,
+# TODO: enable after managed cursor merge
+# from vdk.internal.builtin_plugins.connection.decoration_cursor import (
+#     DecorationCursor,
+# )
 
 DB_TYPE_SQLITE_MEMORY = "SQLITE_MEMORY"
 
@@ -103,9 +106,10 @@ class DecoratedSqLite3MemoryDbPlugin:
             DB_TYPE_SQLITE_MEMORY, self.new_connection
         )
 
-    @hookimpl(trylast=True)
-    def decorate_operation(self, cursor: DecorationCursor) -> None:
-        self.statements_history.append(cursor.get_managed_operation().get_operation())
+    # TODO: enable after managed cursor merge
+    # @hookimpl(trylast=True)
+    # def decorate_operation(self, cursor: DecorationCursor) -> None:
+    #     self.statements_history.append(cursor.get_managed_operation().get_operation())
 
 
 class TestPropertiesServiceClient(IPropertiesServiceClient):
