@@ -9,6 +9,7 @@ import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.monitoring.DataJobExecutionCleanupMonitor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class JobExecutionCleanupService {
     private long secondsCutoffAmount;
     private JobExecutionRepository jobExecutionRepository;
     private JobsRepository jobsRepository;
+    private DataJobExecutionCleanupMonitor dataJobExecutionCleanupMonitor;
 
     @Autowired
     public void setJobExecutionRepository(JobExecutionRepository jobExecutionRepository) {
@@ -41,6 +43,11 @@ public class JobExecutionCleanupService {
         this.jobsRepository = jobsRepository;
     }
 
+    @Autowired
+    public void setDataJobExecutionCleanupMonitor(DataJobExecutionCleanupMonitor dataJobExecutionCleanupMonitor) {
+        this.dataJobExecutionCleanupMonitor = dataJobExecutionCleanupMonitor;
+    }
+
     @SchedulerLock(name = "cleanupExecutionsTask")
     @Scheduled(cron = "${datajobs.executions.cleanupJob.scheduleCron:0 0 */3 * * *}") //default value is every 3 hours
     public void cleanupExecutions() {
@@ -48,15 +55,18 @@ public class JobExecutionCleanupService {
         var jobs = jobsRepository.findAll();
         for (var job : jobs) {
             try {
-                deleteDataJobExecutions(job);
+                var deletedExecutions = deleteDataJobExecutions(job);
+                dataJobExecutionCleanupMonitor.addSuccessfulGauge(job, deletedExecutions);
             } catch (Exception e) {
+                dataJobExecutionCleanupMonitor.addFailedGauge(job);
                 log.warn("Failed to delete executions for job {}", job.getName());
-                log.warn("Error:", e);
+                log.warn("Error: ", e);
+                log.warn("Error message:{}, Stack trace: {}, Cause: {}", e.getMessage(), e.getStackTrace(), e.getCause());
             }
         }
     }
 
-    private void deleteDataJobExecutions(DataJob job) {
+    private int deleteDataJobExecutions(DataJob job) {
 
         var statuses = List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED);
         var jobExecutions = jobExecutionRepository.findByDataJobNameAndStatusNotInOrderByEndTime(job.getName(), statuses);
@@ -71,8 +81,14 @@ public class JobExecutionCleanupService {
             }
         }
 
-        log.info("Found {} job executions to delete for DataJob:'{}'. Deleting if necessary.", jobsToDelete.size(), job.getName());
+        if(jobsToDelete.size() == 0) {
+            log.info("Found 0 job executions to delete for DataJob:'{}'.", job.getName());
+            return 0;
+        }
+
+        log.info("Found {} job executions to delete for DataJob:'{}'. Deleting...", jobsToDelete.size(), job.getName());
         jobExecutionRepository.deleteAllByIdInBatch(jobsToDelete);
+        return jobsToDelete.size();
     }
 
     /**
@@ -80,9 +96,9 @@ public class JobExecutionCleanupService {
      * Assumes that executionPos is the position of a dataJobExecution in a sorted
      * execution list by start time ASC.
      *
-     * @param executionPos       the position of a data job execution in a sorted list.
-     * @param executionsSize     the size of the list.
-     * @param cutOff             cut off date for deletion.
+     * @param executionPos     the position of a data job execution in a sorted list.
+     * @param executionsSize   the size of the list.
+     * @param cutOff           cut off date for deletion.
      * @param executionEndTime data job execution end time.
      * @return boolean describing if the data job should be deleted.
      */
