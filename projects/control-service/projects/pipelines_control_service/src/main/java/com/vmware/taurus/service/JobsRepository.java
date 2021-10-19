@@ -44,5 +44,12 @@ public interface JobsRepository extends PagingAndSortingRepository<DataJob, Stri
             @Param(value = "name") String name,
             @Param(value = "latestJobDeploymentStatus") DeploymentStatus latestJobDeploymentStatus);
 
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("update DataJob j set j.enabled = :enabled where j.name = :name")
+    int updateDataJobEnabledByName(
+            @Param(value = "name") String name,
+            @Param(value = "enabled") Boolean enabled);
+
    boolean existsDataJobByNameAndJobConfigTeam(String jobName, String teamName);
 }

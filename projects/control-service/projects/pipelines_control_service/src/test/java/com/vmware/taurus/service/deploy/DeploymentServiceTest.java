@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.diag.OperationContext;
@@ -16,6 +17,7 @@ import io.kubernetes.client.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -88,6 +91,9 @@ public class DeploymentServiceTest {
    @InjectMocks
    private OperationContext operationContext;
 
+   @Mock
+   private JobsRepository jobsRepository;
+
    private DataJob testDataJob;
 
    @BeforeEach
@@ -106,7 +112,7 @@ public class DeploymentServiceTest {
               .thenReturn(new KubernetesService.Resources("100m","100Mi"));
 
       deploymentService = new DeploymentService(dockerRegistryService,
-              deploymentProgress, jobImageBuilder, jobImageDeployer, operationContext);
+              deploymentProgress, jobImageBuilder, jobImageDeployer, operationContext, jobsRepository);
 
       Mockito.when(vdkOptionsReader.readVdkOptions(TEST_JOB_NAME)).thenReturn(TEST_VDK_OPTS);
       Mockito.when(jobCredentialsService.getJobPrincipalName(TEST_JOB_NAME)).thenReturn(TEST_PRINCIPAL_NAME);
@@ -143,6 +149,10 @@ public class DeploymentServiceTest {
               any(), any(), any(), any(), any(), any());
       verify(deploymentMonitor).recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
       verify(dataJobNotification).notifyJobDeploySuccess(testDataJob.getJobConfig());
+
+      var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
+      verify(jobsRepository).save(dataJobCaptor.capture());
+      assertEquals(true, dataJobCaptor.getValue().getEnabled());
    }
 
    @Test
@@ -151,6 +161,7 @@ public class DeploymentServiceTest {
       jobDeployment.setDataJobName(TEST_JOB_NAME);
       jobDeployment.setGitCommitSha("test-commit");
       jobDeployment.setEnabled(true);
+      testDataJob.setEnabled(true);
 
       when(dockerRegistryService.dataJobImage(TEST_JOB_NAME, "test-commit")).thenReturn(TEST_JOB_IMAGE_NAME);
       when(jobImageBuilder.buildImage(TEST_JOB_IMAGE_NAME, testDataJob, jobDeployment, true)).thenReturn(true);
@@ -164,6 +175,8 @@ public class DeploymentServiceTest {
             eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
       verify(deploymentMonitor).recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
       verify(dataJobNotification).notifyJobDeploySuccess(testDataJob.getJobConfig());
+
+      verify(jobsRepository, never()).save(any());
    }
 
 
@@ -223,6 +236,10 @@ public class DeploymentServiceTest {
 
       verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
             eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+
+      var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
+      verify(jobsRepository).save(dataJobCaptor.capture());
+      assertEquals(true, dataJobCaptor.getValue().getEnabled());
    }
 
    @Test
@@ -237,6 +254,10 @@ public class DeploymentServiceTest {
 
       verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
             eq(TEST_JOB_SCHEDULE), eq(false), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+
+      var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
+      verify(jobsRepository).save(dataJobCaptor.capture());
+      assertEquals(false, dataJobCaptor.getValue().getEnabled());
    }
 
    @Test
@@ -250,6 +271,8 @@ public class DeploymentServiceTest {
               any(), any(), any(), any(), any(), any(), any());
       verify(kubernetesService, never()).createCronJob(any(), any(), any(), anyString(), anyBoolean(),
               any(), any(), any(), any(), any(), any(), any());
+
+      verify(jobsRepository, never()).save(any());
    }
 
    @Test
