@@ -7,6 +7,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.greenplum.greenplum_connection import GreenplumConnection
+from vdk.plugin.greenplum.ingest_to_greenplum import IngestToGreenplum
 
 
 def _connection_by_configuration(configuration: Configuration):
@@ -58,6 +59,9 @@ def initialize_job(context: JobContext) -> None:
     context.connections.add_open_connection_factory_method(
         "GREENPLUM",
         lambda: _connection_by_configuration(context.core_context.configuration),
+    )
+    context.ingester.add_ingester_factory_method(
+        "GREENPLUM", lambda: IngestToGreenplum(context)
     )
 
 
