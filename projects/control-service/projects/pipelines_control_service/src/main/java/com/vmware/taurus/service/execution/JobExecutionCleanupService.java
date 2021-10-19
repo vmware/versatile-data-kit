@@ -59,9 +59,8 @@ public class JobExecutionCleanupService {
                 dataJobExecutionCleanupMonitor.addSuccessfulGauge(job, deletedExecutions);
             } catch (Exception e) {
                 dataJobExecutionCleanupMonitor.addFailedGauge(job);
-                log.warn("Failed to delete executions for job {}", job.getName());
-                log.warn("Error: ", e);
-                log.warn("Error message:{}, Stack trace: {}, Cause: {}", e.getMessage(), e.getStackTrace(), e.getCause());
+                log.warn("Failed to delete executions for job {} due to {}, message: {}", job.getName(), e.getClass(), e.getMessage());
+                log.warn("Error:", e);
             }
         }
     }

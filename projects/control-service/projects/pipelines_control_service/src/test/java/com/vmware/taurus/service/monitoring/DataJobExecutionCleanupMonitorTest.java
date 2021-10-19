@@ -29,6 +29,7 @@ public class DataJobExecutionCleanupMonitorTest {
 
     private DataJob testDataJobOne;
     private DataJob testDataJobTwo;
+    private DataJob testDataJobOneClone;
 
     @BeforeEach
     public void cleanUp() {
@@ -37,6 +38,7 @@ public class DataJobExecutionCleanupMonitorTest {
         config.setSchedule("schedule");
         config.setTeam("test-team");
         testDataJobOne = new DataJob("testJobOne", config);
+        testDataJobOneClone = new DataJob("testJobOne", config);
         testDataJobTwo = new DataJob("testJobTwo", config);
     }
 
@@ -115,7 +117,21 @@ public class DataJobExecutionCleanupMonitorTest {
         dataJobExecutionCleanupMonitor.addFailedGauge(testDataJobTwo);
 
         var meters = meterRegistry.getMeters();
-        Assertions.assertEquals(2, meters.size(), "Expecting one registered meter gauge.");
+        Assertions.assertEquals(2, meters.size(), "Expecting two registered meter gauges.");
+
+    }
+
+    @Test
+    public void testNotUpdatingUnchangedGauge() {
+        dataJobExecutionCleanupMonitor.addSuccessfulGauge(testDataJobOne, 1);
+
+        var meters = meterRegistry.getMeters();
+        Assertions.assertEquals(1, meters.size(), "Expecting one registered meter gauge.");
+
+        dataJobExecutionCleanupMonitor.addSuccessfulGauge(testDataJobOneClone, 1);
+        // Not expecting a change after adding a complete clone of the data job.
+        meters = meterRegistry.getMeters();
+        Assertions.assertEquals(1, meters.size(), "Expecting one registered meter gauge.");
 
     }
 
