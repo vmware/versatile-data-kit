@@ -35,6 +35,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(SpringExtension.class)
@@ -56,6 +58,9 @@ public class DataJobMonitorTest {
 
     @Autowired
     private DataJobMonitor dataJobMonitor;
+
+    @MockBean
+    private DataJobMetrics dataJobMetrics;
 
     @Test
     @Order(1)
@@ -343,6 +348,21 @@ public class DataJobMonitorTest {
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
         Assertions.assertTrue(actualJobExecution.isEmpty());
+    }
+
+    @Test
+    @Order(19)
+    void testUpdateDataJobInfoGauges() {
+        var dataJob = new DataJob();
+        dataJobMonitor.updateDataJobInfoGauges(dataJob);
+
+        verify(dataJobMetrics, times(1)).updateInfoGauges(dataJob);
+    }
+
+    @Test
+    @Order(20)
+    void testUpdateDataJobInfoGauges_withNullDataJob_throwsException() {
+        Assertions.assertThrows(NullPointerException.class, () -> dataJobMonitor.updateDataJobInfoGauges(null));
     }
 
     private static String randomId(String prefix) {
