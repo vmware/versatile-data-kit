@@ -30,32 +30,7 @@ class IngestToGreenplum(IIngesterPlugin):
         collection_id: Optional[str] = None,
     ) -> None:
         """
-        Do the actual ingestion of the payload
-
-        :param payload: List[dict]
-            The payloads to be ingested. Depending on the number of payloads to be
-            processed, there might 0 or many dict objects. Each dict object is a
-            separate payload.
-            Note: The memory size of the list is dependent on the
-            payload_size_bytes_threshold attribute.
-        :param destination_table: Optional[string]
-            (Optional) The name of the table, where the data should be ingested into.
-            This argument is optional, and needs to be considered only when the name
-            of the destination table is not included in the payload itself.
-        :param target: Optional[string]
-            (Optional) Used to identify where the data should be ingested into.
-                Specifies a data source and its destination database.
-                The values for this parameter can be in the format
-                `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
-            This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be made by
-            plugins, which may set default value, or it can be overwritten by users.
-        :param collection_id: string
-            (Optional) An identifier to indicate that data from different method
-            invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the
-            same collection.
+        See parent class doc for details
         """
 
         _log.info(
