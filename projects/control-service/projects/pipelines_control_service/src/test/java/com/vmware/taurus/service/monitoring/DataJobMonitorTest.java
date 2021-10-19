@@ -59,9 +59,6 @@ public class DataJobMonitorTest {
     @Autowired
     private DataJobMonitor dataJobMonitor;
 
-    @MockBean
-    private DataJobMetrics dataJobMetrics;
-
     @Test
     @Order(1)
     public void testUpdateDataJobTerminationStatusSuccess() {
@@ -351,16 +348,21 @@ public class DataJobMonitorTest {
     }
 
     @Test
-    @Order(19)
+    @Order(20)
     void testUpdateDataJobInfoGauges() {
-        var dataJob = new DataJob();
-        dataJobMonitor.updateDataJobInfoGauges(dataJob);
+        var dataJob = new DataJob("data-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
 
-        verify(dataJobMetrics, times(1)).updateInfoGauges(dataJob);
+        dataJobMonitor.updateDataJobInfoGauges(jobsRepository.save(dataJob));
+
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_INFO_METRIC_NAME).gauges();
+        Assertions.assertEquals(1, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+        Assertions.assertEquals(1, gauges.size());
     }
 
     @Test
-    @Order(20)
+    @Order(21)
     void testUpdateDataJobInfoGauges_withNullDataJob_throwsException() {
         Assertions.assertThrows(NullPointerException.class, () -> dataJobMonitor.updateDataJobInfoGauges(null));
     }
