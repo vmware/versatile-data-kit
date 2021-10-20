@@ -51,7 +51,8 @@ public class JobExecutionCleanupService {
     @SchedulerLock(name = "cleanupExecutionsTask")
     @Scheduled(cron = "${datajobs.executions.cleanupJob.scheduleCron:0 0 */3 * * *}") //default value is every 3 hours
     public void cleanupExecutions() {
-        log.info("Starting DataJobExecutionCleanup");
+        log.info("Starting DataJobExecutionCleanup and incrementing invocations counter.");
+        dataJobExecutionCleanupMonitor.countInvocation();
         var jobs = jobsRepository.findAll();
         for (var job : jobs) {
             try {

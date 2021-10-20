@@ -86,7 +86,7 @@ public class DataJobMetrics {
 
             var gauge = infoGauges.getOrDefault(dataJobName, null);
             var newTags = createInfoGaugeTags(dataJob);
-            if (isGaugeChanged(gauge, newTags)) {
+            if (MonitoringUtil.isGaugeChanged(gauge, newTags)) {
                 log.info("The configuration of data job {} has changed", dataJobName);
                 removeInfoGauge(dataJobName);
             }
@@ -135,7 +135,7 @@ public class DataJobMetrics {
             var dataJobName = dataJob.getName();
             var gauge = statusGauges.getOrDefault(dataJobName, null);
             var newTags = createStatusGaugeTags(dataJob);
-            if (isGaugeChanged(gauge, newTags)) {
+            if (MonitoringUtil.isGaugeChanged(gauge, newTags)) {
                 log.info("The last termination status of data job {} has changed", dataJobName);
                 removeTerminationStatusGauge(dataJobName);
             }
@@ -249,15 +249,6 @@ public class DataJobMetrics {
         } catch (Exception e) {
             log.warn("An exception occurred while removing the termination status gauge of data job {}", dataJobName, e);
         }
-    }
-
-    private boolean isGaugeChanged(final Gauge gauge, final Tags newTags) {
-        if (gauge == null) {
-            return false;
-        }
-
-        var existingTags = gauge.getId().getTags();
-        return !newTags.stream().allMatch(existingTags::contains);
     }
 
     private Tags createInfoGaugeTags(final DataJob dataJob) {
