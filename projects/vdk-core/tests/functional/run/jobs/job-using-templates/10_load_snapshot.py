@@ -10,6 +10,4 @@ def run(job_input: IJobInput):
         timestamp_column="arrival_ts",
         id_column="vm_uuid",
     )
-    result = job_input.execute_template("append", args)
-    if result.is_failed() and result.get_exception():
-        raise result.get_exception()
+    job_input.execute_template("append", args)

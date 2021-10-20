@@ -45,7 +45,24 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         template_job = self._datajob_factory.new_datajob(
             template_directory, self._core_context, name=self._job_name
         )
-        return template_job.run(template_args)
+        result = template_job.run(template_args)
+        if result.is_failed():
+            if result.get_exception():
+                raise result.get_exception()
+            else:
+                errors.log_and_throw(
+                    errors.ResolvableBy.PLATFORM_ERROR,
+                    logging.getLogger(__name__),
+                    f"Template `{name}` failed.",
+                    f"No exception is reported. This is not expected. "
+                    f"Execution steps of templates were {result.steps_list}",
+                    "We will raise an exception now. Likely the job will fail.",
+                    f"Check out the error and fix the template invocation "
+                    f"or fix the template by installing the correct plugin."
+                    f" Or open an issue on the support team or "
+                    f"Versatile Data Kit or the plugin provider of the template",
+                )
+        return result
 
     def get_template_directory(self, name: str) -> pathlib.Path:
         if name in self._registered_templates:
