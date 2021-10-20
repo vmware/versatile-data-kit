@@ -1,2 +1,2 @@
 alter table data_job
-    add enabled BOOLEAN DEFAULT TRUE;
+    add IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
