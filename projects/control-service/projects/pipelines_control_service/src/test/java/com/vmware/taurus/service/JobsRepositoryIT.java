@@ -57,4 +57,17 @@ public class JobsRepositoryIT {
 
       Assertions.assertEquals(entity.getLatestJobDeploymentStatus(), DeploymentStatus.NONE);
    }
+
+   @Test
+   void testUpdateDataJobEnabledByName() {
+      var entity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
+      entity.setEnabled(true);
+      repository.save(entity);
+
+      repository.updateDataJobEnabledByName("hello", false);
+
+      var persistedEntity = repository.findById("hello");
+      Assertions.assertTrue(persistedEntity.isPresent());
+      Assertions.assertFalse(persistedEntity.get().getEnabled());
+   }
 }
