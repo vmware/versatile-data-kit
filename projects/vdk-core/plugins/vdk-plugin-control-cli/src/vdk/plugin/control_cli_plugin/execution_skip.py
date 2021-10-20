@@ -156,7 +156,7 @@ def run_job(context: JobContext) -> None:
         log_config_type = configuration.get_value(vdk_config.LOG_CONFIG)
         job_name = context.name
         job_team = configuration.get_value(JobConfigKeys.TEAM)
-        execution_id = configuration.get_value(vdk_config.EXECUTION_ID)
+        execution_id = context.core_context.state.get(CommonStoreKeys.EXECUTION_ID)
 
         return _skip_job_if_necessary(
             log_config_type, job_name, execution_id, job_team, configuration
