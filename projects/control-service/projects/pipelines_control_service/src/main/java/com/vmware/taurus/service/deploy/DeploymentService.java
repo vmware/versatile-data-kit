@@ -5,8 +5,10 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.model.*;
@@ -20,10 +22,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * CRUD operations for Versatile Data Kit deployments on kubernetes.
+ *
+ * This class is in a transition from operating against Kubernetes to operating against the database.
+ * Currently, only the enabled flag is stored in the database. Eventually, all deployment information
+ * will be stored (and retrieved) from a database from a dedicated table.
  */
 @Service
 @RequiredArgsConstructor
@@ -35,6 +42,7 @@ public class DeploymentService {
    private final JobImageBuilder jobImageBuilder;
    private final JobImageDeployer jobImageDeployer;
    private final OperationContext operationContext;
+   private final JobsRepository jobsRepository;
 
    public Optional<JobDeploymentStatus> readDeployment(String jobName) {
       return jobImageDeployer.readScheduledJob(jobName);
@@ -54,6 +62,8 @@ public class DeploymentService {
       if (jobDeployment.getEnabled() != enable) {
          jobDeployment.setEnabled(enable);
          jobImageDeployer.scheduleJob(dataJob, jobDeployment, false, lastDeployedBy);
+
+         saveDeployment(dataJob, jobDeployment);
       }
       deploymentProgress.configuration_updated(dataJob.getJobConfig(), jobDeployment, Collections.singletonMap("enabled", enable));
    }
@@ -91,6 +101,9 @@ public class DeploymentService {
             if (jobImageDeployer.scheduleJob(dataJob, jobDeployment, sendNotification, lastDeployedBy)) {
                log.info(String.format("Successfully updated job: %s with version: %s",
                        jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
+
+               saveDeployment(dataJob, jobDeployment);
+
                deploymentProgress.completed(dataJob.getJobConfig(), jobDeployment, sendNotification);
             }
          }
@@ -101,6 +114,16 @@ public class DeploymentService {
       } catch (Throwable e) {
          handleException(dataJob, jobDeployment, sendNotification, e);
          throw e;
+      }
+   }
+
+   private void saveDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+      // Currently, store only 'enabled' in the database
+      if (!Objects.equals(dataJob.getEnabled(), jobDeployment.getEnabled())) {
+         dataJob.setEnabled(jobDeployment.getEnabled());
+         jobsRepository.save(dataJob);
+         log.info("The deployment of the data job {} has been {}",
+                 dataJob.getName(), Boolean.TRUE.equals(dataJob.getEnabled()) ? "ENABLED" : "DISABLED");
       }
    }
 
@@ -126,6 +149,7 @@ public class DeploymentService {
       if (this.deploymentExistsOrInProgress(dataJobName)) {
          jobImageBuilder.cancelBuildingJob(dataJobName);
          jobImageDeployer.unScheduleJob(dataJobName);
+         jobsRepository.updateDataJobEnabledByName(dataJobName, false);
       }
       deploymentProgress.deleted(dataJobName);
    }
