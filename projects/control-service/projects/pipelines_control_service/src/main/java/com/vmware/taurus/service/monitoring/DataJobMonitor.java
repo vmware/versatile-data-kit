@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.monitoring;
 
+import com.google.common.collect.Streams;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -104,9 +106,37 @@ public class DataJobMonitor {
         }
     }
 
+
     /**
-     * Creates a gauge to expose execution status about the specified data job.
-     * If a gauge already exists for the job, it is updated if necessary.
+     * Creates gauges that expose configuration information and termination status for the specified data jobs.
+     * If the gauges already exist for a particular data job, they are updated if necessary.
+     *
+     * @param dataJobs The data jobs for which to create or update gauges.
+     */
+    public void updateDataJobsGauges(final Iterable<DataJob> dataJobs) {
+        Objects.requireNonNull(dataJobs);
+
+        dataJobs.forEach(job -> {
+            updateDataJobInfoGauges(job);
+            updateDataJobTerminationStatusGauge(job);
+        });
+    }
+
+    /**
+     * Deletes the gauges for all data jobs that are not present in the specified iterable.
+     *
+     * @param dataJobs The data jobs for which to keep gauges.
+     */
+    public void clearDataJobsGaugesNotIn(final Iterable<DataJob> dataJobs) {
+        var jobs = Streams.stream(dataJobs)
+                .map(DataJob::getName)
+                .collect(Collectors.toSet());
+        dataJobMetrics.clearGaugesNotIn(jobs);
+    }
+
+    /**
+     * Creates a gauge that exposes termination status for the specified data job.
+     * If a gauge already exists for the data job, it is updated if necessary.
      *
      * @param dataJob The data job for which to create or update a gauge.
      */
@@ -122,8 +152,8 @@ public class DataJobMonitor {
     }
 
     /**
-     * Creates gauges to expose information about the specified data job.
-     * If the gauges already exist for the job, they are updated if necessary.
+     * Creates gauges that expose configuration information for the specified data job.
+     * If the gauges already exist for the data job, they are updated if necessary.
      *
      * @param dataJob The data job for which to create or update the gauges.
      */
@@ -131,21 +161,6 @@ public class DataJobMonitor {
         Objects.requireNonNull(dataJob);
 
         dataJobMetrics.updateInfoGauges(dataJob);
-    }
-
-    /**
-     * Creates gauges to expose configuration information and termination status for the specified jobs.
-     * If the gauges already exist for a particular job, they are updated if necessary.
-     *
-     * @param dataJobs The data jobs for which to create or update gauges.
-     */
-    public void updateDataJobsGauges(final Iterable<DataJob> dataJobs) {
-        Objects.requireNonNull(dataJobs);
-
-        dataJobs.forEach(job -> {
-            updateDataJobInfoGauges(job);
-            updateDataJobTerminationStatusGauge(job);
-        });
     }
 
     /**

@@ -25,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +36,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(SpringExtension.class)
@@ -257,8 +256,7 @@ public class DataJobMonitorTest {
     @Test
     @Order(11)
     public void testUpdateDataJobTerminationStatusWithoutExecutionId() {
-        var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
+        var dataJob = new DataJob("data-job", new JobConfig(), DeploymentStatus.NONE);
 
         dataJobMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
 
@@ -365,6 +363,40 @@ public class DataJobMonitorTest {
     @Order(21)
     void testUpdateDataJobInfoGauges_withNullDataJob_throwsException() {
         Assertions.assertThrows(NullPointerException.class, () -> dataJobMonitor.updateDataJobInfoGauges(null));
+    }
+
+    @Test
+    @Order(22)
+    void testClearDataJobsGaugesNotIn() {
+        var dataJobs = Arrays.asList(
+                new DataJob("data-job1", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job1-")),
+                new DataJob("data-job2", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job2-")),
+                new DataJob("data-job3", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job3-")));
+
+        // Clean up previous from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        // Add some more gauges
+        dataJobMonitor.updateDataJobsGauges(jobsRepository.saveAll(dataJobs));
+
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_INFO_METRIC_NAME).gauges();
+        Assertions.assertEquals(3, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+        Assertions.assertEquals(3, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+        Assertions.assertEquals(3, gauges.size());
+
+        // Delete a data job and verify that its gauges are removed as a result
+        jobsRepository.deleteById(dataJobs.get(0).getName());
+        dataJobMonitor.clearDataJobsGaugesNotIn(Arrays.asList(dataJobs.get(1), dataJobs.get(2)));
+
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_INFO_METRIC_NAME).gauges();
+        Assertions.assertEquals(2, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+        Assertions.assertEquals(2, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+        Assertions.assertEquals(2, gauges.size());
     }
 
     private static String randomId(String prefix) {
