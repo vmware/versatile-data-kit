@@ -28,6 +28,8 @@ public class DataJobMonitorSync {
             fixedDelayString = "${datajobs.monitoring.sync.interval:5000}",
             initialDelayString = "${datajobs.monitoring.sync.initial.delay:10000}")
     public void updateDataJobStatus() {
-        dataJobMonitor.updateDataJobsGauges(jobsRepository.findAll());
+        final var dataJobs = jobsRepository.findAll();
+        dataJobMonitor.updateDataJobsGauges(dataJobs);
+        dataJobMonitor.clearDataJobsGaugesNotIn(dataJobs);
     }
 }

@@ -18,7 +18,9 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.vmware.taurus.service.Utilities.join;
 
@@ -161,6 +163,26 @@ public class DataJobMetrics {
         removeInfoGauge(dataJobName);
         removeNotificationDelayGauge(dataJobName);
         removeTerminationStatusGauge(dataJobName);
+    }
+
+    /**
+     * Removes all gauges associated with data jobs that are not present in the specified iterable.
+     */
+    public void clearGaugesNotIn(final Set<String> dataJobs) {
+        var absentEntries = infoGauges.entrySet().stream()
+                .filter(e -> !dataJobs.contains(e.getKey()))
+                .collect(Collectors.toList());
+        absentEntries.forEach(e -> removeInfoGauge(e.getKey()));
+
+        absentEntries = delayGauges.entrySet().stream()
+                .filter(e -> !dataJobs.contains(e.getKey()))
+                .collect(Collectors.toList());
+        absentEntries.forEach(e -> removeNotificationDelayGauge(e.getKey()));
+
+        absentEntries = statusGauges.entrySet().stream()
+                .filter(e -> !dataJobs.contains(e.getKey()))
+                .collect(Collectors.toList());
+        absentEntries.forEach(e -> removeTerminationStatusGauge(e.getKey()));
     }
 
     private Gauge createInfoGauge(final String dataJobName, final Tags tags) {
