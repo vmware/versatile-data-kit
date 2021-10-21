@@ -125,7 +125,7 @@ public class DataJobMonitor {
     /**
      * Deletes the gauges for all data jobs that are not present in the specified iterable.
      *
-     * @param dataJobs The data hobs for which to keep gauges.
+     * @param dataJobs The data jobs for which to keep gauges.
      */
     public void clearDataJobsGaugesNotIn(final Iterable<DataJob> dataJobs) {
         var jobs = Streams.stream(dataJobs)

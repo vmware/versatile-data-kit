@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -157,6 +158,7 @@ public class DataJobMetrics {
 
     /**
      * Removes all gauges associated with the specified data job.
+     *
      * @param dataJobName The name of the data job for which to clear all gauges.
      */
     public void clearGauges(final String dataJobName) {
@@ -167,22 +169,31 @@ public class DataJobMetrics {
 
     /**
      * Removes all gauges associated with data jobs that are not present in the specified iterable.
+     *
+     * @param dataJobNames The names of the data jobs which will still have gauges.
      */
-    public void clearGaugesNotIn(final Set<String> dataJobs) {
-        var absentEntries = infoGauges.entrySet().stream()
-                .filter(e -> !dataJobs.contains(e.getKey()))
-                .collect(Collectors.toList());
+    public void clearGaugesNotIn(final Set<String> dataJobNames) {
+        var absentEntries = filterByKeyNotIn(infoGauges, dataJobNames);
         absentEntries.forEach(e -> removeInfoGauge(e.getKey()));
 
-        absentEntries = delayGauges.entrySet().stream()
-                .filter(e -> !dataJobs.contains(e.getKey()))
-                .collect(Collectors.toList());
+        absentEntries = filterByKeyNotIn(delayGauges, dataJobNames);
         absentEntries.forEach(e -> removeNotificationDelayGauge(e.getKey()));
 
-        absentEntries = statusGauges.entrySet().stream()
-                .filter(e -> !dataJobs.contains(e.getKey()))
-                .collect(Collectors.toList());
+        absentEntries = filterByKeyNotIn(statusGauges, dataJobNames);
         absentEntries.forEach(e -> removeTerminationStatusGauge(e.getKey()));
+    }
+
+    /**
+     * Returns a list consisting of the entries of the specified map, that do not have their keys in the specified set.
+     *
+     * @param from The map to filter.
+     * @param set A set containing keys for the elements that should <b>NOT</b> be returned.
+     * @return A list of all Map.Entry objects with keys inside {@code set}.
+     */
+    private <K> List<Map.Entry<K, ?>> filterByKeyNotIn(final Map<K, ?> from, final Set<K> set) {
+        return from.entrySet().stream()
+                .filter(e -> !set.contains(e.getKey()))
+                .collect(Collectors.toList());
     }
 
     private Gauge createInfoGauge(final String dataJobName, final Tags tags) {
