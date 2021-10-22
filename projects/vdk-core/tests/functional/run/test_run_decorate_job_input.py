@@ -6,7 +6,7 @@ from unittest import mock
 from click.testing import Result
 from functional.run import util
 from functional.run.test_run_sql_queries import VDK_DB_DEFAULT_TYPE
-from functional.run.test_run_templates import AppendTemplatePlugin
+from functional.run.test_run_templates import TemplatePlugin
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -58,7 +58,7 @@ def test_run_decorate_execute_query():
 def test_run_decorate_execute_template():
     decorator_plugin = DecoratorsPlugin()
     runner = CliEntryBasedTestRunner(
-        decorator_plugin, SqLite3MemoryDbPlugin(), AppendTemplatePlugin()
+        decorator_plugin, SqLite3MemoryDbPlugin(), TemplatePlugin()
     )
 
     result: Result = runner.invoke(["run", util.job_path("job-using-templates")])

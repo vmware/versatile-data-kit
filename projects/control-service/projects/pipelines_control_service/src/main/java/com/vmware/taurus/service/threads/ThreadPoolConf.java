@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.threads;
 
-import com.vmware.taurus.service.monitoring.DataJobInfoMonitorSync;
+import com.vmware.taurus.service.monitoring.DataJobMonitorSync;
 import com.vmware.taurus.service.monitoring.DeploymentMonitorSync;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
@@ -37,7 +37,7 @@ public class ThreadPoolConf {
     * now is one as we only use it in a single place
     *
     * @see DeploymentMonitorSync
-    * @see DataJobInfoMonitorSync
+    * @see DataJobMonitorSync
     *
     * @return
     */

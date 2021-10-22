@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.monitoring;
 
+import com.google.common.collect.Streams;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
@@ -30,10 +31,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class DataJobStatusMonitor {
+public class DataJobMonitor {
 
     private static final long ONE_MINUTE_MILLIS = TimeUnit.MINUTES.toMillis(1);
 
@@ -47,7 +49,7 @@ public class DataJobStatusMonitor {
     private long lastWatchTime = 0;
 
     @Autowired
-    public DataJobStatusMonitor(
+    public DataJobMonitor(
             JobsRepository jobsRepository,
             DataJobsKubernetesService dataJobsKubernetesService,
             JobExecutionService jobExecutionService,
@@ -71,7 +73,7 @@ public class DataJobStatusMonitor {
      *     <li>The other nodes will skip their schedules until after this node completes.</li>
      *     <li>When a termination status of a job is updated by the node holding the lock, the other nodes will
      *     be eventually consistent within 5 seconds (by default) due to the continuous updates done here:
-     *     {@link DataJobStatusMonitorSync#updateDataJobStatus}.</li>
+     *     {@link DataJobMonitorSync#updateDataJobStatus}.</li>
      *     <li>Subsequently, when one of the other nodes acquires the lock, it will detect all changes since
      *     its own last run (see {@code lastWatchTime}) and rewrite them. We can potentially improve on
      *     this by sharing the lastWatchTime amongst the nodes.</li>
@@ -104,13 +106,41 @@ public class DataJobStatusMonitor {
         }
     }
 
+
     /**
-     * Creates a gauge to expose execution status about the specified data job.
-     * If a gauge already exists for the job, it is updated if necessary.
+     * Creates gauges that expose configuration information and termination status for the specified data jobs.
+     * If the gauges already exist for a particular data job, they are updated if necessary.
+     *
+     * @param dataJobs The data jobs for which to create or update gauges.
+     */
+    public void updateDataJobsGauges(final Iterable<DataJob> dataJobs) {
+        Objects.requireNonNull(dataJobs);
+
+        dataJobs.forEach(job -> {
+            updateDataJobInfoGauges(job);
+            updateDataJobTerminationStatusGauge(job);
+        });
+    }
+
+    /**
+     * Deletes the gauges for all data jobs that are not present in the specified iterable.
+     *
+     * @param dataJobs The data jobs for which to keep gauges.
+     */
+    public void clearDataJobsGaugesNotIn(final Iterable<DataJob> dataJobs) {
+        var jobs = Streams.stream(dataJobs)
+                .map(DataJob::getName)
+                .collect(Collectors.toSet());
+        dataJobMetrics.clearGaugesNotIn(jobs);
+    }
+
+    /**
+     * Creates a gauge that exposes termination status for the specified data job.
+     * If a gauge already exists for the data job, it is updated if necessary.
      *
      * @param dataJob The data job for which to create or update a gauge.
      */
-    public void updateDataJobTerminationStatusGauge(final DataJob dataJob) {
+    void updateDataJobTerminationStatusGauge(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
         if (dataJob.getLatestJobTerminationStatus() == null ||
@@ -122,15 +152,15 @@ public class DataJobStatusMonitor {
     }
 
     /**
-     * Creates a gauge to expose termination status for each of the specified data jobs.
-     * If a gauge already exists for any of the jobs, it is updated if necessary.
+     * Creates gauges that expose configuration information for the specified data job.
+     * If the gauges already exist for the data job, they are updated if necessary.
      *
-     * @param dataJobs The data jobs for which to create or update gauges.
+     * @param dataJob The data job for which to create or update the gauges.
      */
-    public void updateDataJobsTerminationStatusGauge(final Iterable<DataJob> dataJobs) {
-        Objects.requireNonNull(dataJobs);
+    void updateDataJobInfoGauges(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
 
-        dataJobs.forEach(this::updateDataJobTerminationStatusGauge);
+        dataJobMetrics.updateInfoGauges(dataJob);
     }
 
     /**

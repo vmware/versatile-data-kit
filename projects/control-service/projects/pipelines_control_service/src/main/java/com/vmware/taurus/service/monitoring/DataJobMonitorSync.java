@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class DataJobStatusMonitorSync {
+public class DataJobMonitorSync {
 
-    private final DataJobStatusMonitor dataJobStatusMonitor;
+    private final DataJobMonitor dataJobMonitor;
     private final JobsRepository jobsRepository;
 
     @Autowired
-    public DataJobStatusMonitorSync(DataJobStatusMonitor dataJobStatusMonitor, JobsRepository jobsRepository) {
-        this.dataJobStatusMonitor = dataJobStatusMonitor;
+    public DataJobMonitorSync(DataJobMonitor dataJobMonitor, JobsRepository jobsRepository) {
+        this.dataJobMonitor = dataJobMonitor;
         this.jobsRepository = jobsRepository;
     }
 
@@ -28,6 +28,8 @@ public class DataJobStatusMonitorSync {
             fixedDelayString = "${datajobs.monitoring.sync.interval:5000}",
             initialDelayString = "${datajobs.monitoring.sync.initial.delay:10000}")
     public void updateDataJobStatus() {
-        dataJobStatusMonitor.updateDataJobsTerminationStatusGauge(jobsRepository.findAll());
+        final var dataJobs = jobsRepository.findAll();
+        dataJobMonitor.updateDataJobsGauges(dataJobs);
+        dataJobMonitor.clearDataJobsGaugesNotIn(dataJobs);
     }
 }

@@ -6,12 +6,15 @@ import pathlib
 from contextlib import closing
 from sqlite3 import Cursor
 from sqlite3.dbapi2 import ProgrammingError
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
-from vdk.plugin.sqlite.sqlite_connection import SQLiteConfiguration
+from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 
 log = logging.getLogger(__name__)
@@ -27,7 +30,7 @@ class IngestToSQLite(IIngesterPlugin):
 
     def ingest_payload(
         self,
-        payload: List[dict],
+        payload: List[Dict[str, Any]],
         destination_table: Optional[str] = None,
         target: str = None,
         collection_id: Optional[str] = None,
@@ -57,6 +60,12 @@ class IngestToSQLite(IIngesterPlugin):
                     "or through either of the VDK_INGEST_TARGET_DEFAULT or VDK_SQLITE_FILE environment variables"
                 ),
             )
+        if not payload:
+            log.debug(
+                f"Payload is empty. "
+                f"Nothing to ingest into {target}, table {destination_table} and collection_id: {collection_id}"
+            )
+            return
 
         log.info(
             f"Ingesting payloads for target: {target}; "
@@ -65,7 +74,10 @@ class IngestToSQLite(IIngesterPlugin):
 
         with SQLiteConnection(pathlib.Path(target)).new_connection() as conn:
             with closing(conn.cursor()) as cur:
-                self.__check_destination_table_exists(destination_table, cur)
+                if self.conf.get_auto_create_table_enabled():
+                    self.__create_table_if_not_exists(cur, destination_table, payload)
+                else:
+                    self.__check_destination_table_exists(destination_table, cur)
                 self.__ingest_payload(destination_table, payload, cur)
 
     def __ingest_payload(
@@ -123,14 +135,8 @@ class IngestToSQLite(IIngesterPlugin):
     def __check_destination_table_exists(
         self, destination_table: str, cur: Cursor
     ) -> None:
-        # https://tableplus.com/blog/2018/04/sqlite-check-whether-a-table-exists.html
-        table_exists_flag = sum(
-            1
-            for row in cur.execute(
-                f"SELECT name FROM sqlite_master WHERE type='table' AND name='{destination_table}';"
-            )
-        )
-        if not table_exists_flag:  # check if destination_table exists in database
+        columns = self.__table_columns(cur, destination_table)
+        if not columns:  # check table with no columns does not exists
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,
@@ -141,7 +147,23 @@ class IngestToSQLite(IIngesterPlugin):
                 countermeasures="Make sure the destination_table exists in the target SQLite database.",
             )
 
-    def __create_query(self, destination_table: str, cur: Cursor) -> str:
+    def __table_columns(
+        self, cur: Cursor, destination_table: str
+    ) -> List[Tuple[str, str]]:
+        """
+        :param cur: database cursor
+        :param destination_table: the table name queried
+        :return: return a list of tuples in format: [(column_name, column_type), ...]
+        """
+        # https://tableplus.com/blog/2018/04/sqlite-check-whether-a-table-exists.html
+        columns = []
+        for row in cur.execute(
+            f"select name, type from PRAGMA_TABLE_INFO('{destination_table}');"
+        ):
+            columns.append((row[0], row[1]))
+        return columns
+
+    def __create_query(self, destination_table: str, cur: Cursor) -> Tuple[list, str]:
         fields = [
             field_tuple[0]
             for field_tuple in cur.execute(
@@ -150,6 +172,67 @@ class IngestToSQLite(IIngesterPlugin):
         ]
         # the query fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (:val1, :val2, :val3)'
         # assuming dest_table is the destination_table and val1, val2, val3 are the fields of that table
-        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':'+field for field in fields])})"
+        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':' + field for field in fields])})"
 
         return fields, query
+
+    def __create_table_if_not_exists(
+        self, cur: Cursor, destination_table: str, payload: List[dict]
+    ):
+        columns = self.__table_columns(cur, destination_table)
+        if not columns:
+            log.info(
+                f"Table {destination_table} does not exists. "
+                f"Will auto-create it now based on first batch of input data."
+            )
+            columns = self.__infer_columns_from_payload(payload)
+            self.__create_table(cur, destination_table, columns)
+            log.info(f"Table {destination_table} created.")
+
+    @staticmethod
+    def __create_table(cur: Cursor, destination_table: str, columns: Dict[str, str]):
+        """
+        Creates table from give list of columns and table name
+        """
+        columns_as_sql_expression = ",".join(
+            [f"{col_name} {col_type}" for col_name, col_type in columns.items()]
+        )
+        sql = f"CREATE TABLE IF NOT EXISTS {destination_table} ( {columns_as_sql_expression} )"
+        log.debug(f"Create table using {sql}")
+        cur.execute(sql)
+
+    def __infer_columns_from_payload(self, payload: List[Dict]):
+        """
+        Infer the columns from payload. It will infer by getting all the keys from every row.
+        So even if row have different number of keys it would find all the columns.
+        The type is inferred based on the first non-None value
+        :param payload: the payload
+        :return: dictionary with key being column name and value the type: dict[column_name, column_type]
+        """
+        columns = dict()
+        for row in payload:
+            for col, val in row.items():
+                if col not in columns:
+                    columns[col] = self.__python_value_to_sqlite_type(val)
+                elif columns[col] == "NULL":
+                    columns[col] = self.__python_value_to_sqlite_type(val)
+        # if there's column with NULL only, set type to TEXT.
+        columns = {
+            col: typ if typ != "NULL" else "TEXT" for col, typ in columns.items()
+        }
+        return columns
+
+    @staticmethod
+    def __python_value_to_sqlite_type(value: Any):
+        # https://www.sqlite.org/datatype3.html
+        value_type = type(value)
+        if value_type == bool or value_type == int:
+            return "INTEGER"
+        if value_type == bytes:
+            return "BLOB"
+        if value_type == float:
+            return "REAL"
+        if value_type == type(None):
+            return "NULL"
+        else:
+            return "TEXT"

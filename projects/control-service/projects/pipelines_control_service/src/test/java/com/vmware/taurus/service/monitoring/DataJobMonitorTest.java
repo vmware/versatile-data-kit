@@ -25,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.doThrow;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class DataJobStatusMonitorTest {
+public class DataJobMonitorTest {
 
     @Autowired
     private MeterRegistry meterRegistry;
@@ -55,7 +56,7 @@ public class DataJobStatusMonitorTest {
     private DataJobsKubernetesService dataJobsKubernetesService;
 
     @Autowired
-    private DataJobStatusMonitor dataJobStatusMonitor;
+    private DataJobMonitor dataJobMonitor;
 
     @Test
     @Order(1)
@@ -63,7 +64,7 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
+        dataJobMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
@@ -80,7 +81,7 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.PLATFORM_ERROR, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
+        dataJobMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
@@ -97,7 +98,7 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.SKIPPED, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
+        dataJobMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
@@ -114,7 +115,7 @@ public class DataJobStatusMonitorTest {
         var dataJob = new DataJob("data-job", new JobConfig(),
                 DeploymentStatus.NONE, ExecutionTerminationStatus.USER_ERROR, randomId("data-job-"));
 
-        dataJobStatusMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
+        dataJobMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
@@ -127,8 +128,8 @@ public class DataJobStatusMonitorTest {
 
     @Test
     @Order(5)
-    public void testUpdateDataJobsTerminationStatusWithoutJobs() {
-        dataJobStatusMonitor.updateDataJobsTerminationStatusGauge(Collections.emptyList());
+    public void testUpdateDataJobsGaugesWithoutJobs() {
+        dataJobMonitor.updateDataJobsGauges(Collections.emptyList());
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(1, gauges.size());
@@ -149,7 +150,7 @@ public class DataJobStatusMonitorTest {
         }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
         jobStatuses.forEach(s -> jobsRepository.save(new DataJob(s.getJobName(), new JobConfig())));
 
-        dataJobStatusMonitor.watchJobs();
+        dataJobMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         // We had 1 gauge from previous tests and added 4 more; but data jobs with last termination status SKIPPED
@@ -179,7 +180,7 @@ public class DataJobStatusMonitorTest {
             return null;
         }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
-        dataJobStatusMonitor.watchJobs();
+        dataJobMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(4, gauges.size());
@@ -197,7 +198,7 @@ public class DataJobStatusMonitorTest {
             return null;
         }).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
-        dataJobStatusMonitor.watchJobs();
+        dataJobMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(4, gauges.size());
@@ -217,7 +218,7 @@ public class DataJobStatusMonitorTest {
         jobStatuses.forEach(s -> jobsRepository.save(
                 new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), s.getExecutionId())));
 
-        dataJobStatusMonitor.watchJobs();
+        dataJobMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(5, gauges.size());
@@ -241,7 +242,7 @@ public class DataJobStatusMonitorTest {
         jobStatuses.forEach(s -> jobsRepository.save(
                 new DataJob(s.getJobName(), new JobConfig(), DeploymentStatus.NONE, getTerminationStatus(s), null)));
 
-        dataJobStatusMonitor.watchJobs();
+        dataJobMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(5, gauges.size());
@@ -255,10 +256,9 @@ public class DataJobStatusMonitorTest {
     @Test
     @Order(11)
     public void testUpdateDataJobTerminationStatusWithoutExecutionId() {
-        var dataJob = new DataJob("data-job", new JobConfig(),
-                DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
+        var dataJob = new DataJob("data-job", new JobConfig(), DeploymentStatus.NONE);
 
-        dataJobStatusMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
+        dataJobMonitor.updateDataJobTerminationStatusGauge(jobsRepository.save(dataJob));
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(5, gauges.size());
@@ -269,14 +269,14 @@ public class DataJobStatusMonitorTest {
     public void testWatchJobsWhenExceptionIsThrown() throws IOException, ApiException {
         doThrow(new ApiException()).when(dataJobsKubernetesService).watchJobs(anyMap(), any(), any(), anyLong());
 
-        Assertions.assertDoesNotThrow(() -> dataJobStatusMonitor.watchJobs());
+        Assertions.assertDoesNotThrow(() -> dataJobMonitor.watchJobs());
     }
 
     @Test
     @Order(13)
     public void testRecordJobExecutionStatus_nullDataJobName_shouldNotRecordExecution() {
         JobExecution jobExecution = buildJobExecutionStatus(null, randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString());
-        dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
         Assertions.assertTrue(actualJobExecution.isEmpty());
@@ -286,7 +286,7 @@ public class DataJobStatusMonitorTest {
     @Order(14)
     public void testRecordJobExecutionStatus_emptyDataJobName_shouldNotRecordExecution() {
         JobExecution jobExecution = buildJobExecutionStatus("", randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString());
-        dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
         Assertions.assertTrue(actualJobExecution.isEmpty());
@@ -296,7 +296,7 @@ public class DataJobStatusMonitorTest {
     @Order(15)
     public void testRecordJobExecutionStatus_existingDataJobAndNonExistingExecution_shouldRecordExecution() {
         JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", ExecutionTerminationStatus.SUCCESS.getString(), null);
-        dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
+        dataJobMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
         assertDataJobExecutionValid(expectedJobExecution, actualJobExecution);
@@ -307,7 +307,7 @@ public class DataJobStatusMonitorTest {
     public void testRecordJobExecutionStatus_existingDataJobAndExistingExecution_shouldUpdateExecution() {
         JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "execution-id", ExecutionTerminationStatus.SUCCESS.getString(), true);
         Optional<DataJobExecution> jobExecutionBeforeUpdate = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
-        dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
+        dataJobMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
         assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, jobExecutionBeforeUpdate.get().getStartTime());
@@ -317,7 +317,7 @@ public class DataJobStatusMonitorTest {
     @Order(17)
     public void testRecordJobExecutionStatusSkipped_existingDataJobAndNonExistingExecution_shouldRecordExecution() {
         JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", ExecutionTerminationStatus.NONE.getString(), null);
-        dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
+        dataJobMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
         assertDataJobExecutionValid(expectedJobExecution, actualJobExecution);
@@ -329,7 +329,7 @@ public class DataJobStatusMonitorTest {
         var expectedExecutionMessage = "Skipping job execution due to another parallel running execution.";
         JobExecution expectedJobExecution = buildJobExecutionStatus("data-job", "different-execution-id", ExecutionTerminationStatus.SKIPPED.getString(), true);
         Optional<DataJobExecution> jobExecutionBeforeUpdate = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
-        dataJobStatusMonitor.recordJobExecutionStatus(expectedJobExecution);
+        dataJobMonitor.recordJobExecutionStatus(expectedJobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(expectedJobExecution.getExecutionId());
 
         assertDataJobExecutionValid(expectedJobExecution, actualJobExecution, expectedExecutionMessage, jobExecutionBeforeUpdate.get().getStartTime());
@@ -339,10 +339,64 @@ public class DataJobStatusMonitorTest {
     @Order(19)
     public void testRecordJobExecutionStatus_nonExistingDataJobAndNonExistingExecution_shouldNotRecordExecution() {
         JobExecution jobExecution = buildJobExecutionStatus(randomId("data-job-"), randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString());
-        dataJobStatusMonitor.recordJobExecutionStatus(jobExecution);
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJobExecution> actualJobExecution = jobExecutionRepository.findById(jobExecution.getExecutionId());
 
         Assertions.assertTrue(actualJobExecution.isEmpty());
+    }
+
+    @Test
+    @Order(20)
+    void testUpdateDataJobInfoGauges() {
+        var dataJob = new DataJob("data-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job-"));
+
+        dataJobMonitor.updateDataJobInfoGauges(jobsRepository.save(dataJob));
+
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_INFO_METRIC_NAME).gauges();
+        Assertions.assertEquals(1, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+        Assertions.assertEquals(1, gauges.size());
+    }
+
+    @Test
+    @Order(21)
+    void testUpdateDataJobInfoGauges_withNullDataJob_throwsException() {
+        Assertions.assertThrows(NullPointerException.class, () -> dataJobMonitor.updateDataJobInfoGauges(null));
+    }
+
+    @Test
+    @Order(22)
+    void testClearDataJobsGaugesNotIn() {
+        var dataJobs = Arrays.asList(
+                new DataJob("data-job1", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job1-")),
+                new DataJob("data-job2", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job2-")),
+                new DataJob("data-job3", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job3-")));
+
+        // Clean up previous from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        // Add some more gauges
+        dataJobMonitor.updateDataJobsGauges(jobsRepository.saveAll(dataJobs));
+
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_INFO_METRIC_NAME).gauges();
+        Assertions.assertEquals(3, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+        Assertions.assertEquals(3, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+        Assertions.assertEquals(3, gauges.size());
+
+        // Delete a data job and verify that its gauges are removed as a result
+        jobsRepository.deleteById(dataJobs.get(0).getName());
+        dataJobMonitor.clearDataJobsGaugesNotIn(Arrays.asList(dataJobs.get(1), dataJobs.get(2)));
+
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_INFO_METRIC_NAME).gauges();
+        Assertions.assertEquals(2, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+        Assertions.assertEquals(2, gauges.size());
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+        Assertions.assertEquals(2, gauges.size());
     }
 
     private static String randomId(String prefix) {
