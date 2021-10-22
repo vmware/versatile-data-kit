@@ -81,13 +81,14 @@ public class JobExecutionCleanupService {
             }
         }
 
-        if(jobsToDelete.size() == 0) {
+        if (jobsToDelete.size() == 0) {
             log.info("Found 0 job executions to delete for DataJob:'{}'.", job.getName());
-            return;
-        }
 
-        log.info("Found {} job executions to delete for DataJob:'{}'. Deleting...", jobsToDelete.size(), job.getName());
-        jobExecutionRepository.deleteAllByIdInBatch(jobsToDelete);
+        } else {
+
+            log.info("Found {} job executions to delete for DataJob:'{}'. Deleting...", jobsToDelete.size(), job.getName());
+            jobExecutionRepository.deleteAllByIdInBatch(jobsToDelete);
+        }
     }
 
     /**
