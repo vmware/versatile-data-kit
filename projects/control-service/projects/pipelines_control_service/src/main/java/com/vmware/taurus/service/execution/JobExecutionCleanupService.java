@@ -82,7 +82,7 @@ public class JobExecutionCleanupService {
         }
 
         if (jobsToDelete.size() == 0) {
-            log.info("Found 0 job executions to delete for DataJob:'{}'.", job.getName());
+            log.debug("Found 0 job executions to delete for DataJob:'{}'.", job.getName());
 
         } else {
 

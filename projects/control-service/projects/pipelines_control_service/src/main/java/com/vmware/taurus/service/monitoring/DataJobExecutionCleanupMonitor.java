@@ -34,17 +34,17 @@ public class DataJobExecutionCleanupMonitor {
                 .register(this.meterRegistry);
 
         failedDeletionsCounter = Counter.builder(FAILED_DELETIONS_COUNTER_NAME)
-                .description("Counts the number of failed execution deletions per data job by the cleanup task.")
+                .description("Counts the total number of failed data job execution deletions by the cleanup task.")
                 .register(this.meterRegistry);
 
         successfulDeletionsCounter = Counter.builder(SUCCESSFUL_DELETIONS_COUNTER_NAME)
-                .description("Counts the number of successful execution deletions per data job by the cleanup task.")
+                .description("Counts the total number of successful data job execution deletions by the cleanup task.")
                 .register(this.meterRegistry);
     }
 
     /**
      * Counts the number of times the JobExecutionCleanupService's cleanup
-     * data job execution mehtod was invoked.
+     * data job execution method was invoked.
      */
     public void countInvocation() {
         incrementCounter(invocationsCounter);
