@@ -56,17 +56,17 @@ public class JobExecutionCleanupService {
         var jobs = jobsRepository.findAll();
         for (var job : jobs) {
             try {
-                var deletedExecutions = deleteDataJobExecutions(job);
-                dataJobExecutionCleanupMonitor.addSuccessfulGauge(job, deletedExecutions);
+                deleteDataJobExecutions(job);
+                dataJobExecutionCleanupMonitor.countSuccessfulDeletion();
             } catch (Exception e) {
-                dataJobExecutionCleanupMonitor.addFailedGauge(job);
+                dataJobExecutionCleanupMonitor.countFailedDeletion();
                 log.warn("Failed to delete executions for job {} due to {}, message: {}", job.getName(), e.getClass(), e.getMessage());
                 log.warn("Error:", e);
             }
         }
     }
 
-    private int deleteDataJobExecutions(DataJob job) {
+    private void deleteDataJobExecutions(DataJob job) {
 
         var statuses = List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED);
         var jobExecutions = jobExecutionRepository.findByDataJobNameAndStatusNotInOrderByEndTime(job.getName(), statuses);
@@ -83,12 +83,11 @@ public class JobExecutionCleanupService {
 
         if(jobsToDelete.size() == 0) {
             log.info("Found 0 job executions to delete for DataJob:'{}'.", job.getName());
-            return 0;
+            return;
         }
 
         log.info("Found {} job executions to delete for DataJob:'{}'. Deleting...", jobsToDelete.size(), job.getName());
         jobExecutionRepository.deleteAllByIdInBatch(jobsToDelete);
-        return jobsToDelete.size();
     }
 
     /**
