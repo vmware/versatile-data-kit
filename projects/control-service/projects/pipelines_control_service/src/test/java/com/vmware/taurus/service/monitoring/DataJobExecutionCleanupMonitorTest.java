@@ -48,7 +48,7 @@ public class DataJobExecutionCleanupMonitorTest {
     public void testFailedDeletionsCounter() {
         var counter = meterRegistry.counter(DataJobExecutionCleanupMonitor.FAILED_DELETIONS_COUNTER_NAME);
         Assertions.assertEquals(0.0, counter.count(), 0.001);
-        Assertions.assertEquals("Counts the number of failed execution deletions per data job by the cleanup task.", counter.getId().getDescription());
+        Assertions.assertEquals("Counts the total times the data job execution cleanup task was unsuccessful for a data job.", counter.getId().getDescription());
 
         dataJobExecutionCleanupMonitor.countFailedDeletion();
 
@@ -68,7 +68,7 @@ public class DataJobExecutionCleanupMonitorTest {
     public void testSuccessfulDeletionsCounter() {
         var counter = meterRegistry.counter(DataJobExecutionCleanupMonitor.SUCCESSFUL_DELETIONS_COUNTER_NAME);
         Assertions.assertEquals(0.0, counter.count(), 0.001);
-        Assertions.assertEquals("Counts the number of successful execution deletions per data job by the cleanup task.", counter.getId().getDescription());
+        Assertions.assertEquals("Counts the total times the data job execution cleanup task was successful for a data job.", counter.getId().getDescription());
 
         dataJobExecutionCleanupMonitor.countSuccessfulDeletion();
 
