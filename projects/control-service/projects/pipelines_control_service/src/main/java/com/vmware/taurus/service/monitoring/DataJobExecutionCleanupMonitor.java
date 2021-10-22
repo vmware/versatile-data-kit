@@ -70,7 +70,7 @@ public class DataJobExecutionCleanupMonitor {
         try {
             counter.increment();
         } catch (Exception e) {
-            log.warn("Error while trying to increment invocation counter.", e);
+            log.warn("Error while trying to increment counter.", e);
         }
     }
 }
