@@ -93,17 +93,14 @@ public class DeploymentNotificationHelper {
 
    // Currently, the only way to differentiate between infra and user error
    // when building a data job is by parsing the logs of the builder job.
-   // The code below is inspired by the SC Deployer:
-   // https://gitlab.eng.vmware.com/product-analytics/data-pipelines/deployer/blob/master/job-setup/deploy_job.py#L321
    private String getRequirementsError(String logs) throws IOException {
       String requirements_error = null;
 
-      if (StringUtils.isNotBlank(logs)) {
+      if (StringUtils.isNotBlank(logs) && logs.contains(">requirements_failed<")) {
          String[] error_list = logs.split(">requirements_failed<");
 
-         if (error_list.length == 4) {
-            var start = StringUtils.ordinalIndexOf(error_list[1], "\n", 2);
-            requirements_error = error_list[1].substring(start);
+         if (error_list.length > 3) {
+            requirements_error = error_list[error_list.length-2];
          }
       }
       return requirements_error;
