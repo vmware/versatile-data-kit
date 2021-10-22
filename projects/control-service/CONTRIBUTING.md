@@ -34,10 +34,10 @@ Or (without creating docker image)
 ```
 
 ### Setup IntelliJ:
- * Install Lombok Plugin
- * Import the data-pipelines project using the root folder: Project from Existing Sources... -> Gradle
- * Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
- * Enable Annotation processing (Shift+Shift and search for it)
+* Install Lombok Plugin
+* Import projects/control-service module from existing sources in IntelliJ. Make sure to use external model Gradle.
+* Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
+* Enable Annotation processing (Shift+Shift and search for it)
 
 ### Run the project
 ```
@@ -75,6 +75,8 @@ datajobs.control.k8s.namespace=<k8s_namespace>
 datajobs.deployment.k8s.kubeconfig=<path_to_kubeconfig_file>
 datajobs.deployment.k8s.namespace=<k8s_namespace>
 ```
+Note:
+If you do not have access to Kubernetes, you could provision it somehow (minikube, kind, ...).
 
 ### GIT repository
 The data jobs are stored in a git repository. Read access to this repository is already configured in `application-dev.properties`.
