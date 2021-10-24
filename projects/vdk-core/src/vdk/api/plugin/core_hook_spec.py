@@ -6,6 +6,10 @@ from typing import Optional
 import click
 from vdk.api.plugin.hook_markers import hookspec
 from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
+from vdk.internal.builtin_plugins.run.execution_results import StepResult
+from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 
@@ -125,11 +129,6 @@ class JobRunHookSpecs:
     Job template execution inherits JobContext of the job that started but all hooks are still called.
     That's because a job template is executed as a normal data job.
     """
-
-    from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
-    from vdk.internal.builtin_plugins.run.execution_results import StepResult
-    from vdk.internal.builtin_plugins.run.job_context import JobContext
-    from vdk.internal.builtin_plugins.run.step import Step
 
     @hookspec
     def initialize_job(self, context: JobContext) -> None:
