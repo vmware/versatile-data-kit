@@ -11,6 +11,10 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+1.3 - 22.10.2021
+
+* **Bug fixes**
+  * Proper classification of data job requirements.txt errors
 
 1.3 - 25.10.2021
 ----
