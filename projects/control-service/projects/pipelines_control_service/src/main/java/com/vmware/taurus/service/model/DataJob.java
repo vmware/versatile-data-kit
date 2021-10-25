@@ -43,6 +43,8 @@ public class DataJob {
    @EqualsAndHashCode.Exclude
    private Set<DataJobExecution> executions;
 
+   private Boolean enabled;
+
    public DataJob(String name, JobConfig jobConfig) {
       this.name = name;
       this.jobConfig = jobConfig;
@@ -51,10 +53,10 @@ public class DataJob {
    }
 
    public DataJob(String name, JobConfig jobConfig, DeploymentStatus deploymentStatus) {
-      this(name, jobConfig, deploymentStatus, ExecutionTerminationStatus.NONE, null, null);
+      this(name, jobConfig, deploymentStatus, ExecutionTerminationStatus.NONE, null, null, true);
    }
 
    public DataJob(String name, JobConfig jobConfig, DeploymentStatus deploymentStatus, ExecutionTerminationStatus terminationStatus, String latestJobExecutionId) {
-      this(name, jobConfig, deploymentStatus, terminationStatus, latestJobExecutionId, null);
+      this(name, jobConfig, deploymentStatus, terminationStatus, latestJobExecutionId, null, true);
    }
 }

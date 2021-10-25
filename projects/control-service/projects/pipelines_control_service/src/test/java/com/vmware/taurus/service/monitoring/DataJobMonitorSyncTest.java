@@ -18,31 +18,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 
 @ExtendWith(MockitoExtension.class)
-public class DataJobStatusMonitorSyncTest {
+public class DataJobMonitorSyncTest {
 
     @Mock
     private JobsRepository jobsRepository;
 
     @Mock
-    private DataJobStatusMonitor dataJobStatusMonitor;
+    private DataJobMonitor dataJobMonitor;
 
     @InjectMocks
-    private DataJobStatusMonitorSync dataJobStatusMonitorSync;
+    private DataJobMonitorSync dataJobMonitorSync;
 
     @Test
     public void testUpdateDataJobStatus() {
         List<DataJob> mockJobs = new ArrayList<>();
         Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
 
-        dataJobStatusMonitorSync.updateDataJobStatus();
+        dataJobMonitorSync.updateDataJobStatus();
 
-        var dataJobsCaptor = ArgumentCaptor.forClass(Supplier.class);
-        Mockito.verify(dataJobStatusMonitor, Mockito.times(1)).updateDataJobsTerminationStatus(dataJobsCaptor.capture());
+        var dataJobsCaptor = ArgumentCaptor.forClass(Iterable.class);
+        Mockito.verify(dataJobMonitor, Mockito.times(1)).updateDataJobsGauges(dataJobsCaptor.capture());
 
-        Assertions.assertEquals(dataJobsCaptor.getValue().get(), mockJobs);
+        Assertions.assertEquals(dataJobsCaptor.getValue(), mockJobs);
     }
 }

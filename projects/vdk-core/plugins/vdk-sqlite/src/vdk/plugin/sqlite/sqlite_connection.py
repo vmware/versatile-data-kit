@@ -5,23 +5,9 @@ import pathlib
 import tempfile
 from typing import List
 
-from vdk.internal.core.config import Configuration
 from vdk.internal.util.decorators import closing_noexcept_on_close
 
-SQLITE_FILE = "SQLITE_FILE"
-
 log = logging.getLogger(__name__)
-
-
-class SQLiteConfiguration:
-    def __init__(self, configuration: Configuration):
-        self.__config = configuration
-
-    def get_default_ingest_target(self) -> pathlib.Path:
-        return pathlib.Path(self.__config.get_value("INGEST_TARGET_DEFAULT"))
-
-    def get_sqlite_file(self) -> pathlib.Path:
-        return pathlib.Path(self.__config.get_value(SQLITE_FILE))
 
 
 class SQLiteConnection:
