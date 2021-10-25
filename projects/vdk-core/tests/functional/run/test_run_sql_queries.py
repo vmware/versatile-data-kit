@@ -15,6 +15,9 @@ from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
 from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
 
+# TODO: enable after managed cursor merge
+# from vdk.plugin.test_utils.util_plugins import ValidatedSqLite3MemoryDbPlugin, SyntaxErrorRecoverySqLite3MemoryDbPlugin
+
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
 
@@ -49,6 +52,26 @@ def test_run_dbapi_connection():
     )
 
     cli_assert_equal(0, result)
+
+
+# TODO: enable after managed cursor merge
+# @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+# def test_run_managed_connection_and_verify_query_length():
+#     db_plugin = ValidatedSqLite3MemoryDbPlugin()
+#     runner = CliEntryBasedTestRunner(db_plugin)
+#
+#     result: Result = runner.invoke(
+#         [
+#             "run",
+#             get_test_job_path(
+#                 pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+#                 "simple-create-insert-huge",
+#             ),
+#         ]
+#     )
+#
+#     cli_assert_equal(1, result)
+#     assert "Database operation has exceeded the maximum limit of 10000 characters." == result.exception.args[0]
 
 
 # TODO: enable after managed cursor merge
@@ -95,6 +118,25 @@ def test_run_managed_connection_and_query_fails():
 
     cli_assert_equal(1, result)
     assert isinstance(result.exception, sqlite3.OperationalError)
+
+
+# TODO: enable after managed cursor merge
+# @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+# def test_run_managed_connection_and_query_fails_then_recovers():
+#     db_plugin = SyntaxErrorRecoverySqLite3MemoryDbPlugin()
+#     runner = CliEntryBasedTestRunner(db_plugin)
+#
+#     result: Result = runner.invoke(
+#         [
+#             "run",
+#             get_test_job_path(
+#                 pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+#                 "simple-create-insert-failed",
+#             ),
+#         ]
+#     )
+#
+#     cli_assert_equal(0, result)
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})

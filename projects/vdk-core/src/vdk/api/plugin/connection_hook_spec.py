@@ -77,12 +77,14 @@ class ConnectionHookSpec:
         For example:
         @hookimpl
         db_connection_recover_operation(recovery_cursor: RecoveryCursor):
-            while(recovery_cursor.get_retries() < MAX_RETRIES):
+            while recovery_cursor.get_retries() < MAX_RETRIES:
                 try:
                     recovery_cursor.execute("helper query")
                     recovery_cursor.retry_operation()
+                    return
                 except:
                     time.sleep(3 * recovery_cursor.get_retries()) # backoff
+            raise recovery_cursor.get_exception()
 
         :param recovery_cursor: RecoveryCursor
             A PEP249Cursor implementation purposed for query and parameters recovery.
