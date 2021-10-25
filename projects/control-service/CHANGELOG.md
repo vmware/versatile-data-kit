@@ -12,10 +12,16 @@ MAJOR.MINOR - dd.MM.yyyy
 * **Breaking Changes**
 
 
+1.3 - 25.10.2021
+----
+* **Improvement**
+  * Add Kubernetes namespace as label to notification alerts.
+
+
 1.3 - 21.10.2021
 ----
 * **Bug fixes**
-  * Clean up metrics when data jobs are deleted
+  * Clean up metrics when data jobs are deleted.
 
 
 1.3 - 08.10.2021
