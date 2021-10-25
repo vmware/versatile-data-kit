@@ -29,7 +29,7 @@ class ManagedCursorTests(unittest.TestCase):
 
         mock_managed_cursor.execute(self._query)
 
-        mock_connection_hook_spec.validate_operation.assert_called_once_with(
+        mock_connection_hook_spec.db_connection_validate_operation.assert_called_once_with(
             operation=self._query, parameters=None
         )
         mock_native_cursor.execute.assert_called_once()
@@ -42,8 +42,8 @@ class ManagedCursorTests(unittest.TestCase):
             _,
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
-        mock_connection_hook_spec.validate_operation.side_effect = Exception(
-            "Validation exception"
+        mock_connection_hook_spec.db_connection_validate_operation.side_effect = (
+            Exception("Validation exception")
         )
 
         with self.assertRaises(Exception) as e:
@@ -67,11 +67,13 @@ class ManagedCursorTests(unittest.TestCase):
                 f"decorated {managed_operation.get_operation()}"
             )
 
-        mock_connection_hook_spec.decorate_operation.side_effect = mock_decorate
+        mock_connection_hook_spec.db_connection_decorate_operation.side_effect = (
+            mock_decorate
+        )
 
         mock_managed_cursor.execute(self._query)
 
-        mock_connection_hook_spec.decorate_operation.assert_called_once()
+        mock_connection_hook_spec.db_connection_decorate_operation.assert_called_once()
         calls = [call(f"decorated {self._query}")]
         mock_native_cursor.execute.assert_has_calls(calls)
 
@@ -83,14 +85,16 @@ class ManagedCursorTests(unittest.TestCase):
             _,
             mock_connection_hook_spec,
         ) = populate_mock_managed_cursor()
-        mock_connection_hook_spec.decorate_operation.side_effect = Exception(
-            "Decoration exception"
+        mock_connection_hook_spec.db_connection_decorate_operation.side_effect = (
+            Exception("Decoration exception")
         )
 
         with self.assertRaises(Exception) as e:
             mock_managed_cursor.execute(self._query)
 
-        self.assertTrue(mock_connection_hook_spec.decorate_operation.called)
+        self.assertTrue(
+            mock_connection_hook_spec.db_connection_decorate_operation.called
+        )
         self.assertEqual(e.exception.args[0], "Decoration exception")
         mock_native_cursor.execute.assert_not_called()
 
@@ -114,15 +118,19 @@ class ManagedCursorTests(unittest.TestCase):
             recovery_cursor.retry_operation()
             assert recovery_cursor.get_retries() == 1
 
-        mock_connection_hook_spec.decorate_operation.side_effect = mock_decorate
-        mock_connection_hook_spec.recover_operation.side_effect = mock_recover
+        mock_connection_hook_spec.db_connection_decorate_operation.side_effect = (
+            mock_decorate
+        )
+        mock_connection_hook_spec.db_connection_recover_operation.side_effect = (
+            mock_recover
+        )
 
         exception = Exception()
         mock_native_cursor.execute.side_effect = [exception, None, None]
 
         mock_managed_cursor.execute(self._query)
 
-        mock_connection_hook_spec.recover_operation.assert_called_once()
+        mock_connection_hook_spec.db_connection_recover_operation.assert_called_once()
         calls = [
             call(f"decorated {self._query}"),
             call(f"decorated recovery"),
@@ -148,8 +156,12 @@ class ManagedCursorTests(unittest.TestCase):
         def mock_recover(recovery_cursor: RecoveryCursor):
             raise Exception("Could not handle execution exception")
 
-        mock_connection_hook_spec.decorate_operation.side_effect = mock_decorate
-        mock_connection_hook_spec.recover_operation.side_effect = mock_recover
+        mock_connection_hook_spec.db_connection_decorate_operation.side_effect = (
+            mock_decorate
+        )
+        mock_connection_hook_spec.db_connection_recover_operation.side_effect = (
+            mock_recover
+        )
 
         exception = Exception()
         mock_native_cursor.execute.side_effect = exception
@@ -158,7 +170,7 @@ class ManagedCursorTests(unittest.TestCase):
             mock_managed_cursor.execute(self._query)
 
         self.assertEqual(e.exception.args[0], "Could not handle execution exception")
-        mock_connection_hook_spec.recover_operation.assert_called_once()
+        mock_connection_hook_spec.db_connection_recover_operation.assert_called_once()
         mock_native_cursor.execute.assert_called_once()
 
 

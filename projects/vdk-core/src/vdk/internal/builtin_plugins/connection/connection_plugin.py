@@ -10,6 +10,10 @@ from vdk.internal.core.statestore import CommonStoreKeys
 
 
 class QueryDecoratorPlugin:
+    """
+    Prefix each DB query with job name and operation ID
+    """
+
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         self._job_name = context.name
@@ -19,7 +23,9 @@ class QueryDecoratorPlugin:
         self._op_id = context.state.get(CommonStoreKeys.OP_ID)
 
     @hookimpl
-    def decorate_operation(self, decoration_cursor: DecorationCursor) -> None:
+    def db_connection_decorate_operation(
+        self, decoration_cursor: DecorationCursor
+    ) -> None:
         managed_operation = decoration_cursor.get_managed_operation()
         managed_operation.set_operation(
             "\n".join(

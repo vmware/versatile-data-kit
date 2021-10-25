@@ -44,7 +44,7 @@ def populate_mock_managed_cursor(
             log=logging.getLogger(),
             exception=mock_exception_to_recover,
             managed_operation=managed_operation,
-            decoration_operation_callback=mock_connection_hook_spec.decorate_operation,
+            decoration_operation_callback=mock_connection_hook_spec.db_connection_decorate_operation,
         ),
         mock_connection_hook_spec,
     )

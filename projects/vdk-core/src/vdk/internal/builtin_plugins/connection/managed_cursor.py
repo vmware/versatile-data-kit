@@ -78,19 +78,23 @@ class ManagedCursor(PEP249Cursor):
             None,
         )
         if self.__connection_hook_spec:
-            if self.__connection_hook_spec.validate_operation.get_hookimpls():
+            if (
+                self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
+            ):
                 self._log.debug("Validating query:\n%s" % operation)
-                self.__connection_hook_spec.validate_operation(
+                self.__connection_hook_spec.db_connection_validate_operation(
                     operation=operation, parameters=parameters
                 )
 
-            if self.__connection_hook_spec.decorate_operation.get_hookimpls():
+            if (
+                self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
+            ):
                 self._log.debug("Decorating query:\n%s" % operation)
                 decoration_cursor = DecorationCursor(
                     self._cursor, self._log, managed_operation
                 )
 
-                self.__connection_hook_spec.decorate_operation(
+                self.__connection_hook_spec.db_connection_decorate_operation(
                     decoration_cursor=decoration_cursor
                 )
 
@@ -136,7 +140,7 @@ class ManagedCursor(PEP249Cursor):
         # TODO: configurable generic re-try.
         if (
             not self.__connection_hook_spec
-            or not self.__connection_hook_spec.recover_operation.get_hookimpls()
+            or not self.__connection_hook_spec.db_connection_recover_operation.get_hookimpls()
         ):
             raise exception
 
@@ -145,11 +149,11 @@ class ManagedCursor(PEP249Cursor):
             self._log,
             exception,
             managed_operation,
-            self.__connection_hook_spec.decorate_operation,
+            self.__connection_hook_spec.db_connection_decorate_operation,
         )
         self._log.debug(f"Recovery of query {managed_operation.get_operation()}")
         try:
-            self.__connection_hook_spec.recover_operation(
+            self.__connection_hook_spec.db_connection_recover_operation(
                 recovery_cursor=recovery_cursor
             )
             self._log.debug(

@@ -29,10 +29,9 @@ class RecoveryCursor(PEP249Cursor):
 
     def get_exception(self) -> Exception:
         """
-        Retrieve the exception to recover from.
+        Retrieve the original exception with which the SQL operation failed.
 
         :return: Exception
-            Query and parameters DTO
         """
         return self.__exception
 
@@ -85,7 +84,6 @@ class RecoveryCursor(PEP249Cursor):
         Retry original operation to recover.
         """
         # could potentially enforce max retries here globally - in favour of per custom error handler
-
         self.retries_increment()
         retry_number = self.get_retries()
 
