@@ -103,6 +103,13 @@ datajobs.aws.accessKeyId=<access_key_id>
 datajobs.aws.secretAccessKey=<secret_access_key>
 ```
 
+### Authentication
+Authentication against the service is disabled by default.
+You could enable it by specifying the following property in `application-dev.properties`:
+```properties
+featureflag.security.enabled=true
+```
+
 ## CICD
 See [.gitlab-ci.yml](../.gitlab-ci.yml)
 
