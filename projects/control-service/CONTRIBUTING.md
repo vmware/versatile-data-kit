@@ -35,7 +35,8 @@ Or (without creating docker image)
 
 ### Setup IntelliJ:
 * Install Lombok Plugin
-* Import projects/control-service module from existing sources in IntelliJ. Make sure to use external model Gradle.
+* Import control-service project from existing sources in IntelliJ
+* Link Gradle Project to control-service/projects/settings.gradle
 * Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
 * Enable Annotation processing (Shift+Shift and search for it)
 
