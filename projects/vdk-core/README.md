@@ -31,3 +31,11 @@ vdk --help
 
 Plugins are a powerful way of extending or adapting Versatile Data Kit for all kinds of use-cases.
 For more information see [Plugins doc](./README_PLUGINS.md).
+
+## Public interfaces
+
+Any backwards compatibility guarantees apply only to public interfaces.
+Public interfaces are modules and packages defined or imported in vdk.api.*.
+unless the documentation explicitly declares them to be provisional or internal interfaces.
+Anything else is considered internal.
+All public interfaces (classes or methods) must have documentation.
