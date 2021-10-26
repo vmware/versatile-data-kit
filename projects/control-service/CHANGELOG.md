@@ -16,6 +16,12 @@ MAJOR.MINOR - dd.MM.yyyy
 * **Bug fixes**
   * Proper classification of data job requirements.txt errors
 
+1.3 - 26.10.2021
+----
+* **Bug fixes**
+  * Job executions that are terminated due to timeout are now classified as User Error.
+
+
 1.3 - 25.10.2021
 ----
 * **Improvement**

@@ -29,6 +29,7 @@ public class JobExecutionResultManager {
 
    static final String TERMINATION_MESSAGE_ATTRIBUTE_STATUS = "status";
    static final String TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION = "vdk_version";
+   static final String TERMINATION_REASON_DEADLINE_EXCEEDED = "DeadlineExceeded";
 
    @Data
    @Builder
@@ -49,7 +50,8 @@ public class JobExecutionResultManager {
       ExecutionStatus executionStatus = getExecutionStatus(jobExecution.getSucceeded());
       ExecutionTerminationStatus terminationStatus = getTerminationStatus(terminationMessage.getTerminationStatus());
 
-      terminationStatus = updateTerminationStatusBasedOnExecutionStatus(terminationStatus, executionStatus, terminationMessage.getTerminationStatus());
+      terminationStatus = updateTerminationStatusBasedOnExecutionStatus(
+              terminationStatus, executionStatus, terminationMessage.getTerminationStatus(), jobExecution.getTerminationReason());
       executionStatus = updateExecutionStatusBasedOnTerminationStatus(executionStatus, terminationStatus);
 
       return ExecutionResult.builder()
@@ -107,6 +109,7 @@ public class JobExecutionResultManager {
     * @param terminationStatus termination status based on the K8S Pod termination status
     * @param executionStatus execution status based on K8S Job status
     * @param terminationStatusString termination status returned from K8S Pod (e.g. "Success", "User error", etc.)
+    * @param terminationReason condition reason as reported by K8s Job (e.g. "DeadlineExceeded", "BackoffLimitExceeded", etc.)
     * @return if there is no termination message due to the missing K8S Pod
     * returns termination status based on execution status otherwise returns
     * termination status based on the K8S Pod termination status
@@ -114,12 +117,17 @@ public class JobExecutionResultManager {
    private static ExecutionTerminationStatus updateTerminationStatusBasedOnExecutionStatus(
          ExecutionTerminationStatus terminationStatus,
          ExecutionStatus executionStatus,
-         String terminationStatusString) {
+         String terminationStatusString,
+         String terminationReason) {
 
       if (StringUtils.isEmpty(terminationStatusString) && ExecutionStatus.FINISHED.equals(executionStatus)) {
          terminationStatus = ExecutionTerminationStatus.SUCCESS;
       } else if (StringUtils.isEmpty(terminationStatusString) && ExecutionStatus.FAILED.equals(executionStatus)) {
-         terminationStatus = ExecutionTerminationStatus.PLATFORM_ERROR;
+         if (StringUtils.equalsIgnoreCase(terminationReason, TERMINATION_REASON_DEADLINE_EXCEEDED)) {
+            terminationStatus = ExecutionTerminationStatus.USER_ERROR;
+         } else {
+            terminationStatus = ExecutionTerminationStatus.PLATFORM_ERROR;
+         }
       }
 
       return terminationStatus;

@@ -172,6 +172,7 @@ public abstract class KubernetesService implements InitializingBean {
         String executionType;
         String jobName;
         String terminationMessage;
+        String terminationReason;
         Boolean succeeded;
         String opId;
         OffsetDateTime startTime;
@@ -833,17 +834,12 @@ public abstract class KubernetesService implements InitializingBean {
         if (jobStatusCondition != null) {
             // Job termination status
             Optional<V1ContainerStateTerminated> lastTerminatedPodState = getTerminationStatus(job);
-            // If the job completed but its pod did not produce a termination message, we treat this (for now)
-            // as a Platform error. Possible reasons for this to happen are:
-            //   - Pod was not created due to insufficient resources (in the future we'd likely want to create per-team
-            //     resource pools + provide per-job resource configuration; then it would be the responsibility of the
-            //     users to manage their resources, in which case this should be classified as user error).
-            //   - Pod failed to pull one of its images
-            //   - Pod was killed in flight due to exceeding its allowed memory (this should be eventually classified
-            //     as user error)
+            // If the job completed but its pod did not produce a termination message, we infer the termination
+            // status later, based on the status of the job itself.
             lastTerminatedPodState
                   .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
                   .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
+            jobExecutionStatusBuilder.terminationReason(jobStatusCondition.getReason());
         }
         // Job resources
         Optional<V1Container> containerOptional = Optional.ofNullable(job.getSpec())
