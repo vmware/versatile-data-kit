@@ -595,7 +595,7 @@ alerting:
                   <p>
                   An error in the Data Job code occurred. The error should be resolved by data job owner. Here are the details:<br>
                   WHAT HAPPENED: The last execution of your Data Job has failed.<br>
-                  WHY IT HAPPENED: The reasons for the failure could be: the job run out of memory, a query references tables or columns that do not exist, there is a logical error in the code, etc.<br>
+                  WHY IT HAPPENED: The reasons for the failure could be: the job run out of memory, the job run for too long and was terminated, a query references tables or columns that do not exist, there is a logical error in the code, etc.<br>
                   CONSEQUENCES: Your Data Job execution did not complete successfully.<br>
                   COUNTERMEASURES: Inspect the logs of the Data Job execution and get clues about the error. Fix the problem and then redeploy the Data Job. If you want to receive notifications on successful executions or you don't want to receive notifications on execution failures, you can set it up in the config.ini file and redeploy the Data Job.
                   </p>
