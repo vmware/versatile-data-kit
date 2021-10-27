@@ -6,9 +6,9 @@
 package com.vmware.taurus.service.graphql.strategy.datajob;
 
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
-import com.vmware.taurus.service.graphql.model.Filter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;

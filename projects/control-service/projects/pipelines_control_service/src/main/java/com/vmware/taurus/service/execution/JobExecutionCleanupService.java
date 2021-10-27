@@ -8,7 +8,9 @@ package com.vmware.taurus.service.execution;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.monitoring.DataJobExecutionCleanupMonitor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -41,6 +43,18 @@ public class JobExecutionCleanupService {
     @Autowired
     public void setJobsRepository(JobsRepository jobsRepository) {
         this.jobsRepository = jobsRepository;
+        var config = new JobConfig();
+        config.setDescription(null);
+        var entity = new DataJob("hello", config, DeploymentStatus.NONE);
+
+        var config2 = new JobConfig();
+        config2.setDescription("not null");
+
+        var entity2 = new DataJob("hello23", config2, DeploymentStatus.NONE);
+
+
+        jobsRepository.save(entity);
+        jobsRepository.save(entity2);
     }
 
     @Autowired
