@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
 
    private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
-         V2DataJob::getConfig, Comparator.nullsLast(Comparator.comparing(V2DataJobConfig::getTeam)));
+           e -> e.getConfig().getTeam(), Comparator.nullsLast(Comparator.naturalOrder()));
 
    @Override
    public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
