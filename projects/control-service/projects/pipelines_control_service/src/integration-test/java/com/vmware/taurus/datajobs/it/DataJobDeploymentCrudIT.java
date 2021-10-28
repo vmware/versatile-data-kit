@@ -176,6 +176,7 @@ public class DataJobDeploymentCrudIT extends BaseIT {
       Assertions.assertEquals(true, jobDeployment.getEnabled());
       Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
       Assertions.assertEquals(true, jobDeployment.getEnabled());
+      Assertions.assertEquals("release", jobDeployment.getVdkVersion());
       Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
       // just check some valid date is returned. It would be too error-prone/brittle to verify exact time.
       DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
