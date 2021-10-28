@@ -9,6 +9,7 @@ import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.model.Filter;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
@@ -81,6 +82,31 @@ class JobFieldStrategyByDescriptionTest {
       V2DataJob a = new V2DataJob();
 
       assertThat(predicate.test(a)).isFalse();
+   }
+
+   @Test
+   public void testJobDescriptionComparator() {
+
+      V2DataJob a = createDummyJob("A");
+      V2DataJob a1 = createDummyJob("A");
+      V2DataJob b = createDummyJob("B");
+      V2DataJob c = createDummyJob(null);
+      V2DataJob c1 = createDummyJob(null);
+
+      var baseCriteria = new Criteria<>(Objects::nonNull, Comparator.comparing(V2DataJob::getJobName));
+      var filter = new Filter("description", "A", Sort.Direction.ASC);
+
+      var descriptionCriteria = strategyByDescription.computeFilterCriteria(baseCriteria, filter);
+      var comparator = descriptionCriteria.getComparator();
+
+      Assertions.assertEquals(-1, comparator.compare(a, b));
+      Assertions.assertEquals(-1, comparator.compare(b, c));
+      Assertions.assertEquals(-1, comparator.compare(a, c));
+      Assertions.assertEquals(1, comparator.compare(b, a));
+      Assertions.assertEquals(1, comparator.compare(c, a));
+      Assertions.assertEquals(0, comparator.compare(a1, a));
+      Assertions.assertEquals(0, comparator.compare(c1, c));
+
    }
 
    private V2DataJob createDummyJob(String desc) {
