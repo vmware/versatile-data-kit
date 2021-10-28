@@ -39,7 +39,7 @@ def initialize_job(context: JobContext) -> None:
 
 
 @click.command(
-    name="sqlite-query", help="Execute a SQL query against a local SQlite database."
+    name="sqlite-query", help="Execute a SQL query against a local SQLite database."
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
@@ -49,7 +49,11 @@ def sqlite_query(ctx: click.Context, query):
 
     with closing_noexcept_on_close(conn.new_connection().cursor()) as cursor:
         cursor.execute(query)
-        column_names = [column_info[0] for column_info in cursor.description]
+        column_names = (
+            [column_info[0] for column_info in cursor.description]
+            if cursor.description
+            else ()  # same as the default value for the headers parameter of the tabulate function
+        )
         res = cursor.fetchall()
         click.echo(tabulate(res, headers=column_names))
 
