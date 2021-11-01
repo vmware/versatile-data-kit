@@ -19,18 +19,41 @@ class ManagedOperation:
         self.__parameters_decorated = parameters
 
     def get_initial_operation(self):
+        """
+        The initial operation (usually SQL expression) before being modified by any plugin.
+        :return:
+        """
         return self.__operation
 
     def get_initial_parameters(self):
+        """
+        The initial parameters before being modified by any plugin.
+        :return:
+        """
         return self.__parameters
 
     def get_operation(self):
+        """
+        The operation (usually SQL expression) that is expected to be executed.
+        It may have been modified by other plugins.
+        :return:
+        """
         return self.__operation_decorated
 
     def get_parameters(self):
+        """
+        The parameters that are expected to be used during operation execution.
+        It may have been modified by other plugins.
+        :return:
+        """
         return self.__parameters_decorated
 
     def get_operation_parameters_tuple(self) -> Tuple[str, Optional[Container]]:
+        """
+        The operation (usually SQL expression) and parameters that is expected to be executed.
+        They may have been modified by other plugins.
+        :return:
+        """
         return self.__operation_decorated, self.__parameters_decorated
 
     # maybe track modification history
