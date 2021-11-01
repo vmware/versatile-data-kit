@@ -197,9 +197,7 @@ public class DataJobMonitor {
 
 
     private boolean shouldUpdateTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        if (terminationStatus == null ||
-                terminationStatus == ExecutionTerminationStatus.NONE ||
-                terminationStatus == ExecutionTerminationStatus.SKIPPED) {
+        if (terminationStatus == ExecutionTerminationStatus.SKIPPED) {
             log.debug("The termination status of data job {} will not be updated. New status is: {}", dataJob.getName(), terminationStatus);
             return false;
         }
