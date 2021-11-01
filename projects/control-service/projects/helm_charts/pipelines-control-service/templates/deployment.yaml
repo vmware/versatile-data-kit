@@ -80,6 +80,10 @@ spec:
               value: "{{ .Values.deploymentDockerRegistryUsername }}"
             - name: DOCKER_REGISTRY_PASSWORD
               value: "{{ .Values.deploymentDockerRegistryPassword }}"
+            {{- if and (eq .Values.deploymentDockerRegistryType "generic") .Values.deploymentDockerRegistryUsernameReadOnly .Values.deploymentDockerRegistryPasswordReadOnly }}
+            - name: DOCKER_REGISTRY_SECRET
+              value: {{ template "pipelines-control-service.fullname" . }}-docker-repo-creds
+            {{- end }}
             - name: DOCKER_REPOSITORY_URL
               value: "{{ .Values.deploymentDockerRepository }}"
             - name: DOCKER_VDK_BASE_IMAGE

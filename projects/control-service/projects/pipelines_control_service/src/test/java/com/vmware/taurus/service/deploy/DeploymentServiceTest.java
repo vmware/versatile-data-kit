@@ -146,7 +146,7 @@ public class DeploymentServiceTest {
       verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
             eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(),
               any(),
-              any(), any(), any(), any(), any(), any());
+              any(), any(), any(), any(), any(), any(), anyString());
       verify(deploymentMonitor).recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
       verify(dataJobNotification).notifyJobDeploySuccess(testDataJob.getJobConfig());
 
@@ -172,7 +172,7 @@ public class DeploymentServiceTest {
       verify(dockerRegistryService).dataJobImage(TEST_JOB_NAME, "test-commit");
       verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, jobDeployment, true);
       verify(kubernetesService).updateCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
-            eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+            eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyString());
       verify(deploymentMonitor).recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
       verify(dataJobNotification).notifyJobDeploySuccess(testDataJob.getJobConfig());
 
@@ -235,7 +235,7 @@ public class DeploymentServiceTest {
       deploymentService.enableDeployment(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
 
       verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
-            eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+            eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyString());
 
       var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
       verify(jobsRepository).save(dataJobCaptor.capture());
@@ -253,7 +253,7 @@ public class DeploymentServiceTest {
       deploymentService.enableDeployment(testDataJob, jobDeployment, false, TEST_PRINCIPAL_NAME);
 
       verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
-            eq(TEST_JOB_SCHEDULE), eq(false), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+            eq(TEST_JOB_SCHEDULE), eq(false), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyString());
 
       var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
       verify(jobsRepository).save(dataJobCaptor.capture());

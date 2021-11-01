@@ -120,7 +120,7 @@ public class JobImageDeployerTest {
               " strconv.Atoi: parsing \\\"a\\\": invalid syntax\",\"field\":\"spec.schedule\"}]},\"code\":422}"))
               .when(kubernetesService)
               .updateCronJob(anyString(), anyString(), anyMap(), anyString(), anyBoolean(), anyList(), any(KubernetesService.Resources.class),
-                      any(KubernetesService.Resources.class), any(V1Container.class), any(V1Container.class), any(List.class), anyMap(), anyMap(), anyMap(), anyMap());
+                      any(KubernetesService.Resources.class), any(V1Container.class), any(V1Container.class), any(List.class), anyMap(), anyMap(), anyMap(), anyMap(), anyString());
 
       jobImageDeployer.scheduleJob(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
       verify(deploymentProgress).failed(any(), any(), eq(DeploymentStatus.USER_ERROR), anyString(), anyBoolean());
@@ -142,7 +142,7 @@ public class JobImageDeployerTest {
       ArgumentCaptor<V1Container> containerCaptor = ArgumentCaptor.forClass(V1Container.class);
       verify(kubernetesService).createCronJob(anyString(), anyString(), anyMap(), anyString(), anyBoolean(),
               anyList(), any(KubernetesService.Resources.class), any(KubernetesService.Resources.class),
-              containerCaptor.capture(), any(V1Container.class), anyList(), anyMap(), anyMap(), anyMap(), anyMap());
+              containerCaptor.capture(), any(V1Container.class), anyList(), anyMap(), anyMap(), anyMap(), anyMap(), anyString());
       var jobContainer = containerCaptor.getValue();
       Assertions.assertEquals(testDataJob.getName(), jobContainer.getName());
    }
