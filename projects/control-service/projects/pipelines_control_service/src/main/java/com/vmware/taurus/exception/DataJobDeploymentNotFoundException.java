@@ -12,7 +12,7 @@ public class DataJobDeploymentNotFoundException extends DomainError implements U
    public DataJobDeploymentNotFoundException(String jobName) {
       super(String.format("The Data Job '%s' is not deployed.", jobName),
             "The Data Job must be deployed.",
-            "The Data Job will not be started.",
+            "Operation cannot complete since it expects the data job to have a deployment.",
             "Deploy the Data Job and try again.",
             null);
    }

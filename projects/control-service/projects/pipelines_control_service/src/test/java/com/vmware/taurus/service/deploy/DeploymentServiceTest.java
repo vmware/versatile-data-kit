@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.datajobs.TestUtils;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -127,11 +128,13 @@ public class DeploymentServiceTest {
       testDataJob = new DataJob();
       testDataJob.setName(TEST_JOB_NAME);
       testDataJob.setJobConfig(jobConfig);
+
+      when(kubernetesService.readCronJob(TEST_CRONJOB_NAME)).thenReturn(Optional.of(TestUtils.getJobDeploymentStatus()));
    }
 
    @Test
    public void updateDeployment_newDeploymentCreated() throws ApiException, IOException, InterruptedException {
-      JobDeployment jobDeployment = new JobDeployment();
+      JobDeployment jobDeployment = TestUtils.getJobDeployment();
       jobDeployment.setDataJobName(TEST_JOB_NAME);
       jobDeployment.setGitCommitSha("test-commit");
       jobDeployment.setEnabled(true);
@@ -157,7 +160,7 @@ public class DeploymentServiceTest {
 
    @Test
    public void updateDeployment_existingDeploymentUpdated() throws ApiException, IOException, InterruptedException {
-      JobDeployment jobDeployment = new JobDeployment();
+      JobDeployment jobDeployment = TestUtils.getJobDeployment();
       jobDeployment.setDataJobName(TEST_JOB_NAME);
       jobDeployment.setGitCommitSha("test-commit");
       jobDeployment.setEnabled(true);
@@ -182,7 +185,7 @@ public class DeploymentServiceTest {
 
    @Test
    public void updateDeployment_failedToBuildImage_deploymentSkipped() throws ApiException, IOException, InterruptedException {
-      JobDeployment jobDeployment = new JobDeployment();
+      JobDeployment jobDeployment = TestUtils.getJobDeployment();
       jobDeployment.setDataJobName(TEST_JOB_NAME);
       jobDeployment.setGitCommitSha("test-commit");
       jobDeployment.setEnabled(true);
@@ -225,14 +228,12 @@ public class DeploymentServiceTest {
    }
 
    @Test
-   public void enableDeployment() throws ApiException {
+   public void patchDeployment() throws ApiException {
       JobDeployment jobDeployment = new JobDeployment();
       jobDeployment.setDataJobName(TEST_JOB_NAME);
-      jobDeployment.setImageName(TEST_JOB_IMAGE_NAME);
-      jobDeployment.setGitCommitSha("test-commit");
-      jobDeployment.setEnabled(false);
+      jobDeployment.setEnabled(true);
 
-      deploymentService.enableDeployment(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
+      deploymentService.patchDeployment(testDataJob, jobDeployment);
 
       verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
             eq(TEST_JOB_SCHEDULE), eq(true), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyString());
@@ -243,36 +244,16 @@ public class DeploymentServiceTest {
    }
 
    @Test
-   public void enableDeployment_deploymentDisabled() throws ApiException {
-      JobDeployment jobDeployment = new JobDeployment();
-      jobDeployment.setDataJobName(TEST_JOB_NAME);
-      jobDeployment.setImageName(TEST_JOB_IMAGE_NAME);
-      jobDeployment.setGitCommitSha("test-commit");
-      jobDeployment.setEnabled(true);
-
-      deploymentService.enableDeployment(testDataJob, jobDeployment, false, TEST_PRINCIPAL_NAME);
-
-      verify(kubernetesService).createCronJob(eq(TEST_CRONJOB_NAME), eq(TEST_JOB_IMAGE_NAME), any(),
-            eq(TEST_JOB_SCHEDULE), eq(false), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyString());
-
-      var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
-      verify(jobsRepository).save(dataJobCaptor.capture());
-      assertEquals(false, dataJobCaptor.getValue().getEnabled());
-   }
-
-   @Test
    public void enableDeployment_sameEnabledStatus_updateSkipped() throws ApiException {
       JobDeployment jobDeployment = new JobDeployment();
       jobDeployment.setEnabled(true);
 
-      deploymentService.enableDeployment(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
+      deploymentService.patchDeployment(testDataJob, jobDeployment);
 
       verify(kubernetesService, never()).updateCronJob(any(), any(), any(), anyString(), anyBoolean(),
               any(), any(), any(), any(), any(), any(), any());
       verify(kubernetesService, never()).createCronJob(any(), any(), any(), anyString(), anyBoolean(),
               any(), any(), any(), any(), any(), any(), any());
-
-      verify(jobsRepository, never()).save(any());
    }
 
    @Test

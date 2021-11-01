@@ -620,8 +620,9 @@ paths:
       summary: Creates or updates a deployment of a Data Job. | (Stable)
       description: |
         <i>(Introduced in v1.0)</i> | Creates or updates a deployment of a Data Job.
-        The API returns before the actual Job is deployed.
+        The API returns before the actual Job is deployed (the operation is asynchrounous).
         Depending on settings specified during Data Job creation, clients will get an e-mail in case of success or failure of the deployment.
+        If you need to change only deployment settings without changing the job version, use PATCH deployments request which is synchronous.
     parameters:
       -  name: team_name
          description: Team Name
@@ -667,7 +668,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Enable'
+              $ref: '#/components/schemas/DataJobDeployment'
         required: true
       tags:
         - Data Jobs Deployment
@@ -678,8 +679,12 @@ paths:
           $ref: '#/components/responses/Error'
         '404':
           $ref: '#/components/responses/Error'
-      operationId: deploymentEnable
-      summary: Enable/disable the deployment of a Data Job. When disabled, the Data Job will not be executed. | (Stable)
+      operationId: deploymentPatch
+      summary: |
+          Patch a deployment of a Data Job. Use it to change the configuration of a data job.
+          For example: to enable or disable deployment, to change the vdk version.
+          The operation is guranteed to be synchrounous so it cannot be used to deploy new version of a data job -
+          job_version cannot be changed using PATCH. Use POST .../deployments for this. | (Stable)
       description: <i>(Introduced in v1.0)</i>
     parameters:
       -  name: team_name
@@ -1280,16 +1285,6 @@ components:
         redshift-user: foo
         redshift-password: bar
         last-execution-time: 1585303338
-
-    Enable:
-      description: Enable or disable an App or a Deployment
-      required:
-        - enabled
-      type: object
-      properties:
-        enabled:
-          description: Enable/disable flag
-          type: boolean
 
     DataJobMode:
       description: The execution mode that the data job is deployed in. Data Jobs used for development or testing purposes are marked as testing.

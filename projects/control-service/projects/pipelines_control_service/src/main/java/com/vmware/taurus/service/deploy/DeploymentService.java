@@ -5,7 +5,9 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
+import com.vmware.taurus.exception.ApiConstraintError;
+import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
 import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.JobsRepository;
@@ -17,6 +19,7 @@ import io.kubernetes.client.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -52,27 +55,56 @@ public class DeploymentService {
       return jobImageDeployer.readScheduledJobs();
    }
 
-   /**
-    * Enables/Disables a {@link DataJob}.
-    * When disabled, the DataJob will still be deployed but it will never be executed.
-    * When enabled, the DataJob will be executed according to its {@link JobConfig#getSchedule()}
-    */
-   public void enableDeployment(DataJob dataJob, JobDeployment jobDeployment,
-                                boolean enable, String lastDeployedBy) throws ApiException {
-      if (jobDeployment.getEnabled() != enable) {
-         jobDeployment.setEnabled(enable);
-         jobImageDeployer.scheduleJob(dataJob, jobDeployment, false, lastDeployedBy);
 
-         saveDeployment(dataJob, jobDeployment);
+   /**
+    * Patch existing deployment of a data job. Existing fields are overwritten from non-NULL fields in jobDeployment.
+    *
+    * @param dataJob the data job details
+    * @param jobDeployment JobDeployment that contains ony the changes necessary (all other fields are null)
+    */
+   public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+      var deploymentStatus = readDeployment(dataJob.getName());
+      if (deploymentStatus.isPresent()) {
+         var oldDeployment = DeploymentModelConverter.toJobDeployment(deploymentStatus.get());
+         var mergedDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+         validateFieldsCanBePatched(oldDeployment, mergedDeployment);
+
+         // we are setting sendNotification to false since it's not necessary. If something fails we'd return HTTP error
+         // as the request is synchronous
+         jobImageDeployer.scheduleJob(dataJob, mergedDeployment, false, operationContext.getUser());
+
+         saveDeployment(dataJob, mergedDeployment);
+         deploymentProgress.configuration_updated(dataJob.getJobConfig(), jobDeployment);
+      } else {
+         throw new DataJobDeploymentNotFoundException(dataJob.getName());
       }
-      deploymentProgress.configuration_updated(dataJob.getJobConfig(), jobDeployment, Collections.singletonMap("enabled", enable));
+   }
+
+   /**
+    * Changing job version requires rebuilding the data job image
+    * which is async operation (happens in background after/while http request finishes)
+    * But we'd like to be able to guarantee that patch operation are synchronous
+    * (the desired job deployment configuration is applied when the http requests finishes)
+    * So we return error if job version has been changed and require POST request to be completed.
+    *
+    * @param oldDeployment the old (or existing) deployment of the data job
+    * @param mergedDeployment the new (merged with the old one) deployment of the data job
+    */
+   private void validateFieldsCanBePatched(JobDeployment oldDeployment, JobDeployment mergedDeployment) {
+      if (mergedDeployment.getGitCommitSha() != null &&
+              !mergedDeployment.getGitCommitSha().equals(oldDeployment.getGitCommitSha())) {
+         throw new ApiConstraintError("job_version",
+                 "same as current job version when using PATCH request.",
+                 mergedDeployment.getGitCommitSha(),
+                 "Use PUT HTTP request to change job version.");
+      }
    }
 
    /**
     * Deploys data jobs on kubernetes as cron jobs.
     * Creates a new deployment if none is present for the data job.
-    * Updates an existing deployment if it already exists.
-    * This method is will be executed in a separate thread.
+    * Updates an existing deployment if it already exists (behaves same as patch).
+    * This method is will be executed in a separate thread (it is async).
     *
     * @param dataJob The data job
     * @param jobDeployment Deployment configuration
@@ -92,6 +124,12 @@ public class DeploymentService {
       try {
          log.info("Starting deployment of job {}", jobDeployment.getDataJobName());
          deploymentProgress.started(dataJob.getJobConfig(), jobDeployment);
+         var deploymentStatus = readDeployment(dataJob.getName());
+         if (deploymentStatus.isPresent()) {
+            var oldDeployment = DeploymentModelConverter.toJobDeployment(deploymentStatus.get());
+            jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+         }
+
          String imageName = dockerRegistryService.dataJobImage(
                  jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
 
