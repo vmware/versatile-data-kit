@@ -11,6 +11,8 @@ class RecoveryCursor(PEP249Cursor):
         * query and parameters executed
         * exception that occurred during execution
         * tooling for operation recovery
+
+    See connection_hook_spec#db_connection_recover_operation for more details and examples how to use it.
     """
 
     def __init__(
