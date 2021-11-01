@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -1487,13 +1488,21 @@ public abstract class KubernetesService implements InitializingBean {
       return Optional.ofNullable(deployment);
    }
 
-    private static int convertMemoryToMBs(Quantity quantity) {
-        long divider = 1024;
-
+    /**
+     * Default for testing purposes.
+     * This method returns the megabytes amount contained in a
+     * quantity.
+     *
+     * @param quantity the quantity to convert.
+     * @return integer MB's in the quantity
+     */
+    static int convertMemoryToMBs(Quantity quantity) {
+        var divider = BigInteger.valueOf(1024);
         if (quantity.getFormat().getBase() == 10) {
-            divider = 1000;
+            divider = BigInteger.valueOf(1000);
         }
-
-        return (int) (quantity.getNumber().intValue() / (divider * divider));
+        return quantity.getNumber().toBigInteger()
+                       .divide(divider.multiply(divider))
+                       .intValue();
     }
 }
