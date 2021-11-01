@@ -1488,7 +1488,15 @@ public abstract class KubernetesService implements InitializingBean {
       return Optional.ofNullable(deployment);
    }
 
-    private static int convertMemoryToMBs(Quantity quantity) {
+    /**
+     * Default for testing purposes.
+     * This method returns the megabytes amount contained in a
+     * quantity.
+     *
+     * @param quantity the quantity to convert.
+     * @return integer MB's in the quantity
+     */
+    static int convertMemoryToMBs(Quantity quantity) {
         var divider = BigInteger.valueOf(1024);
         if (quantity.getFormat().getBase() == 10) {
             divider = BigInteger.valueOf(1000);

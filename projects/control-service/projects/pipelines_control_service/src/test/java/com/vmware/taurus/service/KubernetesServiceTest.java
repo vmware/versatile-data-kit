@@ -253,11 +253,9 @@ public class KubernetesServiceTest {
     }
 
     public void testQuantityToMbConversion(int expectedMb, String providedResources) throws Exception {
-        Method convertMemoryToMBs = KubernetesService.class.getDeclaredMethod("convertMemoryToMBs", Quantity.class);
-        convertMemoryToMBs.setAccessible(true);
+        KubernetesService service = new DataJobsKubernetesService("default", "someConfig");
         var q = Quantity.fromString(providedResources);
-        var actual = (int) convertMemoryToMBs.invoke(convertMemoryToMBs, q);
-
+        var actual = service.convertMemoryToMBs(q);
         Assertions.assertEquals(expectedMb, actual);
     }
 
