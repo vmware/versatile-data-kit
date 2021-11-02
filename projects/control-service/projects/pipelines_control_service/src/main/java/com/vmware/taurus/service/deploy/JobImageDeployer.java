@@ -13,6 +13,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.ApiException;
+import io.kubernetes.client.models.V1LocalObjectReferenceBuilder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,9 @@ public class JobImageDeployer {
    // It may make sense to just pass the module name as argument instead of an image ???
    @Value("${datajobs.vdk.image}")
    private String vdkImage;
+
+   @Value("${datajobs.docker.registrySecret:}")
+   private String dockerRegistrySecret = "";
 
    private static final String VOLUME_NAME = "vdk";
    private static final String VOLUME_MOUNT_PATH = "/vdk";
@@ -212,12 +216,14 @@ public class JobImageDeployer {
          dataJobsKubernetesService.updateCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
                  jobDeployment.getEnabled(), List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
-                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(), jobAnnotations, jobLabels);
+                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
+                 jobAnnotations, jobLabels, dockerRegistrySecret);
       } else {
          dataJobsKubernetesService.createCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
                  jobDeployment.getEnabled(), List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
-                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(), jobAnnotations, jobLabels);
+                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
+                 jobAnnotations, jobLabels, dockerRegistrySecret);
       }
    }
 

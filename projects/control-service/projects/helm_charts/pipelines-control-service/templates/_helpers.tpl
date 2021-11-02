@@ -192,3 +192,10 @@ JDBC secret name
 {{- define "pipelines-control-service.jdbcSecretName" -}}
 {{ include "common.names.fullname" . }}-jdbc
 {{- end -}}
+
+{{/*
+Image Pull Secret in json format
+*/}}
+{{- define "imagePullSecretJson" }}
+{{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" .Values.deploymentDockerRepository (printf "%s:%s" .Values.deploymentDockerRegistryUsernameReadOnly .Values.deploymentDockerRegistryPasswordReadOnly | b64enc) | b64enc }}
+{{- end }}
