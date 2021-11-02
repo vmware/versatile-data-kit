@@ -11,6 +11,12 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+=======
+1.3 - 02.11.2021
+----
+* **Bug fixes**
+  * Remove logging of credentials in builder jobs.
+
 
 1.3 - 2.11.2021
 ----
