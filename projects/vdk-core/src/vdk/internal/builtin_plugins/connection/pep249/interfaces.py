@@ -41,60 +41,62 @@ class PEP249Cursor:
     def __init__(self, cursor, log):
         if not log:
             log = logging.getLogger(__name__)
-        self._cur = cursor
+        self._cursor = cursor
         self._log = log
 
     @property
     def description(self):
-        return self._cur.description
+        return self._cursor.description
 
     @property
     def rowcount(self):
-        return self._cur.rowcount
+        return self._cursor.rowcount
 
     def callproc(self, procname, parameters=None):
-        return self._cur.callproc(procname, parameters)
+        return self._cursor.callproc(procname, parameters)
 
     def close(self):
-        return self._cur.close()
+        return self._cursor.close()
 
     def execute(self, operation, parameters=None):
-        return self._cur.execute(operation, parameters)
+        if parameters:
+            return self._cursor.execute(operation, parameters)
+        return self._cursor.execute(operation)
 
     def executemany(self, operation, seq_of_parameters):
-        return self._cur.executemany(operation, seq_of_parameters)
+        return self._cursor.executemany(operation, seq_of_parameters)
 
     def fetchone(self):
-        return self._cur.fetchone()
+        return self._cursor.fetchone()
 
     def fetchmany(self, size=None):
-        return self._cur.fetchmany(size)
+        return self._cursor.fetchmany(size)
 
     def fetchall(self):
-        return self._cur.fetchall()
+        return self._cursor.fetchall()
 
     def nextset(self):
-        return self._cur.nextset()
+        return self._cursor.nextset()
 
     def _get_arraysize(self):
-        return self._cur._get_arraysize()
+        return self._cursor._get_arraysize()
 
     def _set_arraysize(self, arraysize):
-        return self._cur._set_arraysize()
+        return self._cursor._set_arraysize()
 
     arraysize = property(_get_arraysize, _set_arraysize)
 
     def setinputsizes(self, sizes):
-        return self._cur.setinputsizes(sizes)
+        return self._cursor.setinputsizes(sizes)
 
     def setoutputsize(self, size, column=None):
-        return self._cur.setoutputsize(size, column)
+        return self._cursor.setoutputsize(size, column)
 
     def __iter__(self):
-        return self._cur.__iter__()
+        return self._cursor.__iter__()
 
     def __next__(self):
-        return self._cur.__next__()
+        return self._cursor.__next__()
 
     def next(self):
         # for py2 compat

@@ -1,19 +1,158 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 import pathlib
 import sqlite3
+import tempfile
+import uuid
+from typing import List
 from unittest import mock
 
 from click.testing import Result
 from functional.run import util
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.managed_connection_base import (
+    ManagedConnectionBase,
+)
+from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.util.decorators import closing_noexcept_on_close
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
-from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
+
+# TODO: enable after managed cursor merge, and after merging the bellow changes to test_utils
+# from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
+# from vdk.plugin.test_utils.util_plugins import ValidatedSqLite3MemoryDbPlugin, SyntaxErrorRecoverySqLite3MemoryDbPlugin
+
+log = logging.getLogger(__name__)
+
+
+class SqLite3MemoryDb:
+    """
+    Create in memory database. Each instance would generate separate db name for the in memory database.
+    This way new_connection to the same instance would point the same database
+    but to different one if instance is different.
+    """
+
+    def __init__(
+        self, temp_directory: pathlib.Path = pathlib.Path(tempfile.gettempdir())
+    ):
+        self.__db_name = str(uuid.uuid4())
+        self.__db_file = temp_directory.joinpath(self.__db_name + ".db")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__clean_up()
+
+    def __del__(self):
+        self.__clean_up()
+
+    def __clean_up(self):
+        try:
+            self.__db_file.unlink(missing_ok=True)
+        except:
+            log.warning(f"cannot delete file {self.__db_file}")
+            pass
+
+    def new_connection(self):
+        import sqlite3
+
+        print(self.__db_name)
+        return sqlite3.connect(f"{self.__db_file}")
+
+    def execute_query(self, query: str) -> List[List]:
+        conn = self.new_connection()
+        with closing_noexcept_on_close(conn.cursor()) as cursor:
+            cursor.execute(query)
+            return cursor.fetchall()
+
+
+class SqLite3MemoryConnection(ManagedConnectionBase):
+    def __init__(self):
+        super().__init__(logging.getLogger(__name__), None)
+        self.db = SqLite3MemoryDb()
+
+    def _connect(self) -> PEP249Connection:
+        return self.db.new_connection()
+
+
+class ValidatedSqLite3MemoryDbPlugin:
+    def new_connection(self) -> PEP249Connection:
+        return SqLite3MemoryConnection()
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.connections.add_open_connection_factory_method(
+            DB_TYPE_SQLITE_MEMORY, self.new_connection
+        )
+
+    # TODO: enable after managed cursor merge
+    @hookimpl(trylast=True)
+    def db_connection_validate_operation(self, operation, parameters):
+        parameters_length = 0
+        if parameters:
+            parameters_length = len("".join(map(str, parameters)))
+
+        if len(operation) + parameters_length > 10000:
+            raise Exception(
+                "Database operation has exceeded the maximum limit of 10000 characters."
+            )
+
+
+class SyntaxErrorRecoverySqLite3MemoryDbPlugin:
+    def __init__(self):
+        self._max_retries = 5
+
+    def new_connection(self) -> PEP249Connection:
+        return SqLite3MemoryConnection()
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.connections.add_open_connection_factory_method(
+            DB_TYPE_SQLITE_MEMORY, self.new_connection
+        )
+
+    # TODO: enable after managed cursor merge
+    @hookimpl(trylast=True)
+    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
+        managed_operation = recovery_cursor.get_managed_operation()
+        if "syntax error".upper() in recovery_cursor.get_exception().args[0].upper():
+            recovery_cursor.execute(
+                managed_operation.get_operation().replace("Syntax error", "123.0")
+            )
+            recovery_cursor.retries_increment()
+
+
+class DecoratedSqLite3MemoryDbPlugin:
+    def __init__(self):
+        self.statements_history = []
+
+    def new_connection(self) -> PEP249Connection:
+        return SqLite3MemoryConnection()
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.connections.add_open_connection_factory_method(
+            DB_TYPE_SQLITE_MEMORY, self.new_connection
+        )
+
+    # TODO: enable after managed cursor merge
+    @hookimpl(trylast=True)
+    def db_connection_decorate_operation(
+        self, decoration_cursor: DecorationCursor
+    ) -> None:
+        self.statements_history.append(
+            decoration_cursor.get_managed_operation().get_operation()
+        )
+
+
+# end TODO
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
@@ -52,6 +191,28 @@ def test_run_dbapi_connection():
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_managed_connection_and_verify_query_length():
+    db_plugin = ValidatedSqLite3MemoryDbPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            get_test_job_path(
+                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                "simple-create-insert-huge",
+            ),
+        ]
+    )
+
+    cli_assert_equal(1, result)
+    assert (
+        "Database operation has exceeded the maximum limit of 10000 characters."
+        == result.exception.args[0]
+    )
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
 def test_run_managed_connection_and_check_query_comments():
     db_plugin = DecoratedSqLite3MemoryDbPlugin()
     runner = CliEntryBasedTestRunner(db_plugin)
@@ -67,7 +228,7 @@ def test_run_managed_connection_and_check_query_comments():
     )
 
     cli_assert_equal(0, result)
-    assert len(db_plugin.statements_history) == 2
+    assert len(db_plugin.statements_history) == 3
     # assert those are automatically added as comments
     assert all(
         ["-- op_id" in statement for statement in db_plugin.statements_history]
@@ -94,6 +255,24 @@ def test_run_managed_connection_and_query_fails():
 
     cli_assert_equal(1, result)
     assert isinstance(result.exception, sqlite3.OperationalError)
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_managed_connection_and_query_fails_then_recovers():
+    db_plugin = SyntaxErrorRecoverySqLite3MemoryDbPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            get_test_job_path(
+                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                "simple-create-insert-failed",
+            ),
+        ]
+    )
+
+    cli_assert_equal(0, result)
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})

@@ -111,13 +111,7 @@ class JobInput(IJobInput):
         if not sql or not sql.strip():
             raise UserCodeError("Trying to execute an empty SQL query.")
 
-        job_name = self.__statestore.get(ExecutionStateStoreKeys.JOB_NAME)
-        op_id = self.__statestore.get(CommonStoreKeys.OP_ID)
-
         query = self._substitute_query_params(sql)
-        query = "\n".join(
-            ["-- job_name: {job_name}", "-- op_id: {op_id}", "{query}"]
-        ).format(job_name=job_name, op_id=op_id, query=query)
 
         connection = self.get_managed_connection()
         return connection.execute_query(query)
