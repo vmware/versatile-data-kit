@@ -744,7 +744,7 @@ datajobTemplate:
       suspend: false                 # overridden by TPCS
       jobTemplate:
         spec:
-          activeDeadlineSeconds: 129600
+          activeDeadlineSeconds: 43200
           backoffLimit: 3
           template:
             metadata:
