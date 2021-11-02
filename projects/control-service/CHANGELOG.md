@@ -21,7 +21,7 @@ MAJOR.MINOR - dd.MM.yyyy
 1.3 - 2.11.2021
 ----
 * **Improvement**
-  * Reduce the maximum duration of a data job execution to 12 hours
+  * Reduce the default maximum duration of a data job execution to 12 hours
 
 
 1.3 - 22.10.2021
