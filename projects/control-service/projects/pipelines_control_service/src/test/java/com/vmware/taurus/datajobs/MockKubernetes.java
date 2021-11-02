@@ -105,19 +105,6 @@ public class MockKubernetes {
               .createJob(anyString(), anyString(), anyBoolean(), any(), any(), any(), any(), anyString(), any(), any());
       doAnswer(inv -> jobs.keySet()).when(mock).listCronJobs();
       doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
-      doAnswer(inv -> {
-         KubernetesService.JobDetails jobDetails = null;
-         String jobName = inv.getArgument(0);
-         if (jobs.containsKey(jobName)) {
-            jobDetails = new KubernetesService.JobDetails(
-                    inv.getArgument(0),
-                    new KubernetesService.JobStatus(0, jobName.startsWith("failure-") ? 1 : 0,
-                            jobName.startsWith("failure-") ? 0: 1,0,1),
-                    Collections.emptyMap(), Collections.emptyMap()
-            );
-         }
-         return jobDetails;
-      }).when(mock).readJob(anyString());
 
       doAnswer(inv ->{
          String jobName = inv.getArgument(0);
