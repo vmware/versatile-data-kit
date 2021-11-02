@@ -69,6 +69,10 @@ entry_points={ 'vdk.plugin.run': ['name_of_plugin = myproject.pluginmodule'] }
 
 <br>The plugin system is based on [pluggy.](https://pluggy.readthedocs.io/en/latest/index.html#implementations)
 
+### Hook method names
+
+As hook implementations can be functions (without class) it is recommended all hooks of the same family to share prefix. For example: db_connection_start, job_initialize.
+
 ## Types of plugins
 
 ### Generic Command-Line Lifecycle
@@ -86,4 +90,13 @@ Check out the [CoreHookSpec class](src/vdk/api/plugin/core_hook_spec.py) documen
 
 The above image shows the normal run cycle of a data job. The hooks shown are only invoked when the "vdk run" command is invoked to execute a data job.
 
+
 Check out the [JobRunSpecs class](src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
+
+## Public interfaces
+
+Any backwards compatibility guarantees apply only to public interfaces.
+Public interfaces are modules and packages defined or imported in vdk.api.*.
+unless the documentation explicitly declares them to be provisional or internal interfaces.
+Anything else is considered internal.
+All public interfaces (classes or methods) must have documentation.

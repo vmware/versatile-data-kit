@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -172,6 +173,7 @@ public abstract class KubernetesService implements InitializingBean {
         String executionType;
         String jobName;
         String terminationMessage;
+        String terminationReason;
         Boolean succeeded;
         String opId;
         OffsetDateTime startTime;
@@ -535,7 +537,7 @@ public abstract class KubernetesService implements InitializingBean {
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
         createCronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "");
     }
 
     // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking impl. details
@@ -543,11 +545,12 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
+                              String imagePullSecret)
             throws ApiException {
         log.debug("Creating k8s cron job name:{}, image:{}", name, image);
         var cronJob = cronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels);
+                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecret);
         V1beta1CronJob nsJob = new BatchV1beta1Api(client).createNamespacedCronJob(namespace, cronJob, null, null, null);
         log.debug("Created k8s cron job: {}", nsJob);
         log.debug("Created k8s cron job name: {}, uid:{}, link:{}", nsJob.getMetadata().getName(), nsJob.getMetadata().getUid(), nsJob.getMetadata().getSelfLink());
@@ -559,17 +562,18 @@ public abstract class KubernetesService implements InitializingBean {
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
         updateCronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer,
-                initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "");
     }
 
     public void updateCronJob(String name, String image,  Map<String, String> envs, String schedule,
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
+                              String imagePullSecret)
             throws ApiException {
         var cronJob = cronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels);
+                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecret);
         V1beta1CronJob nsJob = new BatchV1beta1Api(client).replaceNamespacedCronJob(name, namespace, cronJob, null, null, null);
         log.debug("Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}", name, image, nsJob.getMetadata().getUid(), nsJob.getMetadata().getSelfLink());
     }
@@ -833,17 +837,12 @@ public abstract class KubernetesService implements InitializingBean {
         if (jobStatusCondition != null) {
             // Job termination status
             Optional<V1ContainerStateTerminated> lastTerminatedPodState = getTerminationStatus(job);
-            // If the job completed but its pod did not produce a termination message, we treat this (for now)
-            // as a Platform error. Possible reasons for this to happen are:
-            //   - Pod was not created due to insufficient resources (in the future we'd likely want to create per-team
-            //     resource pools + provide per-job resource configuration; then it would be the responsibility of the
-            //     users to manage their resources, in which case this should be classified as user error).
-            //   - Pod failed to pull one of its images
-            //   - Pod was killed in flight due to exceeding its allowed memory (this should be eventually classified
-            //     as user error)
+            // If the job completed but its pod did not produce a termination message, we infer the termination
+            // status later, based on the status of the job itself.
             lastTerminatedPodState
                   .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
                   .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
+            jobExecutionStatusBuilder.terminationReason(jobStatusCondition.getReason());
         }
         // Job resources
         Optional<V1Container> containerOptional = Optional.ofNullable(job.getSpec())
@@ -1297,7 +1296,7 @@ public abstract class KubernetesService implements InitializingBean {
                                    Map<String, String> jobDeploymentAnnotations,
                                    Map<String, String> jobPodLabels,
                                    Map<String, String> jobAnnotations,
-                                   Map<String, String> jobLabels) {
+                                   Map<String, String> jobLabels, String imagePullSecret) {
         V1beta1CronJob cronjob = loadCronjobTemplate();
         checkForMissingEntries(cronjob);
         cronjob.getMetadata().setName(name);
@@ -1312,6 +1311,14 @@ public abstract class KubernetesService implements InitializingBean {
 
         cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations().putAll(jobAnnotations);
         cronjob.getSpec().getJobTemplate().getMetadata().getLabels().putAll(jobLabels);
+
+        if(!StringUtils.isEmpty(imagePullSecret)) {
+            var imagePullSecretObj = new V1LocalObjectReferenceBuilder()
+                    .withName(imagePullSecret)
+                    .build();
+            cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setImagePullSecrets(List.of(imagePullSecretObj));
+        }
+
 
         return cronjob;
     }
@@ -1491,13 +1498,21 @@ public abstract class KubernetesService implements InitializingBean {
       return Optional.ofNullable(deployment);
    }
 
-    private static int convertMemoryToMBs(Quantity quantity) {
-        long divider = 1024;
-
+    /**
+     * Default for testing purposes.
+     * This method returns the megabytes amount contained in a
+     * quantity.
+     *
+     * @param quantity the quantity to convert.
+     * @return integer MB's in the quantity
+     */
+    static int convertMemoryToMBs(Quantity quantity) {
+        var divider = BigInteger.valueOf(1024);
         if (quantity.getFormat().getBase() == 10) {
-            divider = 1000;
+            divider = BigInteger.valueOf(1000);
         }
-
-        return (int) (quantity.getNumber().intValue() / (divider * divider));
+        return quantity.getNumber().toBigInteger()
+                       .divide(divider.multiply(divider))
+                       .intValue();
     }
 }

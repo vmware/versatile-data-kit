@@ -34,10 +34,11 @@ Or (without creating docker image)
 ```
 
 ### Setup IntelliJ:
- * Install Lombok Plugin
- * Import the data-pipelines project using the root folder: Project from Existing Sources... -> Gradle
- * Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
- * Enable Annotation processing (Shift+Shift and search for it)
+* Install Lombok Plugin
+* Import control-service project from existing sources in IntelliJ
+* Link Gradle Project to control-service/projects/settings.gradle
+* Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
+* Enable Annotation processing (Shift+Shift and search for it)
 
 ### Run the project
 ```
@@ -75,6 +76,8 @@ datajobs.control.k8s.namespace=<k8s_namespace>
 datajobs.deployment.k8s.kubeconfig=<path_to_kubeconfig_file>
 datajobs.deployment.k8s.namespace=<k8s_namespace>
 ```
+Note:
+If you do not have access to Kubernetes, you could provision it somehow (minikube, kind, ...).
 
 ### GIT repository
 The data jobs are stored in a git repository. Read access to this repository is already configured in `application-dev.properties`.
@@ -99,6 +102,13 @@ The credentials to this repository can be specified via the following properties
 ```properties
 datajobs.aws.accessKeyId=<access_key_id>
 datajobs.aws.secretAccessKey=<secret_access_key>
+```
+
+### Authentication
+Authentication against the service is disabled by default.
+You could enable it by specifying the following property in `application-dev.properties`:
+```properties
+featureflag.security.enabled=true
 ```
 
 ## CICD

@@ -6,10 +6,9 @@
 package com.vmware.taurus.service.graphql.strategy.datajob;
 
 import com.vmware.taurus.service.graphql.model.Criteria;
-import com.vmware.taurus.service.graphql.model.V2DataJob;
-import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
-import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.model.Filter;
+import com.vmware.taurus.service.graphql.model.V2DataJob;
+import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ import java.util.function.Predicate;
 public class JobFieldStrategyByDescription extends FieldStrategy<V2DataJob> {
 
    private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
-         V2DataJob::getConfig, Comparator.nullsLast(Comparator.comparing(V2DataJobConfig::getDescription)));
+           e -> e.getConfig().getDescription(), Comparator.nullsLast(Comparator.naturalOrder()));
 
    @Override
    public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {

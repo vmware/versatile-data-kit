@@ -169,4 +169,30 @@ public class JobExecutionResultManagerTest {
       ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
       Assertions.assertEquals(ExecutionStatus.FINISHED, actualResult.getExecutionStatus());
    }
+
+   @Test
+   void testGetResult_terminationMessageNullAndExecutionStatusFailedAndTerminationReasonDeadlineExceeded_shouldReturnTerminationStatusUserError() {
+      KubernetesService.JobExecution jobExecution =
+              KubernetesService.JobExecution.builder()
+                      .terminationMessage(null)
+                      .succeeded(false)
+                      .terminationReason(JobExecutionResultManager.TERMINATION_REASON_DEADLINE_EXCEEDED)
+                      .build();
+
+      ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
+      Assertions.assertEquals(ExecutionTerminationStatus.USER_ERROR, actualResult.getTerminationStatus());
+   }
+
+   @Test
+   void testGetResult_terminationMessageNullAndExecutionStatusFailedAndTerminationReasonAny_shouldReturnTerminationStatusUserError() {
+      KubernetesService.JobExecution jobExecution =
+              KubernetesService.JobExecution.builder()
+                      .terminationMessage(null)
+                      .succeeded(false)
+                      .terminationReason("SomeReason")
+                      .build();
+
+      ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
+      Assertions.assertEquals(ExecutionTerminationStatus.PLATFORM_ERROR, actualResult.getTerminationStatus());
+   }
 }
