@@ -9,7 +9,8 @@ from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Curs
 
 class ManagedOperation:
     """
-    Query and parameters DTO.
+    An object that contains information about the query and query parameters used in the database operation.
+    A Data Transfer Object or DTO.
     """
 
     def __init__(self, operation: str, parameters: Optional[Container]):

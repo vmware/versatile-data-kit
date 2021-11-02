@@ -39,7 +39,9 @@ class RecoveryCursor(PEP249Cursor):
 
     def get_managed_operation(self) -> ManagedOperation:
         """
-        Retrieve operation DTO to curate the query and parameters.
+        Retrieve an object that contains information about the query and query parameters used in
+        the database operation. The retrieved Data Transfer Object (DTO) is purposed
+        to curate the query and parameters.
 
         :return: ManagedOperation
             Query and parameters DTO
