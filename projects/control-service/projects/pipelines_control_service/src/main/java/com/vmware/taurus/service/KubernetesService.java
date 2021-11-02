@@ -110,40 +110,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     @Value
-    @AllArgsConstructor
-    public static class JobDetails {
-        private final String name;
-        private final JobStatus status;
-        private final Map<String, String> labels;
-        private final Map<String, String> annotations;
-
-        JobDetails(V1Job job) {
-           this.name = job.getMetadata().getName();
-           this.status = new JobStatus(job.getStatus());
-           this.labels = job.getMetadata().getLabels();
-           this.annotations = job.getMetadata().getAnnotations();
-        }
-    }
-
-    @Value
-    @AllArgsConstructor
-    public static class DeploymentStatus {
-        private final int ready;
-        private final int updated;
-        private final int total;
-        private final int available;
-        private final int unavailable;
-
-        DeploymentStatus(V1DeploymentStatus status) {
-            this(KubernetesService.fromInteger(status.getReadyReplicas()),
-                    KubernetesService.fromInteger(status.getUpdatedReplicas()),
-                    KubernetesService.fromInteger(status.getReplicas()),
-                    KubernetesService.fromInteger(status.getAvailableReplicas()),
-                    KubernetesService.fromInteger(status.getUnavailableReplicas()));
-        }
-    }
-
-    @Value
     public static class JobStatusCondition {
         private final boolean success;
         private final String type;
@@ -378,25 +344,15 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     public Set<String> listJobs() throws ApiException {
-        return listJobsDetails(Collections.emptyMap()).stream().map(j -> j.getName()).collect(Collectors.toSet());
-    }
-
-    /**
-     * Return all jobs with passed labels
-     * @param labelsToSelect labels to select jobs using equality based requirement -
-     *                       https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#equality-based-requirement
-     * @throws ApiException
-     */
-    public Set<JobDetails> listJobsDetails(Map<String, String> labelsToSelect) throws ApiException {
-        log.debug("Listing k8s jobs with labels {}", labelsToSelect);
-        String labelSelector = buildLabelSelector(labelsToSelect);
-        var jobs = new BatchV1Api(client).listNamespacedJob(namespace, null, null, null, labelSelector, null, null, null, null);
+        log.debug("Listing k8s jobs");
+        var jobs = new BatchV1Api(client).listNamespacedJob(namespace, null, null, null, null, null, null, null, null);
         var set = jobs.getItems().stream()
-                .map(j -> new JobDetails(j))
+                .map(j -> j.getMetadata().getName())
                 .collect(Collectors.toSet());
         log.debug("K8s jobs: {}", set);
         return set;
     }
+
 
     public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
         log.debug("Reading k8s cron job: {}", cronJobName);
@@ -1091,22 +1047,6 @@ public abstract class KubernetesService implements InitializingBean {
         return null;
     }
 
-    public JobDetails readJob(String name) throws ApiException {
-        log.debug("Reading k8s job for: {}", name);
-        var job = new BatchV1Api(client).readNamespacedJob(name, namespace, null, null, null);
-
-        log.debug("k8s job: {}", job);
-        log.debug("k8s job status: {}", job.getStatus());
-        log.debug("k8s job active {} success {} fail {}", job.getStatus().getActive(), job.getStatus().getSucceeded(), job.getStatus().getFailed());
-        if (job.getStatus().getConditions() != null) {
-            for (var c : job.getStatus().getConditions()) {
-                log.debug("k8s job condition type: {} reason: {} message: {}", c.getType(), c.getReason(), c.getMessage());
-            }
-        }
-        log.debug("Returning k8s job status for:{} status:{}", name, job.getStatus());
-        return new JobDetails(job);
-    }
-
     /**
      * Deletes a Job in kubernets with given name if it exists.
      * @param name the name of the job
@@ -1129,49 +1069,6 @@ public abstract class KubernetesService implements InitializingBean {
         log.debug("Deleting k8s pods for job: {}", name);
         var status = new CoreV1Api(client).deleteCollectionNamespacedPod(namespace, null, null, null, "job-name=" + name, null, null, null, null);
         log.debug("Deleted k8s pods for job: {}, status: {}", name, status);
-    }
-
-
-    public Set<String> listDeployments() throws ApiException {
-        log.debug("Listing k8s deployments");
-        var deps = new AppsV1Api(client).listNamespacedDeployment(namespace, null, null, null, null, null, null, null, null);
-        var set = deps.getItems().stream()
-                .map(j -> j.getMetadata().getName())
-                .collect(Collectors.toSet());
-        log.debug("K8s deployments: {}", set);
-        return set;
-    }
-
-    public void createDeployment(String name, String image, int replicas,
-                                 Map<String, String> envs, Map<String, String> labels,
-                                 Resources request, Resources limit, Probe probe) throws ApiException {
-        log.debug("Creating k8s deployment :{}, image:{}", name, image);
-        var deployment = deployment(name, image, replicas, envs, labels, request, limit, probe);
-        V1Deployment nsdDeployment = new AppsV1Api(client).createNamespacedDeployment(namespace, deployment, null, null, null);
-        log.debug("Created k8s deployment :{}, image:{}, uid:{}, link:{}", name, image, nsdDeployment.getMetadata().getUid(), nsdDeployment.getMetadata().getSelfLink());
-    }
-
-    public DeploymentStatus readDeploymentStatus(String name) throws ApiException {
-        log.debug("Reading k8s deployment status for name:{}", name);
-        var deployment = new AppsV1Api(client).readNamespacedDeploymentStatus(name, namespace, null);
-        log.debug("Returning k8s deployment status for:{} status:{}", name, deployment.getStatus());
-        return new DeploymentStatus(deployment.getStatus());
-    }
-
-    public void updateDeployment(String name, String image, int replicas,
-                                 Map<String, String> envs, Map<String, String> labels,
-                                 Resources request, Resources limit, Probe probe) throws ApiException {
-        log.debug("Updating k8s deployment status for name:{}, image:{}", name, image);
-        var deployment = deployment(name, image, replicas, envs, labels, request, limit, probe);
-        V1Deployment v1Deployment = new AppsV1Api(client).replaceNamespacedDeployment(name, namespace, deployment, null, null, null);
-        log.debug("Updated k8s deployment status for name:{}, image:{}, uid:{}, link:{}", name, image, v1Deployment.getMetadata().getUid(), v1Deployment.getMetadata().getSelfLink());
-    }
-
-    public int deleteDeployment(String name) throws ApiException {
-        log.debug("Deleting k8s deployment:{}", name);
-        var status = new AppsV1Api(client).deleteNamespacedDeployment(name, namespace, null, null, null, null, null, null);
-        log.debug("Deleted k8s deployment:{}, status code:{}", name, status.getCode());
-        return status.getCode();
     }
 
     public static V1Volume volume(String name) {
@@ -1212,34 +1109,6 @@ public abstract class KubernetesService implements InitializingBean {
             }
         }
         return Optional.empty();
-    }
-
-    private static V1Deployment deployment(String name, String image, int replicas,
-                                           Map<String, String> envs, Map<String, String> labels,
-                                           Resources request, Resources limit, Probe probe) {
-        var selector = new V1LabelSelectorBuilder()
-                .withMatchLabels(labels)
-                .build();
-        var template = new V1PodTemplateSpecBuilder()
-                .withMetadata(new V1ObjectMetaBuilder()
-                        .withLabels(labels)
-                        .build())
-                .withSpec(new V1PodSpecBuilder()
-                        .withContainers(container(name, image, envs, List.of(), request, limit, probe))
-                        .build())
-                .build();
-        var spec = new V1DeploymentSpecBuilder()
-                .withSelector(selector)
-                .withReplicas(replicas)
-                .withTemplate(template)
-                .build();
-        return new V1DeploymentBuilder()
-                .withMetadata(new V1ObjectMetaBuilder()
-                        .withName(name)
-                        .withLabels(labels)
-                        .build())
-                .withSpec(spec)
-                .build();
     }
 
     // TODO - in the future we want to merge the (1) configurable datajob template
@@ -1321,11 +1190,6 @@ public abstract class KubernetesService implements InitializingBean {
 
 
         return cronjob;
-    }
-
-    private static V1Container container(String name, String image, Map<String, String> envs, List<String> args,
-                                         Resources request, Resources limit, Probe probe) {
-        return container(name, image, false, envs, args, Collections.emptyList(), "IfNotPresent", request, limit, probe);
     }
 
     private static V1Container container(String name, String image, boolean privileged, Map<String, String> envs,

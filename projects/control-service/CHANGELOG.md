@@ -11,15 +11,24 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+=======
 1.3 - 02.11.2021
-
+----
 * **Bug fixes**
   * Remove logging of credentials in builder jobs.
 
-1.3 - 22.10.2021
 
+1.3 - 2.11.2021
+----
+* **Improvement**
+  * Reduce the default maximum duration of a data job execution to 12 hours
+
+
+1.3 - 22.10.2021
+----
 * **Bug fixes**
   * Proper classification of data job requirements.txt errors
+
 
 1.3 - 26.10.2021
 ----
