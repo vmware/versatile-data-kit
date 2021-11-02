@@ -6,8 +6,12 @@
 set -ex
 
 # TODO: replace those as env variables
+# Turn off debug mode temporarily to prevent credentials from being logged
+if [[ $- =~ x ]]; then debug=1; set +x; fi
 aws_access_key_id=$1
 aws_secret_access_key=$2
+[[ $debug == 1 ]] && set -x
+
 aws_region=$3
 docker_registry=$4
 git_username=$5
@@ -28,8 +32,11 @@ registry_password=${10}
 # So we need to do it manually.
 if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] ; then
     # Setup credentials to connect to AWS - same creds will be used by kaniko as well.
+    # Turn off debug mode temporarily to prevent credentials from being logged
+    if [[ $- =~ x ]]; then debug=1; set +x; fi
     aws configure set aws_access_key_id $aws_access_key_id
     aws configure set aws_secret_access_key $aws_secret_access_key
+    [[ $debug == 1 ]] && set -x
 
     # https://stackoverflow.com/questions/1199613/extract-filename-and-path-from-url-in-bash-script
     repository_prefix=${docker_registry#*/}

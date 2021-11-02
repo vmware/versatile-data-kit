@@ -25,7 +25,7 @@ image:
 deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
-  tag: "1.2"
+  tag: "1.2.1"
 
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)
@@ -173,6 +173,13 @@ deploymentEcrAwsAccessKeySecret: ""
 ## The account with those credentials needs to have push and pull permissions over the registry.
 deploymentDockerRegistryUsername: ""
 deploymentDockerRegistryPassword: ""
+
+## [Required if deploymentDockerRegistryType=generic and registry requires authentication]
+## Username and Password credentials in case the deploymentDockerRegistryType is generic.
+## Container registry credentials used for authenticating when pulling Data Job images.
+## The account with those credentials needs to have pull permissions over the registry.
+deploymentDockerRegistryUsernameReadOnly: ""
+deploymentDockerRegistryPasswordReadOnly: ""
 
 ## Image name of VDK which will be used to run the data jobs.
 ## It is recommended to use image with same tag (e.g release or latest)
