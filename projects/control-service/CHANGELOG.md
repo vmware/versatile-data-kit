@@ -12,6 +12,12 @@ MAJOR.MINOR - dd.MM.yyyy
 * **Breaking Changes**
 
 =======
+1.3 - 03.11.2021
+----
+* **Bug fixes**
+  * Remove debug mode for data job build and release script.
+
+
 1.3 - 02.11.2021
 ----
 * **Bug fixes**
