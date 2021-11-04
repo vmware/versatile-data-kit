@@ -140,7 +140,7 @@ public abstract class KubernetesService implements InitializingBean {
         String executionType;
         String jobName;
         String terminationMessage;
-        String terminationReason;
+        String jobTerminationReason;
         Boolean succeeded;
         String opId;
         OffsetDateTime startTime;
@@ -153,6 +153,7 @@ public abstract class KubernetesService implements InitializingBean {
         Integer resourcesMemoryLimit;
         OffsetDateTime deployedDate;
         String deployedBy;
+        String containerTerminationReason;
     }
 
     @AllArgsConstructor
@@ -799,8 +800,14 @@ public abstract class KubernetesService implements InitializingBean {
             lastTerminatedPodState
                   .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
                   .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
-            jobExecutionStatusBuilder.terminationReason(jobStatusCondition.getReason());
+            jobExecutionStatusBuilder.jobTerminationReason(jobStatusCondition.getReason());
+
+            // Termination Reason of the data job pod container
+            lastTerminatedPodState
+                    .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getReason()))
+                    .ifPresent(s -> jobExecutionStatusBuilder.containerTerminationReason(s));
         }
+
         // Job resources
         Optional<V1Container> containerOptional = Optional.ofNullable(job.getSpec())
               .map(V1JobSpec::getTemplate)
