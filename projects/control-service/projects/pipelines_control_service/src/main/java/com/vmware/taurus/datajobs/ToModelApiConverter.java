@@ -21,7 +21,9 @@ public class ToModelApiConverter {
       jobDeployment.setDataJobName(jobName);
       jobDeployment.setEnabled(dataJobDeployment.getEnabled());
       jobDeployment.setResources(dataJobDeployment.getResources());
-      jobDeployment.setMode(dataJobDeployment.getMode().toString());
+      if (dataJobDeployment.getMode() != null) {
+         jobDeployment.setMode(dataJobDeployment.getMode().toString());
+      }
       jobDeployment.setGitCommitSha(dataJobDeployment.getJobVersion());
 
       return jobDeployment;
