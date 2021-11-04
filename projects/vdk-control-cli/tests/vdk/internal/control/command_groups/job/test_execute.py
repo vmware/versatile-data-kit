@@ -79,7 +79,7 @@ def test_cancel(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 
 def test_execute_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
-    result = runner.invoke(execute, ["-n", "job_name", "-t", "team_name"])
+    result = runner.invoke(execute, ["-n", "job_name", "-t", "team_name", "-u", ""])
 
     assert (
         result.exit_code == 2
