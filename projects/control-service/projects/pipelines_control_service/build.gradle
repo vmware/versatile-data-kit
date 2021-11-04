@@ -67,6 +67,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'net.javacrumbs.shedlock:shedlock-spring'
     implementation versions.'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'
 
+    implementation versions.'com.graphql-java:graphql-java-extended-scalars'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
