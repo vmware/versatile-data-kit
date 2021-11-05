@@ -10,14 +10,11 @@ import com.vmware.taurus.controlplane.model.api.DataJobsDeploymentApi;
 import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
-import com.vmware.taurus.controlplane.model.data.Enable;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import io.kubernetes.client.ApiException;
 import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -73,21 +70,17 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       return ResponseEntity.notFound().build();
    }
 
+
    @Override
-   public ResponseEntity<Void> deploymentEnable(String teamName, String jobName, String deploymentId, Enable enable) {
+   public ResponseEntity<Void> deploymentPatch(String teamName, String jobName, String deploymentId, DataJobDeployment dataJobDeployment) {
       if (jobsService.jobWithTeamExists(jobName, teamName)) {
          // TODO: deploymentId not implemented
          Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName);
-         Optional<JobDeploymentStatus> jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase());
 
-         if (job.isPresent() && jobDeploymentStatus.isPresent()) {
-            try {
-               JobDeployment jobDeployment = DeploymentStatusToDeploymentConverter.toJobDeployment(jobDeploymentStatus.get());
-               deploymentService.enableDeployment(job.get(), jobDeployment, enable.getEnabled(), operationContext.getUser());
-               return ResponseEntity.accepted().build();
-            } catch (ApiException e) {
-               throw new ExternalSystemError(ExternalSystemError.MainExternalSystem.KUBERNETES, e);
-            }
+         if (job.isPresent()) {
+            var jobDeployment = ToModelApiConverter.toJobDeployment(jobName, dataJobDeployment);
+            deploymentService.patchDeployment(job.get(), jobDeployment);
+            return ResponseEntity.accepted().build();
          }
       }
       return ResponseEntity.notFound().build();

@@ -56,9 +56,7 @@ def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
             "reason",
         ],
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
     result = runner.invoke(
         deploy,
@@ -78,9 +76,7 @@ def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
             "reason",
         ],
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
     assert os.path.exists(f"{test_job_path}.zip") is False
 
@@ -102,9 +98,7 @@ def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
             "reason",
         ],
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
     result = runner.invoke(
         deploy,
@@ -123,9 +117,7 @@ def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
             "json",
         ],
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
     try:
         json_result = json.loads(result.output)
     except JSONDecodeError as error:
@@ -167,9 +159,7 @@ def test_deploy_reason(httpserver: PluginHTTPServer, tmpdir: LocalPath):
         ],
     )
 
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
 
 def test_deploy_enable_disable(httpserver: PluginHTTPServer, tmpdir: LocalPath):
@@ -184,16 +174,12 @@ def test_deploy_enable_disable(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     result = runner.invoke(
         deploy, ["--enable", "-n", "test-job", "-t", "test-team", "-u", rest_api_url]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
     result = runner.invoke(
         deploy, ["--disable", "-n", "test-job", "-t", "test-team", "-u", rest_api_url]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
 
 def test_deploy_show(httpserver: PluginHTTPServer, tmpdir: LocalPath):
@@ -216,9 +202,7 @@ def test_deploy_show(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     result = runner.invoke(
         deploy, ["--show", "-n", "test-job", "-t", "test-team", "-u", rest_api_url]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
     assert (
         "11a403ba" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -234,9 +218,7 @@ def test_deploy_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
     result = runner.invoke(deploy, ["--show", "-n", "test-job", "-t", "test-team"])
 
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 
@@ -246,9 +228,7 @@ def test_deploy_with_empty_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
         deploy, ["--show", "-n", "test-job", "-t", "test-team", "-u", ""]
     )
 
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 
@@ -283,9 +263,7 @@ def test_deploy_show_with_json_output(httpserver: PluginHTTPServer, tmpdir: Loca
             "json",
         ],
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
     try:
         json_result = json.loads(result.output)
@@ -329,9 +307,7 @@ def test_deploy_show_with_json_output_and_no_deployments(
             "json",
         ],
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
 
     try:
         json_result = json.loads(result.output)
@@ -355,9 +331,7 @@ def test_deploy_show_with_missing_output_and_no_deployments(
     result = runner.invoke(
         deploy, ["--show", "-n", "test-job", "-t", "test-team", "-u", rest_api_url]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 0)
     assert (
         "No deployments." in result.output
     ), f"expected data not found in output: {result.output}"
@@ -383,9 +357,7 @@ def test_deploy_show_with_invalid_output(
             "invalid",
         ],
     )
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 2)
     assert (
         "Error: Invalid value for '--output'" in result.output
     ), f"expected data not found in output: {result.output}"
@@ -411,9 +383,7 @@ def test_deploy_failed_team_validation(httpserver: PluginHTTPServer, tmpdir: Loc
             "reason",
         ],
     )
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    test_utils.assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 

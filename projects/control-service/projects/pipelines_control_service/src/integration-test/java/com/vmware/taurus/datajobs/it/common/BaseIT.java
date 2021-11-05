@@ -403,7 +403,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
    }
 
    public String getDataJobDeploymentEnableRequestBody(boolean enabled) throws JsonProcessingException {
-      var enable = new Enable();
+      var enable = new DataJobDeployment();
       enable.enabled(enabled);
       return mapper.writeValueAsString(enable);
    }
