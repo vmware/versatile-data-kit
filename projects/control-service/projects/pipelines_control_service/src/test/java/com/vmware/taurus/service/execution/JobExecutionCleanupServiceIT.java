@@ -147,6 +147,26 @@ public class JobExecutionCleanupServiceIT {
         Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
     }
 
+    @Test
+    public void testNullEndTimeDeleteNotExpected() {
+        addJobExecution("jobA", null, ExecutionStatus.FINISHED);
+
+        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+        jobExecutionCleanupService.cleanupExecutions();
+        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+    }
+
+    @Test
+    public void testDeleteByNumbersAndJobsWithNullEndTimeDeleteExpected() {
+        addExecutions(99, "jobA");
+        addJobExecution("jobA", null, ExecutionStatus.FINISHED);
+        addJobExecution("jobA", null, ExecutionStatus.FINISHED);
+
+        Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
+        jobExecutionCleanupService.cleanupExecutions();
+        Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
+    }
+
     private void addJobExecution(String jobName, OffsetDateTime time, ExecutionStatus status) {
         var excId = UUID.randomUUID().toString();
         var execution = RepositoryUtil.createDataJobExecution(jobExecutionRepository, excId, jobsRepository.findById(jobName).get(), status);
