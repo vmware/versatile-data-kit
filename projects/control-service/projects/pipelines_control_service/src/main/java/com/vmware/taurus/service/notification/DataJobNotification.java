@@ -40,7 +40,7 @@ public class DataJobNotification {
     @Value("${datajobs.notification.owner.email}")
     private String ownerEmail;
 
-    private EmailNotification notification = new EmailNotification();
+    private EmailNotification notification;
 
     public DataJobNotification() {}
 

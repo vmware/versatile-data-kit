@@ -7,10 +7,16 @@ package com.vmware.taurus.service.notification;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -21,21 +27,36 @@ import java.util.stream.Collectors;
  * @see DataJobNotification
  * @see NotificationContent
  */
+@Component
 public class EmailNotification {
+
+    @Configuration
+    public static class SmtpProperties {
+
+        @Bean
+        @ConfigurationProperties(prefix = "mail.smtp")
+        public Map<String, String> smtp() {
+            return new HashMap<>();
+        }
+
+        public Map<String, String> smtpWithPrefix() {
+            Map<String, String> result = new HashMap<>();
+            var props = this.smtp();
+            props.forEach(((key, value) -> result.put("mail.smtp." + key, value)));
+            return result;
+        }
+     }
+
 
     static Logger log = LoggerFactory.getLogger(EmailNotification.class);
 
     private static final String CONTENT_TYPE = "text/html; charset=utf-8";
 
-    private static final String SMTP_SERVER_VALUE = "smtp.vmware.com";
-
-    private static final String SMTP_SERVER_KEY = "mail.smtp.host";
-
     private final Session session;
 
-    public EmailNotification() {
+    public EmailNotification(SmtpProperties smtpProperties) {
         Properties properties = System.getProperties();
-        properties.setProperty(SMTP_SERVER_KEY, SMTP_SERVER_VALUE);
+        properties.putAll(smtpProperties.smtpWithPrefix());
         session = Session.getDefaultInstance(properties);
     }
 
