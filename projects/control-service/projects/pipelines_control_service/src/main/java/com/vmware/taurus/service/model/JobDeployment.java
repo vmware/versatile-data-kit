@@ -19,6 +19,8 @@ public class JobDeployment {
 
    private String gitCommitSha;
 
+   private String vdkVersion;
+
    private String imageName;
 
    private String cronJobName;

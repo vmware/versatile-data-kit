@@ -22,7 +22,6 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -201,7 +200,8 @@ public class JobImageDeployer {
               "/bin/bash",
               "-c",
               "cp -r /usr/local/lib/python3.7/site-packages /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-      var jobInitContainer = KubernetesService.container("vdk", vdkImage, false, Map.of(), List.of(),
+      var jobVdkImage = getJobVdkImage(jobDeployment);
+      var jobInitContainer = KubernetesService.container("vdk", jobVdkImage, false, Map.of(), List.of(),
               List.of(volumeMount, secretVolumeMount), "Always", kubernetesResources.dataJobInitContainerRequests(),
               kubernetesResources.dataJobInitContainerLimits(), null, vdkCommand);
       // TODO: changing imagePullPolicy to IfNotPresent might be necessary optimization when running thousands of jobs.
@@ -224,6 +224,14 @@ public class JobImageDeployer {
                  defaultConfigurations.dataJobLimits(), jobContainer,
                  jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
                  jobAnnotations, jobLabels, dockerRegistrySecret);
+      }
+   }
+
+   private String getJobVdkImage(JobDeployment jobDeployment) {
+      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())) {
+         return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
+      } else {
+         return vdkImage;
       }
    }
 
