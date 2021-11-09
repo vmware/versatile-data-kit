@@ -8,6 +8,7 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import NewType
 from typing import Optional
 from typing import Union
 
@@ -164,13 +165,16 @@ class IManagedConnectionRegistry:
 
 
 class IIngesterPlugin:
+    IngestionResult = NewType("IngestionResult", Dict)
+
+    @abstractmethod
     def ingest_payload(
         self,
         payload: List[dict],
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
-    ):
+    ) -> Optional[IngestionResult]:
         """
         Do the actual ingestion of the payload
 
@@ -198,6 +202,61 @@ class IIngesterPlugin:
             invocations belong to same collection. Defaults to "data_job_name|OpID",
             meaning all method invocations from a data job run will belong to the
             same collection.
+
+        :return: [Optional] IngestionResult, containing plugin-defined
+        information about the result from the ingestion operation. This result
+        could be used for post-ingestion processing operations like sending
+        telemetry data about the ingested payload.
+
+        :exceptions: Exceptions raised while ingesting data can either be
+        handled at plugin level, or they will be automatically caught at the
+        vdk-core level.
+        """
+        pass
+
+    def post_ingest_process(
+        self,
+        payload: Optional[List[dict]] = None,
+        ingestion_result: Optional[IngestionResult] = None,
+        exceptions: Optional[List] = None,
+    ) -> None:
+        """
+        Do post-ingestion processing of the ingestion payload
+        or result data from the ingestion operation.
+
+        Example Implementation for telemetry:
+
+        .. code-block:: python
+
+            def post_ingest_process(
+                self,
+                payload: Optional[List[dict]],
+                ingestion_result: Optional[IngestionResult]
+                exceptions: Optional[List]
+            ) -> None:
+                # Prepare telemetry
+                telemetry = {}
+                payload_sizes = [sys.getsizeof(i) for i in payload]
+                telemetry['payload_size'] = sum(payload_sizes)
+                telemetry['caught_ingest_exceptions'] = exceptions
+                telemetry |= ingestion_result
+
+                # Send telemetry to wherever is needed.
+                requests.post('example.com', data=telemetry)
+
+
+        :param payload: Optional[List[dict]]
+            The payloads that have been ingested. Depending on the number
+            of payloads to be processed, there might 0 or many dict objects.
+            Each dict object is a separate payload.
+        :param ingestion_result: Optional[IngestionResult]
+            The result from the ingestion operation, or some information about
+            the ingestion operation and payload that plugin developers have
+            decided to process further. This result can be either an
+            IngestionResult object (which is effectively a dictionary), or
+            None.
+        :param exceptions: Optional[List]
+            A list of all exceptions (if any) encountered while ingesting data.
         """
         pass
 
