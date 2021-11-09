@@ -1,9 +1,12 @@
+scalar DateTime
+
 schema {
     query: Query
 }
 
 type Query {
     jobs(pageNumber: Int = 0, pageSize: Int = 20, filter: [Predicate], search: String): DataJobPage
+    executions(pageNumber: Int, pageSize: Int, filter: DataJobExecutionFilter, order: DataJobExecutionOrder): DataJobExecutionResponse
 }
 
 input Predicate {
@@ -17,9 +20,26 @@ enum Direction {
     DESC
 }
 
+input DataJobExecutionFilter {
+    startTimeGte: DateTime,
+    endTimeGte: DateTime,
+    statusIn: [DataJobExecutionStatus]
+}
+
+input DataJobExecutionOrder {
+    property: String,
+    direction: Direction
+}
+
 # TODO use auto-generation [TAUR-1376]
 type DataJobPage {
     content: [DataJob]
+    totalPages: Int
+    totalItems: Int
+}
+
+type DataJobExecutionResponse {
+    content: [DataJobExecution]
     totalPages: Int
     totalItems: Int
 }
