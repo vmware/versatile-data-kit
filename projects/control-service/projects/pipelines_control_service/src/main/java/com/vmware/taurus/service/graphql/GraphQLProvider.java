@@ -8,6 +8,7 @@ package com.vmware.taurus.service.graphql;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import graphql.GraphQL;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
@@ -54,6 +55,7 @@ public class GraphQLProvider {
 
    private RuntimeWiring buildWiring() {
       return RuntimeWiring.newRuntimeWiring()
+            .scalar(ExtendedScalars.DateTime)
             .type(newTypeWiring("Query")
                   .dataFetcher("jobs", graphQLDataFetchers.findAllAndBuildDataJobPage()))
             .build();
