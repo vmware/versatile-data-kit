@@ -25,6 +25,7 @@ public class ToModelApiConverter {
          jobDeployment.setMode(dataJobDeployment.getMode().toString());
       }
       jobDeployment.setGitCommitSha(dataJobDeployment.getJobVersion());
+      jobDeployment.setVdkVersion(dataJobDeployment.getVdkVersion());
 
       return jobDeployment;
    }

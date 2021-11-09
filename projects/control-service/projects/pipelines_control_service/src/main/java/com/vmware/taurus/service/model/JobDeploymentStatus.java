@@ -18,6 +18,10 @@ public class JobDeploymentStatus {
 
     private String gitCommitSha;
 
+    private String vdkImageName;
+
+    private String vdkVersion;
+
     private String imageName;
 
     private String cronJobName;

@@ -108,7 +108,7 @@ public class JobExecutionCleanupService {
 
         if (executionPos < executionsSize - maxExecutionsToKeep) { //Delete by numbers
             shouldDelete = true;
-        } else if (executionEndTime.isBefore(cutOff)) { // Delete by date
+        } else if (executionEndTime != null && executionEndTime.isBefore(cutOff)) { // Delete by date
             shouldDelete = true;
         }
         return shouldDelete;

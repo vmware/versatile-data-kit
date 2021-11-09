@@ -190,7 +190,7 @@ def test_create_without_url_only_local_detected(
 
     runner = CliRunner()
     result = runner.invoke(
-        create, ["-n", "job-name", "-t", "team_name", "-p", jobs_dir]
+        create, ["-n", "job-name", "-t", "team_name", "-p", jobs_dir, "-u", ""]
     )
 
     assert_click_status(result, 0)

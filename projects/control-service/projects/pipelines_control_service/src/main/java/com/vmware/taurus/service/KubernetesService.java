@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import com.vmware.taurus.exception.JsonDissectException;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.exception.KubernetesJobDefinitionException;
+import com.vmware.taurus.service.deploy.DockerImageName;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
@@ -139,7 +140,7 @@ public abstract class KubernetesService implements InitializingBean {
         String executionType;
         String jobName;
         String terminationMessage;
-        String terminationReason;
+        String jobTerminationReason;
         Boolean succeeded;
         String opId;
         OffsetDateTime startTime;
@@ -152,6 +153,7 @@ public abstract class KubernetesService implements InitializingBean {
         Integer resourcesMemoryLimit;
         OffsetDateTime deployedDate;
         String deployedBy;
+        String containerTerminationReason;
     }
 
     @AllArgsConstructor
@@ -798,8 +800,14 @@ public abstract class KubernetesService implements InitializingBean {
             lastTerminatedPodState
                   .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
                   .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
-            jobExecutionStatusBuilder.terminationReason(jobStatusCondition.getReason());
+            jobExecutionStatusBuilder.jobTerminationReason(jobStatusCondition.getReason());
+
+            // Termination Reason of the data job pod container
+            lastTerminatedPodState
+                    .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getReason()))
+                    .ifPresent(s -> jobExecutionStatusBuilder.containerTerminationReason(s));
         }
+
         // Job resources
         Optional<V1Container> containerOptional = Optional.ofNullable(job.getSpec())
               .map(V1JobSpec::getTemplate)
@@ -1346,6 +1354,15 @@ public abstract class KubernetesService implements InitializingBean {
                 String image = containers.get(0).getImage(); // TODO: Have 2 containers. 1 for VDK and 1 for the job.
                 deployment.setImageName(image); // TODO do we really need to return image_name?
             }
+            var initContainers = cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getInitContainers();
+            if (!initContainers.isEmpty()) {
+                String vdkImage = initContainers.get(0).getImage();
+                deployment.setVdkImageName(vdkImage);
+                deployment.setVdkVersion(DockerImageName.getTag(vdkImage));
+            } else {
+                log.warn("Missing init container for cronjob {}", cronJobName);
+            }
+
             var labels = cronJob.getSpec().getJobTemplate().getMetadata().getLabels();
             if (labels == null) {
                 log.warn("The cronjob of data job '{}' does not have any labels defined.", deployment.getDataJobName());
@@ -1354,8 +1371,7 @@ public abstract class KubernetesService implements InitializingBean {
                 deployment.setGitCommitSha(labels.get(JobLabel.VERSION.getValue()));
             } else {
                 // Legacy approach to get version:
-                String[] parts = deployment.getImageName().split(":");
-                deployment.setGitCommitSha(parts[parts.length - 1]);
+                deployment.setGitCommitSha(DockerImageName.getTag(deployment.getImageName()));
             }
         }
 
