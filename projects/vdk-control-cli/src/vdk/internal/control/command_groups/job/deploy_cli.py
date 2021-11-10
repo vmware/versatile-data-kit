@@ -140,8 +140,8 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
     type=click.STRING,
     hidden=True,
     help="The vdk version to be used in a cloud run."
-    " It must be the same vdk python distribution that is installed by Control Service operators. "
-    " To check for possible versions see vdk distribution docker image tags. "
+    "It must be the same vdk python distribution that is installed by Control Service operators. "
+    "To check for possible versions see vdk distribution docker image tags. "
     "Assuming each released python distribution has a corresponding image "
     "check with pip index versions vdk-distribution-name. "
     "The option is valid only when used alongside --update otherwise it's ignored."
