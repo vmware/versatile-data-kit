@@ -9,6 +9,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobPage;
 import com.vmware.taurus.controlplane.model.data.*;
 import com.vmware.taurus.service.Utilities;
+import com.vmware.taurus.service.graphql.GraphQLUtils;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
@@ -124,7 +125,12 @@ public class ToApiModelConverter {
          return dataJobQueryResponse;
       }
 
-      LinkedHashMap<String, Object> nestedExecutionResultData = executionResultData.get("jobs");
+      String executionResultDataKey = GraphQLUtils.QUERIES
+            .stream()
+            .filter(query -> executionResultData.containsKey(query))
+            .findFirst()
+            .orElse(null);
+      LinkedHashMap<String, Object> nestedExecutionResultData = executionResultData.get(executionResultDataKey);
       if (nestedExecutionResultData == null) {
          return dataJobQueryResponse;
       }

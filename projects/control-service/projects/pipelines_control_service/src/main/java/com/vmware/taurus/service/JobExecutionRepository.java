@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.List;
  * <p>
  * JobExecutionRepositoryIT validates some aspects of the behavior
  */
-public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String> {
+public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
 
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
 

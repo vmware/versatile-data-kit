@@ -12,13 +12,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.service.model.ExecutionStatus;
 
 @Data
 @AllArgsConstructor
 @Builder
 public class DataJobExecutionFilter {
+
+   public static final String START_TIME_GTE_FIELD = "startTimeGte";
+   public static final String END_TIME_GTE_FIELD = "endTimeGte";
+   public static final String STATUS_IN_FIELD = "statusIn";
+
    private OffsetDateTime startTimeGte;
    private OffsetDateTime endTimeGte;
-   private List<DataJobExecution.StatusEnum> statusIn;
+   private List<ExecutionStatus> statusIn;
 }

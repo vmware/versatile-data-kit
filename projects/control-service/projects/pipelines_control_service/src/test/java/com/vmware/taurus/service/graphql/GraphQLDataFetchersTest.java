@@ -20,7 +20,7 @@ import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBySche
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBySourceUrl;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByTeam;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobPage;
+import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
@@ -28,7 +28,6 @@ import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
-import graphql.schema.SelectedField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,16 +56,19 @@ class GraphQLDataFetchersTest {
 
    @Mock
    private ExecutionDataFetcher executionDataFetcher;
+
    @Mock
    private JobsRepository jobsRepository;
+
    @Mock
    private DeploymentService deploymentService;
+
    @Mock
    private DataFetchingEnvironment dataFetchingEnvironment;
+
    @Mock
    private DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
-   @Mock
-   private SelectedField selectedField;
+
    private DataFetcher<Object> findDataJobs;
 
    @BeforeEach
