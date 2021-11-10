@@ -1292,6 +1292,7 @@ public abstract class KubernetesService implements InitializingBean {
             var status = new CoreV1Api(client).deleteNamespacedSecret(name, this.namespace, null, null, null, null, null, null);
             log.debug("Deleted k8s secret: {}, status: {}", name, status);
         } catch (ApiException e) {
+            log.error("Error while trying to remove K8S secret", e);
             if (e.getCode() == 404) {
                 log.debug("Already deleted: k8s secret: {}");
             } else {
@@ -1318,12 +1319,13 @@ public abstract class KubernetesService implements InitializingBean {
         try {
             nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null);
         } catch (ApiException e) {
-            log.warn("Error while trying to save K8S secret", e);
+
+            log.error("Error while trying to save K8S secret", e);
             if (e.getCode() == 404) {
-                log.debug("Secret {} does not exist. Creating ...", name);
+                log.debug("Secret {} does not exist. Creating ...");
                 nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null);
             } else {
-                log.error("Failed to save k8s secret: {}" , name);
+                log.debug("Failed to save k8s secret: {}" , name);
                 throw e;
             }
         }
@@ -1342,9 +1344,10 @@ public abstract class KubernetesService implements InitializingBean {
         try {
             var dataKeys = Optional.ofNullable(nsSecret.getData()).map(secret -> secret.keySet()).orElse(null);
             var metaData = Optional.ofNullable(nsSecret.getMetadata()).map(secret -> secret.toString()).orElse(null);
-            var stringDataKeys = Optional.ofNullable(nsSecret.getStringData()).map(secret -> secret.keySet()).orElse(null);
+
+            var stringDataKyes = Optional.ofNullable(nsSecret.getStringData()).map(secret -> secret.keySet()).orElse(null);
             log.debug("Replaced namespaced secret. Data keys : {}, MetaData: {}, StringData keys: {}, Type: {}, ApiVer: {}",
-                    dataKeys, metaData, stringDataKeys, nsSecret.getType(), nsSecret.getApiVersion());
+                    dataKeys, metaData, stringDataKyes, nsSecret.getType(), nsSecret.getApiVersion());
         } catch (Exception e) {
             log.debug("Could not log secret information due to: ", e);
         }
