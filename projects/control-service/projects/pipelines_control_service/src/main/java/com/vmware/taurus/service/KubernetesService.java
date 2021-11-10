@@ -1355,7 +1355,7 @@ public abstract class KubernetesService implements InitializingBean {
                 deployment.setImageName(image); // TODO do we really need to return image_name?
             }
             var initContainers = cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getInitContainers();
-            if (!initContainers.isEmpty()) {
+            if (!CollectionUtils.isEmpty(initContainers)) {
                 String vdkImage = initContainers.get(0).getImage();
                 deployment.setVdkImageName(vdkImage);
                 deployment.setVdkVersion(DockerImageName.getTag(vdkImage));
