@@ -197,12 +197,17 @@ public class DataJobMonitor {
 
 
     private boolean shouldUpdateTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        if (terminationStatus == ExecutionTerminationStatus.SKIPPED) {
-            log.debug("The termination status of data job {} will not be updated. New status is: {}", dataJob.getName(), terminationStatus);
+        // Do not update the status when either:
+        //   * the status is SKIPPED
+        //   * the status and executionId have not changed
+        if (terminationStatus == ExecutionTerminationStatus.SKIPPED ||
+                dataJob.getLatestJobTerminationStatus() == terminationStatus &&
+                        StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
+            log.debug("The termination status of data job {} will not be updated. Old status is: {}, New status is: {}; Old execution id: {}, New execution id: {}",
+                    dataJob.getName(), dataJob.getLatestJobTerminationStatus(), terminationStatus, dataJob.getLatestJobExecutionId(), executionId);
             return false;
         }
-        return dataJob.getLatestJobTerminationStatus() != terminationStatus ||
-                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId);
+        return true;
     }
 
     /**
