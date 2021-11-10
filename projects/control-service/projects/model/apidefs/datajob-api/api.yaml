@@ -1145,7 +1145,7 @@ components:
         deployed_by:
           description: User or service that deployed the Data Job
           type: string
-          example: auserov@vmware.com
+          example: auserov@example.mail.com
         deployed_date:
           description: The Data Job deployment date
           type: string
@@ -1199,7 +1199,7 @@ components:
       type: object
       properties:
         started_by:
-          description: User or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
+          description: User or service that started the execution (e.g manual/auserov@example.mail.com or scheduled/runtime)
           type: string
           example: schedule/runtime
         args:
@@ -1248,7 +1248,7 @@ components:
           type: string
           format: date-time
         started_by:
-          description: User or service that started the execution (e.g manual/auserov@vmware.com or scheduled/runtime)
+          description: User or service that started the execution (e.g manual/auserov@example.mail.com or scheduled/runtime)
           type: string
           example: schedule/runtime
         logs_url:
@@ -1398,30 +1398,28 @@ components:
           items:
             type: string
           example:
-            - starshot_ops@vmware.com
-            - auserov@vmware.com
+            - auserov@example.mail.com
         notified_on_job_failure_platform_error:
           description: List of email addresses to be notified on job execution failure caused by a platform problem
           type: array
           items:
             type: string
           example:
-            - starshot_ops@vmware.com
-            - auserov@vmware.com
+            - auserov@example.mail.com
         notified_on_job_success:
           description: List of email addresses to be notified on job execution success
           type: array
           items:
             type: string
           example:
-            - auserov@vmware.com
+            - auserov@example.mail.com
         notified_on_job_deploy:
           description: List of email addresses to be notified of job deployment outcome
           type: array
           items:
             type: string
           example:
-            - auserov@vmware.com
+            - auserov@example.mail.com
 
     DataJobVersion:
       description: Data Job version
@@ -1494,10 +1492,10 @@ components:
                   },
                   "sourceUrl": "https://github.com/product-analytics/data-jobs/tree/master/starshot-processing-vmc-fact-daily",
                   "contacts": {
-                    "notifiedOnJobFailureUserError": "[starshot_ops@vmware.com]",
-                    "notifiedOnJobFailurePlatformError": "[starshot_ops@vmware.com, auser@vmware.com]",
-                    "notifiedOnJobSuccess": "[starshot_ops@vmware.com]",
-                    "notifiedOnJobDeploy": "[starshot_ops@vmware.com, auser@vmware.com]"
+                    "notifiedOnJobFailureUserError": "[auser@example.mail.com]",
+                    "notifiedOnJobFailurePlatformError": "[auser2@example.mail.com, auser@example.mail.com]",
+                    "notifiedOnJobSuccess": "[auser@example.mail.com]",
+                    "notifiedOnJobDeploy": "[auser2@example.mail.com, auser@example.mail.com]"
                   }
                 }
               },
