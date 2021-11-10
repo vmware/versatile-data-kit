@@ -102,6 +102,9 @@ type DataJobDeployment {
     vdkVersion: String
     executions(pageNumber: Int, pageSize: Int, filter: [Predicate]): [DataJobExecution]
     status: DataJobDeploymentStatus
+    lastExecutionStatus: DataJobExecutionStatus
+    lastExecutionTime: String
+    lastExecutionDuration: Int
 }
 
 type DataJobConfig {

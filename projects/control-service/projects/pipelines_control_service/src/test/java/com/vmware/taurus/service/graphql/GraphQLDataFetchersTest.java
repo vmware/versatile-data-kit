@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.graphql;
 
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Filter;
@@ -20,6 +21,7 @@ import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBySour
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByTeam;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobPage;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import graphql.GraphQLException;
@@ -34,15 +36,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -191,6 +192,30 @@ class GraphQLDataFetchersTest {
       });
    }
 
+   @Test
+   void testPopulateDeployments() throws Exception {
+      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+      when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
+      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
+
+      DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+      assertThat(dataJobPage.getContent().size()).isEqualTo(2);
+      var job1 = (V2DataJob)dataJobPage.getContent().get(0);
+      assertThat(job1.getDeployments().size()).isEqualTo(1);
+      assertThat(job1.getDeployments().get(0).getLastExecutionStatus()).isEqualTo(DataJobExecution.StatusEnum.FAILED);
+      assertThat(job1.getDeployments().get(0).getLastExecutionTime()).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      assertThat(job1.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(10000);
+      var job2 = (V2DataJob)dataJobPage.getContent().get(1);
+      assertThat(job2.getDeployments().size()).isEqualTo(1);
+      assertThat(job2.getDeployments().get(0).getLastExecutionStatus()).isNull();
+      assertThat(job2.getDeployments().get(0).getLastExecutionTime()).isNull();
+      assertThat(job2.getDeployments().get(0).getLastExecutionDuration()).isNull();
+   }
+
 
    private List<JobDeploymentStatus> mockListOfDeployments() {
       List<JobDeploymentStatus> jobDeployments = new ArrayList<>();
@@ -211,13 +236,35 @@ class GraphQLDataFetchersTest {
       return dataJobs;
    }
 
+   private List<DataJob> mockListOfDataJobsWithLastExecution() {
+      List<DataJob> dataJobs = new ArrayList<>();
+
+      dataJobs.add(mockSampleDataJob("sample-job-1", "Import SQL", "5 12 * * *",
+              ExecutionStatus.FAILED, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 10000));
+      dataJobs.add(mockSampleDataJob("sample-job-2", "Dump SQL", "0 22 * * 1-5"));
+
+      return dataJobs;
+   }
+
    private DataJob mockSampleDataJob(String jobName, String description, String schedule) {
+      return mockSampleDataJob(jobName, description, schedule, null, null, null);
+   }
+
+   private DataJob mockSampleDataJob(String jobName,
+                                     String description,
+                                     String schedule,
+                                     ExecutionStatus lastExecutionStatus,
+                                     OffsetDateTime lastExecutionEndTime,
+                                     Integer lastExecutionDuration) {
       DataJob dataJob = new DataJob();
       JobConfig jobConfig = new JobConfig();
       jobConfig.setSchedule(schedule);
       jobConfig.setDescription(description);
       dataJob.setJobConfig(jobConfig);
       dataJob.setName(jobName);
+      dataJob.setLastExecutionStatus(lastExecutionStatus);
+      dataJob.setLastExecutionEndTime(lastExecutionEndTime);
+      dataJob.setLastExecutionDuration(lastExecutionDuration);
 
       return dataJob;
    }
