@@ -203,6 +203,9 @@ public class ToApiModelConverter {
 
    // Public for testing purposes
    public static DataJobExecution.StatusEnum convertStatusEnum(ExecutionStatus status) {
+      if (status == null) {
+         return null;
+      }
       switch (status) {
          case SUBMITTED:
             return DataJobExecution.StatusEnum.SUBMITTED;
