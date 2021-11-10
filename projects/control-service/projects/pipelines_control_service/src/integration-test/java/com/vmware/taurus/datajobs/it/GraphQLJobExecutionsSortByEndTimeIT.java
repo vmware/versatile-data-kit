@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.service;
+package com.vmware.taurus.datajobs.it;
 
-import com.vmware.taurus.RepositoryUtil;
+//import com.vmware.taurus.RepositoryUtil;
+
 import com.vmware.taurus.ServiceApp;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.model.*;
 import org.junit.jupiter.api.*;
@@ -71,7 +74,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
     }
 
     private void addJobExecution(OffsetDateTime endTime, String executionId) {
-        var execution = RepositoryUtil.createDataJobExecution(jobExecutionRepository, executionId,
+        var execution = createDataJobExecution(jobExecutionRepository, executionId,
                 jobA, ExecutionStatus.FINISHED, "message", OffsetDateTime.now());
         execution.setEndTime(endTime);
         jobExecutionRepository.save(execution);
@@ -171,5 +174,35 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[9]").exists())
                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[10]").doesNotExist());
 
+    }
+
+    public static DataJobExecution createDataJobExecution(
+            JobExecutionRepository jobExecutionRepository,
+            String executionId,
+            DataJob dataJob,
+            ExecutionStatus executionStatus,
+            String message,
+            OffsetDateTime startTime) {
+
+        var expectedJobExecution = DataJobExecution.builder()
+                .id(executionId)
+                .dataJob(dataJob)
+                .startTime(startTime)
+                .type(ExecutionType.MANUAL)
+                .status(executionStatus)
+                .resourcesCpuRequest(1F)
+                .resourcesCpuLimit(2F)
+                .resourcesMemoryRequest(500)
+                .resourcesMemoryLimit(1000)
+                .message(message)
+                .lastDeployedBy("test_user")
+                .lastDeployedDate(OffsetDateTime.now())
+                .jobVersion("test_version")
+                .jobSchedule("*/5 * * * *")
+                .opId("test_op_id")
+                .vdkVersion("test_vdk_version")
+                .build();
+
+        return jobExecutionRepository.save(expectedJobExecution);
     }
 }
