@@ -57,15 +57,14 @@ public class ExecutionDataFetcher {
       final Pageable pageable = constructPageable(queryVariables);
       allDataJob.forEach(dataJob -> {
          if (dataJob.getDeployments() != null) {
-            List<DataJobExecution> executionsPerJob = jobsExecutionRepository.findDataJobExecutionsByDataJobName(dataJob.getJobName(), pageable);
             dataJob.getDeployments()
-                  .stream()
-                  .findFirst()
-                  .ifPresent(deployment -> deployment.setExecutions(
-                        executionsPerJob
-                              .stream()
-                              .map(ToApiModelConverter::jobExecutionToConvert)
-                              .collect(Collectors.toList())));
+                    .stream()
+                    .findFirst()
+                    .ifPresent(deployment -> deployment.setExecutions(
+                            jobsExecutionRepository.findDataJobExecutionsByDataJobName(dataJob.getJobName(), pageable)
+                                    .stream()
+                                    .map(ToApiModelConverter::jobExecutionToConvert)
+                                    .collect(Collectors.toList())));
          }
       });
       return allDataJob;
