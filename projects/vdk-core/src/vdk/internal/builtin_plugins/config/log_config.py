@@ -48,14 +48,13 @@ def configure_loggers(
         "requests_kerberos": {"level": "INFO"},
         "requests_oauthlib": {"level": "INFO"},
         "urllib3": {"level": "INFO"},
-        "taurus": {"level": vdk_logging_level},
+        "vdk": {"level": vdk_logging_level},
     }
 
     _FORMATTERS = {"detailedFormatter": {"format": DETAILED_FORMAT}}
 
     _CONSOLE_HANDLER = {
         "class": "logging.StreamHandler",
-        "level": "DEBUG",
         "formatter": "detailedFormatter",
         "stream": "ext://sys.stderr",
     }
@@ -65,7 +64,7 @@ def configure_loggers(
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ["consoleHandler"], "level": "INFO"},
+            "root": {"handlers": ["consoleHandler"]},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }
@@ -77,7 +76,7 @@ def configure_loggers(
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ("consoleHandler",), "level": "DEBUG"},
+            "root": {"handlers": ("consoleHandler",)},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }

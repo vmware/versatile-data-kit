@@ -62,9 +62,10 @@ class CoreConfigDefinitionPlugin:
         )  # {LOCAL, CLOUD, NONE} To be overridden when executing in cloud
         config_builder.add(
             LOG_LEVEL_VDK,
-            "DEBUG",
+            None,
             "Logging verbosity of VDK code can be controlled from here. "
-            "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG",
+            "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
+            "If not set python default or one set by vdk -v LEVEL is used. ",
         )
         config_builder.add(JOB_GITHASH, "unknown")
         config_builder.add(
