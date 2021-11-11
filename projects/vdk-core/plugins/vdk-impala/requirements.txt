@@ -1,0 +1,9 @@
+vdk-core
+impyla
+tabulate
+
+# testing requirements
+click
+vdk-test-utils
+pytest-docker
+docker-compose
