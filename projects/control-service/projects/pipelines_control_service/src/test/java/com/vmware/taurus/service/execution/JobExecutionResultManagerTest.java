@@ -176,7 +176,7 @@ public class JobExecutionResultManagerTest {
               KubernetesService.JobExecution.builder()
                       .terminationMessage(null)
                       .succeeded(false)
-                      .terminationReason(JobExecutionResultManager.TERMINATION_REASON_DEADLINE_EXCEEDED)
+                      .jobTerminationReason(JobExecutionResultManager.TERMINATION_REASON_DEADLINE_EXCEEDED)
                       .build();
 
       ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -189,10 +189,24 @@ public class JobExecutionResultManagerTest {
               KubernetesService.JobExecution.builder()
                       .terminationMessage(null)
                       .succeeded(false)
-                      .terminationReason("SomeReason")
+                      .jobTerminationReason("SomeReason")
                       .build();
 
       ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
       Assertions.assertEquals(ExecutionTerminationStatus.PLATFORM_ERROR, actualResult.getTerminationStatus());
+   }
+
+   @Test
+   void testGetResult_terminationMessageNullAndExecutionStatusFailedAndTerminationReasonOutOfMemory_shouldReturnTerminationStatusUserError() {
+      KubernetesService.JobExecution jobExecution =
+              KubernetesService.JobExecution.builder()
+                      .terminationMessage(null)
+                      .succeeded(false)
+                      .jobTerminationReason("Some Reason")
+                      .containerTerminationReason(JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)
+                      .build();
+
+      ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
+      Assertions.assertEquals(ExecutionTerminationStatus.USER_ERROR, actualResult.getTerminationStatus());
    }
 }

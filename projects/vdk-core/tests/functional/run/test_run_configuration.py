@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 from typing import Optional
 from unittest import mock
@@ -43,3 +44,26 @@ def test_run_check_attempt_execution_op_id_are_set_correctly():
 
     cli_assert_equal(0, result)
     assert actual_ids == ["my-attempt-id", "my-execution-id", "my-op-id"]
+
+
+def test_run_check_log_level_configured_correctly():
+    debug_log_message = "DEBUG LOG 1123581321"
+
+    class DummyDebugLog:
+        @hookimpl(tryfirst=True)
+        def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
+            # -v may not apply to vdk packages which are controlled separately
+            logging.getLogger("other").debug(debug_log_message)
+            return None  # continue with next hook impl.
+
+    runner = CliEntryBasedTestRunner(DummyDebugLog())
+
+    # -v DEBUG means we print debug logs
+    result: Result = runner.invoke(["-v", "DEBUG", "run", util.job_path("simple-job")])
+    cli_assert_equal(0, result)
+    assert debug_log_message in result.output
+
+    # -v INFO - debug logs should not be printed.
+    result: Result = runner.invoke(["-v", "INFO", "run", util.job_path("simple-job")])
+    cli_assert_equal(0, result)
+    assert debug_log_message not in result.output

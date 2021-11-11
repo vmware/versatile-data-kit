@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class ToApiModelConverter {
@@ -137,7 +138,10 @@ public class ToApiModelConverter {
       return dataJobQueryResponse;
    }
 
-   public static V2DataJobDeployment toV2DataJobDeployment(JobDeploymentStatus jobDeploymentStatus) {
+   public static V2DataJobDeployment toV2DataJobDeployment(JobDeploymentStatus jobDeploymentStatus, DataJob sourceDataJob) {
+      Objects.requireNonNull(jobDeploymentStatus);
+      Objects.requireNonNull(sourceDataJob);
+
       var v2DataJobDeployment = new V2DataJobDeployment();
 
       v2DataJobDeployment.setId(jobDeploymentStatus.getCronJobName());
@@ -145,6 +149,10 @@ public class ToApiModelConverter {
       v2DataJobDeployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
       v2DataJobDeployment.setMode(DataJobMode.fromValue(jobDeploymentStatus.getMode()));
       v2DataJobDeployment.setResources(jobDeploymentStatus.getResources());
+      // TODO: Get these from the job deployment when they are available there
+      v2DataJobDeployment.setLastExecutionStatus(convertStatusEnum(sourceDataJob.getLastExecutionStatus()));
+      v2DataJobDeployment.setLastExecutionTime(sourceDataJob.getLastExecutionEndTime());
+      v2DataJobDeployment.setLastExecutionDuration(sourceDataJob.getLastExecutionDuration());
 
       // TODO finish mapping implementation in TAUR-1535
       v2DataJobDeployment.setContacts(new DataJobContacts());
@@ -195,6 +203,9 @@ public class ToApiModelConverter {
 
    // Public for testing purposes
    public static DataJobExecution.StatusEnum convertStatusEnum(ExecutionStatus status) {
+      if (status == null) {
+         return null;
+      }
       switch (status) {
          case SUBMITTED:
             return DataJobExecution.StatusEnum.SUBMITTED;

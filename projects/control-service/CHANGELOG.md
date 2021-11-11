@@ -12,6 +12,13 @@ MAJOR.MINOR - dd.MM.yyyy
 * **Breaking Changes**
 
 =======
+1.3 - 09.11.2021
+----
+* **Bug fixes**
+  * Classify K8s pod OOM errors as UserError.
+
+
+=======
 1.3 - 03.11.2021
 ----
 * **Bug fixes**
