@@ -11,14 +11,17 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
-=======
 1.3 - 09.11.2021
 ----
 * **Bug fixes**
   * Classify K8s pod OOM errors as UserError.
 
+* **Improvement**
+  * Users can now set vdk version (vdk image tag in reality)
+    This would enable canary release of vdk, A/B testing.
+    https://github.com/vmware/versatile-data-kit/issues/377
 
-=======
+
 1.3 - 03.11.2021
 ----
 * **Bug fixes**

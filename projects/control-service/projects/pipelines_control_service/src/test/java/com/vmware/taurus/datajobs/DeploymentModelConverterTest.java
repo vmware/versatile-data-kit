@@ -17,11 +17,13 @@ public class DeploymentModelConverterTest {
         var oldDeployment = getTestJobDeployment();
         var newDeployment = new JobDeployment();
         newDeployment.setEnabled(false);
+        newDeployment.setVdkVersion("new");
 
         var mergedDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, newDeployment);
 
         Assertions.assertEquals(false, mergedDeployment.getEnabled());
         Assertions.assertEquals(oldDeployment.getMode(), mergedDeployment.getMode());
+        Assertions.assertEquals("new", mergedDeployment.getVdkVersion());
     }
 
     @Test
@@ -44,6 +46,7 @@ public class DeploymentModelConverterTest {
         jobDeployment.setResources(new DataJobResources());
         jobDeployment.setMode("mode");
         jobDeployment.setGitCommitSha("job-version");
+        jobDeployment.setVdkVersion("release");
         return jobDeployment;
     }
 }
