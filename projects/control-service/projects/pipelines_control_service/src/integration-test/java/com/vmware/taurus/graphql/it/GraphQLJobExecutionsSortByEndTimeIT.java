@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.datajobs.it;
+package com.vmware.taurus.graphql.it;
 
-//import com.vmware.taurus.RepositoryUtil;
 
 import com.vmware.taurus.ServiceApp;
 import com.vmware.taurus.service.JobExecutionRepository;
@@ -57,7 +56,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
         depl.setLastDeployedDate("today");
         depl.setMode("testing");
         depl.setGitCommitSha("1234asdasd");
-        depl.setImageName("imngname");
+        depl.setImageName("imgname");
         depl.setCronJobName("jobA-cron");
         Mockito.when(deploymentService.readDeployments()).thenReturn(List.of(depl));
         JobConfig config = new JobConfig();
@@ -74,8 +73,8 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
     }
 
     private void addJobExecution(OffsetDateTime endTime, String executionId) {
-        var execution = createDataJobExecution(jobExecutionRepository, executionId,
-                jobA, ExecutionStatus.FINISHED, "message", OffsetDateTime.now());
+        var execution = createDataJobExecution(executionId, jobA, ExecutionStatus.FINISHED,
+                "message", OffsetDateTime.now());
         execution.setEndTime(endTime);
         jobExecutionRepository.save(execution);
     }
@@ -98,16 +97,14 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
 
     @Test
     public void testEmptyCallAsc() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-               .queryParam("query", getQuery("ASC")))
-               .andExpect(status().is(200));
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+                .andExpect(status().is(200));
     }
 
     @Test
     public void testEmptyCallDesc() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-               .queryParam("query", getQuery("DESC")))
-               .andExpect(status().is(200));
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+                .andExpect(status().is(200));
     }
 
     @Test
@@ -115,12 +112,11 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
         var expectedEndTime = OffsetDateTime.now();
 
         addJobExecution(expectedEndTime, "testId");
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-               .queryParam("query", getQuery("DESC")))
-               .andExpect(status().is(200))
-               .andExpect(content().contentType("application/json"))
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].endTime").value(expectedEndTime.toString()));
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+                .andExpect(status().is(200))
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].endTime").value(expectedEndTime.toString()));
 
     }
 
@@ -132,14 +128,13 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
         addJobExecution(expectedEndTimeLarger, "testId");
         addJobExecution(expectedEndTimeSmaller, "testId2");
 
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-               .queryParam("query", getQuery("ASC")))
-               .andExpect(status().is(200))
-               .andExpect(content().contentType("application/json"))
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0]").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1]").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].endTime").value(expectedEndTimeSmaller.toString()))
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].endTime").value(expectedEndTimeLarger.toString()));
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+                .andExpect(status().is(200))
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0]").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1]").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].endTime").value(expectedEndTimeSmaller.toString()))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].endTime").value(expectedEndTimeLarger.toString()));
     }
 
     @Test
@@ -150,14 +145,13 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
         addJobExecution(expectedEndTimeLarger, "testId");
         addJobExecution(expectedEndTimeSmaller, "testId2");
 
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-               .queryParam("query", getQuery("DESC")))
-               .andExpect(status().is(200))
-               .andExpect(content().contentType("application/json"))
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0]").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1]").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].endTime").value(expectedEndTimeLarger.toString()))
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].endTime").value(expectedEndTimeSmaller.toString()));
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+                .andExpect(status().is(200))
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0]").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1]").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].endTime").value(expectedEndTimeLarger.toString()))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].endTime").value(expectedEndTimeSmaller.toString()));
     }
 
     @Test
@@ -166,25 +160,23 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
             addJobExecution(OffsetDateTime.now(), UUID.randomUUID().toString());
         }
         // Query pagination is set to 10 items per page.
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-               .queryParam("query", getQuery("DESC")))
-               .andExpect(status().is(200))
-               .andExpect(content().contentType("application/json"))
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0]").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[9]").exists())
-               .andExpect(jsonPath("$.data.content[0].deployments[0].executions[10]").doesNotExist());
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+                .andExpect(status().is(200))
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0]").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[9]").exists())
+                .andExpect(jsonPath("$.data.content[0].deployments[0].executions[10]").doesNotExist());
 
     }
 
-    public static DataJobExecution createDataJobExecution(
-            JobExecutionRepository jobExecutionRepository,
+    private DataJobExecution createDataJobExecution(
             String executionId,
             DataJob dataJob,
             ExecutionStatus executionStatus,
             String message,
             OffsetDateTime startTime) {
 
-        var expectedJobExecution = DataJobExecution.builder()
+        var jobExecution = DataJobExecution.builder()
                 .id(executionId)
                 .dataJob(dataJob)
                 .startTime(startTime)
@@ -203,6 +195,6 @@ public class GraphQLJobExecutionsSortByEndTimeIT {
                 .vdkVersion("test_vdk_version")
                 .build();
 
-        return jobExecutionRepository.save(expectedJobExecution);
+        return jobExecution;
     }
 }
