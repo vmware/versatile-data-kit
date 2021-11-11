@@ -59,6 +59,7 @@ public class DeploymentModelConverter {
 
         mergedDeployment.setMode(newDeployment.getMode() != null ? newDeployment.getMode() : oldDeployment.getMode());
         mergedDeployment.setGitCommitSha(newDeployment.getGitCommitSha() != null ? newDeployment.getGitCommitSha() : oldDeployment.getGitCommitSha());
+        mergedDeployment.setVdkVersion(newDeployment.getVdkVersion() != null ? newDeployment.getVdkVersion() : oldDeployment.getVdkVersion());
         return mergedDeployment;
     }
 }
