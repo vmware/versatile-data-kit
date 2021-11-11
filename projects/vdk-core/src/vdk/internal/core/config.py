@@ -14,6 +14,8 @@ from vdk.internal.core.errors import VdkConfigurationError
 ConfigValue = Any
 ConfigKey = str
 
+DEFAULT_NONE_VALUE = "DEFAULT_NONE_VALUE"
+
 log = logging.getLogger(__name__)
 
 
@@ -193,7 +195,10 @@ class ConfigurationBuilder:
         return [k for k in self.__config_key_to_default_value.keys()]
 
     def __add_public(
-        self, key: ConfigKey, description: str, default_value: ConfigValue = None
+        self,
+        key: ConfigKey,
+        description: str,
+        default_value: ConfigValue = DEFAULT_NONE_VALUE,
     ) -> None:
         if not isinstance(description, str):
             log.warning(
@@ -201,7 +206,7 @@ class ConfigurationBuilder:
             )
             description = str(description)
 
-        if default_value is not None:
+        if default_value != DEFAULT_NONE_VALUE:
             description += "\nDefault value is: '%s'." % default_value
         self.__config_key_to_description[key] = description
 
