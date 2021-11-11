@@ -6,6 +6,7 @@ from json import JSONDecodeError
 
 from click.testing import CliRunner
 from py._path.local import LocalPath
+from pytest_httpserver.httpserver import QueryMatcher
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from taurus_datajob_api import DataJob
 from taurus_datajob_api import DataJobConfig
@@ -175,11 +176,40 @@ def test_deploy_enable_disable(httpserver: PluginHTTPServer, tmpdir: LocalPath):
         deploy, ["--enable", "-n", "test-job", "-t", "test-team", "-u", rest_api_url]
     )
     test_utils.assert_click_status(result, 0)
+    assert httpserver.log[0][0].data == b'{"enabled": true}'
 
     result = runner.invoke(
         deploy, ["--disable", "-n", "test-job", "-t", "test-team", "-u", rest_api_url]
     )
     test_utils.assert_click_status(result, 0)
+    assert httpserver.log[1][0].data == b'{"enabled": false}'
+
+
+def test_set_vdk_version(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+
+    httpserver.expect_request(
+        uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments/{DEPLOYMENT_ID}",
+        method="PATCH",
+    ).respond_with_response(Response(status=200))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        deploy,
+        [
+            "--update",
+            "--vdk-version",
+            "1.1.1",
+            "-n",
+            "test-job",
+            "-t",
+            "test-team",
+            "-u",
+            rest_api_url,
+        ],
+    )
+    test_utils.assert_click_status(result, 0)
+    assert httpserver.log[0][0].data == b'{"vdk_version": "1.1.1"}'
 
 
 def test_deploy_show(httpserver: PluginHTTPServer, tmpdir: LocalPath):

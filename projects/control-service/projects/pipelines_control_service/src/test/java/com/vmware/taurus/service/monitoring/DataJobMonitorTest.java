@@ -221,7 +221,7 @@ public class DataJobMonitorTest {
         dataJobMonitor.watchJobs();
 
         var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
-        Assertions.assertEquals(5, gauges.size());
+        Assertions.assertEquals(4, gauges.size());
         jobStatuses.forEach(s -> {
             var expectedJob = jobsRepository.findById(s.getJobName());
             Assertions.assertTrue(expectedJob.isPresent());
@@ -373,7 +373,7 @@ public class DataJobMonitorTest {
                 new DataJob("data-job2", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job2-")),
                 new DataJob("data-job3", new JobConfig(), DeploymentStatus.NONE, ExecutionTerminationStatus.SUCCESS, randomId("data-job3-")));
 
-        // Clean up previous from previous tests
+        // Clean up from previous tests
         jobsRepository.deleteAll();
         dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
 
@@ -397,6 +397,65 @@ public class DataJobMonitorTest {
         Assertions.assertEquals(2, gauges.size());
         gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
         Assertions.assertEquals(2, gauges.size());
+    }
+
+    @Test
+    @Order(23)
+    void testRecordJobExecutionStatus_withStatusSkipped_shouldNotUpdateTerminationStatus() {
+        // Clean up from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        var dataJob = new DataJob("new-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.NONE, "old-execution-id");
+        jobsRepository.save(dataJob);
+
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.SKIPPED.getString());
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
+
+        Assertions.assertTrue(actualJob.isPresent());
+        Assertions.assertEquals("old-execution-id", actualJob.get().getLatestJobExecutionId());
+    }
+
+    @Test
+    @Order(24)
+    void testRecordJobExecutionStatus_withDifferentStatus_shouldUpdateTerminationStatus() {
+        // Clean up from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        var dataJob = new DataJob("new-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.NONE, "old-execution-id");
+        jobsRepository.save(dataJob);
+
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionTerminationStatus.SUCCESS.getString());
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
+
+        Assertions.assertTrue(actualJob.isPresent());
+        Assertions.assertEquals("old-execution-id", actualJob.get().getLatestJobExecutionId());
+        Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, actualJob.get().getLatestJobTerminationStatus());
+    }
+
+    @Test
+    @Order(25)
+    void testRecordJobExecutionStatus_withDifferentExecutionId_shouldUpdateTerminationStatus() {
+        // Clean up from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        var dataJob = new DataJob("new-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.NONE, "old-execution-id");
+        jobsRepository.save(dataJob);
+
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.NONE.getString());
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
+
+        Assertions.assertTrue(actualJob.isPresent());
+        Assertions.assertEquals("new-execution-id", actualJob.get().getLatestJobExecutionId());
+        Assertions.assertEquals(ExecutionTerminationStatus.NONE, actualJob.get().getLatestJobTerminationStatus());
     }
 
     private static String randomId(String prefix) {

@@ -20,13 +20,17 @@ from vdk.internal.core.statestore import StateStore
 
 
 @pytest.mark.parametrize(
-    "log_type, level, expected_level",
+    "log_type, vdk_level, expected_vdk_level",
     (
         ("LOCAL", "INFO", logging.INFO),
         ("REMOTE", "WARNING", logging.WARNING),
+        ("LOCAL", None, logging.DEBUG),  # if not set default to root log level
     ),
 )
-def test_log_plugin(log_type, level, expected_level):
+def test_log_plugin(log_type, vdk_level, expected_vdk_level):
+    logging.getLogger().setLevel(logging.DEBUG)  # root level
+    logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
+
     log_plugin = LoggingPlugin()
 
     store = StateStore()
@@ -35,7 +39,7 @@ def test_log_plugin(log_type, level, expected_level):
     conf = (
         ConfigurationBuilder()
         .add(vdk_config.LOG_CONFIG, log_type)
-        .add(vdk_config.LOG_LEVEL_VDK, level)
+        .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
         .build()
     )
     core_context = CoreContext(MagicMock(spec=IPluginRegistry), conf, store)
@@ -51,5 +55,5 @@ def test_log_plugin(log_type, level, expected_level):
     log_plugin.initialize_job(job_context)
 
     assert (
-        logging.getLogger("taurus").getEffectiveLevel() == expected_level
+        logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
     ), "internal vdk logs must be set according to configuration option LOG_LEVEL_VDK but are not"

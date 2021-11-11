@@ -52,6 +52,7 @@ class ApiClientErrorDecorator:
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
             try:
+                log.debug(f"Call function {fn.__module__}.{fn.__name__}")
                 result = fn(*args, **kwargs)
                 return result
             except ApiException as ex:

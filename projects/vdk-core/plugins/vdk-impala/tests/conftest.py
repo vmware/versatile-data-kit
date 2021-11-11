@@ -51,5 +51,5 @@ def impala_service(docker_ip, docker_services):
     time.sleep(3)
 
     docker_services.wait_until_responsive(
-        timeout=60.0, pause=0.3, check=lambda: _is_responsive(runner)
+        timeout=90.0, pause=0.3, check=lambda: _is_responsive(runner)
     )
