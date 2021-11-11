@@ -1292,10 +1292,10 @@ public abstract class KubernetesService implements InitializingBean {
             var status = new CoreV1Api(client).deleteNamespacedSecret(name, this.namespace, null, null, null, null, null, null);
             log.debug("Deleted k8s secret: {}, status: {}", name, status);
         } catch (ApiException e) {
-            log.error("Error while trying to remove K8S secret", e);
             if (e.getCode() == 404) {
                 log.debug("Already deleted: k8s secret: {}");
             } else {
+                log.error("Failed to remove K8S secret {}", name);
                 throw e;
             }
         }
@@ -1320,7 +1320,7 @@ public abstract class KubernetesService implements InitializingBean {
         } catch (ApiException e) {
             log.warn("Error while trying to save K8S secret", e);
             if (e.getCode() == 404) {
-                log.debug("Secret does not exist. Creating ...");
+                log.debug("Secret {} does not exist. Creating ...", name);
                 nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null);
             } else {
                 log.error("Failed to save k8s secret: {}" , name);
