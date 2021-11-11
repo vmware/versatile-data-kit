@@ -4,6 +4,7 @@ import glob
 import json
 import logging
 import os
+from typing import Optional
 
 import click
 import click_spinner
@@ -14,7 +15,6 @@ from taurus_datajob_api import DataJobConfig
 from taurus_datajob_api import DataJobContacts
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobSchedule
-from taurus_datajob_api import Enable
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.job.job_archive import JobArchive
@@ -141,54 +141,78 @@ class JobDeploy:
         self.jobs_api.data_job_update(team_name=team, job_name=name, data_job=job)
 
     @ApiClientErrorDecorator()
-    def update(self, name: str, team: str, job_version: str, output: str) -> None:
-        deployment = DataJobDeployment(
-            job_version=job_version, mode="release", enabled=True
-        )
+    def update(
+        self,
+        name: str,
+        team: str,
+        job_version: Optional[str],
+        vdk_version: Optional[str],
+        output: str,
+    ) -> None:
+        deployment = DataJobDeployment(enabled=None)
+        if job_version:
+            deployment.job_version = job_version
+        if vdk_version:
+            deployment.vdk_version = vdk_version
+        if job_version:
+            self.__update_job_version(name, team, deployment, output)
+        elif vdk_version:
+            self.__update_deployment(name, team, deployment)
+            log.info(
+                f"Deployment of Data Job {name} updated to use vdk version {vdk_version}."
+            )
+        else:
+            log.warning(f"Nothing to update for deployment of job {name}.")
+
+    def __update_deployment(
+        self, name: str, team: str, deployment: DataJobDeployment
+    ) -> None:
         log.debug(f"Update Deployment of a job {name} of team {team} : {deployment}")
+        self.deploy_api.deployment_patch(
+            team_name=team,
+            job_name=name,
+            deployment_id=self.__deployment_id,
+            data_job_deployment=deployment,
+        )
+
+    def __update_job_version(
+        self, name: str, team: str, deployment: DataJobDeployment, output: str
+    ):
+        log.debug(
+            f"Update Deployment version of a job {name} of team {team} : {deployment}"
+        )
         self.deploy_api.deployment_update(
             team_name=team, job_name=name, data_job_deployment=deployment
         )
-
         if output == OutputFormat.TEXT.value:
             log.info(
-                f"Request to deploy Data Job {name} using version {job_version} finished successfully.\n"
+                f"Request to deploy Data Job {name} using version {deployment.job_version} finished successfully.\n"
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
                 f"If notified_on_job_deploy option in config.ini is configured then "
                 f"notification will be sent on successful deploy or in case of an error.\n\n"
                 f"You can also execute `vdk deploy --show -t {team} -n {name}` and compare the printed version "
-                f"to the one of the newly deployed job - {job_version} - to verify that the deployment "
+                f"to the one of the newly deployed job - {deployment.job_version} - to verify that the deployment "
                 f"was successful."
             )
         else:
             result = {
                 "job_name": name,
-                "job_version": job_version,
+                "job_version": deployment.job_version,
             }
             click.echo(json.dumps(result))
 
     @ApiClientErrorDecorator()
     def disable(self, name: str, team: str) -> None:
-        enable = Enable(enabled=False)
+        deployment = DataJobDeployment(enabled=False)
         log.debug(f"Disable Deployment of a job {name} of team {team}")
-        self.deploy_api.deployment_enable(
-            team_name=team,
-            job_name=name,
-            deployment_id=self.__deployment_id,
-            enable=enable,
-        )
+        self.__update_deployment(name, team, deployment)
         log.info(f"Deployment of Data Job {name} disabled.")
 
     @ApiClientErrorDecorator()
     def enable(self, name: str, team: str) -> None:
-        enable = Enable(enabled=True)
+        deployment = DataJobDeployment(enabled=True)
         log.debug(f"Enable Deployment of a job {name} of team {team}")
-        self.deploy_api.deployment_enable(
-            team_name=team,
-            job_name=name,
-            deployment_id=self.__deployment_id,
-            enable=enable,
-        )
+        self.__update_deployment(name, team, deployment)
         log.info(f"Deployment of Data Job {name} enabled.")
 
     @ApiClientErrorDecorator()
@@ -281,6 +305,6 @@ class JobDeploy:
                 )
 
             self.__update_data_job_deploy_configuration(job_path, name, team)
-            self.update(name, team, data_job_version.version_sha, output)
+            self.update(name, team, data_job_version.version_sha, None, output)
         finally:
             self.__cleanup_archive(archive_path=archive_path)

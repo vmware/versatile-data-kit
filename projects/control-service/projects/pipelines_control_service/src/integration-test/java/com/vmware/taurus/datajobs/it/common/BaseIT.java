@@ -407,4 +407,10 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
       enable.enabled(enabled);
       return mapper.writeValueAsString(enable);
    }
+
+   public String getDataJobDeploymentVdkVersionRequestBody(String vdkVersion) throws JsonProcessingException {
+      var deployment = new DataJobDeployment();
+      deployment.setVdkVersion(vdkVersion);
+      return mapper.writeValueAsString(deployment);
+   }
 }
