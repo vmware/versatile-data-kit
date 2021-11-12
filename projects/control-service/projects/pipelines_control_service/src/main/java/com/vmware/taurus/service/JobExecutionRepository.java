@@ -35,6 +35,8 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
 
    List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
 
+   long countDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
+
    List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(String jobName, List<ExecutionStatus> statuses);
 
    List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(List<ExecutionStatus> statuses, OffsetDateTime startTime);

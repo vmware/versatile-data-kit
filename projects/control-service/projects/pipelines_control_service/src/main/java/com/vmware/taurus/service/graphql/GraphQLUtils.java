@@ -5,7 +5,9 @@
 
 package com.vmware.taurus.service.graphql;
 
+import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.graphql.model.Filter;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import graphql.GraphQLException;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Sort;
@@ -48,4 +50,28 @@ public class GraphQLUtils {
       }
    }
 
+    /**
+     * This method is used to retrieve the count of all job executions with a status Finished.
+     * Currently, successfully finished executions will have this status.
+     *
+     * @param dataJobName
+     * @param jobExecutionRepository
+     * @return count
+     */
+    public static long countSuccessfulExecutions(String dataJobName, JobExecutionRepository jobExecutionRepository) {
+        var executionStatusSuccess = List.of(ExecutionStatus.FINISHED);
+        return jobExecutionRepository.countDataJobExecutionsByDataJobNameAndStatusIn(dataJobName, executionStatusSuccess);
+    }
+
+    /**
+     * This method is used to retrieve the count all job executions with a failure status.
+     *
+     * @param dataJobName
+     * @param jobExecutionRepository
+     * @return count
+     */
+    public static long countFailedExecutions(String dataJobName, JobExecutionRepository jobExecutionRepository) {
+        var executionStatusFailure = List.of(ExecutionStatus.FAILED);
+        return jobExecutionRepository.countDataJobExecutionsByDataJobNameAndStatusIn(dataJobName, executionStatusFailure);
+    }
 }
