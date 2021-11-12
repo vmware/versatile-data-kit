@@ -18,9 +18,10 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class DeploymentModelConverter {
 
-    public static JobDeployment toJobDeployment(JobDeploymentStatus jobDeploymentStatus) {
+    public static JobDeployment toJobDeployment(String teamName, String jobName, JobDeploymentStatus jobDeploymentStatus) {
         JobDeployment deployment = new JobDeployment();
-        deployment.setDataJobName(jobDeploymentStatus.getDataJobName());
+        deployment.setDataJobTeam(teamName);
+        deployment.setDataJobName(jobName);
         deployment.setCronJobName(jobDeploymentStatus.getCronJobName());
         deployment.setImageName(jobDeploymentStatus.getImageName());
         deployment.setEnabled(jobDeploymentStatus.getEnabled());
@@ -39,7 +40,13 @@ public class DeploymentModelConverter {
      */
     public static JobDeployment mergeDeployments(JobDeployment oldDeployment, JobDeployment newDeployment) {
         JobDeployment mergedDeployment = new JobDeployment();
-        mergedDeployment.setDataJobName(oldDeployment.getDataJobName());
+        if (!newDeployment.getDataJobName().equals(oldDeployment.getDataJobName()) ||
+            !newDeployment.getDataJobTeam().equals(oldDeployment.getDataJobTeam())) {
+            throw new IllegalArgumentException("Cannot merge 2 deployments if team or job name is different." +
+                    oldDeployment + " vs " + newDeployment);
+        }
+        mergedDeployment.setDataJobTeam(newDeployment.getDataJobTeam());
+        mergedDeployment.setDataJobName(newDeployment.getDataJobName());
         mergedDeployment.setCronJobName(newDeployment.getCronJobName() != null ? newDeployment.getCronJobName() : oldDeployment.getCronJobName());
         mergedDeployment.setImageName(newDeployment.getImageName() != null ? newDeployment.getImageName() : oldDeployment.getImageName());
         mergedDeployment.setEnabled(newDeployment.getEnabled() != null ? newDeployment.getEnabled() : oldDeployment.getEnabled());
@@ -59,6 +66,7 @@ public class DeploymentModelConverter {
 
         mergedDeployment.setMode(newDeployment.getMode() != null ? newDeployment.getMode() : oldDeployment.getMode());
         mergedDeployment.setGitCommitSha(newDeployment.getGitCommitSha() != null ? newDeployment.getGitCommitSha() : oldDeployment.getGitCommitSha());
+        mergedDeployment.setVdkVersion(newDeployment.getVdkVersion() != null ? newDeployment.getVdkVersion() : oldDeployment.getVdkVersion());
         return mergedDeployment;
     }
 }

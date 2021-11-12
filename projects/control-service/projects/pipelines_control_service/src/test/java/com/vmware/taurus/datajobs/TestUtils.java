@@ -18,6 +18,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class TestUtils {
+
+   public static final String TEST_TEAM_NAME = "test-team-name";
+
    private static final ObjectMapper mapper = new ObjectMapper();
 
    //@NotNull
@@ -92,6 +95,7 @@ public class TestUtils {
 
    public static JobDeployment getJobDeployment() {
       JobDeployment jobDeployment = new JobDeployment();
+      jobDeployment.setDataJobTeam(TestUtils.TEST_TEAM_NAME);
       jobDeployment.setGitCommitSha("version");
       jobDeployment.setEnabled(true);
       jobDeployment.setImageName("test-job-image-name");

@@ -15,6 +15,8 @@ import lombok.Data;
 @Data
 public class JobDeployment {
 
+   private String dataJobTeam;
+
    private String dataJobName;
 
    private String gitCommitSha;

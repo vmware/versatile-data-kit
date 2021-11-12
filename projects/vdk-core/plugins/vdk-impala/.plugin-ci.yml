@@ -1,0 +1,35 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-impala:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    PLUGIN_NAME: vdk-impala
+  extends: .build-plugin
+
+build-py37-vdk-impala:
+  extends: .build-vdk-impala
+  image: "python:3.7"
+
+
+build-py38-vdk-impala:
+  extends: .build-vdk-impala
+  image: "python:3.8"
+
+
+build-py39-vdk-impala:
+  extends: .build-vdk-impala
+  image: "python:3.9"
+
+
+release-vdk-impala:
+  variables:
+    PLUGIN_NAME: vdk-impala
+  extends: .release-plugin
