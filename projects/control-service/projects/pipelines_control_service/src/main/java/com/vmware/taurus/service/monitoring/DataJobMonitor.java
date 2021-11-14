@@ -7,6 +7,7 @@ package com.vmware.taurus.service.monitoring;
 
 import com.google.common.collect.Streams;
 import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class DataJobMonitor {
 
     private final JobsRepository jobsRepository;
     private final DataJobsKubernetesService dataJobsKubernetesService;
+    private final JobsService jobsService;
     private final JobExecutionService jobExecutionService;
     private final DataJobMetrics dataJobMetrics;
 
@@ -52,10 +55,12 @@ public class DataJobMonitor {
     public DataJobMonitor(
             JobsRepository jobsRepository,
             DataJobsKubernetesService dataJobsKubernetesService,
+            JobsService jobsService,
             JobExecutionService jobExecutionService,
             DataJobMetrics dataJobMetrics) {
         this.dataJobsKubernetesService = dataJobsKubernetesService;
         this.jobsRepository = jobsRepository;
+        this.jobsService = jobsService;
         this.jobExecutionService = jobExecutionService;
         this.dataJobMetrics = dataJobMetrics;
     }
@@ -169,6 +174,7 @@ public class DataJobMonitor {
      * @param jobStatus - the job status of the job. The same information is sent as telemetry by Measureable annotation.
      */
     @Measurable(includeArg = 0, argName = "execution_status")
+    @Transactional
     void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
@@ -192,7 +198,8 @@ public class DataJobMonitor {
             updateDataJobTerminationStatusGauge(dataJob);
         }
 
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        var updatedExecution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        updatedExecution.ifPresent(jobsService::updateLastExecution);
     }
 
 
