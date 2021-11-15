@@ -7,6 +7,7 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.DataJobExecutionIdAndEndTime;
+import com.vmware.taurus.service.model.DataJobExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,7 +36,7 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
 
    List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
 
-   long countDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
+   List<DataJobExecutionStatus> findByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
 
    List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(String jobName, List<ExecutionStatus> statuses);
 

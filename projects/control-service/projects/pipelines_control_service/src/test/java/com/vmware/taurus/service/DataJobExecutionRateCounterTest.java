@@ -5,8 +5,8 @@
 
 package com.vmware.taurus.service;
 
-import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
+import com.vmware.taurus.ServiceApp;
 import com.vmware.taurus.service.graphql.GraphQLUtils;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
 
-@SpringBootTest(classes = ControlplaneApplication.class)
+@SpringBootTest(classes = ServiceApp.class)
 @ExtendWith(SpringExtension.class)
 public class DataJobExecutionRateCounterTest {
 
@@ -30,6 +30,9 @@ public class DataJobExecutionRateCounterTest {
 
     @Autowired
     private JobsRepository jobsRepository;
+
+    @Autowired
+    GraphQLJobsQueryService graphQLJobsQueryService;
 
     private DataJob dataJob;
 
@@ -46,23 +49,18 @@ public class DataJobExecutionRateCounterTest {
 
     @Test
     public void testSuccessQuery_emptyExecutionsRepo_expectNoSuccess() {
-        var response = GraphQLUtils.countSuccessfulExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(0, response);
-    }
-
-    @Test
-    public void testFailureQuery_emptyExecutionsRepo_expectNoFailure() {
-        var response = GraphQLUtils.countFailedExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(0, response);
+        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
+        Assertions.assertEquals(0, response.getLeft());
+        Assertions.assertEquals(0, response.getRight());
     }
 
     @Test
     public void testSuccessQuery_oneFailed_expectNoSuccess() {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
                 ExecutionStatus.FAILED, "test-msg", OffsetDateTime.now());
-        var response = GraphQLUtils.countSuccessfulExecutions("test-job", jobExecutionRepository);
+        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
 
-        Assertions.assertEquals(0, response);
+        Assertions.assertEquals(0, response.getRight());
     }
 
     @Test
@@ -70,9 +68,9 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
                 ExecutionStatus.FINISHED, "test-msg", OffsetDateTime.now());
 
-        var response = GraphQLUtils.countFailedExecutions("test-job", jobExecutionRepository);
+        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
 
-        Assertions.assertEquals(0, response);
+        Assertions.assertEquals(0, response.getLeft());
     }
 
     @Test
@@ -84,8 +82,8 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id3", dataJob,
                 ExecutionStatus.SUBMITTED, "test-msg", OffsetDateTime.now());
 
-        var response = GraphQLUtils.countSuccessfulExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(2, response);
+        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
+        Assertions.assertEquals(2, response.getRight());
     }
 
     @Test
@@ -97,8 +95,8 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id3", dataJob,
                 ExecutionStatus.SUBMITTED, "test-msg", OffsetDateTime.now());
 
-        var response = GraphQLUtils.countFailedExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(2, response);
+        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
+        Assertions.assertEquals(2, response.getLeft());
     }
 
 }

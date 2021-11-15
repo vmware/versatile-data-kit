@@ -10,6 +10,7 @@ import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import graphql.GraphQLException;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
@@ -51,27 +52,32 @@ public class GraphQLUtils {
    }
 
     /**
-     * This method is used to retrieve the count of all job executions with a status Finished.
-     * Currently, successfully finished executions will have this status.
+     * This method counts Failed and Finished statuses for
+     * all data job executions for a given data job and
+     * returns an immutable pair of fail and success counts.
      *
-     * @param dataJobName
-     * @param jobExecutionRepository
-     * @return count
+     * @param dataJobName the data job name.
+     * @param jobExecutionRepository the repository to query.
+     * @return ImmutablePair<Integer, Integer>, the left element is the Fail count, right Finished.
      */
-    public static long countSuccessfulExecutions(String dataJobName, JobExecutionRepository jobExecutionRepository) {
-        var executionStatusSuccess = List.of(ExecutionStatus.FINISHED);
-        return jobExecutionRepository.countDataJobExecutionsByDataJobNameAndStatusIn(dataJobName, executionStatusSuccess);
-    }
+    public static ImmutablePair<Integer, Integer> countFailedAndFinishedExecutions(String dataJobName,
+                                                                                     JobExecutionRepository jobExecutionRepository) {
 
-    /**
-     * This method is used to retrieve the count all job executions with a failure status.
-     *
-     * @param dataJobName
-     * @param jobExecutionRepository
-     * @return count
-     */
-    public static long countFailedExecutions(String dataJobName, JobExecutionRepository jobExecutionRepository) {
-        var executionStatusFailure = List.of(ExecutionStatus.FAILED);
-        return jobExecutionRepository.countDataJobExecutionsByDataJobNameAndStatusIn(dataJobName, executionStatusFailure);
+        var acceptedStatuses = List.of(ExecutionStatus.FAILED, ExecutionStatus.FINISHED);
+        var executions = jobExecutionRepository
+                .findByDataJobNameAndStatusIn(dataJobName, acceptedStatuses);
+
+        int failed = 0;
+        int success = 0;
+
+        for (var status : executions) {
+            if (status.getStatus().equals(ExecutionStatus.FAILED)) {
+                failed++;
+            } else if (status.getStatus().equals(ExecutionStatus.FINISHED)) {
+                success++;
+            }
+        }
+
+        return ImmutablePair.of(failed, success);
     }
 }

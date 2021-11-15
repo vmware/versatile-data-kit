@@ -1318,7 +1318,6 @@ public abstract class KubernetesService implements InitializingBean {
         try {
             nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null);
         } catch (ApiException e) {
-
             log.warn("Error while trying to save K8S secret", e);
             if (e.getCode() == 404) {
                 log.debug("Secret {} does not exist. Creating ...", name);
@@ -1343,7 +1342,6 @@ public abstract class KubernetesService implements InitializingBean {
         try {
             var dataKeys = Optional.ofNullable(nsSecret.getData()).map(secret -> secret.keySet()).orElse(null);
             var metaData = Optional.ofNullable(nsSecret.getMetadata()).map(secret -> secret.toString()).orElse(null);
-
             var stringDataKeys = Optional.ofNullable(nsSecret.getStringData()).map(secret -> secret.keySet()).orElse(null);
             log.debug("Replaced namespaced secret. Data keys : {}, MetaData: {}, StringData keys: {}, Type: {}, ApiVer: {}",
                     dataKeys, metaData, stringDataKeys, nsSecret.getType(), nsSecret.getApiVersion());
