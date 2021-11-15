@@ -25,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -456,6 +457,79 @@ public class DataJobMonitorTest {
         Assertions.assertTrue(actualJob.isPresent());
         Assertions.assertEquals("new-execution-id", actualJob.get().getLatestJobExecutionId());
         Assertions.assertEquals(ExecutionTerminationStatus.NONE, actualJob.get().getLatestJobTerminationStatus());
+    }
+
+    @Test
+    @Order(26)
+    void testRecordJobExecutionStatus_shouldUpdateLastExecution() {
+        // Clean up from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        var dataJob = new DataJob("new-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.PLATFORM_ERROR, "old-execution-id");
+        dataJob.setLastExecutionStatus(ExecutionStatus.FAILED);
+        dataJob.setLastExecutionEndTime(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+        dataJob.setLastExecutionDuration(1000);
+        jobsRepository.save(dataJob);
+
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionTerminationStatus.PLATFORM_ERROR.getString(), false);
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(27)
+    void testRecordJobExecutionStatus_withNullExecutionId_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", null, ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(28)
+    void testRecordJobExecutionStatus_withEmptyExecutionId_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "", ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+
+    @Test
+    @Order(29)
+    void testRecordJobExecutionStatus_withSameExecutionIdAndNewStatus_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(30)
+    void testRecordJobExecutionStatus_withNewExecutionIdAndNewStatus_shouldUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FINISHED, actualJob.get().getLastExecutionStatus());
+        Assertions.assertEquals(jobExecution.getEndTime(), actualJob.get().getLastExecutionEndTime());
     }
 
     private static String randomId(String prefix) {
