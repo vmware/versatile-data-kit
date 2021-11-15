@@ -405,6 +405,10 @@ def run(job_input):
     props['table_load_destination'] = "{self.config.DATABASE_TEST_TABLE_LOAD_DESTINATION}"
     props['job_name'] = "{self.config.job_name}"
     props['execute_template'] = "{self.config.check_template_execution}"
+    props['ingest_target'] = "{self.config.INGEST_TARGET}"
+    props['ingest_method'] = "{self.config.INGEST_METHOD}"
+    props['ingest_destination_table'] = "{self.config.INGEST_DESTINATION_TABLE}"
+    props['ingest_timeout'] = "{self.config.INGEST_TIMEOUT}"
     job_input.set_all_properties(props)
         """
 
