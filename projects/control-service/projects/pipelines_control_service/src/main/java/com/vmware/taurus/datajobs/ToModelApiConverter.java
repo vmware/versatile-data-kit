@@ -15,9 +15,10 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class ToModelApiConverter {
 
-   public static JobDeployment toJobDeployment(String jobName, DataJobDeployment dataJobDeployment) {
+   public static JobDeployment toJobDeployment(String teamName, String jobName, DataJobDeployment dataJobDeployment) {
 
       JobDeployment jobDeployment = new JobDeployment();
+      jobDeployment.setDataJobTeam(teamName);
       jobDeployment.setDataJobName(jobName);
       jobDeployment.setEnabled(dataJobDeployment.getEnabled());
       jobDeployment.setResources(dataJobDeployment.getResources());

@@ -16,6 +16,8 @@ public class DeploymentModelConverterTest {
     void test_mergeDeployments() {
         var oldDeployment = getTestJobDeployment();
         var newDeployment = new JobDeployment();
+        newDeployment.setDataJobTeam(oldDeployment.getDataJobTeam());
+        newDeployment.setDataJobName(oldDeployment.getDataJobName());
         newDeployment.setEnabled(false);
         newDeployment.setVdkVersion("new");
 
@@ -30,6 +32,8 @@ public class DeploymentModelConverterTest {
     void test_mergeDeployments_resources() {
         var oldDeployment = getTestJobDeployment();
         var newDeployment = new JobDeployment();
+        newDeployment.setDataJobTeam(oldDeployment.getDataJobTeam());
+        newDeployment.setDataJobName(oldDeployment.getDataJobName());
         newDeployment.setGitCommitSha("new-version");
         var newResources = new DataJobResources();
         newResources.setMemoryLimit(2);
@@ -41,6 +45,7 @@ public class DeploymentModelConverterTest {
 
     private static JobDeployment getTestJobDeployment() {
         JobDeployment jobDeployment = new JobDeployment();
+        jobDeployment.setDataJobTeam("job-team");
         jobDeployment.setDataJobName("job-name");
         jobDeployment.setEnabled(true);
         jobDeployment.setResources(new DataJobResources());

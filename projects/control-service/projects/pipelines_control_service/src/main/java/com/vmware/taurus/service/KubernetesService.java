@@ -24,7 +24,10 @@ import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.PodLogs;
-import io.kubernetes.client.apis.*;
+import io.kubernetes.client.apis.BatchV1Api;
+import io.kubernetes.client.apis.BatchV1beta1Api;
+import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.apis.VersionApi;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.models.*;
@@ -1281,7 +1284,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     /**
-     * Removes secrete with given name if it exists.
+     * Removes secret with given name if it exists.
      */
     public void removeSecretData(String name) throws ApiException {
         log.debug("Deleting k8s secret: {}", name);
@@ -1292,6 +1295,7 @@ public abstract class KubernetesService implements InitializingBean {
             if (e.getCode() == 404) {
                 log.debug("Already deleted: k8s secret: {}");
             } else {
+                log.error("Failed to remove K8S secret {}", name);
                 throw e;
             }
         }
@@ -1314,14 +1318,36 @@ public abstract class KubernetesService implements InitializingBean {
         try {
             nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null);
         } catch (ApiException e) {
+            log.warn("Error while trying to save K8S secret", e);
             if (e.getCode() == 404) {
-                log.debug("Secret {} does not exits. Creating ...");
+                log.debug("Secret {} does not exist. Creating ...", name);
                 nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null);
             } else {
+                log.error("Failed to save k8s secret: {}" , name);
                 throw e;
             }
         }
         log.debug("Saved k8s secret: {}", name);
+        logSecretDebugInformation(nsSecret);
+    }
+
+    /**
+     * This method logs secret information for debugging purposes.
+     * While also omitting any sensitive data. We don't want to throw
+     * any exceptions from this method, since it is only meant for logging.
+     *
+     * @param nsSecret
+     */
+    private void logSecretDebugInformation(V1Secret nsSecret) {
+        try {
+            var dataKeys = Optional.ofNullable(nsSecret.getData()).map(secret -> secret.keySet()).orElse(null);
+            var metaData = Optional.ofNullable(nsSecret.getMetadata()).map(secret -> secret.toString()).orElse(null);
+            var stringDataKeys = Optional.ofNullable(nsSecret.getStringData()).map(secret -> secret.keySet()).orElse(null);
+            log.debug("Replaced namespaced secret. Data keys : {}, MetaData: {}, StringData keys: {}, Type: {}, ApiVer: {}",
+                    dataKeys, metaData, stringDataKeys, nsSecret.getType(), nsSecret.getApiVersion());
+        } catch (Exception e) {
+            log.debug("Could not log secret information due to: ", e);
+        }
     }
 
     private V1Secret buildV1Secret(String name, Map<String, byte[]> data) {

@@ -19,11 +19,9 @@ import io.kubernetes.client.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,7 +63,8 @@ public class DeploymentService {
    public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
       var deploymentStatus = readDeployment(dataJob.getName());
       if (deploymentStatus.isPresent()) {
-         var oldDeployment = DeploymentModelConverter.toJobDeployment(deploymentStatus.get());
+         var oldDeployment = DeploymentModelConverter.toJobDeployment(
+                 dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
          var mergedDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
          validateFieldsCanBePatched(oldDeployment, mergedDeployment);
 
@@ -126,7 +125,7 @@ public class DeploymentService {
          deploymentProgress.started(dataJob.getJobConfig(), jobDeployment);
          var deploymentStatus = readDeployment(dataJob.getName());
          if (deploymentStatus.isPresent()) {
-            var oldDeployment = DeploymentModelConverter.toJobDeployment(deploymentStatus.get());
+            var oldDeployment = DeploymentModelConverter.toJobDeployment(dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
             jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
          }
 
