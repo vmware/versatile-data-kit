@@ -10,12 +10,17 @@ import com.vmware.taurus.datajobs.webhook.PostCreateWebHookProvider;
 import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DataJobExecution;
+import com.vmware.taurus.service.model.ExecutionResult;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.webhook.WebHookRequestBody;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import com.vmware.taurus.service.webhook.WebHookResult;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -189,5 +195,40 @@ public class JobsService {
 
    public Optional<DataJob> getByNameAndTeam(String jobName, String teamName) {
       return jobsRepository.findDataJobByNameAndJobConfigTeam(jobName, teamName);
+   }
+
+   /**
+    * Updates the last job execution in the database for the specified data job.
+    * The status is updated only if the execution has completed.
+    */
+   public void updateLastExecution(
+           final DataJobExecution dataJobExecution) {
+
+      if (StringUtils.isBlank(dataJobExecution.getId())) {
+         log.warn("Could not store Data Job execution due to the missing execution id: {}", dataJobExecution.getId());
+         return;
+      }
+
+      // Check if the execution has completed
+      var finalStatuses = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
+              ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
+      boolean hasExecutionCompleted = finalStatuses.contains(dataJobExecution.getStatus()) &&
+              dataJobExecution.getEndTime() != null;
+      if (!hasExecutionCompleted) {
+         log.debug("The last execution info for data job {} will NOT be updated. The execution {} has not completed yet.",
+            dataJobExecution.getDataJob().getName(), dataJobExecution.getId());
+         return;
+      }
+
+      var dataJobOptional = jobsRepository.findById(dataJobExecution.getDataJob().getName());
+      if (dataJobOptional.isPresent()) {
+         var dataJob = dataJobOptional.get();
+         if (dataJobExecution.getEndTime() != null) {
+            dataJob.setLastExecutionStatus(dataJobExecution.getStatus());
+            dataJob.setLastExecutionEndTime(dataJobExecution.getEndTime());
+            dataJob.setLastExecutionDuration((int) (dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond()));
+            jobsRepository.save(dataJob);
+         }
+      }
    }
 }
