@@ -47,5 +47,4 @@ public class GraphQLUtils {
          throw new GraphQLException("Page cannot be less than 1");
       }
    }
-
 }
