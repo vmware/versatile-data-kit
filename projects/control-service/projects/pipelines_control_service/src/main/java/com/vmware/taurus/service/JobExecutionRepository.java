@@ -39,11 +39,11 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
 
    List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(List<ExecutionStatus> statuses, OffsetDateTime startTime);
 
-   @Query("SELECT dje.status AS status, dje.dataJob.name AS name, count(dje.status) AS count " +
+   @Query("SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount " +
           "FROM DataJobExecution dje " +
           "WHERE dje.status IN :statuses " +
           "AND dje.dataJob.name IN :dataJobs " +
           "GROUP BY dje.status, dje.dataJob")
-   List<DataJobExecutionCountFailFinishedStatus> countFailedFinishedStatus(@Param("statuses") List<ExecutionStatus> statuses,
-                                                                            @Param("dataJobs") List<String> dataJobs);
+   List<DataJobExecutionStatusCount> countFailedFinishedStatus(@Param("statuses") List<ExecutionStatus> statuses,
+                                                               @Param("dataJobs") List<String> dataJobs);
 }

@@ -7,7 +7,7 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.ServiceApp;
-import com.vmware.taurus.service.graphql.GraphQLUtils;
+import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @SpringBootTest(classes = ServiceApp.class)
 @ExtendWith(SpringExtension.class)
@@ -32,7 +33,7 @@ public class DataJobExecutionRateCounterTest {
     private JobsRepository jobsRepository;
 
     @Autowired
-    GraphQLJobsQueryService graphQLJobsQueryService;
+    JobExecutionService jobExecutionService;
 
     private DataJob dataJob;
 
@@ -49,18 +50,17 @@ public class DataJobExecutionRateCounterTest {
 
     @Test
     public void testSuccessQuery_emptyExecutionsRepo_expectNoSuccess() {
-        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(0, response.getLeft());
-        Assertions.assertEquals(0, response.getRight());
+        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FAILED, ExecutionStatus.FINISHED));
+        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FAILED, 0));
+        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FINISHED, 0));
     }
 
     @Test
     public void testSuccessQuery_oneFailed_expectNoSuccess() {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
                 ExecutionStatus.FAILED, "test-msg", OffsetDateTime.now());
-        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
-
-        Assertions.assertEquals(0, response.getRight());
+        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FINISHED));
+        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FINISHED, 0));
     }
 
     @Test
@@ -68,9 +68,8 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
                 ExecutionStatus.FINISHED, "test-msg", OffsetDateTime.now());
 
-        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
-
-        Assertions.assertEquals(0, response.getLeft());
+        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FAILED));
+        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FAILED, 0));
     }
 
     @Test
@@ -82,8 +81,8 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id3", dataJob,
                 ExecutionStatus.SUBMITTED, "test-msg", OffsetDateTime.now());
 
-        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(2, response.getRight());
+        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FINISHED));
+        Assertions.assertEquals(2, response.get("test-job").get(ExecutionStatus.FINISHED));
     }
 
     @Test
@@ -95,7 +94,7 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id3", dataJob,
                 ExecutionStatus.SUBMITTED, "test-msg", OffsetDateTime.now());
 
-        var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
-        Assertions.assertEquals(2, response.getLeft());
+        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FAILED));
+        Assertions.assertEquals(2, response.get("test-job").get(ExecutionStatus.FAILED));
     }
 }

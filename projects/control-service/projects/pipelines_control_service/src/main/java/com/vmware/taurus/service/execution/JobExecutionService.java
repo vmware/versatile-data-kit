@@ -5,17 +5,21 @@
 
 package com.vmware.taurus.service.execution;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.gson.JsonSyntaxException;
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
+import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.datajobs.ToModelApiConverter;
+import com.vmware.taurus.exception.*;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.JobImageDeployer;
+import com.vmware.taurus.service.diag.OperationContext;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,33 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
-import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.exception.DataJobAlreadyRunningException;
-import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
-import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
-import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
-import com.vmware.taurus.exception.DataJobExecutionStatusNotValidException;
-import com.vmware.taurus.exception.DataJobNotFoundException;
-import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
-import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsService;
-import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.deploy.DeploymentService;
-import com.vmware.taurus.service.deploy.JobImageDeployer;
-import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.ExecutionResult;
-import com.vmware.taurus.service.model.ExecutionStatus;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
-import com.vmware.taurus.service.model.JobAnnotation;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.vmware.taurus.service.model.JobEnvVar;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -395,4 +376,36 @@ public class JobExecutionService {
    private static String getExecutionId(String jobName) {
       return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
    }
+
+   /**
+    * This method returns a per job name mapping containing statuses
+    * count for a given data job and status list. The method is always
+    * guaranteed to return a Map containing the provided
+    * data jobs names, however the inner map, which contains
+    * the count mappings per ExecutionStatus will only
+    * return a mapping if a status is present. Map::getOrDefault
+    * should be used to prevent null pointer exceptions when
+    * retrieving ExecutionStatus counts.
+    *
+    * @param dataJobs The data jobs to count statuses of.
+    * @param statuses The statuses to count.
+    * @return Map which maps a data job name to a Map<ExecutionStatus, Integer>
+    */
+   public Map<String, Map<ExecutionStatus, Integer>> countExecutionStatuses(List<String> dataJobs,
+                                                                            List<ExecutionStatus> statuses) {
+
+      Map<String, Map<ExecutionStatus, Integer>> returnValue = new HashMap<>();
+      var statusCount = jobExecutionRepository.countFailedFinishedStatus(statuses, dataJobs);
+      // Populate jobs
+      for (var dataJob : dataJobs) {
+         returnValue.put(dataJob, new HashMap<>());
+      }
+      // Populate count mappings.
+      for (var statusesCount : statusCount) {
+         returnValue.get(statusesCount.getJobName()).put(statusesCount.getStatus(), statusesCount.getStatusCount());
+      }
+
+      return returnValue;
+   }
+
 }

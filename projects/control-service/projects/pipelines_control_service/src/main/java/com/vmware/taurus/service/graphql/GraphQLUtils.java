@@ -5,12 +5,9 @@
 
 package com.vmware.taurus.service.graphql;
 
-import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.graphql.model.Filter;
-import com.vmware.taurus.service.model.ExecutionStatus;
 import graphql.GraphQLException;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
@@ -50,32 +47,4 @@ public class GraphQLUtils {
          throw new GraphQLException("Page cannot be less than 1");
       }
    }
-
-    /**
-     * This method counts Failed and Finished statuses for
-     * all data job executions for a given data job and
-     * returns an immutable pair of fail and success counts.
-     *
-     * @param dataJobName            the data job name.
-     * @param jobExecutionRepository the repository to query.
-     * @return ImmutablePair<Integer, Integer>, the left element is the Fail count, right Finished.
-     */
-    public static ImmutablePair<Integer, Integer> countFailedAndFinishedExecutions(String dataJobName,
-                                                                                   JobExecutionRepository jobExecutionRepository) {
-
-        var acceptedStatuses = List.of(ExecutionStatus.FAILED, ExecutionStatus.FINISHED);
-        var statusCount = jobExecutionRepository.countFailedFinishedStatus(acceptedStatuses, List.of(dataJobName));
-
-        int failed = 0;
-        int success = 0;
-
-        for (var status : statusCount) {
-            if (status.getStatus().equals(ExecutionStatus.FAILED)) {
-                failed = status.getCount();
-            } else if (status.getStatus().equals(ExecutionStatus.FINISHED)) {
-                success = status.getCount();
-            }
-        }
-        return ImmutablePair.of(failed, success);
-    }
 }
