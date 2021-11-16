@@ -105,6 +105,8 @@ type DataJobDeployment {
     lastExecutionStatus: DataJobExecutionStatus
     lastExecutionTime: String
     lastExecutionDuration: Int
+    successfulDataJobExecutions: Int
+    failedDataJobExecutions: Int
 }
 
 type DataJobConfig {
