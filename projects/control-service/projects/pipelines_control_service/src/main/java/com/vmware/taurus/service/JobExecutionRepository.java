@@ -44,6 +44,6 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
           "WHERE dje.status IN :statuses " +
           "AND dje.dataJob.name IN :dataJobs " +
           "GROUP BY dje.status, dje.dataJob")
-   List<DataJobExecutionStatusCount> countFailedFinishedStatus(@Param("statuses") List<ExecutionStatus> statuses,
-                                                               @Param("dataJobs") List<String> dataJobs);
+   List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(@Param("statuses") List<ExecutionStatus> statuses,
+                                                                   @Param("dataJobs") List<String> dataJobs);
 }

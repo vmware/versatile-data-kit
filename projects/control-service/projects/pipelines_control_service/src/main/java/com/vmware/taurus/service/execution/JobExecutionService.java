@@ -379,13 +379,12 @@ public class JobExecutionService {
 
    /**
     * This method returns a per job name mapping containing statuses
-    * count for a given data job and status list. The method is always
-    * guaranteed to return a Map containing the provided
-    * data jobs names, however the inner map, which contains
-    * the count mappings per ExecutionStatus will only
-    * return a mapping if a status is present. Map::getOrDefault
-    * should be used to prevent null pointer exceptions when
-    * retrieving ExecutionStatus counts.
+    * count for a given data job and status list. The method is
+    * not guaranteed to return a mapping if a data job does not
+    * have executions with a provided status or if one of the provided
+    * ExecutionStatuses is not present in the database, thus it is advisable
+    * to use Map::getOrDefault to prevent null pointer exceptions when
+    * retrieving both mappings.
     *
     * @param dataJobs The data jobs to count statuses of.
     * @param statuses The statuses to count.
@@ -395,14 +394,17 @@ public class JobExecutionService {
                                                                             List<ExecutionStatus> statuses) {
 
       Map<String, Map<ExecutionStatus, Integer>> returnValue = new HashMap<>();
-      var statusCount = jobExecutionRepository.countFailedFinishedStatus(statuses, dataJobs);
-      // Populate jobs
-      for (var dataJob : dataJobs) {
-         returnValue.put(dataJob, new HashMap<>());
-      }
+      var statusCount = jobExecutionRepository.countDataJobExecutionStatuses(statuses, dataJobs);
+
       // Populate count mappings.
       for (var statusesCount : statusCount) {
-         returnValue.get(statusesCount.getJobName()).put(statusesCount.getStatus(), statusesCount.getStatusCount());
+
+         if (!returnValue.containsKey(statusesCount.getJobName())) {
+            returnValue.put(statusesCount.getJobName(), new HashMap<>());
+         }
+
+         returnValue.get(statusesCount.getJobName())
+                    .put(statusesCount.getStatus(), statusesCount.getStatusCount());
       }
 
       return returnValue;

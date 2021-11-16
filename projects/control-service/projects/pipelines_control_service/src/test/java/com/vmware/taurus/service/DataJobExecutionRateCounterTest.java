@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest(classes = ServiceApp.class)
@@ -51,8 +52,10 @@ public class DataJobExecutionRateCounterTest {
     @Test
     public void testSuccessQuery_emptyExecutionsRepo_expectNoSuccess() {
         var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FAILED, ExecutionStatus.FINISHED));
-        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FAILED, 0));
-        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FINISHED, 0));
+        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
+                                                    .getOrDefault(ExecutionStatus.FAILED, 0));
+        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
+                                                    .getOrDefault(ExecutionStatus.FINISHED, 0));
     }
 
     @Test
@@ -60,7 +63,8 @@ public class DataJobExecutionRateCounterTest {
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
                 ExecutionStatus.FAILED, "test-msg", OffsetDateTime.now());
         var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FINISHED));
-        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FINISHED, 0));
+        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
+                                                    .getOrDefault(ExecutionStatus.FINISHED, 0));
     }
 
     @Test
@@ -69,7 +73,8 @@ public class DataJobExecutionRateCounterTest {
                 ExecutionStatus.FINISHED, "test-msg", OffsetDateTime.now());
 
         var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.FAILED));
-        Assertions.assertEquals(0, response.get("test-job").getOrDefault(ExecutionStatus.FAILED, 0));
+        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
+                                                    .getOrDefault(ExecutionStatus.FAILED, 0));
     }
 
     @Test
