@@ -214,14 +214,14 @@ public class JobExecutionService {
     * Updates job execution in database. It does NOT update job execution when the execution status
     * has not changed or if the status is not in the correct order (e.g. from FINISHED to RUNNING).
     */
-   public void updateJobExecution(
+   public Optional<com.vmware.taurus.service.model.DataJobExecution> updateJobExecution(
          final DataJob dataJob,
          final KubernetesService.JobExecution jobExecution,
          ExecutionResult executionResult) {
 
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
-         return;
+         return Optional.empty();
       }
 
       final Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
@@ -244,7 +244,7 @@ public class JobExecutionService {
                "Execution status to be updated {}. New execution status {}",
                dataJobExecutionPersistedOptional.get().getStatus(),
                executionResult.getExecutionStatus());
-         return;
+         return Optional.empty();
       }
 
       final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder =
@@ -273,7 +273,7 @@ public class JobExecutionService {
               .lastDeployedDate(jobExecution.getDeployedDate())
               .lastDeployedBy(jobExecution.getDeployedBy())
               .build();
-      jobExecutionRepository.save(dataJobExecution);
+      return Optional.of(jobExecutionRepository.save(dataJobExecution));
    }
 
    /**

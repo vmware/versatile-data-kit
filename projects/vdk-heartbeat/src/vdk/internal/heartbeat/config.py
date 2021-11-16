@@ -74,6 +74,33 @@ class Config:
             self.get_value("RUN_TEST_TIMEOUT_SECONDS", "1200")
         )
 
+        # Ingestion test configuration
+        # Target identifies where the data should be ingested into.
+        self.INGEST_TARGET = self.get_value(
+            "VDK_HEARTBEAT_INGEST_TARGET",
+            "vdk-heartbeat-datasource",
+        )
+
+        """
+        Indicates the ingestion method to be used. Example:
+                    method="file" -> ingest to file
+                    method="http" -> ingest using HTTP POST requests
+                    method="kafka" -> ingest to kafka endpoint
+        """
+        self.INGEST_METHOD = self.get_value("VDK_HEARTBEAT_INGEST_METHOD", "http")
+
+        # The name of the table, where the data should be ingested into.
+        self.INGEST_DESTINATION_TABLE = self.get_value(
+            "VDK_HEARTBEAT_INGEST_DESTINATION_TABLE",
+            "vdk_heartbeat_ingestion_test",
+        )
+
+        # The time for which the data should be ingested.
+        self.INGEST_TIMEOUT = self.get_value(
+            "VDK_HEARTBEAT_INGEST_TIMEOUT",
+            "300",
+        )
+
         # The Control Service API URL (http://url/data-jobs) without data-jobs suffix
         self.control_api_url = self._get_atleast_one_value(
             "CONTROL_API_URL", "VDK_HEARTBEAT_CONTROL_SERVICE_URL"

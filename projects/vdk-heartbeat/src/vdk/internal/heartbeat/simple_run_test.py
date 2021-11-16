@@ -40,12 +40,12 @@ class SimpleRunTest(HeartbeatTest):
         start_time = time.time()
         caught_exception = None
         while time.time() - start_time < self.config.RUN_TEST_TIMEOUT_SECONDS:
-            log.info(f"Search for job property to set 'now' property.")
+            log.info(f"Search for job property to set 'succeeded' property.")
             try:
                 props = self.__job_controller.get_job_properties()
-                if props and "now" in props:
+                if props and "succeeded" in props:
                     log.info(
-                        f"Data Job has recorded successfully property 'now' = {props['now']}"
+                        f"Data Job has recorded successfully property 'succeeded' = {props['succeeded']}"
                     )
                     return
                 else:
@@ -68,6 +68,6 @@ class SimpleRunTest(HeartbeatTest):
             raise AssertionError(
                 "Simple test failed with timeout. "
                 f"It was waiting for data job {self.config.job_name} to update its job properties "
-                f"with key 'now' and value - current time. But the job did not do it in time. "
+                f"with key 'succeeded'. But the job did not do it in time. "
                 f"Check data job logs for possible errors."
             )

@@ -63,3 +63,62 @@ Versioning follows https://semver.org.
 
 * A release step in Gitlab CI is automatically triggered after merging changes if build/tests are successful.
 * Update major or minor version when necessary only.
+
+## Tests
+### Database ingestion
+The testing job ingests data into a database and reads it from that database to verify the results.
+#### Configuration
+##### Target
+Target identifies where the data should be ingested into.
+
+The value for this parameter depends on the ingest method chosen.
+* For "http" method, it would require an HTTP URL.
+    Example: http://example.com/<some>/<api>/<endpoint>
+* For "file" method, it would require a file name or path.
+```
+export VDK_HEARTBEAT_INGEST_TARGET="datasource"
+```
+##### Method
+Indicates the ingestion method to be used. Example:
+* method="file" -> ingest to file
+* method="http" -> ingest using HTTP POST requests
+* method="kafka" -> ingest to kafka endpoint
+```
+export VDK_HEARTBEAT_INGEST_METHOD="http"
+```
+##### Destination table
+The name of the table, where the data should be ingested into.
+This parameter does not need to be passed, in case the table is
+included in the payload itself.
+```
+export VDK_HEARTBEAT_INGEST_DESTINATION_TABLE="destination_table"
+```
+##### Database type
+```
+export DB_DEFAULT_TYPE="trino"
+```
+##### Database name
+```
+export DATABASE_TEST_DB="memory.default"
+```
+#### Scenarios
+##### Trino ingestion
+VDK_HEARTBEAT_INGEST_METHOD is set to "TRINO" and DB_DEFAULT_TYPE is set to "TRINO"
+and the connection settings for both is the same (same Trino database instance).
+```
+export VDK_HEARTBEAT_INGEST_TARGET="trino-http-datasource"
+export VDK_HEARTBEAT_INGEST_METHOD="TRINO"
+export VDK_HEARTBEAT_INGEST_DESTINATION_TABLE="sample_destination_table"
+export DB_DEFAULT_TYPE="trino"
+export DATABASE_TEST_DB="memory.default"
+```
+##### Trino HTTP ingestion
+VDK_HEARTBEAT_INGEST_METHOD is set to "HTTP" and DB_DEFAULT_TYPE is set to "TRINO"
+and connection settings are set to same Trino instance.
+```
+export VDK_HEARTBEAT_INGEST_TARGET="trino-http-datasource"
+export VDK_HEARTBEAT_INGEST_METHOD="http"
+export VDK_HEARTBEAT_INGEST_DESTINATION_TABLE="sample_destination_table"
+export DB_DEFAULT_TYPE="trino"
+export DATABASE_TEST_DB="memory.default"
+```
