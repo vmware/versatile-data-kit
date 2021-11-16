@@ -5,12 +5,11 @@
 
 package com.vmware.taurus.service;
 
-import com.vmware.taurus.service.model.DataJobExecution;
-import com.vmware.taurus.service.model.DataJobExecutionIdAndEndTime;
-import com.vmware.taurus.service.model.DataJobExecutionStatus;
-import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -36,9 +35,15 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
 
    List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
 
-   List<DataJobExecutionStatus> findByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
-
    List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(String jobName, List<ExecutionStatus> statuses);
 
    List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(List<ExecutionStatus> statuses, OffsetDateTime startTime);
+
+   @Query("SELECT dje.status AS status, dje.dataJob.name AS name, count(dje.status) AS count " +
+          "FROM DataJobExecution dje " +
+          "WHERE dje.status IN :statuses " +
+          "AND dje.dataJob.name IN :dataJobs " +
+          "GROUP BY dje.status, dje.dataJob")
+   List<DataJobExecutionCountFailFinishedStatus> countFailedFinishedStatus(@Param("statuses") List<ExecutionStatus> statuses,
+                                                                            @Param("dataJobs") List<String> dataJobs);
 }

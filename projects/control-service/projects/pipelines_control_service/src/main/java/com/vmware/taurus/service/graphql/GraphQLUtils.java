@@ -56,28 +56,26 @@ public class GraphQLUtils {
      * all data job executions for a given data job and
      * returns an immutable pair of fail and success counts.
      *
-     * @param dataJobName the data job name.
+     * @param dataJobName            the data job name.
      * @param jobExecutionRepository the repository to query.
      * @return ImmutablePair<Integer, Integer>, the left element is the Fail count, right Finished.
      */
     public static ImmutablePair<Integer, Integer> countFailedAndFinishedExecutions(String dataJobName,
-                                                                                     JobExecutionRepository jobExecutionRepository) {
+                                                                                   JobExecutionRepository jobExecutionRepository) {
 
         var acceptedStatuses = List.of(ExecutionStatus.FAILED, ExecutionStatus.FINISHED);
-        var executions = jobExecutionRepository
-                .findByDataJobNameAndStatusIn(dataJobName, acceptedStatuses);
+        var statusCount = jobExecutionRepository.countFailedFinishedStatus(acceptedStatuses, List.of(dataJobName));
 
         int failed = 0;
         int success = 0;
 
-        for (var status : executions) {
+        for (var status : statusCount) {
             if (status.getStatus().equals(ExecutionStatus.FAILED)) {
-                failed++;
+                failed = status.getCount();
             } else if (status.getStatus().equals(ExecutionStatus.FINISHED)) {
-                success++;
+                success = status.getCount();
             }
         }
-
         return ImmutablePair.of(failed, success);
     }
 }

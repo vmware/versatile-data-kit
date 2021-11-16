@@ -98,5 +98,4 @@ public class DataJobExecutionRateCounterTest {
         var response = GraphQLUtils.countFailedAndFinishedExecutions("test-job", jobExecutionRepository);
         Assertions.assertEquals(2, response.getLeft());
     }
-
 }

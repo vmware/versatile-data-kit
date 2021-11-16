@@ -5,6 +5,8 @@
 
 package com.vmware.taurus.service.model;
 
-public interface DataJobExecutionStatus {
+public interface DataJobExecutionCountFailFinishedStatus {
     ExecutionStatus getStatus();
+    int getCount();
+    String getName();
 }
