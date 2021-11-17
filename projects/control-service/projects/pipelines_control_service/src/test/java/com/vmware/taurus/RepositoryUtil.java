@@ -11,7 +11,6 @@ import com.vmware.taurus.service.model.*;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.OffsetDateTime;
-import java.util.Random;
 
 public final class RepositoryUtil {
 
@@ -40,19 +39,10 @@ public final class RepositoryUtil {
          String executionId,
          DataJob dataJob,
          ExecutionStatus executionStatus,
-         OffsetDateTime startTime) {
+         OffsetDateTime startTime,
+         OffsetDateTime endTime) {
 
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message", startTime);
-   }
-
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus,
-         String message) {
-
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, message, OffsetDateTime.now());
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message", startTime, endTime);
    }
 
    public static DataJobExecution createDataJobExecution(
@@ -63,10 +53,43 @@ public final class RepositoryUtil {
          String message,
          OffsetDateTime startTime) {
 
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, message, startTime, OffsetDateTime.now());
+   }
+
+   public static DataJobExecution createDataJobExecution(
+         JobExecutionRepository jobExecutionRepository,
+         String executionId,
+         DataJob dataJob,
+         ExecutionStatus executionStatus,
+         OffsetDateTime startTime) {
+
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message", startTime, OffsetDateTime.now());
+   }
+
+   public static DataJobExecution createDataJobExecution(
+         JobExecutionRepository jobExecutionRepository,
+         String executionId,
+         DataJob dataJob,
+         ExecutionStatus executionStatus,
+         String message) {
+
+      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, message, OffsetDateTime.now(), OffsetDateTime.now());
+   }
+
+   public static DataJobExecution createDataJobExecution(
+         JobExecutionRepository jobExecutionRepository,
+         String executionId,
+         DataJob dataJob,
+         ExecutionStatus executionStatus,
+         String message,
+         OffsetDateTime startTime,
+         OffsetDateTime endTime) {
+
       var expectedJobExecution = DataJobExecution.builder()
             .id(executionId)
             .dataJob(dataJob)
             .startTime(startTime)
+            .endTime(endTime)
             .type(ExecutionType.MANUAL)
             .status(executionStatus)
             .resourcesCpuRequest(1F)
