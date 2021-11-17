@@ -121,8 +121,8 @@ def test_run_managed_connection_and_verify_query_length():
 
     cli_assert_equal(1, result)
     assert (
-        "Database operation has exceeded the maximum limit of 10000 characters."
-        == result.exception.args[0]
+            "Database operation has exceeded the maximum limit of 10000 characters."
+            == result.exception.args[0]
     )
 
 
