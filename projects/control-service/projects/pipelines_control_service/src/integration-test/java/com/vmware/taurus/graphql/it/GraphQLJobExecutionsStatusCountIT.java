@@ -84,8 +84,8 @@ public class GraphQLJobExecutionsStatusCountIT {
                 "    content {\n" +
                 "      jobName\n" +
                 "      deployments {\n" +
-                "successfulDataJobExecutions\n " +
-                "failedDataJobExecutions\n " +
+                "successfulExecutions\n " +
+                "failedExecutions\n " +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -103,8 +103,8 @@ public class GraphQLJobExecutionsStatusCountIT {
         mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
                 .andExpect(status().is(200))
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.data.content[0].deployments[0].successfulDataJobExecutions").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.content[0].deployments[0].failedDataJobExecutions").value(IsNull.nullValue()));
+                .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(IsNull.nullValue()))
+                .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(IsNull.nullValue()));
 
     }
 
