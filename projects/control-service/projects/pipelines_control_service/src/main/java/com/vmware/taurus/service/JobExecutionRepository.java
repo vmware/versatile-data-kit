@@ -5,11 +5,12 @@
 
 package com.vmware.taurus.service;
 
-import com.vmware.taurus.service.model.DataJobExecution;
-import com.vmware.taurus.service.model.DataJobExecutionIdAndEndTime;
-import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.List;
  * <p>
  * JobExecutionRepositoryIT validates some aspects of the behavior
  */
-public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String> {
+public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
 
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
 
@@ -38,4 +39,12 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
    List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(String jobName, List<ExecutionStatus> statuses);
 
    List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(List<ExecutionStatus> statuses, OffsetDateTime startTime);
+
+   @Query("SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount " +
+          "FROM DataJobExecution dje " +
+          "WHERE dje.status IN :statuses " +
+          "AND dje.dataJob.name IN :dataJobs " +
+          "GROUP BY dje.status, dje.dataJob")
+   List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(@Param("statuses") List<ExecutionStatus> statuses,
+                                                                   @Param("dataJobs") List<String> dataJobs);
 }
