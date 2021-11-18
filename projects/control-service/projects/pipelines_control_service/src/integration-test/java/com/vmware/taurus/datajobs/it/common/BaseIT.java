@@ -7,10 +7,15 @@ package com.vmware.taurus.datajobs.it.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vmware.taurus.controlplane.model.data.*;
+import com.vmware.taurus.controlplane.model.data.DataJobConfig;
+import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
+import com.vmware.taurus.controlplane.model.data.DataJobMode;
+import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.ApiException;
 import io.netty.handler.codec.http.HttpMethod;
@@ -20,7 +25,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
@@ -35,7 +39,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.security.kerberos.test.KerberosSecurityTestcase;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -44,6 +47,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.function.Predicate;
 
 import static org.mockserver.matchers.Times.exactly;
@@ -362,6 +366,20 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
          @Override
          public void describeTo(Description description) {
             description.appendText("failed to match predicate");
+         }
+      };
+   }
+
+   protected Matcher<String> isDate(OffsetDateTime value) {
+      return new BaseMatcher<>() {
+         @Override
+         public boolean matches(Object actual) {
+            return value.isEqual(OffsetDateTime.parse((String) actual));
+         }
+
+         @Override
+         public void describeTo(Description description) {
+            description.appendText("failed to match date");
          }
       };
    }
