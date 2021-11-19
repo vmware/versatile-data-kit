@@ -10,7 +10,7 @@ image: "python:3.9"
 vdk-heartbeat-test:
   before_script:
     - cd projects/vdk-heartbeat
-  image: "python:3.9"
+  image: "python:3.10"
   stage: build
   script:
     - ./cicd/build.sh
