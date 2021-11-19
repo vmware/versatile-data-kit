@@ -19,6 +19,8 @@
 
 # Overview
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fac902e4672543b697da5311b565113e)](https://app.codacy.com/gh/vmware/versatile-data-kit?utm_source=github.com&utm_medium=referral&utm_content=vmware/versatile-data-kit&utm_campaign=Badge_Grade_Settings)
+
 Versatile Data Kit is a data engineering framework that enables Data Engineers to develop, troubleshoot, deploy, run, and manage data processing workloads (referred to as "Data Jobs").
 A "Data Job" enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database.
 
