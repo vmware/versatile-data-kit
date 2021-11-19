@@ -309,28 +309,29 @@ public class ExecutionDataFetcher {
             .totalItems(count).build();
    }
 
-   List<V2DataJob> populateStatusCounts(List<V2DataJob> dataJos, DataFetchingEnvironment dataFetchingEnvironment) {
+   List<V2DataJob> populateStatusCounts(List<V2DataJob> dataJobs, DataFetchingEnvironment dataFetchingEnvironment) {
 
       List<ExecutionStatus> statusesToCount = determineStatusesToCount(dataFetchingEnvironment);
-      List<String> jobsList = dataJos.stream().map(V2DataJob::getJobName).collect(Collectors.toList());
-      Map<String, Map<ExecutionStatus, Integer>> response = jobExecutionService.countExecutionStatuses(jobsList, statusesToCount);
+      List<String> jobsList = dataJobs.stream().map(V2DataJob::getJobName).collect(Collectors.toList());
+      Map<String, Map<ExecutionStatus, Integer>> statusCountMap = jobExecutionService.countExecutionStatuses(jobsList,
+              statusesToCount);
 
-      dataJos.stream()
+      dataJobs.stream()
               .forEach(job -> {
                  if (job.getDeployments() != null) {
                     job.getDeployments()
                             .stream()
                             .findFirst()
                             .ifPresent(deployment -> {
-                               setStatusCounts(response, job, dataFetchingEnvironment, deployment);
+                               setStatusCounts(statusCountMap, job, dataFetchingEnvironment, deployment);
                             });
                  }
               });
-      return dataJos;
+      return dataJobs;
    }
 
    private void setStatusCounts(Map<String, Map<ExecutionStatus, Integer>> response, V2DataJob job,
-                              DataFetchingEnvironment dataFetchingEnvironment, V2DataJobDeployment v2DataJobDeployment) {
+                                DataFetchingEnvironment dataFetchingEnvironment, V2DataJobDeployment v2DataJobDeployment) {
 
       DataFetchingFieldSelectionSet selectionSet = dataFetchingEnvironment.getSelectionSet();
       Map<ExecutionStatus, Integer> statusCountsPerJob = response.getOrDefault(job.getJobName(), Map.of());
@@ -338,7 +339,6 @@ public class ExecutionDataFetcher {
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())) {
          v2DataJobDeployment.setFailedExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.FAILED, 0));
       }
-
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
          v2DataJobDeployment.setSuccessfulExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.FINISHED, 0));
       }
@@ -347,13 +347,14 @@ public class ExecutionDataFetcher {
    private List<ExecutionStatus> determineStatusesToCount(DataFetchingEnvironment dataFetchingEnvironment) {
       DataFetchingFieldSelectionSet selectionSet = dataFetchingEnvironment.getSelectionSet();
       List<ExecutionStatus> statusesToCount = new ArrayList<>();
+
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())) {
          statusesToCount.add(ExecutionStatus.FAILED);
       }
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
          statusesToCount.add(ExecutionStatus.FINISHED);
       }
+
       return statusesToCount;
    }
-
 }
