@@ -207,9 +207,12 @@ public class DataJobMonitor {
         // Do not update the status when either:
         //   * the status is SKIPPED
         //   * the status and executionId have not changed
+        //   * the executionId has not changed and the old status is final (CANCELLED, FAILED, FINISHED, SKIPPED)
         if (terminationStatus == ExecutionTerminationStatus.SKIPPED ||
                 dataJob.getLatestJobTerminationStatus() == terminationStatus &&
-                        StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
+                        StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId) ||
+                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId) &&
+                        dataJob.getLatestJobTerminationStatus() != ExecutionTerminationStatus.NONE) {
             log.debug("The termination status of data job {} will not be updated. Old status is: {}, New status is: {}; Old execution id: {}, New execution id: {}",
                     dataJob.getName(), dataJob.getLatestJobTerminationStatus(), terminationStatus, dataJob.getLatestJobExecutionId(), executionId);
             return false;
