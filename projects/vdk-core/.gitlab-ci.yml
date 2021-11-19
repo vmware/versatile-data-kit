@@ -18,9 +18,6 @@ image: "python:3.9"
   stage: build
   before_script:
     - cd projects/vdk-core/
-    - pip install -U pip
-    - pip install ./plugins/vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
-    - pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
   script:
     - ./cicd/build.sh
   retry: !reference [.retry, retry_options]

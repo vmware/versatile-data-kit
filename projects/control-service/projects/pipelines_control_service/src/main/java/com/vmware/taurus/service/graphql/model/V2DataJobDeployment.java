@@ -28,4 +28,6 @@ public class V2DataJobDeployment {
    private DataJobExecution.StatusEnum lastExecutionStatus;
    private OffsetDateTime lastExecutionTime;
    private Integer lastExecutionDuration;
+   private Integer successfulExecutions;
+   private Integer failedExecutions;
 }
