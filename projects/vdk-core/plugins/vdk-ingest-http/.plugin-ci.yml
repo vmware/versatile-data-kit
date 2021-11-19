@@ -22,6 +22,9 @@ build-py39-vdk-ingest-http:
   extends: .build-vdk-ingest-http
   image: "python:3.9"
 
+build-py310-vdk-ingest-http:
+  extends: .build-vdk-ingest-http
+  image: "python:3.10"
 
 release-vdk-ingest-http:
   variables:

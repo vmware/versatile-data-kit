@@ -11,6 +11,8 @@
   stage: build
   before_script:
     - cd projects/vdk-core/
+    - pip install -U pip
+    - pip install ./plugins/vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
   script:
     - echo "Build plugin $PLUGIN_NAME"
     - cd plugins/$PLUGIN_NAME || exit 1

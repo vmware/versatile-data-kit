@@ -28,6 +28,10 @@ build-py39-vdk-impala:
   extends: .build-vdk-impala
   image: "python:3.9"
 
+build-py310-vdk-impala:
+  extends: .build-vdk-impala
+  image: "python:3.10"
+
 
 release-vdk-impala:
   variables:
