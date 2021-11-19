@@ -71,7 +71,7 @@ public class JobFieldStrategyByLastExecutionTime extends FieldStrategy<V2DataJob
       String[] parsedStr = filter.getPattern().split(DATE_SEPARATOR);
       if (parsedStr.length != 2) {
          throw GraphqlErrorException.newErrorException()
-               .message(getStrategyName().getPath() + " does not contains valid date range.")
+               .message(getStrategyName().getPath() + " does not contain valid date range.")
                .build();
       }
       try {
@@ -89,7 +89,7 @@ public class JobFieldStrategyByLastExecutionTime extends FieldStrategy<V2DataJob
          return Pair.of(startDate, endDate);
       } catch (NumberFormatException | DateTimeException ex) {
          throw GraphqlErrorException.newErrorException()
-               .message(getStrategyName().getPath() + " does not contains valid dates." +
+               .message(getStrategyName().getPath() + " does not contain valid dates." +
                      "Correct format is \"1619460302-1619460302\"")
                .build();
       }
