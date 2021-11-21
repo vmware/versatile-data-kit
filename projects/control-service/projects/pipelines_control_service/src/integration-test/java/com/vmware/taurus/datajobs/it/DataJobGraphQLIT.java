@@ -25,6 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.NEW_TEST_TEAM_NAME;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_1;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_2;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_3;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_4;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_5;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_6;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
