@@ -14,6 +14,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.NEW_TEST_TEAM_NAME;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_1;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_2;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_3;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_4;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_5;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_6;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;

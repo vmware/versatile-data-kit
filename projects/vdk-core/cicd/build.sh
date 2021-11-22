@@ -20,6 +20,9 @@ cd ..
 
 export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
 
+echo "Update pip to newest version"
+pip install -U pip
+
 echo "install dependencies from requirements.txt (used for development and testing)"
 pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 
