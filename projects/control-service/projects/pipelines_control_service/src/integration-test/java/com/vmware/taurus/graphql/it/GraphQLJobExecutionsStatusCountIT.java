@@ -12,17 +12,12 @@ import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
-import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
-import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,7 +64,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
         jobExecutionRepository.save(execution);
     }
 
-    private String getQuery(String sortOrder) {
+    private String getQuery() {
         return "{\n" +
                 "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"jobName\", sort: ASC}]) {\n" +
                 "    content {\n" +
@@ -92,7 +86,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
         addJobExecution(expectedEndTimeLarger, "testId", ExecutionStatus.FINISHED);
         addJobExecution(expectedEndTimeSmaller, "testId2", ExecutionStatus.FINISHED);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery()))
                 .andExpect(status().is(200))
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
@@ -102,7 +96,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
 
     @Test
     public void testExecutionStatusCount_expectNoCounts() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery()))
                 .andExpect(status().is(200))
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(0))
@@ -119,7 +113,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
         addJobExecution(expectedEndTimeLarger, "testI3", ExecutionStatus.FAILED);
         addJobExecution(expectedEndTimeSmaller, "testId4", ExecutionStatus.FAILED);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery()))
                 .andExpect(status().is(200))
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
@@ -134,7 +128,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
         addJobExecution(expectedEndTimeLarger, "testId", ExecutionStatus.FINISHED);
         addJobExecution(expectedEndTimeLarger, "testI3", ExecutionStatus.FAILED);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+        mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery()))
                 .andExpect(status().is(200))
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(1))
