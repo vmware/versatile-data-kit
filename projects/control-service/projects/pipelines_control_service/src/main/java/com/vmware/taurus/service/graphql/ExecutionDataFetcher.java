@@ -10,27 +10,28 @@
 
 package com.vmware.taurus.service.graphql;
 
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.AVAILABLE_PROPERTIES;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.DIRECTION_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.PROPERTY_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_SIZE_FIELD;
-
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.datajobs.ToModelApiConverter;
+import com.vmware.taurus.service.JobExecutionFilterSpec;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.execution.JobExecutionService;
+import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
+import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
+import com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables;
+import com.vmware.taurus.service.graphql.model.DataJobPage;
+import com.vmware.taurus.service.graphql.model.ExecutionQueryVariables;
+import com.vmware.taurus.service.graphql.model.Filter;
+import com.vmware.taurus.service.graphql.model.V2DataJob;
+import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
+import com.vmware.taurus.service.model.DataJobExecution;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.SelectedField;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.data.domain.Page;
@@ -41,19 +42,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.service.JobExecutionFilterSpec;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
-import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
-import com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables;
-import com.vmware.taurus.service.graphql.model.ExecutionQueryVariables;
-import com.vmware.taurus.service.graphql.model.Filter;
-import com.vmware.taurus.service.graphql.model.DataJobPage;
-import com.vmware.taurus.service.graphql.model.V2DataJob;
-import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
-import com.vmware.taurus.service.model.DataJobExecution;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.AVAILABLE_PROPERTIES;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.DIRECTION_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.PROPERTY_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_SIZE_FIELD;
 
 /**
  * Data fetcher class for Data Job Executions
@@ -63,13 +67,12 @@ import com.vmware.taurus.service.model.DataJobExecution;
  * information from graphql query to specify how many executions, are they sorted by specific field, etc.
  */
 @Component
+@RequiredArgsConstructor
 public class ExecutionDataFetcher {
 
    private final JobExecutionRepository jobsExecutionRepository;
+   private final JobExecutionService jobExecutionService;
 
-   public ExecutionDataFetcher(JobExecutionRepository jobsExecutionRepository) {
-      this.jobsExecutionRepository = jobsExecutionRepository;
-   }
 
    /**
     * Currently, it does not provide filtering by specifying fields due
@@ -304,5 +307,54 @@ public class ExecutionDataFetcher {
             .content(new ArrayList<>(pageList))
             .totalPages(pageSize)
             .totalItems(count).build();
+   }
+
+   List<V2DataJob> populateStatusCounts(List<V2DataJob> dataJobs, DataFetchingEnvironment dataFetchingEnvironment) {
+
+      List<ExecutionStatus> statusesToCount = determineStatusesToCount(dataFetchingEnvironment);
+      List<String> jobsList = dataJobs.stream().map(V2DataJob::getJobName).collect(Collectors.toList());
+      Map<String, Map<ExecutionStatus, Integer>> statusCountMap = jobExecutionService.countExecutionStatuses(jobsList,
+              statusesToCount);
+
+      dataJobs.stream()
+              .forEach(job -> {
+                 if (job.getDeployments() != null) {
+                    job.getDeployments()
+                            .stream()
+                            .findFirst()
+                            .ifPresent(deployment -> {
+                               setStatusCounts(statusCountMap, job, dataFetchingEnvironment, deployment);
+                            });
+                 }
+              });
+      return dataJobs;
+   }
+
+   private void setStatusCounts(Map<String, Map<ExecutionStatus, Integer>> response, V2DataJob job,
+                                DataFetchingEnvironment dataFetchingEnvironment, V2DataJobDeployment v2DataJobDeployment) {
+
+      DataFetchingFieldSelectionSet selectionSet = dataFetchingEnvironment.getSelectionSet();
+      Map<ExecutionStatus, Integer> statusCountsPerJob = response.getOrDefault(job.getJobName(), Map.of());
+
+      if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())) {
+         v2DataJobDeployment.setFailedExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.FAILED, 0));
+      }
+      if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
+         v2DataJobDeployment.setSuccessfulExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.FINISHED, 0));
+      }
+   }
+
+   private List<ExecutionStatus> determineStatusesToCount(DataFetchingEnvironment dataFetchingEnvironment) {
+      DataFetchingFieldSelectionSet selectionSet = dataFetchingEnvironment.getSelectionSet();
+      List<ExecutionStatus> statusesToCount = new ArrayList<>();
+
+      if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())) {
+         statusesToCount.add(ExecutionStatus.FAILED);
+      }
+      if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
+         statusesToCount.add(ExecutionStatus.FINISHED);
+      }
+
+      return statusesToCount;
    }
 }
