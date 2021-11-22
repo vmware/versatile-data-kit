@@ -59,7 +59,7 @@ public class JobImageBuilderTest {
       ReflectionTestUtils.setField(jobImageBuilder, "dockerRepositoryUrl", "test-docker-repository");
       ReflectionTestUtils.setField(jobImageBuilder, "registryType", "ecr");
       ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", "python:3.7-slim");
-      ReflectionTestUtils.setField(jobImageBuilder, "extraArgs", "");
+      ReflectionTestUtils.setField(jobImageBuilder, "builderJobExtraArgs", "");
 
       JobConfig jobConfig = new JobConfig();
       jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
@@ -88,7 +88,7 @@ public class JobImageBuilderTest {
 
       verify(kubernetesService).createJob(
             eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(false), any(), any(),
-            any(), any(), eq(JobImageBuilder.BUILDER_IMAGE_PULL_POLICY), any(), any());
+            any(), any(), any(), any(), any());
 
       verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
       Assertions.assertTrue(result);
@@ -114,7 +114,7 @@ public class JobImageBuilderTest {
       verify(kubernetesService, times(2)).deleteJob(TEST_BUILDER_IMAGE_NAME);
       verify(kubernetesService).createJob(
             eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(false), any(), any(),
-            any(), any(), eq(JobImageBuilder.BUILDER_IMAGE_PULL_POLICY), any(), any());
+            any(), any(), any(), any(), any());
       Assertions.assertTrue(result);
    }
 
@@ -156,7 +156,7 @@ public class JobImageBuilderTest {
 
       verify(kubernetesService).createJob(
             eq(TEST_BUILDER_JOB_NAME), eq(TEST_BUILDER_IMAGE_NAME), eq(false), any(), any(),
-            any(), any(), eq(JobImageBuilder.BUILDER_IMAGE_PULL_POLICY), any(), any());
+            any(), any(), any(), any(), any());
 
 
       // verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME); // not called in case of an error
