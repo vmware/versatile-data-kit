@@ -57,25 +57,6 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
     private DataJob jobA;
     private final String uri = "/data-jobs/for-team/supercollider/jobs";
 
-    @BeforeEach
-    private void setUpJobsAndDeployments() {
-        var depl = new JobDeploymentStatus();
-        depl.setDataJobName("jobA");
-        depl.setEnabled(true);
-        depl.setLastDeployedBy("Me");
-        depl.setLastDeployedDate("today");
-        depl.setMode("testing");
-        depl.setGitCommitSha("1234asdasd");
-        depl.setImageName("imgname");
-        depl.setCronJobName("jobA-cron");
-        Mockito.when(deploymentService.readDeployments()).thenReturn(List.of(depl));
-        JobConfig config = new JobConfig();
-        config.setSchedule("schedule");
-        jobA = new DataJob("jobA", config);
-        jobA.setLatestJobDeploymentStatus(DeploymentStatus.SUCCESS);
-        jobsRepository.save(jobA);
-    }
-
     @AfterEach
     public void cleanup() {
         jobsRepository.deleteAll();
@@ -149,7 +130,6 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
     @Test
     public void testExecutionStatusCount_expectOneSuccessfulOneFailed() throws Exception {
         var expectedEndTimeLarger = OffsetDateTime.now();
-        var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
         addJobExecution(expectedEndTimeLarger, "testId", ExecutionStatus.FINISHED);
         addJobExecution(expectedEndTimeLarger, "testI3", ExecutionStatus.FAILED);
