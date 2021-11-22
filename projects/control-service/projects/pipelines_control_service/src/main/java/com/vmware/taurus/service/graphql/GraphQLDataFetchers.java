@@ -9,9 +9,9 @@ import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.graphql.model.DataJobQueryVariables;
 import com.vmware.taurus.service.graphql.model.Filter;
-import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
@@ -86,6 +86,11 @@ public class GraphQLDataFetchers {
    private List<V2DataJob> populateDataJobsPostPagination(List<V2DataJob> allDataJob, DataFetchingEnvironment dataFetchingEnvironment) {
       if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())) {
          executionDataFetcher.populateExecutions(allDataJob, dataFetchingEnvironment);
+      }
+
+      if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())
+              || dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
+         executionDataFetcher.populateStatusCounts(allDataJob, dataFetchingEnvironment);
       }
 
       return allDataJob;

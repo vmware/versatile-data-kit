@@ -23,6 +23,8 @@ public enum JobFieldStrategyBy {
    DEPLOYMENT_LAST_EXECUTION_STATUS("deployments.lastExecutionStatus", "content/deployments/lastExecutionStatus"),
    DEPLOYMENT_LAST_EXECUTION_TIME("deployments.lastExecutionTime", "content/deployments/lastExecutionTime"),
    DEPLOYMENT_LAST_EXECUTION_DURATION("deployments.lastExecutionDuration", "content/deployments/lastExecutionDuration"),
+   DEPLOYMENT_FAILED_EXECUTIONS("deployments.failedExecutions", "content/deployments/failedExecutions"),
+   DEPLOYMENT_SUCCESSFUL_EXECUTIONS("deployments.successfulExecutions", "content/deployments/successfulExecutions"),
    TEAM("config.team", "content/config/team"),
    DESCRIPTION("config.description", "content/config/description"),
    SOURCE_URL("config.sourceUrl", "content/config/sourceUrl"),
