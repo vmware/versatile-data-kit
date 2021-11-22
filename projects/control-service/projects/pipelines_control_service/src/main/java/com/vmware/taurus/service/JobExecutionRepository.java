@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data / JPA Repository for DataJobExecution objects and their members
@@ -31,6 +32,10 @@ import java.util.List;
 public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
 
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
+
+   Optional<DataJobExecution> findFirstByDataJobNameOrderByStartTimeDesc(String jobName);
+
+   Optional<DataJobExecution> findFirstByDataJobNameAndStatusInOrderByEndTimeDesc(String jobName, List<ExecutionStatus> statuses);
 
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
 

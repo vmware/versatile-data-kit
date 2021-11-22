@@ -72,6 +72,36 @@ public class DataJobGraphQLIT extends BaseIT {
                "  }" +
                "}";
 
+   private static final String DEFAULT_QUERY_WITH_DEPLOYMENTS =
+         "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
+               "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
+               "    content {" +
+               "      jobName" +
+               "      deployments {" +
+               "        id" +
+               "        enabled" +
+               "        lastExecutionStatus" +
+               "        lastExecutionTime" +
+               "        lastExecutionDuration" +
+               "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
+               "          id" +
+               "          status" +
+               "        }" +
+               "      }" +
+               "      config {" +
+               "        team" +
+               "        description" +
+               "        schedule {" +
+               "          scheduleCron" +
+               "          nextRunEpochSeconds" +
+               "        }" +
+               "      }" +
+               "    }" +
+               "    totalPages" +
+               "    totalItems" +
+               "  }" +
+               "}";
+
    @Test
    public void testPagination() throws Exception {
       createDummyJobs();
@@ -229,35 +259,7 @@ public class DataJobGraphQLIT extends BaseIT {
       // Test requesting of fields that are computed
       mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
             .with(user("user"))
-            .param("query",
-                  "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
-                  "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
-                  "    content {" +
-                  "      jobName" +
-                  "      deployments {" +
-                  "        id" +
-                  "        enabled" +
-                  "        lastExecutionStatus" +
-                  "        lastExecutionTime" +
-                  "        lastExecutionDuration" +
-                  "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
-                  "          id" +
-                  "          status" +
-                  "        }" +
-                  "      }" +
-                  "      config {" +
-                  "        team" +
-                  "        description" +
-                  "        schedule {" +
-                  "          scheduleCron" +
-                  "          nextRunEpochSeconds" +
-                  "        }" +
-                  "      }" +
-                  "    }" +
-                  "    totalPages" +
-                  "    totalItems" +
-                  "  }" +
-                  "}")
+            .param("query", DEFAULT_QUERY_WITH_DEPLOYMENTS)
             .param("variables", "{" +
                   "\"search\": \"" + TEST_JOB_1 + "\"," +
                   "\"pageNumber\": 1," +
@@ -293,52 +295,24 @@ public class DataJobGraphQLIT extends BaseIT {
       createJobWithDeployment(TEST_JOB_4, NEW_TEST_TEAM_NAME,
               null, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 1000);
 
-      String resultAsString = mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                      .with(user("user"))
-                      .param("query",
-                              "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
-                                      "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
-                                      "    content {" +
-                                      "      jobName" +
-                                      "      deployments {" +
-                                      "        id" +
-                                      "        enabled" +
-                                      "        lastExecutionStatus" +
-                                      "        lastExecutionTime" +
-                                      "        lastExecutionDuration" +
-                                      "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
-                                      "          id" +
-                                      "          status" +
-                                      "        }" +
-                                      "      }" +
-                                      "      config {" +
-                                      "        team" +
-                                      "        description" +
-                                      "        schedule {" +
-                                      "          scheduleCron" +
-                                      "          nextRunEpochSeconds" +
-                                      "        }" +
-                                      "      }" +
-                                      "    }" +
-                                      "    totalPages" +
-                                      "    totalItems" +
-                                      "  }" +
-                                      "}")
-                      .param("variables", "{" +
-                              "\"pageNumber\":1," +
-                              "\"pageSize\":25," +
-                              "\"filter\":[" +
-                              "  {" +
-                              "     \"property\":\"deployments.lastExecution.status\"," +
-                              "     \"pattern\":\"finished\"," +
-                              "     \"sort\":null" +
-                              "  }]," +
-                              "  \"search\":\"\"" +
-                              "}")
-                      .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$.data.content", hasSize(2))) // There are 2 jobs with status "finished"
-              .andReturn().getResponse().getContentAsString();
+      mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+             .with(user("user"))
+             .param("query", DEFAULT_QUERY_WITH_DEPLOYMENTS)
+             .param("variables", "{" +
+                     "\"pageNumber\":1," +
+                     "\"pageSize\":25," +
+                     "\"filter\":[" +
+                     "  {" +
+                     "     \"property\":\"deployments.lastExecutionStatus\"," +
+                     "     \"pattern\":\"finished\"," +
+                     "     \"sort\":null" +
+                     "  }]," +
+                     "  \"search\":\"\"" +
+                     "}")
+             .contentType(MediaType.APPLICATION_JSON))
+     .andExpect(status().isOk())
+     .andExpect(jsonPath("$.data.content", hasSize(2))) // There are 2 jobs with status "finished"
+     .andReturn().getResponse().getContentAsString();
 
       deleteJobWithDeployment(TEST_JOB_1, TEST_TEAM_NAME);
       deleteJobWithDeployment(TEST_JOB_2, TEST_TEAM_NAME);
@@ -359,41 +333,13 @@ public class DataJobGraphQLIT extends BaseIT {
 
       String resultAsString = mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
                       .with(user("user"))
-                      .param("query",
-                              "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
-                                      "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
-                                      "    content {" +
-                                      "      jobName" +
-                                      "      deployments {" +
-                                      "        id" +
-                                      "        enabled" +
-                                      "        lastExecutionStatus" +
-                                      "        lastExecutionTime" +
-                                      "        lastExecutionDuration" +
-                                      "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
-                                      "          id" +
-                                      "          status" +
-                                      "        }" +
-                                      "      }" +
-                                      "      config {" +
-                                      "        team" +
-                                      "        description" +
-                                      "        schedule {" +
-                                      "          scheduleCron" +
-                                      "          nextRunEpochSeconds" +
-                                      "        }" +
-                                      "      }" +
-                                      "    }" +
-                                      "    totalPages" +
-                                      "    totalItems" +
-                                      "  }" +
-                                      "}")
+                      .param("query", DEFAULT_QUERY_WITH_DEPLOYMENTS)
                       .param("variables", "{" +
                               "\"pageNumber\":1," +
                               "\"pageSize\":25," +
                               "\"filter\":[" +
                               "  {" +
-                              "     \"property\":\"deployments.lastExecution.time\"," +
+                              "     \"property\":\"deployments.lastExecutionTime\"," +
                               "     \"pattern\":null," +
                               "     \"sort\":\"ASC\"" +
                               "  }]," +
@@ -437,41 +383,13 @@ public class DataJobGraphQLIT extends BaseIT {
 
       String resultAsString = mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
                       .with(user("user"))
-                      .param("query",
-                              "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
-                                      "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
-                                      "    content {" +
-                                      "      jobName" +
-                                      "      deployments {" +
-                                      "        id" +
-                                      "        enabled" +
-                                      "        lastExecutionStatus" +
-                                      "        lastExecutionTime" +
-                                      "        lastExecutionDuration" +
-                                      "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
-                                      "          id" +
-                                      "          status" +
-                                      "        }" +
-                                      "      }" +
-                                      "      config {" +
-                                      "        team" +
-                                      "        description" +
-                                      "        schedule {" +
-                                      "          scheduleCron" +
-                                      "          nextRunEpochSeconds" +
-                                      "        }" +
-                                      "      }" +
-                                      "    }" +
-                                      "    totalPages" +
-                                      "    totalItems" +
-                                      "  }" +
-                                      "}")
+                      .param("query", DEFAULT_QUERY_WITH_DEPLOYMENTS)
                       .param("variables", "{" +
                               "\"pageNumber\":1," +
                               "\"pageSize\":25," +
                               "\"filter\":[" +
                               "  {" +
-                              "     \"property\":\"deployments.lastExecution.duration\"," +
+                              "     \"property\":\"deployments.lastExecutionDuration\"," +
                               "     \"pattern\":null," +
                               "     \"sort\":\"DESC\"" +
                               "  }]," +
@@ -565,7 +483,7 @@ public class DataJobGraphQLIT extends BaseIT {
       deploymentStatuses.add(deploymentStatus);
       when(deploymentService.readDeployments()).thenReturn(deploymentStatuses);
 
-      var dataJob = jobsRepository.findById(jobName). get();
+      var dataJob = jobsRepository.findById(jobName).get();
       dataJob.setLastExecutionStatus(lastExecutionStatus);
       dataJob.setLastExecutionEndTime(lastExecutionTime);
       dataJob.setLastExecutionDuration(lastExecutionDuration);

@@ -198,8 +198,12 @@ public class DataJobMonitor {
             updateDataJobTerminationStatusGauge(dataJob);
         }
 
-        var updatedExecution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
-        updatedExecution.ifPresent(jobsService::updateLastExecution);
+        // Update the job execution
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        // Update the last execution state with the last completed execution
+        jobExecutionService
+                .getLastCompletedExecution(dataJobName)
+                .ifPresent(jobsService::updateLastExecution);
     }
 
 
