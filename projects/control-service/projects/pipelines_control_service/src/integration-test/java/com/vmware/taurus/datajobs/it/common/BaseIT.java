@@ -5,11 +5,6 @@
 
 package com.vmware.taurus.datajobs.it.common;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-
-import java.time.Instant;
-import java.util.function.Predicate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.controlplane.model.data.DataJobConfig;
@@ -20,7 +15,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.ApiException;
 import org.apache.commons.lang3.StringUtils;
@@ -29,11 +23,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockserver.client.server.MockServerClient;
-import org.mockserver.integration.ClientAndServer;
-import org.mockserver.model.Header;
-import org.mockserver.model.HttpResponse;
-import org.mockserver.model.HttpStatusCode;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,19 +44,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.function.Predicate;
 
-import static org.mockserver.matchers.Times.exactly;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import com.vmware.taurus.controlplane.model.data.DataJobConfig;
-import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
-import com.vmware.taurus.controlplane.model.data.DataJobMode;
-import com.vmware.taurus.controlplane.model.data.DataJobResources;
-import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
-import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
-import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.JobConfig;
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})

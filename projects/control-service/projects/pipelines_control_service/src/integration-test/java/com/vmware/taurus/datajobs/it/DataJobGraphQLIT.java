@@ -54,6 +54,8 @@ public class DataJobGraphQLIT extends BaseIT {
    @MockBean
    private DeploymentService deploymentService;
 
+   private final List<JobDeploymentStatus> deploymentStatuses = new ArrayList<>();
+
    private static final String DEFAULT_QUERY_WITH_VARS =
          "query($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
                "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
@@ -459,8 +461,6 @@ public class DataJobGraphQLIT extends BaseIT {
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isCreated());
    }
-
-   private final List<JobDeploymentStatus> deploymentStatuses = new ArrayList<>();
 
    private DataJob createJobWithDeployment(String jobName,
                                            String teamName,
