@@ -42,6 +42,18 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
                      --docker-password="$CICD_CONTAINER_REGISTRY_USER_PASSWORD" \
                      --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
   kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"}]}'
+
+  if [ -n "$DOCKERHUB_READONLY_USERNAME" ]; then
+    dockerhub_secretname='secret-dockerhub-docker'
+    kubectl create secret docker-registry "$dockerhub_secretname" \
+                         --docker-server="https://index.docker.io/v1/" \
+                         --docker-username="$DOCKERHUB_READONLY_USERNAME" \
+                         --docker-password="$DOCKERHUB_READONLY_PASSWORD" \
+                         --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
+
+    kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
+  fi
+
 fi
 
 # this is the internal hostname of the Control Service.
