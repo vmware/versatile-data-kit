@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 
 import java.util.HashMap;
 
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_NAME;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

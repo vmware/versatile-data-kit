@@ -82,8 +82,9 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'org.springframework.security.kerberos:spring-security-kerberos-test'
     testImplementation versions.'org.awaitility:awaitility'
     testImplementation 'com.github.kirviq:dumbster:1.7.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation versions.'org.junit.jupiter:junit-jupiter-api'
+    testImplementation versions.'org.junit.platform:junit-platform-suite-api'
+    testRuntimeOnly versions.'org.junit.jupiter:junit-jupiter-engine'
 
 
     // transitive dependencies version force
