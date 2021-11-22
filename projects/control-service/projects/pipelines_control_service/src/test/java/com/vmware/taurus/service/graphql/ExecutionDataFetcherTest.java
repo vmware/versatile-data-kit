@@ -7,6 +7,7 @@ package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
@@ -53,10 +54,12 @@ class ExecutionDataFetcherTest {
    private DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
    @Mock
    private SelectedField selectedField;
+   @Mock
+   private JobExecutionService jobExecutionService;
 
    @BeforeEach
    public void init() {
-      executionDataFetcher = new ExecutionDataFetcher(jobExecutionRepository);
+      executionDataFetcher = new ExecutionDataFetcher(jobExecutionRepository, jobExecutionService);
    }
 
    @Test
