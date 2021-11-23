@@ -28,6 +28,9 @@ build-py39-vdk-postgres:
   extends: .build-vdk-postgres
   image: "python:3.9"
 
+build-py310-vdk-postgres:
+  extends: .build-vdk-postgres
+  image: "python:3.10"
 
 release-vdk-postgres:
   variables:

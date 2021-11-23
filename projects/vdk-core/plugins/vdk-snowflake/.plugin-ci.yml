@@ -19,6 +19,10 @@ build-py39-vdk-snowflake:
   extends: .build-vdk-snowflake
   image: "python:3.9"
 
+.build-py310-vdk-snowflake: # TODO: unhide the job(remove the dot) once the snowflake connector has been updated
+  extends: .build-vdk-snowflake
+  image: "python:3.10"
+
 release-vdk-snowflake:
   variables:
     PLUGIN_NAME: vdk-snowflake

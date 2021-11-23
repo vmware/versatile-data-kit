@@ -23,6 +23,9 @@ build-py39-vdk-logging-ltsv:
   extends: .build-vdk-logging-ltsv
   image: "python:3.9"
 
+build-py310-vdk-logging-ltsv:
+  extends: .build-vdk-logging-ltsv
+  image: "python:3.10"
 
 release-vdk-logging-ltsv:
   variables:
