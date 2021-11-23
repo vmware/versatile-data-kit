@@ -92,10 +92,8 @@ class IngestToTrino(IIngesterPlugin):
         :return: a tuple containing the query and list of fields
         """
 
-        fields = [
-            field_tuple[0]
-            for field_tuple in cur.execute(f"SHOW COLUMNS FROM {destination_table}")
-        ]
+        cur.execute(f"SHOW COLUMNS FROM {destination_table}")
+        fields = [field_tuple[0] for field_tuple in cur.fetchall()]
 
         row_to_be_replaced = f"({', '.join('?' for field in fields)})"
 
