@@ -20,6 +20,8 @@ public enum JobFieldStrategyBy {
    DEPLOYMENT("deployments", "content/deployments"),
    DEPLOYMENT_ENABLED("deployments.enabled", "content/deployments/enabled"),
    DEPLOYMENT_EXECUTIONS("deployments.executions", "content/deployments/executions"),
+   DEPLOYMENT_FAILED_EXECUTIONS("deployments.failedExecutions", "content/deployments/failedExecutions"),
+   DEPLOYMENT_SUCCESSFUL_EXECUTIONS("deployments.successfulExecutions", "content/deployments/successfulExecutions"),
    TEAM("config.team", "content/config/team"),
    DESCRIPTION("config.description", "content/config/description"),
    SOURCE_URL("config.sourceUrl", "content/config/sourceUrl"),
