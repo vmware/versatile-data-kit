@@ -5,13 +5,13 @@
 
 package com.vmware.taurus.service.graphql.model;
 
-import java.util.Set;
-
+import com.vmware.taurus.service.model.DataJobExecution_;
+import com.vmware.taurus.service.model.DataJob_;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Sort;
 
-import com.vmware.taurus.service.model.DataJobExecution_;
+import java.util.Set;
 
 @Data
 @Builder
@@ -30,7 +30,8 @@ public class DataJobExecutionOrder {
          DataJobExecution_.LAST_DEPLOYED_BY,
          DataJobExecution_.STARTED_BY,
          DataJobExecution_.STATUS,
-         DataJobExecution_.VDK_VERSION);
+         DataJobExecution_.VDK_VERSION,
+         DataJobExecution_.DATA_JOB + "." + DataJob_.NAME);
 
    public static final String PROPERTY_FIELD = "property";
    public static final String DIRECTION_FIELD = "direction";

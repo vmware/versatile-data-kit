@@ -7,7 +7,12 @@ package com.vmware.taurus;
 
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
-import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DataJobExecution;
+import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.ExecutionType;
+import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.OffsetDateTime;
@@ -15,10 +20,14 @@ import java.time.OffsetDateTime;
 public final class RepositoryUtil {
 
    public static DataJob createDataJob(JobsRepository jobsRepository) {
+      return createDataJob(jobsRepository, "test-job");
+   }
+
+   public static DataJob createDataJob(JobsRepository jobsRepository, String jobName) {
       JobConfig config = new JobConfig();
       config.setSchedule("schedule");
       config.setTeam("test-team");
-      var expectedJob = new DataJob("test-job", config, DeploymentStatus.NONE);
+      var expectedJob = new DataJob(jobName, config, DeploymentStatus.NONE);
       var actualJob = jobsRepository.save(expectedJob);
       Assertions.assertEquals(expectedJob, actualJob);
 

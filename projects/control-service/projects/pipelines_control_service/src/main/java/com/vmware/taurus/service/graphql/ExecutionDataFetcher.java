@@ -246,7 +246,7 @@ public class ExecutionDataFetcher {
 
          builder.statusIn(
                Optional.ofNullable(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
-                     .map(statusInRaw -> ((List<String>)statusInRaw))
+                     .map(statusInRaw -> ((List<String>) statusInRaw))
                      .stream()
                      .flatMap(v1Jobs -> v1Jobs.stream())
                      .filter(Objects::nonNull)
@@ -257,8 +257,11 @@ public class ExecutionDataFetcher {
 
          filter = Optional.of(
                builder
-                     .startTimeGte((OffsetDateTime)filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD))
-                     .endTimeGte((OffsetDateTime)filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD))
+                     .startTimeGte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD))
+                     .endTimeGte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD))
+                     .startTimeLte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD))
+                     .endTimeLte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD))
+                     .jobNameIn((List<String>) filterRaw.get(DataJobExecutionFilter.JOB_NAME_IN_FIELD))
                      .build()
          );
       }
