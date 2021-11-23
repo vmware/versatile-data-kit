@@ -48,6 +48,7 @@ class IngestToGreenplum(IIngesterPlugin):
 
             try:
                 cursor.execute(query, parameters)
+                connection.commit()
                 _log.debug("Payload was ingested.")
             except Exception as e:
                 errors.log_and_rethrow(
