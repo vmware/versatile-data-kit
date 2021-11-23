@@ -21,7 +21,8 @@ import java.util.function.Predicate;
 public class JobFieldStrategyByLastExecutionStatus extends FieldStrategy<V2DataJob> {
 
    private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
-           JobFieldStrategyByLastExecutionStatus::getLastExecutionStatus);
+           JobFieldStrategyByLastExecutionStatus::getLastExecutionStatusAsString,
+           Comparator.nullsLast(Comparator.naturalOrder()));
 
    @Override
    public JobFieldStrategyBy getStrategyName() {
@@ -56,5 +57,13 @@ public class JobFieldStrategyByLastExecutionStatus extends FieldStrategy<V2DataJ
       }
       // TODO support for multiple deployments
       return dataJob.getDeployments().stream().findFirst().orElseThrow().getLastExecutionStatus();
+   }
+
+   private static String getLastExecutionStatusAsString(V2DataJob dataJob) {
+      DataJobExecution.StatusEnum lastExecutionStatus = getLastExecutionStatus(dataJob);
+      if (lastExecutionStatus == null) {
+         return null;
+      }
+      return lastExecutionStatus.getValue();
    }
 }

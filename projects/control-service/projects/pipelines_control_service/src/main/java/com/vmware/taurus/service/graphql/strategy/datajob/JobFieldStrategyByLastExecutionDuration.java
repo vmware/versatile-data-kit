@@ -41,7 +41,7 @@ public class JobFieldStrategyByLastExecutionDuration extends FieldStrategy<V2Dat
 
    @Override
    public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return x -> true;
+      return dataJob -> false;
    }
 
    private static Integer getLastExecutionDuration(V2DataJob dataJob) {
