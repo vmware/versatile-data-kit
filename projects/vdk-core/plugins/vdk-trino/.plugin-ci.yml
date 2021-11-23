@@ -28,6 +28,9 @@ build-py39-vdk-trino:
   extends: .build-vdk-trino
   image: "python:3.9"
 
+build-py310-vdk-trino:
+  extends: .build-vdk-trino
+  image: "python:3.10"
 
 release-vdk-trino:
   variables:
