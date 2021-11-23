@@ -58,6 +58,8 @@ spec:
               value: "{{ .Values.notificationOwnerEmail }}"
             - name: NOTIFICATION_OWNER_NAME
               value: "{{ .Values.notificationOwnerName }}"
+            - name: NOTIFICATION_CC_EMAILS
+              value: "{{ .Values.notificationCcEmails }}"
             - name: GIT_URL
               value: "{{ .Values.deploymentGitUrl }}"
             - name: GIT_BRANCH

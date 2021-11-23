@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class NotificationContentTest {
@@ -20,10 +21,14 @@ public class NotificationContentTest {
         JobConfig jobConfig = createValidJobConfigStub();
         try {
             NotificationContent notificationContent =
-                    new NotificationContent(jobConfig, "run", "failure", "Example Name" , "sender@vmware.com");
+                    new NotificationContent(jobConfig, "run", "failure", "Example Name" , "sender@vmware.com",
+                            Arrays.asList("foo@bar.com", "bar@foo.com"));
 
             InternetAddress expectedSender = new InternetAddress("sender@vmware.com");
-            InternetAddress[] expectedRecipients = new InternetAddress[]{new InternetAddress("receiver@vmware.com")};
+            InternetAddress[] expectedRecipients = new InternetAddress[]{
+                    new InternetAddress("foo@bar.com"),
+                    new InternetAddress("bar@foo.com"),
+                    new InternetAddress("receiver@vmware.com")};
             String expectedSubject = "[run][data job failure] test_job";
             String expectedContent =
                     "<p>Dear Data Pipelines user,<br/>\n" +
@@ -46,7 +51,7 @@ public class NotificationContentTest {
     public void test_address_exception() {
         JobConfig jobConfig = createInvalidJobConfigStub();
         try {
-            new NotificationContent(jobConfig, "run", "failure", "Example Name", "@vmware.com");
+            new NotificationContent(jobConfig, "run", "failure", "Example Name", "@vmware.com", Collections.emptyList());
         } catch (AddressException e) {
             Assertions.assertEquals("Missing local name", e.getMessage());
         }
@@ -58,7 +63,7 @@ public class NotificationContentTest {
         JobConfig jobConfig = createValidJobConfigStub();
         try {
             NotificationContent notificationContent =
-                    new NotificationContent(jobConfig, "run", "failure", "RuntimeError", "Some body", "Example Name", "sender@vmware.com");
+                    new NotificationContent(jobConfig, "run", "failure", "RuntimeError", "Some body", "Example Name", "sender@vmware.com", Collections.emptyList());
 
             InternetAddress expectedSender = new InternetAddress("sender@vmware.com");
             InternetAddress[] expectedRecipients = new InternetAddress[]{new InternetAddress("receiver@vmware.com")};

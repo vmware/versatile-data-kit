@@ -199,7 +199,8 @@ public class JobsService {
 
    /**
     * Updates the last job execution in the database for the specified data job.
-    * The status is updated only if the execution has completed.
+    * The status is updated only if the execution has completed and
+    * is more recent than the currently persisted last execution.
     */
    public void updateLastExecution(
            final DataJobExecution dataJobExecution) {
@@ -220,15 +221,25 @@ public class JobsService {
          return;
       }
 
+      // Check if the job exists
       var dataJobOptional = jobsRepository.findById(dataJobExecution.getDataJob().getName());
-      if (dataJobOptional.isPresent()) {
-         var dataJob = dataJobOptional.get();
-         if (dataJobExecution.getEndTime() != null) {
-            dataJob.setLastExecutionStatus(dataJobExecution.getStatus());
-            dataJob.setLastExecutionEndTime(dataJobExecution.getEndTime());
-            dataJob.setLastExecutionDuration((int) (dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond()));
-            jobsRepository.save(dataJob);
-         }
+      if (dataJobOptional.isEmpty()) {
+         log.debug("The last execution info for data job {} will NOT be updated. The data job was not found in the database.",
+                 dataJobExecution.getDataJob().getName());
+         return;
       }
+
+      // Check if the execution is more recent than the one already recorded for this job
+      var dataJob = dataJobOptional.get();
+      if (dataJob.getLastExecutionEndTime() != null &&
+              dataJob.getLastExecutionEndTime().isBefore(dataJobExecution.getEndTime())) {
+         log.debug("The last execution info for data job {} will NOT be updated. The execution {} was not recent.",
+                 dataJobExecution.getDataJob().getName(), dataJobExecution.getId());
+      }
+
+      dataJob.setLastExecutionStatus(dataJobExecution.getStatus());
+      dataJob.setLastExecutionEndTime(dataJobExecution.getEndTime());
+      dataJob.setLastExecutionDuration((int) (dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond()));
+      jobsRepository.save(dataJob);
    }
 }

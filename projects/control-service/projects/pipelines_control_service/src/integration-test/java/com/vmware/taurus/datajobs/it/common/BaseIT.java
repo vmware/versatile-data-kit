@@ -5,13 +5,17 @@
 
 package com.vmware.taurus.datajobs.it.common;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-
-import java.time.Instant;
-import java.util.function.Predicate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vmware.taurus.controlplane.model.data.DataJobConfig;
+import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
+import com.vmware.taurus.controlplane.model.data.DataJobMode;
+import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
+import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
+import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.ApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.BaseMatcher;
@@ -36,15 +40,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.vmware.taurus.controlplane.model.data.DataJobConfig;
-import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
-import com.vmware.taurus.controlplane.model.data.DataJobMode;
-import com.vmware.taurus.controlplane.model.data.DataJobResources;
-import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
-import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
-import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.JobConfig;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.function.Predicate;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
@@ -150,6 +150,20 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
          @Override
          public void describeTo(Description description) {
             description.appendText("failed to match predicate");
+         }
+      };
+   }
+
+   protected Matcher<String> isDate(OffsetDateTime value) {
+      return new BaseMatcher<>() {
+         @Override
+         public boolean matches(Object actual) {
+            return value.isEqual(OffsetDateTime.parse((String) actual));
+         }
+
+         @Override
+         public void describeTo(Description description) {
+            description.appendText("failed to match date");
          }
       };
    }
