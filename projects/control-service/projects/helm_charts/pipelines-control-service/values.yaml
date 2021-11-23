@@ -116,6 +116,10 @@ credentials:
 ## The owner name and email address that will be used to send all Versatile Data Kit related email notifications.
 notificationOwnerEmail: "taurus@vmware.com"
 notificationOwnerName: "Versatile Data Kit"
+### Coma separate list of mails which will be cc-ed for Control Service managed notifications
+### This does not apply for notifications managed by external services (like AlertManager)
+#notificationCcEmails: "a1@x.com,a2@x.com"
+
 
 ### deploymentXXX refer to properties used in order to deploy a Data Job.
 
