@@ -22,6 +22,9 @@ build-py39-vdk-server:
   extends: .build-vdk-server
   image: "python:3.9"
 
+build-py310-vdk-server:
+  extends: .build-vdk-server
+  image: "python:3.10"
 
 release-vdk-server:
   variables:
