@@ -198,8 +198,10 @@ public class DataJobMonitor {
             updateDataJobTerminationStatusGauge(dataJob);
         }
 
-        var updatedExecution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
-        updatedExecution.ifPresent(jobsService::updateLastExecution);
+        // Update the job execution
+        Optional<com.vmware.taurus.service.model.DataJobExecution> execution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        // Update the last execution state with the completed execution
+        execution.ifPresent(jobsService::updateLastExecution);
     }
 
 
