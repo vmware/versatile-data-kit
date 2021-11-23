@@ -532,6 +532,19 @@ public class DataJobMonitorTest {
         Assertions.assertEquals(jobExecution.getEndTime(), actualJob.get().getLastExecutionEndTime());
     }
 
+    @Test
+    @Order(31)
+    void testRecordJobExecutionStatus_withSameExecutionIdAndOldStatusIsFinal_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.USER_ERROR.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        // The termination status should not have changed from SUCCESS to USER_ERROR because SUCCESS is a final status
+        Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, actualJob.get().getLatestJobTerminationStatus());
+    }
+
     private static String randomId(String prefix) {
         return prefix + UUID.randomUUID();
     }

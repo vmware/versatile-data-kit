@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class DataJobNotificationTest {
         Mockito.when(smtpProperties.smtpWithPrefix()).thenReturn(getMailProperties(this.smptServer.getPort()));
 
         this.dataJobNotification = new DataJobNotification(new EmailNotification(this.smtpProperties),
-                "Example Name","your_username@vmware.com");
+                "Example Name","your_username@vmware.com", Collections.singletonList("cc@dummy.com"));
         this.receiverMail = "dummy@dummy.dummy";
         this.jobConfig = getJobConfig();
     }
@@ -64,7 +63,7 @@ public class DataJobNotificationTest {
         Assertions.assertEquals(1, emails.size());
         var email = emails.get(0);
         Assertions.assertEquals("[deploy][data job failure] example_unittest_job", email.getHeaderValue("Subject"));
-        Assertions.assertEquals(receiverMail, email.getHeaderValue("To"));
+        Assertions.assertEquals("cc@dummy.com, dummy@dummy.dummy", email.getHeaderValue("To"));
     }
 
     @Test
@@ -75,7 +74,7 @@ public class DataJobNotificationTest {
         Assertions.assertEquals(1, emails.size());
         var email = emails.get(0);
         Assertions.assertEquals("[deploy][data job success] example_unittest_job", email.getHeaderValue("Subject"));
-        Assertions.assertEquals(receiverMail, email.getHeaderValue("To"));
+        Assertions.assertEquals("cc@dummy.com, dummy@dummy.dummy", email.getHeaderValue("To"));
     }
 
 

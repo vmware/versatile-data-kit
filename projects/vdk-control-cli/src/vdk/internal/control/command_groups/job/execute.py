@@ -218,7 +218,6 @@ vdk execute --list -n example-job -t "Example Team"
 vdk execute --logs -n example-job -t "Example Team" --execution-id example-job-1619094633811-cc49d
 
 """,
-    hidden=True,
 )
 @click.option("-n", "--name", type=click.STRING, help="The job name.")
 @click.option(
