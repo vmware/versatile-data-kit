@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -148,6 +150,37 @@ public class JobExecutionRepositoryIT {
       ExecutionStatus executionStatus = ExecutionStatus.RUNNING;
       DataJobExecution expectedJobExecution =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, executionId, actualDataJob, executionStatus);
+   }
 
+   @Test
+   void testFindFirstByDataJobNameOrderByStartTimeDesc_withNoExecutions_shouldReturnEmpty() {
+      DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+      var lastExecution = jobExecutionRepository.findFirstByDataJobNameOrderByStartTimeDesc(dataJob.getName());
+
+      Assertions.assertTrue(lastExecution.isEmpty());
+   }
+
+   @Test
+   void testFindFirstByDataJobNameOrderByStartTimeDesc_shouldReturnTheLastExecution() {
+      DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository,
+              "execution1", dataJob, ExecutionStatus.FINISHED, "Success",
+              OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+              OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository,
+              "execution2", dataJob, ExecutionStatus.RUNNING, null,
+              OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
+              null);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository,
+              "execution3", dataJob, ExecutionStatus.FAILED, "User error",
+              OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC),
+              OffsetDateTime.of(2000, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC));
+
+      var lastExecution = jobExecutionRepository.findFirstByDataJobNameOrderByStartTimeDesc(dataJob.getName());
+
+      Assertions.assertTrue(lastExecution.isPresent());
+      Assertions.assertEquals("execution2", lastExecution.get().getId());
    }
 }
