@@ -35,8 +35,6 @@ public interface JobExecutionRepository extends JpaRepository<DataJobExecution, 
 
    Optional<DataJobExecution> findFirstByDataJobNameOrderByStartTimeDesc(String jobName);
 
-   Optional<DataJobExecution> findFirstByDataJobNameAndStatusInOrderByEndTimeDesc(String jobName, List<ExecutionStatus> statuses);
-
    List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
 
    List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);

@@ -199,11 +199,9 @@ public class DataJobMonitor {
         }
 
         // Update the job execution
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
-        // Update the last execution state with the last completed execution
-        jobExecutionService
-                .getLastCompletedExecution(dataJobName)
-                .ifPresent(jobsService::updateLastExecution);
+        Optional<com.vmware.taurus.service.model.DataJobExecution> execution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        // Update the last execution state with the completed execution
+        execution.ifPresent(jobsService::updateLastExecution);
     }
 
 
