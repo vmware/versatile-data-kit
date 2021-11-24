@@ -11,7 +11,7 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
   * vdk-core - Python-based SDK containing a data library for developing and running data jobs. Includes a powerful plugin framework;
   * vdk-heartbeat - tool for verifying the deployed SDK and Control Service are functional and working correctly;
   * vdk-control-cli - User friendly CLI interface over Control Service operations including login/logout;
-  * vdk-core/plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, etc.;
+  * vdk-plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, etc.;
 * support - helper scripts used by developers of the project during their workday;
 * cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder;
 * examples - list of example use-cases. Each example directory has its README with detailed explanations;

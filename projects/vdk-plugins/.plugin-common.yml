@@ -10,19 +10,19 @@
 .build-plugin:
   stage: build
   before_script:
-    - cd projects/vdk-core/
+    - cd projects/vdk-plugins/
     - pip install -U pip
-    - pip install ./plugins/vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
+    - pip install ./vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
   script:
     - echo "Build plugin $PLUGIN_NAME"
-    - cd plugins/$PLUGIN_NAME || exit 1
+    - cd ./$PLUGIN_NAME || exit 1
     - ../build-plugin.sh
   retry: !reference [.retry, retry_options]
   rules: # we want to trigger build jobs if there are changes to this plugin,
          # but not if there are changes to other plugins or the main directory
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
-        - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"
+        - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
   artifacts:
     when: always
     reports:
@@ -44,7 +44,7 @@
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
-       - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"
+       - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
 
 
 .release-vdk-image:
@@ -73,4 +73,4 @@
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
-        - "projects/vdk-core/plugins/$PLUGIN_NAME/**/*"
+        - "projects/vdk-plugins/$PLUGIN_NAME/**/*"

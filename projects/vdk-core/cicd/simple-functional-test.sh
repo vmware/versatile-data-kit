@@ -54,19 +54,19 @@ python setup.py sdist --formats=gztar && pip install dist/* || fail "VDK Install
 
 function restore_vdk_in_editable_mode {
   pip install -e .
-  pip install --extra-index-url $PIP_EXTRA_INDEX_URL -e ./plugins/vdk-trino
-  pip install --extra-index-url $PIP_EXTRA_INDEX_URL -e ./plugins/vdk-plugin-control-cli
+  pip install --extra-index-url $PIP_EXTRA_INDEX_URL -e ./../vdk-plugins/vdk-trino
+  pip install --extra-index-url $PIP_EXTRA_INDEX_URL -e ./../vdk-plugins/vdk-plugin-control-cli
 }
 trap restore_vdk_in_editable_mode EXIT
 
 echo "Install database plugin for presto support"
-pushd plugins/vdk-trino || exit
+pushd ../vdk-plugins/vdk-trino || exit
 rm -rf dist/*
 python setup.py sdist --formats=gztar && pip install dist/* || fail "vdk-trino plugin Install failed"
 popd || exit
 
 echo "Install vdk-control-cli plugin"
-pushd plugins/vdk-plugin-control-cli || exit
+pushd ../vdk-plugins/vdk-plugin-control-cli || exit
 rm -rf dist/*
 python setup.py sdist --formats=gztar && pip install --extra-index-url $PIP_EXTRA_INDEX_URL dist/* || fail "vdk-control-cli plugin Install failed"
 popd || exit
