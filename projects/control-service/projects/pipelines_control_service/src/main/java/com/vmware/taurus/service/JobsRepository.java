@@ -7,6 +7,7 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +52,15 @@ public interface JobsRepository extends PagingAndSortingRepository<DataJob, Stri
     int updateDataJobEnabledByName(
             @Param(value = "name") String name,
             @Param(value = "enabled") Boolean enabled);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query("update DataJob j set j.lastExecutionStatus = :status, j.lastExecutionEndTime = :endTime, j.lastExecutionDuration = :duration where j.name = :name")
+    int updateDataJobLastExecutionByName(
+            @Param(value = "name") String name,
+            @Param(value = "status") ExecutionStatus status,
+            @Param(value = "endTime") OffsetDateTime endTime,
+            @Param(value = "duration") Integer duration);
 
    boolean existsDataJobByNameAndJobConfigTeam(String jobName, String teamName);
 }
