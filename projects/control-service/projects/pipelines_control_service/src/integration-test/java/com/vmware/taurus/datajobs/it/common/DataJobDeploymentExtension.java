@@ -134,7 +134,7 @@ public class DataJobDeploymentExtension implements BeforeEachCallback, Extension
          MvcResult uploadResult = mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs/%s/sources",
                      TEAM_NAME,
                      JOB_NAME))
-                     .with(user("user"))
+                     .with(user(USER_NAME))
                      .content(jobZipBinary)
                      .contentType(MediaType.APPLICATION_OCTET_STREAM))
                .andExpect(status().isOk())

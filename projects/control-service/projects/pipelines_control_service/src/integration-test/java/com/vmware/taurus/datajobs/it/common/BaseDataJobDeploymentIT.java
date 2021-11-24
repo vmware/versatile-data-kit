@@ -28,8 +28,6 @@ import com.vmware.taurus.ControlplaneApplication;
 @ExtendWith(DataJobDeploymentExtension.class)
 public abstract class BaseDataJobDeploymentIT extends BaseIT {
 
-   protected static final String JOBS_URI = "/data-jobs/for-team/supercollider/jobs";
-
    @TestConfiguration
    public static class TaskExecutorConfig {
       @Bean
