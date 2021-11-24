@@ -20,6 +20,9 @@ cd ..
 
 export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
 
+echo "Update pip to newest version"
+pip install -U pip
+
 echo "install dependencies from requirements.txt (used for development and testing)"
 pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 
@@ -30,7 +33,7 @@ echo "Install the vdk-core in editable mode (develop mode)"
 pip install -e .
 
 echo "Install common vdk test utils library (in editable mode)"
-pip install -e plugins/vdk-test-utils
+pip install -e ../vdk-plugins/vdk-test-utils
 
 echo "Run unit tests and generate coverage report"
 pip install pytest-cov

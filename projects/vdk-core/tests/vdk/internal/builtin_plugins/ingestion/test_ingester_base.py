@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from datetime import datetime
+from logging import error
 from unittest.mock import call
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -183,4 +184,65 @@ def test_ingest_payload_multiple_destinations():
         target=target,
         destination_table=destination_table2,
         payload=test_expected_payload2,
+    )
+
+
+def test_ingest_payload_and_post_ingestion_operation():
+    test_payload = {"key1": "val1", "key2": "val2", "key3": "val3"}
+    test_aggregated_payload = [{"key1": "val1", "key2": "val2", "key3": "val3"}]
+    test_ingestion_result = {"some_metadata": "some_ingestion_metadata"}
+    destination_table = "a_destination_table"
+    method = "test_method"
+    target = "some_target"
+    collection_id = "test_job|42a420"
+    ingester_base = create_ingester_base()
+
+    ingester_base._ingester.ingest_payload.return_value = test_ingestion_result
+
+    ingester_base.send_object_for_ingestion(
+        payload=test_payload,
+        destination_table=destination_table,
+        method=method,
+        target=target,
+    )
+    ingester_base.close()
+
+    ingester_base._ingester.ingest_payload.assert_called_once()
+    ingester_base._ingester.ingest_payload.assert_called_with(
+        payload=test_aggregated_payload,
+        destination_table=destination_table,
+        target=target,
+        collection_id=collection_id,
+    )
+    ingester_base._ingester.post_ingest_process.assert_called_with(
+        payload=test_aggregated_payload,
+        ingestion_result=test_ingestion_result,
+        exceptions=[],
+    )
+
+
+def test_post_ingestion_operation_with_exceptions():
+    test_payload = {"key1": "val1", "key2": "val2", "key3": "val3"}
+    test_aggregated_payload = [{"key1": "val1", "key2": "val2", "key3": "val3"}]
+    destination_table = "a_destination_table"
+    method = "test_method"
+    target = "some_target"
+    test_exception = errors.UserCodeError("Test User Exception")
+    ingester_base = create_ingester_base()
+
+    ingester_base._ingester.ingest_payload.side_effect = test_exception
+
+    ingester_base.send_object_for_ingestion(
+        payload=test_payload,
+        destination_table=destination_table,
+        method=method,
+        target=target,
+    )
+    ingester_base.close()
+
+    ingester_base._ingester.ingest_payload.assert_called_once()
+    ingester_base._ingester.post_ingest_process.assert_called_with(
+        payload=test_aggregated_payload,
+        ingestion_result=None,
+        exceptions=[test_exception],
     )

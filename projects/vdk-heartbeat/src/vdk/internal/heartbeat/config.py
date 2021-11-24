@@ -25,9 +25,11 @@ class Config:
         self.vdkcli_api_refresh_token = self._get_atleast_one_value(
             "VDKCLI_OAUTH2_REFRESH_TOKEN", "VDK_HEARTBEAT_API_TOKEN"
         )
+        # If no value is found, argument will not be passed and default will be used
         self.vdkcli_oauth2_uri = self._get_atleast_one_value(
-            "VDKCLI_OAUTH2_URI", "VDK_HEARTBEAT_API_TOKEN_AUTH_URL"
+            "VDKCLI_OAUTH2_URI", "VDK_HEARTBEAT_API_TOKEN_AUTH_URL", is_required=False
         )
+
         self.op_id = self.get_value("VDK_HEARTBEAT_OP_ID", Config.DEFAULT_OP_ID)
         table_suffix = re.sub("[^a-z0-9_]", "_", self.op_id.lower())
         job_suffix = re.sub("[^a-z0-9-]", "-", self.op_id.lower())
@@ -74,9 +76,37 @@ class Config:
             self.get_value("RUN_TEST_TIMEOUT_SECONDS", "1200")
         )
 
+        # Ingestion test configuration
+        # Target identifies where the data should be ingested into.
+        self.INGEST_TARGET = self.get_value(
+            "VDK_HEARTBEAT_INGEST_TARGET",
+            "vdk-heartbeat-datasource",
+        )
+
+        """
+        Indicates the ingestion method to be used. Example:
+                    method="file" -> ingest to file
+                    method="http" -> ingest using HTTP POST requests
+                    method="kafka" -> ingest to kafka endpoint
+        """
+        self.INGEST_METHOD = self.get_value("VDK_HEARTBEAT_INGEST_METHOD", "http")
+
+        # The name of the table, where the data should be ingested into.
+        self.INGEST_DESTINATION_TABLE = self.get_value(
+            "VDK_HEARTBEAT_INGEST_DESTINATION_TABLE",
+            "vdk_heartbeat_ingestion_test",
+        )
+
+        # The time for which the data should be ingested.
+        self.INGEST_TIMEOUT = self.get_value(
+            "VDK_HEARTBEAT_INGEST_TIMEOUT",
+            "300",
+        )
+
         # The Control Service API URL (http://url/data-jobs) without data-jobs suffix
+        # If no value is found, argument will not be passed and default will be used
         self.control_api_url = self._get_atleast_one_value(
-            "CONTROL_API_URL", "VDK_HEARTBEAT_CONTROL_SERVICE_URL"
+            "CONTROL_API_URL", "VDK_HEARTBEAT_CONTROL_SERVICE_URL", is_required=False
         )
 
         # Job name deployed during the test
@@ -184,11 +214,11 @@ class Config:
             )
         return value
 
-    def _get_atleast_one_value(self, key1: str, key2: str) -> Optional[str]:
+    def _get_atleast_one_value(self, key1: str, key2: str, is_required=True):
         value1 = self.get_value(key1, is_required=False)
         value2 = self.get_value(key2, is_required=False)
 
-        if (value1 is None) and (value2 is None):
+        if is_required and (value1 is None) and (value2 is None):
             raise ValueError(
                 "Error occurred:\n"
                 f"What: Cannot configure heartbeat test\n"

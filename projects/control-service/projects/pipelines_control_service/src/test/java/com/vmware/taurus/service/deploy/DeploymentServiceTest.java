@@ -124,6 +124,7 @@ public class DeploymentServiceTest {
               .thenReturn(new KubernetesService.Resources("2000m", "1G"));
 
       JobConfig jobConfig = new JobConfig();
+      jobConfig.setTeam(TestUtils.TEST_TEAM_NAME);
       jobConfig.setSchedule(TEST_JOB_SCHEDULE);
       testDataJob = new DataJob();
       testDataJob.setName(TEST_JOB_NAME);
@@ -230,7 +231,8 @@ public class DeploymentServiceTest {
    @Test
    public void patchDeployment() throws ApiException {
       JobDeployment jobDeployment = new JobDeployment();
-      jobDeployment.setDataJobName(TEST_JOB_NAME);
+      jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
+      jobDeployment.setDataJobName(testDataJob.getName());
       jobDeployment.setEnabled(true);
 
       deploymentService.patchDeployment(testDataJob, jobDeployment);
@@ -246,6 +248,8 @@ public class DeploymentServiceTest {
    @Test
    public void enableDeployment_sameEnabledStatus_updateSkipped() throws ApiException {
       JobDeployment jobDeployment = new JobDeployment();
+      jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
+      jobDeployment.setDataJobName(testDataJob.getName());
       jobDeployment.setEnabled(true);
 
       deploymentService.patchDeployment(testDataJob, jobDeployment);

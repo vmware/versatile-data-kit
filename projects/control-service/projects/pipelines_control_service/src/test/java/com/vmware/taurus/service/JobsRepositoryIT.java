@@ -8,6 +8,7 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
@@ -15,6 +16,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 /**
  * Integration tests of the setup of Spring Data repository for data jobs
@@ -69,5 +73,24 @@ public class JobsRepositoryIT {
       var persistedEntity = repository.findById("hello");
       Assertions.assertTrue(persistedEntity.isPresent());
       Assertions.assertFalse(persistedEntity.get().getEnabled());
+   }
+
+   @Test
+   void testUpdateDataJobLastExecutionByName() {
+      var entity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
+      entity.setLastExecutionStatus(ExecutionStatus.FAILED);
+      entity.setLastExecutionEndTime(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      entity.setLastExecutionDuration(100);
+      repository.save(entity);
+
+      repository.updateDataJobLastExecutionByName("hello", ExecutionStatus.FINISHED,
+              OffsetDateTime.of(2000, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC), 200);
+
+      var persistedEntity = repository.findById("hello");
+      Assertions.assertTrue(persistedEntity.isPresent());
+      Assertions.assertEquals(ExecutionStatus.FINISHED, persistedEntity.get().getLastExecutionStatus());
+      Assertions.assertEquals(OffsetDateTime.of(2000, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC),
+              persistedEntity.get().getLastExecutionEndTime().toInstant().atOffset(ZoneOffset.UTC));
+      Assertions.assertEquals(200, persistedEntity.get().getLastExecutionDuration());
    }
 }

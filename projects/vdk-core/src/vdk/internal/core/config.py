@@ -14,8 +14,6 @@ from vdk.internal.core.errors import VdkConfigurationError
 ConfigValue = Any
 ConfigKey = str
 
-DEFAULT_NONE_VALUE = "DEFAULT_NONE_VALUE"
-
 log = logging.getLogger(__name__)
 
 
@@ -51,6 +49,11 @@ def convert_value_to_type_of_default_type(
 
 def _normalize_config_key(key: ConfigKey):
     return str(key).lower()
+
+
+class NoDefaultValue(ConfigValue):
+    def __init__(self):
+        pass
 
 
 @dataclass(frozen=True)
@@ -146,7 +149,7 @@ class ConfigurationBuilder:
     def add(
         self,
         key: ConfigKey,
-        default_value: ConfigValue,
+        default_value: ConfigValue = NoDefaultValue(),
         show_default_value=True,
         description=None,
     ) -> ConfigurationBuilder:
@@ -154,7 +157,7 @@ class ConfigurationBuilder:
         Add new configuration variable definition.
 
         :param key: The configuration key. If already exist variable will be updated.
-        :param default_value: Default value for the configuration Can be None.
+        :param default_value: Default value for the configuration. Can be None.
         :param show_default_value: default value will appear in help as well.
         The default value type will enforce the type of the option. Can be None - in this case the type would str.
         :param description: Set description if you want config variable to appear in command line help .
@@ -163,7 +166,9 @@ class ConfigurationBuilder:
         :return: self so it can be chained like builder.add(..).set_value(...)...
         """
         key = _normalize_config_key(key)
-        self.__config_key_to_default_value[key] = default_value
+        self.__config_key_to_default_value[key] = (
+            default_value if not isinstance(default_value, NoDefaultValue) else None
+        )
         if description and show_default_value:
             self.__add_public(key, description, default_value)
         elif description:
@@ -198,7 +203,7 @@ class ConfigurationBuilder:
         self,
         key: ConfigKey,
         description: str,
-        default_value: ConfigValue = DEFAULT_NONE_VALUE,
+        default_value: ConfigValue = NoDefaultValue(),
     ) -> None:
         if not isinstance(description, str):
             log.warning(
@@ -206,7 +211,7 @@ class ConfigurationBuilder:
             )
             description = str(description)
 
-        if default_value != DEFAULT_NONE_VALUE:
+        if not isinstance(default_value, NoDefaultValue):
             description += "\nDefault value is: '%s'." % default_value
         self.__config_key_to_description[key] = description
 

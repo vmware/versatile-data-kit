@@ -7,7 +7,9 @@ import sys
 import threading
 from collections import defaultdict
 from typing import Iterable
+from typing import List
 from typing import Optional
+from typing import Tuple
 
 from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
@@ -470,12 +472,15 @@ class IngesterBase(IIngester):
         data, etc.) and ingesting the data.
         """
         while self._closed.value == 0:
+            payload: Optional[Tuple] = None
+            ingestion_result: Optional[IIngesterPlugin.IngestionResult] = None
+            exceptions: List = list()
             try:
                 payload = self._payloads_queue.get()
                 payload_dict, destination_table, method, target, collection_id = payload
 
                 try:
-                    self._ingester.ingest_payload(
+                    ingestion_result = self._ingester.ingest_payload(
                         payload=payload_dict,
                         destination_table=destination_table,
                         target=target,
@@ -483,7 +488,6 @@ class IngesterBase(IIngester):
                     )
 
                     self._success_count.increment()
-
                 except VdkConfigurationError as e:
                     self._plugin_errors[VdkConfigurationError].increment()
                     # TODO: logging for every error might be too much
@@ -494,12 +498,15 @@ class IngesterBase(IIngester):
                     log.exception(
                         "A configuration error occurred while ingesting data."
                     )
+                    exceptions.append(e)
                 except UserCodeError as e:
                     self._plugin_errors[UserCodeError].increment()
                     log.exception("An user error occurred while ingesting data.")
+                    exceptions.append(e)
                 except Exception as e:
                     self._plugin_errors[PlatformServiceError].increment()
                     log.exception("A platform error occurred while ingesting data.")
+                    exceptions.append(e)
 
             except Exception as e:
                 self._fail_count.increment()
@@ -510,8 +517,22 @@ class IngesterBase(IIngester):
                         "One or more rows were not ingested.\n"
                         "Exception was: {}".format(str(e))
                     )
+                    exceptions.append(e)
             finally:
                 self._payloads_queue.task_done()
+
+            # Complete Post-Ingestion operations
+            try:
+                self._ingester.post_ingest_process(
+                    payload=payload_dict,
+                    ingestion_result=ingestion_result,
+                    exceptions=exceptions,
+                )
+            except Exception as e:
+                log.info(
+                    "Could not complete the post-ingestion operation. ",
+                    f"The error encountered was: {e}",
+                )
 
     def _start_workers(self):
         """

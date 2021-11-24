@@ -24,7 +24,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -458,6 +460,108 @@ public class DataJobMonitorTest {
         Assertions.assertEquals(ExecutionTerminationStatus.NONE, actualJob.get().getLatestJobTerminationStatus());
     }
 
+    @Test
+    @Order(26)
+    void testRecordJobExecutionStatus_shouldUpdateLastExecution() {
+        // Clean up from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+        var dataJob = new DataJob("new-job", new JobConfig(),
+                DeploymentStatus.NONE, ExecutionTerminationStatus.PLATFORM_ERROR, "old-execution-id");
+        dataJob.setLastExecutionStatus(ExecutionStatus.FAILED);
+        dataJob.setLastExecutionEndTime(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+        dataJob.setLastExecutionDuration(1000);
+        jobsRepository.save(dataJob);
+
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionTerminationStatus.PLATFORM_ERROR.getString(), false);
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(27)
+    void testRecordJobExecutionStatus_withNullExecutionId_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", null, ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(28)
+    void testRecordJobExecutionStatus_withEmptyExecutionId_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "", ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+
+    @Test
+    @Order(29)
+    void testRecordJobExecutionStatus_withSameExecutionIdAndNewStatus_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FAILED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(30)
+    void testRecordJobExecutionStatus_withNewExecutionIdAndNewStatus_shouldUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.SUCCESS.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.FINISHED, actualJob.get().getLastExecutionStatus());
+        Assertions.assertEquals(jobExecution.getEndTime(), actualJob.get().getLastExecutionEndTime());
+    }
+
+    @Test
+    @Order(31)
+    void testRecordJobExecutionStatus_withSameExecutionIdAndOldStatusIsFinal_shouldNotUpdateTerminationStatus() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.USER_ERROR.getString());
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        // The termination status should not have changed from SUCCESS to USER_ERROR because SUCCESS is a final status
+        Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, actualJob.get().getLatestJobTerminationStatus());
+    }
+
+    @Test
+    @Order(32)
+    void testRecordJobExecutionStatus_withAnOlderExecution_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "newer-execution-id",
+                ExecutionTerminationStatus.USER_ERROR.getString(), false,
+                OffsetDateTime.now().minus(Duration.ofDays(2)),
+                OffsetDateTime.now().minus(Duration.ofDays(1)));
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        // The last execution status should not have changed from FINISHED to FAILED because the execution is not recent
+        Assertions.assertEquals(ExecutionStatus.FINISHED, actualJob.get().getLastExecutionStatus());
+    }
+
     private static String randomId(String prefix) {
         return prefix + UUID.randomUUID();
     }
@@ -471,18 +575,29 @@ public class DataJobMonitorTest {
     }
 
     private static JobExecution buildJobExecutionStatus(
+            String jobName,
+            String executionId,
+            String terminationMessage,
+            Boolean executionSucceeded) {
+        return buildJobExecutionStatus(jobName, executionId, terminationMessage,
+                executionSucceeded, OffsetDateTime.now(), OffsetDateTime.now());
+    }
+
+    private static JobExecution buildJobExecutionStatus(
           String jobName,
           String executionId,
           String terminationMessage,
-          Boolean executionSucceeded) {
+          Boolean executionSucceeded,
+          OffsetDateTime startTime,
+          OffsetDateTime endTime) {
         return JobExecution.builder()
               .jobName(jobName)
               .executionId(executionId)
               .terminationMessage(terminationMessage)
               .executionType("scheduled")
               .opId("opId")
-              .startTime(OffsetDateTime.now())
-              .endTime(OffsetDateTime.now())
+              .startTime(startTime)
+              .endTime(endTime)
               .jobVersion("jobVersion")
               .jobSchedule("jobSchedule")
               .resourcesCpuRequest(1F)

@@ -21,12 +21,10 @@ class IngesterConfigurationPlugin:
         # Plugin-related configurations
         config_builder.add(
             key="INGEST_METHOD_DEFAULT",
-            default_value=None,
             description="Default Ingestion method to be used.",
         )
         config_builder.add(
             key="INGEST_TARGET_DEFAULT",
-            default_value=None,
             description="Default Ingestion target to be used.",
         )
 

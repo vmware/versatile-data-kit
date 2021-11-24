@@ -9,6 +9,7 @@ import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.graphql.model.DataJobQueryVariables;
 import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
@@ -16,7 +17,6 @@ import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobPage;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import graphql.GraphqlErrorException;
 import graphql.schema.DataFetcher;
@@ -79,13 +79,18 @@ public class GraphQLDataFetchers {
 
          List<V2DataJob> resultList = populateDataJobsPostPagination(dataJobList, dataFetchingEnvironment);
 
-         return buildDataJobPage(queryVar.getPageSize(), count, new ArrayList<>(resultList));
+         return buildResponse(queryVar.getPageSize(), count, resultList);
       };
    }
 
    private List<V2DataJob> populateDataJobsPostPagination(List<V2DataJob> allDataJob, DataFetchingEnvironment dataFetchingEnvironment) {
       if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())) {
          executionDataFetcher.populateExecutions(allDataJob, dataFetchingEnvironment);
+      }
+
+      if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())
+              || dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
+         executionDataFetcher.populateStatusCounts(allDataJob, dataFetchingEnvironment);
       }
 
       return allDataJob;
@@ -185,11 +190,14 @@ public class GraphQLDataFetchers {
       return allDataJob;
    }
 
-   private static DataJobPage buildDataJobPage(int pageSize, int count, List<Object> pageList) {
-      var dataJobPage = new DataJobPage();
-      dataJobPage.setContent(pageList);
-      dataJobPage.setTotalPages(((count - 1) / pageSize + 1));
-      dataJobPage.setTotalItems(count);
-      return dataJobPage;
+   private static DataJobPage buildResponse(
+         int pageSize,
+         int count,
+         List pageList) {
+
+      return DataJobPage.builder()
+            .content(new ArrayList<>(pageList))
+            .totalPages(((count - 1) / pageSize + 1))
+            .totalItems(count).build();
    }
 }

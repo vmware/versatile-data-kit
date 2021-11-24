@@ -13,9 +13,14 @@ import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 @UtilityClass
 public class GraphQLUtils {
+
+   public static final String JOBS_QUERY = "jobs";
+   public static final String EXECUTIONS_QUERY = "executions";
+   public static final Set<String> QUERIES = Set.of(JOBS_QUERY, EXECUTIONS_QUERY);
 
    /**
     * GraphQL's library parses json query variables to List of LinkedHashMaps. In order to use later the
@@ -47,5 +52,4 @@ public class GraphQLUtils {
          throw new GraphQLException("Page cannot be less than 1");
       }
    }
-
 }

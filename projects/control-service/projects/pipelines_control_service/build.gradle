@@ -69,6 +69,9 @@ dependencies { // Implementation dependencies are found on compile classpath of 
 
     implementation versions.'com.graphql-java:graphql-java-extended-scalars'
 
+    compileOnly versions.'org.hibernate:hibernate-jpamodelgen'
+    annotationProcessor versions.'org.hibernate:hibernate-jpamodelgen'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation versions.'com.mmnaseri.utils:spring-data-mock'
@@ -78,8 +81,10 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'org.testcontainers:testcontainers'
     testImplementation versions.'org.springframework.security.kerberos:spring-security-kerberos-test'
     testImplementation versions.'org.awaitility:awaitility'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'com.github.kirviq:dumbster:1.7.1'
+    testImplementation versions.'org.junit.jupiter:junit-jupiter-api'
+    testImplementation versions.'org.junit.platform:junit-platform-suite-api'
+    testRuntimeOnly versions.'org.junit.jupiter:junit-jupiter-engine'
 
 
     // transitive dependencies version force

@@ -78,7 +78,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
          Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName);
 
          if (job.isPresent()) {
-            var jobDeployment = ToModelApiConverter.toJobDeployment(jobName, dataJobDeployment);
+            var jobDeployment = ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);
             deploymentService.patchDeployment(job.get(), jobDeployment);
             return ResponseEntity.accepted().build();
          }
@@ -117,7 +117,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       if (jobsService.jobWithTeamExists(jobName, teamName)) {
          Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName.toLowerCase());
          if (job.isPresent()) {
-            var jobDeployment = ToModelApiConverter.toJobDeployment(jobName.toLowerCase(), dataJobDeployment);
+            var jobDeployment = ToModelApiConverter.toJobDeployment(teamName, jobName.toLowerCase(), dataJobDeployment);
             //TODO: Consider using a Task-oriented API approach
             deploymentService.updateDeployment(job.get(), jobDeployment, sendNotification,
                     operationContext.getUser(), operationContext.getOpId());

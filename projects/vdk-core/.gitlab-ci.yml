@@ -1,9 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-include:
-  - "projects/vdk-core/plugins/.plugin-common.yml"
-  - "projects/vdk-core/plugins/*/.plugin-ci.yml"
 
 image: "python:3.9"
 
@@ -18,7 +15,6 @@ image: "python:3.9"
   stage: build
   before_script:
     - cd projects/vdk-core/
-    - pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
   script:
     - ./cicd/build.sh
   retry: !reference [.retry, retry_options]
@@ -43,6 +39,10 @@ vdk-core-build_with_py38:
 
 vdk-core-build_with_py39:
   image: "python:3.9"
+  extends: .vdk-core-build
+
+vdk-core-build_with_py310:
+  image: "python:3.10"
   extends: .vdk-core-build
 
 
@@ -79,6 +79,9 @@ vdk-core-simple_func_test_with_py39:
   image: "python:3.9"
   extends: .vdk-core-simple_func_test
 
+vdk-core-simple_func_test_with_py310:
+  image: "python:3.10"
+  extends: .vdk-core-simple_func_test
 
 vdk-core-release:
   stage: release

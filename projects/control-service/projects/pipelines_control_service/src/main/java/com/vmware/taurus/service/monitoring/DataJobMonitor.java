@@ -7,6 +7,7 @@ package com.vmware.taurus.service.monitoring;
 
 import com.google.common.collect.Streams;
 import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class DataJobMonitor {
 
     private final JobsRepository jobsRepository;
     private final DataJobsKubernetesService dataJobsKubernetesService;
+    private final JobsService jobsService;
     private final JobExecutionService jobExecutionService;
     private final DataJobMetrics dataJobMetrics;
 
@@ -52,10 +55,12 @@ public class DataJobMonitor {
     public DataJobMonitor(
             JobsRepository jobsRepository,
             DataJobsKubernetesService dataJobsKubernetesService,
+            JobsService jobsService,
             JobExecutionService jobExecutionService,
             DataJobMetrics dataJobMetrics) {
         this.dataJobsKubernetesService = dataJobsKubernetesService;
         this.jobsRepository = jobsRepository;
+        this.jobsService = jobsService;
         this.jobExecutionService = jobExecutionService;
         this.dataJobMetrics = dataJobMetrics;
     }
@@ -169,6 +174,7 @@ public class DataJobMonitor {
      * @param jobStatus - the job status of the job. The same information is sent as telemetry by Measureable annotation.
      */
     @Measurable(includeArg = 0, argName = "execution_status")
+    @Transactional
     void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
@@ -186,13 +192,18 @@ public class DataJobMonitor {
             return;
         }
 
-        var dataJob = dataJobOptional.get();
+        DataJob dataJob = dataJobOptional.get();
         if (shouldUpdateTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus())) {
             dataJob = saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus());
             updateDataJobTerminationStatusGauge(dataJob);
         }
 
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        // Update the job execution
+        Optional<com.vmware.taurus.service.model.DataJobExecution> execution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+        // Update the last execution state with the completed execution
+        if (execution.isPresent()) {
+            jobsService.updateLastExecution(dataJob, execution.get());
+        }
     }
 
 
@@ -200,9 +211,12 @@ public class DataJobMonitor {
         // Do not update the status when either:
         //   * the status is SKIPPED
         //   * the status and executionId have not changed
+        //   * the executionId has not changed and the old status is final (CANCELLED, FAILED, FINISHED, SKIPPED)
         if (terminationStatus == ExecutionTerminationStatus.SKIPPED ||
                 dataJob.getLatestJobTerminationStatus() == terminationStatus &&
-                        StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
+                        StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId) ||
+                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId) &&
+                        dataJob.getLatestJobTerminationStatus() != ExecutionTerminationStatus.NONE) {
             log.debug("The termination status of data job {} will not be updated. Old status is: {}, New status is: {}; Old execution id: {}, New execution id: {}",
                     dataJob.getName(), dataJob.getLatestJobTerminationStatus(), terminationStatus, dataJob.getLatestJobExecutionId(), executionId);
             return false;

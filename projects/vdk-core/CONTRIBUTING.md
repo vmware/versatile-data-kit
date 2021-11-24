@@ -20,7 +20,7 @@ Setting up the development environment can be done in the following way:
 
 ## Implementing plugins
 
-* You can find a template for implementing plugins in `/plugins/plugin-template`;
+* You can find a template for implementing plugins in `projects/vdk-plugins/plugin-template`;
 * Include your implementation files inside the `/src/vdk/internal/` directory, and any tests inside the `/tests/` directory;
 * Include your dependencies inside the `requirements.txt` file;
 * Change the name of the plugin package, the plugin itself and the name of the Python file containing the plugin hooks inside the `setup.py` file;
