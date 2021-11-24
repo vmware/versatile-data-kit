@@ -203,7 +203,10 @@ public class JobsService {
     * is more recent than the currently persisted last execution.
     */
    public void updateLastExecution(
+           final DataJob dataJob,
            final DataJobExecution dataJobExecution) {
+      Objects.requireNonNull(dataJob);
+      Objects.requireNonNull(dataJobExecution);
 
       if (StringUtils.isBlank(dataJobExecution.getId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", dataJobExecution.getId());
@@ -221,25 +224,22 @@ public class JobsService {
          return;
       }
 
-      // Check if the job exists
-      var dataJobOptional = jobsRepository.findById(dataJobExecution.getDataJob().getName());
-      if (dataJobOptional.isEmpty()) {
-         log.debug("The last execution info for data job {} will NOT be updated. The data job was not found in the database.",
-                 dataJobExecution.getDataJob().getName());
-         return;
-      }
-
       // Check if the execution is more recent than the one already recorded for this job
-      var dataJob = dataJobOptional.get();
       if (dataJob.getLastExecutionEndTime() != null &&
-              dataJob.getLastExecutionEndTime().isBefore(dataJobExecution.getEndTime())) {
+              dataJobExecution.getEndTime().isBefore(dataJob.getLastExecutionEndTime())) {
          log.debug("The last execution info for data job {} will NOT be updated. The execution {} was not recent.",
                  dataJobExecution.getDataJob().getName(), dataJobExecution.getId());
+         return;
       }
 
       dataJob.setLastExecutionStatus(dataJobExecution.getStatus());
       dataJob.setLastExecutionEndTime(dataJobExecution.getEndTime());
       dataJob.setLastExecutionDuration((int) (dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond()));
-      jobsRepository.save(dataJob);
+      jobsRepository.updateDataJobLastExecutionByName(
+              dataJob.getName(),
+              dataJobExecution.getStatus(),
+              dataJobExecution.getEndTime(),
+              (int) (dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond())
+      );
    }
 }
