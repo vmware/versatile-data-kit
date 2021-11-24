@@ -36,7 +36,7 @@ Run vdk config-help - search for those prefixed with "GREENPLUM_" to see what co
 
 # Testing
 
-Testing this plugin locally requires installing the dependencies listed in plugins/vdk-greenplum/requirements.txt
+Testing this plugin locally requires installing the dependencies listed in vdk-plugins/vdk-greenplum/requirements.txt
 
 Run
 ```bash
