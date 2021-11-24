@@ -192,7 +192,7 @@ public class DataJobMonitor {
             return;
         }
 
-        var dataJob = dataJobOptional.get();
+        DataJob dataJob = dataJobOptional.get();
         if (shouldUpdateTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus())) {
             dataJob = saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus());
             updateDataJobTerminationStatusGauge(dataJob);
@@ -201,7 +201,9 @@ public class DataJobMonitor {
         // Update the job execution
         Optional<com.vmware.taurus.service.model.DataJobExecution> execution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
         // Update the last execution state with the completed execution
-        execution.ifPresent(jobsService::updateLastExecution);
+        if (execution.isPresent()) {
+            jobsService.updateLastExecution(dataJob, execution.get());
+        }
     }
 
 
