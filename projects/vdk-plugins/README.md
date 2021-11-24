@@ -4,11 +4,11 @@ Plugins make Versatile Data Kit adaptable to any organization's use-cases.
 Example use-cases for plugins are different database connections, file systems, different transformation templates, or organization-specific best practices and patterns.
 
 
-![VDK Plugin Components](./docs/vdk-components.svg)
+![VDK Plugin Components](../vdk-core/docs/vdk-components.svg)
 
 ## List of plugins
 
-You can find a list of plugins that we have already developed in [plugins directory](./plugins).
+You can find a list of plugins that we have already developed in [plugins directory]().
 
 ## Installing and Using plugins
 
@@ -24,14 +24,14 @@ Once the plugin is installed, vdk automatically finds it and activates it.
 A plugin is a python module that enhances or changes the behavior of Versatile Data Kit. <br>
 A plugin is simply an implementation of one or more plugin hooks.
 
-See all supported hook function specifications in [specs.py](src/vdk/api/plugin/core_hook_spec.py).
+See all supported hook function specifications in [specs.py](../vdk-core/src/vdk/api/plugin/core_hook_spec.py).
 The spec documentation contains details and examples for how a hook can be used.
 
 To create a new plugin, there are only two steps necessary:<br>
 
 * Create your implementation of the plugin's hook(s):
   You will need to mark it with the `hookimpl` decorator.
-  Check out its [documentation here](src/vdk/api/plugin/hook_markers.py) to see how you can configure the hook execution order
+  Check out its [documentation here](../vdk-core/src/vdk/api/plugin/hook_markers.py) to see how you can configure the hook execution order
 ```python
 # this is module myproject.pluginmodule, which will be our plugin
 # define hookimpl as follows
@@ -77,21 +77,21 @@ As hook implementations can be functions (without class) it is recommended all h
 
 ### Generic Command-Line Lifecycle
 
-![plugin cli life cycle](docs/plugin-cli-lifecycle.svg)
+![plugin cli life cycle](../vdk-core/docs/plugin-cli-lifecycle.svg)
 
 Versatile Data Kit is used for executing different commands, some of them provided as plugins.
 Using the above hooks, one can extend the functionality of any command by adding monitoring, customizing logging, or adding new options.
 
-Check out the [CoreHookSpec class](src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
+Check out the [CoreHookSpec class](../vdk-core/src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
 
 ### Data Job Run (Execution) Cycle
 
-![plugin data job run cycle](docs/simple-data-job-lifecycle.svg)
+![plugin data job run cycle](../vdk-core/docs/simple-data-job-lifecycle.svg)
 
 The above image shows the normal run cycle of a data job. The hooks shown are only invoked when the "vdk run" command is invoked to execute a data job.
 
 
-Check out the [JobRunSpecs class](src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
+Check out the [JobRunSpecs class](../vdk-core/src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
 
 ## Public interfaces
 

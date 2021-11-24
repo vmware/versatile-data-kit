@@ -8,6 +8,8 @@ include:
   - "projects/vdk-core/.gitlab-ci.yml"
   - "projects/vdk-heartbeat/.gitlab-ci.yml"
   - "projects/control-service/cicd/.gitlab-ci.yml"
+  - "projects/vdk-plugins/.plugin-common.yml"
+  - "projects/vdk-plugins/*/.plugin-ci.yml"
 
 stages:
   - build
