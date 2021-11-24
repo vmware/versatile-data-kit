@@ -33,7 +33,7 @@ echo "Install the vdk-core in editable mode (develop mode)"
 pip install -e .
 
 echo "Install common vdk test utils library (in editable mode)"
-pip install -e plugins/vdk-test-utils
+pip install -e ../vdk-plugins/vdk-test-utils
 
 echo "Run unit tests and generate coverage report"
 pip install pytest-cov

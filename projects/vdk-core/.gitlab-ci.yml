@@ -1,9 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-include:
-  - "projects/vdk-core/plugins/.plugin-common.yml"
-  - "projects/vdk-core/plugins/*/.plugin-ci.yml"
 
 image: "python:3.9"
 

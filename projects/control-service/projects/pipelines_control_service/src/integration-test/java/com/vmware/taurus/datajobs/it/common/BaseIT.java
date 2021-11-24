@@ -57,6 +57,9 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
    public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
    public static final String TEST_JOB_DEPLOYMENT_ID = "testing";
+   protected static final String TEST_USERNAME = "user";
+
+   protected static final String JOBS_URI = "/data-jobs/for-team/supercollider/jobs";
 
    protected static final ObjectMapper mapper = new ObjectMapper();
 
