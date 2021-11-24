@@ -25,7 +25,7 @@ Run vdk config-help - search for those prefixed with "POSTGRES_" to see what con
 
 # Testing
 
-Testing this plugin locally requires installing the dependencies listed in plugins/vdk-postgres/requirements.txt
+Testing this plugin locally requires installing the dependencies listed in vdk-plugins/vdk-postgres/requirements.txt
 
 Run
 ```bash

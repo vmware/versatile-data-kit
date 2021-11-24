@@ -31,10 +31,10 @@
 .release-plugin:
   stage: release
   before_script:
-    - cd projects/vdk-core/
+    - cd projects/vdk-plugins/
   script:
     - echo "Release plugin $PLUGIN_NAME"
-    - cd plugins/$PLUGIN_NAME || exit 1
+    - cd $PLUGIN_NAME/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
     - pip install -U pip setuptools wheel twine
     - python setup.py sdist --formats=gztar
@@ -57,10 +57,10 @@
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - cd projects/vdk-core/
+    - cd projects/vdk-plugins/
   script:
     - echo "Build and release vdk image of plugin $PLUGIN_NAME"
-    - cd plugins/$PLUGIN_NAME || exit 1
+    - cd $PLUGIN_NAME/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
     - apk add --no-cache git bash python3
     - python3 -V
@@ -68,7 +68,7 @@
     - export VDK_PACKAGE=$(python3 setup.py --name)
     - export VDK_VERSION=$(python3 setup.py --version)
     - export BUILD_TYPE=release
-    - bash -x ../../cicd/deploy-base-vdk-image.sh
+    - bash -x ../../vdk-core/cicd/deploy-base-vdk-image.sh
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
