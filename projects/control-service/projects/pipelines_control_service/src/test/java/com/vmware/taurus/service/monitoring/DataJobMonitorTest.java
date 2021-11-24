@@ -24,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -534,7 +535,7 @@ public class DataJobMonitorTest {
 
     @Test
     @Order(31)
-    void testRecordJobExecutionStatus_withSameExecutionIdAndOldStatusIsFinal_shouldNotUpdateLastExecution() {
+    void testRecordJobExecutionStatus_withSameExecutionIdAndOldStatusIsFinal_shouldNotUpdateTerminationStatus() {
         JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.USER_ERROR.getString());
 
         dataJobMonitor.recordJobExecutionStatus(jobExecution);
@@ -543,6 +544,22 @@ public class DataJobMonitorTest {
         Assertions.assertFalse(actualJob.isEmpty());
         // The termination status should not have changed from SUCCESS to USER_ERROR because SUCCESS is a final status
         Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, actualJob.get().getLatestJobTerminationStatus());
+    }
+
+    @Test
+    @Order(32)
+    void testRecordJobExecutionStatus_withAnOlderExecution_shouldNotUpdateLastExecution() {
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "newer-execution-id",
+                ExecutionTerminationStatus.USER_ERROR.getString(), false,
+                OffsetDateTime.now().minus(Duration.ofDays(2)),
+                OffsetDateTime.now().minus(Duration.ofDays(1)));
+
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        // The last execution status should not have changed from FINISHED to FAILED because the execution is not recent
+        Assertions.assertEquals(ExecutionStatus.FINISHED, actualJob.get().getLastExecutionStatus());
     }
 
     private static String randomId(String prefix) {
@@ -558,18 +575,29 @@ public class DataJobMonitorTest {
     }
 
     private static JobExecution buildJobExecutionStatus(
+            String jobName,
+            String executionId,
+            String terminationMessage,
+            Boolean executionSucceeded) {
+        return buildJobExecutionStatus(jobName, executionId, terminationMessage,
+                executionSucceeded, OffsetDateTime.now(), OffsetDateTime.now());
+    }
+
+    private static JobExecution buildJobExecutionStatus(
           String jobName,
           String executionId,
           String terminationMessage,
-          Boolean executionSucceeded) {
+          Boolean executionSucceeded,
+          OffsetDateTime startTime,
+          OffsetDateTime endTime) {
         return JobExecution.builder()
               .jobName(jobName)
               .executionId(executionId)
               .terminationMessage(terminationMessage)
               .executionType("scheduled")
               .opId("opId")
-              .startTime(OffsetDateTime.now())
-              .endTime(OffsetDateTime.now())
+              .startTime(startTime)
+              .endTime(endTime)
               .jobVersion("jobVersion")
               .jobSchedule("jobSchedule")
               .resourcesCpuRequest(1F)
