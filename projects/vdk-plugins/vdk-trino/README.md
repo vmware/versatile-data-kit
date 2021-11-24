@@ -55,7 +55,7 @@ Run vdk config-help - search for those prefixed with "TRINO_" to see what config
 
 # Testing
 
-Testing this plugin locally requires installing the dependencies listed in plugins/vdk-trino/requirements.txt
+Testing this plugin locally requires installing the dependencies listed in vdk-plugins/vdk-trino/requirements.txt
 
 Run
 ```bash
