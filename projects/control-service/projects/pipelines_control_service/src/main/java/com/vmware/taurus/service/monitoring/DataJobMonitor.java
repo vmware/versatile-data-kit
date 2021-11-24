@@ -15,7 +15,6 @@ import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionResult;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.ApiException;
@@ -178,7 +177,6 @@ public class DataJobMonitor {
     void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
-        String executionId = jobStatus.getExecutionId();
         ExecutionResult executionResult = JobExecutionResultManager.getResult(jobStatus);
 
         if (StringUtils.isBlank(dataJobName)) {
@@ -192,55 +190,18 @@ public class DataJobMonitor {
             return;
         }
 
-        DataJob dataJob = dataJobOptional.get();
-        if (shouldUpdateTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus())) {
-            dataJob = saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus());
-            updateDataJobTerminationStatusGauge(dataJob);
-        }
+        final DataJob dataJob = dataJobOptional.get();
 
-        // Update the job execution
-        Optional<com.vmware.taurus.service.model.DataJobExecution> execution = jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
-        // Update the last execution state with the completed execution
-        if (execution.isPresent()) {
-            jobsService.updateLastExecution(dataJob, execution.get());
-        }
-    }
+        // Update the job execution and the last execution state
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult)
+                .ifPresent(jobsService::updateLastExecution);
 
-
-    private boolean shouldUpdateTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        // Do not update the status when either:
-        //   * the status is SKIPPED
-        //   * the status and executionId have not changed
-        //   * the executionId has not changed and the old status is final (CANCELLED, FAILED, FINISHED, SKIPPED)
-        if (terminationStatus == ExecutionTerminationStatus.SKIPPED ||
-                dataJob.getLatestJobTerminationStatus() == terminationStatus &&
-                        StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId) ||
-                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId) &&
-                        dataJob.getLatestJobTerminationStatus() != ExecutionTerminationStatus.NONE) {
-            log.debug("The termination status of data job {} will not be updated. Old status is: {}, New status is: {}; Old execution id: {}, New execution id: {}",
-                    dataJob.getName(), dataJob.getLatestJobTerminationStatus(), terminationStatus, dataJob.getLatestJobExecutionId(), executionId);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Updates the latest termination status of the data job with the specified name (if it exists)
-     * in the jobs repository.
-     *
-     * @param dataJob           the data job to be updated
-     * @param executionId       The execution identifier.
-     * @param terminationStatus The termination status of the job.
-     * @return The updated data job.
-     */
-    private DataJob saveTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        ExecutionTerminationStatus previousTerminationStatus = dataJob.getLatestJobTerminationStatus();
-        dataJob.setLatestJobTerminationStatus(terminationStatus);
-        dataJob.setLatestJobExecutionId(executionId);
-
-        log.debug("Update termination status of data job {} with execution {} from {} to {}",
-                dataJob.getName(), executionId, previousTerminationStatus, terminationStatus);
-
-        return jobsRepository.save(dataJob);
+        // Update the termination status from the last execution
+        jobExecutionService.getLastExecution(dataJobName)
+                .ifPresent(e -> {
+                    if (jobsService.updateTerminationStatus(e)) {
+                        jobsRepository.findById(dataJobName).ifPresent(this::updateDataJobTerminationStatusGauge);
+                    }
+                });
     }
 }
