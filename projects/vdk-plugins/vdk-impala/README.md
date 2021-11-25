@@ -37,7 +37,7 @@ Run vdk config-help - search for those prefixed with "IMPALA_" to see what confi
 
 # Testing
 
-Testing this plugin locally requires installing the dependencies listed in plugins/vdk-impala/requirements.txt
+Testing this plugin locally requires installing the dependencies listed in vdk-plugins/vdk-impala/requirements.txt
 
 Run
 ```bash
