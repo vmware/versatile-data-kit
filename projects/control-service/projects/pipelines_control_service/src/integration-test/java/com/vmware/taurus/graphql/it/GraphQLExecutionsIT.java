@@ -67,9 +67,9 @@ public class GraphQLExecutionsIT extends BaseIT {
       this.dataJobExecution1 = JobExecutionUtil.createDataJobExecution(
             jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.FINISHED);
       this.dataJobExecution2 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository,"testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.RUNNING);
+            jobExecutionRepository, "testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.RUNNING);
       this.dataJobExecution3 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository,"testId3", dataJob3, now.minusSeconds(10), now.minusSeconds(10), ExecutionStatus.SUBMITTED);
+            jobExecutionRepository, "testId3", dataJob3, now.minusSeconds(10), now.minusSeconds(10), ExecutionStatus.SUBMITTED);
    }
 
    private static String getQuery() {
@@ -95,6 +95,34 @@ public class GraphQLExecutionsIT extends BaseIT {
                   .param("variables", "{" +
                         "\"filter\": {" +
                         "      \"startTimeGte\": \"" + dataJobExecution2.getStartTime() + "\"" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+                  .with(user(TEST_USERNAME)))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution1.getId(), dataJobExecution2.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob1.getName(), dataJob2.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
+   }
+
+   @Test
+   public void testExecutions_filterByStartTimeLte() throws Exception {
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
+                        "      \"startTimeLte\": \"" + dataJobExecution2.getStartTime() + "\"" +
                         "    }," +
                         "\"pageNumber\": 1," +
                         "\"pageSize\": 10" +
@@ -145,6 +173,34 @@ public class GraphQLExecutionsIT extends BaseIT {
    }
 
    @Test
+   public void testExecutions_filterByEndTimeLte() throws Exception {
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
+                        "      \"endTimeLte\": \"" + dataJobExecution2.getEndTime() + "\"" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+                  .with(user("user")))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution1.getId(), dataJobExecution2.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob1.getName(), dataJob2.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
+   }
+
+   @Test
    public void testExecutions_filterByStatusIn() throws Exception {
       mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
                   .queryParam("query", getQuery())
@@ -169,4 +225,31 @@ public class GraphQLExecutionsIT extends BaseIT {
                   Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
             .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
    }
+
+   @Test
+   public void testExecutions_filterByJobNameIn() throws Exception {
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
+                        "      \"jobNameIn\": [\"" + dataJobExecution1.getDataJob().getName() + "\"]" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+                  .with(user("user")))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution1.getId(), dataJobExecution2.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob1.getName(), dataJob2.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
+   }
+
 }
