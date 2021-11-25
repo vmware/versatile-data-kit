@@ -5,22 +5,6 @@
 
 package com.vmware.taurus.graphql.it;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
@@ -30,6 +14,21 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 public class GraphQLExecutionsIT extends BaseIT {
@@ -132,16 +131,16 @@ public class GraphQLExecutionsIT extends BaseIT {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath(
                   "$.data.content[*].id",
-                  Matchers.contains(dataJobExecution1.getId(), dataJobExecution2.getId())))
+                  Matchers.contains(dataJobExecution2.getId(), dataJobExecution3.getId())))
             .andExpect(jsonPath(
                   "$.data.content[*].jobName",
-                  Matchers.contains(dataJob1.getName(), dataJob2.getName())))
+                  Matchers.contains(dataJob2.getName(), dataJob3.getName())))
             .andExpect(jsonPath(
                   "$.data.content[*].status",
-                  Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
+                  Matchers.contains(dataJobExecution2.getStatus().toString(), dataJobExecution3.getStatus().toString())))
             .andExpect(jsonPath(
                   "$.data.content[*].id",
-                  Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
+                  Matchers.not(Matchers.contains(dataJobExecution1.getId()))));
    }
 
    @Test
@@ -188,16 +187,16 @@ public class GraphQLExecutionsIT extends BaseIT {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath(
                   "$.data.content[*].id",
-                  Matchers.contains(dataJobExecution1.getId(), dataJobExecution2.getId())))
+                  Matchers.contains(dataJobExecution2.getId(), dataJobExecution3.getId())))
             .andExpect(jsonPath(
                   "$.data.content[*].jobName",
-                  Matchers.contains(dataJob1.getName(), dataJob2.getName())))
+                  Matchers.contains(dataJob2.getName(), dataJob3.getName())))
             .andExpect(jsonPath(
                   "$.data.content[*].status",
-                  Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
+                  Matchers.contains(dataJobExecution2.getStatus().toString(), dataJobExecution3.getStatus().toString())))
             .andExpect(jsonPath(
                   "$.data.content[*].id",
-                  Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
+                  Matchers.not(Matchers.contains(dataJobExecution1.getId()))));
    }
 
    @Test
@@ -242,14 +241,15 @@ public class GraphQLExecutionsIT extends BaseIT {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath(
                   "$.data.content[*].id",
-                  Matchers.contains(dataJobExecution1.getId(), dataJobExecution2.getId())))
+                  Matchers.contains(dataJobExecution1.getId())))
             .andExpect(jsonPath(
                   "$.data.content[*].jobName",
-                  Matchers.contains(dataJob1.getName(), dataJob2.getName())))
+                  Matchers.contains(dataJob1.getName())))
             .andExpect(jsonPath(
                   "$.data.content[*].status",
-                  Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
-            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
+                  Matchers.contains(dataJobExecution1.getStatus().toString())))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution2.getId()))));
    }
 
 }
