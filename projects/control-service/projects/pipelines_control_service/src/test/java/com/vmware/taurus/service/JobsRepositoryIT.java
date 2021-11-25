@@ -93,4 +93,19 @@ public class JobsRepositoryIT {
               persistedEntity.get().getLastExecutionEndTime().toInstant().atOffset(ZoneOffset.UTC));
       Assertions.assertEquals(200, persistedEntity.get().getLastExecutionDuration());
    }
+
+   @Test
+   void testUpdateDataJobLatestTerminationStatus() {
+      var entity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
+      entity.setLatestJobTerminationStatus(ExecutionTerminationStatus.SUCCESS);
+      entity.setLatestJobExecutionId("old-id");
+      repository.save(entity);
+
+      repository.updateDataJobLatestTerminationStatusByName("hello", ExecutionTerminationStatus.USER_ERROR, "new-id");
+
+      var persistedEntity = repository.findById("hello");
+      Assertions.assertTrue(persistedEntity.isPresent());
+      Assertions.assertEquals(ExecutionTerminationStatus.USER_ERROR, persistedEntity.get().getLatestJobTerminationStatus());
+      Assertions.assertEquals("new-id", persistedEntity.get().getLatestJobExecutionId());
+   }
 }

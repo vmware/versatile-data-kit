@@ -277,6 +277,17 @@ public class JobExecutionService {
    }
 
    /**
+    * Returns the last execution of the data job with the specified name, or an empty optional if there
+    * are no executions. The last execution is considered the one with the most recent start time.
+    *
+    * @param dataJobName The name of the data job whose last execution to return.
+    * @return The last execution of the data job if any, otherwise, {@link Optional#empty()}.
+    */
+   public Optional<com.vmware.taurus.service.model.DataJobExecution> getLastExecution(String dataJobName) {
+      return jobExecutionRepository.findFirstByDataJobNameOrderByStartTimeDesc(dataJobName);
+   }
+
+   /**
     * We need to keep in sync all job executions in the database
     * in case of Control Service downtime or missed Kubernetes Job Event
     * <p>
