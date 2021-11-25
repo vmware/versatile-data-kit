@@ -34,24 +34,24 @@ public class JobExecutionFilterSpec implements Specification<DataJobExecution> {
             predicates.add(builder.greaterThanOrEqualTo(root.get(DataJobExecution_.START_TIME), filter.getStartTimeGte()));
          }
 
+         if (filter.getStartTimeLte() != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get(DataJobExecution_.START_TIME), filter.getStartTimeLte()));
+         }
+
          if (filter.getEndTimeGte() != null) {
             predicates.add(builder.greaterThanOrEqualTo(root.get(DataJobExecution_.END_TIME), filter.getEndTimeGte()));
+         }
+
+         if (filter.getEndTimeLte() != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get(DataJobExecution_.END_TIME), filter.getEndTimeLte()));
          }
 
          if (CollectionUtils.isNotEmpty(filter.getStatusIn())) {
             predicates.add(root.get(DataJobExecution_.STATUS).in(filter.getStatusIn()));
          }
 
-         if (filter.getJobNameIn() != null && filter.getJobNameIn().size() > 0) {
+         if (CollectionUtils.isNotEmpty(filter.getJobNameIn())) {
             predicates.add(root.get(DataJobExecution_.DATA_JOB).get(DataJob_.NAME).in(filter.getJobNameIn()));
-         }
-
-         if (filter.getStartTimeLte() != null) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(DataJobExecution_.START_TIME), filter.getStartTimeLte()));
-         }
-
-         if (filter.getEndTimeLte() != null) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(DataJobExecution_.END_TIME), filter.getEndTimeLte()));
          }
 
       }

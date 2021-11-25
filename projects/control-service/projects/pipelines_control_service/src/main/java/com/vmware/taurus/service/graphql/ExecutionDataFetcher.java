@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.AVAILABLE_PROPERTIES;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.DIRECTION_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.PROPERTY_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.PUBLIC_NAME_TO_DB_ENTITY_MAP;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
@@ -277,8 +278,9 @@ public class ExecutionDataFetcher {
 
          builder.property(
                Optional.ofNullable(orderRaw.get(PROPERTY_FIELD))
-                     .map(o -> (String)o)
+                     .map(o -> (String) o)
                      .filter(p -> AVAILABLE_PROPERTIES.contains(p))
+                     .map(p -> PUBLIC_NAME_TO_DB_ENTITY_MAP.getOrDefault(p, p)) // If no mapping present use user provided property name
                      .orElseThrow(() -> new GraphQLException(String.format(
                            "%s.%s must be in [%s]",
                            ORDER_FIELD,

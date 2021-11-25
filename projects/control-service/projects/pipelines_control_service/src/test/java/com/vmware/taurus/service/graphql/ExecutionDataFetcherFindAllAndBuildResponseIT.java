@@ -316,7 +316,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       var expectedJobExecution4 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob2, ExecutionStatus.FINISHED);
 
       when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-      when(orderRaw.get(DataJobExecutionOrder.PROPERTY_FIELD)).thenReturn("dataJob.name");
+      when(orderRaw.get(DataJobExecutionOrder.PROPERTY_FIELD)).thenReturn("jobName");
       when(orderRaw.get(DataJobExecutionOrder.DIRECTION_FIELD)).thenReturn("DESC");
       when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(orderRaw);
 
