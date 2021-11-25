@@ -142,8 +142,8 @@ public class DataJobMonitorTest {
     public void testWatchJobs() throws IOException, ApiException {
         var jobStatuses = List.of(
               buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.SUCCESS.getString()),
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.USER_ERROR.getString()),
-              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.PLATFORM_ERROR.getString()),
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.USER_ERROR.getString(), false),
+              buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.PLATFORM_ERROR.getString(), false),
               buildJobExecutionStatus(randomId("datajob-"), randomId("job-"), ExecutionTerminationStatus.SKIPPED.getString())
         );
         doAnswer(inv -> {
@@ -412,7 +412,7 @@ public class DataJobMonitorTest {
                 DeploymentStatus.NONE, ExecutionTerminationStatus.NONE, "old-execution-id");
         jobsRepository.save(dataJob);
 
-        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.SKIPPED.getString());
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.SKIPPED.getString(), null);
         dataJobMonitor.recordJobExecutionStatus(jobExecution);
         Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
 
@@ -432,9 +432,10 @@ public class DataJobMonitorTest {
         jobsRepository.save(dataJob);
 
         JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionTerminationStatus.SUCCESS.getString());
-        dataJobMonitor.recordJobExecutionStatus(jobExecution);
-        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
 
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
         Assertions.assertTrue(actualJob.isPresent());
         Assertions.assertEquals("old-execution-id", actualJob.get().getLatestJobExecutionId());
         Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS, actualJob.get().getLatestJobTerminationStatus());
@@ -451,10 +452,11 @@ public class DataJobMonitorTest {
                 DeploymentStatus.NONE, ExecutionTerminationStatus.NONE, "old-execution-id");
         jobsRepository.save(dataJob);
 
-        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.NONE.getString());
-        dataJobMonitor.recordJobExecutionStatus(jobExecution);
-        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
+        JobExecution jobExecution = buildJobExecutionStatus("new-job", "new-execution-id", ExecutionTerminationStatus.NONE.getString(), null);
 
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+
+        Optional<DataJob> actualJob = jobsRepository.findById(dataJob.getName());
         Assertions.assertTrue(actualJob.isPresent());
         Assertions.assertEquals("new-execution-id", actualJob.get().getLatestJobExecutionId());
         Assertions.assertEquals(ExecutionTerminationStatus.NONE, actualJob.get().getLatestJobTerminationStatus());
