@@ -23,7 +23,10 @@ enum Direction {
 input DataJobExecutionFilter {
     startTimeGte: DateTime,
     endTimeGte: DateTime,
-    statusIn: [DataJobExecutionStatus]
+    statusIn: [DataJobExecutionStatus],
+    jobNameIn: [String],
+    startTimeLte: DateTime,
+    endTimeLte: DateTime
 }
 
 input DataJobExecutionOrder {

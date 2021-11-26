@@ -5,26 +5,6 @@
 
 package com.vmware.taurus.service.graphql;
 
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
-import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_SIZE_FIELD;
-import static org.mockito.Mockito.when;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
-
-import graphql.GraphQLException;
-import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.service.JobExecutionRepository;
@@ -35,6 +15,25 @@ import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import graphql.GraphQLException;
+import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
+
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_SIZE_FIELD;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class ExecutionDataFetcherFindAllAndBuildResponseIT {
@@ -301,6 +300,136 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
 
       Assertions.assertThrows(GraphQLException.class, () -> allAndBuildResponse.get(dataFetchingEnvironment));
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_orderByJobName_shouldReturnResult() throws Exception {
+
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "a");
+      DataJob actualDataJob2 = RepositoryUtil.createDataJob(jobsRepository, "b");
+      DataJob actualDataJob3 = RepositoryUtil.createDataJob(jobsRepository, "c");
+      DataJob actualDataJob4 = RepositoryUtil.createDataJob(jobsRepository, "d");
+
+      var expectedJobExecution1 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob4, ExecutionStatus.FINISHED);
+      var expectedJobExecution2 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.FINISHED);
+      var expectedJobExecution3 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob3, ExecutionStatus.FINISHED);
+      var expectedJobExecution4 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob2, ExecutionStatus.FINISHED);
+
+      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
+      when(orderRaw.get(DataJobExecutionOrder.PROPERTY_FIELD)).thenReturn("jobName");
+      when(orderRaw.get(DataJobExecutionOrder.DIRECTION_FIELD)).thenReturn("DESC");
+      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(orderRaw);
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(4, actualJobExecutions.size());
+      //check sort order by job name is DESC
+      assertExecutionsEquals(expectedJobExecution1, actualJobExecutions.get(0));
+      assertExecutionsEquals(expectedJobExecution3, actualJobExecutions.get(1));
+      assertExecutionsEquals(expectedJobExecution4, actualJobExecutions.get(2));
+      assertExecutionsEquals(expectedJobExecution2, actualJobExecutions.get(3));
+
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByJobName_shouldReturnResult() throws Exception {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "job-one");
+      DataJob actualDataJob2 = RepositoryUtil.createDataJob(jobsRepository, "job-two");
+
+      OffsetDateTime now = OffsetDateTime.now();
+
+      var expectedExecution = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob2, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
+
+      when(filterRaw.get(DataJobExecutionFilter.JOB_NAME_IN_FIELD)).thenReturn(List.of(actualDataJob.getName()));
+      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(1, actualJobExecutions.size());
+      assertExecutionsEquals(expectedExecution, actualJobExecutions.get(0));
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByEndTimeLte_shouldNotReturnResult() throws Exception {
+
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      OffsetDateTime now = OffsetDateTime.now();
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
+
+      when(filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(2));
+      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(0, actualJobExecutions.size());
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByEndTimeLte_shouldReturnResult() throws Exception {
+
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      OffsetDateTime now = OffsetDateTime.now();
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
+      var expected = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now, now.minusDays(4));
+
+      when(filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(2));
+      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(1, actualJobExecutions.size());
+      assertExecutionsEquals(expected, actualJobExecutions.get(0));
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByStartTimeLte_shouldNotReturnResult() throws Exception {
+
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      OffsetDateTime now = OffsetDateTime.now();
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusDays(3), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusDays(3), now.minusMinutes(1));
+
+      when(filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(4));
+      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(0, actualJobExecutions.size());
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByStartTimeLte_shouldReturnResult() throws Exception {
+
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      OffsetDateTime now = OffsetDateTime.now();
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
+      var expected = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusDays(3), now);
+
+      when(filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(2));
+      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(1, actualJobExecutions.size());
+      assertExecutionsEquals(expected, actualJobExecutions.get(0));
    }
 
    private void assertExecutionsEquals(DataJobExecution expectedJobExecution, Object actualJobExecutionObject) {

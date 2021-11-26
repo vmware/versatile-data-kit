@@ -5,22 +5,6 @@
 
 package com.vmware.taurus.graphql.it;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
@@ -30,6 +14,21 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 public class GraphQLExecutionsIT extends BaseIT {
@@ -67,9 +66,9 @@ public class GraphQLExecutionsIT extends BaseIT {
       this.dataJobExecution1 = JobExecutionUtil.createDataJobExecution(
             jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.FINISHED);
       this.dataJobExecution2 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository,"testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.RUNNING);
+            jobExecutionRepository, "testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.RUNNING);
       this.dataJobExecution3 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository,"testId3", dataJob3, now.minusSeconds(10), now.minusSeconds(10), ExecutionStatus.SUBMITTED);
+            jobExecutionRepository, "testId3", dataJob3, now.minusSeconds(10), now.minusSeconds(10), ExecutionStatus.SUBMITTED);
    }
 
    private static String getQuery() {
@@ -117,6 +116,34 @@ public class GraphQLExecutionsIT extends BaseIT {
    }
 
    @Test
+   public void testExecutions_filterByStartTimeLte() throws Exception {
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
+                        "      \"startTimeLte\": \"" + dataJobExecution2.getStartTime() + "\"" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+                  .with(user(TEST_USERNAME)))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution2.getId(), dataJobExecution3.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob2.getName(), dataJob3.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution2.getStatus().toString(), dataJobExecution3.getStatus().toString())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.not(Matchers.contains(dataJobExecution1.getId()))));
+   }
+
+   @Test
    public void testExecutions_filterByEndTimeGte() throws Exception {
       mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
                   .queryParam("query", getQuery())
@@ -145,6 +172,34 @@ public class GraphQLExecutionsIT extends BaseIT {
    }
 
    @Test
+   public void testExecutions_filterByEndTimeLte() throws Exception {
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
+                        "      \"endTimeLte\": \"" + dataJobExecution2.getEndTime() + "\"" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+                  .with(user("user")))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution2.getId(), dataJobExecution3.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob2.getName(), dataJob3.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution2.getStatus().toString(), dataJobExecution3.getStatus().toString())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.not(Matchers.contains(dataJobExecution1.getId()))));
+   }
+
+   @Test
    public void testExecutions_filterByStatusIn() throws Exception {
       mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
                   .queryParam("query", getQuery())
@@ -169,4 +224,32 @@ public class GraphQLExecutionsIT extends BaseIT {
                   Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
             .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))));
    }
+
+   @Test
+   public void testExecutions_filterByJobNameIn() throws Exception {
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
+                        "      \"jobNameIn\": [\"" + dataJobExecution1.getDataJob().getName() + "\"]" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+                  .with(user("user")))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution1.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob1.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution1.getStatus().toString())))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution2.getId()))));
+   }
+
 }
