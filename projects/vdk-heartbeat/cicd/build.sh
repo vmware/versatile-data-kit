@@ -13,4 +13,4 @@ pip install -e .
 
 echo "Run unit tests and generate coverage report"
 pip install pytest-cov
-pytest --junitxml=tests.xml --cov taurus --cov-report term-missing --cov-report xml:coverage.xml
+pytest --junitxml=tests.xml --cov vdk --cov-report term-missing --cov-report xml:coverage.xml
