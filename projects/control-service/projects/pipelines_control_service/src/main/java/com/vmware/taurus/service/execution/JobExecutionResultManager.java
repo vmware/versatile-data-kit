@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.execution;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public class JobExecutionResultManager {
     */
    public static ExecutionResult getResult(KubernetesService.JobExecution jobExecution) {
       TerminationMessage terminationMessage = parseTerminationMessage(jobExecution.getTerminationMessage());
-      ExecutionStatus executionStatus = getExecutionStatus(jobExecution.getSucceeded());
+      ExecutionStatus executionStatus = getExecutionStatus(jobExecution.getSucceeded(), jobExecution.getStartTime());
       ExecutionTerminationStatus terminationStatus = getTerminationStatus(terminationMessage.getTerminationStatus());
 
       terminationStatus = updateTerminationStatusBasedOnExecutionStatus(
@@ -66,19 +67,26 @@ public class JobExecutionResultManager {
     * Determines the execution status based on K8S Job status as follows:
     * <ul>
     *   <li>If K8S Job succeeded is null (which means there is no K8S Job condition
-    *   because the job is already running), then the execution status will be RUNNING</li>
+    *   because the job has still not finished), then the execution status will be either RUNNING,
+    *   if the K8S Job has start time, or SUBMITTED, if the K8S Job does not have start time,
+    *   i.e. it was created but the execution has not started yet.</li>
     *   <li>If the K8S Job succeeded is true, then the execution status will be FINISHED</li>
     *   <li>If K8S Job succeeded is false, then the execution status will be FAILED</li>
     * </ul>
     *
     * @param executionSucceeded
+    * @param startTime
     * @return
     */
-   private static ExecutionStatus getExecutionStatus(Boolean executionSucceeded) {
+   private static ExecutionStatus getExecutionStatus(Boolean executionSucceeded, OffsetDateTime startTime) {
       ExecutionStatus executionStatus;
 
       if (executionSucceeded == null) {
-         executionStatus = ExecutionStatus.RUNNING;
+         if (startTime == null) {
+            executionStatus = ExecutionStatus.SUBMITTED;
+         } else {
+            executionStatus = ExecutionStatus.RUNNING;
+         }
       } else if (executionSucceeded) {
          executionStatus = ExecutionStatus.FINISHED;
       } else {
