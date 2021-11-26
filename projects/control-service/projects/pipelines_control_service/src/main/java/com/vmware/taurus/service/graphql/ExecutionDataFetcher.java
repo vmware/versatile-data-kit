@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.AVAILABLE_PROPERTIES;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.DIRECTION_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.PROPERTY_FIELD;
+import static com.vmware.taurus.service.graphql.model.DataJobExecutionOrder.PUBLIC_NAME_TO_DB_ENTITY_MAP;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
@@ -246,7 +247,7 @@ public class ExecutionDataFetcher {
 
          builder.statusIn(
                Optional.ofNullable(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
-                     .map(statusInRaw -> ((List<String>)statusInRaw))
+                     .map(statusInRaw -> ((List<String>) statusInRaw))
                      .stream()
                      .flatMap(v1Jobs -> v1Jobs.stream())
                      .filter(Objects::nonNull)
@@ -257,8 +258,11 @@ public class ExecutionDataFetcher {
 
          filter = Optional.of(
                builder
-                     .startTimeGte((OffsetDateTime)filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD))
-                     .endTimeGte((OffsetDateTime)filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD))
+                     .startTimeGte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD))
+                     .endTimeGte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD))
+                     .startTimeLte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD))
+                     .endTimeLte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD))
+                     .jobNameIn((List<String>) filterRaw.get(DataJobExecutionFilter.JOB_NAME_IN_FIELD))
                      .build()
          );
       }
@@ -274,8 +278,9 @@ public class ExecutionDataFetcher {
 
          builder.property(
                Optional.ofNullable(orderRaw.get(PROPERTY_FIELD))
-                     .map(o -> (String)o)
+                     .map(o -> (String) o)
                      .filter(p -> AVAILABLE_PROPERTIES.contains(p))
+                     .map(p -> PUBLIC_NAME_TO_DB_ENTITY_MAP.getOrDefault(p, p)) // If no mapping present use user provided property name
                      .orElseThrow(() -> new GraphQLException(String.format(
                            "%s.%s must be in [%s]",
                            ORDER_FIELD,
