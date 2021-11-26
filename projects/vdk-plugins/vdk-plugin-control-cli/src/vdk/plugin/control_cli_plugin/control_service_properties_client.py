@@ -14,9 +14,8 @@ log = logging.getLogger(__name__)
 
 
 class ControlServicePropertiesServiceClient(IPropertiesServiceClient):
-    """
-    Implementation of PropertiesServiceClient which connects to Pipelines Control Service Properties API
-    """
+    """Implementation of PropertiesServiceClient which connects to VDK Control
+    Service Properties API."""
 
     def __init__(self, rest_api_url: str):
         self.__properties_api = ApiClientFactory(rest_api_url).get_properties_api()
