@@ -50,3 +50,11 @@ def run(job_input: IJobInput):
     uri = job_input.get_property('api-uri')
     print(requests.get(uri))
 ```
+
+# Build
+
+The easiest way is to use the ../build-plugin.sh helper script
+
+```bash
+../build-plugin.sh
+```
