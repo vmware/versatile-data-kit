@@ -1,41 +1,41 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
+import os
+from unittest import mock
 
 import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
-from vdk.plugin.control_cli_plugin.control_service_properties import (
-    ControlPlanePropertiesServiceClient,
+from vdk.plugin.control_cli_plugin.control_service_properties_client import (
+    ControlServicePropertiesServiceClient,
 )
 from werkzeug import Request
 from werkzeug import Response
 
 
+@mock.patch.dict(os.environ, {"VDK_CONTROL_HTTP_TOTAL_RETRIES": "1"})
 def test_read_properties(httpserver: PluginHTTPServer):
     api_url = httpserver.url_for("")
     response = {"a": "b", "int_value": "1"}
 
     httpserver.expect_request(
         method="GET",
-        uri=f"/data-jobs/for-team/test-team/name/test-job/deployments/release/properties",
+        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments/TODO/properties",
     ).respond_with_json(response)
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/name/empty-job/deployments/release/properties"
+        uri="/data-jobs/for-team/test-team/jobs/empty-job/deployments/TODO/properties"
     ).respond_with_json({})
 
-    url = (
-        api_url
-        + "/data-jobs/for-team/{team_name}/name/{job_name}/deployments/release/properties"
-    )
-    props = ControlPlanePropertiesServiceClient(url, "test-team")
+    props = ControlServicePropertiesServiceClient(api_url)
 
     assert props.read_properties("test-job", "test-team") == response
     assert props.read_properties("empty-job", "test-team") == {}
 
 
+@mock.patch.dict(os.environ, {"VDK_CONTROL_HTTP_TOTAL_RETRIES": "1"})
 def test_write_properties(httpserver: PluginHTTPServer):
     api_url = httpserver.url_for("")
     data = {"a": "b", "int_value": "1"}
@@ -47,31 +47,30 @@ def test_write_properties(httpserver: PluginHTTPServer):
 
     httpserver.expect_request(
         method="PUT",
-        uri=f"/data-jobs/for-team/test-team/name/test-job/deployments/release/properties",
+        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments/TODO/properties",
     ).respond_with_handler(handler)
 
-    url = (
-        api_url
-        + "/data-jobs/for-team/{team_name}/name/{job_name}/deployments/release/properties"
-    )
-    props = ControlPlanePropertiesServiceClient(url, "test-team")
+    props = ControlServicePropertiesServiceClient(api_url)
     props.write_properties("test-job", "test-team", data)
 
     assert sent_data == [data]
 
 
+@mock.patch.dict(os.environ, {"VDK_CONTROL_HTTP_TOTAL_RETRIES": "1"})
 def test_read_properties_401_error(httpserver: PluginHTTPServer):
     props = _setup_and_create_properties_client(httpserver, Response(status=401))
     with pytest.raises(VdkConfigurationError):
         props.read_properties("test-job", "test-team")
 
 
+@mock.patch.dict(os.environ, {"VDK_CONTROL_HTTP_TOTAL_RETRIES": "1"})
 def test_read_properties_403_error(httpserver: PluginHTTPServer):
     props = _setup_and_create_properties_client(httpserver, Response(status=403))
     with pytest.raises(UserCodeError):
         props.read_properties("test-job", "test-team")
 
 
+@mock.patch.dict(os.environ, {"VDK_CONTROL_HTTP_TOTAL_RETRIES": "1"})
 def test_read_properties_500_error(httpserver: PluginHTTPServer):
     props = _setup_and_create_properties_client(httpserver, Response(status=500))
     with pytest.raises(PlatformServiceError):
@@ -84,11 +83,7 @@ def _setup_and_create_properties_client(
     api_url = httpserver.url_for("")
     httpserver.expect_request(
         method="GET",
-        uri=f"/data-jobs/for-team/test-team/name/test-job/deployments/release/properties",
+        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments/TODO/properties",
     ).respond_with_response(response)
-    url = (
-        api_url
-        + "/data-jobs/for-team/{team_name}/name/{job_name}/deployments/release/properties"
-    )
-    props = ControlPlanePropertiesServiceClient(url, "test-team", retries=1)
+    props = ControlServicePropertiesServiceClient(api_url)
     return props
