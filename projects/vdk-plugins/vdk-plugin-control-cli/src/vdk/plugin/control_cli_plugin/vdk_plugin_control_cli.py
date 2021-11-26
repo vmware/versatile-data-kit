@@ -1,5 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import os
+
 import click
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.control.command_groups.common_group.default import (
@@ -20,6 +22,7 @@ from vdk.internal.control.command_groups.logout_group.logout import logout
 from vdk.internal.control.configuration.default_options import DefaultOptions
 from vdk.internal.control.plugin import control_plugin_manager
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
 from vdk.plugin.control_cli_plugin import control_service_configuration
 
 
@@ -47,5 +50,30 @@ def vdk_command_line(root_command: click.Group):
 
 @hookimpl(tryfirst=True)
 def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-    """ """
+    """"""
     control_service_configuration.add_definitions(config_builder)
+
+
+def __set_value_as_env_var(context: CoreContext, config_key: str):
+    env_var_name = f"VDK_{config_key.upper()}"
+    if env_var_name not in os.environ and context.configuration.get_value(config_key):
+        os.environ[env_var_name] = str(context.configuration.get_value(config_key))
+
+
+@hookimpl
+def vdk_initialize(context: CoreContext) -> None:
+    """Update vdk-control-cli configuration.
+
+    vdk-control-cli is not a proper plugin yet and looks only at env
+    variables for configuration. so we are setting them here.
+    """
+    __set_value_as_env_var(context, "API_TOKEN")
+    __set_value_as_env_var(context, "API_TOKEN_AUTHORIZATION_URL")
+    __set_value_as_env_var(context, "CONTROL_SERVICE_REST_API_URL")
+    __set_value_as_env_var(context, "CONTROL_SAMPLE_JOB_DIRECTORY")
+    __set_value_as_env_var(context, "CONTROL_HTTP_VERIFY_SSL")
+    __set_value_as_env_var(context, "CONTROL_HTTP_TOTAL_RETRIES")
+    __set_value_as_env_var(context, "CONTROL_HTTP_READ_RETRIES")
+    __set_value_as_env_var(context, "CONTROL_HTTP_READ_TIMEOUT_SECONDS")
+    __set_value_as_env_var(context, "CONTROL_HTTP_CONNECT_RETRIES")
+    __set_value_as_env_var(context, "CONTROL_HTTP_CONNECT_TIMEOUT_SECONDS")
