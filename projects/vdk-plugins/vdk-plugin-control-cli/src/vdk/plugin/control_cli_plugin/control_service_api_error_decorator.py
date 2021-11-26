@@ -14,16 +14,31 @@ log = logging.getLogger(__name__)
 
 
 class ConstrolServiceApiErrorDecorator:
+    """Decorator for exceptions raised by Control Service API.
+
+    It tries to present them in user friendly way and detect the
+    resolved by type of the error.
+    """
+
     def __init__(
         self, what="Control Service Error", consequences="Operation cannot complete."
     ):
+        """
+        :param what: what is the error message (see VDK error standard). Will be set if exception does not provide one.
+        :param consequences: what are the consequences for the user (see VDK error standard).
+        Will be set if exception does not provide one.
+        """
         self.__what = what
         self.__consequences = consequences
 
     def _get_error(self, exception: ApiException):
         try:
             return json.loads(exception.body)
-        except:
+        except Exception as jsonException:
+            log.debug(
+                f"We failed to parse API exception body as JSON due to {jsonException}. "
+                f"Will fallback to use generic template for error message."
+            )
             error = {}
             if exception.status == 401:
                 error = dict(
