@@ -1,0 +1,22 @@
+# Generated with pipelinit 0.2.2
+# https://pipelinit.com/
+name: Lint Python
+on:
+  pull_request:
+    paths:
+      - "**.py"
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - run: python -m pip install pip flake8
+
+      # Adapts Flake8 to run with the Black formatter, using the '--ignore' flag to skip incompatibilities errors
+      # Reference: https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html?highlight=other%20tools#id1
+      - run: flake8 --ignore E203,E501,W503 .
