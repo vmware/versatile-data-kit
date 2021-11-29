@@ -253,7 +253,9 @@ public class JobExecutionService {
                   com.vmware.taurus.service.model.DataJobExecution.builder()
                         .id(jobExecution.getExecutionId())
                         .dataJob(dataJob)
-                        .startTime(jobExecution.getStartTime())
+                        .startTime(jobExecution.getStartTime() != null ?
+                                jobExecution.getStartTime() :
+                                OffsetDateTime.now())
                         .type(ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
                               com.vmware.taurus.service.model.ExecutionType.MANUAL :
                               com.vmware.taurus.service.model.ExecutionType.SCHEDULED);

@@ -1019,7 +1019,7 @@ public abstract class KubernetesService implements InitializingBean {
 
                 log.debug("Job {} is {}", job.getMetadata().getName(), response.type);
 
-                if (!"ADDED".equals(response.type) && !"DELETED".equals(response.type)) {
+                if (!"DELETED".equals(response.type)) {
                     // Occasionally events arrive for jobs that have completed into the past.
                     // Ignore events that have arrived later than one hour after the job's completion time
                     var condition = getJobCondition(job);
