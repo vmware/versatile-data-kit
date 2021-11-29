@@ -22,6 +22,7 @@ from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.builtin_plugins.run.job_input_error_classifier import whom_to_blame
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
@@ -75,10 +76,10 @@ class DataJobDefaultHookImplPlugin:
                 if step_executed
                 else ExecutionStatus.NOT_RUNNABLE
             )
-        except BaseException as e:
+        except Exception as e:
             status = ExecutionStatus.ERROR
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
-            blamee = errors.find_whom_to_blame_from_exception(e)
+            blamee = whom_to_blame(e, __file__)
             exception = e
             errors.log_exception(
                 blamee,

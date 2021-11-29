@@ -31,6 +31,17 @@ class ErrorClassifierTest(unittest.TestCase):
         ),
     ]
 
+    GENERIC_USER_ERROR_STACKTRACE = [
+        f""""{EXECUTOR_MODULE}", line 71, in run_step
+    step_executed = step.runner_func(step, context.job_input)""",
+        f"""File "{EXECUTOR_MODULE_DIR}/file_based_step.py", line 83, in run_python_step
+    StepFuncFactory.invoke_run_function(func, job_input)""",
+        f"""File "{EXECUTOR_MODULE_DIR}/file_based_step.py", line 117, in invoke_run_function
+    func(**actual_arguments)""",
+        """File "/example_project/my-second-job/20_python_step.py", line 24, in run
+    raise Exception("Some test exception from user code") Exception: Some test exception from user code"""
+    ]
+
     PLATFORM_ERROR_STACKTRACE = [
         """File "{exec_module}", line 133, in _run_step
       step_executed = runner_func(file_path)""".format(
@@ -87,18 +98,10 @@ class ErrorClassifierTest(unittest.TestCase):
             errors.ResolvableBy.USER_ERROR,
         )
 
-    # Generic error thrown by job_input that is not specifically recognised by VDK should be VAC error.
-    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
-    @patch(f"{is_user_error.__module__}.{is_user_error.__name__}")
-    def test_job_input_generic_error(
-        self, mock_is_user_error, mock_traceback_format_tb
-    ):
-        exception = Exception("!")
-        mock_is_user_error.return_value = False
-        mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_STACKTRACE
+        mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
         self.assertEqual(
             whom_to_blame(exception, self.EXECUTOR_MODULE),
-            errors.ResolvableBy.PLATFORM_ERROR,
+            errors.ResolvableBy.USER_ERROR,
         )
 
 
