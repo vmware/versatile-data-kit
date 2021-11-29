@@ -57,6 +57,12 @@ class JobController:
         full_command = base_command + command
         log.debug(f"Command: {full_command}")
         try:
+            os.environ.update(
+                {
+                    "VDK_OP_ID": self.config.op_id,
+                    "VDK_OP_ID_OVERRIDE": self.config.op_id,
+                }
+            )
             out = subprocess.check_output(full_command)
             log.debug(f"out: {out}")
             return out
@@ -68,16 +74,19 @@ class JobController:
 
     @LogDecorator(log)
     def login(self):
-        self._execute(
-            [
-                "login",
-                "-a",
-                f"{self.config.vdkcli_api_refresh_token}",
-                "-t",
-                "api-token",
-            ]
-            + self.__get_api_token_authorization_url_arg()
-        )
+        if self.config.vdkcli_api_refresh_token:
+            self._execute(
+                [
+                    "login",
+                    "-a",
+                    f"{self.config.vdkcli_api_refresh_token}",
+                    "-t",
+                    "api-token",
+                ]
+                + self.__get_api_token_authorization_url_arg()
+            )
+        else:
+            log.info("Running against control service without authentication.")
 
     @LogDecorator(log)
     def delete_job(self):
