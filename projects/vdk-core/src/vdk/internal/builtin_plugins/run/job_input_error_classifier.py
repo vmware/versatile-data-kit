@@ -32,6 +32,7 @@ def whom_to_blame(exception, executor_module):
 
 
 def _is_exception_from_vdk_code(exception, executor_module):
+    exception_in_vdk = False
     executor_module = os.path.abspath(executor_module)
     vdk_code_directory = os.path.dirname(executor_module)
     call_list = traceback.format_tb(exception.__traceback__)
@@ -42,12 +43,13 @@ def _is_exception_from_vdk_code(exception, executor_module):
     for call in call_list:
         caller_module = call.split('"')[1]  # Extract module path from stacktrace call.
         if vdk_code_directory in caller_module and caller_module != executor_module:
-            return True
+            exception_in_vdk = True
         elif (
             caller_module == executor_module
         ):  # User code starts from this module always.
-            break
-    return False
+            return False
+
+    return exception_in_vdk
 
 
 def is_user_error(received_exception: Exception) -> bool:
