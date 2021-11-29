@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.execution;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Random;
 
@@ -147,6 +148,56 @@ public class JobExecutionServiceUpdateExecutionIT {
             "");
    }
 
+   @Test
+   void testUpdateJobExecution_withoutStartTime_shouldRecordExecutionStartTimeNow() {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      KubernetesService.JobExecution expectedJobExecution = createJobExecution(
+              actualDataJob,
+              null,
+              null,
+              null,
+              null);
+      DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
+              actualDataJob.getJobConfig().getTeam(),
+              actualDataJob.getName(),
+              expectedJobExecution.getExecutionId());
+
+      Assert.assertNotNull(actualJobExecution.getStartTime());
+      // Start time should be close to the current time (within 10 seconds) because it is set to the current time when null
+      Assert.assertTrue(Duration.between(OffsetDateTime.now(), actualJobExecution.getStartTime()).toMillis() < 10000);
+      Assert.assertEquals(DataJobExecution.StatusEnum.SUBMITTED, actualJobExecution.getStatus());
+   }
+
+   private KubernetesService.JobExecution createJobExecution(
+           DataJob dataJob,
+           Boolean succeeded,
+           String terminationMessage,
+           OffsetDateTime startTime,
+           OffsetDateTime endTime) {
+
+      KubernetesService.JobExecution jobExecution = KubernetesService.JobExecution.builder()
+              .succeeded(succeeded)
+              .opId("test_op_id")
+              .executionId("test_execution_id_" + new Random().nextInt())
+              .executionType("manual")
+              .jobName(dataJob.getName())
+              .jobVersion("test_job_version")
+              .jobSchedule("test_job_schedule")
+              .startTime(startTime)
+              .endTime(endTime)
+              .resourcesCpuLimit(1f)
+              .resourcesCpuRequest(1f)
+              .resourcesMemoryLimit(1)
+              .resourcesMemoryRequest(1)
+              .deployedBy("test_deployed_by")
+              .deployedDate(OffsetDateTime.now())
+              .terminationMessage(terminationMessage).build();
+      ExecutionResult executionResult = JobExecutionResultManager.getResult(jobExecution);
+      jobExecutionService.updateJobExecution(dataJob, jobExecution, executionResult);
+
+      return jobExecution;
+   }
+
    private void testUpdateJobExecution(
          Boolean actualExecutionSucceeded,
          String actualTerminationMessage,
@@ -155,30 +206,16 @@ public class JobExecutionServiceUpdateExecutionIT {
          String expectedVdkVersion) {
 
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-      KubernetesService.JobExecution expectedJobExecution = KubernetesService.JobExecution.builder()
-            .succeeded(actualExecutionSucceeded)
-            .opId("test_op_id")
-            .executionId("test_execution_id_" + new Random().nextInt())
-            .executionType("manual")
-            .jobName(actualDataJob.getName())
-            .jobVersion("test_job_version")
-            .jobSchedule("test_job_schedule")
-            .startTime(OffsetDateTime.now())
-            .endTime(OffsetDateTime.now())
-            .resourcesCpuLimit(1f)
-            .resourcesCpuRequest(1f)
-            .resourcesMemoryLimit(1)
-            .resourcesMemoryRequest(1)
-            .deployedBy("test_deployed_by")
-            .deployedDate(OffsetDateTime.now())
-            .terminationMessage(actualTerminationMessage).build();
-      ExecutionResult executionResult = JobExecutionResultManager.getResult(expectedJobExecution);
-      jobExecutionService.updateJobExecution(actualDataJob, expectedJobExecution, executionResult);
-
+      KubernetesService.JobExecution expectedJobExecution = createJobExecution(
+              actualDataJob,
+              actualExecutionSucceeded,
+              actualTerminationMessage,
+              OffsetDateTime.now(),
+              OffsetDateTime.now());
       DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
-            actualDataJob.getJobConfig().getTeam(),
-            actualDataJob.getName(),
-            expectedJobExecution.getExecutionId());
+              actualDataJob.getJobConfig().getTeam(),
+              actualDataJob.getName(),
+              expectedJobExecution.getExecutionId());
 
       expectedJobExecutionMessage = expectedJobExecutionMessage != null ? expectedJobExecutionMessage : expectedJobExecution.getTerminationMessage();
       assertDataJobExecutionValid(expectedJobExecution, expectedJobExecutionStatus, expectedJobExecutionMessage, actualJobExecution, expectedVdkVersion);
