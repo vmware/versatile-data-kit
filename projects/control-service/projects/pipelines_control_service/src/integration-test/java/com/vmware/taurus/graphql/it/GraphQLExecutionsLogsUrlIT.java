@@ -80,7 +80,7 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
 
       OffsetDateTime now = OffsetDateTime.now();
       this.dataJobExecution1 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.FINISHED);
+            jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.SUCCEEDED);
       this.dataJobExecution2 = JobExecutionUtil.createDataJobExecution(
             jobExecutionRepository, "testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.RUNNING);
       this.dataJobExecution3 = JobExecutionUtil.createDataJobExecution(

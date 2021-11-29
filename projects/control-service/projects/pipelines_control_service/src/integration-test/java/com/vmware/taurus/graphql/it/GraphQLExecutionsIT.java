@@ -60,11 +60,11 @@ public class GraphQLExecutionsIT extends BaseIT {
 
       OffsetDateTime now = OffsetDateTime.now();
       this.dataJobExecution1 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.FINISHED);
+            jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.SUCCEEDED);
       this.dataJobExecution2 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository, "testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.RUNNING);
+            jobExecutionRepository,"testId2", dataJob2, now.minusSeconds(1), now.minusSeconds(1), ExecutionStatus.USER_ERROR);
       this.dataJobExecution3 = JobExecutionUtil.createDataJobExecution(
-            jobExecutionRepository, "testId3", dataJob3, now.minusSeconds(10), now.minusSeconds(10), ExecutionStatus.SUBMITTED);
+            jobExecutionRepository,"testId3", dataJob3, now.minusSeconds(10), now.minusSeconds(10), ExecutionStatus.SUBMITTED);
    }
 
    private static String getQuery() {

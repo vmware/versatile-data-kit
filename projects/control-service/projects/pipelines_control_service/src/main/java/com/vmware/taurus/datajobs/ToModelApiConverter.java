@@ -10,7 +10,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.model.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class ToModelApiConverter {
@@ -75,14 +74,16 @@ public class ToModelApiConverter {
             return ExecutionStatus.SUBMITTED;
          case RUNNING:
             return ExecutionStatus.RUNNING;
-         case FAILED:
-            return ExecutionStatus.FAILED;
          case CANCELLED:
             return ExecutionStatus.CANCELLED;
-         case FINISHED:
-            return ExecutionStatus.FINISHED;
+         case SUCCEEDED:
+            return ExecutionStatus.SUCCEEDED;
          case SKIPPED:
             return ExecutionStatus.SKIPPED;
+         case USER_ERROR:
+            return ExecutionStatus.USER_ERROR;
+         case PLATFORM_ERROR:
+            return ExecutionStatus.PLATFORM_ERROR;
          default: // No such status
             log.warn("Unexpected status: '" + status + "' in ExecutionStatus.");
             return null;

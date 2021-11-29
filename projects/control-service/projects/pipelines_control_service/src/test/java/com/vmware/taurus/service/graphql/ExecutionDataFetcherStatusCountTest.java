@@ -74,7 +74,7 @@ public class ExecutionDataFetcherStatusCountTest {
    void testDataFetcherStatusCount_twoFailedExecutions() {
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
       lenient().when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())).thenReturn(true);
-      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of("test-job", Map.of(ExecutionStatus.FAILED, 2)));
+      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of("test-job", Map.of(ExecutionStatus.PLATFORM_ERROR, 2)));
       var testJob = new V2DataJob();
       var deployment = new V2DataJobDeployment();
 
@@ -89,7 +89,7 @@ public class ExecutionDataFetcherStatusCountTest {
    void testDataFetcherStatusCount_twoSuccessfulExecutions() {
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
       lenient().when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())).thenReturn(true);
-      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of("test-job", Map.of(ExecutionStatus.FINISHED, 2)));
+      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of("test-job", Map.of(ExecutionStatus.SUCCEEDED, 2)));
       var testJob = new V2DataJob();
       var deployment = new V2DataJobDeployment();
 

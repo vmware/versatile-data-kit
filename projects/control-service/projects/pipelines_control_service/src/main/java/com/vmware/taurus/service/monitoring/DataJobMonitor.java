@@ -95,7 +95,7 @@ public class DataJobMonitor {
                     labelsToWatch,
                     s -> {
                         log.info("Termination message of Data Job {} with execution {}: {}",
-                                s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
+                                s.getJobName(), s.getExecutionId(), s.getPodTerminationMessage());
                         recordJobExecutionStatus(s);
                     },
                     runningJobExecutionIds -> {

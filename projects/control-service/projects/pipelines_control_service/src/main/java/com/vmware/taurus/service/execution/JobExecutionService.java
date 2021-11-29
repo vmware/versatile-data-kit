@@ -231,8 +231,12 @@ public class JobExecutionService {
 
       //This set contains all the statuses that should not be changed to something else if present in the DB.
       //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
-      var finalStatusSet = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
-                                                 ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
+      var finalStatusSet = new HashSet<>(List.of(
+            ExecutionStatus.CANCELLED,
+            ExecutionStatus.USER_ERROR,
+            ExecutionStatus.PLATFORM_ERROR,
+            ExecutionStatus.SUCCEEDED,
+            ExecutionStatus.SKIPPED));
       ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
       // Optimization:
@@ -264,7 +268,7 @@ public class JobExecutionService {
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
-              .message(getJobExecutionApiMessage(executionStatus, executionResult.getTerminationStatus()))
+              .message(getJobExecutionApiMessage(executionStatus))
               .opId(jobExecution.getOpId())
               .endTime(jobExecution.getEndTime())
               .vdkVersion(executionResult.getVdkVersion())
@@ -315,7 +319,7 @@ public class JobExecutionService {
                   .stream()
                   .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
                   .map(dataJobExecution -> {
-                     dataJobExecution.setStatus(ExecutionStatus.FINISHED);
+                     dataJobExecution.setStatus(ExecutionStatus.SUCCEEDED);
                      dataJobExecution.setMessage("Status is set by VDK Control Service");
                      dataJobExecution.setEndTime(OffsetDateTime.now());
                      return dataJobExecution;
@@ -371,7 +375,7 @@ public class JobExecutionService {
     * @return Map which maps a data job name to a Map<ExecutionStatus, Integer>
     */
    public Map<String, Map<ExecutionStatus, Integer>> countExecutionStatuses(List<String> dataJobs,
-                                                                            List<ExecutionStatus> statuses) {
+         List<ExecutionStatus> statuses) {
 
       Map<String, Map<ExecutionStatus, Integer>> returnValue = new HashMap<>();
       var statusCount = jobExecutionRepository.countDataJobExecutionStatuses(statuses, dataJobs);
@@ -384,18 +388,18 @@ public class JobExecutionService {
          }
 
          returnValue.get(statusesCount.getJobName())
-                    .put(statusesCount.getStatus(), statusesCount.getStatusCount());
+               .put(statusesCount.getStatus(), statusesCount.getStatusCount());
       }
 
       return returnValue;
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, ExecutionTerminationStatus terminationStatus) {
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus) {
       switch (executionStatus) {
          case SKIPPED:
             return "Skipping job execution due to another parallel running execution.";
          default:
-            return terminationStatus.getString();
+            return executionStatus.getPodStatus();
       }
    }
 
