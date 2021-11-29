@@ -1,1 +1,4 @@
 vdk-core
+
+vdk-test-utils
+pytest
