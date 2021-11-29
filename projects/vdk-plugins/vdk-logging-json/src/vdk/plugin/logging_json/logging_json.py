@@ -12,10 +12,11 @@ from vdk.internal.core.statestore import CommonStoreKeys
 
 
 class EcsJsonFormatter(StdlibFormatter):
-    def __init__(self, job_name, attempt_id):
+    def __init__(self, job_name: str, attempt_id: str, op_id: str):
         super().__init__()
         self.__job_name = job_name
         self.__attempt_id = attempt_id
+        self.__op_id = op_id
 
     def format(self, record):
         result = self.format_to_ecs(record)
@@ -40,6 +41,7 @@ class EcsJsonFormatter(StdlibFormatter):
         # bind extra fields
         result["jobname"] = self.__job_name
         result["attemptid"] = self.__attempt_id
+        result["opid"] = self.__op_id
 
         return json.dumps(result)
 
@@ -51,6 +53,7 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
             EcsJsonFormatter(
                 job_name="",
                 attempt_id="",
+                op_id="",
             )
         )
 
@@ -58,7 +61,10 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
 @hookimpl(trylast=True)
 def initialize_job(context: JobContext) -> None:
     attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
+    op_id = context.core_context.state.get(CommonStoreKeys.OP_ID)
     job_name = context.name
 
     for handler in logging.getLogger().handlers:
-        handler.setFormatter(EcsJsonFormatter(job_name=job_name, attempt_id=attempt_id))
+        handler.setFormatter(
+            EcsJsonFormatter(job_name=job_name, attempt_id=attempt_id, op_id=op_id)
+        )

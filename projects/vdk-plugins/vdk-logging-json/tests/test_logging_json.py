@@ -6,7 +6,7 @@ from vdk.plugin.logging_json.logging_json import EcsJsonFormatter
 
 
 def test_formatter():
-    formatter = EcsJsonFormatter(job_name="", attempt_id="")
+    formatter = EcsJsonFormatter(job_name="", attempt_id="", op_id="")
 
     log_record = logging.LogRecord(
         name="",
@@ -24,7 +24,7 @@ def test_formatter():
     assert result[43:] == (
         '"message": "test-string", "level": "LEVEL 1", '
         '"lineno": 1, "filename": "", "modulename": "", '
-        '"funcname": "", "jobname": "", "attemptid": ""}'
+        '"funcname": "", "jobname": "", "attemptid": "", "opid": ""}'
     )
 
     log_record.msg = "test\nstring\nwith\nnewlines"
@@ -32,7 +32,7 @@ def test_formatter():
     assert result[43:] == (
         '"message": "test\\nstring\\nwith\\nnewlines", '
         '"level": "LEVEL 1", "lineno": 1, "filename": "", '
-        '"modulename": "", "funcname": "", "jobname": "", "attemptid": ""}'
+        '"modulename": "", "funcname": "", "jobname": "", "attemptid": "", "opid": ""}'
     )
 
     log_record.msg = 'test"string"with"double"quotes'
@@ -40,5 +40,5 @@ def test_formatter():
     assert result[43:] == (
         '"message": "test\\"string\\"with\\"double\\"quotes", '
         '"level": "LEVEL 1", "lineno": 1, "filename": "", '
-        '"modulename": "", "funcname": "", "jobname": "", "attemptid": ""}'
+        '"modulename": "", "funcname": "", "jobname": "", "attemptid": "", "opid": ""}'
     )
