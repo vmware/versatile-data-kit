@@ -23,7 +23,7 @@ class Config:
 
         # VDK CLI Arguments for vdkcli login
         self.vdkcli_api_refresh_token = self._get_atleast_one_value(
-            "VDKCLI_OAUTH2_REFRESH_TOKEN", "VDK_HEARTBEAT_API_TOKEN"
+            "VDKCLI_OAUTH2_REFRESH_TOKEN", "VDK_HEARTBEAT_API_TOKEN", is_required=False
         )
         # If no value is found, argument will not be passed and default will be used
         self.vdkcli_oauth2_uri = self._get_atleast_one_value(
