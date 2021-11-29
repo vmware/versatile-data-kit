@@ -49,7 +49,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .statusIn(List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
@@ -73,7 +73,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .startTimeGte(now.minusMinutes(1))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
@@ -97,7 +97,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .endTimeGte(now.minusMinutes(1))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
@@ -122,7 +122,7 @@ public class JobExecutionFilterSpecIT {
             .endTimeGte(now.minusMinutes(1))
             .statusIn(List.of(ExecutionStatus.RUNNING))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);

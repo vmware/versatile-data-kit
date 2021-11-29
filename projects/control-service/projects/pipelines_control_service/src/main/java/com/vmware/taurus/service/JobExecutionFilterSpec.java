@@ -24,10 +24,15 @@ import java.util.List;
 public class JobExecutionFilterSpec implements Specification<DataJobExecution> {
 
    private DataJobExecutionFilter filter;
+   private String jobName;
 
    @Override
    public Predicate toPredicate(Root<DataJobExecution> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
       List<Predicate> predicates = new ArrayList<>();
+
+      if (jobName != null) {
+         predicates.add(builder.equal(root.get(DataJobExecution_.DATA_JOB).get(DataJob_.NAME), jobName));
+      }
 
       if (filter != null) {
          if (filter.getStartTimeGte() != null) {
@@ -53,7 +58,6 @@ public class JobExecutionFilterSpec implements Specification<DataJobExecution> {
          if (CollectionUtils.isNotEmpty(filter.getJobNameIn())) {
             predicates.add(root.get(DataJobExecution_.DATA_JOB).get(DataJob_.NAME).in(filter.getJobNameIn()));
          }
-
       }
 
       return builder.and(predicates.toArray(new Predicate[0]));
