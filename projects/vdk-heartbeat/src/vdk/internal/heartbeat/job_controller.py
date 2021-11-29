@@ -74,16 +74,19 @@ class JobController:
 
     @LogDecorator(log)
     def login(self):
-        self._execute(
-            [
-                "login",
-                "-a",
-                f"{self.config.vdkcli_api_refresh_token}",
-                "-t",
-                "api-token",
-            ]
-            + self.__get_api_token_authorization_url_arg()
-        )
+        if self.config.vdkcli_api_refresh_token:
+            self._execute(
+                [
+                    "login",
+                    "-a",
+                    f"{self.config.vdkcli_api_refresh_token}",
+                    "-t",
+                    "api-token",
+                ]
+                + self.__get_api_token_authorization_url_arg()
+            )
+        else:
+            log.info("Running against control service without authentication.")
 
     @LogDecorator(log)
     def delete_job(self):
