@@ -14,7 +14,7 @@ job configuration and only differ in the Python version they use (3.7, 3.8, 3.9 
 They run according to rules, which are ordered in a way such that changes to a
 plugin's directory trigger the plugin CI, but changes to a different plugin does not.
 
-In order to add a new plugin, copy the plugin-template directory and follow the instructions in the files Generally those are
+In order to add a new plugin, copy the plugin-template directory and follow the instructions in the files. Generally those are
 
 * Update the setup.py file with correct name of the plugin;
 * Update `.plugin-ci.yml` file with name of the plugin - make sure to follow comments;
