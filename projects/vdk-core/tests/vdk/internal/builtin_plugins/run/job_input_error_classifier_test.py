@@ -39,7 +39,7 @@ class ErrorClassifierTest(unittest.TestCase):
         f"""File "{EXECUTOR_MODULE_DIR}/file_based_step.py", line 117, in invoke_run_function
     func(**actual_arguments)""",
         """File "/example_project/my-second-job/20_python_step.py", line 24, in run
-    raise Exception("Some test exception from user code") Exception: Some test exception from user code"""
+    raise Exception("Some test exception from user code") Exception: Some test exception from user code""",
     ]
 
     PLATFORM_ERROR_STACKTRACE = [
