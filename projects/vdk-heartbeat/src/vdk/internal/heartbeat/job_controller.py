@@ -57,6 +57,12 @@ class JobController:
         full_command = base_command + command
         log.debug(f"Command: {full_command}")
         try:
+            os.environ.update(
+                {
+                    "VDK_OP_ID": self.config.op_id,
+                    "VDK_OP_ID_OVERRIDE": self.config.op_id,
+                }
+            )
             out = subprocess.check_output(full_command)
             log.debug(f"out: {out}")
             return out
