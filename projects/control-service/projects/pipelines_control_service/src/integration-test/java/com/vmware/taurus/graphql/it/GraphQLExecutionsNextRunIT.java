@@ -92,7 +92,7 @@ public class GraphQLExecutionsNextRunIT {
 
    @Test
    public void testNextRunCall_twoJobs_DESC() throws Exception {
-      var now = OffsetDateTime.now();
+      var now = OffsetDateTime.now(ZoneId.of("UTC")).plusMinutes(2);
       var later = now.plusDays(1);
 
       addJob("jobA", toCron(now));
@@ -107,8 +107,8 @@ public class GraphQLExecutionsNextRunIT {
 
    @Test
    public void testNextRunCall_twoJobs_ASC() throws Exception {
-      var now = OffsetDateTime.now();
-      var later = now.plusDays(1);
+      var now = OffsetDateTime.now(ZoneId.of("UTC")).plusMinutes(2);
+      var later = now.plusMinutes(60);
 
       addJob("jobA", toCron(now));
       addJob("jobB", toCron(later));
