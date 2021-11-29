@@ -79,7 +79,7 @@ class DataJobDefaultHookImplPlugin:
         except Exception as e:
             status = ExecutionStatus.ERROR
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
-            blamee = whom_to_blame(e, __file__)
+            blamee = whom_to_blame(e, __file__, context.job_directory)
             exception = e
             errors.log_exception(
                 blamee,
