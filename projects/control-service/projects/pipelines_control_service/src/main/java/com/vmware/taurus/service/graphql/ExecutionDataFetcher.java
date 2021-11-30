@@ -19,8 +19,6 @@ import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
-import com.vmware.taurus.service.graphql.model.ExecutionQueryVariables;
-import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
@@ -30,7 +28,6 @@ import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
-import graphql.schema.SelectedField;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -43,7 +40,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -115,7 +111,17 @@ public class ExecutionDataFetcher {
    }
 
    private Page<DataJobExecution> findAllExecutions(DataJobExecutionQueryVariables dataJobExecutionQueryVariables, String dataJobName) {
-      Specification<DataJobExecution> filterSpec = new JobExecutionFilterSpec(dataJobExecutionQueryVariables.getFilter(), dataJobName);
+      DataJobExecutionFilter filter = dataJobExecutionQueryVariables.getFilter();
+      if (dataJobName != null && filter != null) {
+         if (filter.getJobNameIn() != null) {
+            throw new GraphQLException("The jobNameIn filter is not supported for nested executions");
+         }
+         filter = filter.toBuilder()
+                 .jobNameIn(List.of(dataJobName))
+                 .build();
+      }
+
+      Specification<DataJobExecution> filterSpec = new JobExecutionFilterSpec(filter);
       Page<DataJobExecution> result;
       DataJobExecutionOrder order = dataJobExecutionQueryVariables.getOrder();
       Sort sort = order != null ? Sort.by(order.getDirection(), order.getProperty()) : null;
@@ -136,15 +142,6 @@ public class ExecutionDataFetcher {
       }
 
       return result;
-   }
-
-   void validateFilterInputForExecutions(List<Filter> executionsFilter) {
-      final Optional<Filter> filterNotSupported = executionsFilter.stream()
-            .filter(e -> e.getPattern() != null)
-            .findAny();
-      if (filterNotSupported.isPresent()) {
-         throw new GraphQLException("Using patterns for execution filtering is currently not supported");
-      }
    }
 
    private static DataJobExecutionQueryVariables fetchDataJobExecutionQueryVariables(Map<String, Object> arguments) {

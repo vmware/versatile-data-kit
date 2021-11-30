@@ -5,21 +5,20 @@
 
 package com.vmware.taurus.service;
 
-import java.time.OffsetDateTime;
-import java.util.List;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionFilterSpecIT {
@@ -49,7 +48,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .statusIn(List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
@@ -73,7 +72,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .startTimeGte(now.minusMinutes(1))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
@@ -97,7 +96,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .endTimeGte(now.minusMinutes(1))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
@@ -122,7 +121,7 @@ public class JobExecutionFilterSpecIT {
             .endTimeGte(now.minusMinutes(1))
             .statusIn(List.of(ExecutionStatus.RUNNING))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter, null);
+      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
       var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
       Assertions.assertNotNull(actualJobExecutions);
