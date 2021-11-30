@@ -6,7 +6,7 @@ pluggy~=0.13
 tabulate
 click-spinner
 
-vdk-control-service-api==1.0.5
+vdk-control-service-api==1.0.6
 requests_oauthlib
 
 # Dependencies for creating HTTP calls against the OAuth2 provider. We can potentially remove those
