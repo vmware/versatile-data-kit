@@ -3,6 +3,7 @@
 import os
 import traceback
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -98,10 +99,42 @@ class ErrorClassifierTest(unittest.TestCase):
             errors.ResolvableBy.USER_ERROR,
         )
 
+    # Test generic errors in user code that are not specifically recognised by VDK.
+    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    def test_unknown_user_code_error(self, mock_traceback_format_tb):
+        data_job_path = Path("/example_project/my-second-job")
+        exception = Exception("User Error")
+
         mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
             errors.ResolvableBy.USER_ERROR,
+        )
+
+    # Test errors in user code that cannot be recognised by VDK due to lack of valid job_path.
+    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    def test_unknown_user_code_error_with_none_job_path(self, mock_traceback_format_tb):
+        data_job_path = None
+        exception = Exception("Should be Platform Error")
+
+        mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
+            errors.ResolvableBy.PLATFORM_ERROR,
+        )
+
+    # Generic error thrown by job_input that is not specifically recognised by VDK should be VAC error.
+    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    @patch(f"{is_user_error.__module__}.{is_user_error.__name__}")
+    def test_job_input_generic_error(
+        self, mock_is_user_error, mock_traceback_format_tb
+    ):
+        exception = Exception("!")
+        mock_is_user_error.return_value = False
+        mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_STACKTRACE
+        self.assertEqual(
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
+            errors.ResolvableBy.PLATFORM_ERROR,
         )
 
 
