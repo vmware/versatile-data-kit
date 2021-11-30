@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder=true)
 public class DataJobExecutionFilter {
 
    public static final String START_TIME_GTE_FIELD = "startTimeGte";

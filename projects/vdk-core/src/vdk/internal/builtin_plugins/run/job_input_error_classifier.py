@@ -6,20 +6,23 @@ when an exception occurs while executing a Data Job step.
 """
 import os
 import traceback
+from pathlib import Path
+from typing import Optional
 
 from vdk.internal.core import errors
 
 
-def whom_to_blame(exception, executor_module):
+def whom_to_blame(exception, executor_module, data_job_path: Optional[Path] = None):
     """
     :param exception: Exception object that has led to Data Job failure.
     :param executor_module: name of module that executes User Code.
+    :param data_job_path: path object of the data job directory.
     :return: ResolvableBy.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
              errors.ResolvableBy.USER_ERROR if exception was recognized as User Error.
     """
     if isinstance(exception, errors.BaseVdkError):
         return errors.find_whom_to_blame_from_exception(exception)
-    if is_user_error(exception):
+    if is_user_error(exception, data_job_path):
         return errors.ResolvableBy.USER_ERROR
     if _is_exception_from_vdk_code(
         exception, executor_module
@@ -32,7 +35,6 @@ def whom_to_blame(exception, executor_module):
 
 
 def _is_exception_from_vdk_code(exception, executor_module):
-    exception_in_vdk = False
     executor_module = os.path.abspath(executor_module)
     vdk_code_directory = os.path.dirname(executor_module)
     call_list = traceback.format_tb(exception.__traceback__)
@@ -43,16 +45,18 @@ def _is_exception_from_vdk_code(exception, executor_module):
     for call in call_list:
         caller_module = call.split('"')[1]  # Extract module path from stacktrace call.
         if vdk_code_directory in caller_module and caller_module != executor_module:
-            exception_in_vdk = True
+            return True
         elif (
             caller_module == executor_module
         ):  # User code starts from this module always.
-            return False
+            break
 
-    return exception_in_vdk
+    return False
 
 
-def is_user_error(received_exception: Exception) -> bool:
+def is_user_error(
+    received_exception: Exception, data_job_path: Optional[Path] = None
+) -> bool:
     """
     Returns if exception should be user error
     """
@@ -61,6 +65,7 @@ def is_user_error(received_exception: Exception) -> bool:
         or _is_new_thread_error(received_exception)
         or _is_timeout_error(received_exception)
         or _is_memory_limit_exceeded(received_exception)
+        or _is_direct_user_code_error(received_exception, job_path=data_job_path)
     )
 
 
@@ -94,3 +99,22 @@ def _is_timeout_error(exception):
         classname_with_package=".*TimeoutError.*",
         exception_message_matcher_regex=".*Duration of Data Job exceeded.*seconds.*",
     )
+
+
+def _is_direct_user_code_error(exception: Exception, job_path: Optional[Path]):
+    data_job_path = str(job_path) if job_path else None
+    if not data_job_path:
+        return False
+
+    # Get exception traceback as a list
+    call_list = traceback.format_tb(exception.__traceback__)
+    if len(call_list) == 0:
+        return False
+
+    last_call = call_list[-1]
+    last_caller_module = last_call.split('"')[1]
+
+    # Check if the data job path is contained in the last exception call from the exception
+    # traceback. If it is, it is safe to assume that the exception was generated directly in
+    # user code, and not somewhere else in the vdk code or one of vdk's plugins.
+    return True if data_job_path in last_caller_module else False
