@@ -68,7 +68,9 @@ class CliRunImpl:
                 raise execution_result.get_exception()
         except Exception as e:
             errors.log_and_rethrow(
-                job_input_error_classifier.whom_to_blame(e, __file__, data_job_directory),
+                job_input_error_classifier.whom_to_blame(
+                    e, __file__, data_job_directory
+                ),
                 log,
                 what_happened="Failed executing job.",
                 why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
