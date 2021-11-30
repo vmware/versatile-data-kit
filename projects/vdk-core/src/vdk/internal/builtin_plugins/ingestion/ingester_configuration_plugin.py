@@ -29,6 +29,26 @@ class IngesterConfigurationPlugin:
             default_value=None,
             description="Default Ingestion target to be used.",
         )
+        config_builder.add(
+            key="INGEST_PLUGIN_PROCESS_SEQUENCE",
+            default_value=None,
+            description="""A string of coma-separated ingestion plugin method names,
+            indicating the sequence in which the ingestion plugins would process the
+            payload. For example:
+                   INGEST_PLUGIN_PROCESS_SEQUENCE="pre-ingest-process,http"
+            would mean that the payload sent for ingestion would be first processed by
+            a `pre-ingest-process` plugin, before being ingested using the `ingest-http`
+            plugin.
+            NOTE: The value of this environment variable takes precedence
+            over the value in the `INGEST_METHOD_DEFAULT` environment
+            variable, i.e., if both variables are set, the value of
+            `INGEST_METHOD_DEFAULT` would be ignored. If, however, a method
+            argument is passed to the send_object_for_ingestion(
+            )/send_tabular_data_for_ingestion() methods, this argument would be
+            considered as the last ingestion plugin in the sequence to
+            process the payload.
+            """,
+        )
 
         # Configure ingestion specific environment variables
         ingester_configuration.add_definitions(config_builder=config_builder)
