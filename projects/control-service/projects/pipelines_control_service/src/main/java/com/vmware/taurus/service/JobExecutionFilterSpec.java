@@ -53,7 +53,6 @@ public class JobExecutionFilterSpec implements Specification<DataJobExecution> {
          if (CollectionUtils.isNotEmpty(filter.getJobNameIn())) {
             predicates.add(root.get(DataJobExecution_.DATA_JOB).get(DataJob_.NAME).in(filter.getJobNameIn()));
          }
-
       }
 
       return builder.and(predicates.toArray(new Predicate[0]));

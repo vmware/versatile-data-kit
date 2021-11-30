@@ -46,7 +46,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
             "    content {\n" +
             "      jobName\n" +
             "      deployments {\n" +
-            "        executions(pageNumber: 1, pageSize: 10, filter: [{property: \"endTime\", sort: " + executionsSortOrder + "}]) {\n" +
+            "        executions(pageNumber: 1, pageSize: 10, order: {property: \"endTime\", direction: " + executionsSortOrder + "}) {\n" +
             "          id\n" +
             "          endTime\n" +
             "        }\n" +

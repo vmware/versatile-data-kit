@@ -19,8 +19,6 @@ import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
-import com.vmware.taurus.service.graphql.model.ExecutionQueryVariables;
-import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
@@ -30,21 +28,18 @@ import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
-import graphql.schema.SelectedField;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,19 +71,19 @@ public class ExecutionDataFetcher {
 
 
    /**
-    * Currently, it does not provide filtering by specifying fields due
-    * to its post-pagination loading - the execution data is attached after slicing of the requested page.
+    * Populates the executions of the specified data jobs, that match the specified criteria.
     */
    List<V2DataJob> populateExecutions(List<V2DataJob> allDataJob, DataFetchingEnvironment dataFetchingEnvironment) {
-      final ExecutionQueryVariables queryVariables = fetchQueryVariables(dataFetchingEnvironment);
-      final Pageable pageable = constructPageable(queryVariables);
+      final Map<String, Object> arguments = dataFetchingEnvironment.getSelectionSet().getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()).getArguments();
+      final DataJobExecutionQueryVariables dataJobExecutionQueryVariables = fetchDataJobExecutionQueryVariables(arguments);
       allDataJob.forEach(dataJob -> {
          if (dataJob.getDeployments() != null) {
             dataJob.getDeployments()
                     .stream()
                     .findFirst()
                     .ifPresent(deployment -> deployment.setExecutions(
-                            jobsExecutionRepository.findDataJobExecutionsByDataJobName(dataJob.getJobName(), pageable)
+                            findAllExecutions(dataJobExecutionQueryVariables, dataJob.getJobName())
+                                    .getContent()
                                     .stream()
                                     .map(ToApiModelConverter::jobExecutionToConvert)
                                     .collect(Collectors.toList())));
@@ -97,33 +92,11 @@ public class ExecutionDataFetcher {
       return allDataJob;
    }
 
-   @SuppressWarnings("unchecked")
-   private ExecutionQueryVariables fetchQueryVariables(DataFetchingEnvironment dataFetchingEnvironment) {
-      ExecutionQueryVariables queryVariables = new ExecutionQueryVariables();
-      SelectedField executionFields = dataFetchingEnvironment
-            .getSelectionSet().getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath());
-
-      Map<String, Object> execArgs = executionFields.getArguments();
-      Optional<ImmutablePair<Integer, Integer>> page = extractDataJobExecutionPage(
-            execArgs.get(PAGE_NUMBER_FIELD),
-            execArgs.get(PAGE_SIZE_FIELD));
-
-      page.ifPresent(pair -> {
-         queryVariables.setPageNumber(pair.getLeft());
-         queryVariables.setPageSize(pair.getRight());
-      });
-
-      queryVariables.setFilters(GraphQLUtils.convertFilters((ArrayList<LinkedHashMap<String, String>>)execArgs.get("filter")));
-      validateFilterInputForExecutions(queryVariables.getFilters());
-
-      return queryVariables;
-   }
-
    public DataFetcher<Object> findAllAndBuildResponse() {
       return environment -> {
-         DataJobExecutionQueryVariables dataJobExecutionQueryVariables = fetchDataJobExecutionQueryVariables(environment);
+         DataJobExecutionQueryVariables dataJobExecutionQueryVariables = fetchDataJobExecutionQueryVariables(environment.getArguments());
 
-         Page<DataJobExecution> dataJobExecutionsResult = findAllExecutions(dataJobExecutionQueryVariables);
+         Page<DataJobExecution> dataJobExecutionsResult = findAllExecutions(dataJobExecutionQueryVariables, null);
          List<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutions = dataJobExecutionsResult
                .getContent()
                .stream()
@@ -137,8 +110,18 @@ public class ExecutionDataFetcher {
       };
    }
 
-   private Page<DataJobExecution> findAllExecutions(DataJobExecutionQueryVariables dataJobExecutionQueryVariables) {
-      Specification<DataJobExecution> filterSpec = new JobExecutionFilterSpec(dataJobExecutionQueryVariables.getFilter());
+   private Page<DataJobExecution> findAllExecutions(DataJobExecutionQueryVariables dataJobExecutionQueryVariables, String dataJobName) {
+      DataJobExecutionFilter filter = dataJobExecutionQueryVariables.getFilter();
+      if (dataJobName != null && filter != null) {
+         if (filter.getJobNameIn() != null) {
+            throw new GraphQLException("The jobNameIn filter is not supported for nested executions");
+         }
+         filter = filter.toBuilder()
+                 .jobNameIn(List.of(dataJobName))
+                 .build();
+      }
+
+      Specification<DataJobExecution> filterSpec = new JobExecutionFilterSpec(filter);
       Page<DataJobExecution> result;
       DataJobExecutionOrder order = dataJobExecutionQueryVariables.getOrder();
       Sort sort = order != null ? Sort.by(order.getDirection(), order.getProperty()) : null;
@@ -161,59 +144,23 @@ public class ExecutionDataFetcher {
       return result;
    }
 
-   /**
-    * As we receive filters as custom GraphQL object, this method translated it to Spring data Pageable element
-    * By default if there isn't any fields specified we return only paginating details
-    * If sorting is not provided we use the default (ASC), by design it take maximum 1 sorting
-    *
-    * @param queryVar
-    *       Query variables which holds multiple Filter object
-    * @return Pageable element containing page and sort
-    */
-   private Pageable constructPageable(ExecutionQueryVariables queryVar) {
-      Sort.Direction direction = queryVar.getFilters().stream()
-            .map(Filter::getSort)
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(Sort.Direction.ASC);
-
-      List<Sort.Order> order = queryVar.getFilters().stream()
-            .map(Filter::getProperty)
-            .filter(Objects::nonNull)
-            .map(s -> s.replace(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getField() + ".", ""))
-            .map(s -> new Sort.Order(direction, s))
-            .collect(Collectors.toList());
-
-      PageRequest pageRequest = PageRequest.of(queryVar.getPageNumber() - 1, queryVar.getPageSize());
-      return order.isEmpty() ? pageRequest : pageRequest.withSort(Sort.by(order));
-   }
-
-   void validateFilterInputForExecutions(List<Filter> executionsFilter) {
-      final Optional<Filter> filterNotSupported = executionsFilter.stream()
-            .filter(e -> e.getPattern() != null)
-            .findAny();
-      if (filterNotSupported.isPresent()) {
-         throw new GraphQLException("Using patterns for execution filtering is currently not supported");
-      }
-   }
-
-   private static DataJobExecutionQueryVariables fetchDataJobExecutionQueryVariables(DataFetchingEnvironment dataFetchingEnvironment) {
+   private static DataJobExecutionQueryVariables fetchDataJobExecutionQueryVariables(Map<String, Object> arguments) {
       DataJobExecutionQueryVariables queryVariables = new DataJobExecutionQueryVariables();
 
       Optional<ImmutablePair<Integer, Integer>> page = extractDataJobExecutionPage(
-            dataFetchingEnvironment.getArgument(PAGE_NUMBER_FIELD),
-            dataFetchingEnvironment.getArgument(PAGE_SIZE_FIELD));
+              arguments.get(PAGE_NUMBER_FIELD),
+              arguments.get(PAGE_SIZE_FIELD));
 
       page.ifPresent(pair -> {
          queryVariables.setPageNumber(pair.getLeft());
          queryVariables.setPageSize(pair.getRight());
       });
 
-      extractDataJobExecutionFilter(dataFetchingEnvironment.getArgument(FILTER_FIELD))
-            .ifPresent(filter -> queryVariables.setFilter(filter));
+      extractDataJobExecutionFilter((Map<String, Object>)arguments.get(FILTER_FIELD))
+              .ifPresent(filter -> queryVariables.setFilter(filter));
 
-      extractDataJobExecutionOrder(dataFetchingEnvironment.getArgument(ORDER_FIELD))
-            .ifPresent(order -> queryVariables.setOrder(order));
+      extractDataJobExecutionOrder((Map<String, Object>)arguments.get(ORDER_FIELD))
+              .ifPresent(order -> queryVariables.setOrder(order));
 
       return queryVariables;
    }
