@@ -14,6 +14,8 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 
+import java.time.OffsetDateTime;
+
 public class JobExecutionResultManagerTest {
 
    @Test
@@ -108,9 +110,18 @@ public class JobExecutionResultManagerTest {
    }
 
    @Test
-   public void testGetResult_executionSucceededNull_shouldReturnExecutionStatusRunning() {
+   public void testGetResult_executionSucceededNullAndStartTimeNull_shouldReturnExecutionStatusSubmitted() {
       KubernetesService.JobExecution jobExecution =
             KubernetesService.JobExecution.builder().succeeded(null).build();
+      ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
+
+      Assertions.assertEquals(ExecutionStatus.SUBMITTED, actualResult.getExecutionStatus());
+   }
+
+   @Test
+   public void testGetResult_executionSucceededNullAndStartTimeNotNull_shouldReturnExecutionStatusRunning() {
+      KubernetesService.JobExecution jobExecution =
+              KubernetesService.JobExecution.builder().succeeded(null).startTime(OffsetDateTime.now()).build();
       ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
 
       Assertions.assertEquals(ExecutionStatus.RUNNING, actualResult.getExecutionStatus());

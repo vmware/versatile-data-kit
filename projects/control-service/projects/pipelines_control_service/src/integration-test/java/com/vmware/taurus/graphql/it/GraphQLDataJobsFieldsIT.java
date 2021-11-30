@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class GraphQLDataJobsFieldsIT extends BaseDataJobDeploymentIT {
 
     private static final String DEFAULT_QUERY_WITH_DEPLOYMENTS =
-            "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
+            "query($filter: [Predicate], $executionOrder: DataJobExecutionOrder, $search: String, $pageNumber: Int, $pageSize: Int) {" +
                     "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
                     "    content {" +
                     "      jobName" +
@@ -35,7 +35,7 @@ public class GraphQLDataJobsFieldsIT extends BaseDataJobDeploymentIT {
                     "        lastExecutionStatus" +
                     "        lastExecutionTime" +
                     "        lastExecutionDuration" +
-                    "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
+                    "        executions(pageNumber: 1, pageSize: 5, order: $executionOrder) {" +
                     "          id" +
                     "          status" +
                     "        }" +
@@ -73,12 +73,10 @@ public class GraphQLDataJobsFieldsIT extends BaseDataJobDeploymentIT {
                                 "\"search\": \"" + jobName + "\"," +
                                 "\"pageNumber\": 1," +
                                 "\"pageSize\": 10," +
-                                "\"executionFilter\": [" +
-                                "    {" +
-                                "      \"sort\": \"DESC\"," +
-                                "      \"property\": \"deployments.executions.status\"" +
-                                "    }" +
-                                "  ]" +
+                                "\"executionOrder\": {" +
+                                "    \"direction\": \"DESC\"," +
+                                "    \"property\": \"status\"" +
+                                "  }" +
                                 "}")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

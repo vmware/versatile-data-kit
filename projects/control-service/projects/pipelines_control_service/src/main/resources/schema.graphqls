@@ -103,7 +103,7 @@ type DataJobDeployment {
     resources: DataJobResources
     schedule: DataJobSchedule
     vdkVersion: String
-    executions(pageNumber: Int, pageSize: Int, filter: [Predicate]): [DataJobExecution]
+    executions(pageNumber: Int, pageSize: Int, filter: DataJobExecutionFilter, order: DataJobExecutionOrder): [DataJobExecution]
     status: DataJobDeploymentStatus
     lastExecutionStatus: DataJobExecutionStatus
     lastExecutionTime: String

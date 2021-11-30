@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +71,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
 
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Collections.emptyMap());
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -95,8 +95,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD)).thenReturn(List.of(
             com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING.toString(),
             com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.SUBMITTED.toString()));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -122,8 +123,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2));
 
       when(filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -149,8 +151,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2), now.minusMinutes(2));
 
       when(filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -179,8 +182,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD)).thenReturn(List.of(
             com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING.toString()));
 
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -205,11 +209,11 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       DataJobExecution expectedJobExecution4 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
 
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              ORDER_FIELD, orderRaw
+      ));
       when(orderRaw.get(DataJobExecutionOrder.PROPERTY_FIELD)).thenReturn("startTime");
       when(orderRaw.get(DataJobExecutionOrder.DIRECTION_FIELD)).thenReturn("DESC");
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(orderRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -226,12 +230,13 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
    @Test
    public void testFindAllAndBuildResponse_orderWithoutProperty_shouldReturnResult() {
-      when(dataFetchingEnvironment.getArgument(PAGE_NUMBER_FIELD)).thenReturn(1);
-      when(dataFetchingEnvironment.getArgument(PAGE_SIZE_FIELD)).thenReturn(3);
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              PAGE_NUMBER_FIELD, 1,
+              PAGE_SIZE_FIELD, 3,
+              ORDER_FIELD, orderRaw
+      ));
       when(orderRaw.get(DataJobExecutionOrder.PROPERTY_FIELD)).thenReturn("startTime");
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(orderRaw);
+
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
 
       Assertions.assertThrows(GraphQLException.class, () -> allAndBuildResponse.get(dataFetchingEnvironment));
@@ -239,12 +244,13 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
    @Test
    public void testFindAllAndBuildResponse_orderWithoutDirection_shouldReturnResult() {
-      when(dataFetchingEnvironment.getArgument(PAGE_NUMBER_FIELD)).thenReturn(1);
-      when(dataFetchingEnvironment.getArgument(PAGE_SIZE_FIELD)).thenReturn(3);
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              PAGE_NUMBER_FIELD, 1,
+              PAGE_SIZE_FIELD, 3,
+              ORDER_FIELD, orderRaw
+      ));
       when(orderRaw.get(DataJobExecutionOrder.DIRECTION_FIELD)).thenReturn("DESC");
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(orderRaw);
+
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
 
       Assertions.assertThrows(GraphQLException.class, () -> allAndBuildResponse.get(dataFetchingEnvironment));
@@ -262,11 +268,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
 
-      when(dataFetchingEnvironment.getArgument(PAGE_NUMBER_FIELD)).thenReturn(1);
-      when(dataFetchingEnvironment.getArgument(PAGE_SIZE_FIELD)).thenReturn(3);
-
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              PAGE_NUMBER_FIELD, 1,
+              PAGE_SIZE_FIELD, 3
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -282,9 +287,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
    @Test
    public void testFindAllAndBuildResponse_withPageNumber_shouldReturnResult() {
-      when(dataFetchingEnvironment.getArgument(PAGE_NUMBER_FIELD)).thenReturn(1);
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              PAGE_NUMBER_FIELD, 1
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
 
@@ -293,9 +298,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
    @Test
    public void testFindAllAndBuildResponse_withPageSize_shouldReturnResult() {
-      when(dataFetchingEnvironment.getArgument(PAGE_SIZE_FIELD)).thenReturn(1);
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              PAGE_SIZE_FIELD, 1
+      ));
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
 
@@ -315,10 +320,11 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       var expectedJobExecution3 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob3, ExecutionStatus.FINISHED);
       var expectedJobExecution4 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob2, ExecutionStatus.FINISHED);
 
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(null);
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              ORDER_FIELD, orderRaw
+      ));
       when(orderRaw.get(DataJobExecutionOrder.PROPERTY_FIELD)).thenReturn("jobName");
       when(orderRaw.get(DataJobExecutionOrder.DIRECTION_FIELD)).thenReturn("DESC");
-      when(dataFetchingEnvironment.getArgument(ORDER_FIELD)).thenReturn(orderRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage)allAndBuildResponse.get(dataFetchingEnvironment);
@@ -343,8 +349,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       var expectedExecution = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob2, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
 
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
       when(filterRaw.get(DataJobExecutionFilter.JOB_NAME_IN_FIELD)).thenReturn(List.of(actualDataJob.getName()));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -363,8 +371,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
 
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
       when(filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(2));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -382,8 +392,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
       var expected = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now, now.minusDays(4));
 
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
       when(filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(2));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -402,8 +414,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusDays(3), now.minusMinutes(2));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusDays(3), now.minusMinutes(1));
 
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
       when(filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(4));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -421,8 +435,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
       var expected = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusDays(3), now);
 
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+              FILTER_FIELD, filterRaw
+      ));
       when(filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD)).thenReturn(OffsetDateTime.now().minusDays(2));
-      when(dataFetchingEnvironment.getArgument(FILTER_FIELD)).thenReturn(filterRaw);
 
       DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
       DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);

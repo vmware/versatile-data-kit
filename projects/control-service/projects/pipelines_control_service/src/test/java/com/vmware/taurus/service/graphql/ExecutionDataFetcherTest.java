@@ -8,12 +8,14 @@ package com.vmware.taurus.service.graphql;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.execution.JobExecutionService;
-import com.vmware.taurus.service.graphql.model.Filter;
+import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
+import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
 import com.vmware.taurus.service.graphql.model.V2DataJobSchedule;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
+import com.vmware.taurus.service.model.DataJobExecution;
 import graphql.GraphQLException;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
@@ -23,8 +25,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,11 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.vmware.taurus.service.graphql.GraphQLDataFetchersTest.constructFilter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -100,15 +102,17 @@ class ExecutionDataFetcherTest {
       executionArgs.put("pageSize", 25);
       when(selectedField.getArguments()).thenReturn(executionArgs);
       List<V2DataJob> v2DataJobs = mockListOfV2DataJobs();
+      when(jobExecutionRepository.findAll(any(Specification.class), any(Pageable.class)))
+              .thenReturn(new PageImpl<DataJobExecution>(Collections.emptyList()));
 
       List<V2DataJob> result = executionDataFetcher.populateExecutions(v2DataJobs, dataFetchingEnvironment);
 
       assertEquals(3, result.size());
-      verify(jobExecutionRepository, times(2)).findDataJobExecutionsByDataJobName(anyString(), any(Pageable.class));
+      verify(jobExecutionRepository, times(2)).findAll(any(Specification.class), any(Pageable.class));
    }
 
    @Test
-   void testDataFetcherOfJobs_whenUnsupportedFilterInExecutionOperation_shouldThrowException() {
+   void testDataFetcherOfJobs_whenUnsupportedOrderInExecutionOperation_shouldThrowException() {
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
       when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
             .thenReturn(selectedField);
@@ -116,9 +120,25 @@ class ExecutionDataFetcherTest {
       executionArgs.put("pageNumber", 1);
       executionArgs.put("pageSize", 25);
 
-      executionArgs.put("filter", constructFilter(
-            Filter.of(UUID.randomUUID().toString(), "anypattern", Sort.Direction.ASC)
-      ));
+      executionArgs.put("order", Map.of(
+              DataJobExecutionOrder.PROPERTY_FIELD, UUID.randomUUID().toString(),
+              DataJobExecutionOrder.DIRECTION_FIELD, Sort.Direction.ASC));
+      when(selectedField.getArguments()).thenReturn(executionArgs);
+      List<V2DataJob> v2DataJobs = mockListOfV2DataJobs();
+
+      assertThrows(GraphQLException.class, () -> executionDataFetcher.populateExecutions(v2DataJobs, dataFetchingEnvironment));
+   }
+
+   @Test
+   void testDataFetcherOfJobs_whenJobNameInIsSpecified_shouldThrowException() {
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+              .thenReturn(selectedField);
+      Map<String, Object> executionArgs = new HashMap<>();
+      executionArgs.put("pageNumber", 1);
+      executionArgs.put("pageSize", 25);
+      executionArgs.put("filter", Map.of(
+              DataJobExecutionFilter.JOB_NAME_IN_FIELD, List.of("any-job")));
       when(selectedField.getArguments()).thenReturn(executionArgs);
       List<V2DataJob> v2DataJobs = mockListOfV2DataJobs();
 
@@ -156,5 +176,4 @@ class ExecutionDataFetcherTest {
       status.setMode(DataJobMode.RELEASE);
       return status;
    }
-
 }
