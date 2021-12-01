@@ -6,7 +6,8 @@
 package com.vmware.taurus.graphql.it;
 
 
-import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.ServiceApp;
+import com.vmware.taurus.datajobs.it.common.CommonTestConstants;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
@@ -15,6 +16,9 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
@@ -22,12 +26,17 @@ import java.time.ZoneId;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-public class GraphQLExecutionsNextRunIT extends BaseIT {
+@SpringBootTest(classes = ServiceApp.class)
+@AutoConfigureMockMvc
+public class GraphQLExecutionsNextRunIT {
+
+   @Autowired
+   MockMvc mockMvc;
 
    @Autowired
    JobsRepository jobsRepository;
 
-   private final String uri = BaseIT.JOBS_URI;
+   private final String uri = CommonTestConstants.JOBS_URI;
 
    @AfterEach
    public void cleanup() {
@@ -36,7 +45,7 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
 
    private String getQuery(String sortOrder) {
       return "{\n" +
-            "  jobs(pageNumber: 1, pageSize: 100, order: {property: \"config.schedule.nextRunEpochSeconds\", direction:" + sortOrder + "}) {\n" +
+            "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"config.schedule.nextRunEpochSeconds\", sort:" + sortOrder + "}]) {\n" +
             "    content {\n" +
             "      jobName \n" +
             "      config {\n" +
@@ -52,7 +61,7 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
 
    private String getQueryWithFilter(String filter) {
       return "{\n" +
-            "  jobs(pageNumber: 1, pageSize: 100, order: {property: \"config.schedule.nextRunEpochSeconds\", pattern:" + filter + "}) {\n" +
+            "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"config.schedule.nextRunEpochSeconds\", pattern:" + filter + "}]) {\n" +
             "    content {\n" +
             "      jobName \n" +
             "      config {\n" +
@@ -130,9 +139,9 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
       addJob("jobA", toCron(now.minusMinutes(240)));
       addJob("jobB", toCron(now.plusMinutes(30)));
 
-     mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQueryWithFilter(getFilterPattern(now, after))))
-           .andExpect(jsonPath("$.data.content[0].jobName").value("jobB"))
-           .andExpect(jsonPath("$.data.content[*].jobName", Matchers.not(Matchers.contains("jobA"))));
+      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQueryWithFilter(getFilterPattern(now, after))))
+            .andExpect(jsonPath("$.data.content[0].jobName").value("jobB"))
+            .andExpect(jsonPath("$.data.content[*].jobName", Matchers.not(Matchers.contains("jobA"))));
    }
 
    private void addJob(String jobName, String jobSchedule) {
