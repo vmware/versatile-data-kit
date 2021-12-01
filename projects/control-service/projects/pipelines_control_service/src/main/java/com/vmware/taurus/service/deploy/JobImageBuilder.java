@@ -31,7 +31,6 @@ import static java.util.Map.entry;
 public class JobImageBuilder {
    private static final Logger log = LoggerFactory.getLogger(JobImageBuilder.class);
 
-   static final String BUILDER_IMAGE_PULL_POLICY = "Always";
    private static final int BUILDER_TIMEOUT_SECONDS = 1800;
    private static final String REGISTRY_TYPE_ECR = "ecr";
    private static final String REGISTRY_TYPE_GENERIC = "generic";
@@ -59,7 +58,9 @@ public class JobImageBuilder {
    @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
    private String deploymentDataJobBaseImage;
    @Value("${datajobs.deployment.builder.extraArgs:}")
-   private String extraArgs;
+   private String builderJobExtraArgs;
+   @Value("${datajobs.deployment.builder.imagePullPolicy:IfNotPresent}")
+   private String builderJobImagePullPolicy;
    @Value("${datajobs.git.ssl.enabled}")
    private boolean gitDataJobsSslEnabled;
 
@@ -151,7 +152,7 @@ public class JobImageBuilder {
             args,
             null,
             null,
-            BUILDER_IMAGE_PULL_POLICY,
+            builderJobImagePullPolicy,
             kubernetesResources.builderRequests(),
             kubernetesResources.builderLimits());
 
@@ -217,7 +218,7 @@ public class JobImageBuilder {
             entry("JOB_GITHASH", jobVersion),
             entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
             entry("BASE_IMAGE", deploymentDataJobBaseImage),
-            entry("EXTRA_ARGUMENTS", extraArgs),
+            entry("EXTRA_ARGUMENTS", builderJobExtraArgs),
             entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled))
       );
    }
