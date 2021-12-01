@@ -6,8 +6,8 @@
 package com.vmware.taurus.graphql.it;
 
 
-import com.vmware.taurus.ServiceApp;
-import com.vmware.taurus.datajobs.it.common.CommonTestConstants;
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
@@ -16,27 +16,22 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest(classes = ServiceApp.class)
-@AutoConfigureMockMvc
-public class GraphQLExecutionsNextRunIT {
-
-   @Autowired
-   MockMvc mockMvc;
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
+public class GraphQLExecutionsNextRunIT extends BaseIT {
 
    @Autowired
    JobsRepository jobsRepository;
 
-   private final String uri = CommonTestConstants.JOBS_URI;
+   private final String uri = JOBS_URI;
 
    @AfterEach
    public void cleanup() {
@@ -77,7 +72,9 @@ public class GraphQLExecutionsNextRunIT {
 
    @Test
    public void testNextRunCall_noJobs() throws Exception {
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+      mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .queryParam("query", getQuery("DESC"))
+                  .with(user(TEST_USERNAME)))
             .andExpect(jsonPath("$.data.content").isEmpty());
    }
 
@@ -86,7 +83,9 @@ public class GraphQLExecutionsNextRunIT {
       var now = OffsetDateTime.now();
       addJob("jobA", toCron(now));
 
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+      mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .queryParam("query", getQuery("DESC"))
+                  .with(user(TEST_USERNAME)))
             .andExpect(jsonPath("$.data.content[0].jobName").value("jobA"))
             .andExpect(jsonPath("$.data.content[0].config.schedule.scheduleCron").value(toCron(now)));
    }
@@ -99,7 +98,9 @@ public class GraphQLExecutionsNextRunIT {
       addJob("jobA", toCron(now));
       addJob("jobB", toCron(later));
       //check correct sort is applied
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("DESC")))
+      mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .queryParam("query", getQuery("DESC"))
+                  .with(user(TEST_USERNAME)))
             .andExpect(jsonPath("$.data.content[0].jobName").value("jobB"))
             .andExpect(jsonPath("$.data.content[1].jobName").value("jobA"))
             .andExpect(jsonPath("$.data.content[0].config.schedule.scheduleCron").value(toCron(later)))
@@ -114,7 +115,9 @@ public class GraphQLExecutionsNextRunIT {
       addJob("jobA", toCron(now));
       addJob("jobB", toCron(later));
       //check correct sort is applied
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery("ASC")))
+      mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .queryParam("query", getQuery("ASC"))
+                  .with(user(TEST_USERNAME)))
             .andExpect(jsonPath("$.data.content[0].jobName").value("jobA"))
             .andExpect(jsonPath("$.data.content[1].jobName").value("jobB"))
             .andExpect(jsonPath("$.data.content[0].config.schedule.scheduleCron").value(toCron(now)))
@@ -126,7 +129,9 @@ public class GraphQLExecutionsNextRunIT {
       var now = OffsetDateTime.now();
       var before = now.minusDays(2);
 
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQueryWithFilter(getFilterPattern(before, now))))
+      mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .queryParam("query", getQueryWithFilter(getFilterPattern(before, now)))
+                  .with(user(TEST_USERNAME)))
             .andExpect(jsonPath("$.data.content").isEmpty());
 
    }
@@ -139,7 +144,9 @@ public class GraphQLExecutionsNextRunIT {
       addJob("jobA", toCron(now.minusMinutes(240)));
       addJob("jobB", toCron(now.plusMinutes(30)));
 
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQueryWithFilter(getFilterPattern(now, after))))
+      mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .queryParam("query", getQueryWithFilter(getFilterPattern(now, after)))
+                  .with(user(TEST_USERNAME)))
             .andExpect(jsonPath("$.data.content[0].jobName").value("jobB"))
             .andExpect(jsonPath("$.data.content[*].jobName", Matchers.not(Matchers.contains("jobA"))));
    }
