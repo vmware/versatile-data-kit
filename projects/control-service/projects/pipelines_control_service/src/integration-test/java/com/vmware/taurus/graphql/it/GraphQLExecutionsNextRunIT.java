@@ -6,7 +6,6 @@
 package com.vmware.taurus.graphql.it;
 
 
-import com.vmware.taurus.ServiceApp;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
@@ -16,9 +15,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
@@ -26,12 +22,7 @@ import java.time.ZoneId;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest(classes = ServiceApp.class)
-@AutoConfigureMockMvc
 public class GraphQLExecutionsNextRunIT extends BaseIT {
-
-   @Autowired
-   MockMvc mockMvc;
 
    @Autowired
    JobsRepository jobsRepository;
@@ -45,7 +36,7 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
 
    private String getQuery(String sortOrder) {
       return "{\n" +
-            "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"config.schedule.nextRunEpochSeconds\", sort:" + sortOrder + "}]) {\n" +
+            "  jobs(pageNumber: 1, pageSize: 100, order: {property: \"config.schedule.nextRunEpochSeconds\", direction:" + sortOrder + "}) {\n" +
             "    content {\n" +
             "      jobName \n" +
             "      config {\n" +
@@ -61,7 +52,7 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
 
    private String getQueryWithFilter(String filter) {
       return "{\n" +
-            "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"config.schedule.nextRunEpochSeconds\", pattern:" + filter + "}]) {\n" +
+            "  jobs(pageNumber: 1, pageSize: 100, order: {property: \"config.schedule.nextRunEpochSeconds\", pattern:" + filter + "}) {\n" +
             "    content {\n" +
             "      jobName \n" +
             "      config {\n" +
