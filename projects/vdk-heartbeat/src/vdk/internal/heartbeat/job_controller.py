@@ -51,12 +51,29 @@ class JobController:
         else:
             return []
 
+    # Set data job deployment to use a specific VDK version (if configured)
+    def __get_vdk_version_arg(self):
+        if self.config.deploy_job_vdk_version:
+            return [
+                "--update",
+                "--vdk-version",
+                f"{self.config.deploy_job_vdk_version}",
+            ]
+        else:
+            return []
+
     def _execute(self, command):
         # base_command = [f"python", "-m", "vdk.internal.control.main"]
         base_command = [self.config.vdk_command_name]
         full_command = base_command + command
         log.debug(f"Command: {full_command}")
         try:
+            os.environ.update(
+                {
+                    "VDK_OP_ID": self.config.op_id,
+                    "VDK_OP_ID_OVERRIDE": self.config.op_id,
+                }
+            )
             out = subprocess.check_output(full_command)
             log.debug(f"out: {out}")
             return out
@@ -68,16 +85,19 @@ class JobController:
 
     @LogDecorator(log)
     def login(self):
-        self._execute(
-            [
-                "login",
-                "-a",
-                f"{self.config.vdkcli_api_refresh_token}",
-                "-t",
-                "api-token",
-            ]
-            + self.__get_api_token_authorization_url_arg()
-        )
+        if self.config.vdkcli_api_refresh_token:
+            self._execute(
+                [
+                    "login",
+                    "-a",
+                    f"{self.config.vdkcli_api_refresh_token}",
+                    "-t",
+                    "api-token",
+                ]
+                + self.__get_api_token_authorization_url_arg()
+            )
+        else:
+            log.info("Running against control service without authentication.")
 
     @LogDecorator(log)
     def delete_job(self):
@@ -224,7 +244,7 @@ class JobController:
         )
 
     @LogDecorator(log)
-    def enable_deployment(self):
+    def enable_deployment_and_update_vdk_version(self):
         self._execute(
             [
                 "deploy",
@@ -234,6 +254,7 @@ class JobController:
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_vdk_version_arg()
             + self.__get_rest_api_url_arg()
         )
 

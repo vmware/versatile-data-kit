@@ -23,7 +23,7 @@ class Config:
 
         # VDK CLI Arguments for vdkcli login
         self.vdkcli_api_refresh_token = self._get_atleast_one_value(
-            "VDKCLI_OAUTH2_REFRESH_TOKEN", "VDK_HEARTBEAT_API_TOKEN"
+            "VDKCLI_OAUTH2_REFRESH_TOKEN", "VDK_HEARTBEAT_API_TOKEN", is_required=False
         )
         # If no value is found, argument will not be passed and default will be used
         self.vdkcli_oauth2_uri = self._get_atleast_one_value(
@@ -107,6 +107,11 @@ class Config:
         # If no value is found, argument will not be passed and default will be used
         self.control_api_url = self._get_atleast_one_value(
             "CONTROL_API_URL", "VDK_HEARTBEAT_CONTROL_SERVICE_URL", is_required=False
+        )
+
+        # Deploy the job with a specific vdk version (optional). By default latest vdk is used.
+        self.deploy_job_vdk_version = self.get_value(
+            "VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION", is_required=False
         )
 
         # Job name deployed during the test

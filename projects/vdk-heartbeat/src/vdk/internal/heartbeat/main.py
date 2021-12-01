@@ -34,6 +34,7 @@ def run(config_file):
     log.info("Starting vdk heartbeat.")
 
     config = Config(config_file)
+    log_config.configure_loggers(op_id=config.op_id)
     heartbeat = Heartbeat(config)
     try:
         heartbeat.run()

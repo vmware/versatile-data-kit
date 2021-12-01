@@ -41,21 +41,23 @@ def test_version_check(mock_click_echo, mock_list, mock_package):
     mock_list.return_value = [("dist", "plugin")]
 
     check_plugin = NewVersionCheckPlugin()
-    context = build_core_context(check_plugin, {})
-    check_plugin.vdk_initialize(context)
+    context = build_core_context(
+        check_plugin,
+        {
+            new_version_check_plugin.ConfigKey.PACKAGE_INDEX: "https://testing.package.index"
+        },
+    )
+    check_plugin.vdk_exit(context)
 
     mock_package.assert_any_call(
-        package_index="https://pypi.org", package_name="vdk-core"
+        package_index="https://testing.package.index", package_name="vdk-core"
     )
-    mock_package.assert_any_call(package_index="https://pypi.org", package_name="dist")
+    mock_package.assert_any_call(
+        package_index="https://testing.package.index", package_name="dist"
+    )
 
     # we verify the correctness of the command that is suggested to the user
-    expected_command = "pip install --upgrade-strategy eager -U vdk-core --extra-index-url https://pypi.org\\n"
-    assert any(
-        filter(lambda c: expected_command in str(c), mock_click_echo.mock_calls)
-    ), f"did not get expected substring inside message: {mock_click_echo.mock_calls}"
-
-    expected_command = "pip install --upgrade-strategy eager -U dist --extra-index-url https://pypi.org"
+    expected_command = "pip install --upgrade-strategy eager -U vdk-core dist --extra-index-url https://testing.package.index"
     assert any(
         filter(lambda c: expected_command in str(c), mock_click_echo.mock_calls)
     ), f"did not get expected substring inside message: {mock_click_echo.mock_calls}"
@@ -73,7 +75,7 @@ def test_version_check_skip_plugins(mock_list, mock_package):
     context = build_core_context(
         check_plugin, {new_version_check_plugin.ConfigKey.VERSION_CHECK_PLUGINS: False}
     )
-    check_plugin.vdk_initialize(context)
+    check_plugin.vdk_exit(context)
 
     mock_package.assert_called_with(
         package_index="https://pypi.org", package_name="vdk-core"
@@ -93,10 +95,10 @@ def test_version_check_empty_package_index(mock_click_echo, mock_list, mock_pack
     context = build_core_context(
         check_plugin, {new_version_check_plugin.ConfigKey.PACKAGE_INDEX: ""}
     )
-    check_plugin.vdk_initialize(context)
+    check_plugin.vdk_exit(context)
 
     # new line at the end verified this is the full command.
-    expected_command = "pip install --upgrade-strategy eager -U vdk-core \\n"
+    expected_command = "pip install --upgrade-strategy eager -U vdk-core dist \\n"
     assert any(
         filter(lambda c: expected_command in str(c), mock_click_echo.mock_calls)
     ), f"did not get expected substring inside message: {mock_click_echo.mock_calls}"
@@ -115,6 +117,6 @@ def test_version_check_error(mock_list, mock_package):
     context.return_value.configuration.side_effect = Exception("foo")
 
     # must not fail, error is ignored.
-    check_plugin.vdk_initialize(context)
+    check_plugin.vdk_exit(context)
 
     mock_package.assert_not_called()

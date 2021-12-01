@@ -13,10 +13,10 @@ from typing import Optional
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.util.decorators import closing_noexcept_on_close
@@ -77,17 +77,9 @@ class SqLite3MemoryDbPlugin:
 
 
 class SqLite3MemoryConnection(ManagedConnectionBase):
-    def _before_cursor_execute(self, cur: ManagedCursor) -> None:
-        super()._before_cursor_execute(cur)
-
-    def __init__(self, history: List):
-        super().__init__(logging.getLogger(__name__))
-        self.history = history
+    def __init__(self):
+        super().__init__(logging.getLogger(__name__), None)
         self.db = SqLite3MemoryDb()
-
-    def _cursor_execute(self, cur: ManagedCursor, query: str) -> None:
-        self.history.append(query)
-        super()._cursor_execute(cur, query)
 
     def _connect(self) -> PEP249Connection:
         return self.db.new_connection()
@@ -98,12 +90,20 @@ class DecoratedSqLite3MemoryDbPlugin:
         self.statements_history = []
 
     def new_connection(self) -> PEP249Connection:
-        return SqLite3MemoryConnection(self.statements_history)
+        return SqLite3MemoryConnection()
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         context.connections.add_open_connection_factory_method(
             DB_TYPE_SQLITE_MEMORY, self.new_connection
+        )
+
+    @hookimpl(trylast=True)
+    def db_connection_decorate_operation(
+        self, decoration_cursor: DecorationCursor
+    ) -> None:
+        self.statements_history.append(
+            decoration_cursor.get_managed_operation().get_operation()
         )
 
 

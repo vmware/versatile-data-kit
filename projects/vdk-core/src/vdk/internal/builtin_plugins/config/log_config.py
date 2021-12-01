@@ -38,10 +38,8 @@ def configure_loggers(
 
     # Likely most logging system (like Log Insight) show the hostname from where the syslog message arrived so no need to include it here.
     DETAILED_FORMAT = (
-        "%(asctime)s=%(created)10.0f[VDK] {} [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%("
-        "lineno)-4.4s %(funcName)-16.16s[OpId:{}]- %(message)s".format(
-            job_name, attempt_id
-        )
+        f"%(asctime)s [VDK] {job_name} [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%("
+        f"lineno)-4.4s %(funcName)-16.16s[id:{attempt_id}]- %(message)s"
     )
 
     _LOGGERS = {

@@ -3,10 +3,12 @@
 import time
 from sys import modules
 
+from vdk.internal.heartbeat.config import Config
+
 
 def configure_loggers(
     app_name="vdk-heartbeat",
-    op_id=time.time(),
+    op_id=Config.DEFAULT_OP_ID,
     log_config_type=None,
     vdk_logging_level="INFO",
 ):
@@ -18,12 +20,6 @@ def configure_loggers(
     :param vdk_logging_level: same as logging module. By default it's DEBUG
     """
     import logging.config
-
-    if is_already_configured():
-        log = logging.getLogger(__name__)
-        msg = "Logging already configured. This is a bug. Fix me!"
-        log.warning(msg)
-        return
 
     # Note Log Insight shows the hostname from where the syslog message arrived so no need to include it here.
     DETAILED_FORMAT = (
