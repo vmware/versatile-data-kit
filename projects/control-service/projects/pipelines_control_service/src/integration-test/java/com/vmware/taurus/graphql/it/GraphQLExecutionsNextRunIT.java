@@ -7,6 +7,7 @@ package com.vmware.taurus.graphql.it;
 
 
 import com.vmware.taurus.ServiceApp;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = ServiceApp.class)
 @AutoConfigureMockMvc
-public class GraphQLExecutionsNextRunIT {
+public class GraphQLExecutionsNextRunIT extends BaseIT {
 
    @Autowired
    MockMvc mockMvc;
@@ -35,7 +36,7 @@ public class GraphQLExecutionsNextRunIT {
    @Autowired
    JobsRepository jobsRepository;
 
-   private final String uri = "/data-jobs/for-team/supercollider/jobs";
+   private final String uri = BaseIT.JOBS_URI;
 
    @AfterEach
    public void cleanup() {
