@@ -109,6 +109,11 @@ class Config:
             "CONTROL_API_URL", "VDK_HEARTBEAT_CONTROL_SERVICE_URL", is_required=False
         )
 
+        # Deploy the job with a specific vdk version (optional). By default latest vdk is used.
+        self.deploy_job_vdk_version = self.get_value(
+            "VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION", is_required=False
+        )
+
         # Job name deployed during the test
         self.job_name = self.get_value(
             "JOB_NAME", f"vdk-heartbeat-data-job-{job_suffix}"
