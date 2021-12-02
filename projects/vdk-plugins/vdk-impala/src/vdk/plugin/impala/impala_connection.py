@@ -52,7 +52,7 @@ class ImpalaConnection(ManagedConnectionBase):
             host=self._host,
             port=self._port,
             database=self._database,
-            timeout=self._timeout,
+            timeout=int(self._timeout) if self._timeout else None,
             use_ssl=self._use_ssl,
             ca_cert=self._ca_cert,
             auth_mechanism=self._auth_mechanism,
