@@ -80,7 +80,7 @@ class RecoveryCursor(PEP249Cursor):
             self._log.info("Executing recovery query SUCCEEDED.")
         except Exception as e:
             self.retries_increment()
-            self._log.warning("Executing recovery query FAILED.", e)
+            self._log.warning("Executing recovery query FAILED {e}")
             raise e
 
     def retry_operation(self) -> None:
@@ -101,7 +101,7 @@ class RecoveryCursor(PEP249Cursor):
             )
             self._log.info(f"Retrying attempt #{retry_number} for query SUCCEEDED.")
         except Exception as e:
-            self._log.warning(f"Retrying attempt #{retry_number} for query FAILED.", e)
+            self._log.warning(f"Retrying attempt #{retry_number} for query FAILED. {e}")
             raise e
 
     def retries_increment(self) -> None:
