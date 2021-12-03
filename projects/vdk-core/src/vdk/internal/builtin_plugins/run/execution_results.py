@@ -8,6 +8,9 @@ from typing import List
 from typing import Optional
 
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
+from vdk.internal.core import errors
+from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import PlatformServiceError
 
 
 @dataclass(frozen=True)
@@ -30,9 +33,8 @@ class StepResult:
     details: Optional[str]
     # Exception if thrown
     exception: Optional[BaseException] = None
-
-    def __repr__(self):
-        return self.__dict__.__repr__()
+    # who is responsible for resolving the error
+    blamee: Optional[errors.ResolvableBy] = None
 
 
 class ExecutionResult:
@@ -65,7 +67,32 @@ class ExecutionResult:
         return self.status == ExecutionStatus.SUCCESS
 
     def get_exception(self):
-        return self.exception
+        """
+        Deprecated in favour of #get_exception_to_raise()
+        """
+        return self.get_exception_to_raise()
+
+    def get_exception_to_raise(self):
+        """
+        Returns main exception to be used as a failure reason for the data job.
+        """
+        if self.exception:
+            return self.exception
+        step_exceptions = map(lambda x: x.exception, self.steps_list)
+        step_exception = next(filter(lambda e: e is not None, step_exceptions), None)
+        if step_exception:
+            return step_exception
+        else:
+            return PlatformServiceError(
+                ErrorMessage(
+                    f"Data Job {self.data_job_name} failed",
+                    "Data Job has failed",
+                    "Failure is with unspecified reason. Seems like a bug in VDK.",
+                    "Job will not complete",
+                    "Retry the job. "
+                    "Consider opening a ticket https://github.com/vmware/versatile-data-kit/issues",
+                )
+            )
 
     def __repr__(self):
         data = self.__dict__.copy()
@@ -73,13 +100,26 @@ class ExecutionResult:
         data["start_time"] = self.start_time.isoformat()
         data["end_time"] = self.end_time.isoformat()
         if self.exception:
-            data["exception"] = str(self.exception.__class__.__name__)
+            data["exception_name"] = str(self.exception.__class__.__name__)
 
         step_lists_of_dicts = list()
         for step in self.steps_list:
             d = step.__dict__.copy()
             d["start_time"] = d["start_time"].isoformat()
             d["end_time"] = d["end_time"].isoformat()
+            if step.exception:
+                d["exception_name"] = str(step.exception.__class__.__name__)
+                if step.exception.__cause__:
+                    setattr(
+                        d["exception"],
+                        "cause_exception_name",
+                        step.exception.__cause__.__class__.__name__,
+                    )
+                    setattr(
+                        d["exception"],
+                        "cause_exception",
+                        step.exception.__cause__.__dict__,
+                    )
             step_lists_of_dicts.append(d)
 
         data["steps_list"] = step_lists_of_dicts
