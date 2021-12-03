@@ -4,6 +4,16 @@ If you wish to contribute code, but you have not signed our contributor license 
 our bot will update the issue when you open a Pull Request.
 For any questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq).
 
+
+<p align="center">
+    <a href="https://github.com/vmware/versatile-data-kit">
+        <img src="https://gitlab.com/vmware-analytics/versatile-data-kit/badges/main/pipeline.svg" alt="build status"></a>
+
+    <a href="https://bestpractices.coreinfrastructure.org/projects/5363">
+        <img src="https://bestpractices.coreinfrastructure.org/projects/5363/badge"></a>
+<!-- TODO: code coverage -->
+</p>
+
 # Structure of the project
 
 * projects - the interesting part, aka the source code - there is a separate folder for each component;
