@@ -28,6 +28,7 @@ public class DeploymentModelConverter {
         deployment.setResources(jobDeploymentStatus.getResources());
         deployment.setMode(jobDeploymentStatus.getMode());
         deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
+        deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
 
         return deployment;
     }
