@@ -1,3 +1,13 @@
+<p align="center">
+    <a href="https://github.com/vmware/versatile-data-kit">
+        <img src="https://gitlab.com/vmware-analytics/versatile-data-kit/badges/main/pipeline.svg" alt="build status"></a>
+    <a href="https://bestpractices.coreinfrastructure.org/projects/5363">
+        <img src="https://bestpractices.coreinfrastructure.org/projects/5363/badge"></a>
+    <a href="https://app.codacy.com/gh/vmware/versatile-data-kit?utm_source=github.com&utm_medium=referral&utm_content=vmware/versatile-data-kit&utm_campaign=Badge_Grade_Settings">
+        <img src="https://api.codacy.com/project/badge/Grade/fac902e4672543b697da5311b565113e"></a>
+<!-- TODO: code coverage -->
+</p>
+
 The Versatile Data Kit project team welcomes contributions from the community.
 
 If you wish to contribute code, but you have not signed our contributor license agreement ([CLA](https://cla.vmware.com/cla/1/preview)),
