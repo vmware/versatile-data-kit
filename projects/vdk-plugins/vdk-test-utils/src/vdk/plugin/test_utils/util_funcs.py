@@ -5,14 +5,23 @@ import pathlib
 import traceback
 from typing import cast
 from typing import Optional
+from unittest.mock import MagicMock
 
 import click
 from click.testing import CliRunner
 from click.testing import Result
+from vdk.api.plugin.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.api.plugin.core_hook_spec import CoreHookSpecs
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal import cli_entry
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
+from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
+from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.internal_hookspecs import InternalHookSpecs
 from vdk.internal.builtin_plugins.run.data_job import DataJob
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -162,3 +171,49 @@ class DataJobBuilder:
 
     def build(self) -> DataJob:
         return DataJob(None, self.core_context, name=self.name)
+
+
+def populate_mock_managed_cursor(
+    mock_exception_to_recover=None,
+    mock_operation=None,
+    mock_parameters=None,
+    decoration_operation_callback=None,
+) -> (
+    PEP249Cursor,
+    ManagedCursor,
+    DecorationCursor,
+    RecoveryCursor,
+    ConnectionHookSpec,
+):
+    import logging
+
+    managed_operation = ManagedOperation(mock_operation, mock_parameters)
+    mock_connection_hook_spec = MagicMock(spec=ConnectionHookSpec)
+    mock_native_cursor = MagicMock(spec=PEP249Cursor)
+
+    managed_cursor = ManagedCursor(
+        cursor=mock_native_cursor,
+        log=logging.getLogger(),
+        connection_hook_spec=mock_connection_hook_spec,
+    )
+
+    decoration_cursor = DecorationCursor(mock_native_cursor, None, managed_operation)
+
+    if decoration_operation_callback is None:
+        decoration_operation_callback = (
+            mock_connection_hook_spec.db_connection_decorate_operation
+        )
+
+    return (
+        mock_native_cursor,
+        managed_cursor,
+        decoration_cursor,
+        RecoveryCursor(
+            native_cursor=mock_native_cursor,
+            log=logging.getLogger(),
+            exception=mock_exception_to_recover,
+            managed_operation=managed_operation,
+            decoration_operation_callback=decoration_operation_callback,
+        ),
+        mock_connection_hook_spec,
+    )
