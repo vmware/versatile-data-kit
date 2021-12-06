@@ -170,5 +170,4 @@ public class GraphQLDataJobsSortContactsIT extends BaseIT {
       job.setJobConfig(config);
       return job;
    }
-
 }
