@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from impala.error import OperationalError
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.impala.utils import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
 
 
 @patch("time.sleep", return_value=None)

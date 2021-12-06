@@ -212,15 +212,16 @@ public class JobImageDeployer {
       var jobAnnotations = getJobAnnotations(dataJob, lastDeployedBy);
 
       String cronJobName = getCronJobName(jobName);
+      boolean enabled = jobDeployment.getEnabled() == null || jobDeployment.getEnabled();
       if (dataJobsKubernetesService.listCronJobs().contains(cronJobName)) {
          dataJobsKubernetesService.updateCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
-                 jobDeployment.getEnabled(), List.of(), defaultConfigurations.dataJobRequests(),
+                 enabled, List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
                  jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
                  jobAnnotations, jobLabels, dockerRegistrySecret);
       } else {
          dataJobsKubernetesService.createCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
-                 jobDeployment.getEnabled(), List.of(), defaultConfigurations.dataJobRequests(),
+                 enabled, List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
                  jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
                  jobAnnotations, jobLabels, dockerRegistrySecret);

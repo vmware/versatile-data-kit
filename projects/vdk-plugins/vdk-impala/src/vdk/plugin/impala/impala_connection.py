@@ -6,7 +6,6 @@ from impala.dbapi import connect as impala_connect
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 
 _log = logging.getLogger(__name__)
 
@@ -47,8 +46,6 @@ class ImpalaConnection(ManagedConnectionBase):
         self._http_path = http_path
         self._auth_cookie_names = auth_cookie_names
         self._retries = retries
-
-        self._impala_error_handler = ImpalaErrorHandler(log=_log)
 
     def _connect(self):
         conn = impala_connect(

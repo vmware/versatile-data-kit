@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 from impala.error import HiveServer2Error
 from impala.error import OperationalError
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.impala.utils import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
 
 
 class ImpalaHandleHdfsErrorTest(unittest.TestCase):

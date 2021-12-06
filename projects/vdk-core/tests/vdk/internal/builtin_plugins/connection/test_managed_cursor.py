@@ -3,9 +3,9 @@
 from unittest.mock import call
 
 import pytest
-from utils import populate_mock_managed_cursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
+from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
 
 _query = "select 1"
 

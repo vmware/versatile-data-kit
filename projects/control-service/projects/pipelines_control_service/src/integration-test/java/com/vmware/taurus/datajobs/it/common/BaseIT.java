@@ -196,10 +196,8 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
    public static String getDataJobDeploymentRequestBody(String jobVersion) throws JsonProcessingException {
       var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
-      jobDeployment.setVdkVersion("");
       jobDeployment.setJobVersion(jobVersion);
       jobDeployment.setMode(DataJobMode.RELEASE);
-      jobDeployment.setEnabled(true);
       jobDeployment.setResources(new DataJobResources());
       jobDeployment.setSchedule(new DataJobSchedule());
       jobDeployment.setId(TEST_JOB_DEPLOYMENT_ID);

@@ -63,7 +63,7 @@ class NewVersionCheckPlugin:
 
             self._check_version(package_list, package_index)
         except Exception as e:
-            log.info(
+            log.debug(
                 f"Could not check for new version release. "
                 f"Error was {e}. We are ignoring the error."
             )
