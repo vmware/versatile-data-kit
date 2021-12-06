@@ -126,5 +126,5 @@ class DecorationCursor(PEP249Cursor):
             super().execute(operation, parameters)
             self._log.info("Executing decoration query SUCCEEDED.")
         except Exception as e:
-            self._log.warning("Executing decoration query FAILED.", e)
+            self._log.warning(f"Executing decoration query FAILED. Exception: {e}")
             raise e

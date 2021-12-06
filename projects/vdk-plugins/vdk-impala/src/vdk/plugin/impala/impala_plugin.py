@@ -5,7 +5,6 @@ import logging
 import click
 from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import Configuration

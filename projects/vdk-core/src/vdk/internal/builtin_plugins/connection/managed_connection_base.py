@@ -100,7 +100,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
         """
         if not self._is_db_con_open:
             db_con = self._connect()
-            self._log.debug("Established %s", str(db_con))
+            self._log.debug(f"Established {str(db_con)}")
             self._is_db_con_open = True
             self._db_con = db_con
         return self

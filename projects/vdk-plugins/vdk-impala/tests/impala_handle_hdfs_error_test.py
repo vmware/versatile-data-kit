@@ -38,8 +38,8 @@ Root cause: ConnectException: Connection refused"""
 
         (
             mock_native_cursor,
-            mock_managed_cursor,
-            mock_decoration_cursor,
+            _,
+            _,
             mock_recovery_cursor,
             _,
         ) = populate_mock_managed_cursor(
@@ -47,13 +47,6 @@ Root cause: ConnectException: Connection refused"""
             mock_operation=original_query,
             decoration_operation_callback=mock_decoration,
         )
-
-        # mock_recovery_cursor.__decoration_operation_callback = mock_decoration
-
-        # mock_managed_cursor.__connection_hook_spec = MagicMock()
-        # mock_managed_cursor.__connection_hook_spec.db_connection_decorate_operation = mock_decoration
-        # mock_managed_cursor.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls = MagicMock()
-        # mock_managed_cursor.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls.return_value = True
 
         error_handler.handle_error(self._failed_to_open_exception, mock_recovery_cursor)
 
@@ -188,13 +181,7 @@ Error(2): No such file or directory
 Root cause: RemoteException: Path name not found: /user/hive/warehouse/starshot_csp_jira_dw.db/csp_customfieldoption/554fce0f545e17a0-739e2bfa0000006f_954094502_data.0.parq"""
         initial_error = OperationalError(error_message)
         error_handler = ImpalaErrorHandler(logging.getLogger(), num_retries=1)
-        (
-            mock_native_cursor,
-            _,
-            _,
-            mock_recovery_cursor,
-            _,
-        ) = populate_mock_managed_cursor(
+        _, _, _, mock_recovery_cursor, _ = populate_mock_managed_cursor(
             mock_exception_to_recover=initial_error, mock_operation=self._query
         )
 

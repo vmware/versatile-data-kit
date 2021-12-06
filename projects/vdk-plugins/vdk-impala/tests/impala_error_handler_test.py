@@ -83,7 +83,7 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             self.error_handler.handle_error(test_exception, mock_recovery_cursor)
         )
 
-        calls = [call(f"invalidate metadata db.TABLE_NAME"), call(self._query)]
+        calls = [call("invalidate metadata db.TABLE_NAME"), call(self._query)]
         mock_native_cursor.execute.assert_has_calls(calls)
 
     def test_handle_table_already_exists_retry_only_once(self, patched_time_sleep):
@@ -107,7 +107,7 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
         )
 
         self.assertEqual(2, mock_native_cursor.execute.call_count)
-        calls = [call(f"invalidate metadata db.TABLE_NAME"), call(self._query)]
+        calls = [call("invalidate metadata db.TABLE_NAME"), call(self._query)]
         mock_native_cursor.execute.assert_has_calls(calls)
 
     def test_handle_table_already_exists_handled_by_other_handler(
@@ -136,7 +136,7 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             )
         )
 
-        calls = [call(f"invalidate metadata db.TABLE_NAME"), call(self._query)]
+        calls = [call("invalidate metadata db.TABLE_NAME"), call(self._query)]
         mock_native_cursor.execute.assert_has_calls(calls)
 
     def test_handle_table_already_exists_new_exception_is_thrown_after_fix(
@@ -163,7 +163,7 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             self.error_handler.handle_error(test_exception, mock_recovery_cursor)
 
         # make sure we have tried
-        calls = [call(f"invalidate metadata db.TABLE_NAME"), call(self._query)]
+        calls = [call("invalidate metadata db.TABLE_NAME"), call(self._query)]
         mock_native_cursor.execute.assert_has_calls(calls)
 
     def test_handle_could_not_load_table(self, patched_time_sleep):
@@ -186,7 +186,7 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
         )
 
         calls = [
-            call(f"invalidate metadata vsphere_health_check_dashboard._click_n_fix"),
+            call("invalidate metadata vsphere_health_check_dashboard._click_n_fix"),
             call(self._query),
         ]
         mock_native_cursor.execute.assert_has_calls(calls)
@@ -220,8 +220,8 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             )
         )
 
-        calls = [call(f"invalidate metadata db.TABLE_NAME_1"), call(self._query)]
-        calls += [call(f"invalidate metadata db.TABLE_NAME_2"), call(self._query)]
+        calls = [call("invalidate metadata db.TABLE_NAME_1"), call(self._query)]
+        calls += [call("invalidate metadata db.TABLE_NAME_2"), call(self._query)]
         mock_native_cursor.execute.assert_has_calls(calls)
 
     def test_handle_handle_should_not_retry_error(self, patched_time_sleep):

@@ -39,7 +39,7 @@ class JobFilesLocator:
             if (x.name.lower().endswith(".sql") or x.name.lower().endswith(".py"))
         ]
         script_files.sort(key=lambda x: x.name)
-        log.debug("Script files of %s are %s", directory, script_files)
+        log.debug(f"Script files of {directory} are {script_files}")
         return script_files
 
 
