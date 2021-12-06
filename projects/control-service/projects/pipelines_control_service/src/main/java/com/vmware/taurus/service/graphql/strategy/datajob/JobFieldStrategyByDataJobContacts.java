@@ -11,10 +11,12 @@ import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.function.Predicate;
 
+@Component
 public class JobFieldStrategyByDataJobContacts extends FieldStrategy<V2DataJob> {
    private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(e -> e.getConfig().getContacts(),
          Comparator.nullsLast((o1, o2) -> {

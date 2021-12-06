@@ -30,7 +30,7 @@ public enum JobFieldStrategyBy {
    SOURCE_URL("config.sourceUrl", "content/config/sourceUrl"),
    NEXT_RUN_EPOCH_SECS("config.schedule.nextRunEpochSeconds", "content/config/schedule/nextRunEpochSeconds"),
    SCHEDULE_CRON("config.schedule.scheduleCron", "content/config/schedule/scheduleCron"),
-   DATA_JOB_CONTACTS("config.contacts", "content/config/contacts");
+   DATA_JOB_CONTACTS("config.contacts.present", "content/config/contacts/present");
 
    private final String field;
    private final String path;

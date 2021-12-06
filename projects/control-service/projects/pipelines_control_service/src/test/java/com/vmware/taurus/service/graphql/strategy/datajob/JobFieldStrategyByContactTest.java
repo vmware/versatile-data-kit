@@ -17,6 +17,9 @@ import org.springframework.data.domain.Sort;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JobFieldStrategyByContactTest {
 
@@ -101,6 +104,23 @@ public class JobFieldStrategyByContactTest {
       Assertions.assertTrue(v2DataJobCriteria.getPredicate().test(a));
       Assertions.assertTrue(v2DataJobCriteria.getPredicate().test(b));
       Assertions.assertEquals(-1, v2DataJobCriteria.getComparator().compare(a, b));
+   }
+
+   @Test
+   void testJobContactsStrategy_whenComputingProvidedSearch_shouldReturnValidPredicate() {
+      Predicate<V2DataJob> predicate = strategyByDataJobContacts.computeSearchCriteria("some random string");
+
+      var contactA = new DataJobContacts();
+      var contactB = new DataJobContacts();
+
+      contactB.setNotifiedOnJobFailureUserError(List.of("non-empty"));
+
+      V2DataJob a = createDummyJob(contactA);
+      V2DataJob b = createDummyJob(contactB);
+
+      Assertions.assertTrue(predicate.test(a));
+      Assertions.assertTrue(predicate.test(b));
+
    }
 
    private V2DataJob createDummyJob(DataJobContacts contacts) {
