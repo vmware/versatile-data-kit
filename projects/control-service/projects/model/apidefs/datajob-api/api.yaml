@@ -1141,7 +1141,6 @@ components:
           description: Enable/disable flag
           type: boolean
           example: false
-          default: true
         deployed_by:
           description: User or service that deployed the Data Job
           type: string
@@ -1175,7 +1174,6 @@ components:
           description: Enable/disable flag
           type: boolean
           example: false
-          default: true
         contacts:
           $ref: '#/components/schemas/DataJobContacts'
         schedule:

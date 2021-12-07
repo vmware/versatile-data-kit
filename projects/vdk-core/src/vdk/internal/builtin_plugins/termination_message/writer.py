@@ -65,7 +65,7 @@ class TerminationMessageWriterPlugin:
                     file_util, error_overall, user_error, execution_skipped
                 )
         except Exception as e:
-            log.exception("Failed to write termination message. See exception: ", e)
+            log.exception(f"Failed to write termination message. See exception: {e}")
 
     @staticmethod
     def _execute_termination_action(

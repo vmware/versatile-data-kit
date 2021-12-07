@@ -30,7 +30,7 @@ vdk --help
 ## Plugins
 
 Plugins are a powerful way of extending or adapting Versatile Data Kit for all kinds of use-cases.
-For more information see [Plugins doc](../vdk-plugins/README_PLUGINS.md).
+For more information see [Plugins doc](../vdk-plugins/README.md).
 
 ## Public interfaces
 

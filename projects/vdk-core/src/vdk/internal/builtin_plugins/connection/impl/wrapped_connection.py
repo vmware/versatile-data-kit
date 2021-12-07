@@ -39,5 +39,5 @@ class WrappedConnection(ManagedConnectionBase):
     def _connect(self) -> Any:
         self._log.debug("Establishing Wrapped connection ...")
         conn = self._new_connection_builder_function()
-        self._log.debug("Establishing Wrapped connection DONE: %s", str(conn))
+        self._log.debug(f"Establishing Wrapped connection DONE: {str(conn)}")
         return conn

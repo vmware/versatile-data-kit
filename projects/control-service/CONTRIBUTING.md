@@ -115,7 +115,7 @@ featureflag.security.enabled=true
 See [.gitlab-ci.yml](../.gitlab-ci.yml)
 
 ## Testing
-* Unit tests (under test folder in each project). self-contained tests testing the class or method level. All tests should finish in minutes
+* Unit tests (under test folder in each project). Based on JUnit. They are self-contained tests testing the class or method level. All tests should finish in minutes
   if not seconds. Flexible goal for (line) coverage is to be 60-70% range if possible (it depends on how algorithmitics/unit-testable the code is)
 * Integration tests. (under integration_test folder in each project). collect modules together and test them as a subsystem in order to verify
   that they collaborate as intended to achieve some larger piece of behaviour. They generally mock external component when possible.
