@@ -3,7 +3,7 @@
 import os
 import time
 import unittest
-from unittest import mock
+from unittest.mock import patch
 
 import pytest
 from click.testing import Result
@@ -18,7 +18,7 @@ VDK_IMPALA_PORT = "VDK_IMPALA_PORT"
 
 
 @pytest.mark.usefixtures("impala_service")
-@mock.patch.dict(
+@patch.dict(
     os.environ,
     {
         VDK_DB_DEFAULT_TYPE: "IMPALA",
