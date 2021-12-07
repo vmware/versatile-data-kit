@@ -3,6 +3,7 @@
 import os
 from enum import Enum
 from enum import unique
+from typing import Optional
 
 import click
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
@@ -19,8 +20,6 @@ class DeployOperation(Enum):
 
     CREATE = "create"
     UPDATE = "update"
-    ENABLE = "enable"
-    DISABLE = "disable"
     REMOVE = "remove"
     SHOW = "show"
 
@@ -104,14 +103,16 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
 )
 @click.option(
     "--enable",
-    "operation",
-    flag_value=DeployOperation.ENABLE,
+    "enabled",
+    flag_value=True,
+    default=None,
     help="Enable a job. That will basically un-pause the job.",
 )
 @click.option(
     "--disable",
-    "operation",
-    flag_value=DeployOperation.DISABLE,
+    "enabled",
+    flag_value=False,
+    default=None,
     help="Disable a job. Will not schedule a new cloud execution. Effectively pausing the job. "
     "Currently running job will be allowed to finish.",
 )
@@ -163,6 +164,7 @@ def deploy(
     team: str,
     job_version: str,
     vdk_version: str,
+    enabled: Optional[bool],
     job_path: str,
     operation: str,
     reason: str,
@@ -170,20 +172,13 @@ def deploy(
     output: str,
 ):
     cmd = JobDeploy(rest_api_url, output)
-    if operation == DeployOperation.UPDATE:
+    if operation == DeployOperation.UPDATE or enabled is not None:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
-        if not vdk_version and not job_version:
+        # default to ask for job version to update
+        if not vdk_version and not job_version and enabled is None:
             job_version = get_or_prompt("Job Version", job_version)
-        return cmd.update(name, team, job_version, vdk_version, output)
-    if operation == DeployOperation.ENABLE:
-        name = get_or_prompt("Job Name", name)
-        team = get_or_prompt("Job Team", team)
-        return cmd.enable(name, team)
-    if operation == DeployOperation.DISABLE:
-        name = get_or_prompt("Job Name", name)
-        team = get_or_prompt("Job Team", team)
-        return cmd.disable(name, team)
+        return cmd.update(name, team, enabled, job_version, vdk_version, output)
     if operation == DeployOperation.REMOVE:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)

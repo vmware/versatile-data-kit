@@ -145,6 +145,7 @@ class JobDeploy:
         self,
         name: str,
         team: str,
+        enabled: Optional[bool],  # true, false or None
         job_version: Optional[str],
         vdk_version: Optional[str],
         output: str,
@@ -154,13 +155,18 @@ class JobDeploy:
             deployment.job_version = job_version
         if vdk_version:
             deployment.vdk_version = vdk_version
+        deployment.enabled = enabled
+
         if job_version:
             self.__update_job_version(name, team, deployment, output)
-        elif vdk_version:
+        elif vdk_version or enabled is not None:
             self.__update_deployment(name, team, deployment)
-            log.info(
-                f"Deployment of Data Job {name} updated to use vdk version {vdk_version}."
-            )
+            msg = f"Deployment of Data Job {name} updated; "
+            if vdk_version:
+                msg = msg + f"vdk version: {vdk_version}; "
+            if enabled is not None:
+                msg = msg + "status: " + ("enabled" if enabled else "disabled") + "; "
+            log.info(msg)
         else:
             log.warning(f"Nothing to update for deployment of job {name}.")
 
@@ -200,20 +206,6 @@ class JobDeploy:
                 "job_version": deployment.job_version,
             }
             click.echo(json.dumps(result))
-
-    @ApiClientErrorDecorator()
-    def disable(self, name: str, team: str) -> None:
-        deployment = DataJobDeployment(enabled=False)
-        log.debug(f"Disable Deployment of a job {name} of team {team}")
-        self.__update_deployment(name, team, deployment)
-        log.info(f"Deployment of Data Job {name} disabled.")
-
-    @ApiClientErrorDecorator()
-    def enable(self, name: str, team: str) -> None:
-        deployment = DataJobDeployment(enabled=True)
-        log.debug(f"Enable Deployment of a job {name} of team {team}")
-        self.__update_deployment(name, team, deployment)
-        log.info(f"Deployment of Data Job {name} enabled.")
 
     @ApiClientErrorDecorator()
     def remove(self, name: str, team: str) -> None:
@@ -305,6 +297,6 @@ class JobDeploy:
                 )
 
             self.__update_data_job_deploy_configuration(job_path, name, team)
-            self.update(name, team, data_job_version.version_sha, None, output)
+            self.update(name, team, None, data_job_version.version_sha, None, output)
         finally:
             self.__cleanup_archive(archive_path=archive_path)
