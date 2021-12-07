@@ -78,7 +78,8 @@ class Installer:
         self.__install_ingress_prerequisites()
         self.__install_helm_chart()
         self.__finalize_configuration()
-        log.info(f"Versatile Data Kit Control Service installed successfully")
+        log.info("Versatile Data Kit Control Service installed successfully")
+        log.info("Access the REST API at http://localhost:8092/swagger-ui.html\n")
         log.info(
             "\n"
             "You can now use the other vdk commands to create, run, and deploy jobs. "
@@ -107,6 +108,7 @@ class Installer:
             and self.__docker_container_exists(self.docker_registry_container_name)
         ):
             log.info("The Versatile Data Kit Control Service is installed")
+            log.info("Access the REST API at http://localhost:8092/swagger-ui.html\n")
         else:
             log.info("No installation found")
 
@@ -758,7 +760,6 @@ class Installer:
         log.info("Finalizing installation...")
         try:
             write_default_rest_api_url("http://localhost:8092")
-            write_default_authentication_disable("true")
         except Exception as ex:
             log.error(f"Failed to finalize installation. {str(ex)}")
             exit(1)
