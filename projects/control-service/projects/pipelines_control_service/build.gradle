@@ -62,6 +62,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'com.graphql-java:graphql-java-spring-boot-starter-webmvc'
     implementation versions.'com.cronutils:cron-utils'
     implementation versions.'commons-io:commons-io'
+    implementation versions.'org.apache.commons:commons-text'
     implementation versions.'net.lingala.zip4j:zip4j'
 
     implementation versions.'net.javacrumbs.shedlock:shedlock-spring'

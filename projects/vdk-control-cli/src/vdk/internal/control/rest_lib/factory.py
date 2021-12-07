@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import os
 
 from taurus_datajob_api import ApiClient
 from taurus_datajob_api import Configuration
@@ -12,9 +11,6 @@ from taurus_datajob_api import DataJobsPropertiesApi
 from taurus_datajob_api import DataJobsSourcesApi
 from urllib3 import Retry
 from vdk.internal.control.auth.auth import Authentication
-from vdk.internal.control.configuration.defaults_config import (
-    load_default_authentication_disable,
-)
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 
 log = logging.getLogger(__name__)

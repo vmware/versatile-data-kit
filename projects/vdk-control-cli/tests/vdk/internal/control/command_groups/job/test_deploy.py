@@ -212,6 +212,68 @@ def test_set_vdk_version(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     assert httpserver.log[0][0].data == b'{"vdk_version": "1.1.1"}'
 
 
+def test_update_job_version(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments",
+        method="POST",
+    ).respond_with_response(Response(status=202))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        deploy,
+        [
+            "--update",
+            "--job-version",
+            "1.1",
+            "--disable",
+            "--vdk-version",
+            "2.2",
+            "-n",
+            "test-job",
+            "-t",
+            "test-team",
+            "-u",
+            rest_api_url,
+        ],
+    )
+    # print(f"httpserver.log: {httpserver.log}")
+    test_utils.assert_click_status(result, 0)
+    assert (
+        httpserver.log[0][0].data
+        == b'{"vdk_version": "2.2", "job_version": "1.1", "enabled": false}'
+    )
+
+
+def test_update_miltiple(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+
+    httpserver.expect_request(
+        uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments/{DEPLOYMENT_ID}",
+        method="PATCH",
+    ).respond_with_response(Response(status=200))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        deploy,
+        [
+            "--update",
+            "--vdk-version",
+            "1.1.1",
+            "--enable",
+            "-n",
+            "test-job",
+            "-t",
+            "test-team",
+            "-u",
+            rest_api_url,
+        ],
+    )
+    test_utils.assert_click_status(result, 0)
+    assert httpserver.log[0][0].data == b'{"vdk_version": "1.1.1", "enabled": true}'
+
+
 def test_deploy_show(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
 

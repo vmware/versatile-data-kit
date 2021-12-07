@@ -41,23 +41,3 @@ def reset_default_rest_api_url():
     VDKConfigFolder().reset_configuration(
         section=DEFAULTS_SECTION, option=REST_API_URL_OPTION
     )
-
-
-def load_default_authentication_disable():
-    return VDKConfigFolder().read_configuration(
-        section=DEFAULTS_SECTION, option=AUTHENTICATION_DISABLE
-    )
-
-
-def write_default_authentication_disable(default_authentication_disable):
-    VDKConfigFolder().write_configuration(
-        section=DEFAULTS_SECTION,
-        option=AUTHENTICATION_DISABLE,
-        value=default_authentication_disable,
-    )
-
-
-def reset_default_authentication_disable():
-    VDKConfigFolder().reset_configuration(
-        section=DEFAULTS_SECTION, option=AUTHENTICATION_DISABLE
-    )
