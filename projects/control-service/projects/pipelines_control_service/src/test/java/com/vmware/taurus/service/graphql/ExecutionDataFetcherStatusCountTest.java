@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.execution.JobExecutionLogsUrlBuilder;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
@@ -44,9 +45,12 @@ public class ExecutionDataFetcherStatusCountTest {
    @Mock
    JobExecutionRepository jobExecutionRepository;
 
+   @Mock
+   JobExecutionLogsUrlBuilder jobExecutionLogsUrlBuilder;
+
    @BeforeEach
    public void init() {
-      executionDataFetcher = new ExecutionDataFetcher(jobExecutionRepository, jobExecutionService);
+      executionDataFetcher = new ExecutionDataFetcher(jobExecutionRepository, jobExecutionService, jobExecutionLogsUrlBuilder);
    }
 
    @Test

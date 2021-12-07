@@ -13,7 +13,7 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -41,7 +41,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
    @Autowired
    JobsRepository jobsRepository;
 
-   @AfterEach
+   @BeforeEach
    public void cleanup() {
       jobExecutionRepository.deleteAll();
    }
