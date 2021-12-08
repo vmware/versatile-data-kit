@@ -15,7 +15,6 @@ import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +50,10 @@ public class GraphQLExecutionsIT extends BaseIT {
    private DataJobExecution dataJobExecution2;
    private DataJobExecution dataJobExecution3;
 
-   @AfterEach
-   public void cleanup() {
-      jobsRepository.deleteAllById(List.of(TEST_JOB_NAME_1, TEST_JOB_NAME_2, TEST_JOB_NAME_3));
-   }
-
    @BeforeEach
    public void setup() {
+      cleanup();
+
       this.dataJob1 = jobsRepository.save(new DataJob(TEST_JOB_NAME_1, new JobConfig()));
       this.dataJob2 = jobsRepository.save(new DataJob(TEST_JOB_NAME_2, new JobConfig()));
       this.dataJob3 = jobsRepository.save(new DataJob(TEST_JOB_NAME_3, new JobConfig()));
@@ -85,6 +81,11 @@ public class GraphQLExecutionsIT extends BaseIT {
             "    totalItems" +
             "  }" +
             "}";
+   }
+
+   private void cleanup() {
+      jobsRepository.findAllById(List.of(TEST_JOB_NAME_1, TEST_JOB_NAME_2, TEST_JOB_NAME_3))
+            .forEach(dataJob -> jobsRepository.delete(dataJob));
    }
 
    @Test

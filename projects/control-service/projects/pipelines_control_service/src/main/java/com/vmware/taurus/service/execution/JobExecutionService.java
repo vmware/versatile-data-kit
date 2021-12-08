@@ -61,6 +61,8 @@ public class JobExecutionService {
 
    private DataJobsKubernetesService dataJobsKubernetesService;
 
+   private JobExecutionLogsUrlBuilder jobExecutionLogsUrlBuilder;
+
    private OperationContext operationContext;
 
    public String startDataJobExecution(String teamName, String jobName, String deploymentId, DataJobExecutionRequest jobExecutionRequest) {
@@ -196,7 +198,7 @@ public class JobExecutionService {
 
       return dataJobExecutions
             .stream()
-            .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution))
+            .map(dataJobExecution -> convertToModel(dataJobExecution))
             .collect(Collectors.toList());
    }
 
@@ -206,7 +208,7 @@ public class JobExecutionService {
       }
 
       return jobExecutionRepository.findById(executionId)
-            .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution))
+            .map(dataJobExecution -> convertToModel(dataJobExecution))
             .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
    }
 
@@ -355,41 +357,6 @@ public class JobExecutionService {
       }
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, ExecutionTerminationStatus terminationStatus) {
-      switch (executionStatus) {
-         case SKIPPED:
-            return "Skipping job execution due to another parallel running execution.";
-         default:
-            return terminationStatus.getString();
-      }
-   }
-
-   private void saveDataJobExecution(
-         DataJob dataJob,
-         String executionId,
-         String opId,
-         com.vmware.taurus.service.model.ExecutionType executionType,
-         ExecutionStatus executionStatus,
-         String startedBy,
-         OffsetDateTime startTime) {
-
-      com.vmware.taurus.service.model.DataJobExecution dataJobExecution = com.vmware.taurus.service.model.DataJobExecution.builder()
-            .id(executionId)
-            .dataJob(dataJob)
-            .opId(opId)
-            .type(executionType)
-            .status(executionStatus)
-            .startedBy(startedBy)
-            .startTime(startTime)
-            .build();
-
-      jobExecutionRepository.save(dataJobExecution);
-   }
-
-   private static String getExecutionId(String jobName) {
-      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
-   }
-
    /**
     * This method returns a per job name mapping containing statuses
     * count for a given data job and status list. The method is
@@ -423,4 +390,42 @@ public class JobExecutionService {
       return returnValue;
    }
 
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, ExecutionTerminationStatus terminationStatus) {
+      switch (executionStatus) {
+         case SKIPPED:
+            return "Skipping job execution due to another parallel running execution.";
+         default:
+            return terminationStatus.getString();
+      }
+   }
+
+   private static String getExecutionId(String jobName) {
+      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
+   }
+
+   private void saveDataJobExecution(
+         DataJob dataJob,
+         String executionId,
+         String opId,
+         com.vmware.taurus.service.model.ExecutionType executionType,
+         ExecutionStatus executionStatus,
+         String startedBy,
+         OffsetDateTime startTime) {
+
+      com.vmware.taurus.service.model.DataJobExecution dataJobExecution = com.vmware.taurus.service.model.DataJobExecution.builder()
+            .id(executionId)
+            .dataJob(dataJob)
+            .opId(opId)
+            .type(executionType)
+            .status(executionStatus)
+            .startedBy(startedBy)
+            .startTime(startTime)
+            .build();
+
+      jobExecutionRepository.save(dataJobExecution);
+   }
+
+   private DataJobExecution convertToModel(com.vmware.taurus.service.model.DataJobExecution dataJobExecution) {
+      return ToApiModelConverter.jobExecutionToConvert(dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution));
+   }
 }

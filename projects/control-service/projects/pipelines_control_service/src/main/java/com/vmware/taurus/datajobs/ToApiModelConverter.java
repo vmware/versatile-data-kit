@@ -169,7 +169,7 @@ public class ToApiModelConverter {
       return v2DataJobDeployment;
    }
 
-   public static DataJobExecution jobExecutionToConvert(com.vmware.taurus.service.model.DataJobExecution jobExecutionToConvert) {
+   public static DataJobExecution jobExecutionToConvert(com.vmware.taurus.service.model.DataJobExecution jobExecutionToConvert, String logsUrl) {
       return new DataJobExecution()
             .id(jobExecutionToConvert.getId())
             .jobName(jobExecutionToConvert.getDataJob().getName())
@@ -180,6 +180,7 @@ public class ToApiModelConverter {
             .startTime(jobExecutionToConvert.getStartTime())
             .endTime(jobExecutionToConvert.getEndTime())
             .startedBy(jobExecutionToConvert.getStartedBy())
+            .logsUrl(logsUrl)
             .deployment(new DataJobDeployment()
                   .vdkVersion(jobExecutionToConvert.getVdkVersion())
                   .jobVersion(jobExecutionToConvert.getJobVersion())

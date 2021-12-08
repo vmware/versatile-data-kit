@@ -14,6 +14,7 @@ import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.datajobs.ToModelApiConverter;
 import com.vmware.taurus.service.JobExecutionFilterSpec;
 import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.execution.JobExecutionLogsUrlBuilder;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
@@ -67,8 +68,10 @@ import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVaria
 public class ExecutionDataFetcher {
 
    private final JobExecutionRepository jobsExecutionRepository;
+
    private final JobExecutionService jobExecutionService;
 
+   private final JobExecutionLogsUrlBuilder jobExecutionLogsUrlBuilder;
 
    /**
     * Populates the executions of the specified data jobs, that match the specified criteria.
@@ -85,7 +88,7 @@ public class ExecutionDataFetcher {
                             findAllExecutions(dataJobExecutionQueryVariables, dataJob.getJobName())
                                     .getContent()
                                     .stream()
-                                    .map(ToApiModelConverter::jobExecutionToConvert)
+                                    .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution)))
                                     .collect(Collectors.toList())));
          }
       });
@@ -100,7 +103,7 @@ public class ExecutionDataFetcher {
          List<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutions = dataJobExecutionsResult
                .getContent()
                .stream()
-               .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution))
+               .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution)))
                .collect(Collectors.toList());
 
          return buildResponse(
