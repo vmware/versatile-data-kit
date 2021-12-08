@@ -20,11 +20,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
 
+import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,15 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
 
    @Autowired
-   MockMvc mockMvc;
-
-   @Autowired
    JobExecutionRepository jobExecutionRepository;
 
    @Autowired
    JobsRepository jobsRepository;
-
-   private final String uri = "/data-jobs/for-team/supercollider/jobs";
 
    @AfterEach
    public void cleanup() {
@@ -77,10 +72,10 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
       var expectedEndTimeLarger = OffsetDateTime.now();
       var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
-      addJobExecution(expectedEndTimeLarger, "testId", ExecutionStatus.FINISHED, jobName);
-      addJobExecution(expectedEndTimeSmaller, "testId2", ExecutionStatus.FINISHED, jobName);
+      addJobExecution(expectedEndTimeLarger, random(10), ExecutionStatus.FINISHED, jobName);
+      addJobExecution(expectedEndTimeSmaller, random(11), ExecutionStatus.FINISHED, jobName);
 
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery(jobName)).with(user(username)))
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
               .andExpect(status().is(200))
               .andExpect(content().contentType("application/json"))
               .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
@@ -90,7 +85,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
 
    @Test
    public void testExecutionStatusCount_expectNoCounts(String jobName, String username) throws Exception {
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery(jobName)).with(user(username)))
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
               .andExpect(status().is(200))
               .andExpect(content().contentType("application/json"))
               .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(0))
@@ -102,12 +97,12 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
       var expectedEndTimeLarger = OffsetDateTime.now();
       var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
-      addJobExecution(expectedEndTimeLarger, "testId", ExecutionStatus.FINISHED, jobName);
-      addJobExecution(expectedEndTimeSmaller, "testId2", ExecutionStatus.FINISHED, jobName);
-      addJobExecution(expectedEndTimeLarger, "testI3", ExecutionStatus.FAILED, jobName);
-      addJobExecution(expectedEndTimeSmaller, "testId4", ExecutionStatus.FAILED, jobName);
+      addJobExecution(expectedEndTimeLarger, random(10), ExecutionStatus.FINISHED, jobName);
+      addJobExecution(expectedEndTimeSmaller, random(11), ExecutionStatus.FINISHED, jobName);
+      addJobExecution(expectedEndTimeLarger, random(12), ExecutionStatus.FAILED, jobName);
+      addJobExecution(expectedEndTimeSmaller, random(13), ExecutionStatus.FAILED, jobName);
 
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery(jobName)).with(user(username)))
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
               .andExpect(status().is(200))
               .andExpect(content().contentType("application/json"))
               .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
@@ -119,10 +114,10 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
    public void testExecutionStatusCount_expectOneSuccessfulOneFailed(String jobName, String username) throws Exception {
       var expectedEndTimeLarger = OffsetDateTime.now();
 
-      addJobExecution(expectedEndTimeLarger, "testId", ExecutionStatus.FINISHED, jobName);
-      addJobExecution(expectedEndTimeLarger, "testI3", ExecutionStatus.FAILED, jobName);
+      addJobExecution(expectedEndTimeLarger, random(10), ExecutionStatus.FINISHED, jobName);
+      addJobExecution(expectedEndTimeLarger, random(11), ExecutionStatus.FAILED, jobName);
 
-      mockMvc.perform(MockMvcRequestBuilders.get(uri).queryParam("query", getQuery(jobName)).with(user(username)))
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
               .andExpect(status().is(200))
               .andExpect(content().contentType("application/json"))
               .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(1))
