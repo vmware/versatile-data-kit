@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -35,7 +35,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
    @Autowired
    JobsRepository jobsRepository;
 
-   @AfterEach
+   @BeforeEach
    public void cleanup() {
       jobExecutionRepository.deleteAll();
    }
