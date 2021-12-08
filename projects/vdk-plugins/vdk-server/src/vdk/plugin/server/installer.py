@@ -16,13 +16,7 @@ from kubernetes import config
 from kubernetes import utils
 from kubernetes import watch
 from vdk.internal.control.configuration.defaults_config import (
-    reset_default_authentication_disable,
-)
-from vdk.internal.control.configuration.defaults_config import (
     reset_default_rest_api_url,
-)
-from vdk.internal.control.configuration.defaults_config import (
-    write_default_authentication_disable,
 )
 from vdk.internal.control.configuration.defaults_config import (
     write_default_rest_api_url,
@@ -770,7 +764,6 @@ class Installer:
         log.info("Cleaning up...")
         try:
             reset_default_rest_api_url()
-            reset_default_authentication_disable()
         except Exception as ex:
             log.error(f"Failed to clean up. {str(ex)}")
             exit(1)
