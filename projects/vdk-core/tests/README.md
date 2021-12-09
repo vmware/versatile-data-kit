@@ -2,7 +2,7 @@
 
 ## Directory layout
 
-### taurus
+### vdk
 
 Contains unit tests of the project.
 See https://martinfowler.com/bliki/UnitTest.html
