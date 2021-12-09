@@ -792,21 +792,36 @@ fluentd:
 #      some system config
 #    </system>
 
-## These values expose configuration properties for the execution api
-## The execution API helps you collect information about previous
-## data job executions, or manually start a job execution. Stored data job
-## execution information will naturally increase over time. This is why we
-## are providing a way to clean old information about data job executions through
-## the following properties:
-##
-## maximumExecutionsToStore - The maximum amount of executions per data job to keep. If data
-##                            job executions exceed this number, the older executions are deleted.
-##
-## ttlSeconds - Total time to live per data job execution. Data job executions older than ttlSeconds
-##              specified also get deleted.
-##
-dataJobExecutionsCleanupTask:
-  ## maximum number of data job executions to store in the database / default is 100.
-  maximumExecutionsToStore: "100"
-  ## maximum time to live seconds for each execution / default is 14 days.
-  executionsTtlSeconds: "1209600"
+dataJob:
+  executions:
+    ## These values expose configuration properties for the execution api
+    ## The execution API helps you collect information about previous
+    ## data job executions, or manually start a job execution. Stored data job
+    ## execution information will naturally increase over time. This is why we
+    ## are providing a way to clean old information about data job executions through
+    ## the following properties:
+    ##
+    ## maximumExecutionsToStore - The maximum amount of executions per data job to keep. If data
+    ##                            job executions exceed this number, the older executions are deleted.
+    ##
+    ## executionsTtlSeconds - Total time to live per data job execution. Data job executions older than ttlSeconds
+    ##              specified also get deleted.
+    ##
+    cleanupTask:
+      ## maximum number of data job executions to store in the database / default is 100.
+      maximumExecutionsToStore: "100"
+      ## maximum time to live seconds for each execution / default is 14 days.
+      executionsTtlSeconds: "1209600"
+    logsUrl:
+      ## This template will be used for building of logs URL for each data job execution returned by API.
+      ## Supported variables which will be replaced in the template with the particular execution values:
+      ## {{execution_id}}, {{job_name}}, {{op_id}}, {{start_time}} and {{end_time}}
+      ## Example: "https://log-insight-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C2%A7%C2%A7%C2%A7%C2%
+      ## A7{{start_time}}%C2%A7{{end_time}}%C2%A7true%C2%A7COUNT%C2%A7text:CONTAINS:{{execution_id}}*"
+      urlTemplate: ""
+      ## This variable is used to determine the format of execution.startTime
+      ## and execution.endTime used in the template (datajobs.executions.logsUrl.template).
+      ## Supported options: iso (https://bg.wikipedia.org/wiki/ISO_8601) and unix (https://en.wikipedia.org/wiki/Unix_time).
+      ## If left blank, defaults to unix.
+      ## Examples: iso -> "2021-12-03T15:34:54.822098Z", unix -> "1638545973226".
+      dateFormat: "unix"
