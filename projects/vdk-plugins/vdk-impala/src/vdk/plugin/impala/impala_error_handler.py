@@ -51,6 +51,19 @@ class ImpalaErrorHandler:
         if self._handle_should_not_retry_error(caught_exception):
             return False
 
+        if self._is_pool_error(caught_exception):
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                log=self._log,
+                what_happened="An Impala Pool Error occured: " + str(caught_exception),
+                why_it_happened="Review the contents of the exception.",
+                consequences="The queries will not be executed.",
+                countermeasures=(
+                    "Optimise the executed queries. Alternatively, make sure that "
+                    "the data job is not running too many queries in parallel."
+                ),
+            )
+
         is_handled = False
         # try to handle multiple failed to open file errors in one query for different tables
         current_exception = caught_exception
@@ -402,3 +415,18 @@ class ImpalaErrorHandler:
 
             return True
         return False
+
+    @staticmethod
+    def _is_pool_error(exception: Exception) -> bool:
+        """
+        Check for impala pool errors.
+        """
+        return errors.exception_matches(
+            exception,
+            classname_with_package=".*OperationalError.*",
+            exception_message_matcher_regex=".*queue full.*",
+        ) or errors.exception_matches(
+            exception,
+            classname_with_package=".*OperationalError.*",
+            exception_message_matcher_regex=".*admission for timeout ms in pool.*",
+        )
