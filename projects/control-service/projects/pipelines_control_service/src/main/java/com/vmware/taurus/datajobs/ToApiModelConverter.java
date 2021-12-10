@@ -155,6 +155,8 @@ public class ToApiModelConverter {
       v2DataJobDeployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
       v2DataJobDeployment.setMode(DataJobMode.fromValue(jobDeploymentStatus.getMode()));
       v2DataJobDeployment.setResources(jobDeploymentStatus.getResources());
+      v2DataJobDeployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
+      v2DataJobDeployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
       // TODO: Get these from the job deployment when they are available there
       v2DataJobDeployment.setLastExecutionStatus(convertStatusEnum(sourceDataJob.getLastExecutionStatus()));
       v2DataJobDeployment.setLastExecutionTime(sourceDataJob.getLastExecutionEndTime());
