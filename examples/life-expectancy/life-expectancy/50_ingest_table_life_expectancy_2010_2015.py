@@ -37,7 +37,7 @@ def run(job_input: IJobInput):
         "Life Expectancy Standard Error": np.float64,
     }
 
-    df = pd.read_csv(url, dtype=dtypes)
+    df = pd.read_csv(url, dtype=dtypes).replace("'","''", regex=True)
 
     df.columns = df.columns.str.replace(" ", "")
 
