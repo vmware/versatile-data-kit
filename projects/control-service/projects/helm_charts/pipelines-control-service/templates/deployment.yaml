@@ -183,9 +183,17 @@ spec:
               value: "/etc/datajobs/k8s_data_job_template.yaml"
             {{- end }}
             - name: DATAJOBS_EXECUTION_TTL_SECONDS
-              value: "{{ .Values.dataJobExecutionsCleanupTask.executionsTtlSeconds }}"
+              value: "{{ .Values.dataJob.executions.cleanupTask.executionsTtlSeconds }}"
             - name: DATAJOBS_EXECUTION_MAXIMUM_EXECUTIONS_TO_STORE
-              value: "{{ .Values.dataJobExecutionsCleanupTask.maximumExecutionsToStore }}"
+              value: "{{ .Values.dataJob.executions.cleanupTask.maximumExecutionsToStore }}"
+            {{- if .Values.dataJob.executions.logsUrl.urlTemplate }}
+            - name: DATAJOBS_EXECUTIONS_LOGS_URL_DATE_TEMPLATE
+              value: "{{ .Values.dataJob.executions.logsUrl.urlTemplate }}"
+            {{- end }}
+            {{- if .Values.dataJob.executions.logsUrl.dateFormat }}
+            - name: DATAJOBS_EXECUTIONS_LOGS_URL_DATE_FORMAT
+              value: "{{ .Values.dataJob.executions.logsUrl.dateFormat }}"
+            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}
