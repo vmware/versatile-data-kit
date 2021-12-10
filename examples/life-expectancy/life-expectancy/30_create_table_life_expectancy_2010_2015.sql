@@ -6,5 +6,3 @@ CREATE TABLE life_expectancy_2010_2015 (
     LifeExpectancyRange varchar,
     LifeExpectancyStandardError decimal(4,2)
 )
-
-

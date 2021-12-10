@@ -141,7 +141,7 @@ The Life Expectancy Data Job runs with the following configuration (`config.ini`
 db_default_type=TRINO
 ingest_method_default = trino
 trino_catalog = mysql
-trino_use_ssl = 
+trino_use_ssl =
 trino_host = localhost
 trino_port = 8080
 trino_user = root
@@ -160,8 +160,3 @@ The path to the CSV file is specified as a URL, thus this example requires an ac
 Jobs from 10 to 60 are devoted to Data Ingestion:
 * 10 - 30 ingest data in table `life_expectancy_2010_2015`
 * 40 - 60 ingest data in table `life_expectancy_2018`
-
-
-
-
-
