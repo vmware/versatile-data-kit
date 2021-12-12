@@ -230,6 +230,7 @@ class IIngesterPlugin:
     """
 
     IngestionResult = NewType("IngestionResult", Dict)
+    IngestionMetadata = NewType("IngestionMetadata", Dict)
 
     def ingest_payload(
         self,
@@ -277,7 +278,9 @@ class IIngesterPlugin:
         """
         pass
 
-    def pre_ingest_process(self, payload: List[dict]) -> List[dict]:
+    def pre_ingest_process(
+        self, payload: List[dict], metadata: Optional[IngestionMetadata] = None
+    ) -> (List[dict], Optional[IngestionMetadata]):
         """
         Do some processing on the ingestion payload before passing it to the
         actual ingestion.
@@ -292,7 +295,12 @@ class IIngesterPlugin:
                 return [{k: str(v) for (k,v) in i.items()} for i in payload]
 
         :param payload: List[dict] the ingestion payload to be processed.
-        :return: List[dict], the processed payload.
+        :param metadata: Optional[IngestionMetadata] dict object containing
+        metadata produced by the pre-ingest plugin, and possibly used by
+        other pre-ingest, ingest, or post-ingest plugins.
+        :return: (List[dict], Optional[IngestionMetadata]), a tuple
+        containing the processed payload and possibly an IngestionMetadata
+        object.
         """
         pass
 

@@ -6,14 +6,14 @@ ingestion plugins chaining functionality
 """
 import logging
 import os
-from typing import List
 from unittest import mock
 
 from click.testing import Result
 from functional.ingestion import utils
-from vdk.api.plugin.hook_markers import hookimpl
-from vdk.api.plugin.plugin_input import IIngesterPlugin
-from vdk.internal.builtin_plugins.run.job_context import JobContext
+from functional.ingestion.payload_pre_process_plugins import AddPayloadSizeAsColumn
+from functional.ingestion.payload_pre_process_plugins import (
+    ConvertPayloadValuesToString,
+)
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
@@ -31,28 +31,20 @@ from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 log = logging.getLogger(__name__)
 
 
-class ConvertPayloadValuesToString(IIngesterPlugin):
-    def pre_ingest_process(self, payload: List[dict]) -> List[dict]:
-        return [{k: str(v) for (k, v) in i.items()} for i in payload]
-
-    @hookimpl
-    def initialize_job(self, context: JobContext) -> None:
-        log.info("Initialize data job with ConvertPayloadValuesToString Plugin.")
-
-        context.ingester.add_ingester_factory_method("convert-to-string", lambda: self)
-
-
 @mock.patch.dict(
     os.environ,
     {
-        "INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "convert-to-string",
+        "INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "convert-to-string,add-payload-size",
         "INGEST_METHOD_DEFAULT": "memory",
     },
 )
 def test_chained_ingest_no_direct_method_passed():
     pre_ingest_plugin = ConvertPayloadValuesToString()
+    payload_size_plugin = AddPayloadSizeAsColumn()
     ingest_plugin = IngestIntoMemoryPlugin()
-    runner = CliEntryBasedTestRunner(pre_ingest_plugin, ingest_plugin)
+    runner = CliEntryBasedTestRunner(
+        pre_ingest_plugin, payload_size_plugin, ingest_plugin
+    )
 
     # TODO: Uncomment below lines when implementation is complete
     # Use a sample data job, in which `method` argument is not passed to
@@ -78,12 +70,15 @@ def test_chained_ingest_no_direct_method_passed():
 
 @mock.patch.dict(
     os.environ,
-    {"INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "convert-to-string"},
+    {"INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "convert-to-string,add-payload-size"},
 )
 def test_chained_ingest_direct_method_passed():
     pre_ingest_plugin = ConvertPayloadValuesToString()
+    payload_size_plugin = AddPayloadSizeAsColumn()
     ingest_plugin = IngestIntoMemoryPlugin()
-    runner = CliEntryBasedTestRunner(pre_ingest_plugin, ingest_plugin)
+    runner = CliEntryBasedTestRunner(
+        pre_ingest_plugin, payload_size_plugin, ingest_plugin
+    )
 
     # Use a sample data job, in which `method` argument is passed to ingestion
     # method calls.
