@@ -60,6 +60,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
    protected static final String TEST_USERNAME = "user";
 
    protected static final String JOBS_URI = "/data-jobs/for-team/supercollider/jobs";
+   protected static final String HEADER_X_OP_ID = "X-OPID";
 
    protected static final ObjectMapper mapper = new ObjectMapper();
 

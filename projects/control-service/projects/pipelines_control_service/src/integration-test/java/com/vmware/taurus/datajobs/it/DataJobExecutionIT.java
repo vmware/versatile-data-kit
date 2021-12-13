@@ -9,19 +9,13 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,15 +31,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
 import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsRepository;
 
-@AutoConfigureMetrics
 public class DataJobExecutionIT extends BaseDataJobDeploymentIT {
-
-    public static final String HEADER_X_OP_ID = "X-OPID";
 
     private static final Logger log = LoggerFactory.getLogger(DataJobExecutionIT.class);
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
@@ -69,21 +58,7 @@ public class DataJobExecutionIT extends BaseDataJobDeploymentIT {
 
         // Execute data job
         String opId = jobName + UUID.randomUUID().toString().toLowerCase();
-        DataJobExecutionRequest dataJobExecutionRequest = new DataJobExecutionRequest()
-              .startedBy(username);
-
-        String triggerDataJobExecutionUrl = String.format(
-              "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-              teamName,
-              jobName,
-              "release");
-        MvcResult dataJobExecutionResponse = mockMvc.perform(post(triggerDataJobExecutionUrl)
-              .with(user(username))
-              .header(HEADER_X_OP_ID, opId)
-              .content(mapper.writeValueAsString(dataJobExecutionRequest))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().is(202))
-              .andReturn();
+        MvcResult dataJobExecutionResponse = executeDataJob(jobName, teamName, username, opId);
 
         // Check the data job execution status
         String location = dataJobExecutionResponse.getResponse().getHeader("location");

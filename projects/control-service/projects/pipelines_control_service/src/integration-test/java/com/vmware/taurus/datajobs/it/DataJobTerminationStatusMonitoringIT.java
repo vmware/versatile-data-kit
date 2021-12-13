@@ -8,14 +8,11 @@ package com.vmware.taurus.datajobs.it;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -24,8 +21,6 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics;
-import org.springframework.http.MediaType;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.model.DataJobExecution;
@@ -35,7 +30,6 @@ public class DataJobTerminationStatusMonitoringIT extends BaseDataJobDeploymentI
 
     public static final String INFO_METRICS = "taurus_datajob_info";
     public static final String TERMINATION_STATUS_METRICS = "taurus_datajob_termination_status";
-    public static final String HEADER_X_OP_ID = "X-OPID";
 
     @Autowired
     JobExecutionRepository jobExecutionRepository;
@@ -62,24 +56,9 @@ public class DataJobTerminationStatusMonitoringIT extends BaseDataJobDeploymentI
         jobExecutionRepository.deleteAll(dataJobExecutions);
 
         // Execute data job
-        String opId = jobName + UUID.randomUUID().toString().toLowerCase();
-        DataJobExecutionRequest dataJobExecutionRequest = new DataJobExecutionRequest()
-              .startedBy(username);
+       executeDataJob(jobName, teamName, username, null);
 
-        String triggerDataJobExecutionUrl = String.format(
-              "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-              teamName,
-              jobName,
-              "release");
-        mockMvc.perform(post(triggerDataJobExecutionUrl)
-              .with(user(username))
-              .header(HEADER_X_OP_ID, opId)
-              .content(mapper.writeValueAsString(dataJobExecutionRequest))
-              .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().is(202))
-              .andReturn();
-
-        // Wait for the job execution to complete, polling every 5 seconds
+        // Wait for the job execution to complete, polling every 15 seconds
         // See: https://github.com/awaitility/awaitility/wiki/Usage
         await().atMost(10, TimeUnit.MINUTES).with().pollInterval(15, TimeUnit.SECONDS).until(terminationMetricsAreAvailable());
 
