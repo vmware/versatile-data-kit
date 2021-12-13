@@ -1,10 +1,12 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import gzip
 import json
+import sys
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
-from vdk.api.plugin.plugin_registry import PluginException
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
@@ -14,6 +16,8 @@ payload: dict = {
     "@id": "test_id",
     "some_data": "some_test_data",
 }
+job_context = MagicMock()
+job_context.core_context.configuration.get_value.return_value = None
 
 
 def mocked_requests_post(url, *args, **kwargs):
@@ -36,7 +40,7 @@ def mocked_requests_post(url, *args, **kwargs):
 
 @mock.patch("requests.post", side_effect=mocked_requests_post)
 def test_ingest_over_http(mock_post):
-    http_ingester: IngestOverHttp = IngestOverHttp()
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     http_ingester.ingest_payload(
         payload=[payload],
         destination_table="test_table",
@@ -55,8 +59,61 @@ def test_ingest_over_http(mock_post):
 
 
 @mock.patch("requests.post", side_effect=mocked_requests_post)
+def test_ingest_over_http_compression(mock_post):
+    threshold_bytes = 3
+    encoding = "utf-8"
+    job_context = MagicMock()
+    job_context.core_context.configuration.get_value.side_effect = [
+        threshold_bytes,
+        encoding,
+    ]
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
+    http_ingester.ingest_payload(
+        payload=[payload],
+        destination_table="test_table",
+        target="http://example.com/data-source",
+    )
+
+    assert len(mock_post.call_args_list) == 1
+    payload["@table"] = "test_table"
+
+    mock_post.assert_called_with(
+        headers={
+            "Content-Type": "application/octet-stream",
+            "Content-encoding": "gzip",
+        },
+        json=gzip.compress(json.dumps([payload]).encode(encoding)),
+        url="http://example.com/data-source",
+        verify=False,
+    )
+
+
+@mock.patch("requests.post", side_effect=mocked_requests_post)
+def test_ingest_over_http_result(mock_post):
+    threshold_bytes = 3
+    encoding = "utf-8"
+    job_context = MagicMock()
+    job_context.core_context.configuration.get_value.side_effect = [
+        threshold_bytes,
+        encoding,
+    ]
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
+    ingestion_result = http_ingester.ingest_payload(
+        payload=[payload],
+        destination_table="test_table",
+        target="http://example.com/data-source",
+    )
+
+    assert ingestion_result["uncompressed_size_in_bytes"] == sys.getsizeof([payload])
+    assert ingestion_result["compressed_size_in_bytes"] == sys.getsizeof(
+        gzip.compress(json.dumps([payload]).encode(encoding))
+    )
+    assert ingestion_result["http_status"] == 200
+
+
+@mock.patch("requests.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_missing_target(mock_post):
-    http_ingester: IngestOverHttp = IngestOverHttp()
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     with pytest.raises(VdkConfigurationError):
         http_ingester.ingest_payload(
             payload=[payload],
@@ -67,7 +124,7 @@ def test_ingest_over_http_missing_target(mock_post):
 @mock.patch("requests.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_missing_destination_table(mock_post):
     test_payload = [{"key1": 42, "key2": True}]
-    http_ingester: IngestOverHttp = IngestOverHttp()
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
 
     with pytest.raises(UserCodeError):
         http_ingester.ingest_payload(
@@ -77,7 +134,7 @@ def test_ingest_over_http_missing_destination_table(mock_post):
 
 @mock.patch("requests.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_request_errors(mock_post):
-    http_ingester: IngestOverHttp = IngestOverHttp()
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     with pytest.raises(UserCodeError):
         http_ingester.ingest_payload(
             payload=[payload],
