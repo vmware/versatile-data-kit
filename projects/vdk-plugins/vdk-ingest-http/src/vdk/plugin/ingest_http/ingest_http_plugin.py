@@ -17,12 +17,12 @@ log = logging.getLogger(__name__)
 @hookimpl
 def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     """
-    Here we define what configuration settings are needed for Greenplum with reasonable defaults
+    Here we define what configuration settings are needed for the Ingest HTTP plugin with reasonable defaults
     """
     config_builder.add(
         key="INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES",
         default_value=None,
-        description="Threshold used for determining if the payload will be compressed or not",
+        description="When the payload size exceeds this optional integer threshold, then gzip compression is applied",
     )
     config_builder.add(
         key="INGEST_OVER_HTTP_COMPRESSION_ENCODING",

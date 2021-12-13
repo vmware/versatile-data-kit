@@ -47,7 +47,8 @@ def test_ingest_over_http(mock_post):
         target="http://example.com/data-source",
     )
 
-    assert len(mock_post.call_args_list) == 1
+    assert mock_post.call_count == 1
+
     payload["@table"] = "test_table"
 
     mock_post.assert_called_with(
@@ -74,7 +75,7 @@ def test_ingest_over_http_compression(mock_post):
         target="http://example.com/data-source",
     )
 
-    assert len(mock_post.call_args_list) == 1
+    assert mock_post.call_count == 1
     payload["@table"] = "test_table"
 
     mock_post.assert_called_with(
