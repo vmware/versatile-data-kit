@@ -22,12 +22,42 @@ class IngesterConfigurationPlugin:
         config_builder.add(
             key="INGEST_METHOD_DEFAULT",
             default_value=None,
-            description="Default Ingestion method to be used.",
+            description="""Default Ingestion method to be used. It is
+            possible to specify a coma-separated string of ingestion
+            plugins, and the payload would be ingested by all plugins
+            specified.
+            Example:
+                INGEST_METHOD_DEFAULT="http"
+                and
+                INGEST_METHOD_DEFAULT="http,file"
+                are both acceptable.
+            """,
         )
         config_builder.add(
             key="INGEST_TARGET_DEFAULT",
             default_value=None,
             description="Default Ingestion target to be used.",
+        )
+        config_builder.add(
+            key="INGEST_PAYLOAD_PREPROCESS_SEQUENCE",
+            default_value=None,
+            description="""A string of coma-separated ingestion pre-processing
+            plugin method names, indicating the sequence in which the
+            ingestion pre-processing plugins would process the payload. For
+            example:
+                   INGEST_PAYLOAD_PROCESS_SEQUENCE="pre-ingest-process,
+                   ingest-pre-process"
+            would mean that the payload sent for ingestion would be first
+            processed by a `pre-ingest-process` plugin, then by the
+            `ingest-pre-process` plugin, and finally would be ingested by
+            the ingestion plugin specified by the 'method' argument of the
+            send_object_for_ingestion()/send_tabular_data_for_ingestion()
+            methods, or specified by the `INGEST_METHOD_DEFAULT` environment
+            variable.
+            NOTE: If an ingestion plugin implements both pre-processing and
+            ingestion logic, it would need to be specified both in
+            INGEST_PAYLOAD_PROCESS_SEQUENCE and INGEST_METHOD_DEFAULT.
+            """,
         )
 
         # Configure ingestion specific environment variables
