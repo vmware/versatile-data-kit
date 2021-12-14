@@ -114,14 +114,16 @@ public class ExecutionDataFetcher {
    }
 
    private Page<DataJobExecution> findAllExecutions(DataJobExecutionQueryVariables dataJobExecutionQueryVariables, String dataJobName) {
-      DataJobExecutionFilter filter = dataJobExecutionQueryVariables.getFilter();
-      if (dataJobName != null && filter != null) {
-         if (filter.getJobNameIn() != null) {
-            throw new GraphQLException("The jobNameIn filter is not supported for nested executions");
-         }
-         filter = filter.toBuilder()
-                 .jobNameIn(List.of(dataJobName))
-                 .build();
+      DataJobExecutionFilter filter = dataJobExecutionQueryVariables.getFilter() != null ?
+            dataJobExecutionQueryVariables.getFilter() :
+            DataJobExecutionFilter.builder().build();
+
+      if (dataJobName != null && filter.getJobNameIn() != null) {
+         throw new GraphQLException("The jobNameIn filter is not supported for nested executions");
+      }
+
+      if (dataJobName != null) {
+         filter.setJobNameIn(List.of(dataJobName));
       }
 
       Specification<DataJobExecution> filterSpec = new JobExecutionFilterSpec(filter);
