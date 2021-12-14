@@ -142,7 +142,7 @@ public abstract class KubernetesService implements InitializingBean {
         String executionId;
         String executionType;
         String jobName;
-        String terminationMessage;
+        String podTerminationMessage;
         String jobTerminationReason;
         Boolean succeeded;
         String opId;
@@ -802,7 +802,7 @@ public abstract class KubernetesService implements InitializingBean {
             // status later, based on the status of the job itself.
             lastTerminatedPodState
                   .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
-                  .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
+                  .ifPresent(s -> jobExecutionStatusBuilder.podTerminationMessage(s));
             jobExecutionStatusBuilder.jobTerminationReason(jobStatusCondition.getReason());
 
             // Termination Reason of the data job pod container

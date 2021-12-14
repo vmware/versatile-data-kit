@@ -163,7 +163,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
             .startTime(OffsetDateTime.now())
             .endTime(endTime)
             .type(ExecutionType.MANUAL)
-            .status(ExecutionStatus.FINISHED)
+            .status(ExecutionStatus.SUCCEEDED)
             .resourcesCpuRequest(1F)
             .resourcesCpuLimit(2F)
             .resourcesMemoryRequest(500)

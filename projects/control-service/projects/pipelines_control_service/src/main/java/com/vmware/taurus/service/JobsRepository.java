@@ -8,7 +8,6 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.ExecutionStatus;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -68,7 +67,7 @@ public interface JobsRepository extends PagingAndSortingRepository<DataJob, Stri
     @Query("update DataJob j set j.latestJobTerminationStatus = :status, j.latestJobExecutionId = :id where j.name = :name")
     int updateDataJobLatestTerminationStatusByName(
             @Param(value = "name") String name,
-            @Param(value = "status") ExecutionTerminationStatus status,
+            @Param(value = "status") ExecutionStatus status,
             @Param(value = "id") String id
     );
 

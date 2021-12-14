@@ -120,7 +120,7 @@ public class JobExecutionServiceListExecutionsIT {
               jobExecutionRepository,
               "test-id-4",
               actualDataJob,
-              ExecutionStatus.FINISHED);
+              ExecutionStatus.SUCCEEDED);
 
         Mockito.when(dataJobsKubernetesService.isRunningJob(actualDataJob.getName())).thenReturn(true);
 
@@ -162,7 +162,7 @@ public class JobExecutionServiceListExecutionsIT {
               jobExecutionRepository,
               "test-id-4",
               actualDataJob,
-              ExecutionStatus.FINISHED);
+              ExecutionStatus.SUCCEEDED);
 
         Mockito.when(dataJobsKubernetesService.isRunningJob(actualDataJob.getName())).thenReturn(false);
 

@@ -212,7 +212,7 @@ class GraphQLDataFetchersTest {
       assertThat(dataJobPage.getContent()).hasSize(5);
       var job1 = (V2DataJob)dataJobPage.getContent().get(0);
       assertThat(job1.getDeployments()).hasSize(1);
-      assertThat(job1.getDeployments().get(0).getLastExecutionStatus()).isEqualTo(DataJobExecution.StatusEnum.FAILED);
+      assertThat(job1.getDeployments().get(0).getLastExecutionStatus()).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR);
       assertThat(job1.getDeployments().get(0).getLastExecutionTime()).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
       assertThat(job1.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(1000);
       var job2 = (V2DataJob)dataJobPage.getContent().get(1);
@@ -232,7 +232,7 @@ class GraphQLDataFetchersTest {
       when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
       when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
       when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
-              Filter.of("deployments.lastExecutionStatus", "finished", null)
+              Filter.of("deployments.lastExecutionStatus", DataJobExecution.StatusEnum.SUCCEEDED.getValue(), null)
       ));
 
       DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
@@ -260,9 +260,9 @@ class GraphQLDataFetchersTest {
               .map(status -> status != null ? status.getValue() : null)
               .collect(Collectors.toList());
       assertThat(lastExecutionStatuses).hasSize(5);
-      assertThat(lastExecutionStatuses.get(0)).isEqualTo("failed");
-      assertThat(lastExecutionStatuses.get(1)).isEqualTo("failed");
-      assertThat(lastExecutionStatuses.get(2)).isEqualTo("finished");
+      assertThat(lastExecutionStatuses.get(0)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
+      assertThat(lastExecutionStatuses.get(1)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
+      assertThat(lastExecutionStatuses.get(2)).isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED.getValue());
       assertThat(lastExecutionStatuses.get(3)).isNull();
       assertThat(lastExecutionStatuses.get(4)).isNull();
    }
@@ -346,12 +346,12 @@ class GraphQLDataFetchersTest {
       List<DataJob> dataJobs = new ArrayList<>();
 
       dataJobs.add(mockSampleDataJob("sample-job-1", "Import SQL", "5 12 * * *",
-              ExecutionStatus.FAILED, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 1000));
+              ExecutionStatus.PLATFORM_ERROR, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 1000));
       dataJobs.add(mockSampleDataJob("sample-job-2", "Dump SQL", "0 22 * * 1-5"));
       dataJobs.add(mockSampleDataJob("sample-job-3", "Import SQL", "5 12 * * *",
-              ExecutionStatus.FAILED, OffsetDateTime.of(2000, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC), null));
+              ExecutionStatus.PLATFORM_ERROR, OffsetDateTime.of(2000, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC), null));
       dataJobs.add(mockSampleDataJob("sample-job-4", "Import SQL", "5 12 * * *",
-              ExecutionStatus.FINISHED, null, 0));
+              ExecutionStatus.SUCCEEDED, null, 0));
       dataJobs.add(mockSampleDataJob("sample-job-5", "Import SQL", "5 12 * * *",
               null, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 1000));
 

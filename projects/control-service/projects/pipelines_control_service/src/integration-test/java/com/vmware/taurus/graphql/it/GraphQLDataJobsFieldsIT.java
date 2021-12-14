@@ -60,7 +60,7 @@ public class GraphQLDataJobsFieldsIT extends BaseDataJobDeploymentIT {
     @Test
     void testFields(String jobName, String teamName, String username) throws Exception {
         var dataJob = jobsRepository.findById(jobName).get();
-        dataJob.setLastExecutionStatus(ExecutionStatus.FINISHED);
+        dataJob.setLastExecutionStatus(ExecutionStatus.SUCCEEDED);
         dataJob.setLastExecutionEndTime(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
         dataJob.setLastExecutionDuration(1000);
         dataJob = jobsRepository.save(dataJob);

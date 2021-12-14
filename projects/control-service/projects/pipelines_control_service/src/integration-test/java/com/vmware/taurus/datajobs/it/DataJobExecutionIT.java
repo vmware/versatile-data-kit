@@ -63,7 +63,7 @@ public class DataJobExecutionIT extends BaseDataJobDeploymentIT {
         // Check the data job execution status
         String location = dataJobExecutionResponse.getResponse().getHeader("location");
         String executionId = location.substring(location.lastIndexOf("/") + 1);
-        checkDataJobExecutionStatus(executionId, DataJobExecution.StatusEnum.FINISHED, opId, jobName, teamName, username);
+        checkDataJobExecutionStatus(executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username);
     }
 
     private void checkDataJobExecutionStatus(

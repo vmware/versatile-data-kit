@@ -294,10 +294,12 @@ public class ExecutionDataFetcher {
       Map<ExecutionStatus, Integer> statusCountsPerJob = response.getOrDefault(job.getJobName(), Map.of());
 
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())) {
-         v2DataJobDeployment.setFailedExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.FAILED, 0));
+         int failedExecutions = statusCountsPerJob.getOrDefault(ExecutionStatus.USER_ERROR, 0) +
+               statusCountsPerJob.getOrDefault(ExecutionStatus.PLATFORM_ERROR, 0);
+         v2DataJobDeployment.setFailedExecutions(failedExecutions);
       }
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
-         v2DataJobDeployment.setSuccessfulExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.FINISHED, 0));
+         v2DataJobDeployment.setSuccessfulExecutions(statusCountsPerJob.getOrDefault(ExecutionStatus.SUCCEEDED, 0));
       }
    }
 
@@ -306,10 +308,11 @@ public class ExecutionDataFetcher {
       List<ExecutionStatus> statusesToCount = new ArrayList<>();
 
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())) {
-         statusesToCount.add(ExecutionStatus.FAILED);
+         statusesToCount.add(ExecutionStatus.USER_ERROR);
+         statusesToCount.add(ExecutionStatus.PLATFORM_ERROR);
       }
       if (selectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
-         statusesToCount.add(ExecutionStatus.FINISHED);
+         statusesToCount.add(ExecutionStatus.SUCCEEDED);
       }
 
       return statusesToCount;

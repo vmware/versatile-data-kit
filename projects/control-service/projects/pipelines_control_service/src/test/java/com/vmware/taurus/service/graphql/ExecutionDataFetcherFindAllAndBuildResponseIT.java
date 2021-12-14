@@ -69,7 +69,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED);
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
       when(dataFetchingEnvironment.getArguments()).thenReturn(Collections.emptyMap());
 
@@ -90,7 +90,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
       when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD)).thenReturn(List.of(
             com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING.toString(),
@@ -120,7 +120,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1));
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2));
 
       when(filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
       when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
@@ -148,7 +148,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2), now.minusMinutes(2));
 
       when(filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
       when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
@@ -175,7 +175,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       DataJobExecution expectedJobExecution1 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2), now.minusMinutes(2));
 
       when(filterRaw.get(DataJobExecutionFilter.START_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
       when(filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
@@ -207,7 +207,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       DataJobExecution expectedJobExecution3 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
       DataJobExecution expectedJobExecution4 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
       when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
               ORDER_FIELD, orderRaw
@@ -266,7 +266,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
       DataJobExecution expectedJobExecution3 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
       when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
               PAGE_NUMBER_FIELD, 1,
@@ -315,10 +315,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       DataJob actualDataJob3 = RepositoryUtil.createDataJob(jobsRepository, "c");
       DataJob actualDataJob4 = RepositoryUtil.createDataJob(jobsRepository, "d");
 
-      var expectedJobExecution1 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob4, ExecutionStatus.FINISHED);
-      var expectedJobExecution2 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.FINISHED);
-      var expectedJobExecution3 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob3, ExecutionStatus.FINISHED);
-      var expectedJobExecution4 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob2, ExecutionStatus.FINISHED);
+      var expectedJobExecution1 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob4, ExecutionStatus.SUCCEEDED);
+      var expectedJobExecution2 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.SUCCEEDED);
+      var expectedJobExecution3 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob3, ExecutionStatus.SUCCEEDED);
+      var expectedJobExecution4 = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob2, ExecutionStatus.SUCCEEDED);
 
       when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
               ORDER_FIELD, orderRaw
