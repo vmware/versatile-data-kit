@@ -1224,10 +1224,11 @@ components:
           enum:
             - submitted
             - running
-            - finished
-            - failed
+            - succeeded
             - cancelled
             - skipped
+            - user_error
+            - platform_error
           type: string
           example: submitted
         type:

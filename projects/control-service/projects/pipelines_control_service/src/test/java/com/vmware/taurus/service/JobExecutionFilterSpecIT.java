@@ -43,7 +43,7 @@ public class JobExecutionFilterSpecIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .statusIn(List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED))
@@ -67,7 +67,7 @@ public class JobExecutionFilterSpecIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1));
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2));
 
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .startTimeGte(now.minusMinutes(1))
@@ -91,7 +91,7 @@ public class JobExecutionFilterSpecIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2), now.minusMinutes(2));
 
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .endTimeGte(now.minusMinutes(1))
@@ -114,7 +114,7 @@ public class JobExecutionFilterSpecIT {
       DataJobExecution expectedJobExecution1 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED, now.minusMinutes(2), now.minusMinutes(2));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2), now.minusMinutes(2));
 
       DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
             .startTimeGte(now.minusMinutes(1))

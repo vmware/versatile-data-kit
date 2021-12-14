@@ -220,14 +220,16 @@ public class ToApiModelConverter {
             return DataJobExecution.StatusEnum.SUBMITTED;
          case RUNNING:
             return DataJobExecution.StatusEnum.RUNNING;
-         case FAILED:
-            return DataJobExecution.StatusEnum.FAILED;
          case CANCELLED:
             return DataJobExecution.StatusEnum.CANCELLED;
-         case FINISHED:
-            return DataJobExecution.StatusEnum.FINISHED;
+         case SUCCEEDED:
+            return DataJobExecution.StatusEnum.SUCCEEDED;
          case SKIPPED:
             return DataJobExecution.StatusEnum.SKIPPED;
+         case USER_ERROR:
+            return DataJobExecution.StatusEnum.USER_ERROR;
+         case PLATFORM_ERROR:
+            return DataJobExecution.StatusEnum.PLATFORM_ERROR;
          default: // No such case
             log.warn("Unexpected status: '" + status + "' in StatusEnum.");
             return null;

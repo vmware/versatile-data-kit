@@ -73,3 +73,51 @@ def test_router_send_tabular_data_for_ingestion_no_default_method(
         router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
 
     mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_not_called()
+
+
+@patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
+def test_router_use_chained_ingest_plugins_send_object(
+    mock_ingester_base: MagicMock,
+):
+    router = create_ingester_router({"ingest_method_default": "test-ingest"})
+
+    router.add_ingester_factory_method(
+        "pre-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+    router.add_ingester_factory_method(
+        "test-ingest", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+
+    router.send_object_for_ingestion({"a": "b"})
+
+    mock_ingester_base.return_value.send_object_for_ingestion.assert_called_with(
+        {"a": "b"}, None, "test-ingest", None, None
+    )
+    # TODO: Uncomment when implementation is ready
+    # mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
+    #     ["b"], ["a"], None, "pre-ingest-test", None, None
+    # )
+
+
+@patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
+def test_router_use_chained_ingest_plugins_tabular_data(
+    mock_ingester_base: MagicMock,
+):
+    router = create_ingester_router({"ingest_method_default": "test-ingest"})
+
+    router.add_ingester_factory_method(
+        "pre-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+    router.add_ingester_factory_method(
+        "test-ingest", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+
+    router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
+
+    mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
+        ["b"], ["a"], None, "test-ingest", None, None
+    )
+    # TODO: Uncomment when implementation is ready
+    # mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
+    #     ["b"], ["a"], None, "pre-ingest-test", None, None
+    # )

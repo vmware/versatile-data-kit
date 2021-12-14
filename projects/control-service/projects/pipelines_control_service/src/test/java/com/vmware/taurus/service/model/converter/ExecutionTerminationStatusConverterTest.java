@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.service.model;
+package com.vmware.taurus.service.model.converter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.converter.ExecutionTerminationStatusConverter;
 
 public class ExecutionTerminationStatusConverterTest {
    private ExecutionTerminationStatusConverter converter = new ExecutionTerminationStatusConverter();
@@ -18,10 +21,10 @@ public class ExecutionTerminationStatusConverterTest {
 
    @Test
    public void testConvertToDatabaseColumn_terminationStatusSuccess_shouldReturnSuccess() {
-      ExecutionTerminationStatus expectedTerminationStatus = ExecutionTerminationStatus.SUCCESS;
+      ExecutionStatus expectedTerminationStatus = ExecutionStatus.SUCCEEDED;
       String actualDbValue = converter.convertToDatabaseColumn(expectedTerminationStatus);
 
-      Assertions.assertEquals(String.valueOf(expectedTerminationStatus.getInteger()), actualDbValue);
+      Assertions.assertEquals(String.valueOf(expectedTerminationStatus.getAlertValue()), actualDbValue);
    }
 
    @Test
@@ -36,9 +39,9 @@ public class ExecutionTerminationStatusConverterTest {
 
    @Test
    public void testConvertToEntityAttribute_dbValueSuccess_shouldReturnTerminationStatusSuccess() {
-      ExecutionTerminationStatus expectedTerminationStatus = ExecutionTerminationStatus.SUCCESS;
-      ExecutionTerminationStatus actualTerminationStatus =
-            converter.convertToEntityAttribute(String.valueOf(expectedTerminationStatus.getInteger()));
+      ExecutionStatus expectedTerminationStatus = ExecutionStatus.SUCCEEDED;
+      ExecutionStatus actualTerminationStatus =
+            converter.convertToEntityAttribute(String.valueOf(expectedTerminationStatus.getAlertValue()));
 
       Assertions.assertEquals(expectedTerminationStatus, actualTerminationStatus);
    }

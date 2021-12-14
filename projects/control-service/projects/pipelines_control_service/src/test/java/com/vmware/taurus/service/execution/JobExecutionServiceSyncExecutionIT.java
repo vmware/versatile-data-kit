@@ -8,7 +8,6 @@ package com.vmware.taurus.service.execution;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
@@ -164,8 +163,8 @@ public class JobExecutionServiceSyncExecutionIT {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.FINISHED, OffsetDateTime.now().minusMinutes(5));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.FINISHED, OffsetDateTime.now().minusMinutes(5));
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.SUCCEEDED, OffsetDateTime.now().minusMinutes(5));
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.SUCCEEDED, OffsetDateTime.now().minusMinutes(5));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.RUNNING, OffsetDateTime.now().minusMinutes(5));
       com.vmware.taurus.service.model.DataJobExecution expectedJobExecution4 =
