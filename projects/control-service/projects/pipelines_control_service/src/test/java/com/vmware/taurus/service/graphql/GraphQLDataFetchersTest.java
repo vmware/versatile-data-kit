@@ -260,11 +260,11 @@ class GraphQLDataFetchersTest {
               .map(status -> status != null ? status.getValue() : null)
               .collect(Collectors.toList());
       assertThat(lastExecutionStatuses).hasSize(5);
-      assertThat(lastExecutionStatuses.get(0)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
-      assertThat(lastExecutionStatuses.get(1)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
-      assertThat(lastExecutionStatuses.get(2)).isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED.getValue());
-      assertThat(lastExecutionStatuses.get(3)).isNull();
-      assertThat(lastExecutionStatuses.get(4)).isNull();
+      assertThat(lastExecutionStatuses.get(0)).isNull();
+      assertThat(lastExecutionStatuses.get(1)).isNull();
+      assertThat(lastExecutionStatuses.get(2)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
+      assertThat(lastExecutionStatuses.get(3)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
+      assertThat(lastExecutionStatuses.get(4)).isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED.getValue());
    }
 
    @Test
@@ -286,11 +286,11 @@ class GraphQLDataFetchersTest {
               .map(job -> ((V2DataJob)job).getDeployments().get(0).getLastExecutionTime())
               .collect(Collectors.toList());
       assertThat(lastExecutionTimes).hasSize(5);
-      assertThat(lastExecutionTimes.get(0)).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
-      assertThat(lastExecutionTimes.get(1)).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
-      assertThat(lastExecutionTimes.get(2)).isEqualTo(OffsetDateTime.of(2000, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC));
-      assertThat(lastExecutionTimes.get(3)).isNull();
-      assertThat(lastExecutionTimes.get(4)).isNull();
+      assertThat(lastExecutionTimes.get(0)).isNull();
+      assertThat(lastExecutionTimes.get(1)).isNull();
+      assertThat(lastExecutionTimes.get(2)).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      assertThat(lastExecutionTimes.get(3)).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      assertThat(lastExecutionTimes.get(4)).isEqualTo(OffsetDateTime.of(2000, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC));
    }
 
    @Test
@@ -312,11 +312,11 @@ class GraphQLDataFetchersTest {
               .map(job -> ((V2DataJob)job).getDeployments().get(0).getLastExecutionDuration())
               .collect(Collectors.toList());
       assertThat(lastExecutionTimes).hasSize(5);
-      assertThat(lastExecutionTimes.get(0)).isNull();
-      assertThat(lastExecutionTimes.get(1)).isNull();
-      assertThat(lastExecutionTimes.get(2)).isEqualTo(1000);
-      assertThat(lastExecutionTimes.get(3)).isEqualTo(1000);
-      assertThat(lastExecutionTimes.get(4)).isEqualTo(0);
+      assertThat(lastExecutionTimes.get(0)).isEqualTo(1000);
+      assertThat(lastExecutionTimes.get(1)).isEqualTo(1000);
+      assertThat(lastExecutionTimes.get(2)).isEqualTo(0);
+      assertThat(lastExecutionTimes.get(3)).isNull();
+      assertThat(lastExecutionTimes.get(4)).isNull();
    }
 
 
