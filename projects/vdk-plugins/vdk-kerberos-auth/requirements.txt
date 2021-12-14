@@ -1,0 +1,6 @@
+vdk-core
+minikerberos
+requests-kerberos
+
+vdk-test-utils
+pytest
