@@ -83,7 +83,7 @@ control_service_integration_test:
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
-    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace --fail-fast
+    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
