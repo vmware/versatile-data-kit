@@ -30,4 +30,6 @@ public class V2DataJobDeployment {
    private Integer lastExecutionDuration;
    private Integer successfulExecutions;
    private Integer failedExecutions;
+   private String lastDeployedBy;
+   private String lastDeployedDate;
 }
