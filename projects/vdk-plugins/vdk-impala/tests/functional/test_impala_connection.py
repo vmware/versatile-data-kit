@@ -38,7 +38,6 @@ class ImpalaConnectionTest(unittest.TestCase):
         },
     )
     def test_execute_query(self) -> None:
-        time.sleep(10)
         result: Result = self.__runner.invoke(
             ["run", jobs_path_from_caller_directory("sql-job")]
         )
@@ -62,7 +61,6 @@ class ImpalaConnectionTest(unittest.TestCase):
     )
     @patch("vdk.plugin.impala.impala_plugin.DecorationCursor.execute")
     def test_execute_query_with_sync_ddl_and_query_pool(self, mock_dc_execute) -> None:
-        time.sleep(10)
         result: Result = self.__runner.invoke(
             ["run", jobs_path_from_caller_directory("sql-job")]
         )
