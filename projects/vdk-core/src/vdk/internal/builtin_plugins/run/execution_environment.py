@@ -5,6 +5,7 @@ import getpass
 import logging
 import platform
 import socket
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -51,4 +52,4 @@ class ExecutionEnvironment:
             lambda: platform.architecture()[0], "python-arch"
         )
 
-        return f"{py_version} {py_arch}"
+        return f"{py_version} {py_arch} ({sys.executable})"
