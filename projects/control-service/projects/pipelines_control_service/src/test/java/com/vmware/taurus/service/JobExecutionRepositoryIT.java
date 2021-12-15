@@ -94,7 +94,7 @@ public class JobExecutionRepositoryIT {
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
       DataJobExecution expectedJobExecution2 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
 
       var actualJobExecutions =
@@ -117,7 +117,7 @@ public class JobExecutionRepositoryIT {
       DataJobExecution expectedJobExecution3 =
             RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
       DataJobExecution expectedJobExecution4 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.FAILED);
+            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
 
 
       Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Order.desc("id")));
@@ -166,7 +166,7 @@ public class JobExecutionRepositoryIT {
       DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
 
       RepositoryUtil.createDataJobExecution(jobExecutionRepository,
-              "execution1", dataJob, ExecutionStatus.FINISHED, "Success",
+              "execution1", dataJob, ExecutionStatus.SUCCEEDED, "Success",
               OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
               OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
       RepositoryUtil.createDataJobExecution(jobExecutionRepository,
@@ -174,7 +174,7 @@ public class JobExecutionRepositoryIT {
               OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
               null);
       RepositoryUtil.createDataJobExecution(jobExecutionRepository,
-              "execution3", dataJob, ExecutionStatus.FAILED, "User error",
+              "execution3", dataJob, ExecutionStatus.PLATFORM_ERROR, "Platform error",
               OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC),
               OffsetDateTime.of(2000, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC));
 

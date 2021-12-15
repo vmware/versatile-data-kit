@@ -11,7 +11,6 @@ import lombok.Data;
 @Builder
 @Data
 public class ExecutionResult {
-   private ExecutionTerminationStatus terminationStatus;
    private ExecutionStatus executionStatus;
    private String vdkVersion;
 }

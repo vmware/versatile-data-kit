@@ -10,14 +10,20 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public enum ExecutionStatus {
-   SUBMITTED(0),
-   RUNNING(1),
-   FINISHED(2),
-   FAILED(3),
-   CANCELLED(4),
-   SKIPPED(5);
+   SUBMITTED(0, "Submitted", 2),
+   RUNNING(1, "Running", 5),
+   SUCCEEDED(2, "Success", 0),
+   CANCELLED(4, "Cancelled", 6),
+   SKIPPED(5, "Skipped", 4),
+   USER_ERROR(6, "User error", 3),
+   PLATFORM_ERROR(7, "Platform error", 1);
 
    @Getter
-   private final int value;
+   private final Integer dbValue;
 
+   @Getter
+   private final String podStatus;
+
+   @Getter
+   private final Integer alertValue;
 }
