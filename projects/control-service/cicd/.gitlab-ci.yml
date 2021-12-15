@@ -5,7 +5,6 @@
       - always
 
 .control_service_changes: &control_service_change_locations
-  - .gitlab-ci.yml
   - projects/control-service/cicd/**/*
   - projects/control-service/projects/base/**/*
   - projects/control-service/projects/model/**/*
@@ -14,7 +13,6 @@
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_deploy_testing_changes: &control_service_deploy_testing_changes
-  - .gitlab-ci.yml
   - projects/control-service/cicd/**/*
   - projects/control-service/projects/base/**/*
   - projects/control-service/projects/model/**/*
@@ -85,7 +83,7 @@ control_service_integration_test:
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
-    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace --fail-fast
+    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always

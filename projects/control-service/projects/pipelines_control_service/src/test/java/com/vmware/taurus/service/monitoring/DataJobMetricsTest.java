@@ -8,7 +8,7 @@ package com.vmware.taurus.service.monitoring;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
@@ -187,7 +187,7 @@ public class DataJobMetricsTest {
    void testUpdateTerminationStatusGauge() {
       var config = new JobConfig();
       var dataJob = new DataJob("data-job", config);
-      dataJob.setLatestJobTerminationStatus(ExecutionTerminationStatus.SUCCESS);
+      dataJob.setLatestJobTerminationStatus(ExecutionStatus.SUCCEEDED);
       dataJob.setLatestJobExecutionId("execution-id");
 
       dataJobMetrics.updateTerminationStatusGauge(jobsRepository.save(dataJob));
@@ -196,7 +196,7 @@ public class DataJobMetricsTest {
       Assertions.assertEquals(1, gauges.size());
 
       var gauge = gauges.stream().findFirst().get();
-      Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS.getInteger().doubleValue(), gauge.value());
+      Assertions.assertEquals(ExecutionStatus.SUCCEEDED.getAlertValue().doubleValue(), gauge.value());
    }
 
 
@@ -205,7 +205,7 @@ public class DataJobMetricsTest {
    void testUpdateTerminationStatusGauge_withNewExecution_shouldUpdateTheGauge() {
       var config = new JobConfig();
       var dataJob = new DataJob("data-job", config);
-      dataJob.setLatestJobTerminationStatus(ExecutionTerminationStatus.SUCCESS);
+      dataJob.setLatestJobTerminationStatus(ExecutionStatus.SUCCEEDED);
       dataJob.setLatestJobExecutionId("execution-id-new");
 
       dataJobMetrics.updateTerminationStatusGauge(jobsRepository.save(dataJob));
@@ -214,7 +214,7 @@ public class DataJobMetricsTest {
       Assertions.assertEquals(1, gauges.size());
 
       var gauge = gauges.stream().findFirst().get();
-      Assertions.assertEquals(ExecutionTerminationStatus.SUCCESS.getInteger().doubleValue(), gauge.value());
+      Assertions.assertEquals(ExecutionStatus.SUCCEEDED.getAlertValue().doubleValue(), gauge.value());
       Assertions.assertTrue(gauge.getId().getTags().contains(Tag.of(DataJobMetrics.TAG_EXECUTION_ID, "execution-id-new")));
    }
 

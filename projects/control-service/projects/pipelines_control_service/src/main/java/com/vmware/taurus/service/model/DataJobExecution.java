@@ -10,6 +10,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.OffsetDateTime;
 
+import com.vmware.taurus.service.model.converter.ExecutionStatusConverter;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,13 +29,13 @@ public class DataJobExecution {
    @JoinColumn(name = "job_name", nullable = false)
    @ToString.Exclude
    @EqualsAndHashCode.Exclude
-
    private DataJob dataJob;
 
    @Column(nullable = false)
    private ExecutionType type;
 
    @Column(nullable = false)
+   @Convert(converter = ExecutionStatusConverter.class)
    private ExecutionStatus status;
 
    private String message;

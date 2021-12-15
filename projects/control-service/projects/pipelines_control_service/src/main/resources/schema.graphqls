@@ -137,10 +137,11 @@ enum DataJobDeploymentStatus {
 enum DataJobExecutionStatus {
     SUBMITTED
     RUNNING
-    FINISHED
-    FAILED
+    SUCCEEDED
     CANCELLED
     SKIPPED
+    USER_ERROR
+    PLATFORM_ERROR
 }
 
 enum DataJobExecutionType {
