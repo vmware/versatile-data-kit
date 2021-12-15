@@ -8,4 +8,4 @@ log = logging.getLogger(__name__)
 
 
 def run(job_input: IJobInput):
-    log.info(f"Dummy job")
+    log.info("Dummy job")
