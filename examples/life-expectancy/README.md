@@ -168,13 +168,9 @@ Data Processing includes the following tasks:
 
 ### Clean tables
 ### Clean tables
-<<<<<<< HEAD
 Table cleaning includes jobs from 07 to 10.  
 
 ** Tasks 07 - 08 **  
-=======
-Table cleaning includes jobs from XX to YY.
->>>>>>> 02a699dd28c116988265c4bf9bfa5be845808709
 Cleaning the `life_expectancy_2010_2015` table includes the following two operations:
 * group records by County
 * split the column `LifeExpectancyRange` in two decimal columns `MinLifeExpectancyRange` and `MaxLifeExpectancyRange`.
