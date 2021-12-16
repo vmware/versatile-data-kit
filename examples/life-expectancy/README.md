@@ -167,7 +167,6 @@ Data Processing includes the following tasks:
 * Merge the cleaned datasets
 
 ### Clean tables
-### Clean tables
 Table cleaning includes jobs from 07 to 10.  
 
 **Tasks 07 - 08**  
