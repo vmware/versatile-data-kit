@@ -167,9 +167,9 @@ Data Processing includes the following tasks:
 * Merge the cleaned datasets
 
 ### Clean tables
-Table cleaning includes jobs from 07 to 10.  
+Table cleaning includes jobs from 07 to 10.
 
-**Tasks 07 - 08**  
+**Tasks 07 - 08**
 Cleaning the `life_expectancy_2010_2015` table includes the following two operations:
 * group records by County
 * split the column `LifeExpectancyRange` in two decimal columns `MinLifeExpectancyRange` and `MaxLifeExpectancyRange`.
@@ -191,7 +191,7 @@ The following table shows an example of the `cleaned_life_expectancy_2010_2015` 
 | **District of Columbia** | 78.50              | 77.60                      | 79.50                      | 0.10                            |
 | **Florida**              | 80.10              | 79.60                      | 81.60                      | 0.02                            |
 
-**Tasks 09 - 10**  
+**Tasks 09 - 10**
 Cleaning the `life_expectancy_2010_2015` table includes the following operations:
 * rename column `LEB` to `LifeExpectancy`
 * rename column `SE` to `LifeExpectancyStandardError`
