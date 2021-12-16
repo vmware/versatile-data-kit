@@ -162,7 +162,7 @@ Jobs from 10 to 60 are devoted to Data Ingestion:
 * 40 - 60 ingest data in table `life_expectancy_2018`
 
 ### Clean tables
-Table cleaning includes jobs from XX to YY.  
+Table cleaning includes jobs from XX to YY.
 Cleaning the `life_expectancy_2010_2015` table includes the following two operations:
 * group records by County
 * split the column `LifeExpectancyRange` in two decimal columns `MinLifeExpectancyRange` and `MaxLifeExpectancyRange`.
@@ -182,7 +182,7 @@ The following table shows an example of the `cleaned_life_expectancy_2010_2015` 
 | **Oregon**    | 79.09                     | 76.45                      | 82.41                      | 1.76                                   |
 | **Arizona**   | 78.37                     | 74.97                      | 81.47                      | 2.00                                   |
 | **Alabama**   | 74.81                     | 65.64                      | 77.27                      | 1.72                                   |
-| **Missouri**  | 76.96                     | 71.37                      | 79.92  
+| **Missouri**  | 76.96                     | 71.37                      | 79.92
 
 Cleaning the `life_expectancy_2010_2015` table includes the following operations:
 * rename column `LEB` to `LifeExpectancy`
@@ -209,9 +209,3 @@ The following table shows an example of the `cleaned_life_expectancy_2018` table
 * Build a view that shows only the top 10 states with the greatest life expectancy
 	* Order dataset
 	* Take only the first 10 states
-
-
-
-
-
-
