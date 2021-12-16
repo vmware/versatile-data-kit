@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -48,7 +49,7 @@ public class DataJobMonitor {
     private final JobExecutionService jobExecutionService;
     private final DataJobMetrics dataJobMetrics;
 
-    private long lastWatchTime = 0;
+    private long lastWatchTime = Instant.now().minusMillis(TimeUnit.MINUTES.toMillis(30)).toEpochMilli();
 
     @Autowired
     public DataJobMonitor(
@@ -104,7 +105,7 @@ public class DataJobMonitor {
                     lastWatchTime);
             // Move the lastWatchTime one minute into the past to account for events that
             // could have happened after the watch has completed until now
-            lastWatchTime = System.currentTimeMillis() - ONE_MINUTE_MILLIS;
+            lastWatchTime = Instant.now().minusMillis(ONE_MINUTE_MILLIS).toEpochMilli();
         } catch (IOException | ApiException e) {
             log.info("Failed to watch jobs. Error was: {}", e.getMessage());
         }
