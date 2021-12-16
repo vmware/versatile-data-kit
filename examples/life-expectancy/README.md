@@ -160,3 +160,58 @@ The path to the CSV file is specified as a URL, thus this example requires an ac
 Jobs from 10 to 60 are devoted to Data Ingestion:
 * 10 - 30 ingest data in table `life_expectancy_2010_2015`
 * 40 - 60 ingest data in table `life_expectancy_2018`
+
+### Clean tables
+Table cleaning includes jobs from XX to YY.  
+Cleaning the `life_expectancy_2010_2015` table includes the following two operations:
+* group records by County
+* split the column `LifeExpectancyRange` in two decimal columns `MinLifeExpectancyRange` and `MaxLifeExpectancyRange`.
+
+The output of the cleaning process for the `life_expectancy_2010_2015` table is stored in a new table, called `cleaned_life_expectancy_2010_2015`.
+
+The following table shows an example of the `cleaned_life_expectancy_2010_2015` table:
+
+| **State**     | **LifeExpectancy** | **MinLifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
+| ------------- | ------------------------- | -------------------------- | -------------------------- | -------------------------------------- |
+| **Florida**   | 78.38                     | 74.10                      | 82.15                      | 1.94                                   |
+| **Georgia**   | 76.62                     | 70.38                      | 79.17                      | 1.82                                   |
+| **Hawaii**    | 81.32                     | 79.09                      | 88.06                      | 1.94                                   |
+| **New York**  | 80.33                     | 77.74                      | 85.87                      | 1.97                                   |
+| **Kansas**    | 78.05                     | 73.95                      | 81.30                      | 1.81                                   |
+| **Louisiana** | 75.37                     | 67.82                      | 77.87                      | 1.83                                   |
+| **Oregon**    | 79.09                     | 76.45                      | 82.41                      | 1.76                                   |
+| **Arizona**   | 78.37                     | 74.97                      | 81.47                      | 2.00                                   |
+| **Alabama**   | 74.81                     | 65.64                      | 77.27                      | 1.72                                   |
+| **Missouri**  | 76.96                     | 71.37                      | 79.92  
+
+Cleaning the `life_expectancy_2010_2015` table includes the following operations:
+* rename column `LEB` to `LifeExpectancy`
+* rename column `SE` to `LifeExpectancyStandardError`
+* split the column `Quartile` in two decimal columns `MinLifeExpectancyRange` and `MaxLifeExpectancyRange`
+* select only rows with `Sex = 'Total'`.
+
+The following table shows an example of the `cleaned_life_expectancy_2018` table:
+
+| **State**          | **LifeExpectancy** | **MinlifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
+| ------------------ | ------------------ | -------------------------- | -------------------------- | ------------------------------- |
+| **West Virginia**  | 74.4               | 74.40                      | 77.20                      | 0.1                             |
+| **Mississippi**    | 74.6               | 74.40                      | 77.20                      | 0.1                             |
+| **Alabama**        | 75.1               | 74.40                      | 77.20                      | 0.1                             |
+| **Kentucky**       | 75.3               | 74.40                      | 77.20                      | 0.1                             |
+| **Tennessee**      | 75.5               | 74.40                      | 77.20                      | 0.1                             |
+| **Arkansas**       | 75.6               | 74.40                      | 77.20                      | 0.1                             |
+| **Oklahoma**       | 75.6               | 74.40                      | 77.20                      | 0.1                             |
+| **Louisiana**      | 75.6               | 74.40                      | 77.20                      | 0.1                             |
+| **South Carolina** | 76.5               | 74.40                      | 77.20                      | 0.1                             |
+| **Missouri**       | 76.6               | 74.40                      | 77.20                      | 0.1                             |
+
+### Merge the two datasets
+* Build a view that shows only the top 10 states with the greatest life expectancy
+	* Order dataset
+	* Take only the first 10 states
+
+
+
+
+
+
