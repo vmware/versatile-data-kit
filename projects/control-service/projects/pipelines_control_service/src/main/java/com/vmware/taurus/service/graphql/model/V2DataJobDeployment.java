@@ -11,6 +11,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import lombok.Data;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -24,4 +25,11 @@ public class V2DataJobDeployment {
    private V2DataJobSchedule schedule;
    private DataJobResources resources;
    private List<DataJobExecution> executions;
+   private DataJobExecution.StatusEnum lastExecutionStatus;
+   private OffsetDateTime lastExecutionTime;
+   private Integer lastExecutionDuration;
+   private Integer successfulExecutions;
+   private Integer failedExecutions;
+   private String lastDeployedBy;
+   private String lastDeployedDate;
 }

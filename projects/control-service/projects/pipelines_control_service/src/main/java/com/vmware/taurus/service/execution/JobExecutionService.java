@@ -5,17 +5,21 @@
 
 package com.vmware.taurus.service.execution;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.gson.JsonSyntaxException;
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
+import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
+import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.datajobs.ToModelApiConverter;
+import com.vmware.taurus.exception.*;
+import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.JobImageDeployer;
+import com.vmware.taurus.service.diag.OperationContext;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.model.*;
 import io.kubernetes.client.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,33 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
-import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.exception.DataJobAlreadyRunningException;
-import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
-import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
-import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
-import com.vmware.taurus.exception.DataJobExecutionStatusNotValidException;
-import com.vmware.taurus.exception.DataJobNotFoundException;
-import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
-import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsService;
-import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.deploy.DeploymentService;
-import com.vmware.taurus.service.deploy.JobImageDeployer;
-import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.ExecutionResult;
-import com.vmware.taurus.service.model.ExecutionStatus;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
-import com.vmware.taurus.service.model.JobAnnotation;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.vmware.taurus.service.model.JobEnvVar;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -79,6 +60,8 @@ public class JobExecutionService {
    private DeploymentService deploymentService;
 
    private DataJobsKubernetesService dataJobsKubernetesService;
+
+   private JobExecutionLogsUrlBuilder jobExecutionLogsUrlBuilder;
 
    private OperationContext operationContext;
 
@@ -215,7 +198,7 @@ public class JobExecutionService {
 
       return dataJobExecutions
             .stream()
-            .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution))
+            .map(dataJobExecution -> convertToModel(dataJobExecution))
             .collect(Collectors.toList());
    }
 
@@ -225,7 +208,7 @@ public class JobExecutionService {
       }
 
       return jobExecutionRepository.findById(executionId)
-            .map(dataJobExecution -> ToApiModelConverter.jobExecutionToConvert(dataJobExecution))
+            .map(dataJobExecution -> convertToModel(dataJobExecution))
             .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
    }
 
@@ -233,14 +216,14 @@ public class JobExecutionService {
     * Updates job execution in database. It does NOT update job execution when the execution status
     * has not changed or if the status is not in the correct order (e.g. from FINISHED to RUNNING).
     */
-   public void updateJobExecution(
+   public Optional<com.vmware.taurus.service.model.DataJobExecution> updateJobExecution(
          final DataJob dataJob,
          final KubernetesService.JobExecution jobExecution,
          ExecutionResult executionResult) {
 
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
-         return;
+         return Optional.empty();
       }
 
       final Optional<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionPersistedOptional =
@@ -248,8 +231,12 @@ public class JobExecutionService {
 
       //This set contains all the statuses that should not be changed to something else if present in the DB.
       //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
-      var finalStatusSet = new HashSet<>(List.of(ExecutionStatus.CANCELLED, ExecutionStatus.FAILED,
-                                                 ExecutionStatus.FINISHED, ExecutionStatus.SKIPPED));
+      var finalStatusSet = new HashSet<>(List.of(
+            ExecutionStatus.CANCELLED,
+            ExecutionStatus.USER_ERROR,
+            ExecutionStatus.PLATFORM_ERROR,
+            ExecutionStatus.SUCCEEDED,
+            ExecutionStatus.SKIPPED));
       ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
       // Optimization:
@@ -263,7 +250,7 @@ public class JobExecutionService {
                "Execution status to be updated {}. New execution status {}",
                dataJobExecutionPersistedOptional.get().getStatus(),
                executionResult.getExecutionStatus());
-         return;
+         return Optional.empty();
       }
 
       final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder dataJobExecutionBuilder =
@@ -272,14 +259,16 @@ public class JobExecutionService {
                   com.vmware.taurus.service.model.DataJobExecution.builder()
                         .id(jobExecution.getExecutionId())
                         .dataJob(dataJob)
-                        .startTime(jobExecution.getStartTime())
+                        .startTime(jobExecution.getStartTime() != null ?
+                                jobExecution.getStartTime() :
+                                OffsetDateTime.now())
                         .type(ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType()) ?
                               com.vmware.taurus.service.model.ExecutionType.MANUAL :
                               com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
-              .message(getJobExecutionApiMessage(executionStatus, executionResult.getTerminationStatus()))
+              .message(getJobExecutionApiMessage(executionStatus))
               .opId(jobExecution.getOpId())
               .endTime(jobExecution.getEndTime())
               .vdkVersion(executionResult.getVdkVersion())
@@ -292,7 +281,18 @@ public class JobExecutionService {
               .lastDeployedDate(jobExecution.getDeployedDate())
               .lastDeployedBy(jobExecution.getDeployedBy())
               .build();
-      jobExecutionRepository.save(dataJobExecution);
+      return Optional.of(jobExecutionRepository.save(dataJobExecution));
+   }
+
+   /**
+    * Returns the last execution of the data job with the specified name, or an empty optional if there
+    * are no executions. The last execution is considered the one with the most recent start time.
+    *
+    * @param dataJobName The name of the data job whose last execution to return.
+    * @return The last execution of the data job if any, otherwise, {@link Optional#empty()}.
+    */
+   public Optional<com.vmware.taurus.service.model.DataJobExecution> getLastExecution(String dataJobName) {
+      return jobExecutionRepository.findFirstByDataJobNameOrderByStartTimeDesc(dataJobName);
    }
 
    /**
@@ -319,7 +319,7 @@ public class JobExecutionService {
                   .stream()
                   .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
                   .map(dataJobExecution -> {
-                     dataJobExecution.setStatus(ExecutionStatus.FINISHED);
+                     dataJobExecution.setStatus(ExecutionStatus.SUCCEEDED);
                      dataJobExecution.setMessage("Status is set by VDK Control Service");
                      dataJobExecution.setEndTime(OffsetDateTime.now());
                      return dataJobExecution;
@@ -361,13 +361,50 @@ public class JobExecutionService {
       }
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, ExecutionTerminationStatus terminationStatus) {
+   /**
+    * This method returns a per job name mapping containing statuses
+    * count for a given data job and status list. The method is
+    * not guaranteed to return a mapping if a data job does not
+    * have executions with a provided status or if one of the provided
+    * ExecutionStatuses is not present in the database, thus it is advisable
+    * to use Map::getOrDefault to prevent null pointer exceptions when
+    * retrieving both mappings.
+    *
+    * @param dataJobs The data jobs to count statuses of.
+    * @param statuses The statuses to count.
+    * @return Map which maps a data job name to a Map<ExecutionStatus, Integer>
+    */
+   public Map<String, Map<ExecutionStatus, Integer>> countExecutionStatuses(List<String> dataJobs,
+         List<ExecutionStatus> statuses) {
+
+      Map<String, Map<ExecutionStatus, Integer>> returnValue = new HashMap<>();
+      var statusCount = jobExecutionRepository.countDataJobExecutionStatuses(statuses, dataJobs);
+
+      // Populate count mappings.
+      for (var statusesCount : statusCount) {
+
+         if (!returnValue.containsKey(statusesCount.getJobName())) {
+            returnValue.put(statusesCount.getJobName(), new HashMap<>());
+         }
+
+         returnValue.get(statusesCount.getJobName())
+               .put(statusesCount.getStatus(), statusesCount.getStatusCount());
+      }
+
+      return returnValue;
+   }
+
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus) {
       switch (executionStatus) {
          case SKIPPED:
             return "Skipping job execution due to another parallel running execution.";
          default:
-            return terminationStatus.getString();
+            return executionStatus.getPodStatus();
       }
+   }
+
+   private static String getExecutionId(String jobName) {
+      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
    }
 
    private void saveDataJobExecution(
@@ -392,7 +429,7 @@ public class JobExecutionService {
       jobExecutionRepository.save(dataJobExecution);
    }
 
-   private static String getExecutionId(String jobName) {
-      return String.format("%s-%s", jobName, Instant.now().getEpochSecond());
+   private DataJobExecution convertToModel(com.vmware.taurus.service.model.DataJobExecution dataJobExecution) {
+      return ToApiModelConverter.jobExecutionToConvert(dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution));
    }
 }

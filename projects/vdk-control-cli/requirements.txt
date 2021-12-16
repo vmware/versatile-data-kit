@@ -6,7 +6,7 @@ pluggy~=0.13
 tabulate
 click-spinner
 
-vdk-control-service-api==1.0.4
+vdk-control-service-api==1.0.6
 requests_oauthlib
 
 # Dependencies for creating HTTP calls against the OAuth2 provider. We can potentially remove those
@@ -17,7 +17,7 @@ requests>=2.25
 
 # TESTING dependencies:
 
-pytest~=5.4.3
+pytest
 # See https://youtrack.jetbrains.com/issue/PY-20186
 # pytest-cov and IntelliJ debugger are incompatible.
 # So we will run pytest-cov only in gitlab ci and it's commented out here.

@@ -3,6 +3,7 @@
 import os
 from enum import Enum
 from enum import unique
+from typing import Optional
 
 import click
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
@@ -19,8 +20,6 @@ class DeployOperation(Enum):
 
     CREATE = "create"
     UPDATE = "update"
-    ENABLE = "enable"
-    DISABLE = "disable"
     REMOVE = "remove"
     SHOW = "show"
 
@@ -57,6 +56,10 @@ while ! vdk deploy --show -o json -n example-job -t job-team | grep $new_version
 echo "Job1
 job2
 job3" | xargs -I {JOB} vdk deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOBS>/{JOB}
+
+\b
+# Experimental. Update job version (for example rollback quickly to latest stable version)
+vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
                """
 )
 @click.option("-n", "--name", type=click.STRING, help="The Data Job name.")
@@ -95,18 +98,21 @@ job3" | xargs -I {JOB} vdk deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOB
     help="Update specified deployment version of a Data Job for a cloud execution. "
     "It is used to revert to previous version. "
     "Deploy specific configuration will not be updated. "
-    "You need to specify --job-version as well.",
+    "You need to specify --job-version and/or --vdk-version. "
+    "The option is experimental",
 )
 @click.option(
     "--enable",
-    "operation",
-    flag_value=DeployOperation.ENABLE,
+    "enabled",
+    flag_value=True,
+    default=None,
     help="Enable a job. That will basically un-pause the job.",
 )
 @click.option(
     "--disable",
-    "operation",
-    flag_value=DeployOperation.DISABLE,
+    "enabled",
+    flag_value=False,
+    default=None,
     help="Disable a job. Will not schedule a new cloud execution. Effectively pausing the job. "
     "Currently running job will be allowed to finish.",
 )
@@ -130,6 +136,19 @@ job3" | xargs -I {JOB} vdk deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOB
     help="The job version (Git Commit) of the job. The job must have been deployed first (see --create).",
 )
 @click.option(
+    "-v",
+    "--vdk-version",
+    type=click.STRING,
+    hidden=True,
+    help="The vdk version to be used in a cloud run."
+    "It must be the same vdk python distribution that is installed by Control Service operators. "
+    "To check for possible versions see vdk distribution docker image tags. "
+    "Assuming each released python distribution has a corresponding image "
+    "check with pip index versions vdk-distribution-name. "
+    "The option is valid only when used alongside --update otherwise it's ignored."
+    "The option is experimental.",
+)
+@click.option(
     "-r",
     "--reason",
     help="Add a reason message for the job deploy. "
@@ -140,21 +159,26 @@ job3" | xargs -I {JOB} vdk deploy  -t job-team  -n {JOB} –p <PARENT_DIR_TO_JOB
 @cli_utils.rest_api_url_option()
 @cli_utils.output_option()
 @cli_utils.check_required_parameters
-def deploy(name, team, job_version, job_path, operation, reason, rest_api_url, output):
+def deploy(
+    name: str,
+    team: str,
+    job_version: str,
+    vdk_version: str,
+    enabled: Optional[bool],
+    job_path: str,
+    operation: str,
+    reason: str,
+    rest_api_url: str,
+    output: str,
+):
     cmd = JobDeploy(rest_api_url, output)
-    if operation == DeployOperation.UPDATE:
+    if operation == DeployOperation.UPDATE or enabled is not None:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
-        job_version = get_or_prompt("Job Version", job_version)
-        return cmd.update(name, team, job_version, output)
-    if operation == DeployOperation.ENABLE:
-        name = get_or_prompt("Job Name", name)
-        team = get_or_prompt("Job Team", team)
-        return cmd.enable(name, team)
-    if operation == DeployOperation.DISABLE:
-        name = get_or_prompt("Job Name", name)
-        team = get_or_prompt("Job Team", team)
-        return cmd.disable(name, team)
+        # default to ask for job version to update
+        if not vdk_version and not job_version and enabled is None:
+            job_version = get_or_prompt("Job Version", job_version)
+        return cmd.update(name, team, enabled, job_version, vdk_version, output)
     if operation == DeployOperation.REMOVE:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)

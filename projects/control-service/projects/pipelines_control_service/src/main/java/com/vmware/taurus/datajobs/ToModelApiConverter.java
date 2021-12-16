@@ -10,19 +10,22 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.model.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class ToModelApiConverter {
 
-   public static JobDeployment toJobDeployment(String jobName, DataJobDeployment dataJobDeployment) {
+   public static JobDeployment toJobDeployment(String teamName, String jobName, DataJobDeployment dataJobDeployment) {
 
       JobDeployment jobDeployment = new JobDeployment();
+      jobDeployment.setDataJobTeam(teamName);
       jobDeployment.setDataJobName(jobName);
       jobDeployment.setEnabled(dataJobDeployment.getEnabled());
       jobDeployment.setResources(dataJobDeployment.getResources());
-      jobDeployment.setMode(dataJobDeployment.getMode().toString());
+      if (dataJobDeployment.getMode() != null) {
+         jobDeployment.setMode(dataJobDeployment.getMode().toString());
+      }
       jobDeployment.setGitCommitSha(dataJobDeployment.getJobVersion());
+      jobDeployment.setVdkVersion(dataJobDeployment.getVdkVersion());
 
       return jobDeployment;
    }
@@ -71,14 +74,16 @@ public class ToModelApiConverter {
             return ExecutionStatus.SUBMITTED;
          case RUNNING:
             return ExecutionStatus.RUNNING;
-         case FAILED:
-            return ExecutionStatus.FAILED;
          case CANCELLED:
             return ExecutionStatus.CANCELLED;
-         case FINISHED:
-            return ExecutionStatus.FINISHED;
+         case SUCCEEDED:
+            return ExecutionStatus.SUCCEEDED;
          case SKIPPED:
             return ExecutionStatus.SKIPPED;
+         case USER_ERROR:
+            return ExecutionStatus.USER_ERROR;
+         case PLATFORM_ERROR:
+            return ExecutionStatus.PLATFORM_ERROR;
          default: // No such status
             log.warn("Unexpected status: '" + status + "' in ExecutionStatus.");
             return null;

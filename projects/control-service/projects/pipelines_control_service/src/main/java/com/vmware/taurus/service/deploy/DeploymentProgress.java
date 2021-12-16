@@ -78,7 +78,6 @@ public class DeploymentProgress {
     }
 
     @Measurable(includeArg = 1, argName = "deployment")
-    @Measurable(includeArg = 2, argName = "changes")
-    public void configuration_updated(JobConfig jobConfig, JobDeployment jobDeployment, Map<String, Object> changes) {
+    public void configuration_updated(JobConfig jobConfig, JobDeployment jobDeployment) {
     }
 }

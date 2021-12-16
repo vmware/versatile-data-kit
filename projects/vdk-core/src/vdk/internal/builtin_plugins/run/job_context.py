@@ -9,6 +9,9 @@ from typing import cast
 from vdk.api.job_input import IJobArguments
 from vdk.api.job_input import IJobInput
 from vdk.api.job_input import ITemplate
+from vdk.api.plugin.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.api.plugin.plugin_input import IIngesterRegistry
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.api.plugin.plugin_input import IPropertiesRegistry
@@ -74,7 +77,10 @@ class JobContext:
         self.step_builder = StepBuilder()
         self.job_args = job_args
 
-        self.connections = ManagedConnectionRouter(core_context.configuration)
+        self.connections = ManagedConnectionRouter(
+            core_context.configuration,
+            cast(ConnectionHookSpec, core_context.plugin_registry.hook()),
+        )
         self.templates = cast(ITemplateRegistry, templates)
         self.ingester = IngesterRouter(core_context.configuration, core_context.state)
 

@@ -7,6 +7,9 @@ from datetime import datetime
 from typing import List
 
 import click
+from vdk.api.plugin.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal import vdk_build_info
@@ -16,6 +19,9 @@ from vdk.internal.builtin_plugins.config.log_config import LoggingPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import CoreConfigDefinitionPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import EnvironmentVarsConfigPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import JobConfigIniPlugin
+from vdk.internal.builtin_plugins.connection.connection_plugin import (
+    QueryDecoratorPlugin,
+)
 from vdk.internal.builtin_plugins.debug.debug import DebugPlugins
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration_plugin import (
     IngesterConfigurationPlugin,
@@ -30,7 +36,6 @@ from vdk.internal.builtin_plugins.termination_message.writer import (
 from vdk.internal.builtin_plugins.version.new_version_check_plugin import (
     NewVersionCheckPlugin,
 )
-from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.plugin.plugin import PluginRegistry
@@ -114,6 +119,9 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())
     plugin_registry.load_plugin_with_hooks_impl(TerminationMessageWriterPlugin())
+    # connection plugins
+    plugin_registry.add_hook_specs(ConnectionHookSpec)
+    plugin_registry.load_plugin_with_hooks_impl(QueryDecoratorPlugin())
 
 
 @hookimpl(tryfirst=True)

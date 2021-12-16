@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.graphql;
 
+import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Filter;
@@ -13,20 +14,23 @@ import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByDescription;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByLastExecutionDuration;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByLastExecutionStatus;
+import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByLastExecutionTime;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByName;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByNextRun;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByScheduleCron;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBySourceUrl;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByTeam;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobPage;
+import com.vmware.taurus.service.graphql.model.DataJobPage;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
-import graphql.schema.SelectedField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,15 +38,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -56,16 +60,19 @@ class GraphQLDataFetchersTest {
 
    @Mock
    private ExecutionDataFetcher executionDataFetcher;
+
    @Mock
    private JobsRepository jobsRepository;
+
    @Mock
    private DeploymentService deploymentService;
+
    @Mock
    private DataFetchingEnvironment dataFetchingEnvironment;
+
    @Mock
    private DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
-   @Mock
-   private SelectedField selectedField;
+
    private DataFetcher<Object> findDataJobs;
 
    @BeforeEach
@@ -191,12 +198,136 @@ class GraphQLDataFetchersTest {
       });
    }
 
+   @Test
+   void testPopulateDeployments() throws Exception {
+      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+      when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
+      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
+
+      DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+      assertThat(dataJobPage.getContent()).hasSize(5);
+      var job1 = (V2DataJob)dataJobPage.getContent().get(0);
+      assertThat(job1.getDeployments()).hasSize(1);
+      assertThat(job1.getDeployments().get(0).getLastExecutionStatus()).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR);
+      assertThat(job1.getDeployments().get(0).getLastExecutionTime()).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      assertThat(job1.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(1000);
+      var job2 = (V2DataJob)dataJobPage.getContent().get(1);
+      assertThat(job2.getDeployments()).hasSize(1);
+      assertThat(job2.getDeployments().get(0).getLastExecutionStatus()).isNull();
+      assertThat(job2.getDeployments().get(0).getLastExecutionTime()).isNull();
+      assertThat(job2.getDeployments().get(0).getLastExecutionDuration()).isNull();
+   }
+
+   @Test
+   void testFilterByLastExecutionStatus() throws Exception {
+      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+      when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
+      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+      when(dataFetchingEnvironment.getArgument("search")).thenReturn(null);
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
+      when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
+              Filter.of("deployments.lastExecutionStatus", DataJobExecution.StatusEnum.SUCCEEDED.getValue(), null)
+      ));
+
+      DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+      assertThat(dataJobPage.getContent()).hasSize(1);
+   }
+
+   @Test
+   void testSortingByLastExecutionStatus() throws Exception {
+      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+      when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
+      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+      when(dataFetchingEnvironment.getArgument("search")).thenReturn(null);
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
+      when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
+              Filter.of("deployments.lastExecutionStatus", null, Sort.Direction.ASC)
+      ));
+
+      DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+      var lastExecutionStatuses = dataJobPage.getContent().stream()
+              .map(job -> ((V2DataJob)job).getDeployments().get(0).getLastExecutionStatus())
+              .map(status -> status != null ? status.getValue() : null)
+              .collect(Collectors.toList());
+      assertThat(lastExecutionStatuses).hasSize(5);
+      assertThat(lastExecutionStatuses.get(0)).isNull();
+      assertThat(lastExecutionStatuses.get(1)).isNull();
+      assertThat(lastExecutionStatuses.get(2)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
+      assertThat(lastExecutionStatuses.get(3)).isEqualTo(DataJobExecution.StatusEnum.PLATFORM_ERROR.getValue());
+      assertThat(lastExecutionStatuses.get(4)).isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED.getValue());
+   }
+
+   @Test
+   void testSortingByLastExecutionTime() throws Exception {
+      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+      when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
+      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+      when(dataFetchingEnvironment.getArgument("search")).thenReturn(null);
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
+      when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
+              Filter.of("deployments.lastExecutionTime", null, Sort.Direction.ASC)
+      ));
+
+      DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+      var lastExecutionTimes = dataJobPage.getContent().stream()
+              .map(job -> ((V2DataJob)job).getDeployments().get(0).getLastExecutionTime())
+              .collect(Collectors.toList());
+      assertThat(lastExecutionTimes).hasSize(5);
+      assertThat(lastExecutionTimes.get(0)).isNull();
+      assertThat(lastExecutionTimes.get(1)).isNull();
+      assertThat(lastExecutionTimes.get(2)).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      assertThat(lastExecutionTimes.get(3)).isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      assertThat(lastExecutionTimes.get(4)).isEqualTo(OffsetDateTime.of(2000, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC));
+   }
+
+   @Test
+   void testSortingByLastExecutionDuration() throws Exception {
+      when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+      when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
+      when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+      when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+      when(dataFetchingEnvironment.getArgument("search")).thenReturn(null);
+      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+      when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())).thenReturn(true);
+      when(dataFetchingEnvironment.getArgument("filter")).thenReturn(constructFilter(
+              Filter.of("deployments.lastExecutionDuration", null, Sort.Direction.DESC)
+      ));
+
+      DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+      var lastExecutionTimes = dataJobPage.getContent().stream()
+              .map(job -> ((V2DataJob)job).getDeployments().get(0).getLastExecutionDuration())
+              .collect(Collectors.toList());
+      assertThat(lastExecutionTimes).hasSize(5);
+      assertThat(lastExecutionTimes.get(0)).isEqualTo(1000);
+      assertThat(lastExecutionTimes.get(1)).isEqualTo(1000);
+      assertThat(lastExecutionTimes.get(2)).isEqualTo(0);
+      assertThat(lastExecutionTimes.get(3)).isNull();
+      assertThat(lastExecutionTimes.get(4)).isNull();
+   }
+
 
    private List<JobDeploymentStatus> mockListOfDeployments() {
       List<JobDeploymentStatus> jobDeployments = new ArrayList<>();
 
       jobDeployments.add(mockSampleDeployment("sample-job-1", true));
       jobDeployments.add(mockSampleDeployment("sample-job-2", false));
+      jobDeployments.add(mockSampleDeployment("sample-job-3", true));
+      jobDeployments.add(mockSampleDeployment("sample-job-4", true));
+      jobDeployments.add(mockSampleDeployment("sample-job-5", true));
 
       return jobDeployments;
    }
@@ -211,13 +342,41 @@ class GraphQLDataFetchersTest {
       return dataJobs;
    }
 
+   private List<DataJob> mockListOfDataJobsWithLastExecution() {
+      List<DataJob> dataJobs = new ArrayList<>();
+
+      dataJobs.add(mockSampleDataJob("sample-job-1", "Import SQL", "5 12 * * *",
+              ExecutionStatus.PLATFORM_ERROR, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 1000));
+      dataJobs.add(mockSampleDataJob("sample-job-2", "Dump SQL", "0 22 * * 1-5"));
+      dataJobs.add(mockSampleDataJob("sample-job-3", "Import SQL", "5 12 * * *",
+              ExecutionStatus.PLATFORM_ERROR, OffsetDateTime.of(2000, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC), null));
+      dataJobs.add(mockSampleDataJob("sample-job-4", "Import SQL", "5 12 * * *",
+              ExecutionStatus.SUCCEEDED, null, 0));
+      dataJobs.add(mockSampleDataJob("sample-job-5", "Import SQL", "5 12 * * *",
+              null, OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), 1000));
+
+      return dataJobs;
+   }
+
    private DataJob mockSampleDataJob(String jobName, String description, String schedule) {
+      return mockSampleDataJob(jobName, description, schedule, null, null, null);
+   }
+
+   private DataJob mockSampleDataJob(String jobName,
+                                     String description,
+                                     String schedule,
+                                     ExecutionStatus lastExecutionStatus,
+                                     OffsetDateTime lastExecutionEndTime,
+                                     Integer lastExecutionDuration) {
       DataJob dataJob = new DataJob();
       JobConfig jobConfig = new JobConfig();
       jobConfig.setSchedule(schedule);
       jobConfig.setDescription(description);
       dataJob.setJobConfig(jobConfig);
       dataJob.setName(jobName);
+      dataJob.setLastExecutionStatus(lastExecutionStatus);
+      dataJob.setLastExecutionEndTime(lastExecutionEndTime);
+      dataJob.setLastExecutionDuration(lastExecutionDuration);
 
       return dataJob;
    }
@@ -231,14 +390,16 @@ class GraphQLDataFetchersTest {
       return status;
    }
 
-   static ArrayList<LinkedHashMap<String, String>> constructFilter(Filter ... filters ) {
+   static ArrayList<LinkedHashMap<String, String>> constructFilter(Filter ... filters) {
       ArrayList<LinkedHashMap<String, String>> rawFilters = new ArrayList<>();
       Arrays.stream(filters).forEach(filter -> {
          LinkedHashMap<String, String> map = new LinkedHashMap<>();
 
          map.put("property", filter.getProperty());
          map.put("pattern", filter.getPattern());
-         map.put("sort", filter.getSort().toString());
+         if (filter.getSort() != null) {
+            map.put("sort", filter.getSort().toString());
+         }
 
          rawFilters.add(map);
       });
@@ -255,6 +416,9 @@ class GraphQLDataFetchersTest {
       strategies.add(new JobFieldStrategyByScheduleCron());
       strategies.add(new JobFieldStrategyBySourceUrl("gitlab.com/demo-data-jobs.git", "main", true));
       strategies.add(new JobFieldStrategyByTeam());
+      strategies.add(new JobFieldStrategyByLastExecutionStatus());
+      strategies.add(new JobFieldStrategyByLastExecutionTime());
+      strategies.add(new JobFieldStrategyByLastExecutionDuration());
 
       return strategies;
    }

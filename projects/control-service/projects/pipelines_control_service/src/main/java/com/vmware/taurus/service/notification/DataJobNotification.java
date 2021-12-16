@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
+import java.util.List;
 
 /**
  * The DataJobNotification class is the interface used by the Versatile Data Kit service in order to notify
@@ -35,25 +36,29 @@ public class DataJobNotification {
 
     private static final String SUCCESS_STATUS = "success";
 
-    @Value("${datajobs.notification.owner.name}")
+
     private String ownerName;
-    @Value("${datajobs.notification.owner.email}")
+
     private String ownerEmail;
 
-    private EmailNotification notification = new EmailNotification();
+    private List<String> ccEmails;
 
-    public DataJobNotification() {}
+    private EmailNotification notification;
 
-    public DataJobNotification(EmailNotification notification, String ownerName, String ownerEmail) {
+    public DataJobNotification(EmailNotification notification,
+                               @Value("${datajobs.notification.owner.name}") String ownerName,
+                               @Value("${datajobs.notification.owner.email}") String ownerEmail,
+                               @Value("${datajobs.notification.cc.emails:}") List<String> ccEmails) {
         this.notification = notification;
         this.ownerName = ownerName;
         this.ownerEmail = ownerEmail;
+        this.ccEmails = ccEmails;
     }
 
     public void notifyJobDeploySuccess(JobConfig jobConfig) {
         try {
             NotificationContent notificationContent =
-                    new NotificationContent(jobConfig, DEPLOY_STAGE, SUCCESS_STATUS, ownerName, ownerEmail);
+                    new NotificationContent(jobConfig, DEPLOY_STAGE, SUCCESS_STATUS, ownerName, ownerEmail, ccEmails);
             notification.send(notificationContent);
         } catch (AddressException e) {
             log.warn("Could not send notification due to bad email format", e);
@@ -67,7 +72,7 @@ public class DataJobNotification {
     public void notifyJobDeployError(JobConfig jobConfig, String errorName, String errorBody) {
         try {
             NotificationContent notificationContent =
-                    new NotificationContent(jobConfig, DEPLOY_STAGE, FAILURE_STATUS, errorName, errorBody, ownerName, ownerEmail);
+                    new NotificationContent(jobConfig, DEPLOY_STAGE, FAILURE_STATUS, errorName, errorBody, ownerName, ownerEmail, ccEmails);
             notification.send(notificationContent);
         } catch (AddressException e) {
             log.warn("Could not send notification due to bad email format", e);

@@ -4,10 +4,12 @@ import logging
 from typing import Any
 from typing import Callable
 
+from vdk.api.plugin.connection_hook_spec import (
+    ConnectionHookSpec,
+)
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
-from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 
 
@@ -16,16 +18,11 @@ class WrappedConnection(ManagedConnectionBase):
     Wrap any DB connection ones (e.g. connection to SAP Hana) into a ManagedConnection
     """
 
-    def _before_cursor_execute(self, cur: ManagedCursor) -> None:
-        return super()._before_cursor_execute(cur)
-
-    def _cursor_execute(self, cur: ManagedCursor, query: str) -> None:
-        return super()._cursor_execute(cur, query)
-
     def __init__(
         self,
         log: logging.Logger,
         new_connection_builder_function: Callable[[], PEP249Connection],
+        connection_hook_spec: ConnectionHookSpec,
     ) -> None:
         """
         :param new_connection_builder_function: method that returns a new (e.g. SAP Hana) connection
@@ -33,14 +30,14 @@ class WrappedConnection(ManagedConnectionBase):
                 def connection() -> ManagedConnectionBase:
                     db = pyhdb.connect(host='hana-prod-d1.northpole.com', port=30015, user='claus', password='hohoho')
                     return db
-
+        :param connection_hook_spec: connection hook implementations from plugins
         """
-        super().__init__(log)
+        super().__init__(log, None, connection_hook_spec)
         self._log = logging.getLogger(__name__)
         self._new_connection_builder_function = new_connection_builder_function
 
     def _connect(self) -> Any:
         self._log.debug("Establishing Wrapped connection ...")
         conn = self._new_connection_builder_function()
-        self._log.debug("Establishing Wrapped connection DONE: %s", str(conn))
+        self._log.debug(f"Establishing Wrapped connection DONE: {str(conn)}")
         return conn

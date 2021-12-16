@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.datajobs.it;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
@@ -12,7 +13,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -30,15 +30,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
@@ -176,6 +178,9 @@ public class DataJobDeploymentCrudIT extends BaseIT {
       Assertions.assertEquals(true, jobDeployment.getEnabled());
       Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
       Assertions.assertEquals(true, jobDeployment.getEnabled());
+      // by default the version is the same as the tag specified by datajobs.vdk.image
+      // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
+      Assertions.assertEquals("release", jobDeployment.getVdkVersion());
       Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
       // just check some valid date is returned. It would be too error-prone/brittle to verify exact time.
       DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
@@ -223,6 +228,58 @@ public class DataJobDeploymentCrudIT extends BaseIT {
       Assertions.assertTrue(cronJobOptional.isPresent());
       cronJob = cronJobOptional.get();
       Assertions.assertEquals(false, cronJob.getEnabled());
+
+      // Execute set vdk version for deployment
+      mockMvc.perform(patch(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                      TEST_TEAM_NAME,
+                      TEST_JOB_NAME,
+                      DEPLOYMENT_ID))
+                      .with(user("user"))
+                      .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isAccepted());
+
+      // verify vdk version is returned
+      mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                      TEST_TEAM_NAME,
+                      TEST_JOB_NAME,
+                      DEPLOYMENT_ID))
+                      .with(user("user"))
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk())
+              .andExpect(jsonPath("$.vdk_version", is("new_vdk_version_tag")));
+
+
+      // Execute disable deployment again to check that the version is not overwritten
+      mockMvc.perform(patch(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                      TEST_TEAM_NAME,
+                      TEST_JOB_NAME,
+                      DEPLOYMENT_ID))
+                      .with(user("user"))
+                      .content(getDataJobDeploymentEnableRequestBody(false))
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isAccepted());
+
+      // Execute reset back vdk version for deployment
+      mockMvc.perform(patch(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                      TEST_TEAM_NAME,
+                      TEST_JOB_NAME,
+                      DEPLOYMENT_ID))
+                      .with(user("user"))
+                      .content(getDataJobDeploymentVdkVersionRequestBody(""))
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isAccepted());
+
+      // verify vdk version is reset correctly
+      mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                      TEST_TEAM_NAME,
+                      TEST_JOB_NAME,
+                      DEPLOYMENT_ID))
+                      .with(user("user"))
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk())
+              .andExpect(jsonPath("$.vdk_version", is("release")));
+
 
       // Execute delete deployment with no user
       mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s/deployments/%s",

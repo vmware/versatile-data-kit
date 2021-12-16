@@ -13,6 +13,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.ApiException;
+import io.kubernetes.client.models.V1LocalObjectReferenceBuilder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,6 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -38,6 +38,9 @@ public class JobImageDeployer {
    // It may make sense to just pass the module name as argument instead of an image ???
    @Value("${datajobs.vdk.image}")
    private String vdkImage;
+
+   @Value("${datajobs.docker.registrySecret:}")
+   private String dockerRegistrySecret = "";
 
    private static final String VOLUME_NAME = "vdk";
    private static final String VOLUME_MOUNT_PATH = "/vdk";
@@ -197,7 +200,8 @@ public class JobImageDeployer {
               "/bin/bash",
               "-c",
               "cp -r /usr/local/lib/python3.7/site-packages /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-      var jobInitContainer = KubernetesService.container("vdk", vdkImage, false, Map.of(), List.of(),
+      var jobVdkImage = getJobVdkImage(jobDeployment);
+      var jobInitContainer = KubernetesService.container("vdk", jobVdkImage, false, Map.of(), List.of(),
               List.of(volumeMount, secretVolumeMount), "Always", kubernetesResources.dataJobInitContainerRequests(),
               kubernetesResources.dataJobInitContainerLimits(), null, vdkCommand);
       // TODO: changing imagePullPolicy to IfNotPresent might be necessary optimization when running thousands of jobs.
@@ -208,16 +212,27 @@ public class JobImageDeployer {
       var jobAnnotations = getJobAnnotations(dataJob, lastDeployedBy);
 
       String cronJobName = getCronJobName(jobName);
+      boolean enabled = jobDeployment.getEnabled() == null || jobDeployment.getEnabled();
       if (dataJobsKubernetesService.listCronJobs().contains(cronJobName)) {
          dataJobsKubernetesService.updateCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
-                 jobDeployment.getEnabled(), List.of(), defaultConfigurations.dataJobRequests(),
+                 enabled, List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
-                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(), jobAnnotations, jobLabels);
+                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
+                 jobAnnotations, jobLabels, dockerRegistrySecret);
       } else {
          dataJobsKubernetesService.createCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
-                 jobDeployment.getEnabled(), List.of(), defaultConfigurations.dataJobRequests(),
+                 enabled, List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
-                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(), jobAnnotations, jobLabels);
+                 jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
+                 jobAnnotations, jobLabels, dockerRegistrySecret);
+      }
+   }
+
+   private String getJobVdkImage(JobDeployment jobDeployment) {
+      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())) {
+         return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
+      } else {
+         return vdkImage;
       }
    }
 

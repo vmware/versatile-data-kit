@@ -9,19 +9,21 @@ import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.graphql.model.DataJobQueryVariables;
 import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
-import com.vmware.taurus.service.model.DataJobPage;
+import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import graphql.GraphqlErrorException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class GraphQLDataFetchers {
@@ -51,12 +54,17 @@ public class GraphQLDataFetchers {
    public DataFetcher<Object> findAllAndBuildDataJobPage() {
       return dataFetchingEnvironment -> {
          DataJobQueryVariables queryVar = fetchDataJobQueryVariables(dataFetchingEnvironment);
-         List<V2DataJob> allDataJob = StreamSupport.stream(jobsRepository.findAll().spliterator(), false)
+         var dataJobs = StreamSupport.stream(jobsRepository.findAll().spliterator(), false)
+                 .collect(Collectors.toMap(
+                         DataJob::getName,
+                         job -> job
+                 ));
+         List<V2DataJob> allDataJob = dataJobs.values().stream()
                .map(ToApiModelConverter::toV2DataJob)
                .collect(Collectors.toList());
 
          final Criteria<V2DataJob> filterCriteria = populateCriteria(queryVar.getFilters());
-         List<V2DataJob> dataJobsFiltered = populateDataJobsByRequestedFields(dataFetchingEnvironment, allDataJob).stream()
+         List<V2DataJob> dataJobsFiltered = populateDataJobsByRequestedFields(dataFetchingEnvironment, allDataJob, dataJobs).stream()
                .filter(filterCriteria.getPredicate())
                .filter(computeSearch(dataFetchingEnvironment.getSelectionSet(), queryVar.getSearch()))
                .sorted(filterCriteria.getComparator())
@@ -71,13 +79,18 @@ public class GraphQLDataFetchers {
 
          List<V2DataJob> resultList = populateDataJobsPostPagination(dataJobList, dataFetchingEnvironment);
 
-         return buildDataJobPage(queryVar.getPageSize(), count, new ArrayList<>(resultList));
+         return buildResponse(queryVar.getPageSize(), count, resultList);
       };
    }
 
    private List<V2DataJob> populateDataJobsPostPagination(List<V2DataJob> allDataJob, DataFetchingEnvironment dataFetchingEnvironment) {
       if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())) {
          executionDataFetcher.populateExecutions(allDataJob, dataFetchingEnvironment);
+      }
+
+      if (dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())
+              || dataFetchingEnvironment.getSelectionSet().contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())) {
+         executionDataFetcher.populateStatusCounts(allDataJob, dataFetchingEnvironment);
       }
 
       return allDataJob;
@@ -101,10 +114,12 @@ public class GraphQLDataFetchers {
     * @param allDataJob      List of the data jobs which will be altered
     * @return Altered data job list
     */
-   private List<V2DataJob> populateDataJobsByRequestedFields(DataFetchingEnvironment dataFetchingEnvironment, List<V2DataJob> allDataJob) {
+   private List<V2DataJob> populateDataJobsByRequestedFields(DataFetchingEnvironment dataFetchingEnvironment,
+                                                             List<V2DataJob> allDataJob,
+                                                             Map<String, DataJob> dataJobs) {
       DataFetchingFieldSelectionSet requestedFields = dataFetchingEnvironment.getSelectionSet();
       if (requestedFields.contains(JobFieldStrategyBy.DEPLOYMENT.getPath())) {
-         populateDeployments(allDataJob);
+         populateDeployments(allDataJob, dataJobs);
       }
 
       allDataJob.forEach(dataJob -> strategyFactory.getStrategies().entrySet().stream()
@@ -156,7 +171,7 @@ public class GraphQLDataFetchers {
       return predicate == null ? Objects::nonNull : predicate;
    }
 
-   private List<V2DataJob> populateDeployments(List<V2DataJob> allDataJob) {
+   private List<V2DataJob> populateDeployments(List<V2DataJob> allDataJob, Map<String, DataJob> dataJobs) {
       Map<String, JobDeploymentStatus> deploymentStatuses = deploymentService.readDeployments()
             .stream().collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
 
@@ -164,18 +179,25 @@ public class GraphQLDataFetchers {
          var jobDeploymentStatus = deploymentStatuses.get(dataJob.getJobName());
          if (jobDeploymentStatus != null) {
             // TODO add multiple deployments when its supported
+            var sourceDataJob = dataJobs.get(dataJob.getJobName());
+            if (sourceDataJob == null) {
+               log.warn("Data job {} not found when populating deployments", dataJob.getJobName());
+            }
             dataJob.setDeployments(Collections.singletonList(
-                  ToApiModelConverter.toV2DataJobDeployment(jobDeploymentStatus)));
+                  ToApiModelConverter.toV2DataJobDeployment(jobDeploymentStatus, sourceDataJob)));
          }
       });
       return allDataJob;
    }
 
-   private static DataJobPage buildDataJobPage(int pageSize, int count, List<Object> pageList) {
-      var dataJobPage = new DataJobPage();
-      dataJobPage.setContent(pageList);
-      dataJobPage.setTotalPages(((count - 1) / pageSize + 1));
-      dataJobPage.setTotalItems(count);
-      return dataJobPage;
+   private static DataJobPage buildResponse(
+         int pageSize,
+         int count,
+         List pageList) {
+
+      return DataJobPage.builder()
+            .content(new ArrayList<>(pageList))
+            .totalPages(((count - 1) / pageSize + 1))
+            .totalItems(count).build();
    }
 }

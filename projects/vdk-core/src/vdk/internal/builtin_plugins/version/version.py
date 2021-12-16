@@ -8,6 +8,7 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 from vdk.api.plugin.hook_markers import GROUP_NAME
 from vdk.internal import vdk_build_info
+from vdk.internal.builtin_plugins.run.execution_environment import ExecutionEnvironment
 
 try:  # importlib.metadata is used in 3.8+, importlib_metadata is used in 3.7
     from importlib import metadata
@@ -71,7 +72,8 @@ def list_installed_plugins_versions():
 def get_version_info():
     return (
         f"Version: {get_version()}{os.linesep}"
-        f"Build details: {build_details()}{os.linesep}{os.linesep}"
+        f"Build details: {build_details()}{os.linesep}"
+        f"Python version: {ExecutionEnvironment().get_python_version()}{os.linesep}{os.linesep}"
         f"Installed plugins:{os.linesep}{list_installed_plugins_versions()}"
     )
 

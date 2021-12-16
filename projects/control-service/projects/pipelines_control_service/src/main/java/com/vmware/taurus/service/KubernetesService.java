@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import com.vmware.taurus.exception.JsonDissectException;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.exception.KubernetesJobDefinitionException;
+import com.vmware.taurus.service.deploy.DockerImageName;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
@@ -23,7 +24,10 @@ import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.PodLogs;
-import io.kubernetes.client.apis.*;
+import io.kubernetes.client.apis.BatchV1Api;
+import io.kubernetes.client.apis.BatchV1beta1Api;
+import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.apis.VersionApi;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.models.*;
@@ -44,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -109,40 +114,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     @Value
-    @AllArgsConstructor
-    public static class JobDetails {
-        private final String name;
-        private final JobStatus status;
-        private final Map<String, String> labels;
-        private final Map<String, String> annotations;
-
-        JobDetails(V1Job job) {
-           this.name = job.getMetadata().getName();
-           this.status = new JobStatus(job.getStatus());
-           this.labels = job.getMetadata().getLabels();
-           this.annotations = job.getMetadata().getAnnotations();
-        }
-    }
-
-    @Value
-    @AllArgsConstructor
-    public static class DeploymentStatus {
-        private final int ready;
-        private final int updated;
-        private final int total;
-        private final int available;
-        private final int unavailable;
-
-        DeploymentStatus(V1DeploymentStatus status) {
-            this(KubernetesService.fromInteger(status.getReadyReplicas()),
-                    KubernetesService.fromInteger(status.getUpdatedReplicas()),
-                    KubernetesService.fromInteger(status.getReplicas()),
-                    KubernetesService.fromInteger(status.getAvailableReplicas()),
-                    KubernetesService.fromInteger(status.getUnavailableReplicas()));
-        }
-    }
-
-    @Value
     public static class JobStatusCondition {
         private final boolean success;
         private final String type;
@@ -171,7 +142,8 @@ public abstract class KubernetesService implements InitializingBean {
         String executionId;
         String executionType;
         String jobName;
-        String terminationMessage;
+        String podTerminationMessage;
+        String jobTerminationReason;
         Boolean succeeded;
         String opId;
         OffsetDateTime startTime;
@@ -184,6 +156,7 @@ public abstract class KubernetesService implements InitializingBean {
         Integer resourcesMemoryLimit;
         OffsetDateTime deployedDate;
         String deployedBy;
+        String containerTerminationReason;
     }
 
     @AllArgsConstructor
@@ -376,25 +349,15 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     public Set<String> listJobs() throws ApiException {
-        return listJobsDetails(Collections.emptyMap()).stream().map(j -> j.getName()).collect(Collectors.toSet());
-    }
-
-    /**
-     * Return all jobs with passed labels
-     * @param labelsToSelect labels to select jobs using equality based requirement -
-     *                       https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#equality-based-requirement
-     * @throws ApiException
-     */
-    public Set<JobDetails> listJobsDetails(Map<String, String> labelsToSelect) throws ApiException {
-        log.debug("Listing k8s jobs with labels {}", labelsToSelect);
-        String labelSelector = buildLabelSelector(labelsToSelect);
-        var jobs = new BatchV1Api(client).listNamespacedJob(namespace, null, null, null, labelSelector, null, null, null, null);
+        log.debug("Listing k8s jobs");
+        var jobs = new BatchV1Api(client).listNamespacedJob(namespace, null, null, null, null, null, null, null, null);
         var set = jobs.getItems().stream()
-                .map(j -> new JobDetails(j))
+                .map(j -> j.getMetadata().getName())
                 .collect(Collectors.toSet());
         log.debug("K8s jobs: {}", set);
         return set;
     }
+
 
     public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
         log.debug("Reading k8s cron job: {}", cronJobName);
@@ -535,7 +498,7 @@ public abstract class KubernetesService implements InitializingBean {
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
         createCronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "");
     }
 
     // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking impl. details
@@ -543,11 +506,12 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
+                              String imagePullSecret)
             throws ApiException {
         log.debug("Creating k8s cron job name:{}, image:{}", name, image);
         var cronJob = cronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels);
+                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecret);
         V1beta1CronJob nsJob = new BatchV1beta1Api(client).createNamespacedCronJob(namespace, cronJob, null, null, null);
         log.debug("Created k8s cron job: {}", nsJob);
         log.debug("Created k8s cron job name: {}, uid:{}, link:{}", nsJob.getMetadata().getName(), nsJob.getMetadata().getUid(), nsJob.getMetadata().getSelfLink());
@@ -559,17 +523,18 @@ public abstract class KubernetesService implements InitializingBean {
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
         updateCronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer,
-                initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "");
     }
 
     public void updateCronJob(String name, String image,  Map<String, String> envs, String schedule,
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
+                              String imagePullSecret)
             throws ApiException {
         var cronJob = cronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels);
+                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecret);
         V1beta1CronJob nsJob = new BatchV1beta1Api(client).replaceNamespacedCronJob(name, namespace, cronJob, null, null, null);
         log.debug("Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}", name, image, nsJob.getMetadata().getUid(), nsJob.getMetadata().getSelfLink());
     }
@@ -833,18 +798,19 @@ public abstract class KubernetesService implements InitializingBean {
         if (jobStatusCondition != null) {
             // Job termination status
             Optional<V1ContainerStateTerminated> lastTerminatedPodState = getTerminationStatus(job);
-            // If the job completed but its pod did not produce a termination message, we treat this (for now)
-            // as a Platform error. Possible reasons for this to happen are:
-            //   - Pod was not created due to insufficient resources (in the future we'd likely want to create per-team
-            //     resource pools + provide per-job resource configuration; then it would be the responsibility of the
-            //     users to manage their resources, in which case this should be classified as user error).
-            //   - Pod failed to pull one of its images
-            //   - Pod was killed in flight due to exceeding its allowed memory (this should be eventually classified
-            //     as user error)
+            // If the job completed but its pod did not produce a termination message, we infer the termination
+            // status later, based on the status of the job itself.
             lastTerminatedPodState
                   .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getMessage()))
-                  .ifPresent(s -> jobExecutionStatusBuilder.terminationMessage(s));
+                  .ifPresent(s -> jobExecutionStatusBuilder.podTerminationMessage(s));
+            jobExecutionStatusBuilder.jobTerminationReason(jobStatusCondition.getReason());
+
+            // Termination Reason of the data job pod container
+            lastTerminatedPodState
+                    .map(v1ContainerStateTerminated -> StringUtils.trim(v1ContainerStateTerminated.getReason()))
+                    .ifPresent(s -> jobExecutionStatusBuilder.containerTerminationReason(s));
         }
+
         // Job resources
         Optional<V1Container> containerOptional = Optional.ofNullable(job.getSpec())
               .map(V1JobSpec::getTemplate)
@@ -1053,7 +1019,7 @@ public abstract class KubernetesService implements InitializingBean {
 
                 log.debug("Job {} is {}", job.getMetadata().getName(), response.type);
 
-                if (!"ADDED".equals(response.type) && !"DELETED".equals(response.type)) {
+                if (!"DELETED".equals(response.type)) {
                     // Occasionally events arrive for jobs that have completed into the past.
                     // Ignore events that have arrived later than one hour after the job's completion time
                     var condition = getJobCondition(job);
@@ -1092,22 +1058,6 @@ public abstract class KubernetesService implements InitializingBean {
         return null;
     }
 
-    public JobDetails readJob(String name) throws ApiException {
-        log.debug("Reading k8s job for: {}", name);
-        var job = new BatchV1Api(client).readNamespacedJob(name, namespace, null, null, null);
-
-        log.debug("k8s job: {}", job);
-        log.debug("k8s job status: {}", job.getStatus());
-        log.debug("k8s job active {} success {} fail {}", job.getStatus().getActive(), job.getStatus().getSucceeded(), job.getStatus().getFailed());
-        if (job.getStatus().getConditions() != null) {
-            for (var c : job.getStatus().getConditions()) {
-                log.debug("k8s job condition type: {} reason: {} message: {}", c.getType(), c.getReason(), c.getMessage());
-            }
-        }
-        log.debug("Returning k8s job status for:{} status:{}", name, job.getStatus());
-        return new JobDetails(job);
-    }
-
     /**
      * Deletes a Job in kubernets with given name if it exists.
      * @param name the name of the job
@@ -1130,49 +1080,6 @@ public abstract class KubernetesService implements InitializingBean {
         log.debug("Deleting k8s pods for job: {}", name);
         var status = new CoreV1Api(client).deleteCollectionNamespacedPod(namespace, null, null, null, "job-name=" + name, null, null, null, null);
         log.debug("Deleted k8s pods for job: {}, status: {}", name, status);
-    }
-
-
-    public Set<String> listDeployments() throws ApiException {
-        log.debug("Listing k8s deployments");
-        var deps = new AppsV1Api(client).listNamespacedDeployment(namespace, null, null, null, null, null, null, null, null);
-        var set = deps.getItems().stream()
-                .map(j -> j.getMetadata().getName())
-                .collect(Collectors.toSet());
-        log.debug("K8s deployments: {}", set);
-        return set;
-    }
-
-    public void createDeployment(String name, String image, int replicas,
-                                 Map<String, String> envs, Map<String, String> labels,
-                                 Resources request, Resources limit, Probe probe) throws ApiException {
-        log.debug("Creating k8s deployment :{}, image:{}", name, image);
-        var deployment = deployment(name, image, replicas, envs, labels, request, limit, probe);
-        V1Deployment nsdDeployment = new AppsV1Api(client).createNamespacedDeployment(namespace, deployment, null, null, null);
-        log.debug("Created k8s deployment :{}, image:{}, uid:{}, link:{}", name, image, nsdDeployment.getMetadata().getUid(), nsdDeployment.getMetadata().getSelfLink());
-    }
-
-    public DeploymentStatus readDeploymentStatus(String name) throws ApiException {
-        log.debug("Reading k8s deployment status for name:{}", name);
-        var deployment = new AppsV1Api(client).readNamespacedDeploymentStatus(name, namespace, null);
-        log.debug("Returning k8s deployment status for:{} status:{}", name, deployment.getStatus());
-        return new DeploymentStatus(deployment.getStatus());
-    }
-
-    public void updateDeployment(String name, String image, int replicas,
-                                 Map<String, String> envs, Map<String, String> labels,
-                                 Resources request, Resources limit, Probe probe) throws ApiException {
-        log.debug("Updating k8s deployment status for name:{}, image:{}", name, image);
-        var deployment = deployment(name, image, replicas, envs, labels, request, limit, probe);
-        V1Deployment v1Deployment = new AppsV1Api(client).replaceNamespacedDeployment(name, namespace, deployment, null, null, null);
-        log.debug("Updated k8s deployment status for name:{}, image:{}, uid:{}, link:{}", name, image, v1Deployment.getMetadata().getUid(), v1Deployment.getMetadata().getSelfLink());
-    }
-
-    public int deleteDeployment(String name) throws ApiException {
-        log.debug("Deleting k8s deployment:{}", name);
-        var status = new AppsV1Api(client).deleteNamespacedDeployment(name, namespace, null, null, null, null, null, null);
-        log.debug("Deleted k8s deployment:{}, status code:{}", name, status.getCode());
-        return status.getCode();
     }
 
     public static V1Volume volume(String name) {
@@ -1213,34 +1120,6 @@ public abstract class KubernetesService implements InitializingBean {
             }
         }
         return Optional.empty();
-    }
-
-    private static V1Deployment deployment(String name, String image, int replicas,
-                                           Map<String, String> envs, Map<String, String> labels,
-                                           Resources request, Resources limit, Probe probe) {
-        var selector = new V1LabelSelectorBuilder()
-                .withMatchLabels(labels)
-                .build();
-        var template = new V1PodTemplateSpecBuilder()
-                .withMetadata(new V1ObjectMetaBuilder()
-                        .withLabels(labels)
-                        .build())
-                .withSpec(new V1PodSpecBuilder()
-                        .withContainers(container(name, image, envs, List.of(), request, limit, probe))
-                        .build())
-                .build();
-        var spec = new V1DeploymentSpecBuilder()
-                .withSelector(selector)
-                .withReplicas(replicas)
-                .withTemplate(template)
-                .build();
-        return new V1DeploymentBuilder()
-                .withMetadata(new V1ObjectMetaBuilder()
-                        .withName(name)
-                        .withLabels(labels)
-                        .build())
-                .withSpec(spec)
-                .build();
     }
 
     // TODO - in the future we want to merge the (1) configurable datajob template
@@ -1297,7 +1176,7 @@ public abstract class KubernetesService implements InitializingBean {
                                    Map<String, String> jobDeploymentAnnotations,
                                    Map<String, String> jobPodLabels,
                                    Map<String, String> jobAnnotations,
-                                   Map<String, String> jobLabels) {
+                                   Map<String, String> jobLabels, String imagePullSecret) {
         V1beta1CronJob cronjob = loadCronjobTemplate();
         checkForMissingEntries(cronjob);
         cronjob.getMetadata().setName(name);
@@ -1313,12 +1192,15 @@ public abstract class KubernetesService implements InitializingBean {
         cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations().putAll(jobAnnotations);
         cronjob.getSpec().getJobTemplate().getMetadata().getLabels().putAll(jobLabels);
 
-        return cronjob;
-    }
+        if(!StringUtils.isEmpty(imagePullSecret)) {
+            var imagePullSecretObj = new V1LocalObjectReferenceBuilder()
+                    .withName(imagePullSecret)
+                    .build();
+            cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setImagePullSecrets(List.of(imagePullSecretObj));
+        }
 
-    private static V1Container container(String name, String image, Map<String, String> envs, List<String> args,
-                                         Resources request, Resources limit, Probe probe) {
-        return container(name, image, false, envs, args, Collections.emptyList(), "IfNotPresent", request, limit, probe);
+
+        return cronjob;
     }
 
     private static V1Container container(String name, String image, boolean privileged, Map<String, String> envs,
@@ -1402,7 +1284,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     /**
-     * Removes secrete with given name if it exists.
+     * Removes secret with given name if it exists.
      */
     public void removeSecretData(String name) throws ApiException {
         log.debug("Deleting k8s secret: {}", name);
@@ -1413,6 +1295,7 @@ public abstract class KubernetesService implements InitializingBean {
             if (e.getCode() == 404) {
                 log.debug("Already deleted: k8s secret: {}");
             } else {
+                log.error("Failed to remove K8S secret {}", name);
                 throw e;
             }
         }
@@ -1435,14 +1318,36 @@ public abstract class KubernetesService implements InitializingBean {
         try {
             nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null);
         } catch (ApiException e) {
+            log.warn("Error while trying to save K8S secret", e);
             if (e.getCode() == 404) {
-                log.debug("Secret {} does not exits. Creating ...");
+                log.debug("Secret {} does not exist. Creating ...", name);
                 nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null);
             } else {
+                log.error("Failed to save k8s secret: {}" , name);
                 throw e;
             }
         }
         log.debug("Saved k8s secret: {}", name);
+        logSecretDebugInformation(nsSecret);
+    }
+
+    /**
+     * This method logs secret information for debugging purposes.
+     * While also omitting any sensitive data. We don't want to throw
+     * any exceptions from this method, since it is only meant for logging.
+     *
+     * @param nsSecret
+     */
+    private void logSecretDebugInformation(V1Secret nsSecret) {
+        try {
+            var dataKeys = Optional.ofNullable(nsSecret.getData()).map(secret -> secret.keySet()).orElse(null);
+            var metaData = Optional.ofNullable(nsSecret.getMetadata()).map(secret -> secret.toString()).orElse(null);
+            var stringDataKeys = Optional.ofNullable(nsSecret.getStringData()).map(secret -> secret.keySet()).orElse(null);
+            log.debug("Replaced namespaced secret. Data keys : {}, MetaData: {}, StringData keys: {}, Type: {}, ApiVer: {}",
+                    dataKeys, metaData, stringDataKeys, nsSecret.getType(), nsSecret.getApiVersion());
+        } catch (Exception e) {
+            log.debug("Could not log secret information due to: ", e);
+        }
     }
 
     private V1Secret buildV1Secret(String name, Map<String, byte[]> data) {
@@ -1475,6 +1380,15 @@ public abstract class KubernetesService implements InitializingBean {
                 String image = containers.get(0).getImage(); // TODO: Have 2 containers. 1 for VDK and 1 for the job.
                 deployment.setImageName(image); // TODO do we really need to return image_name?
             }
+            var initContainers = cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getInitContainers();
+            if (!CollectionUtils.isEmpty(initContainers)) {
+                String vdkImage = initContainers.get(0).getImage();
+                deployment.setVdkImageName(vdkImage);
+                deployment.setVdkVersion(DockerImageName.getTag(vdkImage));
+            } else {
+                log.warn("Missing init container for cronjob {}", cronJobName);
+            }
+
             var labels = cronJob.getSpec().getJobTemplate().getMetadata().getLabels();
             if (labels == null) {
                 log.warn("The cronjob of data job '{}' does not have any labels defined.", deployment.getDataJobName());
@@ -1483,21 +1397,28 @@ public abstract class KubernetesService implements InitializingBean {
                 deployment.setGitCommitSha(labels.get(JobLabel.VERSION.getValue()));
             } else {
                 // Legacy approach to get version:
-                String[] parts = deployment.getImageName().split(":");
-                deployment.setGitCommitSha(parts[parts.length - 1]);
+                deployment.setGitCommitSha(DockerImageName.getTag(deployment.getImageName()));
             }
         }
 
       return Optional.ofNullable(deployment);
    }
 
-    private static int convertMemoryToMBs(Quantity quantity) {
-        long divider = 1024;
-
+    /**
+     * Default for testing purposes.
+     * This method returns the megabytes amount contained in a
+     * quantity.
+     *
+     * @param quantity the quantity to convert.
+     * @return integer MB's in the quantity
+     */
+    static int convertMemoryToMBs(Quantity quantity) {
+        var divider = BigInteger.valueOf(1024);
         if (quantity.getFormat().getBase() == 10) {
-            divider = 1000;
+            divider = BigInteger.valueOf(1000);
         }
-
-        return (int) (quantity.getNumber().intValue() / (divider * divider));
+        return quantity.getNumber().toBigInteger()
+                       .divide(divider.multiply(divider))
+                       .intValue();
     }
 }

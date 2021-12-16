@@ -7,6 +7,8 @@ package com.vmware.taurus.datajobs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.controlplane.model.data.*;
+import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +18,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class TestUtils {
+
+   public static final String TEST_TEAM_NAME = "test-team-name";
+
    private static final ObjectMapper mapper = new ObjectMapper();
 
    //@NotNull
@@ -76,5 +81,26 @@ public class TestUtils {
               teamName, jobName, jobName);
       var mockExecution = mockMvc.perform(post(url).content(body).contentType(MediaType.APPLICATION_JSON));
       return mockExecution;
+   }
+
+   public static JobDeploymentStatus getJobDeploymentStatus() {
+      JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
+      jobDeploymentStatus.setGitCommitSha("version");
+      jobDeploymentStatus.setEnabled(true);
+      jobDeploymentStatus.setImageName("test-job-image-name");
+      jobDeploymentStatus.setMode("mode");
+      jobDeploymentStatus.setCronJobName("cron");
+      return jobDeploymentStatus;
+   }
+
+   public static JobDeployment getJobDeployment() {
+      JobDeployment jobDeployment = new JobDeployment();
+      jobDeployment.setDataJobTeam(TestUtils.TEST_TEAM_NAME);
+      jobDeployment.setGitCommitSha("version");
+      jobDeployment.setEnabled(true);
+      jobDeployment.setImageName("test-job-image-name");
+      jobDeployment.setMode("mode");
+      jobDeployment.setCronJobName("cron");
+      return jobDeployment;
    }
 }

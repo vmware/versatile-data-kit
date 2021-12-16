@@ -18,7 +18,10 @@ import java.time.OffsetDateTime;
 
 public class ToApiModelConverterJobExecutionTest {
 
+    private static final String TEST_LOGS_URL = "http://logs/jobs?filter=job-name";
+
     private DataJobExecution expected;
+
     private com.vmware.taurus.service.model.DataJobExecution toConvert;
 
     @BeforeEach
@@ -52,6 +55,7 @@ public class ToApiModelConverterJobExecutionTest {
         expected.setEndTime(OffsetDateTime.MAX);
         expected.setJobName("Job");
         expected.setStatus(DataJobExecution.StatusEnum.RUNNING);
+        expected.setLogsUrl(TEST_LOGS_URL);
 
         toConvert = new com.vmware.taurus.service.model.DataJobExecution();
         toConvert.setEndTime(OffsetDateTime.MAX);
@@ -76,15 +80,15 @@ public class ToApiModelConverterJobExecutionTest {
 
     @Test
     public void testConvertDataJobExecution() {
-        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert);
+        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert, TEST_LOGS_URL);
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     public void testDifferentStatus() {
-        expected.setStatus(DataJobExecution.StatusEnum.FAILED);
-        toConvert.setStatus(ExecutionStatus.FAILED);
-        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert);
+        expected.setStatus(DataJobExecution.StatusEnum.PLATFORM_ERROR);
+        toConvert.setStatus(ExecutionStatus.PLATFORM_ERROR);
+        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert, TEST_LOGS_URL);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -93,7 +97,7 @@ public class ToApiModelConverterJobExecutionTest {
     public void testDifferentType() {
         expected.setType(DataJobExecution.TypeEnum.MANUAL);
         toConvert.setType(ExecutionType.MANUAL);
-        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert);
+        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert, TEST_LOGS_URL);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -105,7 +109,7 @@ public class ToApiModelConverterJobExecutionTest {
 
         toConvert.setEndTime(null);
         toConvert.setMessage(null);
-        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert);
+        var actual = ToApiModelConverter.jobExecutionToConvert(toConvert, TEST_LOGS_URL);
 
         Assertions.assertEquals(expected, actual);
     }

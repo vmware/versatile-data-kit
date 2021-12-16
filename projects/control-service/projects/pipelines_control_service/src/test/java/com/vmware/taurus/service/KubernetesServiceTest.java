@@ -205,7 +205,7 @@ public class KubernetesServiceTest {
                 Assertions.fail("The method 'cronJobFromTemplate' does not exist.");
             }
             method.get().setAccessible(true);
-            V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP);
+            V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, "");
             Assertions.assertEquals("test-job-name", cronjob.getMetadata().getName());
             Assertions.assertEquals("test-job-schedule", cronjob.getSpec().getSchedule());
             Assertions.assertEquals(true, cronjob.getSpec().isSuspend());
@@ -216,6 +216,46 @@ public class KubernetesServiceTest {
             e.printStackTrace();
             Assertions.fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void testQuantityToMbConversionMegabytes() throws Exception {
+        var hundredMb = "100M";
+        testQuantityToMbConversion(100, hundredMb);
+
+        var thousandMb = "1000M";
+        testQuantityToMbConversion(1000, thousandMb);
+        // this should be enough for overflow errors on the method to manifest.
+        var tenThousandMb = "10000M";
+        testQuantityToMbConversion(10000, tenThousandMb);
+
+        var hundredThousandMb = "100000M";
+        testQuantityToMbConversion(100000, hundredThousandMb);
+
+    }
+
+    @Test
+    public void testQuantityConversionGigabytes() throws Exception {
+        var oneG = "1G";
+        testQuantityToMbConversion(1000, oneG);
+
+        var twoG = "2G";
+        testQuantityToMbConversion(2000, twoG);
+        // this should be enough for overflow errors on the method to manifest.
+        var threeG = "3G";
+        testQuantityToMbConversion(3000, threeG);
+
+        var fourG = "4G";
+        testQuantityToMbConversion(4000, fourG);
+
+        var sixtyFourG = "64G";
+        testQuantityToMbConversion(64000, sixtyFourG);
+    }
+
+    public void testQuantityToMbConversion(int expectedMb, String providedResources) throws Exception {
+        var q = Quantity.fromString(providedResources);
+        var actual = KubernetesService.convertMemoryToMBs(q);
+        Assertions.assertEquals(expectedMb, actual);
     }
 
 }

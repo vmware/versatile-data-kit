@@ -145,7 +145,7 @@ class ConfigurationBuilder:
         self,
         key: ConfigKey,
         default_value: ConfigValue,
-        show_default_value=False,
+        show_default_value=True,
         description=None,
     ) -> ConfigurationBuilder:
         """

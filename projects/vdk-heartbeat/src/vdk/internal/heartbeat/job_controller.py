@@ -23,11 +23,44 @@ class JobController:
 
     def __init__(self, config: Config):
         self.config = config
-        log.info(
-            f"Using Control Service REST API URL: {config.control_api_url} "
-            f"with job {config.job_name} and team {config.job_team}."
-            f"Authorization endpoint: {config.vdkcli_oauth2_uri}"
+        control_api_url_message = (
+            config.control_api_url
+            or "Not set (default from VDK's configuration will be used)"
         )
+        auth_endpoint_message = (
+            config.vdkcli_oauth2_uri
+            or "Not set (default from VDK's configuration will be used)"
+        )
+        log.info(
+            f"Using Control Service REST API URL: {control_api_url_message} "
+            f"with job {config.job_name} and team {config.job_team}. "
+            f"Authorization endpoint: {auth_endpoint_message}"
+        )
+
+    # If no value is found, argument will not be passed and default configuration will be used
+    def __get_api_token_authorization_url_arg(self):
+        if self.config.vdkcli_oauth2_uri:
+            return ["-u", f"{self.config.vdkcli_oauth2_uri}"]
+        else:
+            return []
+
+    # If no value is found, argument will not be passed and default configuration will be used
+    def __get_rest_api_url_arg(self):
+        if self.config.control_api_url:
+            return ["-u", f"{self.config.control_api_url}"]
+        else:
+            return []
+
+    # Set data job deployment to use a specific VDK version (if configured)
+    def __get_vdk_version_arg(self):
+        if self.config.deploy_job_vdk_version:
+            return [
+                "--update",
+                "--vdk-version",
+                f"{self.config.deploy_job_vdk_version}",
+            ]
+        else:
+            return []
 
     def _execute(self, command):
         # base_command = [f"python", "-m", "vdk.internal.control.main"]
@@ -35,6 +68,12 @@ class JobController:
         full_command = base_command + command
         log.debug(f"Command: {full_command}")
         try:
+            os.environ.update(
+                {
+                    "VDK_OP_ID": self.config.op_id,
+                    "VDK_OP_ID_OVERRIDE": self.config.op_id,
+                }
+            )
             out = subprocess.check_output(full_command)
             log.debug(f"out: {out}")
             return out
@@ -46,31 +85,32 @@ class JobController:
 
     @LogDecorator(log)
     def login(self):
-        self._execute(
-            [
-                "login",
-                "-u",
-                f"{self.config.vdkcli_oauth2_uri}",
-                "-a",
-                f"{self.config.vdkcli_api_refresh_token}",
-                "-t",
-                "api-token",
-            ]
-        )
+        if self.config.vdkcli_api_refresh_token:
+            self._execute(
+                [
+                    "login",
+                    "-a",
+                    f"{self.config.vdkcli_api_refresh_token}",
+                    "-t",
+                    "api-token",
+                ]
+                + self.__get_api_token_authorization_url_arg()
+            )
+        else:
+            log.info("Running against control service without authentication.")
 
     @LogDecorator(log)
     def delete_job(self):
         self._execute(
             [
                 "delete",
-                "-u",
-                self.config.control_api_url,
                 "-n",
                 self.config.job_name,
                 "-t",
                 self.config.job_team,
                 "--yes",
             ]
+            + self.__get_rest_api_url_arg()
         )
 
     @LogDecorator(log)
@@ -79,8 +119,6 @@ class JobController:
             self._execute(
                 [
                     "create",
-                    "-u",
-                    self.config.control_api_url,
                     "-n",
                     self.config.job_name,
                     "-t",
@@ -88,6 +126,7 @@ class JobController:
                     "-p",
                     tmpdir,
                 ]
+                + self.__get_rest_api_url_arg()
             )
 
     @LogDecorator(log)
@@ -97,11 +136,10 @@ class JobController:
                 "list",
                 "-o",
                 "json",
-                "-u",
-                self.config.control_api_url,
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_rest_api_url_arg()
         )
         res = json.loads(res)
         assert filter(
@@ -113,8 +151,6 @@ class JobController:
         res = self._execute(
             [
                 "show",
-                "-u",
-                self.config.control_api_url,
                 "-o",
                 "json",
                 "-n",
@@ -122,6 +158,7 @@ class JobController:
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_rest_api_url_arg()
         )
         res = json.loads(res)
         log.info(
@@ -133,14 +170,13 @@ class JobController:
         res = self._execute(
             [
                 "execute",
-                "-u",
-                self.config.control_api_url,
                 "--logs",
                 "-n",
                 self.config.job_name,
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_rest_api_url_arg()
         )
         logs = res.decode("unicode_escape") if res else res
         log.info(
@@ -158,13 +194,12 @@ class JobController:
                     "--show",
                     "-o",
                     "json",
-                    "-u",
-                    self.config.control_api_url,
                     "-n",
                     self.config.job_name,
                     "-t",
                     self.config.job_team,
                 ]
+                + self.__get_rest_api_url_arg()
             )
             deployments = json.loads(deployments)
             if not deployments:
@@ -183,13 +218,12 @@ class JobController:
                 "--list",
                 "-o",
                 "json",
-                "-u",
-                self.config.control_api_url,
                 "-n",
                 self.config.job_name,
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_rest_api_url_arg()
         )
         return json.loads(res)
 
@@ -201,28 +235,27 @@ class JobController:
                 "--set",
                 key,
                 value,
-                "-u",
-                self.config.control_api_url,
                 "-n",
                 self.config.job_name,
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_rest_api_url_arg()
         )
 
     @LogDecorator(log)
-    def enable_deployment(self):
+    def enable_deployment_and_update_vdk_version(self):
         self._execute(
             [
                 "deploy",
                 "--enable",
-                "-u",
-                self.config.control_api_url,
                 "-n",
                 self.config.job_name,
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_vdk_version_arg()
+            + self.__get_rest_api_url_arg()
         )
 
     @LogDecorator(log)
@@ -231,13 +264,12 @@ class JobController:
             [
                 "deploy",
                 "--disable",
-                "-u",
-                self.config.control_api_url,
                 "-n",
                 self.config.job_name,
                 "-t",
                 self.config.job_team,
             ]
+            + self.__get_rest_api_url_arg()
         )
 
     @LogDecorator(log)
@@ -250,8 +282,6 @@ class JobController:
             self._execute(
                 [
                     "deploy",
-                    "-u",
-                    self.config.control_api_url,
                     "-n",
                     self.config.job_name,
                     "-t",
@@ -261,6 +291,7 @@ class JobController:
                     "-r",
                     "Updating heartbeat data job",
                 ]
+                + self.__get_rest_api_url_arg()
             )
 
     @LogDecorator(log)
@@ -276,9 +307,8 @@ class JobController:
                 self.config.job_name,
                 "-o",
                 "json",
-                "-u",
-                self.config.control_api_url,
             ]
+            + self.__get_rest_api_url_arg()
         )
 
         job_execution_id = json.loads(job_execution)["execution_id"]
@@ -293,11 +323,10 @@ class JobController:
                 self.config.job_name,
                 "-o",
                 "json",
-                "-u",
-                self.config.control_api_url,
                 "--execution-id",
                 str(job_execution_id),
             ]
+            + self.__get_rest_api_url_arg()
         )
         execution_response = json.loads(response)
 
@@ -325,9 +354,8 @@ class JobController:
                     "-n",
                     self.config.job_name,
                     "-o" "json",
-                    "-u",
-                    self.config.control_api_url,
                 ]
+                + self.__get_rest_api_url_arg()
             )
             execution_list = json.loads(response)
 
@@ -405,6 +433,10 @@ def run(job_input):
     props['table_load_destination'] = "{self.config.DATABASE_TEST_TABLE_LOAD_DESTINATION}"
     props['job_name'] = "{self.config.job_name}"
     props['execute_template'] = "{self.config.check_template_execution}"
+    props['ingest_target'] = "{self.config.INGEST_TARGET}"
+    props['ingest_method'] = "{self.config.INGEST_METHOD}"
+    props['ingest_destination_table'] = "{self.config.INGEST_DESTINATION_TABLE}"
+    props['ingest_timeout'] = "{self.config.INGEST_TIMEOUT}"
     job_input.set_all_properties(props)
         """
 

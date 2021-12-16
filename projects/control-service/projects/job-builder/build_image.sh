@@ -3,8 +3,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-set -ex
-
 # TODO: replace those as env variables
 aws_access_key_id=$1
 aws_secret_access_key=$2
@@ -17,6 +15,11 @@ registry_type=$8
 registry_username=$9
 registry_password=${10}
 
+# Echo selected data to be logged
+echo "AWS_REGION=$aws_region"
+echo "DOCKER_REGISTRY=$docker_registry"
+echo "GIT_REPOSITORY=$git_repository"
+echo "REGISTRY_TYPE=$registry_type"
 
 # We default to generic repo.
 # We have special support for ECR because

@@ -7,6 +7,7 @@ package com.vmware.taurus.service.monitoring;
 
 import com.google.common.collect.Streams;
 import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
@@ -14,7 +15,6 @@ import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionResult;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.ApiException;
@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class DataJobMonitor {
 
     private final JobsRepository jobsRepository;
     private final DataJobsKubernetesService dataJobsKubernetesService;
+    private final JobsService jobsService;
     private final JobExecutionService jobExecutionService;
     private final DataJobMetrics dataJobMetrics;
 
@@ -52,10 +54,12 @@ public class DataJobMonitor {
     public DataJobMonitor(
             JobsRepository jobsRepository,
             DataJobsKubernetesService dataJobsKubernetesService,
+            JobsService jobsService,
             JobExecutionService jobExecutionService,
             DataJobMetrics dataJobMetrics) {
         this.dataJobsKubernetesService = dataJobsKubernetesService;
         this.jobsRepository = jobsRepository;
+        this.jobsService = jobsService;
         this.jobExecutionService = jobExecutionService;
         this.dataJobMetrics = dataJobMetrics;
     }
@@ -91,7 +95,7 @@ public class DataJobMonitor {
                     labelsToWatch,
                     s -> {
                         log.info("Termination message of Data Job {} with execution {}: {}",
-                                s.getJobName(), s.getExecutionId(), s.getTerminationMessage());
+                                s.getJobName(), s.getExecutionId(), s.getPodTerminationMessage());
                         recordJobExecutionStatus(s);
                     },
                     runningJobExecutionIds -> {
@@ -169,10 +173,10 @@ public class DataJobMonitor {
      * @param jobStatus - the job status of the job. The same information is sent as telemetry by Measureable annotation.
      */
     @Measurable(includeArg = 0, argName = "execution_status")
+    @Transactional
     void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
-        String executionId = jobStatus.getExecutionId();
         ExecutionResult executionResult = JobExecutionResultManager.getResult(jobStatus);
 
         if (StringUtils.isBlank(dataJobName)) {
@@ -186,44 +190,18 @@ public class DataJobMonitor {
             return;
         }
 
-        var dataJob = dataJobOptional.get();
-        if (shouldUpdateTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus())) {
-            dataJob = saveTerminationStatus(dataJob, executionId, executionResult.getTerminationStatus());
-            updateDataJobTerminationStatusGauge(dataJob);
-        }
+        final DataJob dataJob = dataJobOptional.get();
 
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
-    }
+        // Update the job execution and the last execution state
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult)
+                .ifPresent(jobsService::updateLastExecution);
 
-
-    private boolean shouldUpdateTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        if (terminationStatus == null ||
-                terminationStatus == ExecutionTerminationStatus.NONE ||
-                terminationStatus == ExecutionTerminationStatus.SKIPPED) {
-            log.debug("The termination status of data job {} will not be updated. New status is: {}", dataJob.getName(), terminationStatus);
-            return false;
-        }
-        return dataJob.getLatestJobTerminationStatus() != terminationStatus ||
-                StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId);
-    }
-
-    /**
-     * Updates the latest termination status of the data job with the specified name (if it exists)
-     * in the jobs repository.
-     *
-     * @param dataJob           the data job to be updated
-     * @param executionId       The execution identifier.
-     * @param terminationStatus The termination status of the job.
-     * @return The updated data job.
-     */
-    private DataJob saveTerminationStatus(DataJob dataJob, String executionId, ExecutionTerminationStatus terminationStatus) {
-        ExecutionTerminationStatus previousTerminationStatus = dataJob.getLatestJobTerminationStatus();
-        dataJob.setLatestJobTerminationStatus(terminationStatus);
-        dataJob.setLatestJobExecutionId(executionId);
-
-        log.debug("Update termination status of data job {} with execution {} from {} to {}",
-                dataJob.getName(), executionId, previousTerminationStatus, terminationStatus);
-
-        return jobsRepository.save(dataJob);
+        // Update the termination status from the last execution
+        jobExecutionService.getLastExecution(dataJobName)
+                .ifPresent(e -> {
+                    if (jobsService.updateTerminationStatus(e)) {
+                        jobsRepository.findById(dataJobName).ifPresent(this::updateDataJobTerminationStatusGauge);
+                    }
+                });
     }
 }

@@ -8,13 +8,16 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
+import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 /**
  * Integration tests of the setup of Spring Data repository for data jobs
@@ -37,7 +40,7 @@ public class JobsRepositoryIT {
    public void testLoadEmbedded() {
       JobConfig config = new JobConfig();
       config.setSchedule("schedule");
-      var entity = new DataJob("hello", config, DeploymentStatus.NONE, ExecutionTerminationStatus.USER_ERROR, "1234");
+      var entity = new DataJob("hello", config, DeploymentStatus.NONE, ExecutionStatus.USER_ERROR, "1234");
       var savedEntity = repository.save(entity);
       Assertions.assertEquals(entity, savedEntity);
 
@@ -69,5 +72,39 @@ public class JobsRepositoryIT {
       var persistedEntity = repository.findById("hello");
       Assertions.assertTrue(persistedEntity.isPresent());
       Assertions.assertFalse(persistedEntity.get().getEnabled());
+   }
+
+   @Test
+   void testUpdateDataJobLastExecutionByName() {
+      var entity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
+      entity.setLastExecutionStatus(ExecutionStatus.PLATFORM_ERROR);
+      entity.setLastExecutionEndTime(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+      entity.setLastExecutionDuration(100);
+      repository.save(entity);
+
+      repository.updateDataJobLastExecutionByName("hello", ExecutionStatus.SUCCEEDED,
+              OffsetDateTime.of(2000, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC), 200);
+
+      var persistedEntity = repository.findById("hello");
+      Assertions.assertTrue(persistedEntity.isPresent());
+      Assertions.assertEquals(ExecutionStatus.SUCCEEDED, persistedEntity.get().getLastExecutionStatus());
+      Assertions.assertEquals(OffsetDateTime.of(2000, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC),
+              persistedEntity.get().getLastExecutionEndTime().toInstant().atOffset(ZoneOffset.UTC));
+      Assertions.assertEquals(200, persistedEntity.get().getLastExecutionDuration());
+   }
+
+   @Test
+   void testUpdateDataJobLatestTerminationStatus() {
+      var entity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
+      entity.setLatestJobTerminationStatus(ExecutionStatus.SUCCEEDED);
+      entity.setLatestJobExecutionId("old-id");
+      repository.save(entity);
+
+      repository.updateDataJobLatestTerminationStatusByName("hello", ExecutionStatus.USER_ERROR, "new-id");
+
+      var persistedEntity = repository.findById("hello");
+      Assertions.assertTrue(persistedEntity.isPresent());
+      Assertions.assertEquals(ExecutionStatus.USER_ERROR, persistedEntity.get().getLatestJobTerminationStatus());
+      Assertions.assertEquals("new-id", persistedEntity.get().getLatestJobExecutionId());
    }
 }

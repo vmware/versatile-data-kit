@@ -11,11 +11,57 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+1.3 - 09.11.2021
+----
+* **Bug fixes**
+  * Classify K8s pod OOM errors as UserError.
+
+* **Improvement**
+  * Users can now set vdk version (vdk image tag in reality)
+    This would enable canary release of vdk, A/B testing.
+    https://github.com/vmware/versatile-data-kit/issues/377
+
+
+1.3 - 03.11.2021
+----
+* **Bug fixes**
+  * Remove debug mode for data job build and release script.
+
+
+1.3 - 02.11.2021
+----
+* **Bug fixes**
+  * Remove logging of credentials in builder jobs.
+
+
+1.3 - 2.11.2021
+----
+* **Improvement**
+  * Reduce the default maximum duration of a data job execution to 12 hours
+
+
+1.3 - 22.10.2021
+----
+* **Bug fixes**
+  * Proper classification of data job requirements.txt errors
+
+
+1.3 - 26.10.2021
+----
+* **Bug fixes**
+  * Job executions that are terminated due to timeout are now classified as User Error.
+
+
+1.3 - 25.10.2021
+----
+* **Improvement**
+  * Add Kubernetes namespace as label to notification alerts.
+
 
 1.3 - 21.10.2021
 ----
 * **Bug fixes**
-  * Clean up metrics when data jobs are deleted
+  * Clean up metrics when data jobs are deleted.
 
 
 1.3 - 08.10.2021

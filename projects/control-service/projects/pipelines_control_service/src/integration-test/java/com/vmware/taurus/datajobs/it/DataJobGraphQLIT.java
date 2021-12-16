@@ -8,22 +8,27 @@ package com.vmware.taurus.datajobs.it;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.NEW_TEST_TEAM_NAME;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_1;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_2;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_3;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_4;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_5;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_6;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 public class DataJobGraphQLIT extends BaseIT {
 
-   private static final Logger LOG = LoggerFactory.getLogger(DataJobGraphQLIT.class);
    private static final String DEFAULT_QUERY_WITH_VARS =
          "query($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
                "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
@@ -191,61 +196,6 @@ public class DataJobGraphQLIT extends BaseIT {
       deleteDummyJobs();
    }
 
-   @Test
-   public void testGraphQLFields() throws Exception {
-      String dataJobTestBodyOne = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_1);
-      createJob(dataJobTestBodyOne, TEST_TEAM_NAME);
-
-      // Test requesting of fields that are computed
-      String contentAsString = mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-            .with(user("user"))
-            .param("query",
-                  "query($filter: [Predicate], $executionFilter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) {" +
-                  "  jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search) {" +
-                  "    content {" +
-                  "      jobName" +
-                  "      deployments {" +
-                  "        id" +
-                  "        enabled" +
-                  "        executions(pageNumber: 1, pageSize: 5, filter: $executionFilter) {" +
-                  "          id" +
-                  "          status" +
-                  "        }" +
-                  "      }" +
-                  "      config {" +
-                  "        team" +
-                  "        description" +
-                  "        schedule {" +
-                  "          scheduleCron" +
-                  "          nextRunEpochSeconds" +
-                  "        }" +
-                  "      }" +
-                  "    }" +
-                  "    totalPages" +
-                  "    totalItems" +
-                  "  }" +
-                  "}")
-            .param("variables", "{" +
-                  "\"search\": \"" + TEST_JOB_1 + "\"," +
-                  "\"pageNumber\": 1," +
-                  "\"pageSize\": 10," +
-                  "\"executionFilter\": [" +
-                  "    {" +
-                  "      \"sort\": \"DESC\"," +
-                  "      \"property\": \"deployments.executions.status\"" +
-                  "    }" +
-                  "  ]" +
-                  "}")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.content[0].config.team", is(TEST_TEAM_NAME)))
-            .andExpect(jsonPath("$.data.content[0].config.schedule.scheduleCron", is(TEST_JOB_SCHEDULE)))
-            .andExpect(jsonPath("$.data.content[0].config.schedule.nextRunEpochSeconds", greaterThan(1)))
-            .andReturn().getResponse().getContentAsString();
-
-      deleteJob(TEST_JOB_1, TEST_TEAM_NAME);
-   }
-
    private void createDummyJobs() throws Exception {
       // Setup by creating 3 jobs in 2 separate teams (6 jobs total)
       String dataJobTestBodyOne = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_1);
@@ -286,7 +236,7 @@ public class DataJobGraphQLIT extends BaseIT {
    }
 
    private void deleteJob(String jobName, String teamName) throws Exception {
-      ResultActions resultActions = mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
+      mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
             .with(user("user"))
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());

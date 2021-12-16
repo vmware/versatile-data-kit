@@ -58,12 +58,14 @@ public class NotificationContent {
     private InternetAddress[] recipients;
     private String subject;
     private String content;
+    private List<String> ccEmails;
 
 
     public NotificationContent(JobConfig jobConfig, String stage,
-                               String status, String ownerName, String ownerEmail)
+                               String status, String ownerName, String ownerEmail, List<String> ccEmails)
             throws AddressException {
         this.sender = new InternetAddress(ownerEmail);
+        this.ccEmails = ccEmails;
         // TODO: all recipients are defined in notified_on_job_deploy in the job's ini file for now
         this.recipients = createInternetAddresses(jobConfig.getNotifiedOnJobDeploy());
         this.subject = formatNotificationSubject(stage, status, jobConfig.getJobName());
@@ -71,9 +73,10 @@ public class NotificationContent {
     }
 
     public NotificationContent(JobConfig jobConfig, String stage,
-                               String status, String errName, String errBody, String ownerName, String ownerEmail)
+                               String status, String errName, String errBody, String ownerName, String ownerEmail, List<String> ccEmails)
             throws AddressException {
         this.sender = new InternetAddress(ownerEmail);
+        this.ccEmails = ccEmails;
         this.recipients = createInternetAddresses(jobConfig.getNotifiedOnJobDeploy());
         this.subject = formatNotificationSubject(stage, status, jobConfig.getJobName());
         String errorContent = formatErrNotificationContent(jobConfig.getJobName(), errName, errBody);
@@ -96,6 +99,9 @@ public class NotificationContent {
 
     private InternetAddress[] createInternetAddresses(List<String> recipients) throws AddressException {
         List<InternetAddress> ccAddresses = new ArrayList();
+        for (String cc : this.ccEmails) {
+            ccAddresses.add(new InternetAddress(cc));
+        }
         for (String receiver : recipients) {
             ccAddresses.add(new InternetAddress(receiver));
         }

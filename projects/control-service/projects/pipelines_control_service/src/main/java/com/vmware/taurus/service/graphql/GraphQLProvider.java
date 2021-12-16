@@ -8,12 +8,12 @@ package com.vmware.taurus.service.graphql;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import graphql.GraphQL;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -28,13 +28,19 @@ public class GraphQLProvider {
 
    private GraphQL graphQL;
 
+   private GraphQLDataFetchers graphQLDataFetchers;
+
+   private ExecutionDataFetcher executionDataFetcher;
+
+   public GraphQLProvider(GraphQLDataFetchers graphQLDataFetchers, ExecutionDataFetcher executionDataFetcher) {
+      this.graphQLDataFetchers = graphQLDataFetchers;
+      this.executionDataFetcher = executionDataFetcher;
+   }
+
    @Bean
    public GraphQL graphQL() {
       return graphQL;
    }
-
-   @Autowired
-   GraphQLDataFetchers graphQLDataFetchers;
 
    @PostConstruct
    public void init() throws IOException {
@@ -54,8 +60,10 @@ public class GraphQLProvider {
 
    private RuntimeWiring buildWiring() {
       return RuntimeWiring.newRuntimeWiring()
+            .scalar(ExtendedScalars.DateTime)
             .type(newTypeWiring("Query")
-                  .dataFetcher("jobs", graphQLDataFetchers.findAllAndBuildDataJobPage()))
+                  .dataFetcher(GraphQLUtils.JOBS_QUERY, graphQLDataFetchers.findAllAndBuildDataJobPage())
+                  .dataFetcher(GraphQLUtils.EXECUTIONS_QUERY, executionDataFetcher.findAllAndBuildResponse()))
             .build();
    }
 }

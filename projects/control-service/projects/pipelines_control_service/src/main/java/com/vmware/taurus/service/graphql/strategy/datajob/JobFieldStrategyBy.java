@@ -20,11 +20,17 @@ public enum JobFieldStrategyBy {
    DEPLOYMENT("deployments", "content/deployments"),
    DEPLOYMENT_ENABLED("deployments.enabled", "content/deployments/enabled"),
    DEPLOYMENT_EXECUTIONS("deployments.executions", "content/deployments/executions"),
+   DEPLOYMENT_LAST_EXECUTION_STATUS("deployments.lastExecutionStatus", "content/deployments/lastExecutionStatus"),
+   DEPLOYMENT_LAST_EXECUTION_TIME("deployments.lastExecutionTime", "content/deployments/lastExecutionTime"),
+   DEPLOYMENT_LAST_EXECUTION_DURATION("deployments.lastExecutionDuration", "content/deployments/lastExecutionDuration"),
+   DEPLOYMENT_FAILED_EXECUTIONS("deployments.failedExecutions", "content/deployments/failedExecutions"),
+   DEPLOYMENT_SUCCESSFUL_EXECUTIONS("deployments.successfulExecutions", "content/deployments/successfulExecutions"),
    TEAM("config.team", "content/config/team"),
    DESCRIPTION("config.description", "content/config/description"),
    SOURCE_URL("config.sourceUrl", "content/config/sourceUrl"),
    NEXT_RUN_EPOCH_SECS("config.schedule.nextRunEpochSeconds", "content/config/schedule/nextRunEpochSeconds"),
-   SCHEDULE_CRON("config.schedule.scheduleCron", "content/config/schedule/scheduleCron");
+   SCHEDULE_CRON("config.schedule.scheduleCron", "content/config/schedule/scheduleCron"),
+   DATA_JOB_CONTACTS("config.contacts.present", "content/config/contacts/present");
 
    private final String field;
    private final String path;

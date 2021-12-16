@@ -8,6 +8,7 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import NewType
 from typing import Optional
 from typing import Union
 
@@ -164,13 +165,80 @@ class IManagedConnectionRegistry:
 
 
 class IIngesterPlugin:
+    """
+    Interface representing the APIs that can be used when creating Ingester
+    Plugins. Plugins implement one of the methods, depending on their needs.
+    If more complex processing is required, plugins can be chained
+    together.
+
+    The lifecycles of the three methods are as follows:
+
+    ingest_payload() - plugins implementing this method are intended
+                       to do actual data ingestion. Versatile Data Kit will
+                       call this method when the payload that data engineers
+                       have passed is ready to be ingested.
+
+    pre_ingest_process() - plugins implementing this method do not aim at
+                        ingesting the payload, rather to do some processing
+                        of the payload before it is ingested.
+
+    post_ingest_process() - plugins implementing this method aim at doing
+                            some metadata processing after the payload is
+                            ingested. The main use-case is telemetry data
+                            collection.
+                            NOTE: This method can be used only by plugins
+                            that implement ingest_payload().
+
+    Example plugin chaining workflows:
+
+    Workflow 1
+    ----------
+    _____________________      _________________________      ______________
+    |      Data Job     |      |    vdk-ingest-http    |      |            |
+    |-------------------|      |-----------------------|      | Data Lake/ |
+    |                   |      |                       |      | Warehouse/ |
+    |send_object_       | ---> |   ingest_payload()    | ---> | Third-party|
+    |    for_ingestion()|      |                       |      | endpoint   |
+    |___________________|      |_______________________|      |____________|
+
+
+    Workflow 2
+    ----------                                                  ______________
+                                                                |            |
+    _____________________      ___________________________      | Data Lake/ |
+    |      Data Job     |      |     vdk-ingest-http     |      | Warehouse/ |
+    |-------------------|      |-------------------------|      | Third-party|
+    |                   |      | -- ingest_payload()     | ---> | endpoint   |
+    |send_object_       | ---> | |                       |      |____________|
+    |    for_ingestion()|      | |                       |      ______________
+    |                   |      | -->post_ingest_process()| ---> |            |
+    |___________________|      |_________________________|      | Telemetry  |
+                                                                | Endpoint   |
+                                                                |____________|
+
+    Workflow 3
+    ----------
+    _____________________   _______________   _____________   ______________
+    |      Data Job     |   |vdk-validate-|   |vdk-ingest-|   |            |
+    |                   |   |    data     |   |  http     |   |            |
+    |-------------------|   |-------------|   |-----------|   | Data Lake/ |
+    |                   |   |             |   |           |   | Warehouse/ |
+    |send_object_       |-->|pre_ingest   |-->|ingest     |-->| Third-party|
+    |    for_ingestion()|   |   _process()|   | _payload()|   | endpoint   |
+    |                   |   |             |   |           |   |            |
+    |___________________|   |_____________|   |___________|   |____________|
+    """
+
+    IngestionResult = NewType("IngestionResult", Dict)
+    IngestionMetadata = NewType("IngestionMetadata", Dict)
+
     def ingest_payload(
         self,
         payload: List[dict],
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
-    ):
+    ) -> Optional[IngestionResult]:
         """
         Do the actual ingestion of the payload
 
@@ -198,6 +266,87 @@ class IIngesterPlugin:
             invocations belong to same collection. Defaults to "data_job_name|OpID",
             meaning all method invocations from a data job run will belong to the
             same collection.
+
+        :return: [Optional] IngestionResult, containing plugin-defined
+        information about the result from the ingestion operation. This result
+        could be used for post-ingestion processing operations like sending
+        telemetry data about the ingested payload.
+
+        :exceptions: Exceptions raised while ingesting data can either be
+        handled at plugin level, or they will be automatically caught at the
+        vdk-core level.
+        """
+        pass
+
+    def pre_ingest_process(
+        self, payload: List[dict], metadata: Optional[IngestionMetadata] = None
+    ) -> (List[dict], Optional[IngestionMetadata]):
+        """
+        Do some processing on the ingestion payload before passing it to the
+        actual ingestion.
+
+        For example, if we want to ensure that all values in the payload are
+        string before the actual ingestion happens, we could have a plugin,
+        implementing this method, and doing some payload processing:
+
+        .. code-block:: python
+            def pre_ingest_process(self, payload: List[dict]) -> List[dict]:
+                # Ensure all values in the payload are strings
+                return [{k: str(v) for (k,v) in i.items()} for i in payload]
+
+        :param payload: List[dict] the ingestion payload to be processed.
+        :param metadata: Optional[IngestionMetadata] dict object containing
+        metadata produced by the pre-ingest plugin, and possibly used by
+        other pre-ingest, ingest, or post-ingest plugins.
+        :return: (List[dict], Optional[IngestionMetadata]), a tuple
+        containing the processed payload and possibly an IngestionMetadata
+        object.
+        """
+        pass
+
+    def post_ingest_process(
+        self,
+        payload: Optional[List[dict]] = None,
+        ingestion_result: Optional[IngestionResult] = None,
+        exceptions: Optional[List] = None,
+    ) -> None:
+        """
+        Do post-ingestion processing of the ingestion payload
+        or result data from the ingestion operation.
+
+        Example Implementation for telemetry:
+
+        .. code-block:: python
+
+            def post_ingest_process(
+                self,
+                payload: Optional[List[dict]],
+                ingestion_result: Optional[IngestionResult]
+                exceptions: Optional[List]
+            ) -> None:
+                # Prepare telemetry
+                telemetry = {}
+                payload_sizes = [sys.getsizeof(i) for i in payload]
+                telemetry['payload_size'] = sum(payload_sizes)
+                telemetry['caught_ingest_exceptions'] = exceptions
+                telemetry |= ingestion_result
+
+                # Send telemetry to wherever is needed.
+                requests.post('example.com', data=telemetry)
+
+
+        :param payload: Optional[List[dict]]
+            The payloads that have been ingested. Depending on the number
+            of payloads to be processed, there might 0 or many dict objects.
+            Each dict object is a separate payload.
+        :param ingestion_result: Optional[IngestionResult]
+            The result from the ingestion operation, or some information about
+            the ingestion operation and payload that plugin developers have
+            decided to process further. This result can be either an
+            IngestionResult object (which is effectively a dictionary), or
+            None.
+        :param exceptions: Optional[List]
+            A list of all exceptions (if any) encountered while ingesting data.
         """
         pass
 

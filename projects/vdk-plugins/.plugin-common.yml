@@ -1,0 +1,76 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+.build-plugin:
+  stage: build
+  before_script:
+    - cd projects/vdk-plugins/
+    - pip install -U pip
+    - pip install ./vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
+  script:
+    - echo "Build plugin $PLUGIN_NAME"
+    - cd ./$PLUGIN_NAME || exit 1
+    - ../build-plugin.sh
+  retry: !reference [.retry, retry_options]
+  rules: # we want to trigger build jobs if there are changes to this plugin,
+         # but not if there are changes to other plugins or the main directory
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+.release-plugin:
+  stage: release
+  before_script:
+    - cd projects/vdk-plugins/
+  script:
+    - echo "Release plugin $PLUGIN_NAME"
+    - cd $PLUGIN_NAME/ || exit 1
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
+    - pip install -U pip setuptools wheel twine
+    - python setup.py sdist --formats=gztar
+    # provide the credentials as Gitlab variables
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+       - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
+
+
+.release-vdk-image:
+  stage: release_image
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - cd projects/vdk-plugins/
+  script:
+    - echo "Build and release vdk image of plugin $PLUGIN_NAME"
+    - cd $PLUGIN_NAME/ || exit 1
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
+    - apk add --no-cache git bash python3
+    - python3 -V
+    - python3 -m pip install -U setuptools configparser
+    - export VDK_PACKAGE=$(python3 setup.py --name)
+    - export VDK_VERSION=$(python3 setup.py --version)
+    - export BUILD_TYPE=release
+    - bash -x ../../vdk-core/cicd/deploy-base-vdk-image.sh
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - "projects/vdk-plugins/$PLUGIN_NAME/**/*"

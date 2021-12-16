@@ -9,6 +9,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobPage;
 import com.vmware.taurus.controlplane.model.data.*;
 import com.vmware.taurus.service.Utilities;
+import com.vmware.taurus.service.graphql.GraphQLUtils;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.model.V2DataJobDeployment;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class ToApiModelConverter {
@@ -104,6 +106,7 @@ public class ToApiModelConverter {
       deployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
       deployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
       deployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
+      deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
 
       return deployment;
    }
@@ -122,7 +125,12 @@ public class ToApiModelConverter {
          return dataJobQueryResponse;
       }
 
-      LinkedHashMap<String, Object> nestedExecutionResultData = executionResultData.get("jobs");
+      String executionResultDataKey = GraphQLUtils.QUERIES
+            .stream()
+            .filter(query -> executionResultData.containsKey(query))
+            .findFirst()
+            .orElse(null);
+      LinkedHashMap<String, Object> nestedExecutionResultData = executionResultData.get(executionResultDataKey);
       if (nestedExecutionResultData == null) {
          return dataJobQueryResponse;
       }
@@ -136,7 +144,10 @@ public class ToApiModelConverter {
       return dataJobQueryResponse;
    }
 
-   public static V2DataJobDeployment toV2DataJobDeployment(JobDeploymentStatus jobDeploymentStatus) {
+   public static V2DataJobDeployment toV2DataJobDeployment(JobDeploymentStatus jobDeploymentStatus, DataJob sourceDataJob) {
+      Objects.requireNonNull(jobDeploymentStatus);
+      Objects.requireNonNull(sourceDataJob);
+
       var v2DataJobDeployment = new V2DataJobDeployment();
 
       v2DataJobDeployment.setId(jobDeploymentStatus.getCronJobName());
@@ -144,17 +155,23 @@ public class ToApiModelConverter {
       v2DataJobDeployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
       v2DataJobDeployment.setMode(DataJobMode.fromValue(jobDeploymentStatus.getMode()));
       v2DataJobDeployment.setResources(jobDeploymentStatus.getResources());
+      v2DataJobDeployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
+      v2DataJobDeployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
+      // TODO: Get these from the job deployment when they are available there
+      v2DataJobDeployment.setLastExecutionStatus(convertStatusEnum(sourceDataJob.getLastExecutionStatus()));
+      v2DataJobDeployment.setLastExecutionTime(sourceDataJob.getLastExecutionEndTime());
+      v2DataJobDeployment.setLastExecutionDuration(sourceDataJob.getLastExecutionDuration());
 
       // TODO finish mapping implementation in TAUR-1535
       v2DataJobDeployment.setContacts(new DataJobContacts());
       v2DataJobDeployment.setSchedule(new V2DataJobSchedule());
-      v2DataJobDeployment.setVdkVersion("");
+      v2DataJobDeployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
       v2DataJobDeployment.setExecutions(new ArrayList<>());
 
       return v2DataJobDeployment;
    }
 
-   public static DataJobExecution jobExecutionToConvert(com.vmware.taurus.service.model.DataJobExecution jobExecutionToConvert) {
+   public static DataJobExecution jobExecutionToConvert(com.vmware.taurus.service.model.DataJobExecution jobExecutionToConvert, String logsUrl) {
       return new DataJobExecution()
             .id(jobExecutionToConvert.getId())
             .jobName(jobExecutionToConvert.getDataJob().getName())
@@ -165,6 +182,7 @@ public class ToApiModelConverter {
             .startTime(jobExecutionToConvert.getStartTime())
             .endTime(jobExecutionToConvert.getEndTime())
             .startedBy(jobExecutionToConvert.getStartedBy())
+            .logsUrl(logsUrl)
             .deployment(new DataJobDeployment()
                   .vdkVersion(jobExecutionToConvert.getVdkVersion())
                   .jobVersion(jobExecutionToConvert.getJobVersion())
@@ -194,19 +212,24 @@ public class ToApiModelConverter {
 
    // Public for testing purposes
    public static DataJobExecution.StatusEnum convertStatusEnum(ExecutionStatus status) {
+      if (status == null) {
+         return null;
+      }
       switch (status) {
          case SUBMITTED:
             return DataJobExecution.StatusEnum.SUBMITTED;
          case RUNNING:
             return DataJobExecution.StatusEnum.RUNNING;
-         case FAILED:
-            return DataJobExecution.StatusEnum.FAILED;
          case CANCELLED:
             return DataJobExecution.StatusEnum.CANCELLED;
-         case FINISHED:
-            return DataJobExecution.StatusEnum.FINISHED;
+         case SUCCEEDED:
+            return DataJobExecution.StatusEnum.SUCCEEDED;
          case SKIPPED:
             return DataJobExecution.StatusEnum.SKIPPED;
+         case USER_ERROR:
+            return DataJobExecution.StatusEnum.USER_ERROR;
+         case PLATFORM_ERROR:
+            return DataJobExecution.StatusEnum.PLATFORM_ERROR;
          default: // No such case
             log.warn("Unexpected status: '" + status + "' in StatusEnum.");
             return null;

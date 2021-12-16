@@ -38,24 +38,21 @@ def configure_loggers(
 
     # Likely most logging system (like Log Insight) show the hostname from where the syslog message arrived so no need to include it here.
     DETAILED_FORMAT = (
-        "%(asctime)s=%(created)10.0f[VDK] {} [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%("
-        "lineno)-4.4s %(funcName)-16.16s[OpId:{}]- %(message)s".format(
-            job_name, attempt_id
-        )
+        f"%(asctime)s [VDK] {job_name} [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%("
+        f"lineno)-4.4s %(funcName)-16.16s[id:{attempt_id}]- %(message)s"
     )
 
     _LOGGERS = {
         "requests_kerberos": {"level": "INFO"},
         "requests_oauthlib": {"level": "INFO"},
         "urllib3": {"level": "INFO"},
-        "taurus": {"level": vdk_logging_level},
+        "vdk": {"level": vdk_logging_level},
     }
 
     _FORMATTERS = {"detailedFormatter": {"format": DETAILED_FORMAT}}
 
     _CONSOLE_HANDLER = {
         "class": "logging.StreamHandler",
-        "level": "DEBUG",
         "formatter": "detailedFormatter",
         "stream": "ext://sys.stderr",
     }
@@ -65,7 +62,7 @@ def configure_loggers(
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ["consoleHandler"], "level": "INFO"},
+            "root": {"handlers": ["consoleHandler"]},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }
@@ -77,7 +74,7 @@ def configure_loggers(
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ("consoleHandler",), "level": "DEBUG"},
+            "root": {"handlers": ("consoleHandler",)},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }
