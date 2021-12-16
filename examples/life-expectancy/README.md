@@ -178,18 +178,18 @@ The output of the cleaning process for the `life_expectancy_2010_2015` table is 
 
 The following table shows an example of the `cleaned_life_expectancy_2010_2015` table:
 
-| **State**     | **LifeExpectancy** | **MinLifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
-| ------------- | ------------------------- | -------------------------- | -------------------------- | -------------------------------------- |
-| **Florida**   | 78.38                     | 74.10                      | 82.15                      | 1.94                                   |
-| **Georgia**   | 76.62                     | 70.38                      | 79.17                      | 1.82                                   |
-| **Hawaii**    | 81.32                     | 79.09                      | 88.06                      | 1.94                                   |
-| **New York**  | 80.33                     | 77.74                      | 85.87                      | 1.97                                   |
-| **Kansas**    | 78.05                     | 73.95                      | 81.30                      | 1.81                                   |
-| **Louisiana** | 75.37                     | 67.82                      | 77.87                      | 1.83                                   |
-| **Oregon**    | 79.09                     | 76.45                      | 82.41                      | 1.76                                   |
-| **Arizona**   | 78.37                     | 74.97                      | 81.47                      | 2.00                                   |
-| **Alabama**   | 74.81                     | 65.64                      | 77.27                      | 1.72                                   |
-| **Missouri**  | 76.96                     | 71.37                      | 79.92
+| **State**                | **LifeExpectancy** | **MinlifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
+| ------------------------ | ------------------ | -------------------------- | -------------------------- | ------------------------------- |
+| **Alabama**              | 75.50              | 75.20                      | 77.50                      | 0.03                            |
+| **Alaska**               | 78.80              | 77.60                      | 79.50                      | 0.10                            |
+| **Arizona**              | 79.90              | 79.60                      | 81.60                      | 0.03                            |
+| **Arkansas**             | 76.00              | 75.20                      | 77.50                      | 0.04                            |
+| **California**           | 81.30              | 79.60                      | 81.60                      | 0.01                            |
+| **Colorado**             | 80.50              | 79.60                      | 81.60                      | 0.03                            |
+| **Connecticut**          | 80.90              | 79.60                      | 81.60                      | 0.04                            |
+| **Delaware**             | 78.70              | 77.60                      | 79.50                      | 0.08                            |
+| **District of Columbia** | 78.50              | 77.60                      | 79.50                      | 0.10                            |
+| **Florida**              | 80.10              | 79.60                      | 81.60                      | 0.02                            |
 
 **Tasks 09 - 10**  
 Cleaning the `life_expectancy_2010_2015` table includes the following operations:
