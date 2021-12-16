@@ -178,7 +178,7 @@ The output of the cleaning process for the `life_expectancy_2010_2015` table is 
 
 The following table shows an example of the `cleaned_life_expectancy_2010_2015` table:
 
-| **State**                | **LifeExpectancy** | **MinlifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
+| **State**                | **LifeExpectancy** | **MinLifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
 | ------------------------ | ------------------ | -------------------------- | -------------------------- | ------------------------------- |
 | **Alabama**              | 75.50              | 75.20                      | 77.50                      | 0.03                            |
 | **Alaska**               | 78.80              | 77.60                      | 79.50                      | 0.10                            |
@@ -200,7 +200,7 @@ Cleaning the `life_expectancy_2010_2015` table includes the following operations
 
 The following table shows an example of the `cleaned_life_expectancy_2018` table:
 
-| **State**          | **LifeExpectancy** | **MinlifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
+| **State**          | **LifeExpectancy** | **MinLifeExpectancyRange** | **MaxLifeExpectancyRange** | **LifeExpectancyStandardError** |
 | ------------------ | ------------------ | -------------------------- | -------------------------- | ------------------------------- |
 | **West Virginia**  | 74.4               | 74.40                      | 77.20                      | 0.1                             |
 | **Mississippi**    | 74.6               | 74.40                      | 77.20                      | 0.1                             |
