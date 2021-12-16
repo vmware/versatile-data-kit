@@ -158,11 +158,19 @@ Data Ingestion uploads in the database the two CSV tables, defined in the Data S
 The path to the CSV file is specified as a URL, thus this example requires an active Internet connection to work properly.
 
 Jobs from 10 to 60 are devoted to Data Ingestion:
-* 10 - 30 ingest data in table `life_expectancy_2010_2015`
-* 40 - 60 ingest data in table `life_expectancy_2018`
+* 01 - 03 ingest data in table `life_expectancy_2010_2015`
+* 04 - 06 ingest data in table `life_expectancy_2018`
+
+## Data Processing
+Data Processing includes the following tasks:
+* Clean tables
+* Merge the cleaned datasets
 
 ### Clean tables
-Table cleaning includes jobs from XX to YY.  
+### Clean tables
+Table cleaning includes jobs from 07 to 10.  
+
+** Tasks 07 - 08 **  
 Cleaning the `life_expectancy_2010_2015` table includes the following two operations:
 * group records by County
 * split the column `LifeExpectancyRange` in two decimal columns `MinLifeExpectancyRange` and `MaxLifeExpectancyRange`.
@@ -184,6 +192,7 @@ The following table shows an example of the `cleaned_life_expectancy_2010_2015` 
 | **Alabama**   | 74.81                     | 65.64                      | 77.27                      | 1.72                                   |
 | **Missouri**  | 76.96                     | 71.37                      | 79.92  
 
+** Tasks 09 - 10 **  
 Cleaning the `life_expectancy_2010_2015` table includes the following operations:
 * rename column `LEB` to `LifeExpectancy`
 * rename column `SE` to `LifeExpectancyStandardError`
