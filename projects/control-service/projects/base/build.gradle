@@ -34,6 +34,11 @@ configurations {
    testImplementation.exclude group: 'com.vaadin.external.google', module: 'android-json'
 }
 
+// completely remove log4j as per CVE-2021-44228, also it is not needed as we are using logback
+configurations.all {
+   exclude group: 'org.apache.logging.log4j'
+}
+
 dependencies {
    api 'org.springframework.boot:spring-boot-starter-actuator'
 

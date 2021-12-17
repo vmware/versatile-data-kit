@@ -133,6 +133,11 @@ configurations {
     runtime.exclude group: "org.slf4j", module: "slf4j-log4j12" //log4j and slf4j cannot co-exist
 }
 
+// completely remove log4j as per CVE-2021-44228, also it is not needed as we are using logback
+configurations.all {
+    exclude group: 'org.apache.logging.log4j'
+}
+
 docker {
     dependsOn bootJar
     files bootJar.archiveFile
