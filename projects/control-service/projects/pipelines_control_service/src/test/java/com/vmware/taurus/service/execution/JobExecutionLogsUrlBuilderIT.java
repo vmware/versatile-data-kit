@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.execution;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 
 import org.junit.jupiter.api.Assertions;
@@ -49,19 +50,43 @@ public class JobExecutionLogsUrlBuilderIT {
 
    @Test
    public void testBuild_allParamsAndDataFormatUnix_shouldReturnLogsUrl() {
-      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix();
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0);
+      assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.UNIX_DATE_FORMAT, expectedLogsUrl);
+   }
+
+   @Test
+   public void testBuild_allParamsAndDataFormatUnixAndPositiveOffset_shouldReturnLogsUrl() {
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(1000, 2000);
+      assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.UNIX_DATE_FORMAT, expectedLogsUrl);
+   }
+
+   @Test
+   public void testBuild_allParamsAndDataFormatUnixAndNegativeOffset_shouldReturnLogsUrl() {
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(-1000, -2000);
       assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.UNIX_DATE_FORMAT, expectedLogsUrl);
    }
 
    @Test
    public void testBuild_allParamsAndDataFormatIso_shouldReturnLogsUrl() {
-      String expectedLogsUrl = buildExpectedLogsUrlDateFormatIso();
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatIso(0, 0);
+      assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.ISO_DATE_FORMAT, expectedLogsUrl);
+   }
+
+   @Test
+   public void testBuild_allParamsAndDataFormatIsoAndPositiveOffset_shouldReturnLogsUrl() {
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatIso(1000, 2000);
+      assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.ISO_DATE_FORMAT, expectedLogsUrl);
+   }
+
+   @Test
+   public void testBuild_allParamsAndDataFormatIsoAndNegativeOffset_shouldReturnLogsUrl() {
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatIso(-1000, -2000);
       assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.ISO_DATE_FORMAT, expectedLogsUrl);
    }
 
    @Test
    public void testBuild_extraParamAndDataFormatUnix_shouldReturnLogsUrl() {
-      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix() + "{{abc}}";
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0) + "{{abc}}";
       assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW + "{{abc}}", JobExecutionLogsUrlBuilder.UNIX_DATE_FORMAT, expectedLogsUrl);
    }
 
@@ -96,13 +121,13 @@ public class JobExecutionLogsUrlBuilderIT {
 
    @Test
    public void testBuild_nullLogsUrlDateFormat_shouldReturnLogsUrlWithDateFormatUnix() {
-      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix();
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0);
       assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, null, expectedLogsUrl);
    }
 
    @Test
    public void testBuild_emptyLogsUrlDateFormat_shouldReturnLogsUrlWithDateFormatUnix() {
-      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix();
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0);
       assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, "", expectedLogsUrl);
    }
 
@@ -110,21 +135,31 @@ public class JobExecutionLogsUrlBuilderIT {
       return JobExecutionLogsUrlBuilder.VAR_PREFIX + var + JobExecutionLogsUrlBuilder.VAR_SUFFIX;
    }
 
-   private static String buildExpectedLogsUrlDateFormatUnix() {
+   private Instant getDateTime(OffsetDateTime dateTime, long offset) {
+      return dateTime.toInstant().plusSeconds(offset);
+   }
+
+   private String buildExpectedLogsUrlDateFormatUnix(long startTimeOffset, long endTimeOffset) {
+      ReflectionTestUtils.setField(logsUrlBuilder, "startTimeOffsetSeconds", startTimeOffset);
+      ReflectionTestUtils.setField(logsUrlBuilder, "endTimeOffsetSeconds", endTimeOffset);
+
       return MessageFormat.format(
             LOGS_URL_TEMPLATE,
-            String.valueOf(TEST_START_TIME.toInstant().toEpochMilli()),
-            String.valueOf(TEST_END_TIME.toInstant().toEpochMilli()),
+            String.valueOf(getDateTime(TEST_START_TIME, startTimeOffset).toEpochMilli()),
+            String.valueOf(getDateTime(TEST_END_TIME, endTimeOffset).toEpochMilli()),
             TEST_JOB_NAME,
             TEST_OP_ID,
             TEST_EXECUTION_ID);
    }
 
-   private static String buildExpectedLogsUrlDateFormatIso() {
+   private String buildExpectedLogsUrlDateFormatIso(long startTimeOffset, long endTimeOffset) {
+      ReflectionTestUtils.setField(logsUrlBuilder, "startTimeOffsetSeconds", startTimeOffset);
+      ReflectionTestUtils.setField(logsUrlBuilder, "endTimeOffsetSeconds", endTimeOffset);
+
       return MessageFormat.format(
             LOGS_URL_TEMPLATE,
-            TEST_START_TIME.toInstant().toString(),
-            TEST_END_TIME.toInstant().toString(),
+            getDateTime(TEST_START_TIME, startTimeOffset).toString(),
+            getDateTime(TEST_END_TIME, endTimeOffset).toString(),
             TEST_JOB_NAME,
             TEST_OP_ID,
             TEST_EXECUTION_ID);
