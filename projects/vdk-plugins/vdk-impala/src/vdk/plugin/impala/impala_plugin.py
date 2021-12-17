@@ -16,6 +16,7 @@ from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
+from vdk.plugin.impala.ingest_to_impala import IngestToImpala
 
 
 def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
@@ -65,6 +66,9 @@ class ImpalaPlugin:
         context.connections.add_open_connection_factory_method(
             "IMPALA",
             lambda: _connection_by_configuration(self._impala_cfg),
+        )
+        context.ingester.add_ingester_factory_method(
+            "IMPALA", lambda: IngestToImpala(context)
         )
 
     @staticmethod
