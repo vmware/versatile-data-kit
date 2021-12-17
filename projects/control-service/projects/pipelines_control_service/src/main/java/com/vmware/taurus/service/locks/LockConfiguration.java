@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.locks;
 
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,8 @@ import javax.sql.DataSource;
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
 @Configuration
-public class LockConf {
+@Slf4j
+public class LockConfiguration {
 
     private CustomLockProvider customLockProvider;
 
@@ -41,6 +43,7 @@ public class LockConf {
 
     @PreDestroy
     void releaseActiveLocks() {
+        log.info("Service is shutting down. Releasing active locks...");
         if (customLockProvider != null) {
             customLockProvider.releaseActiveLocks();
         }

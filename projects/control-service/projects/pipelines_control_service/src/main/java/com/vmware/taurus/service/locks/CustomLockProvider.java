@@ -42,11 +42,13 @@ class CustomLockProvider extends JdbcTemplateLockProvider {
         if (activeLocks.size() > 0) {
             if (log.isInfoEnabled()) {
                 var lockNames = activeLocks.keySet().stream()
-                        .reduce((a, b) -> a + b)
+                        .reduce((a, b) -> a + ", " + b)
                         .orElse("");
                 log.info("Releasing {} active locks: {}", activeLocks.size(), lockNames);
             }
             activeLocks.values().forEach(SimpleLock::unlock);
+        } else {
+            log.info("There are no active locks to release");
         }
     }
 
@@ -60,18 +62,20 @@ class CustomLockProvider extends JdbcTemplateLockProvider {
         private final Map<String, SimpleLock> activeLocks;
 
         public LockWrapper(SimpleLock wrappedLock, String name, Map<String, SimpleLock> activeLocks) {
+            log.debug("Acquiring lock {}", name);
             this.wrappedLock = wrappedLock;
             this.name = name;
             this.activeLocks = activeLocks;
             this.activeLocks.put(name, this);
-            log.debug("Acquiring lock {}", name);
+            log.debug("Lock {} is acquired", name);
         }
 
         @Override
         public void unlock() {
+            log.debug("Releasing lock {}", name);
             wrappedLock.unlock();
             activeLocks.remove(name);
-            log.debug("Releasing lock {}", name);
+            log.debug("Lock {} is released", name);
         }
     }
 }
