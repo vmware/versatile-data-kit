@@ -1,1 +1,0 @@
-vdk-trino

@@ -1,7 +1,0 @@
-requests
-vdk-core
-
-# testing dependencies
-pytest
-pytest-httpserver
-vdk-test-utils

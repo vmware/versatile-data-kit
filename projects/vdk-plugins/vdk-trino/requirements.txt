@@ -1,8 +1,0 @@
-vdk-core
-trino
-
-# testing requirements
-click
-vdk-test-utils
-pytest-docker
-docker-compose

@@ -1,8 +1,0 @@
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-
-services:
-  impala:
-    image: "rooneyp1976/impala"
-    ports:
-      - "21050:21050"
