@@ -23,7 +23,8 @@ def test_run_when_step_fails():
 
     result = data_job.run()
     assert result.is_failed()
-    assert isinstance(result.exception, IndentationError)
+    assert result.exception is None
+    assert isinstance(result.get_exception(), IndentationError)
 
 
 def test_run_when_step_succeeds():

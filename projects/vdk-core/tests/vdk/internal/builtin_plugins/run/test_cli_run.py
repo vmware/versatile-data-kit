@@ -24,7 +24,7 @@ def mock_job_factory(is_failed: bool, exception: BaseException) -> DataJobFactor
     mock_job.run.return_value = mock_execution_result
     mock_execution_result.is_failed.return_value = is_failed
     if exception:
-        mock_execution_result.get_exception.return_value = exception
+        mock_execution_result.get_exception_to_raise.return_value = exception
     job_factory = MagicMock(spec=DataJobFactory)
     job_factory.new_datajob.return_value = mock_job
     return job_factory
@@ -40,7 +40,9 @@ def test_run_job(tmpdir: py.path.local, mock_job_factory: DataJobFactory):
     )
 
     run_impl = CliRunImpl(mock_job_factory)
-    run_impl.run_job(context=context, data_job_directory=job_folder, arguments=None)
+    run_impl.create_and_run_data_job(
+        context=context, data_job_directory=job_folder, arguments=None
+    )
 
 
 @pytest.mark.parametrize("is_failed, exception", [(True, IndexError("foo"))])
@@ -55,7 +57,9 @@ def test_run_job_failed(tmpdir, mock_job_factory):
     run_impl = CliRunImpl(mock_job_factory)
 
     with pytest.raises(IndexError):
-        run_impl.run_job(context=context, data_job_directory=job_folder, arguments=None)
+        run_impl.create_and_run_data_job(
+            context=context, data_job_directory=job_folder, arguments=None
+        )
 
 
 @pytest.mark.parametrize("is_failed, exception", [(False, None)])
@@ -70,7 +74,7 @@ def test_run_job_arguments(tmpdir: py.path.local, mock_job_factory: DataJobFacto
     args_as_json = json.dumps(args)
 
     run_impl = CliRunImpl(mock_job_factory)
-    run_impl.run_job(
+    run_impl.create_and_run_data_job(
         context=context, data_job_directory=job_folder, arguments=args_as_json
     )
 
@@ -91,6 +95,6 @@ def test_run_job_invalid_arguments(
 
     run_impl = CliRunImpl(mock_job_factory)
     with pytest.raises(UserCodeError):
-        run_impl.run_job(
+        run_impl.create_and_run_data_job(
             context=context, data_job_directory=job_folder, arguments=args_as_json
         )

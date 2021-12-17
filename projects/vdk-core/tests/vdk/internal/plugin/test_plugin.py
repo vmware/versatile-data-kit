@@ -82,6 +82,25 @@ def test_plugin_blocked_name(plugin_registry):
     plugin_registry.load_plugin_with_hooks_impl(FooBarPlugin(), "blocked-name")
 
 
+def test_order_for_firstonly_plugin_hookwrapper_error(plugin_registry):
+    class WrapperPlugin:
+        @hookimpl(hookwrapper=True)
+        def get_first_joke(self):
+            yield
+            raise IndexError("foo")
+
+    class FirstPluginWithError:
+        @hookimpl(tryfirst=True)
+        def get_first_joke(self):
+            return "first"
+
+    plugin_registry.load_plugin_with_hooks_impl(FirstPluginWithError(), "first")
+    plugin_registry.load_plugin_with_hooks_impl(WrapperPlugin(), "wrapper")
+
+    with pytest.raises(IndexError):
+        plugin_registry.hook().get_first_joke()
+
+
 def test_order_for_firstonly_plugin_error(plugin_registry):
     class LastPlugin:
         @hookimpl(trylast=True)

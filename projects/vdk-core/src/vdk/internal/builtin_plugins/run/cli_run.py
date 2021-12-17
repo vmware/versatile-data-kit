@@ -10,8 +10,6 @@ from typing import Optional
 
 import click
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
-from vdk.internal.builtin_plugins.run.data_job import DataJob
-from vdk.internal.builtin_plugins.run.data_job import DataJobDefaultHookImplPlugin
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_tracking import (
     ExecutionTrackingPlugin,
@@ -47,7 +45,7 @@ class CliRunImpl:
                 wrap_in_vdk_error=True,
             )
 
-    def run_job(
+    def create_and_run_data_job(
         self,
         context: CoreContext,
         data_job_directory: pathlib.Path,
@@ -61,12 +59,11 @@ class CliRunImpl:
         )
         args = self.__validate_and_parse_args(arguments)
 
+        execution_result = None
         try:
             execution_result = job.run(args)
             log.info(f"Data Job execution summary: {execution_result}")
-            if execution_result.is_failed() and execution_result.get_exception():
-                raise execution_result.get_exception()
-        except Exception as e:
+        except BaseException as e:
             errors.log_and_rethrow(
                 job_input_error_classifier.whom_to_blame(
                     e, __file__, data_job_directory
@@ -80,6 +77,8 @@ class CliRunImpl:
                 + " logs for details and ensure the prerequisite for the failed component (details in stacktrace).",
                 exception=e,
             )
+        if execution_result.is_failed() and execution_result.get_exception_to_raise():
+            raise execution_result.get_exception_to_raise()
 
 
 @click.command(
@@ -115,4 +114,6 @@ def run(ctx: click.Context, data_job_directory: str, arguments: str) -> None:
     )
     context: CoreContext = cast(CoreContext, ctx.obj)
     run_impl = CliRunImpl()
-    run_impl.run_job(context, pathlib.Path(data_job_directory), arguments)
+    run_impl.create_and_run_data_job(
+        context, pathlib.Path(data_job_directory), arguments
+    )
