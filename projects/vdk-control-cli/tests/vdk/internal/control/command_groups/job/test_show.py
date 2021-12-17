@@ -61,7 +61,7 @@ def _get_executions_info():
         {
             "id": "test-vdk-latest-1625735700",
             "job_name": "test-job",
-            "status": "failed",
+            "status": "platform_error",
             "type": "scheduled",
             "start_time": "2021-07-08T09:15:08+00:00",
             "op_id": "test-vdk-latest-1625735700",
@@ -69,7 +69,7 @@ def _get_executions_info():
         {
             "id": "test-vdk-latest-1625736000",
             "job_name": "test-job",
-            "status": "failed",
+            "status": "platform_error",
             "type": "scheduled",
             "start_time": "2021-07-08T09:20:22+00:00",
             "op_id": "test-vdk-latest-1625736000",
@@ -80,7 +80,7 @@ def _get_executions_info():
         {
             "id": "test-vdk-latest-1625736300",
             "job_name": "test-job",
-            "status": "failed",
+            "status": "platform_error",
             "type": "scheduled",
             "start_time": "2021-07-08T09:25:10+00:00",
             "op_id": "test-vdk-latest-1625736300",

@@ -6,7 +6,6 @@
 package com.vmware.taurus.service.monitoring;
 
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.ExecutionTerminationStatus;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
@@ -144,7 +143,7 @@ public class DataJobMetrics {
             }
 
             Integer previousTerminationStatus = currentStatuses.get(dataJobName);
-            Integer newTerminationStatus = dataJob.getLatestJobTerminationStatus().getInteger();
+            Integer newTerminationStatus = dataJob.getLatestJobTerminationStatus().getAlertValue();
             currentStatuses.put(dataJobName, newTerminationStatus);
             statusGauges.computeIfAbsent(dataJobName, name -> createTerminationStatusGauge(name, newTags));
             if (!Objects.equals(previousTerminationStatus, newTerminationStatus)) {
@@ -256,7 +255,7 @@ public class DataJobMetrics {
 
     private Gauge createTerminationStatusGauge(final String dataJobName, final Tags tags) {
         var gauge = Gauge.builder(TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME, currentStatuses,
-                        map -> map.getOrDefault(dataJobName, ExecutionTerminationStatus.NONE.getInteger()))
+                        map -> map.getOrDefault(dataJobName, -1))
                 .tags(tags)
                 .description("Termination status of data job executions (0 - Success, 1 - Platform error, 3 - User error)")
                 .register(meterRegistry);

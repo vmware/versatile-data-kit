@@ -1,14 +1,21 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import gzip
+import json
 import logging
+import sys
+from typing import Dict
 from typing import List
+from typing import NewType
 from typing import Optional
 
 import requests
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 
 log = logging.getLogger(__name__)
+IngestionResult = NewType("IngestionResult", Dict)
 
 
 class IngestOverHttp(IIngesterPlugin):
@@ -16,13 +23,23 @@ class IngestOverHttp(IIngesterPlugin):
     Create a new ingestion mechanism
     """
 
+    def __init__(self, context: JobContext):
+        self._compression_threshold_bytes = (
+            context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES"
+            )
+        )
+        self._compression_encoding = context.core_context.configuration.get_value(
+            "INGEST_OVER_HTTP_COMPRESSION_ENCODING"
+        )
+
     def ingest_payload(
         self,
         payload: List[dict],
         destination_table: Optional[str] = None,
-        target: str = None,
+        target: Optional[str] = None,
         collection_id: Optional[str] = None,
-    ):
+    ) -> Optional[IngestionResult]:
         header = {"Content-Type": "application/octet-stream"}  # TODO: configurable
 
         log.info(
@@ -32,7 +49,7 @@ class IngestOverHttp(IIngesterPlugin):
 
         self.__verify_target(target)
         self.__amend_payload(payload, destination_table)
-        self.__send_data(payload, target, header)
+        return self.__send_data(payload, target, header)
 
     @staticmethod
     def __verify_target(target):
@@ -68,8 +85,17 @@ class IngestOverHttp(IIngesterPlugin):
                 else:
                     obj["@table"] = destination_table
 
-    @staticmethod
-    def __send_data(data, http_url, headers):
+    def __send_data(self, data, http_url, headers) -> IngestionResult:
+        uncompressed_size_in_bytes = sys.getsizeof(data)
+        compressed_size_in_bytes = None
+        if (
+            self._compression_threshold_bytes
+            and uncompressed_size_in_bytes >= self._compression_threshold_bytes
+        ):
+            headers["Content-encoding"] = "gzip"
+            data = gzip.compress(json.dumps(data).encode(self._compression_encoding))
+            compressed_size_in_bytes = sys.getsizeof(data)
+
         try:
             req = requests.post(
                 url=http_url,
@@ -98,6 +124,13 @@ class IngestOverHttp(IIngesterPlugin):
             log.debug(
                 "Payload was ingested. Request Details: "
                 f"Status Code: {req.status_code}, \nPayload: {req.text}"
+            )
+            return IngestionResult(
+                {
+                    "uncompressed_size_in_bytes": uncompressed_size_in_bytes,
+                    "compressed_size_in_bytes": compressed_size_in_bytes,
+                    "http_status": req.status_code,
+                }
             )
         except Exception as e:
             errors.log_and_rethrow(

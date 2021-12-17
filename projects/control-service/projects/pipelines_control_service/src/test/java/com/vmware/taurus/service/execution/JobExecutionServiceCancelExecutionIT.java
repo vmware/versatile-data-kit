@@ -79,7 +79,7 @@ public class JobExecutionServiceCancelExecutionIT {
     @Test
     public void testCancelFinishedExecution() {
         String jobExecutionId = "test-job-id";
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, jobExecutionId, testJob, ExecutionStatus.FINISHED);
+        RepositoryUtil.createDataJobExecution(jobExecutionRepository, jobExecutionId, testJob, ExecutionStatus.SUCCEEDED);
 
         var actualException = Assertions.assertThrows(DataJobExecutionCannotBeCancelledException.class,
                 () -> jobExecutionService.cancelDataJobExecution("test-team", "testJob", jobExecutionId));

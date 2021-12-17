@@ -155,6 +155,8 @@ public class ToApiModelConverter {
       v2DataJobDeployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
       v2DataJobDeployment.setMode(DataJobMode.fromValue(jobDeploymentStatus.getMode()));
       v2DataJobDeployment.setResources(jobDeploymentStatus.getResources());
+      v2DataJobDeployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
+      v2DataJobDeployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
       // TODO: Get these from the job deployment when they are available there
       v2DataJobDeployment.setLastExecutionStatus(convertStatusEnum(sourceDataJob.getLastExecutionStatus()));
       v2DataJobDeployment.setLastExecutionTime(sourceDataJob.getLastExecutionEndTime());
@@ -218,14 +220,16 @@ public class ToApiModelConverter {
             return DataJobExecution.StatusEnum.SUBMITTED;
          case RUNNING:
             return DataJobExecution.StatusEnum.RUNNING;
-         case FAILED:
-            return DataJobExecution.StatusEnum.FAILED;
          case CANCELLED:
             return DataJobExecution.StatusEnum.CANCELLED;
-         case FINISHED:
-            return DataJobExecution.StatusEnum.FINISHED;
+         case SUCCEEDED:
+            return DataJobExecution.StatusEnum.SUCCEEDED;
          case SKIPPED:
             return DataJobExecution.StatusEnum.SKIPPED;
+         case USER_ERROR:
+            return DataJobExecution.StatusEnum.USER_ERROR;
+         case PLATFORM_ERROR:
+            return DataJobExecution.StatusEnum.PLATFORM_ERROR;
          default: // No such case
             log.warn("Unexpected status: '" + status + "' in StatusEnum.");
             return null;

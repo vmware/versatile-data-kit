@@ -56,7 +56,7 @@ public class JobExecutionCleanupServiceIT {
 
     @Test
     public void testOneJobExecutionDeleteNotExpected() {
-        addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.FINISHED);
+        addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
         Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
         jobExecutionCleanupService.cleanupExecutions();
         Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
@@ -64,7 +64,7 @@ public class JobExecutionCleanupServiceIT {
 
     @Test
     public void testOneJobExecutionDeleteExpected() {
-        addJobExecution("jobA", OffsetDateTime.now().minusDays(14), ExecutionStatus.FINISHED);
+        addJobExecution("jobA", OffsetDateTime.now().minusDays(14), ExecutionStatus.SUCCEEDED);
         Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
         jobExecutionCleanupService.cleanupExecutions();
         Assertions.assertEquals(0, jobExecutionRepository.findAll().size());
@@ -73,7 +73,7 @@ public class JobExecutionCleanupServiceIT {
     @Test
     public void testManyJobExecutionsDeleteExpected() {
         for (int i = 0; i < 101; i++) {
-            addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.FINISHED);
+            addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
         }
         Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
         jobExecutionCleanupService.cleanupExecutions();
@@ -93,7 +93,7 @@ public class JobExecutionCleanupServiceIT {
         Random random = new Random();
 
         for (int i = 0; i < 20; i++) {
-            addJobExecution("jobA", OffsetDateTime.now().minusDays(random.nextInt(60)), ExecutionStatus.FINISHED);
+            addJobExecution("jobA", OffsetDateTime.now().minusDays(random.nextInt(60)), ExecutionStatus.SUCCEEDED);
         }
         var statuses = List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED);
         var jobs = jobExecutionRepository.findByDataJobNameAndStatusNotInOrderByEndTime("jobA", statuses);
@@ -128,7 +128,7 @@ public class JobExecutionCleanupServiceIT {
 
     @Test
     public void testMultipleDeletes() {
-        addJobExecution("jobA", OffsetDateTime.now().minusDays(14).minusMinutes(1), ExecutionStatus.FINISHED);
+        addJobExecution("jobA", OffsetDateTime.now().minusDays(14).minusMinutes(1), ExecutionStatus.SUCCEEDED);
         addExecutions(101, "jobB");
 
         Assertions.assertEquals(101, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobB").size());
@@ -140,7 +140,7 @@ public class JobExecutionCleanupServiceIT {
 
     @Test
     public void testCutOffDeleteNotExpected() {
-        addJobExecution("jobA", OffsetDateTime.now().minusDays(13).minusHours(23).minusMinutes(59), ExecutionStatus.FINISHED);
+        addJobExecution("jobA", OffsetDateTime.now().minusDays(13).minusHours(23).minusMinutes(59), ExecutionStatus.SUCCEEDED);
 
         Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
         jobExecutionCleanupService.cleanupExecutions();
@@ -149,7 +149,7 @@ public class JobExecutionCleanupServiceIT {
 
     @Test
     public void testNullEndTimeDeleteNotExpected() {
-        addJobExecution("jobA", null, ExecutionStatus.FINISHED);
+        addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
 
         Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
         jobExecutionCleanupService.cleanupExecutions();
@@ -159,8 +159,8 @@ public class JobExecutionCleanupServiceIT {
     @Test
     public void testDeleteByNumbersAndJobsWithNullEndTimeDeleteExpected() {
         addExecutions(99, "jobA");
-        addJobExecution("jobA", null, ExecutionStatus.FINISHED);
-        addJobExecution("jobA", null, ExecutionStatus.FINISHED);
+        addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
+        addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
 
         Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
         jobExecutionCleanupService.cleanupExecutions();
@@ -177,7 +177,7 @@ public class JobExecutionCleanupServiceIT {
 
     private void addExecutions(int executionsNumber, String jobName) {
         for (int i = 0; i < executionsNumber; i++) {
-            addJobExecution(jobName, OffsetDateTime.now(), ExecutionStatus.FINISHED);
+            addJobExecution(jobName, OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
         }
     }
 
