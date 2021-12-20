@@ -54,20 +54,32 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
         key=KRB_AUTH,
         default_value=None,
+        description="Specifies the Kerberos authentication type to use. "
+        "Possible values are 'minikerberos' and 'kinit'. "
+        "If left empty, the authentication is disabled.",
     )
     config_builder.add(
         key=KEYTAB_FILENAME,
         default_value=None,
+        description="Specifies the name of the keytab file. "
+        "If left empty, the name of the keytab file is assumed to be the same "
+        "as the name of the data job with '.keytab' suffix.",
     )
     config_builder.add(
         key=KEYTAB_PRINCIPAL,
         default_value=None,
+        description="Specifies the Kerberos principal. "
+        "If left empty, the principal will be the job name prepended with 'pa__view_'.",
     )
     config_builder.add(
         key=KEYTAB_REALM,
-        default_value="localhost",
+        default_value="default_realm",
+        description="Specifies the Kerberos realm. This value is used only with "
+        "the 'minikerberos' authentication type. The default value is 'default_realm'.",
     )
     config_builder.add(
         key=KERBEROS_KDC_HOST,
         default_value="localhost",
+        description="Specifies the name of the Kerberos KDC (Key Distribution Center) host. "
+        "This value is used only with the 'minikerberos' authentication type.",
     )

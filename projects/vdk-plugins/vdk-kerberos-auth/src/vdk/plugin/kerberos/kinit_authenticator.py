@@ -12,12 +12,13 @@ log = logging.getLogger(__name__)
 
 
 class KinitGSSAPIAuthenticator(BaseAuthenticator):
-    def __init__(
-        self, keytab_pathname: str, kerberos_principal: str, working_dir: str = None
-    ):
+    """
+    A Kerberos authenticator that uses a 'kinit' call to obtain its ticket-granting ticket (TGT).
+    """
+
+    def __init__(self, keytab_pathname: str, kerberos_principal: str):
         super().__init__(keytab_pathname, kerberos_principal)
 
-        self._working_dir = working_dir
         self.__configure_current_os_process_to_use_own_kerberos_credentials_cache()
 
     def __repr__(self):
@@ -40,7 +41,7 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
             ]  # used for deleting the env variable later
             log.info(f"KRB5CCNAME was already set to {self._oldKRB5CCNAME}")
         except KeyError:
-            tmpfile = tempfile.mktemp(prefix="vdkkrb5cc", dir=self._working_dir)
+            tmpfile = tempfile.NamedTemporaryFile(prefix="vdkkrb5cc", delete=True).name
             os.environ["KRB5CCNAME"] = "FILE:" + tmpfile
             log.info(f"KRB5CCNAME is set to a new file {tmpfile}")
             self._tmp_file = tmpfile
@@ -58,16 +59,14 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
             except OSError:
                 pass
 
-    def _kinit(self):
+    def _kinit(self) -> None:
         log.info(
             f"Calling kinit for kerberos principal {self._kerberos_principal} and keytab file {self._keytab_pathname}"
         )
         exitcode = call(
             ["kinit", "-k", "-t", self._keytab_pathname, self._kerberos_principal]
         )
-        if 0 == exitcode:
-            return True
-        else:
+        if exitcode != 0:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
                 log=log,

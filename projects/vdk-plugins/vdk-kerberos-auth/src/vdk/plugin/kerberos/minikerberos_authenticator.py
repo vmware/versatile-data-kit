@@ -14,6 +14,11 @@ log = logging.getLogger(__name__)
 
 
 class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
+    """
+    A Kerberos authenticator that connects directly to the KDC (using the minikerberos library)
+    to get its ticket-granting ticket (TGT).
+    """
+
     def __init__(
         self,
         keytab_pathname: str,
@@ -46,7 +51,7 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
         except OSError:
             pass
 
-    def _kinit(self):
+    def _kinit(self) -> None:
         log.info(
             "Getting kerberos TGT for principal: %s, realm: %s using keytab file: %s from kdc: %s",
             self._kerberos_principal,
@@ -66,7 +71,6 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
                 f"Got Kerberos TGT for {self._kerberos_principal}@{self._kerberos_realm} "
                 f"and stored to file: {self._ccache_file}"
             )
-            return self._ccache_file
         except Exception as e:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,

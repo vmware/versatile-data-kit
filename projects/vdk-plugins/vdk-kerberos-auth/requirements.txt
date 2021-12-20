@@ -1,5 +1,5 @@
 vdk-core
-minikerberos
+minikerberos==0.1.0
 requests-kerberos
 
 vdk-test-utils

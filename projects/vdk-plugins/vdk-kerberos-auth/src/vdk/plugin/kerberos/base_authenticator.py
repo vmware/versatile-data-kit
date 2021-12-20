@@ -5,7 +5,7 @@ import os
 from abc import ABC
 from abc import abstractmethod
 
-from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.internal.core import errors
 
 log = logging.getLogger(__name__)
 
@@ -18,20 +18,16 @@ class BaseAuthenticator(ABC):
         kerberos_realm: str = None,
         kerberos_kdc_hostname: str = None,
     ):
-
         if not os.path.isfile(keytab_pathname):
             f = os.path.abspath(keytab_pathname)
-            log.warning(
-                f"Cannot locate keytab file {keytab_pathname}. File does not exist. "
-                f"Kerberos authentication is impossible, I'll rethrow this error for processing "
-                f"by my callers and they will decide whether they can recover or not. "
-                f"To avoid this message in the future, please ensure a keytab file at {f}"
-            )
-            raise VDKException(
-                what="Cannot locate keytab file",
-                why=f"Keytab file at {f} does not exist",
-                consequence="Subsequent operation that require authentication will fail.",
-                countermeasure=f"Ensure a keytab file is located at {f}.",
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                log=log,
+                what_happened=f"Cannot locate keytab file {keytab_pathname}.",
+                why_it_happened=f"Keytab file at {f} does not exist",
+                consequences="Kerberos authentication is impossible. "
+                "Subsequent operation that require authentication will fail.",
+                countermeasures=f"Ensure a keytab file is located at {f}.",
             )
         self._keytab_pathname = os.path.abspath(keytab_pathname)
         self._kerberos_principal = kerberos_principal
@@ -72,5 +68,9 @@ class BaseAuthenticator(ABC):
         self._is_authenticated = True
 
     @abstractmethod
-    def _kinit(self):
-        pass
+    def _kinit(self) -> None:
+        """
+        Obtain and cache a Kerberos ticket-granting ticket (TGT)
+        that will be used for subsequent Kerberos authentication.
+        This method either succeeds or throws an exception.
+        """

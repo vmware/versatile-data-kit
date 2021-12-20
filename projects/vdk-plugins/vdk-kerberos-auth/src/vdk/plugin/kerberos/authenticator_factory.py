@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-from typing import Union
+from typing import Optional
 
 from vdk.internal.core import errors
 from vdk.plugin.kerberos.base_authenticator import BaseAuthenticator
@@ -20,7 +20,7 @@ class KerberosAuthenticatorFactory:
 
     def create_authenticator(
         self, authentication_type: str
-    ) -> Union[BaseAuthenticator, None]:
+    ) -> Optional[BaseAuthenticator]:
         if authentication_type == "minikerberos":
             return MinikerberosGSSAPIAuthenticator(
                 self.__configuration.keytab_pathname(),
