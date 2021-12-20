@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.execution;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +60,12 @@ public class JobExecutionLogsUrlBuilder {
    @Value("${datajobs.executions.logsUrl.dateFormat}")
    private String dateFormat;
 
+   @Value("${datajobs.executions.logsUrl.startTimeOffsetSeconds}")
+   private long startTimeOffsetSeconds = 0;
+
+   @Value("${datajobs.executions.logsUrl.endTimeOffsetSeconds}")
+   private long endTimeOffsetSeconds = 0;
+
    public String build(DataJobExecution dataJobExecution) {
       if (StringUtils.isEmpty(template)) {
          log.warn("The property 'datajobs.executions.logsUrl.template' is empty!");
@@ -83,19 +90,21 @@ public class JobExecutionLogsUrlBuilder {
                Optional.ofNullable(dataJobExecution.getDataJob())
                      .map(dataJob -> dataJob.getName())
                      .orElse(""));
-         params.put(START_TIME_VAR, convertDate(dataJobExecution.getStartTime()));
-         params.put(END_TIME_VAR, convertDate(dataJobExecution.getEndTime()));
+         params.put(START_TIME_VAR, convertDate(dataJobExecution.getStartTime(), startTimeOffsetSeconds));
+         params.put(END_TIME_VAR, convertDate(dataJobExecution.getEndTime(), endTimeOffsetSeconds));
       }
 
       return params;
    }
 
-   private String convertDate(OffsetDateTime offsetDateTime) {
+   private String convertDate(OffsetDateTime dateTime, Long offset) {
       String format = dateFormat;
 
-      if (offsetDateTime == null) {
+      if (dateTime == null) {
          return "";
       }
+
+      Instant offsetDateTime = dateTime.toInstant().plusSeconds(offset);
 
       if (StringUtils.isEmpty(format)) {
          log.warn("The property 'datajobs.executions.logsUrl.dateFormat' is empty, defaults to '{}'", UNIX_DATE_FORMAT);
@@ -104,7 +113,7 @@ public class JobExecutionLogsUrlBuilder {
 
       switch (format) {
          case ISO_DATE_FORMAT:
-            return offsetDateTime.toInstant().toString();
+            return offsetDateTime.toString();
          case UNIX_DATE_FORMAT:
             return getDateTimeUnix(offsetDateTime);
          default:
@@ -113,7 +122,7 @@ public class JobExecutionLogsUrlBuilder {
       }
    }
 
-   private static String getDateTimeUnix(OffsetDateTime offsetDateTime) {
-      return String.valueOf(offsetDateTime.toInstant().toEpochMilli());
+   private static String getDateTimeUnix(Instant offsetDateTime) {
+      return String.valueOf(offsetDateTime.toEpochMilli());
    }
 }

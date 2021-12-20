@@ -53,6 +53,9 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
    private static final String TEST_JOB_NAME_2 = "TEST-JOB-NAME-2";
    private static final String TEST_JOB_NAME_3 = "TEST-JOB-NAME-3";
 
+   private static final long TEST_START_TIME_OFFSET_SECONDS = 1000;
+   private static final long TEST_END_TIME_OFFSET_SECONDS = -1000;
+
    private DataJobExecution dataJobExecution1;
    private DataJobExecution dataJobExecution2;
    private DataJobExecution dataJobExecution3;
@@ -68,6 +71,8 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
             "{{execution_id}}");
       registry.add("datajobs.executions.logsUrl.template", () -> logsUrlTemplate);
       registry.add("datajobs.executions.logsUrl.dateFormat", () -> "unix");
+      registry.add("datajobs.executions.logsUrl.startTimeOffsetSeconds", () -> TEST_START_TIME_OFFSET_SECONDS);
+      registry.add("datajobs.executions.logsUrl.endTimeOffsetSeconds", () -> TEST_END_TIME_OFFSET_SECONDS);
    }
 
    @BeforeEach
@@ -129,8 +134,8 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
 
    private static String buildLogsUrl(DataJobExecution dataJobExecution) {
       return MessageFormat.format(LOGS_URL_TEMPLATE,
-            String.valueOf(dataJobExecution.getStartTime().toInstant().toEpochMilli()),
-            String.valueOf(dataJobExecution.getEndTime().toInstant().toEpochMilli()),
+            String.valueOf(dataJobExecution.getStartTime().toInstant().plusSeconds(TEST_START_TIME_OFFSET_SECONDS).toEpochMilli()),
+            String.valueOf(dataJobExecution.getEndTime().toInstant().plusSeconds(TEST_END_TIME_OFFSET_SECONDS).toEpochMilli()),
             dataJobExecution.getDataJob().getName(),
             dataJobExecution.getOpId(),
             dataJobExecution.getId());

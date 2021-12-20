@@ -154,12 +154,12 @@ class JobRunHookSpecs:
 
         E.g
         @hookimpl(tryfirst=True)
-        run_job(context): # decorate with logs
+        create_and_run_data_job(context): # decorate with logs
             log.info(f"Start {context.name}"
             # no return
 
         @hookimpl
-        run_job(context): # alternative execution algorithm
+        create_and_run_data_job(context): # alternative execution algorithm
             results = run_in_parallel(steps)
             return results.all_success
 

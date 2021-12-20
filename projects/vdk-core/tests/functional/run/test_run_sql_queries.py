@@ -12,7 +12,6 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.internal.core.errors import VdkConfigurationError
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
@@ -83,7 +82,7 @@ def test_run_dbapi_connection_no_such_db_type():
     )
 
     cli_assert_equal(1, result)
-    assert isinstance(result.exception, VdkConfigurationError)
+    assert "VdkConfigurationError" in result.output
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
