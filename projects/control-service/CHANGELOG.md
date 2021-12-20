@@ -11,6 +11,14 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+
+1.3 - 20.12.2021
+----
+* **Improvement**
+  * Add tracking and automatic release of locks on service shutdown<br>
+    This will prevent delays in the K8s watching functionality on service restart/redeploy.
+
+
 1.3 - 09.11.2021
 ----
 * **Bug fixes**
@@ -155,7 +163,7 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Improvement**
   * Switch Job Builder image to use kaniko<br>
-    This will enable Control Servie to run in more secure kubernetes (pod security - no privilege run, seccomp/apparmor profiles enabled)
+    This will enable Control Service to run in more secure kubernetes (pod security - no privilege run, seccomp/apparmor profiles enabled)
     It will enable to use local docker registry (without ssl) for easier deployment for prototype purposes
 
 
