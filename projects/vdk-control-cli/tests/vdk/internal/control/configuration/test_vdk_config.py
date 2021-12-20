@@ -128,6 +128,29 @@ def test_read_configuration():
         assert test_value == read_configuration_output
 
 
+def test_handle_broken_configuration():
+    # Setup
+    test_section = "test-section"
+    test_option = "test-option"
+    input_test_vdk_config_path = find_test_resource("test-broken-vdk-config")
+    input_test_vdk_config_file_path = os.path.join(
+        input_test_vdk_config_path, VDKConfigFolder.CONFIGURATION_FILE
+    )
+    assert os.path.exists(input_test_vdk_config_file_path)
+
+    with tempfile.TemporaryDirectory() as config_dir_path:
+        conf = VDKConfigFolder(config_dir_path)
+        expected_config_path = os.path.join(
+            conf.vdk_config_folder, VDKConfigFolder.CONFIGURATION_FILE
+        )
+        copyfile(src=input_test_vdk_config_file_path, dst=expected_config_path)
+        assert os.path.exists(expected_config_path)
+
+        # Run and verify exception
+        with pytest.raises(VDKException):
+            conf.read_configuration(section=test_section, option=test_option)
+
+
 def test_reset_configuration():
     # Setup
     test_section = "test-section"
