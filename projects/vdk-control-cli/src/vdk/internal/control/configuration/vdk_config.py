@@ -7,6 +7,7 @@ from configparser import ConfigParser
 from pathlib import Path
 
 from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.internal.control.utils.control_utils import read_config_ini_file
 
 log = logging.getLogger(__name__)
 
@@ -208,7 +209,12 @@ class VDKConfigFolder:
             log.debug(f"Reading configuration file: {configuration_file_path} ...")
 
             config_parser = ConfigParser()
-            config_parser.read(configuration_file_path)
+
+            read_config_ini_file(
+                config_parser=config_parser,
+                configuration_file_path=configuration_file_path,
+            )
+
             return config_parser.get(section=section, option=option, fallback=fallback)
         except OSError as e:
             raise VDKException(

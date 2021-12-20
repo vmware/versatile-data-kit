@@ -3,10 +3,15 @@
 # TODO: this is basically a copy of VDK JobConfig in vdk-core
 import configparser
 import fileinput
+import logging
 import os
 import sys
 
 from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.internal.control.utils.control_utils import read_config_ini_file
+
+
+log = logging.getLogger(__name__)
 
 
 class JobConfig:
@@ -27,7 +32,9 @@ class JobConfig:
                 "Make sure the file is created "
                 "or double check the data job path is passed correctly.",
             )
-        self._config_ini.read(self._config_file)
+        read_config_ini_file(
+            config_parser=self._config_ini, configuration_file_path=self._config_file
+        )
 
     def get_team(self):
         return self._get_value("owner", "team")
