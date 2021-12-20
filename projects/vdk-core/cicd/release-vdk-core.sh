@@ -6,12 +6,11 @@
 cd "$(dirname $0)" || exit 1
 cd ..
 
-echo "$(cat version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID" > version.txt
 
 build_info_file="src/vdk/internal/vdk_build_info.py"
 echo "" > $build_info_file # clear build info file first
 
-echo "RELEASE_VERSION='$(cat version.txt | grep -o '[0-9]\.[0-9]').$CI_PIPELINE_ID'" >> $build_info_file
+echo "RELEASE_VERSION='$(cat version.txt)'" >> $build_info_file
 echo "BUILD_DATE='$(date -u)'" >> $build_info_file
 echo "BUILD_MACHINE_INFO='$(uname -a)'" >> $build_info_file
 

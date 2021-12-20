@@ -15,12 +15,13 @@ import re
 import sys
 import traceback
 from collections import defaultdict
-from collections import namedtuple
 from enum import Enum
 from logging import Logger
 from types import TracebackType
 from typing import Any
 from typing import cast
+
+from click import ClickException
 
 
 class ResolvableBy(str, Enum):
@@ -50,7 +51,7 @@ CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableBy.PLATFORM_ERROR
 log = logging.getLogger(__name__)
 
 
-class BaseVdkError(Exception):
+class BaseVdkError(ClickException):
     """For all errors risen from our "code" (vdk)
 
     There are two child branches in exception hierarchy:
@@ -59,6 +60,13 @@ class BaseVdkError(Exception):
     """
 
     def __init__(self, error_message: ErrorMessage):
+        """
+
+        :param error_message: required - error message describing the error
+        :param cause_exception: cause exception. Included if you want to be visualized by toString().
+                In python you specify cause using `raise X from Cause`
+                https://docs.python.org/3/tutorial/errors.html#exception-chaining
+        """
         super().__init__(str(error_message))
 
 
@@ -101,16 +109,19 @@ class UserCodeError(DomainError):
     pass
 
 
-class ErrorMessage(
-    namedtuple(
-        "ErrorMessage", ["summary", "what", "why", "consequences", "countermeasures"]
-    )
-):
+class ErrorMessage:
     """
     Standard format for Error messages in VDK. Use it when throwing exceptions or logging error level.
     """
 
-    __slots__ = ()
+    def __init__(
+        self, summary: str, what: str, why: str, consequences: str, countermeasures: str
+    ):
+        self.summary = summary
+        self.what = what
+        self.why = why
+        self.consequences = consequences
+        self.countermeasures = countermeasures
 
     def _get_template(self, replace_with: str) -> str:
         return "{}r%15s : {}r%15s : {}r%15s : {}r%15s : {}".replace(
@@ -496,5 +507,6 @@ def clear_intermediate_errors() -> None:
     Clear so far recorded records - those are considered intermediate and resolved.
 
     For example after successful completion of a step.
+    # TODO: better keep errors in context and not globally!
     """
     BLAMEES.clear()

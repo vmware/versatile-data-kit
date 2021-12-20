@@ -7,7 +7,6 @@ import pathlib
 from abc import ABC
 from dataclasses import dataclass
 from typing import Callable
-from typing import List
 
 from vdk.api.job_input import IJobInput
 

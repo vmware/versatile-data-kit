@@ -47,8 +47,8 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         )
         result = template_job.run(template_args)
         if result.is_failed():
-            if result.get_exception():
-                raise result.get_exception()
+            if result.get_exception_to_raise():
+                raise result.get_exception_to_raise()
             else:
                 errors.log_and_throw(
                     errors.ResolvableBy.PLATFORM_ERROR,

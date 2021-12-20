@@ -22,7 +22,7 @@ public class JobFieldStrategyByLastExecutionStatus extends FieldStrategy<V2DataJ
 
    private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
            JobFieldStrategyByLastExecutionStatus::getLastExecutionStatusAsString,
-           Comparator.nullsLast(Comparator.naturalOrder()));
+           Comparator.nullsFirst(Comparator.naturalOrder()));
 
    @Override
    public JobFieldStrategyBy getStrategyName() {

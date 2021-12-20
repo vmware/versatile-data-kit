@@ -29,7 +29,7 @@ public class JobFieldStrategyByLastExecutionTime extends FieldStrategy<V2DataJob
    private static final ZoneId UTC_ZONE = ZoneId.of("UTC");
    private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
            JobFieldStrategyByLastExecutionTime::getLastExecutionTime,
-           Comparator.nullsLast(Comparator.naturalOrder()));
+           Comparator.nullsFirst(Comparator.naturalOrder()));
 
    @Override
    public JobFieldStrategyBy getStrategyName() {

@@ -6,6 +6,7 @@ from datetime import datetime
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
+from vdk.internal.core import errors
 
 
 class NonJsonSerializable:
@@ -48,6 +49,42 @@ def test_serialization():
   "exception": null
 }"""
     )
+
+
+def test_get_exception_to_raise():
+    step_error = ArithmeticError("foo")
+    result = _prepare_execution_result(None, step_error)
+    assert result.get_exception_to_raise() == step_error
+
+
+def test_get_exception_to_raise_main_error():
+    step_error = ArithmeticError("foo")
+    error = IndexError("foo")
+    result = _prepare_execution_result(error, step_error)
+    assert result.get_exception_to_raise() == error
+
+
+def _prepare_execution_result(error, step_error):
+    step_result = StepResult(
+        "step",
+        "type",
+        datetime.fromisoformat("2012-10-12 00:00:00"),
+        datetime.fromisoformat("2012-10-12 00:30:00"),
+        ExecutionStatus.ERROR,
+        "foo",
+        step_error,
+        errors.ResolvableBy.USER_ERROR,
+    )
+    result = ExecutionResult(
+        "job-name",
+        "exec-id",
+        datetime.fromisoformat("2012-10-12 00:00:00"),
+        datetime.fromisoformat("2012-10-12 01:00:00"),
+        ExecutionStatus.SUCCESS,
+        error,
+        [step_result],
+    )
+    return result
 
 
 def test_serialization_non_serializable():
