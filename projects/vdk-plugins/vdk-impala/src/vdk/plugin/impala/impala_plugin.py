@@ -12,9 +12,12 @@ from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCurs
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.errors import log_and_throw
+from vdk.internal.core.errors import ResolvableBy
 from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
+from vdk.plugin.impala.impala_error_classifier import is_impala_error
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 
 
@@ -66,6 +69,18 @@ class ImpalaPlugin:
             "IMPALA",
             lambda: _connection_by_configuration(self._impala_cfg),
         )
+
+    @hookimpl(tryfirst=True)
+    def vdk_exception(self, exception: Exception):
+        if is_impala_error(exception):
+            log_and_throw(
+                to_be_fixed_by=ResolvableBy.USER_ERROR,
+                log=logging.getLogger(__name__),
+                what_happened=f"Error occurred. Exception message: {exception}",
+                why_it_happened="Review exception for details.",
+                consequences="Data Job execution will not continue.",
+                countermeasures="Review exception for details.",
+            )
 
     @staticmethod
     @hookimpl
