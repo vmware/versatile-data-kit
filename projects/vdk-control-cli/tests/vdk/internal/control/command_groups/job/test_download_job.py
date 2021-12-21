@@ -8,6 +8,7 @@ from py._path.local import LocalPath
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
 from vdk.internal.control.command_groups.job.download_job import download_job
+from werkzeug import Response
 
 test_utils.disable_vdk_authentication()
 
@@ -59,3 +60,25 @@ def test_download_source_dir_exists(httpserver: PluginHTTPServer, tmpdir: LocalP
     ), f"result exit code is not 1, result output: {result.output}"
     # assert it failed for the right reason:
     assert "Directory with name test-job already exists" in result.output
+
+
+def test_download_job_does_not_exist(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+    temp_dir = tmpdir.mkdir("foo")
+
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs/test-job/sources", method="GET"
+    ).respond_with_response(Response(status=404))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        download_job,
+        ["-n", "test-job", "-t", "test-team", "-u", rest_api_url, "-p", temp_dir],
+    )
+
+    test_utils.assert_click_status(result, 2)
+    # assert the correct message is returned, when there is no data job for the
+    # specified team
+    assert "The requested resource cannot be found" in result.output
+    # assert that vdk does not try cleaning up a non-existent archive
+    assert "Cannot cleanup archive" not in result.output
