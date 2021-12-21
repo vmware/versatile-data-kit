@@ -1037,7 +1037,7 @@ public abstract class KubernetesService implements InitializingBean {
                 }
             }
         } catch (RuntimeException e) {
-            log.info("Failed to watch jobs. Error was: {}", e.getMessage());
+            log.info("Failed to watch jobs. Error was: {}", e.getMessage(), e);
         }
 
         log.info("Finish watching jobs with labels: {}", labelsToWatch);
