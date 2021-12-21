@@ -14,6 +14,8 @@ log = logging.getLogger(__name__)
 class KinitGSSAPIAuthenticator(BaseAuthenticator):
     """
     A Kerberos authenticator that uses a 'kinit' call to obtain its ticket-granting ticket (TGT).
+    As this class operates by invoking 'kinit' directly, the Kerberos should be already installed
+    on the machine and the 'kinit' command should be working correctly.
     """
 
     def __init__(self, keytab_pathname: str, kerberos_principal: str):

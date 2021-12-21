@@ -36,13 +36,13 @@ class KerberosAuthenticatorFactory:
         elif authentication_type is None:
             log.debug("No Kerberos authentication specified")
             return None
-        else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=log,
-                what_happened=f"Provided environment variable {'VDK_KRB_AUTH'} has invalid value.",
-                why_it_happened=f"VDK was run with environment variable {'VDK_KRB_AUTH'}={authentication_type}, "
-                f"however '{authentication_type}' is invalid value for this variable.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=f"Provide either 'minikerberos' or 'kinit' for environment variable {'VDK_KRB_AUTH'}.",
-            )
+
+        errors.log_and_throw(
+            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+            log=log,
+            what_happened="Provided environment variable VDK_KRB_AUTH has invalid value.",
+            why_it_happened=f"VDK was run with environment variable VDK_KRB_AUTH={authentication_type}, "
+            f"however '{authentication_type}' is invalid value for this variable.",
+            consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+            countermeasures="Provide either 'minikerberos' or 'kinit' for environment variable VDK_KRB_AUTH.",
+        )
