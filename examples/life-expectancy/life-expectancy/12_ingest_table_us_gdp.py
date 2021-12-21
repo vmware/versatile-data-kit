@@ -31,17 +31,22 @@ def run(job_input: IJobInput):
     df = pd.read_excel(url, header=3, na_values="(NA)").replace("'", "''", regex=True)
 
     # select only interesting rows
-    df = df[['Unnamed: 0', 2017,2018, 2019, 2020]]
-    df.rename({'Unnamed: 0' : 'County', 2017 : 'Year2017', 2018 : 'Year2018', 2019: 'Year2019', 2020: 'Year2020'}, axis=1, inplace=True)
+    df = df[["Unnamed: 0", 2017, 2018, 2019, 2020]]
+    df.rename(
+        {
+            "Unnamed: 0": "County",
+            2017: "Year2017",
+            2018: "Year2018",
+            2019: "Year2019",
+            2020: "Year2020",
+        },
+        axis=1,
+        inplace=True,
+    )
     df.dropna(axis=0, inplace=True)
 
-    
     for i, row in df.iterrows():
         log.info(row)
-        query = build_insert_query(
-            row, df.columns.tolist(), "us_gdp"
-        )
+        query = build_insert_query(row, df.columns.tolist(), "us_gdp")
 
         job_input.execute_query(query)
-    
-    

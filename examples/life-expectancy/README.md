@@ -70,13 +70,13 @@ The following table shows an excerpt from the dataset:
 | **Arkansas** | Total | 75.6 | 86 | 74.4 - 77.2 |
 | **Oklahoma** | Total | 75.6 | 73 | 74.4 - 77.2 |
 
-The dataset **U.S. Gross Domestic Product by County** contains 3,163 records, related to the U.S. real Gross Domestic Product, by County, referring to the period years 2017–2020. 
+The dataset **U.S. Gross Domestic Product by County** contains 3,163 records, related to the U.S. real Gross Domestic Product, by County, referring to the period years 2017–2020.
 The dataset contains many columns. For each record, the following information is extracted:
 - County
 - 2017
 - 2018
 - 2019
-- 2020 										
+- 2020
 
 The following table shows an excerpt from the dataset:
 
@@ -141,7 +141,7 @@ pip install vdk-trino
 See the vdk-trino [Documentation Page](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-trino) for more details.
 
 ### Streamlit
-The final dashboard/report is built in [streamlit](https://streamlit.io/). 
+The final dashboard/report is built in [streamlit](https://streamlit.io/).
 You can install streamlit through the following command:
 
 ```
@@ -277,7 +277,7 @@ The following table shows an example of the `cleaned_life_expectancy_2018` table
 | **Missouri**       | 76.6               | 74.40                      | 77.20                      | 0.1                             |
 
 ### Merge the cleaned tables
-Jobs 17 and 18 are devoted to vertical merging between the two cleaned datasets `cleaned_life_expectancy_2010_2015`, `cleaned_life_expectancy_2018`, `us_gdp` and `us_regions`. Vertical merging means that the second dataset is appended to the first dataset and three new columns, called `Period`, `GDP` and `Region`, are added to the resulting table, named `merged_life_expectancy`. 
+Jobs 17 and 18 are devoted to vertical merging between the two cleaned datasets `cleaned_life_expectancy_2010_2015`, `cleaned_life_expectancy_2018`, `us_gdp` and `us_regions`. Vertical merging means that the second dataset is appended to the first dataset and three new columns, called `Period`, `GDP` and `Region`, are added to the resulting table, named `merged_life_expectancy`.
 The `GDP` attribute is set only for records with `Period = '2018'`. For the other records, it is set to `0`, since it is not available.
 
 The following table shows an example of the `merged_life_expectancy` table:

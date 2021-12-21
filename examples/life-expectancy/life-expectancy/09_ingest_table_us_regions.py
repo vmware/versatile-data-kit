@@ -4,6 +4,7 @@ import inspect
 import logging
 import os
 import sys
+
 import numpy as np
 import pandas as pd
 
@@ -28,16 +29,11 @@ def run(job_input: IJobInput):
     # url of the U.S. Life Expectancy at Birth by State and Census Tract - 2010-2015 dataset
     url = "https://raw.githubusercontent.com/cphalpert/census-regions/master/us%20census%20bureau%20regions%20and%20divisions.csv"
 
-    df = pd.read_csv(url, sep=',')
+    df = pd.read_csv(url, sep=",")
 
     df.columns = df.columns.str.replace(" ", "")
 
-    
     for i, row in df.iterrows():
-        query = build_insert_query(
-            row, df.columns.tolist(), "us_regions"
-        )
+        query = build_insert_query(row, df.columns.tolist(), "us_regions")
 
         job_input.execute_query(query)
-    
-    
