@@ -3,7 +3,7 @@
 import logging
 import os
 import tempfile
-from subprocess import call
+from subprocess import call  # nosec
 
 from vdk.internal.core import errors
 from vdk.plugin.kerberos.base_authenticator import BaseAuthenticator
@@ -63,7 +63,13 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
         log.info(
             f"Calling kinit for kerberos principal {self._kerberos_principal} and keytab file {self._keytab_pathname}"
         )
-        exitcode = call(
+        # invoking 'call' here should be safe because:
+        # - the input is not directly user-controlled; it depends on the job name,
+        #   which has some limitations (no spaces, special characters)
+        # - even if the input variables are somehow tapered with, they will be escaped and
+        #   no injection will be possible; e.g. if _kerberos_principal is set to
+        #   "some_principal; rm -rf *", the entire string will be interpreted as the principal
+        exitcode = call(  # nosec
             ["kinit", "-k", "-t", self._keytab_pathname, self._kerberos_principal]
         )
         if exitcode != 0:
