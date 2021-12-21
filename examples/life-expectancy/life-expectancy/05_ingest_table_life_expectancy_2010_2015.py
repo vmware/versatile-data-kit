@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 def run(job_input: IJobInput):
     """
-    Download datasets required by the scenario and put them in the data directory.
+    Download datasets required by the scenario and put them in the data lake.
     """
     log.info(f"Starting job step {__name__}")
 
@@ -42,15 +42,15 @@ def run(job_input: IJobInput):
     df.columns = df.columns.str.replace(" ", "")
 
     # records = [row for index, row in df.iterrows()]
-    job_input.send_tabular_data_for_ingestion(
-        df.itertuples(index=False),
-        destination_table="life_expectancy_2010_2015",
-        column_names=df.columns,
-        method="trino",
-    )
-    # for i, row in df.iterrows():
-    #    query = build_insert_query(
-    #        row, df.columns.tolist(), "life_expectancy_2010_2015"
-    #    )
+    #job_input.send_tabular_data_for_ingestion(
+    #    df.itertuples(index=False),
+    #    destination_table="life_expectancy_2010_2015",
+    #    column_names=df.columns,
+    #    method="trino",
+    #)
+    for i, row in df.iterrows():
+        query = build_insert_query(
+            row, df.columns.tolist(), "life_expectancy_2010_2015"
+        )
 
-    #    job_input.execute_query(query)
+        job_input.execute_query(query)

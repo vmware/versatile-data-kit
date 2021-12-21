@@ -4,9 +4,9 @@ import inspect
 import logging
 import os
 import sys
-
 import numpy as np
 import pandas as pd
+
 
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
@@ -21,26 +21,23 @@ log = logging.getLogger(__name__)
 
 def run(job_input: IJobInput):
     """
-    Download datasets required by the scenario and store in the data lake.
+    Download datasets required by the scenario and put them in the data data lake.
     """
     log.info(f"Starting job step {__name__}")
 
-    # url of the U.S. Life Expectancy at Birth by State and Census Tract - 2018 dataset
-    url = "http://data.cdc.gov/api/views/a5a8-jsrq/rows.csv"
+    # url of the U.S. Life Expectancy at Birth by State and Census Tract - 2010-2015 dataset
+    url = "https://raw.githubusercontent.com/cphalpert/census-regions/master/us%20census%20bureau%20regions%20and%20divisions.csv"
 
-    dtypes = {
-        "State": str,
-        "Sex": str,
-        "LEB": np.float64,
-        "SE": np.float64,
-        "Quartile": str,
-    }
+    df = pd.read_csv(url, sep=',')
 
-    df = pd.read_csv(url, dtype=dtypes, na_values="*")
+    df.columns = df.columns.str.replace(" ", "")
 
-    log.info(df.head(5))
-
+    
     for i, row in df.iterrows():
-        query = build_insert_query(row, df.columns.tolist(), "life_expectancy_2018")
+        query = build_insert_query(
+            row, df.columns.tolist(), "us_regions"
+        )
 
         job_input.execute_query(query)
+    
+    
