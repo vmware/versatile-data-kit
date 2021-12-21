@@ -75,7 +75,7 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         key=KEYTAB_REALM,
         default_value="default_realm",
         description="Specifies the Kerberos realm. This value is used only with "
-        "the 'minikerberos' authentication type. The default value is 'default_realm'.",
+        "the 'minikerberos' authentication type.",
     )
     config_builder.add(
         key=KERBEROS_KDC_HOST,
