@@ -129,6 +129,27 @@ vdk-core-release-candidate-base-image:
     changes: *vdk_core_locations
 
 
+vdk-core-release-acceptance-test:
+  stage: pre_release_test
+  before_script:
+    - cd projects/vdk-core
+  script:
+    - pip install -U pip
+    - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+    - export VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION=$(cat version.txt | grep -o '[0-9]\.[0-9]').${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
+    - export JOB_NAME=vdk-core-release-test-job$(date +%s)
+    - vdk-heartbeat -f cicd/release_acceptance_test_heartbeat_config.ini
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+  only:
+    refs:
+      - main
+    changes: *vdk_core_locations
+
+
 vdk-core-release:
   stage: release
   before_script:
