@@ -65,10 +65,6 @@ class TestImpalaErrors:
             ["run", jobs_path_from_caller_directory("sql-job-syntax-error")]
         )
 
-        import logging
-
-        logging.info("RESULT", jobs_path_from_caller_directory("sql-job-syntax-error"))
-
         cli_assert_equal(1, result)
         assert (
             json.loads(tmp_termination_msg_file.read_text())["status"] == "User error"
