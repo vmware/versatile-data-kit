@@ -72,6 +72,25 @@ class ImpalaPlugin:
         )
 
     @staticmethod
+    @hookimpl(hookwrapper=True, tryfirst=True)
+    def run_step(self, context: JobContext, step: Step):
+        out: pluggy.callers._Result
+        out = yield
+
+        if out.result.exception:
+            if is_impala_user_error(out.result.exception):
+                logging.getLogger(__name__).info("LOGGED ERROR")
+                raise UserCodeError(
+                    ErrorMessage(
+                        summary="Error occurred.",
+                        what=f"Error occurred. Exception message: {out.result.exception}",
+                        why="Review exception for details.",
+                        consequences="Data Job execution will not continue.",
+                        countermeasures="Review exception for details.",
+                    )
+                )
+
+    @staticmethod
     @hookimpl
     def db_connection_recover_operation(recovery_cursor: RecoveryCursor) -> None:
         impala_error_handler = ImpalaErrorHandler()
@@ -98,26 +117,3 @@ class ImpalaPlugin:
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")
-
-
-"""
-    @staticmethod
-    @hookimpl(hookwrapper=True, tryfirst=True)
-    def run_step(self, context: JobContext, step: Step):
-        out: pluggy.callers._Result
-        out = yield
-
-        if out.result.exception:
-            if is_impala_user_error(out.result.exception):
-                logging.getLogger(__name__).info("LOGGED ERROR")
-                raise UserCodeError(
-                    ErrorMessage(
-                        summary="Error occurred.",
-                        what=f"Error occurred. Exception message: {out.result.exception}",
-                        why="Review exception for details.",
-                        consequences="Data Job execution will not continue.",
-                        countermeasures="Review exception for details.",
-                    )
-                )
-
-"""
