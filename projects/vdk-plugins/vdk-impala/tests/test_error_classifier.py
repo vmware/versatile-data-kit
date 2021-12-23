@@ -63,23 +63,6 @@ class UserErrorClassification(unittest.TestCase):
         )
         self.assertTrue(
             is_impala_user_error(
-                MemoryError(
-                    "Virtual memory limit 200 MB for Data Job has been exceeded.Maximum resident set size was 88.42578125 MB."
-                    "Optimize the memory consumption of your Data Job.For local runs virtual memory limit can be changed by 'export VDK_RESOURCE_LIMIT_MEMORY_MB=<new-value>'."
-                    "For cloud run you can fill in a Service Request (http://go/resource-limits) for the limit to be changed.This limit does not apply to macOS and Windows execution environments."
-                )
-            )
-        )
-        self.assertTrue(
-            is_impala_user_error(
-                Exception(
-                    'File "/usr/local/lib/python3.7/ssl.py", line 931, in read '
-                    "return self._sslobj.read(len) MemoryError"
-                )
-            )
-        )
-        self.assertTrue(
-            is_impala_user_error(
                 OperationalError(
                     "Cannot perform hash join at node with id 9.Repartitioning "
                     "did not reduce the size of a spilled partition."

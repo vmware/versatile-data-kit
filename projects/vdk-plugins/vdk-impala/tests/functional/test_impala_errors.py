@@ -51,21 +51,3 @@ class TestImpalaErrors:
         assert (
             json.loads(tmp_termination_msg_file.read_text())["status"] == "User error"
         )
-
-    @mock.patch.dict(
-        os.environ,
-        {
-            VDK_IMPALA_PORT: "9398",
-        },
-    )
-    def test_sql_connectivity_error(self, tmp_termination_msg_file):
-        runner = CliEntryBasedTestRunner(impala_plugin)
-
-        result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("sql-job-syntax-error")]
-        )
-
-        cli_assert_equal(1, result)
-        assert (
-            json.loads(tmp_termination_msg_file.read_text())["status"] == "User error"
-        )

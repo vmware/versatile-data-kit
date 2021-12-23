@@ -73,13 +73,12 @@ class ImpalaPlugin:
 
     @staticmethod
     @hookimpl(hookwrapper=True, tryfirst=True)
-    def run_step(self, context: JobContext, step: Step):
+    def run_step(context: JobContext, step: Step) -> None:
         out: pluggy.callers._Result
         out = yield
 
         if out.result.exception:
             if is_impala_user_error(out.result.exception):
-                logging.getLogger(__name__).info("LOGGED ERROR")
                 raise UserCodeError(
                     ErrorMessage(
                         summary="Error occurred.",
@@ -88,7 +87,7 @@ class ImpalaPlugin:
                         consequences="Data Job execution will not continue.",
                         countermeasures="Review exception for details.",
                     )
-                )
+                ) from out.result.exception
 
     @staticmethod
     @hookimpl
