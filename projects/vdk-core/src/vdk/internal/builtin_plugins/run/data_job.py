@@ -7,8 +7,6 @@ import pathlib
 from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
-from typing import Dict
-from typing import Optional
 
 from vdk.api.job_input import IJobArguments
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
@@ -66,6 +64,7 @@ class DataJobDefaultHookImplPlugin:
         start_time = datetime.utcnow()
         exception = None
         details = None
+        blamee = None
 
         try:
             log.debug(f"Processing step {step.name} ...")
@@ -101,6 +100,7 @@ class DataJobDefaultHookImplPlugin:
             status=status,
             details=details,
             exception=exception,
+            blamee=blamee,
         )
 
     @staticmethod
@@ -110,7 +110,6 @@ class DataJobDefaultHookImplPlugin:
         It executes the provided steps starting from context.steps in sequential order
         """
         start_time = datetime.utcnow()
-        execution_status = None
         exception = None
         steps = context.step_builder.get_steps()
         step_results = []
@@ -125,20 +124,42 @@ class DataJobDefaultHookImplPlugin:
                 countermeasures="Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
             )
 
-        try:
-            execution_status = ExecutionStatus.SUCCESS
-            for current in steps:
+        execution_status = ExecutionStatus.SUCCESS
+        for current_step in steps:
+            step_start_time = datetime.utcnow()
+            try:
                 res = context.core_context.plugin_registry.hook().run_step(
-                    context=context, step=current
+                    context=context, step=current_step
                 )
-                step_results.append(res)
-                # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors
-                if res.status == ExecutionStatus.ERROR:
-                    execution_status = ExecutionStatus.ERROR
-                    exception = res.exception
-                    break
-        except BaseException as e:
-            exception = e
+            except BaseException as e:
+                blamee = whom_to_blame(e, __file__, context.job_directory)
+                errors.log_exception(
+                    blamee,
+                    log,
+                    what_happened=f"Processing step {current_step.name} completed with error.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences="I will not process the remaining steps (if any), "
+                    "and this Data Job execution will be marked as failed.",
+                    countermeasures="See exception and fix the root cause, so that the exception does "
+                    "not appear anymore.",
+                    exception=e,
+                )
+                res = StepResult(
+                    name=current_step.name,
+                    type=current_step.type,
+                    start_time=step_start_time,
+                    end_time=datetime.utcnow(),
+                    status=ExecutionStatus.ERROR,
+                    details=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    exception=e,
+                    blamee=blamee,
+                )
+
+            step_results.append(res)
+            # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors
+            if res.status == ExecutionStatus.ERROR:
+                execution_status = ExecutionStatus.ERROR
+                break
 
         execution_result = ExecutionResult(
             context.name,
@@ -262,7 +283,33 @@ class DataJob:
             ),
         )
         self._plugin_hook.initialize_job(context=job_context)
+
+        start_time = datetime.utcnow()
         try:
             return self._plugin_hook.run_job(context=job_context)
-        finally:
+        except BaseException as ex:
+            blamee = whom_to_blame(ex, __file__, job_context.job_directory)
+            errors.log_exception(
+                blamee,
+                log,
+                what_happened=f"Data Job {self._name} completed with error.",
+                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(ex),
+                consequences="I will not process the remaining steps (if any), "
+                "and this Data Job execution will be marked as failed.",
+                countermeasures="See exception and fix the root cause, so that the exception does "
+                "not appear anymore.",
+                exception=ex,
+            )
+            execution_result = ExecutionResult(
+                self._name,
+                self._core_context.state.get(CommonStoreKeys.EXECUTION_ID),
+                start_time,
+                datetime.utcnow(),
+                ExecutionStatus.ERROR,
+                ex,
+                [],
+            )
+            return execution_result
+
+        finally:  # TODO: we should pass execution result to finalize_job somehow ...
             self._plugin_hook.finalize_job(context=job_context)
