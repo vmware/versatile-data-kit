@@ -70,6 +70,20 @@ type DataJobResources {
     netBandwitdthLimit: Int
 }
 
+type DataJobExecutionDeployment {
+  id: String
+  enabled: Boolean
+  contacts: DataJobContacts
+  jobVersion: String
+  deployedDate: String
+  deployedBy: String
+  mode: String
+  resources: DataJobResources
+  schedule: DataJobSchedule
+  vdkVersion: String
+  status: DataJobDeploymentStatus
+}
+
 type DataJobExecution {
     id: String
     type: DataJobExecutionType
@@ -80,16 +94,8 @@ type DataJobExecution {
     startedBy: String
     message: String
     opId: String
-    vkdVersion: String
-    jobVersion: String
-    jobSchedule: String
-    resourcesCpuRequest: Float
-    resourcesCpuLimit: Float
-    resourcesMemoryRequest: Int
-    resourcesMemoryLimit: Int
-    deployedDate: String
-    deployedBy: String
     logsUrl: String
+    deployment: DataJobExecutionDeployment
 }
 
 type DataJobDeployment {

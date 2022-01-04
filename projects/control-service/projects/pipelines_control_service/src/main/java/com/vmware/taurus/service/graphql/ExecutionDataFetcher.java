@@ -108,7 +108,7 @@ public class ExecutionDataFetcher {
 
          return buildResponse(
                dataJobExecutionsResult.getTotalPages(),
-               dataJobExecutionsResult.getNumberOfElements(),
+               (int) dataJobExecutionsResult.getTotalElements(),
                dataJobExecutions);
       };
    }
