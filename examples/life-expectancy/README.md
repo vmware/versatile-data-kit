@@ -12,7 +12,7 @@ The directory is organized as follows:
 
 Researchers from the Department of Population History and Social Structure have to conduct a study on the life expectancy of Americans. The objective of the study is to understand over time which American states have the greatest life expectancy.
 
-## Data Scoures
+## Data Sources
 After extensive research, the researchers found two main datasets, both of which are available as CSV files:
 
 - [U.S. Life Expectancy at Birth by State and Census Tract - 2010-2015](https://catalog.data.gov/dataset/u-s-life-expectancy-at-birth-by-state-and-census-tract-2010-2015)
