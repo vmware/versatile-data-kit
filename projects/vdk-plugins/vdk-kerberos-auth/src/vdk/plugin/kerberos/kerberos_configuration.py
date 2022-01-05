@@ -66,6 +66,12 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         "as the name of the data job with '.keytab' suffix.",
     )
     config_builder.add(
+        key=KEYTAB_FOLDER,
+        default_value=None,
+        description="Specifies the folder containing the keytab file. "
+        "If left empty, the keytab file is expected to be located inside the data job folder.",
+    )
+    config_builder.add(
         key=KEYTAB_PRINCIPAL,
         default_value=None,
         description="Specifies the Kerberos principal. "
