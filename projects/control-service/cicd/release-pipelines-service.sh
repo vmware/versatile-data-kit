@@ -5,7 +5,7 @@
 
 export HELM_REPO=versatile-data-kit-helm-registry
 # TODO: sign chart
-helm pack --version "$CHART_VERSION" --app-version "$CHART_VERSION" --dependency-update "$CHART_NAME" --set-string image.tag="$IMAGE_TAG"
+helm pack --version "$CHART_VERSION" --app-version "$CHART_VERSION" --dependency-update "$CHART_NAME" --set image.tag="$IMAGE_TAG"
 echo "Upload $CHART_NAME version $CHART_VERSION (if version already exists upload will fail)"
 helm repo add $HELM_REPO "$VDK_HELM_REGISTRY_URL" \
       --username "$VDK_HELM_REGISTRY_USERNAME" \
