@@ -14,6 +14,8 @@ setuptools.setup(
     description="Versatile Data Kit SDK packaging containing common plugins to get started quickly using it.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
+    # If you add a new dependency to quickstart-vdk, add its location to quickstart-vdk/.plugin-ci.yml in
+    # quickstart_vdk_locations, so that quickstart-vdk would be tested when the new dependency is upgraded
     install_requires=[
         "vdk-core",
         "vdk-plugin-control-cli",
