@@ -212,7 +212,7 @@ public class JobsService {
       Objects.requireNonNull(dataJobExecution);
 
       if (StringUtils.isBlank(dataJobExecution.getId())) {
-         log.warn("Could not store Data Job execution due to the missing execution id: {}", dataJobExecution.getId());
+         log.warn("Could not store data job execution due to the missing execution id: {}", dataJobExecution.getId());
          return;
       }
 
@@ -240,9 +240,8 @@ public class JobsService {
          return;
       }
 
-      dataJob.setLastExecutionStatus(dataJobExecution.getStatus());
-      dataJob.setLastExecutionEndTime(dataJobExecution.getEndTime());
-      dataJob.setLastExecutionDuration((int)(dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond()));
+      log.debug("Updating last execution of data job {}: {}", dataJob.getName(), dataJobExecution);
+
       jobsRepository.updateDataJobLastExecutionByName(
             dataJob.getName(),
             dataJobExecution.getStatus(),
