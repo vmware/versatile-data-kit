@@ -61,8 +61,8 @@ type DataJobContacts {
 }
 
 type DataJobResources {
-    cpuLimit: Int
-    cpuRequest: Int
+    cpuLimit: Float
+    cpuRequest: Float
     empheralStorageLimit: Int
     empheralSorageRequest: Int
     memoryLimit: Int

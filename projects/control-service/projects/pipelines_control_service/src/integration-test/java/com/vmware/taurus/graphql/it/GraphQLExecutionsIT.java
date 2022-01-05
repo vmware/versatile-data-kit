@@ -142,10 +142,10 @@ public class GraphQLExecutionsIT extends BaseIT {
                   Matchers.contains(dataJobExecution1.getVdkVersion(), dataJobExecution2.getVdkVersion())))
             .andExpect(jsonPath(
                   "$.data.content[*].deployment.resources.cpuRequest",
-                  Matchers.contains(dataJobExecution1.getResourcesCpuRequest().intValue(), dataJobExecution2.getResourcesCpuRequest().intValue())))
+                  Matchers.contains(dataJobExecution1.getResourcesCpuRequest().doubleValue(), dataJobExecution2.getResourcesCpuRequest().doubleValue())))
             .andExpect(jsonPath(
                   "$.data.content[*].deployment.resources.cpuLimit",
-                  Matchers.contains(dataJobExecution1.getResourcesCpuLimit().intValue(), dataJobExecution2.getResourcesCpuLimit().intValue())))
+                  Matchers.contains(dataJobExecution1.getResourcesCpuLimit().doubleValue(), dataJobExecution2.getResourcesCpuLimit().doubleValue())))
             .andExpect(jsonPath(
                   "$.data.content[*].deployment.resources.memoryRequest",
                   Matchers.contains(dataJobExecution1.getResourcesMemoryRequest(), dataJobExecution2.getResourcesMemoryRequest())))
