@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
-from typing import Optional
 
 import click
 import click_spinner
@@ -61,17 +60,20 @@ class JobDownloadSource:
 
     @staticmethod
     def __cleanup_archive(archive_path: str):
-        try:
-            os.remove(archive_path)
-        except OSError as e:
-            log.warning(
-                VDKException(
-                    what=f"Cannot cleanup archive: {archive_path} as part of deployment.",
-                    why=f"VDK CLI did not clean up after deploying: {e}",
-                    consequence="There is a leftover archive file next to the folder containing the data job",
-                    countermeasure="Clean up the archive file manually or leave it",
-                ).message
-            )
+        if os.path.exists(archive_path):
+            log.debug(f"Cleaning up archive, {archive_path}")
+            try:
+                os.remove(archive_path)
+            except OSError as e:
+                log.warning(
+                    VDKException(
+                        what=f"Cannot cleanup archive: {archive_path} as part of deployment.",
+                        why=f"VDK CLI did not clean up after deploying: {e}",
+                        consequence="There is a leftover archive file next to the folder containing the data job",
+                        countermeasure="Either clean up the archive file "
+                        "manually, or leave it as is.",
+                    ).message
+                )
 
 
 # Below is the definition of the CLI API/UX users will be interacting

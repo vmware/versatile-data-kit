@@ -76,6 +76,23 @@ public class GraphQLExecutionsIT extends BaseIT {
             "      startTime" +
             "      endTime" +
             "      status" +
+            "      deployment {" +
+            "        id" +
+            "        enabled" +
+            "        jobVersion" +
+            "        deployedDate" +
+            "        deployedBy" +
+            "        resources {" +
+            "           cpuLimit" +
+            "           cpuRequest" +
+            "           memoryLimit" +
+            "           memoryRequest" +
+            "        }" +
+            "        schedule {" +
+            "           scheduleCron" +
+            "        }" +
+            "        vdkVersion" +
+            "      }" +
             "    }" +
             "    totalPages" +
             "    totalItems" +
@@ -89,17 +106,17 @@ public class GraphQLExecutionsIT extends BaseIT {
    }
 
    @Test
-   public void testExecutions_filterByStartTimeGte() throws Exception {
+   public void testExecutions_filterByStartTimeGte_shouldReturnAllProperties() throws Exception {
       mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
-                  .queryParam("query", getQuery())
-                  .param("variables", "{" +
-                        "\"filter\": {" +
-                        "      \"startTimeGte\": \"" + dataJobExecution2.getStartTime() + "\"" +
-                        "    }," +
-                        "\"pageNumber\": 1," +
-                        "\"pageSize\": 10" +
-                        "}")
-                  .with(user(TEST_USERNAME)))
+            .queryParam("query", getQuery())
+            .param("variables", "{" +
+                  "\"filter\": {" +
+                  "      \"startTimeGte\": \"" + dataJobExecution2.getStartTime() + "\"" +
+                  "    }," +
+                  "\"pageNumber\": 1," +
+                  "\"pageSize\": 10" +
+                  "}")
+            .with(user(TEST_USERNAME)))
             .andExpect(status().is(200))
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath(
@@ -111,6 +128,33 @@ public class GraphQLExecutionsIT extends BaseIT {
             .andExpect(jsonPath(
                   "$.data.content[*].status",
                   Matchers.contains(dataJobExecution1.getStatus().toString(), dataJobExecution2.getStatus().toString())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.jobVersion",
+                  Matchers.contains(dataJobExecution1.getJobVersion(), dataJobExecution2.getJobVersion())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.deployedDate",
+                  Matchers.contains(dataJobExecution1.getLastDeployedDate().toString(), dataJobExecution2.getLastDeployedDate().toString())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.deployedBy",
+                  Matchers.contains(dataJobExecution1.getLastDeployedBy(), dataJobExecution2.getLastDeployedBy())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.vdkVersion",
+                  Matchers.contains(dataJobExecution1.getVdkVersion(), dataJobExecution2.getVdkVersion())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.resources.cpuRequest",
+                  Matchers.contains(dataJobExecution1.getResourcesCpuRequest().doubleValue(), dataJobExecution2.getResourcesCpuRequest().doubleValue())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.resources.cpuLimit",
+                  Matchers.contains(dataJobExecution1.getResourcesCpuLimit().doubleValue(), dataJobExecution2.getResourcesCpuLimit().doubleValue())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.resources.memoryRequest",
+                  Matchers.contains(dataJobExecution1.getResourcesMemoryRequest(), dataJobExecution2.getResourcesMemoryRequest())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.resources.memoryLimit",
+                  Matchers.contains(dataJobExecution1.getResourcesMemoryLimit(), dataJobExecution2.getResourcesMemoryLimit())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].deployment.schedule.scheduleCron",
+                  Matchers.contains(dataJobExecution1.getJobSchedule(), dataJobExecution2.getJobSchedule())))
             .andExpect(jsonPath(
                   "$.data.content[*].id",
                   Matchers.not(Matchers.contains(dataJobExecution3.getId()))));

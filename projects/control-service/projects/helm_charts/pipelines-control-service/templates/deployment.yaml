@@ -194,6 +194,14 @@ spec:
             - name: DATAJOBS_EXECUTIONS_LOGS_URL_DATE_FORMAT
               value: "{{ .Values.dataJob.executions.logsUrl.dateFormat }}"
             {{- end }}
+            {{- if .Values.dataJob.executions.logsUrl.startTimeOffsetSeconds }}
+            - name: DATAJOBS_EXECUTIONS_LOGS_URL_START_TIME_OFFSET_SECONDS
+              value: "{{ .Values.dataJob.executions.logsUrl.startTimeOffsetSeconds }}"
+            {{- end }}
+            {{- if .Values.dataJob.executions.logsUrl.endTimeOffsetSeconds }}
+            - name: DATAJOBS_EXECUTIONS_LOGS_URL_END_TIME_OFFSET_SECONDS
+              value: "{{ .Values.dataJob.executions.logsUrl.endTimeOffsetSeconds }}"
+            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}

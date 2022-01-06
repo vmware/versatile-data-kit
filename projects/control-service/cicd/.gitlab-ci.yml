@@ -206,6 +206,7 @@ control_service_post_deployment_test:
     - pip install vdk-heartbeat[trino]
     - vdk version
     - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+    - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
     - vdk-heartbeat -f projects/control-service/cicd/post_deploy_test_heartbeat_config.ini
   retry: !reference [.control_service_retry, retry_options]
   only:
