@@ -37,7 +37,7 @@ The following records are added:
 Please run the following Python code to insert the new records into the source table **only after the initial data job execution**:
 
 <details>
-  <summary>Add rows to source DB table</summary> 
+  <summary>Add rows to source DB table</summary>
 
 ```py
 import sqlite3
@@ -54,7 +54,7 @@ data = [
 ]
 cursor.executemany(
     """
-    INSERT INTO increm_ingest 
+    INSERT INTO increm_ingest
     VALUES (?, ?, ?)
     """,
     data
@@ -81,7 +81,7 @@ pip install quickstart-vdk
 ```
 Note that Versatile Data Kit requires Python 3.7+. See the [Installation page](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-sdk) for more details.
 
-  
+
 
 Please note that this example uses data job properties, which means that you would also need to install **VDK Control Service.**
 
@@ -93,7 +93,7 @@ Please note that this example uses data job properties, which means that you wou
 
 <ins>Then run</ins>:
 ```console
-vdk server --install 
+vdk server --install
 ```
 
 Ingestion requires us to set environment variables for:
@@ -123,7 +123,7 @@ The structure of our Data Job is as follows:
 
 ```
 incremental-ingest-from-db-example/
-├── data/ 
+├── data/
 ├──── incremental_ingest_example.db
 ├── 10_increm_ingest_from_db_example.py
 ├── README.md
@@ -177,7 +177,7 @@ def run(job_input: IJobInput):
 ```
 </details>
 
-The code fetches the necessary records from the source SQLite DB and writes them into the `incremental_ingest_from_db_example` table in the target `vdk-increment-sqlite` database. This is done using the built-in methods of VDK's job_input interface `job_input.execute_query()` and `job_input.send_tabular_data_for_ingestion()`. 
+The code fetches the necessary records from the source SQLite DB and writes them into the `incremental_ingest_from_db_example` table in the target `vdk-increment-sqlite` database. This is done using the built-in methods of VDK's job_input interface `job_input.execute_query()` and `job_input.send_tabular_data_for_ingestion()`.
 
 To determine whether to ingest all records from the source or only the once that are not present in the target already, the `last_date` job property is used. Job properties allow storing state and/or credentials; there are pre-defined methods of the job_input interface that can be directly adopted by users of VDK. The documentation on data job properties' methods can be found [here](https://github.com/vmware/versatile-data-kit/blob/246008c8fffcac173b6ac3f434814acb6faf16a7/projects/vdk-core/src/vdk/api/job_input.py#L11).
 
@@ -220,7 +220,7 @@ Upon successful completion of the Data Job, we should see a log similar to this:
 ```
 </details>
 
-**Please remember to add the new records in the source DB** after running the data job for the first time (as explained in the Database section above) in case you want to track the incremental ingestion effect. If no new records are added to the source database and the data job is run again, no new data will be ingested and the target table will stay the same. 
+**Please remember to add the new records in the source DB** after running the data job for the first time (as explained in the Database section above) in case you want to track the incremental ingestion effect. If no new records are added to the source database and the data job is run again, no new data will be ingested and the target table will stay the same.
 
 After running the data job, we can check whether the new backup table was populated correctly by using the `sqlite-query` command afforded to us by the `vdk-sqlite` plugin, which we can use to execute queries against the configured SQLite database (`VDK_SQLITE_FILE` environment variable) without having to set up a data job for that.
 Since initially the `VDK_SQLITE_FILE` environment variable was set to the source DB, we need to reassign it to query the target DB instead and then execute the `sqlite-query` command:
@@ -248,14 +248,14 @@ After the incremental ingestion, we should see the 2 new records appended at the
 
 ```
 ---------------------------------------------------------------------------------------------
-Creating new connection against local file database located at: vdk-increment-sqlite.db   
+Creating new connection against local file database located at: vdk-increment-sqlite.db
 
-id    descr                       reported_date   
-----------------------------------------------   
-1     record one                  10-01-2021   
-2     second record               10-02-2021   
-3     this is record 3            10-03-2021   
-4     that's a new record!        11-01-2021   
+id    descr                       reported_date
+----------------------------------------------
+1     record one                  10-01-2021
+2     second record               10-02-2021
+3     this is record 3            10-03-2021
+4     that's a new record!        11-01-2021
 5     and another new record..    11-02-2021
 ---------------------------------------------------------------------------------------------
 ```
