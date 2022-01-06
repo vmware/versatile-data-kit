@@ -21,13 +21,18 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
 
     def __init__(
         self,
+        krb5_conf_filename: str,
         keytab_pathname: str,
         kerberos_principal: str,
         kerberos_realm: str,
         kerberos_kdc_hostname: str,
     ):
         super().__init__(
-            keytab_pathname, kerberos_principal, kerberos_realm, kerberos_kdc_hostname
+            krb5_conf_filename,
+            keytab_pathname,
+            kerberos_principal,
+            kerberos_realm,
+            kerberos_kdc_hostname,
         )
 
         self._ccache_file = tempfile.NamedTemporaryFile(
