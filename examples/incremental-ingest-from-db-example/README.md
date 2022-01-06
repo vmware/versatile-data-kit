@@ -37,7 +37,7 @@ The following records are added:
 Please run the following Python code to insert the new records into the source table **only after the initial data job execution**:
 
 <details>
-  <summary>Add rows to source DB table</summary>
+  <summary>Add rows to source DB table</summary> 
 
 ```py
 import sqlite3
@@ -54,7 +54,7 @@ data = [
 ]
 cursor.executemany(
     """
-    INSERT INTO increm_ingest
+    INSERT INTO increm_ingest 
     VALUES (?, ?, ?)
     """,
     data
@@ -81,7 +81,7 @@ pip install quickstart-vdk
 ```
 Note that Versatile Data Kit requires Python 3.7+. See the [Installation page](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-sdk) for more details.
 
-
+  
 
 Please note that this example uses data job properties, which means that you would also need to install **VDK Control Service.**
 
@@ -93,7 +93,7 @@ Please note that this example uses data job properties, which means that you wou
 
 <ins>Then run</ins>:
 ```console
-vdk server --install
+vdk server --install 
 ```
 
 Ingestion requires us to set environment variables for:
@@ -101,7 +101,7 @@ Ingestion requires us to set environment variables for:
 1.  the type of database in which we will be ingesting;
 2.  the ingestion method;
 3.  the ingestion target - the location of the target database - if this file is not present, ingestion will create it in the current directory. For this example, we will use `vdk-increment-sqlite.db` file which will be created in the current directory;
-4.  the file of the default SQLite database against which vdk runs (same value as ingestion target in this case);
+4.  the file of the default SQLite database against which vdk runs - initially we set this to the origin SQLite DB since we will be querying it first, and later we can change it to the target to check the results from ingestion;
 5.  the URL for the VDK control service API (in case of using job properties).
 
 Enter the following commands in the command prompt (if you are on a Windows system, use `set` keyword instead of `export`):
@@ -109,8 +109,8 @@ Enter the following commands in the command prompt (if you are on a Windows syst
 export VDK_DB_DEFAULT_TYPE=SQLITE
 export VDK_INGEST_METHOD_DEFAULT=sqlite
 export VDK_INGEST_TARGET_DEFAULT=vdk-increment-sqlite.db
-export VDK_SQLITE_FILE=vdk-increment-sqlite.db
-export VDK_CONTROL_SERVICE_REST_API_URL=[http://localhost:8092](http://localhost:8092/)
+export VDK_SQLITE_FILE=VDK_SQLITE_FILE=<path_to_datajob_folder>\data\incremental_ingest_example.db
+export VDK_CONTROL_SERVICE_REST_API_URL=http://localhost:8092/
 ```
 **Note:** If you want to ingest data into another target (i.e. another database - Postgres, Trino, etc.), install the appropriate plugin using `pip install vdk-plugin-name` and change `VDK_INGEST_METHOD_DEFAULT` environment variable. See a list of plugins [here](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins).
 
@@ -123,9 +123,10 @@ The structure of our Data Job is as follows:
 
 ```
 incremental-ingest-from-db-example/
-├── data/
+├── data/ 
 ├──── incremental_ingest_example.db
 ├── 10_increm_ingest_from_db_example.py
+├── README.md
 ```
 
 The purpose of this example is to demonstrate how the user can query data from a source database and then ingest it to the target database in an incremental fashion (only enriching the target with any new data added to the source). Our Data Job `incremental-ingest-from-db-example` uses local SQLite database as source (`incremental_ingest_example.db`) and local SQLite database as target (`vdk-increment-sqlite.db`) where we create the backup table of the source.
@@ -136,9 +137,6 @@ The purpose of this example is to demonstrate how the user can query data from a
   <summary>10_increm_ingest_from_db_example.py</summary>
 
 ```py
-import os
-import pathlib
-import sqlite3
 from vdk.api.job_input import IJobInput
 
 
@@ -146,51 +144,47 @@ def run(job_input: IJobInput):
 
     # Get last_date property/parameter:
     #  - if the target table already exists, take the property value already stored in the DJ from the previous run
-    #  - if the target table does not exist, set last_date to 01-01-1900 in order to fetch all rows
+    #  - if the target table does not exist, set last_date to 01-01-1900 in oder to fetch all rows
     last_date = job_input.get_property("last_date", '01-01-1900')
 
-    # Connect to sqlite local db
-    os.chdir(pathlib.Path(__file__).parent.absolute())
-    with sqlite3.connect('data/incremental_ingest_example.db') as db_connection:
+    # Select the needed records from the source table using job_input's built-in method and a query parameter
+    data = job_input.execute_query(
+        f"""
+        SELECT * FROM increm_ingest
+        WHERE reported_date > '{last_date}'
+        ORDER BY reported_date
+        """
+    )
+    # Fetch table info containing the column names
+    table_info = job_input.execute_query("PRAGMA table_info(increm_ingest)")
 
-        # Create a cursor object
-        cursor = db_connection.cursor()
-
-        # Select the needed records from the source table using a sqlite query parameter
-        cursor.execute(
-            f"""
-            SELECT * FROM increm_ingest
-            WHERE reported_date > '{last_date}'
-            ORDER BY reported_date
-            """
+    # If any data is returned from the query, send the fetched records for ingestion
+    if len(data) > 0:
+        job_input.send_tabular_data_for_ingestion(
+            data,
+            column_names=[x[1] for x in table_info],
+            destination_table="incremental_ingest_from_db_example"
         )
-        data = cursor.fetchall()
 
-        # If any data is returned from the query, send the fetched records for ingestion
-        if len(data) > 0:
-            job_input.send_tabular_data_for_ingestion(
-                data,
-                column_names=[column_info[0] for column_info in cursor.description],
-                destination_table="incremental_ingest_from_db_example"
-            )
+        # Reset the last_date property value to the latest date in the source db table
+        job_input.set_all_properties(
+            {
+                "last_date": max([x[2] for x in data])
+            }
+        )
 
-            # Reset the last_date property value to the latest date in the source db table
-            job_input.set_all_properties(
-                {
-                    "last_date": max([x[2] for x in data])
-                }
-            )
-
-        print(f"Success! {len(data)} rows were inserted.")
+    print(f"Success! {len(data)} rows were inserted.")
 ```
 </details>
 
-The code opens a connection to the source SQLite DB, fetches the necessary records and writes them into the `incremental_ingest_from_db_example` table in the target `vdk-increment-sqlite` database. To determine whether to ingest all records from the source or only the once that are not present in the target already, the `last_date` job property is used. Job properties allow storing state and/or credentials; there are pre-defined methods of the job_input interface that can be directly adopted by users of VDK. The documentation on data job properties' methods can be found [here](https://github.com/vmware/versatile-data-kit/blob/246008c8fffcac173b6ac3f434814acb6faf16a7/projects/vdk-core/src/vdk/api/job_input.py#L11).
+The code fetches the necessary records from the source SQLite DB and writes them into the `incremental_ingest_from_db_example` table in the target `vdk-increment-sqlite` database. This is done using the built-in methods of VDK's job_input interface `job_input.execute_query()` and `job_input.send_tabular_data_for_ingestion()`. 
+
+To determine whether to ingest all records from the source or only the once that are not present in the target already, the `last_date` job property is used. Job properties allow storing state and/or credentials; there are pre-defined methods of the job_input interface that can be directly adopted by users of VDK. The documentation on data job properties' methods can be found [here](https://github.com/vmware/versatile-data-kit/blob/246008c8fffcac173b6ac3f434814acb6faf16a7/projects/vdk-core/src/vdk/api/job_input.py#L11).
 
 Execution
 ---------
 
-To run the Data Job, we navigate to the parent directory of the Job, and run the following command from a terminal:
+To run the Data Job, we navigate to the parent directory of the Job and run the following command from a terminal:
 
 ```console
 vdk run incremental-ingest-from-db-example-job
@@ -226,11 +220,13 @@ Upon successful completion of the Data Job, we should see a log similar to this:
 ```
 </details>
 
-**Please remember to add the new records in the source DB** after running the data job for the first time (as explained in the Database section above) in case you want to track the incremental ingestion effect. If no new records are added to the source database and the data job is run again, no new data will be ingested and the target table will stay the same.
+**Please remember to add the new records in the source DB** after running the data job for the first time (as explained in the Database section above) in case you want to track the incremental ingestion effect. If no new records are added to the source database and the data job is run again, no new data will be ingested and the target table will stay the same. 
 
-After running the data job, we can check whether the new backup table was populated correctly by using the `sqlite-query` command afforded to us by the `vdk-sqlite` plugin, which we can use to execute queries against the configured SQLite database (`VDK_SQLITE_FILE` environment variable) without having to set up a data job for that:
+After running the data job, we can check whether the new backup table was populated correctly by using the `sqlite-query` command afforded to us by the `vdk-sqlite` plugin, which we can use to execute queries against the configured SQLite database (`VDK_SQLITE_FILE` environment variable) without having to set up a data job for that.
+Since initially the `VDK_SQLITE_FILE` environment variable was set to the source DB, we need to reassign it to query the target DB instead and then execute the `sqlite-query` command:
 
 ```
+export/set VDK_SQLITE_FILE=vdk-increment-sqlite.db
 vdk sqlite-query -q "SELECT * FROM incremental_ingest_from_db_example"
 ```
 
@@ -252,14 +248,14 @@ After the incremental ingestion, we should see the 2 new records appended at the
 
 ```
 ---------------------------------------------------------------------------------------------
-Creating new connection against local file database located at: vdk-increment-sqlite.db
+Creating new connection against local file database located at: vdk-increment-sqlite.db   
 
-id    descr                       reported_date
-----------------------------------------------
-1     record one                  10-01-2021
-2     second record               10-02-2021
-3     this is record 3            10-03-2021
-4     that's a new record!        11-01-2021
+id    descr                       reported_date   
+----------------------------------------------   
+1     record one                  10-01-2021   
+2     second record               10-02-2021   
+3     this is record 3            10-03-2021   
+4     that's a new record!        11-01-2021   
 5     and another new record..    11-02-2021
 ---------------------------------------------------------------------------------------------
 ```
