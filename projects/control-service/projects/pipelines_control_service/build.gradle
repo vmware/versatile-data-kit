@@ -40,6 +40,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.retry:spring-retry'
 
     // Janino is used for conditional processing in the logback-spring.xml file
     implementation 'org.codehaus.janino:janino'
