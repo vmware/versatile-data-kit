@@ -23,6 +23,7 @@ class KerberosAuthenticatorFactory:
     ) -> Optional[BaseAuthenticator]:
         if authentication_type == "minikerberos":
             return MinikerberosGSSAPIAuthenticator(
+                self.__configuration.krb5_conf_filename(),
                 self.__configuration.keytab_pathname(),
                 self.__configuration.keytab_principal(),
                 self.__configuration.keytab_realm(),
@@ -30,6 +31,7 @@ class KerberosAuthenticatorFactory:
             )
         elif authentication_type == "kinit":
             return KinitGSSAPIAuthenticator(
+                self.__configuration.krb5_conf_filename(),
                 self.__configuration.keytab_pathname(),
                 self.__configuration.keytab_principal(),
             )  # Can kinit the whole process

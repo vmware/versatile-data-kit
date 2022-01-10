@@ -7,6 +7,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 
 KRB_AUTH = "KRB_AUTH"
 KEYTAB_FOLDER = "KEYTAB_FOLDER"
+KRB5_CONF_FILENAME = "KRB5_CONF_FILENAME"
 KEYTAB_FILENAME = "KEYTAB_FILENAME"
 KEYTAB_PRINCIPAL = "KEYTAB_PRINCIPAL"
 KEYTAB_REALM = "KEYTAB_REALM"
@@ -36,6 +37,9 @@ class KerberosPluginConfiguration:
 
     def keytab_pathname(self):
         return os.path.join(self.keytab_folder(), self.keytab_filename())
+
+    def krb5_conf_filename(self):
+        return self.__config.get_value(KRB5_CONF_FILENAME)
 
     def keytab_principal(self):
         keytab_principal = self.__config.get_value(KEYTAB_PRINCIPAL)
@@ -70,6 +74,13 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         default_value=None,
         description="Specifies the folder containing the keytab file. "
         "If left empty, the keytab file is expected to be located inside the data job folder.",
+    )
+    config_builder.add(
+        key=KRB5_CONF_FILENAME,
+        default_value=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "krb5.conf"
+        ),
+        description="Specifies the path to the krb5.conf file that should supply Kerberos configuration.",
     )
     config_builder.add(
         key=KEYTAB_PRINCIPAL,
