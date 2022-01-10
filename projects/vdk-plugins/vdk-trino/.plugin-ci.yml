@@ -36,3 +36,8 @@ release-vdk-trino:
   variables:
     PLUGIN_NAME: vdk-trino
   extends: .release-plugin
+
+release-vdk-trino-stable:
+  variables:
+    PLUGIN_NAME: vdk-trino
+  extends: .release-plugin-stable

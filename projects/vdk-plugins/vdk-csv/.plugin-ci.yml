@@ -31,3 +31,8 @@ release-vdk-csv:
   variables:
     PLUGIN_NAME: vdk-csv
   extends: .release-plugin
+
+release-vdk-csv-stable:
+  variables:
+    PLUGIN_NAME: vdk-csv
+  extends: .release-plugin-stable

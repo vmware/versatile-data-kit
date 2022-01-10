@@ -30,3 +30,8 @@ release-vdk-ingest-file:
   variables:
     PLUGIN_NAME: vdk-ingest-file
   extends: .release-plugin
+
+release-vdk-ingest-file-stable:
+  variables:
+    PLUGIN_NAME: vdk-ingest-file
+  extends: .release-plugin-stable

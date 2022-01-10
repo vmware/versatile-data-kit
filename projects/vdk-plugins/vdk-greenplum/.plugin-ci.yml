@@ -37,3 +37,8 @@ release-vdk-greenplum:
   variables:
     PLUGIN_NAME: vdk-greenplum
   extends: .release-plugin
+
+release-vdk-greenplum-stable:
+  variables:
+    PLUGIN_NAME: vdk-greenplum
+  extends: .release-plugin-stable

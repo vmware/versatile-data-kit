@@ -36,6 +36,11 @@ release-quickstart-vdk:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-plugin
 
+release-quickstart-vdk-stable:
+  variables:
+    PLUGIN_NAME: quickstart-vdk
+  extends: .release-plugin-stable
+
 release-vdk-image-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk

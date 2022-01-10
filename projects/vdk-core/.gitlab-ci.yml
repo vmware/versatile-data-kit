@@ -158,9 +158,29 @@ vdk-core-release:
     - pip install -U pip setuptools wheel twine
     - export VDK_RELEASE_OVERRIDE_PATCH_VERSION=${CI_PIPELINE_ID}
     - ./cicd/set-patch-version.sh "$VDK_RELEASE_OVERRIDE_PATCH_VERSION"
-    - ./cicd/release-vdk-core.sh
+    - ./cicd/prepare-vdk-core-release.sh
+    - python setup.py egg_info --tag-build=dev sdist --formats=gztar
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose # credentials must be provided as gitlab vars
   retry: !reference [.retry, retry_options]
   only:
     refs:
       - main
     changes: *vdk_core_locations
+
+vdk-core-release-stable:
+  stage: release
+  before_script:
+    - cd projects/vdk-core/
+  script:
+    - pip install -U pip setuptools wheel twine
+    - rm version.txt # remove the current version file, and replace it with the global project version
+    - cp ../../version.txt ./version.txt
+    - ./cicd/prepare-vdk-core-release.sh
+    - python setup.py sdist --formats=gztar
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose # credentials must be provided as gitlab vars
+  retry: !reference [.retry, retry_options]
+  only:
+    refs:
+      - main
+    changes:
+      - "version.txt"

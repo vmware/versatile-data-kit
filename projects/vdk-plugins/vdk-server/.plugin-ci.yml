@@ -30,3 +30,8 @@ release-vdk-server:
   variables:
     PLUGIN_NAME: vdk-server
   extends: .release-plugin
+
+release-vdk-server-stable:
+  variables:
+    PLUGIN_NAME: vdk-server
+  extends: .release-plugin-stable

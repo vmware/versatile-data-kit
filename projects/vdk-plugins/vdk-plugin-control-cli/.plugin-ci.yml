@@ -31,3 +31,8 @@ release-vdk-plugin-control-cli:
   variables:
     PLUGIN_NAME: vdk-plugin-control-cli
   extends: .release-plugin
+
+release-vdk-plugin-control-cli-stable:
+  variables:
+    PLUGIN_NAME: vdk-plugin-control-cli
+  extends: .release-plugin-stable

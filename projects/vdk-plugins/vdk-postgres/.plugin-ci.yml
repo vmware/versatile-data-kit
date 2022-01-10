@@ -36,3 +36,8 @@ release-vdk-postgres:
   variables:
     PLUGIN_NAME: vdk-postgres
   extends: .release-plugin
+
+release-vdk-postgres-stable:
+  variables:
+    PLUGIN_NAME: vdk-postgres
+  extends: .release-plugin-stable

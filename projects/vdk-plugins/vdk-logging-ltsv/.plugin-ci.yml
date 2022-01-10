@@ -31,3 +31,8 @@ release-vdk-logging-ltsv:
   variables:
     PLUGIN_NAME: vdk-logging-ltsv
   extends: .release-plugin
+
+release-vdk-logging-ltsv-stable:
+  variables:
+    PLUGIN_NAME: vdk-logging-ltsv
+  extends: .release-plugin-stable

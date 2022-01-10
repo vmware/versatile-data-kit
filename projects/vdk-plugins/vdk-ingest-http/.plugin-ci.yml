@@ -30,3 +30,8 @@ release-vdk-ingest-http:
   variables:
     PLUGIN_NAME: vdk-ingest-http
   extends: .release-plugin
+
+release-vdk-ingest-http-stable:
+  variables:
+    PLUGIN_NAME: vdk-ingest-http
+  extends: .release-plugin-stable

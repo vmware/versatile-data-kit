@@ -30,3 +30,8 @@ release-vdk-kerberos-auth:
   variables:
     PLUGIN_NAME: vdk-kerberos-auth
   extends: .release-plugin
+
+release-vdk-kerberos-auth-stable:
+  variables:
+    PLUGIN_NAME: vdk-kerberos-auth
+  extends: .release-plugin-stable

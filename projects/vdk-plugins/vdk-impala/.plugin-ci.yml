@@ -37,3 +37,8 @@ release-vdk-impala:
   variables:
     PLUGIN_NAME: vdk-impala
   extends: .release-plugin
+
+release-vdk-impala-stable:
+  variables:
+    PLUGIN_NAME: vdk-impala
+  extends: .release-plugin-stable

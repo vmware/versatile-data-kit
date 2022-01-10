@@ -30,3 +30,8 @@ release-vdk-logging-json:
   variables:
     PLUGIN_NAME: vdk-logging-json
   extends: .release-plugin
+
+release-vdk-logging-json-stable:
+  variables:
+    PLUGIN_NAME: vdk-logging-json
+  extends: .release-plugin-stable

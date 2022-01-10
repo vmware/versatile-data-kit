@@ -31,3 +31,8 @@ release-vdk-sqlite:
   variables:
     PLUGIN_NAME: vdk-sqlite
   extends: .release-plugin
+
+release-vdk-sqlite-stable:
+  variables:
+    PLUGIN_NAME: vdk-sqlite
+  extends: .release-plugin-stable

@@ -95,3 +95,25 @@ Entrypoint of CICD is the file .gitlab-ci.yml.
 
 There you can find the full definition of the CI/CD pipeline.
 For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD)
+
+# How to make a new VDK release
+
+There are two kinds of releases made - development releases and stable releases.
+
+Development releases are made automatically and separately for each component when
+any changes to their directory are merged to the main branch. These have the `dev` tag
+in their version and are labelled `pre-release` in PyPI, meaning to install them by
+default one must include the `--pre` flag in their `pip install` call.
+Development releases are not intended to be installed by end-users as they may be
+buggy, or include incomplete functionality.
+
+Stable releases are made for all components at the same time when a change to the
+main `version.txt` file is merged to the main branch. All stable releases within a
+particular release cycle will have the same version - the same as the one specified
+in the `version.txt` file.
+
+To make a new stable release, follow these steps:
+ - Create a pull request changing the version inside the global `version.txt` file in the main repository directory;
+- Merge this pull request - this will trigger CI/CD release steps for all components;
+- Create a new release from the Releases menu - this will require a new tag, which should have the same name as the version in `version.txt`;
+- Autogenerate the changelog, then sort the changes alphabetically; if all change names are prefixed with the component name, this will ensure changes are grouped by component. Sorting can be done using the `sort` utility available in MacOS and Linux distros.

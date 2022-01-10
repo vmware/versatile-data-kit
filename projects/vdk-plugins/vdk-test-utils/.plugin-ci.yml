@@ -30,3 +30,8 @@ release-vdk-test-utils:
   variables:
     PLUGIN_NAME: vdk-test-utils
   extends: .release-plugin
+
+release-vdk-test-utils-stable:
+  variables:
+    PLUGIN_NAME: vdk-test-utils
+  extends: .release-plugin-stable

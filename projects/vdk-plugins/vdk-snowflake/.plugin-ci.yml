@@ -27,3 +27,8 @@ release-vdk-snowflake:
   variables:
     PLUGIN_NAME: vdk-snowflake
   extends: .release-plugin
+
+release-vdk-snowflake-stable:
+  variables:
+    PLUGIN_NAME: vdk-snowflake
+  extends: .release-plugin-stable
