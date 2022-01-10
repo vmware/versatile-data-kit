@@ -135,6 +135,14 @@ def jobs_path_from_caller_directory(job_name: str):
     return get_test_job_path(caller_dir, job_name)
 
 
+def get_caller_directory():
+    import inspect
+
+    frame = inspect.stack()[1]
+    module = inspect.getmodule(frame[0])
+    return pathlib.Path(os.path.dirname(os.path.abspath(module.__file__)))
+
+
 class DataJobBuilder:
     def __init__(self):
         self.step_builder: StepBuilder = StepBuilder()

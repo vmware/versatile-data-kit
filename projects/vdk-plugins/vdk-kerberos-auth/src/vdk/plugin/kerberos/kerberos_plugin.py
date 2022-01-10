@@ -36,9 +36,9 @@ class KerberosPlugin:
             )
         except Exception:
             log.error(
-                f"Kerberos authenticator cannot be created. You can provide configuration that specifies "
-                f"keytab info using the following environment variables: {'VDK_KEYTAB_FOLDER'}, or "
-                f"{'VDK_KEYTAB_FILENAME'} and {'VDK_KEYTAB_PRINCIPAL'}"
+                "Kerberos authenticator cannot be created. You can provide configuration that specifies "
+                "keytab info using the following environment variables: VDK_KEYTAB_FOLDER, or "
+                "VDK_KEYTAB_FILENAME and VDK_KEYTAB_PRINCIPAL"
             )
             self.__authenticator = None
 
