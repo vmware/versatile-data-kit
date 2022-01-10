@@ -116,7 +116,7 @@ class Config:
 
         # Job name deployed during the test
         self.job_name = self.get_value(
-            "JOB_NAME", f"vdk-heartbeat-data-job-{job_suffix}"
+            "JOB_NAME", f"vdk-heartbeat-data-job-{job_suffix}"[0:45]
         )
         """
         The team of the data job ot use.

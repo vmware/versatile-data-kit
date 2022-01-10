@@ -8,15 +8,19 @@ from typing import Optional
 
 import click
 import pluggy
+import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
+from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import ImmutableStoreKey
 from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino import trino_config
@@ -88,14 +92,41 @@ def initialize_job(context: JobContext) -> None:
     )
 
 
-@hookimpl(hookwrapper=True, trylast=True)
+@hookimpl(hookwrapper=True, tryfirst=True)
 def run_step(context: JobContext, step: Step) -> None:
     out: pluggy.callers._Result
     out = yield
     if out.excinfo:
         exc_type, exc_value, exc_traceback = out.excinfo
         if isinstance(exc_value, TrinoUserError):
-            raise UserCodeError() from exc_value
+            raise UserCodeError(ErrorMessage()) from exc_value
+    if out.result:
+        step_result: StepResult = out.result
+        if isinstance(step_result.exception, requests.exceptions.ConnectionError):
+            raise VdkConfigurationError(
+                ErrorMessage(
+                    summary="Trino query failed",
+                    what="Trino query failed with connectivity error",
+                    why=f"Error message was: {step_result.exception}. "
+                    f"Likely the query has a configuration error that needs to be address."
+                    f" See above error message for more details.",
+                    consequences="The SQL query will fail and the job step likely will fail.",
+                    countermeasures="Please fix the error and try again. "
+                    "Verify the current trino configuration with vdk config-help.",
+                ),
+            ) from step_result.exception
+        if isinstance(step_result.exception, TrinoUserError):
+            raise UserCodeError(
+                ErrorMessage(
+                    summary="Trino query failed",
+                    what="Trino query failed with user error",
+                    why=f"Error message was: {step_result.exception.message}. "
+                    f"Likely the query has an syntax error that needs to be addressed."
+                    f" See above error message for more details.",
+                    consequences="The SQL query will fail and the job step likely will fail.",
+                    countermeasures="Please fix the error and try again.",
+                )
+            ) from step_result.exception
 
 
 @click.command(name="trino-query", help="Execute a SQL query against a Trino database.")
