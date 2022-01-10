@@ -41,9 +41,9 @@ def tmp_termination_msg_file(tmpdir) -> pathlib.Path:
 )
 class TestImpalaErrors:
     def test_impala_user_error(self, tmp_termination_msg_file):
-        runner = CliEntryBasedTestRunner(impala_plugin)
+        self.runner = CliEntryBasedTestRunner(impala_plugin)
 
-        result = runner.invoke(
+        result = self.runner.invoke(
             ["run", jobs_path_from_caller_directory("sql-job-syntax-error")]
         )
 
