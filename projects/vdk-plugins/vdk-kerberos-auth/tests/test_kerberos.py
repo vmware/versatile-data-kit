@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
+import pathlib
 import unittest
 from unittest import mock
 
@@ -23,7 +24,22 @@ class TemplateRegressionTests(unittest.TestCase):
             ["run", jobs_path_from_caller_directory("test-job")]
         )
 
+        assert '"status": "success"' in result.output
         cli_assert_equal(0, result)
+
+    def test_invalid_authentication_mode(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_KRB_AUTH": "invalid",
+            },
+        ):
+            result: Result = self.__runner.invoke(
+                ["run", jobs_path_from_caller_directory("test-job")]
+            )
+
+            assert "VDK_KRB_AUTH has invalid value" in result.output
+            cli_assert_equal(1, result)
 
     def test_kinit_authentication(self):
         krb5_conf_filename = str(get_caller_directory().joinpath("krb5.conf"))
@@ -38,7 +54,46 @@ class TemplateRegressionTests(unittest.TestCase):
                 ["run", jobs_path_from_caller_directory("test-job")]
             )
 
+            assert '"status": "success"' in result.output
             cli_assert_equal(0, result)
+
+    def test_kinit_authentication_with_wrong_credentials(self):
+        # Try to authenticate a data job using a keytab for a different principal.
+        krb5_conf_filename = str(get_caller_directory().joinpath("krb5.conf"))
+        data_job_path = jobs_path_from_caller_directory("test-job")
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_KRB_AUTH": "kinit",
+                "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_KEYTAB_FILENAME": str(
+                    pathlib.Path(data_job_path).joinpath("different_principal.keytab")
+                ),
+            },
+        ):
+            result: Result = self.__runner.invoke(["run", data_job_path])
+
+            assert "kinit returned exitcode 1" in result.output
+            cli_assert_equal(1, result)
+
+    def test_kinit_authentication_with_missing_keytab(self):
+        # Try to authenticate a data job using a missing keytab.
+        krb5_conf_filename = str(get_caller_directory().joinpath("krb5.conf"))
+        data_job_path = jobs_path_from_caller_directory("test-job")
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_KRB_AUTH": "kinit",
+                "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_KEYTAB_FILENAME": str(
+                    pathlib.Path(data_job_path).joinpath("non_existent.keytab")
+                ),
+            },
+        ):
+            result: Result = self.__runner.invoke(["run", data_job_path])
+
+            assert "Cannot locate keytab file" in result.output
+            cli_assert_equal(1, result)
 
     def test_minikerberos_authentication(self):
         krb5_conf_filename = str(get_caller_directory().joinpath("krb5.conf"))
@@ -55,4 +110,43 @@ class TemplateRegressionTests(unittest.TestCase):
                 ["run", jobs_path_from_caller_directory("test-job")]
             )
 
+            assert '"status": "success"' in result.output
             cli_assert_equal(0, result)
+
+    def test_minikerberos_authentication_with_wrong_credentials(self):
+        # Try to authenticate a data job using a keytab for a different principal.
+        krb5_conf_filename = str(get_caller_directory().joinpath("krb5.conf"))
+        data_job_path = jobs_path_from_caller_directory("test-job")
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_KRB_AUTH": "minikerberos",
+                "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_KEYTAB_FILENAME": str(
+                    pathlib.Path(data_job_path).joinpath("different_principal.keytab")
+                ),
+            },
+        ):
+            result: Result = self.__runner.invoke(["run", data_job_path])
+
+            assert "Client not found in Kerberos database" in result.output
+            cli_assert_equal(1, result)
+
+    def test_minikerberos_authentication_with_missing_keytab(self):
+        # Try to authenticate a data job using a missing keytab.
+        krb5_conf_filename = str(get_caller_directory().joinpath("krb5.conf"))
+        data_job_path = jobs_path_from_caller_directory("test-job")
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_KRB_AUTH": "minikerberos",
+                "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_KEYTAB_FILENAME": str(
+                    pathlib.Path(data_job_path).joinpath("non_existent.keytab")
+                ),
+            },
+        ):
+            result: Result = self.__runner.invoke(["run", data_job_path])
+
+            assert "Cannot locate keytab file" in result.output
+            cli_assert_equal(1, result)

@@ -40,7 +40,7 @@ class KerberosPlugin:
                 "keytab info using the following environment variables: VDK_KEYTAB_FOLDER, or "
                 "VDK_KEYTAB_FILENAME and VDK_KEYTAB_PRINCIPAL"
             )
-            self.__authenticator = None
+            raise
 
         if self.__authenticator:
             self.__authenticator.authenticate()
