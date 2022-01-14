@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
-import time
 import unittest
 from unittest.mock import call
 from unittest.mock import patch
@@ -12,7 +11,6 @@ from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
-from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_IMPALA_HOST = "VDK_IMPALA_HOST"
@@ -24,10 +22,7 @@ VDK_IMPALA_QUERY_POOL = "VDK_IMPALA_QUERY_POOL"
 @pytest.mark.usefixtures("impala_service")
 class ImpalaConnectionTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.query_tracking_plugin = DecoratedSqLite3MemoryDbPlugin()
-        self.__runner = CliEntryBasedTestRunner(
-            impala_plugin, self.query_tracking_plugin
-        )
+        self.__runner = CliEntryBasedTestRunner(impala_plugin)
 
     @patch.dict(
         os.environ,
