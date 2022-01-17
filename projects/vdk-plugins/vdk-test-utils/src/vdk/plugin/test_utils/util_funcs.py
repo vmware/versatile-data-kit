@@ -123,16 +123,24 @@ def get_test_job_path(current_dir: pathlib.Path, job_name: str) -> str:
     return str(jobs_dir.joinpath(job_name))
 
 
-def jobs_path_from_caller_directory(job_name: str):
+def jobs_path_from_caller_directory(job_name: str) -> str:
     """
     Get data job path by looking at "jobs" directory. "jobs" directory is search in same one as caller's file directory.
     """
+    caller_dir = get_caller_directory(2)
+    return get_test_job_path(caller_dir, job_name)
+
+
+def get_caller_directory(levels_up=1) -> pathlib.Path:
+    """
+    Get the directory containing the module that calls this function (levels_up = 1) or
+    the module of the caller's caller (levels_up = 2), etc.
+    """
     import inspect
 
-    frame = inspect.stack()[1]
+    frame = inspect.stack()[levels_up]
     module = inspect.getmodule(frame[0])
-    caller_dir = pathlib.Path(os.path.dirname(os.path.abspath(module.__file__)))
-    return get_test_job_path(caller_dir, job_name)
+    return pathlib.Path(os.path.dirname(os.path.abspath(module.__file__)))
 
 
 class DataJobBuilder:
