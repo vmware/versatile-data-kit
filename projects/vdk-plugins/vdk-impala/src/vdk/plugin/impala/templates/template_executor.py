@@ -31,8 +31,8 @@ class TemplateExecutor:
         self.sql_files = sql_files
         self.sql_files_platform_is_responsible = sql_files_platform_is_responsible  # used to decide blamee for failure, defaults to user
 
-    def start(self, job_input: IJobInput, args: dict) -> None:
-        # args = self._validate_args(args)
+    def start(self, job_input: IJobInput, args: dict) -> dict:
+        args = self._validate_args(args)
         args["_vdk_template_insert_partition_clause"] = ""
 
         impala_helper = ImpalaHelper(cast(JobInput, job_input).get_managed_connection())
@@ -61,6 +61,7 @@ class TemplateExecutor:
             raise Exception(
                 "Source view returns no results. Will NOT execute template!"
             )
+        return args
 
     def _validate_args(self, args: dict) -> dict:
         try:

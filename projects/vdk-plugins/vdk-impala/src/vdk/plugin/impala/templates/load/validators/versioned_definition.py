@@ -70,5 +70,5 @@ class LoadVersioned(TemplateExecutor):
         )
 
 
-def run(job_input: IJobInput):
-    LoadVersioned().start(job_input, job_input.get_arguments())
+def validate_arguments(job_input: IJobInput):
+    return LoadVersioned().start(job_input, job_input.get_arguments())

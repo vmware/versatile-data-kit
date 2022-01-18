@@ -4,10 +4,8 @@ import logging
 from collections import OrderedDict
 
 import pyarrow
-from vdk.internal.builtin_plugins.connection.managed_connection_base import (
-    ManagedConnectionBase,
-)
 from vdk.internal.core import errors
+from vdk.plugin.impala import impala_error_classifier
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 
 
@@ -21,9 +19,7 @@ class ImpalaHelper:
         try:
             return self._db_connection.execute_query(f"DESCRIBE formatted {table_name}")
         except Exception as e:
-            if errors.exception_matches(
-                e, "impala.error.HiveServer2Error", ".*AuthorizationException.*"
-            ):
+            if impala_error_classifier._is_authorization_error(e):
                 errors.log_and_throw(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=self._log,

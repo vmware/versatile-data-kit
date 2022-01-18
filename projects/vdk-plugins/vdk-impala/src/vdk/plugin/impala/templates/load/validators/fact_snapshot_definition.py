@@ -5,24 +5,20 @@ from vdk.api.job_input import IJobInput
 from vdk.plugin.impala.templates.template_executor import TemplateExecutor
 
 
-class SlowlyChangingDimensionType2Params(BaseModel):
+class FactDailySnapshotParams(BaseModel):
     target_schema: str
     target_table: str
     source_schema: str
     source_view: str
-    start_time_column: str
-    end_time_column: str
-    end_time_default_value: str
-    surrogate_key_column: str
-    id_column: str
+    last_arrival_ts: str
 
 
-class SlowlyChangingDimensionType2(TemplateExecutor):
-    TemplateParams = SlowlyChangingDimensionType2Params
+class FactDailySnapshot(TemplateExecutor):
+    TemplateParams = FactDailySnapshotParams
 
     def __init__(self) -> None:
         super().__init__(
-            template_name="load/dimension/scd2",
+            template_name="load/fact/snapshot",
             sql_files=[
                 "00-test-if-view-matches-target.sql",
                 "01-insert-into-target.sql",
@@ -36,5 +32,5 @@ class SlowlyChangingDimensionType2(TemplateExecutor):
         )
 
 
-def run(job_input: IJobInput):
-    SlowlyChangingDimensionType2().start(job_input, job_input.get_arguments())
+def validate_arguments(job_input: IJobInput):
+    return FactDailySnapshot().start(job_input, job_input.get_arguments())

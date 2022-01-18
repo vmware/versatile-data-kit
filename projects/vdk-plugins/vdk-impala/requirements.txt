@@ -2,12 +2,10 @@ vdk-core
 impyla
 tabulate
 
-# template requirements
-pydantic
-pyarrow
-
 # testing requirements
 click
 vdk-test-utils
 pytest-docker
 docker-compose
+pydantic
+pyarrow

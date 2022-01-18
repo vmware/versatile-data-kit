@@ -7,7 +7,6 @@ import re
 import time
 import unittest
 from unittest.mock import ANY
-from unittest.mock import DEFAULT
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -17,9 +16,21 @@ from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
 
+VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
+VDK_IMPALA_HOST = "VDK_IMPALA_HOST"
+VDK_IMPALA_PORT = "VDK_IMPALA_PORT"
+
 
 @pytest.mark.skip(
     reason="We need to test this with a recent impala instance. Current test instance is too old"
+)
+@patch.dict(
+    os.environ,
+    {
+        VDK_DB_DEFAULT_TYPE: "IMPALA",
+        VDK_IMPALA_HOST: "localhost",
+        VDK_IMPALA_PORT: "21050",
+    },
 )
 class TemplateRegressionTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -66,10 +77,12 @@ class TemplateRegressionTests(unittest.TestCase):
 
     def test_load_dimension_scd1_parameter_validation(self) -> None:
         self._run_template_with_bad_arguments(
-            template_name="load/dimension/scd1", template_args={}, num_exp_errors=4
+            template_name="load_dimension_scd1_template_only",
+            template_args={},
+            num_exp_errors=4,
         )
         self._run_template_with_bad_arguments(
-            template_name="load/dimension/scd1",
+            template_name="load_dimension_scd1_template_only",
             template_args={"source_view": "foo", "extra_parameter": "bar"},
             num_exp_errors=3,
         )
@@ -83,7 +96,7 @@ class TemplateRegressionTests(unittest.TestCase):
         }
 
         self._run_template_with_bad_target_schema(
-            template_name="load/dimension/scd1",
+            template_name="load_dimension_scd1_template_only",
             template_args=template_args,
         )
 
@@ -123,10 +136,12 @@ class TemplateRegressionTests(unittest.TestCase):
 
     def test_load_dimension_scd2_parameter_validation(self) -> None:
         self._run_template_with_bad_arguments(
-            template_name="load/dimension/scd2", template_args={}, num_exp_errors=9
+            template_name="load_dimension_scd2_template_only",
+            template_args={},
+            num_exp_errors=9,
         )
         self._run_template_with_bad_arguments(
-            template_name="load/dimension/scd2",
+            template_name="load_dimension_scd2_template_only",
             template_args={"source_view": "foo", "extra_parameter": "bar"},
             num_exp_errors=8,
         )
@@ -146,7 +161,7 @@ class TemplateRegressionTests(unittest.TestCase):
         }
 
         self._run_template_with_bad_target_schema(
-            template_name="load/dimension/scd2",
+            template_name="load_dimension_scd2_template_only",
             template_args=template_args,
         )
 
@@ -191,7 +206,7 @@ class TemplateRegressionTests(unittest.TestCase):
 
         # delete first (surrogate key) column from the two results, as those are uniquely generated and might differ
         actual = {x[38:] for x in actual_rs.output.split("\n")}
-        expected = {x[5:] for x in expected_rs.output.split("\n")}
+        expected = {x[12:] for x in expected_rs.output.split("\n")}
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -238,7 +253,7 @@ class TemplateRegressionTests(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         # delete first (surrogate key) column from the two results, as those are uniquely generated and might differ
         actual = {x[38:] for x in actual_rs.output.split("\n")}
-        expected = {x[5:] for x in expected_rs.output.split("\n")}
+        expected = {x[12:] for x in expected_rs.output.split("\n")}
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -246,7 +261,9 @@ class TemplateRegressionTests(unittest.TestCase):
 
     def test_load_versioned_parameter_validation(self) -> None:
         self._run_template_with_bad_arguments(
-            template_name="load/versioned", template_args={}, num_exp_errors=7
+            template_name="load_versioned_template_only",
+            template_args={},
+            num_exp_errors=7,
         )
 
         good_template_args = {
@@ -272,7 +289,7 @@ class TemplateRegressionTests(unittest.TestCase):
         }
 
         self._run_template_with_bad_arguments(
-            template_name="load/versioned",
+            template_name="load_versioned_template_only",
             template_args={
                 **good_template_args,
                 **{
@@ -294,7 +311,7 @@ class TemplateRegressionTests(unittest.TestCase):
         )
 
         self._run_template_with_bad_arguments(
-            template_name="load/versioned",
+            template_name="load_versioned_template_only",
             template_args={
                 **good_template_args,
                 **{
@@ -333,7 +350,7 @@ class TemplateRegressionTests(unittest.TestCase):
         }
 
         self._run_template_with_bad_target_schema(
-            template_name="load/versioned",
+            template_name="load_versioned_template_only",
             template_args=template_args,
         )
 
@@ -359,7 +376,12 @@ class TemplateRegressionTests(unittest.TestCase):
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
 
-        assert actual_rs.output == expected_rs.output
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
 
     def test_load_fact_snapshot_empty_source(self) -> None:
         test_schema = "vdkprototypes"
@@ -383,7 +405,12 @@ class TemplateRegressionTests(unittest.TestCase):
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
 
-        assert actual_rs.output == expected_rs.output
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
 
     def test_load_fact_snapshot_partition(self) -> None:
         test_schema = "vdkprototypes"
@@ -404,25 +431,24 @@ class TemplateRegressionTests(unittest.TestCase):
             },
         )
 
-        actual_rs = set(
-            self.job_input.execute_query(f"SELECT * FROM {test_schema}.{target_table}")
-        )
-        expected_rs = set(
-            self.job_input.execute_query(f"SELECT * FROM {test_schema}.{expect_table}")
-        )
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
 
         self.assertSetEqual(
-            expected_rs,
-            actual_rs,
-            f"Elements in {expect_table} and {target_table} differ.",
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
         )
 
     def test_load_fact_snapshot_parameter_validation(self) -> None:
         self._run_template_with_bad_arguments(
-            template_name="load/fact/snapshot", template_args={}, num_exp_errors=5
+            template_name="load_fact_snapshot_template_only",
+            template_args={},
+            num_exp_errors=5,
         )
         self._run_template_with_bad_arguments(
-            template_name="load/fact/snapshot",
+            template_name="load_fact_snapshot_template_only",
             template_args={"source_view": "foo", "target_table": None},
             num_exp_errors=4,
         )
@@ -438,53 +464,9 @@ class TemplateRegressionTests(unittest.TestCase):
         }
 
         self._run_template_with_bad_target_schema(
-            template_name="load/fact/snapshot",
+            template_name="load_fact_snapshot_template_only",
             template_args=template_args,
         )
-
-    def test_template_user_error(self):
-        template_args = {
-            "source_schema": "vdkprototypes",
-            "source_view": "vw_dim_org",
-            "target_schema": "vdkprototypes",
-            "target_table": "dw_dim_org",
-        }
-
-        def run_job():
-            self.job_input.execute_template(
-                template_name="load/dimension/scd1", template_args=template_args
-            )
-
-        with patch(
-            "vacloud.vdk.templates.template_executor.JobInput.execute_query",
-            side_effect=[DEFAULT, Exception],
-        ):  # TemplateExecutor makes 5 calls to execute_query (given 4
-            # sql files in a template), errors in the first two files
-            # would be due to user errors, while errors in the second two files due to
-            # platform error, so we patch in an exception in the execution of the first file
-            self.assertRaises(errors.DeriverCodeError, run_job)
-
-    def test_template_platform_error(self):
-        template_args = {
-            "source_schema": "vdkprototypes",
-            "source_view": "vw_dim_org",
-            "target_schema": "vdkprototypes",
-            "target_table": "dw_dim_org",
-        }
-
-        def run_job():
-            self.job_input.execute_template(
-                template_name="load/dimension/scd1", template_args=template_args
-            )
-
-        with patch(
-            "vacloud.vdk.templates.template_executor.JobInput.execute_query",
-            side_effect=[DEFAULT, DEFAULT, DEFAULT, Exception],
-        ):  # TemplateExecutor makes 5 calls to execute_query (given 4
-            # sql files in a template), errors in the first two files
-            # would be due to user errors, while errors in the second two files due to
-            # platform error, so we patch in an exception in the execution of the first file
-            self.assertRaises(Exception)
 
     def _run_job(self, job_name: str, args: dict):
         return self.__runner.invoke(
@@ -511,26 +493,34 @@ class TemplateRegressionTests(unittest.TestCase):
     def _run_template_with_bad_arguments(
         self, template_name: str, template_args: dict, num_exp_errors: int
     ) -> None:
-        def just_rethrow(*_, **kwargs):
-            raise kwargs["exception"]
-
-        errors.log_and_rethrow = MagicMock(side_effect=just_rethrow)
 
         expected_error_regex = re.escape(
             f'{num_exp_errors} validation {"errors" if num_exp_errors > 1 else "error"} '
             f"for {template_name} template"
         )
-        with self.assertRaisesRegex(Exception, expected_error_regex):
-            result = self._run_job(template_name, template_args)
 
-        errors.log_and_rethrow.assert_called_once_with(
-            to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-            log=ANY,
-            what_happened="Template execution in Data Job finished with error",
-            why_it_happened=ANY,
-            consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-            countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-            exception=ANY,
+        def just_rethrow(*_, **kwargs):
+            raise Exception(expected_error_regex)
+
+        errors.log_and_rethrow = MagicMock(side_effect=just_rethrow)
+
+        result = self._run_job(template_name, template_args)
+        assert expected_error_regex in result.output
+        assert (
+            errors.log_and_rethrow.call_args[1]["what_happened"]
+            == "Failed executing job."
+        )
+        assert (
+            errors.log_and_rethrow.call_args[1]["why_it_happened"]
+            == f"An exception occurred, exception message was: {expected_error_regex}"
+        )
+        assert (
+            errors.log_and_rethrow.call_args[1]["consequences"]
+            == errors.MSG_CONSEQUENCE_TERMINATING_APP
+        )
+        assert (
+            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
+            in errors.log_and_rethrow.call_args[1]["countermeasures"]
         )
 
     def _run_template_with_bad_target_schema(
@@ -570,13 +560,12 @@ class TemplateRegressionTests(unittest.TestCase):
         )
 
         def just_throw(*_, **kwargs):
-            raise Exception()
+            raise Exception(expected_why_it_happened_msg)
 
         errors.log_and_throw = MagicMock(side_effect=just_throw)
 
-        with self.assertRaises(Exception) as context:
-            self._run_job(template_name, template_args)
-
+        res = self._run_job(template_name, template_args)
+        assert expected_why_it_happened_msg in res.output
         errors.log_and_throw.assert_called_once_with(
             to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
             log=ANY,
