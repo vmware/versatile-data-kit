@@ -5,7 +5,9 @@ from typing import List
 from pydantic import BaseModel
 from pydantic import validator
 from vdk.api.job_input import IJobInput
-from vdk.plugin.impala.templates.template_executor import TemplateExecutor
+from vdk.plugin.impala.templates.template_arguments_validator import (
+    TemplateArgumentsValidator,
+)
 
 
 class LoadVersionedParams(BaseModel):
@@ -36,7 +38,7 @@ class LoadVersionedParams(BaseModel):
         return tracked_columns
 
 
-class LoadVersioned(TemplateExecutor):
+class LoadVersioned(TemplateArgumentsValidator):
     TemplateParams = LoadVersionedParams
 
     def __init__(self) -> None:
@@ -70,5 +72,5 @@ class LoadVersioned(TemplateExecutor):
         )
 
 
-def validate_arguments(job_input: IJobInput):
-    return LoadVersioned().start(job_input, job_input.get_arguments())
+def get_validated_arguments(job_input: IJobInput):
+    return LoadVersioned().get_validated_args(job_input, job_input.get_arguments())

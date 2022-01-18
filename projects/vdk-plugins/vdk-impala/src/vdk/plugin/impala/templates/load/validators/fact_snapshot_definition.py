@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from pydantic import BaseModel
 from vdk.api.job_input import IJobInput
-from vdk.plugin.impala.templates.template_executor import TemplateExecutor
+from vdk.plugin.impala.templates.template_arguments_validator import (
+    TemplateArgumentsValidator,
+)
 
 
 class FactDailySnapshotParams(BaseModel):
@@ -13,7 +15,7 @@ class FactDailySnapshotParams(BaseModel):
     last_arrival_ts: str
 
 
-class FactDailySnapshot(TemplateExecutor):
+class FactDailySnapshot(TemplateArgumentsValidator):
     TemplateParams = FactDailySnapshotParams
 
     def __init__(self) -> None:
@@ -32,5 +34,5 @@ class FactDailySnapshot(TemplateExecutor):
         )
 
 
-def validate_arguments(job_input: IJobInput):
-    return FactDailySnapshot().start(job_input, job_input.get_arguments())
+def get_validated_arguments(job_input: IJobInput):
+    return FactDailySnapshot().get_validated_args(job_input, job_input.get_arguments())

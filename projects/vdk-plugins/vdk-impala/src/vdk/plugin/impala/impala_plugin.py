@@ -136,19 +136,6 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")
 
 
-def db_connection_recover_operation(recovery_cursor: RecoveryCursor) -> None:
-    impala_error_handler = ImpalaErrorHandler()
-
-    if impala_error_handler.handle_error(
-        recovery_cursor.get_exception(), recovery_cursor
-    ):
-        logging.getLogger(__name__).info(
-            "Error handled successfully! Query execution has succeeded."
-        )
-    else:
-        raise recovery_cursor.get_exception()
-
-
 def get_jobs_parent_directory() -> pathlib.Path:
     current_dir = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
     jobs_dir = current_dir.joinpath("templates")

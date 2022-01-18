@@ -508,11 +508,10 @@ class TemplateRegressionTests(unittest.TestCase):
         assert expected_error_regex in result.output
         assert (
             errors.log_and_rethrow.call_args[1]["what_happened"]
-            == "Failed executing job."
+            == "Template execution in Data Job finished with error"
         )
-        assert (
-            errors.log_and_rethrow.call_args[1]["why_it_happened"]
-            == f"An exception occurred, exception message was: {expected_error_regex}"
+        assert errors.log_and_rethrow.call_args[1]["why_it_happened"].startswith(
+            f"An exception occurred, exception message was: {num_exp_errors} validation error"
         )
         assert (
             errors.log_and_rethrow.call_args[1]["consequences"]
@@ -520,7 +519,7 @@ class TemplateRegressionTests(unittest.TestCase):
         )
         assert (
             errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-            in errors.log_and_rethrow.call_args[1]["countermeasures"]
+            == errors.log_and_rethrow.call_args[1]["countermeasures"]
         )
 
     def _run_template_with_bad_target_schema(

@@ -11,12 +11,11 @@ from vdk.api.job_input import IJobInput
 from vdk.internal.builtin_plugins.run.job_input import JobInput
 from vdk.internal.core import errors
 from vdk.plugin.impala.impala_helper import ImpalaHelper
-from vdk.plugin.impala.templates.errors import TemplateParametersError
 
 log = getLogger(__name__)
 
 
-class TemplateExecutor:
+class TemplateArgumentsValidator:
     TemplateParams: Type[BaseModel]
 
     def __init__(
@@ -31,7 +30,7 @@ class TemplateExecutor:
         self.sql_files = sql_files
         self.sql_files_platform_is_responsible = sql_files_platform_is_responsible  # used to decide blamee for failure, defaults to user
 
-    def start(self, job_input: IJobInput, args: dict) -> dict:
+    def get_validated_args(self, job_input: IJobInput, args: dict) -> dict:
         args = self._validate_args(args)
         args["_vdk_template_insert_partition_clause"] = ""
 
@@ -67,15 +66,12 @@ class TemplateExecutor:
         try:
             return self.TemplateParams(**args).dict()
         except ValidationError as error:
-            wrapped_error = TemplateParametersError(
-                error, template_name=self.template_name
-            )
             errors.log_and_rethrow(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=log,
                 what_happened="Template execution in Data Job finished with error",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(wrapped_error),
+                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(error),
                 consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
                 countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                exception=wrapped_error,
+                exception=error,
             )

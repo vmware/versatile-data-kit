@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from pydantic import BaseModel
 from vdk.api.job_input import IJobInput
-from vdk.plugin.impala.templates.template_executor import TemplateExecutor
+from vdk.plugin.impala.templates.template_arguments_validator import (
+    TemplateArgumentsValidator,
+)
 
 
 class SlowlyChangingDimensionTypeOverwriteParams(BaseModel):
@@ -12,7 +14,7 @@ class SlowlyChangingDimensionTypeOverwriteParams(BaseModel):
     source_view: str
 
 
-class SlowlyChangingDimensionTypeOverwrite(TemplateExecutor):
+class SlowlyChangingDimensionTypeOverwrite(TemplateArgumentsValidator):
     TemplateParams = SlowlyChangingDimensionTypeOverwriteParams
 
     def __init__(self) -> None:
@@ -31,7 +33,7 @@ class SlowlyChangingDimensionTypeOverwrite(TemplateExecutor):
         )
 
 
-def validate_arguments(job_input: IJobInput):
-    return SlowlyChangingDimensionTypeOverwrite().start(
+def get_validated_arguments(job_input: IJobInput):
+    return SlowlyChangingDimensionTypeOverwrite().get_validated_args(
         job_input, job_input.get_arguments()
     )

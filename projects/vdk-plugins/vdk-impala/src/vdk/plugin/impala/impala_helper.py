@@ -116,7 +116,7 @@ class ImpalaHelper:
             what_happened="Cannot determine the target table file format, which is needed to load data into it.",
             why_it_happened="There's a bug in VDK code.",
             consequences="Application will exit.",
-            countermeasures="Report this bug to Super Collider team.",
+            countermeasures="Report this bug to versatile data kit team.",
         )
 
     def generate_parquet_schema_from_table_schema(self, table_columns):

@@ -1,6 +1,6 @@
 ### Purpose:
 
-This template can be used to load raw data from SuperCollider Data Lake to target 'Snapshot Periodic Fact Table' in Data Warehouse.
+This template can be used to load raw data from Data Lake to target 'Snapshot Periodic Fact Table' in Data Warehouse.
 In summary, it appends a snapshot of records observed between time t1 and t2 from the source table to the target table,
 truncating all present target table records observed after t1.
 
@@ -31,7 +31,7 @@ In order to use this template you need to ensure the following:
 ### Sample Usage:
 
 Say there is SDDC-related 'Snapshot Periodic Fact Table' called 'fact_sddc_daily' in 'history' schema.
-Updating it with the latest raw data from the Super Collider Data Lake (from source view called 'vw_fact_sddc_daily' in 'default' schema) is done in the following manner:
+Updating it with the latest raw data from a Data Lake (from source view called 'vw_fact_sddc_daily' in 'default' schema) is done in the following manner:
 
 ```python
 def run(job_input):

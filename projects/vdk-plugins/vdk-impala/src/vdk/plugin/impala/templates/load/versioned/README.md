@@ -1,6 +1,6 @@
 ### Purpose:
 
-Template used to load raw data from Super Collider Data Lake to target 'Slowly Changing Dimension Type 2' table in Super Collider Data Warehouse.
+Template used to load raw data from a Data Lake to target 'Slowly Changing Dimension Type 2' table in a Data Warehouse.
 In summary, it accumulates updates from the data source as versioned records in the target table.
 
 ### Details:

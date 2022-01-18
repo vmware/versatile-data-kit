@@ -10,7 +10,7 @@ __copyright__ = (
 
 
 def run(job_input: IJobInput) -> None:
-    args = dimension_scd1_definition.validate_arguments(job_input)
+    args = dimension_scd1_definition.get_validated_arguments(job_input)
     job_input.execute_template(
         template_name="load/dimension/scd1",
         template_args=args,

@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from pydantic import BaseModel
 from vdk.api.job_input import IJobInput
-from vdk.plugin.impala.templates.template_executor import TemplateExecutor
+from vdk.plugin.impala.templates.template_arguments_validator import (
+    TemplateArgumentsValidator,
+)
 
 
 class SlowlyChangingDimensionType2Params(BaseModel):
@@ -17,7 +19,7 @@ class SlowlyChangingDimensionType2Params(BaseModel):
     id_column: str
 
 
-class SlowlyChangingDimensionType2(TemplateExecutor):
+class SlowlyChangingDimensionType2(TemplateArgumentsValidator):
     TemplateParams = SlowlyChangingDimensionType2Params
 
     def __init__(self) -> None:
@@ -36,5 +38,7 @@ class SlowlyChangingDimensionType2(TemplateExecutor):
         )
 
 
-def validate_arguments(job_input: IJobInput):
-    return SlowlyChangingDimensionType2().start(job_input, job_input.get_arguments())
+def get_validated_arguments(job_input: IJobInput):
+    return SlowlyChangingDimensionType2().get_validated_args(
+        job_input, job_input.get_arguments()
+    )
