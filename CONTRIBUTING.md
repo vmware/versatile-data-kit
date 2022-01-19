@@ -95,3 +95,13 @@ Entrypoint of CICD is the file .gitlab-ci.yml.
 
 There you can find the full definition of the CI/CD pipeline.
 For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD)
+
+# How to make a new VDK release
+
+To make a new stable release, follow these steps:
+- Create a new release from the Releases menu - this will require a new tag;
+- Autogenerate the changelog, then sort the changes alphabetically; if all change names are prefixed with the component name, this will ensure changes are grouped by component. Sorting can be done using the `sort` utility available in MacOS and Linux distros;
+- Review which components have received changes since the previous release - this should be apparent from the changelog;
+- Create a new PR which bumps the minor versions of all newly changed components - plugins' version source of truth is located inside their respective `setup.py` files;
+- Record the new versions as they are released and list them in the Release description;
+- Post a tweet on the official VDK Twitter account, announcing the new release and linking to it.
