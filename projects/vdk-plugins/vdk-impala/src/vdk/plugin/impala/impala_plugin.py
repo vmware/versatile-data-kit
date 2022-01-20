@@ -4,17 +4,21 @@ import logging
 from typing import List
 
 import click
+import pluggy
 from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.internal.core.config import Configuration
+from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
+from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 
 
@@ -68,6 +72,24 @@ class ImpalaPlugin:
         )
 
     @staticmethod
+    @hookimpl(hookwrapper=True, tryfirst=True)
+    def run_step(context: JobContext, step: Step) -> None:
+        out: pluggy.callers._Result
+        out = yield
+
+        if out.result.exception:
+            if is_impala_user_error(out.result.exception):
+                raise UserCodeError(
+                    ErrorMessage(
+                        summary="Error occurred.",
+                        what=f"Error occurred. Exception message: {out.result.exception}",
+                        why="Review exception for details.",
+                        consequences="Data Job execution will not continue.",
+                        countermeasures="Review exception for details.",
+                    )
+                ) from out.result.exception
+
+    @staticmethod
     @hookimpl
     def db_connection_recover_operation(recovery_cursor: RecoveryCursor) -> None:
         impala_error_handler = ImpalaErrorHandler()
@@ -93,4 +115,4 @@ class ImpalaPlugin:
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")

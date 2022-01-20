@@ -18,8 +18,10 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
     on the machine and the 'kinit' command should be working correctly.
     """
 
-    def __init__(self, keytab_pathname: str, kerberos_principal: str):
-        super().__init__(keytab_pathname, kerberos_principal)
+    def __init__(
+        self, krb5_conf_filename: str, keytab_pathname: str, kerberos_principal: str
+    ):
+        super().__init__(krb5_conf_filename, keytab_pathname, kerberos_principal)
 
         self.__configure_current_os_process_to_use_own_kerberos_credentials_cache()
 

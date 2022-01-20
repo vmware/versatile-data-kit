@@ -229,7 +229,6 @@ class IIngesterPlugin:
     |___________________|   |_____________|   |___________|   |____________|
     """
 
-    IngestionResult = NewType("IngestionResult", Dict)
     IngestionMetadata = NewType("IngestionMetadata", Dict)
 
     def ingest_payload(
@@ -238,7 +237,7 @@ class IIngesterPlugin:
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
-    ) -> Optional[IngestionResult]:
+    ) -> Optional[IngestionMetadata]:
         """
         Do the actual ingestion of the payload
 
@@ -267,10 +266,33 @@ class IIngesterPlugin:
             meaning all method invocations from a data job run will belong to the
             same collection.
 
-        :return: [Optional] IngestionResult, containing plugin-defined
-        information about the result from the ingestion operation. This result
-        could be used for post-ingestion processing operations like sending
-        telemetry data about the ingested payload.
+        :return: [Optional] IngestionMetadata, containing data about the
+        ingestion process (information about the result from the ingestion
+        operation, plugin-populated ingestion metadata, etc.). This
+        metadata could be used for post-ingestion processing operations like
+        sending telemetry data about the ingested payload.
+
+        .. code-block:: python
+            def ingest_payload(self,
+                               payload: List[dict],
+                               destination_table: Optional[str],
+                               target: Optional[str] = None,
+                               collection_id: Optional[str] = None,
+            ) -> Optional[IngestionMetadata]:
+                result = None
+                metadata: IngestionMetadata = dict()
+                metadata["destination_table"] = destination_table
+                metadata["target"] = target
+
+                try:
+                    result = requests.post('example.com', data=payload)
+                except:
+                    log.info("Payload sent")
+
+                if result:
+                    metadata["http_status"] = result.status()
+
+                return metadata
 
         :exceptions: Exceptions raised while ingesting data can either be
         handled at plugin level, or they will be automatically caught at the
@@ -307,12 +329,12 @@ class IIngesterPlugin:
     def post_ingest_process(
         self,
         payload: Optional[List[dict]] = None,
-        ingestion_result: Optional[IngestionResult] = None,
+        ingestion_metadata: Optional[IngestionMetadata] = None,
         exceptions: Optional[List] = None,
     ) -> None:
         """
         Do post-ingestion processing of the ingestion payload
-        or result data from the ingestion operation.
+        or metadata from the ingestion operation.
 
         Example Implementation for telemetry:
 
@@ -321,7 +343,7 @@ class IIngesterPlugin:
             def post_ingest_process(
                 self,
                 payload: Optional[List[dict]],
-                ingestion_result: Optional[IngestionResult]
+                ingestion_metadata: Optional[IngestionMetadata]
                 exceptions: Optional[List]
             ) -> None:
                 # Prepare telemetry
@@ -329,7 +351,7 @@ class IIngesterPlugin:
                 payload_sizes = [sys.getsizeof(i) for i in payload]
                 telemetry['payload_size'] = sum(payload_sizes)
                 telemetry['caught_ingest_exceptions'] = exceptions
-                telemetry |= ingestion_result
+                telemetry |= ingestion_metadata
 
                 # Send telemetry to wherever is needed.
                 requests.post('example.com', data=telemetry)
@@ -339,11 +361,10 @@ class IIngesterPlugin:
             The payloads that have been ingested. Depending on the number
             of payloads to be processed, there might 0 or many dict objects.
             Each dict object is a separate payload.
-        :param ingestion_result: Optional[IngestionResult]
-            The result from the ingestion operation, or some information about
-            the ingestion operation and payload that plugin developers have
-            decided to process further. This result can be either an
-            IngestionResult object (which is effectively a dictionary), or
+        :param ingestion_metadata: Optional[IngestionMetadata]
+            The metadata from the ingestion operation, that plugin developers
+            have decided to process further. This metadata can be either an
+            IngestionMetadata object (which is effectively a dictionary), or
             None.
         :param exceptions: Optional[List]
             A list of all exceptions (if any) encountered while ingesting data.

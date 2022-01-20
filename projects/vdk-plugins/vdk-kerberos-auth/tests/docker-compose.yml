@@ -1,0 +1,20 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+volumes:
+  krb5kdc-data:
+
+services:
+  kdc:
+    image: gcavalcante8808/krb5-server
+    restart: always
+    ports:
+      - "88:88"
+      - "464:464"
+      - "749:749"
+    environment:
+      KRB5_REALM: EXAMPLE.COM
+      KRB5_KDC: localhost
+      KRB5_PASS: iamaserver
+    volumes:
+      - krb5kdc-data:/var/lib/krb5kdc

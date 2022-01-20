@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 class BaseAuthenticator(ABC):
     def __init__(
         self,
+        krb5_conf_filename: str,
         keytab_pathname: str,
         kerberos_principal: str,
         kerberos_realm: str = None,
@@ -29,6 +30,7 @@ class BaseAuthenticator(ABC):
                 "Subsequent operation that require authentication will fail.",
                 countermeasures=f"Ensure a keytab file is located at {f}.",
             )
+        self._krb5_conf_filename = krb5_conf_filename
         self._keytab_pathname = os.path.abspath(keytab_pathname)
         self._kerberos_principal = kerberos_principal
         self._kerberos_realm = kerberos_realm
@@ -40,17 +42,14 @@ class BaseAuthenticator(ABC):
     def __str__(self):
         return str(self.__repr__())
 
-    @staticmethod
-    def __configure_krb5_config():
-        kerberos_module_dir = os.path.dirname(os.path.abspath(__file__))
-        krb5_conf_path = os.path.join(kerberos_module_dir, "krb5.conf")
-        if os.path.exists(krb5_conf_path):
-            os.environ["KRB5_CONFIG"] = krb5_conf_path
+    def __configure_krb5_config(self):
+        if os.path.exists(self._krb5_conf_filename):
+            os.environ["KRB5_CONFIG"] = self._krb5_conf_filename
 
     def authenticate(self):
-        if not self.is_authenticated():
-            if self._kinit():
-                self.set_authenticated()
+        if not self._is_authenticated:
+            self._kinit()
+            self._is_authenticated = True
         else:
             log.debug(
                 f"Already authenticated, skipping authentication for principal {self._kerberos_principal}."
@@ -62,10 +61,6 @@ class BaseAuthenticator(ABC):
     def is_authenticated(self):
         # TODO add support for renewal
         return self._is_authenticated
-
-    def set_authenticated(self):
-        # TODO add support for renewal
-        self._is_authenticated = True
 
     @abstractmethod
     def _kinit(self) -> None:
