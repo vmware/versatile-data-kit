@@ -32,6 +32,7 @@ VDK_IMPALA_PORT = "VDK_IMPALA_PORT"
         VDK_IMPALA_PORT: "21050",
     },
 )
+@pytest.mark.usefixtures("impala_service")
 class TemplateRegressionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(impala_plugin)
@@ -42,7 +43,7 @@ class TemplateRegressionTests(unittest.TestCase):
         source_view = "vw_dim_org"
         target_table = "dw_dim_org"
 
-        self._run_job(
+        res = self._run_job(
             "load_dimension_scd1_template_job",
             {
                 "source_schema": test_schema,
@@ -51,9 +52,10 @@ class TemplateRegressionTests(unittest.TestCase):
                 "target_table": target_table,
             },
         )
-
+        assert not res.exception
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
+        assert actual_rs.output and expected_rs.output
         assert actual_rs.output == expected_rs.output
 
     def test_load_dimension_scd1_partitioned(self) -> None:
@@ -61,7 +63,7 @@ class TemplateRegressionTests(unittest.TestCase):
         source_view = "vw_dim_org_partition_test"
         target_table = "dw_dim_org_partitioned"
 
-        self._run_job(
+        res = self._run_job(
             "load_dimension_scd1_template_partition_job",
             {
                 "source_schema": test_schema,
@@ -70,9 +72,11 @@ class TemplateRegressionTests(unittest.TestCase):
                 "target_table": target_table,
             },
         )
+        assert not res.exception
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
+        assert actual_rs.output and expected_rs.output
         assert actual_rs.output == expected_rs.output
 
     def test_load_dimension_scd1_parameter_validation(self) -> None:
@@ -106,7 +110,7 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table = "dw_scmdb_people"
         expect_table = "ex_scmdb_people"
 
-        self._run_job(
+        res = self._run_job(
             "load_dimension_scd2_template_job",
             {
                 "source_schema": test_schema,
@@ -123,13 +127,14 @@ class TemplateRegressionTests(unittest.TestCase):
                 "id_column": "id",
             },
         )
+        assert not res.exception
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         # delete first (surrogate key) column from the two results, as those are uniquely generated and might differ
         actual = {x[38:] for x in actual_rs.output.split("\n")}
         expected = {x[5:] for x in expected_rs.output.split("\n")}
-
+        assert actual_rs.output and expected_rs.output
         self.assertSetEqual(
             expected, actual, f"Elements in {expect_table} and {target_table} differ."
         )
@@ -171,7 +176,7 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table = "dim_sddc_h"
         expect_table = "ex_dim_sddc_h"
 
-        self._run_job(
+        res = self._run_job(
             "load_versioned_template_job",
             {
                 "source_schema": test_schema,
@@ -201,9 +206,11 @@ class TemplateRegressionTests(unittest.TestCase):
                 "updated_at_column": "updated_at",
             },
         )
+        assert not res.exception
+
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
-
+        assert actual_rs.output and expected_rs.output
         # delete first (surrogate key) column from the two results, as those are uniquely generated and might differ
         actual = {x[38:] for x in actual_rs.output.split("\n")}
         expected = {x[12:] for x in expected_rs.output.split("\n")}
@@ -218,7 +225,7 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table = "dim_sddc_h_partitioned"
         expect_table = "ex_dim_sddc_h_partition_test"
 
-        self._run_job(
+        res = self._run_job(
             "load_versioned_template_partition_job",
             {
                 "source_schema": test_schema,
@@ -248,9 +255,11 @@ class TemplateRegressionTests(unittest.TestCase):
                 "updated_at_column": "updated_at",
             },
         )
+        assert not res.exception
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
         # delete first (surrogate key) column from the two results, as those are uniquely generated and might differ
         actual = {x[38:] for x in actual_rs.output.split("\n")}
         expected = {x[12:] for x in expected_rs.output.split("\n")}
@@ -360,7 +369,7 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table = "dw_fact_sddc_daily"
         expect_table = "ex_fact_sddc_daily"
 
-        self._run_job(
+        res = self._run_job(
             "load_fact_snapshot_template_job",
             {
                 "source_schema": test_schema,
@@ -372,9 +381,11 @@ class TemplateRegressionTests(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
+        assert not res.exception
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
 
         actual = {x for x in actual_rs.output.split("\n")}
         expected = {x for x in expected_rs.output.split("\n")}
@@ -389,7 +400,7 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table = "dw_fact_sddc_daily_empty_source"
         expect_table = "ex_fact_sddc_daily_empty_source"
 
-        self._run_job(
+        res = self._run_job(
             "load_fact_snapshot_template_job_empty_source",
             {
                 "source_schema": test_schema,
@@ -401,9 +412,11 @@ class TemplateRegressionTests(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
+        assert not res.exception
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
 
         actual = {x for x in actual_rs.output.split("\n")}
         expected = {x for x in expected_rs.output.split("\n")}
@@ -418,7 +431,7 @@ class TemplateRegressionTests(unittest.TestCase):
         target_table = "dw_fact_sddc_daily_partition"
         expect_table = "ex_fact_sddc_daily_partition"
 
-        self._run_job(
+        res = self._run_job(
             "load_fact_snapshot_template_partition_job",
             {
                 "source_schema": test_schema,
@@ -430,9 +443,11 @@ class TemplateRegressionTests(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
+        assert not res.exception
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
 
         actual = {x for x in actual_rs.output.split("\n")}
         expected = {x for x in expected_rs.output.split("\n")}
@@ -502,25 +517,25 @@ class TemplateRegressionTests(unittest.TestCase):
         def just_rethrow(*_, **kwargs):
             raise Exception(expected_error_regex)
 
-        errors.log_and_rethrow = MagicMock(side_effect=just_rethrow)
-
-        result = self._run_job(template_name, template_args)
-        assert expected_error_regex in result.output
-        assert (
-            errors.log_and_rethrow.call_args[1]["what_happened"]
-            == "Template execution in Data Job finished with error"
-        )
-        assert errors.log_and_rethrow.call_args[1]["why_it_happened"].startswith(
-            f"An exception occurred, exception message was: {num_exp_errors} validation error"
-        )
-        assert (
-            errors.log_and_rethrow.call_args[1]["consequences"]
-            == errors.MSG_CONSEQUENCE_TERMINATING_APP
-        )
-        assert (
-            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-            == errors.log_and_rethrow.call_args[1]["countermeasures"]
-        )
+        with patch.object(errors, "log_and_rethrow") as patched_log_and_rethrow:
+            patched_log_and_rethrow.side_effect = just_rethrow
+            result = self._run_job(template_name, template_args)
+            assert expected_error_regex in result.output
+            assert (
+                errors.log_and_rethrow.call_args[1]["what_happened"]
+                == "Template execution in Data Job finished with error"
+            )
+            assert errors.log_and_rethrow.call_args[1]["why_it_happened"].startswith(
+                f"An exception occurred, exception message was: {num_exp_errors} validation error"
+            )
+            assert (
+                errors.log_and_rethrow.call_args[1]["consequences"]
+                == errors.MSG_CONSEQUENCE_TERMINATING_APP
+            )
+            assert (
+                errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
+                == errors.log_and_rethrow.call_args[1]["countermeasures"]
+            )
 
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict
