@@ -25,7 +25,7 @@ def run(job_input: IJobInput):
     if len(data) > 0:
         job_input.send_tabular_data_for_ingestion(
             data,
-            column_names=[x[1] for x in table_info],
+            column_names=[column[1] for column in table_info],
             destination_table="incremental_ingest_from_db_example",
         )
 
