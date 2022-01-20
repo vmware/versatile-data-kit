@@ -103,6 +103,7 @@ public class JobImageDeployer {
                        "most likely we need to do some better input validation at client library. " +
                        "We are assuming all k8s client error when creating cron job can be only customer misconfiguration " +
                        "sending notification and reporting as user error", apiException);
+               log.debug(String.valueOf(error.get("message")));
                String msg = NotificationContent.getErrorBody(
                        "Tried to deploy a data job",
                        "There has been an error in the configuration of your data job : " + error.get("message"),
