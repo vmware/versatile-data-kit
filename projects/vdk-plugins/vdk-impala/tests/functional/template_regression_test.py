@@ -21,9 +21,6 @@ VDK_IMPALA_HOST = "VDK_IMPALA_HOST"
 VDK_IMPALA_PORT = "VDK_IMPALA_PORT"
 
 
-@pytest.mark.skip(
-    reason="We need to test this with a recent impala instance. Current test instance is too old"
-)
 @patch.dict(
     os.environ,
     {
@@ -37,6 +34,7 @@ class TemplateRegressionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(impala_plugin)
         time.sleep(10)  # wait for impala instance to come online
+        self._run_query("CREATE DATABASE IF NOT EXISTS vdkprototypes")
 
     def test_load_dimension_scd1(self) -> None:
         test_schema = "vdkprototypes"
