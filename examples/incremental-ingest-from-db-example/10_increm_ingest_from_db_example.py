@@ -6,8 +6,8 @@ from vdk.api.job_input import IJobInput
 def run(job_input: IJobInput):
 
     # Get last_date property/parameter:
-    #  - if the target table already exists, take the property value already stored in the DJ from the previous run
-    #  - if the target table does not exist, set last_date to 01-01-1900 in oder to fetch all rows
+    #  - if the this is the first job run, initialize last_date to 01-01-1900 in oder to fetch all rows
+    #  - if the data job was run previously, take the property value already stored in the DJ from the previous run
     last_date = job_input.get_property("last_date", "01-01-1900")
 
     # Select the needed records from the source table using job_input's built-in method and a query parameter
@@ -30,6 +30,6 @@ def run(job_input: IJobInput):
         )
 
         # Reset the last_date property value to the latest date in the source db table
-        job_input.set_all_properties({"last_date": max(x[2] for x in data)})
+        job_input.set_all_properties({"last_date": max(row[2] for row in data)})
 
     print(f"Success! {len(data)} rows were inserted.")

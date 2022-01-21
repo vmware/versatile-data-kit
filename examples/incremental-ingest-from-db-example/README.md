@@ -15,7 +15,7 @@ You can follow along and run this example Data Job on your machine to get first-
 Database
 --------
 
-We will be using a local SQLite database that was built for the purposes of the example. The initial version of this database can be found in the data job repository, subfolder "data".
+We will be using a local SQLite database that was built for the purposes of the example. The initial version of this database can be found in the data job repository, subfolder "data_for_initial_run".
 
 The contents of the uploaded data source are the following (**`incremental_ingest_example.db`** → table **`increm_ingest`**):
 
@@ -34,43 +34,7 @@ The following records are added:
 | 4 | that's a new record! | 11-01-2021 |
 | 5 | and another new record.. | 11-02-2021 |
 
-Please run the following Python code to insert the new records into the source table **only after the initial data job execution**:
-
-<details>
-  <summary>Add rows to source DB table</summary>
-
-```py
-import sqlite3
-
-# Create DB connection
-con = sqlite3.connect(r'data/incremental_ingest_example.db')
-# Create a cursor for the connection
-cursor = con.cursor()
-
-# Insert rows of data
-data = [
-    (4, "that's a new record!", '11-01-2021'),
-    (5, "and another new record..", '11-02-2021')
-]
-cursor.executemany(
-    """
-    INSERT INTO increm_ingest
-    VALUES (?, ?, ?)
-    """,
-    data
-)
-
-# Check insertion
-cursor.execute("select * from increm_ingest;")
-print(cursor.fetchall())
-
-# Save (commit) the changes
-con.commit()
-
-# Close the connection
-con.close()
-```
-</details>
+The enriched data source could be downloaded from the data job repository, subfolder "data_for_subsequent_run".
 
 Configuration
 -------------
@@ -123,7 +87,9 @@ The structure of our Data Job is as follows:
 
 ```
 incremental-ingest-from-db-example/
-├── data/
+├── data_for_initial_run/
+├──── incremental_ingest_example.db
+├── data_for_subsequent_run/
 ├──── incremental_ingest_example.db
 ├── 10_increm_ingest_from_db_example.py
 ├── README.md
@@ -143,9 +109,9 @@ from vdk.api.job_input import IJobInput
 def run(job_input: IJobInput):
 
     # Get last_date property/parameter:
-    #  - if the target table already exists, take the property value already stored in the DJ from the previous run
-    #  - if the target table does not exist, set last_date to 01-01-1900 in oder to fetch all rows
-    last_date = job_input.get_property("last_date", '01-01-1900')
+    #  - if the this is the first job run, initialize last_date to 01-01-1900 in oder to fetch all rows
+    #  - if the data job was run previously, take the property value already stored in the DJ from the previous run
+    last_date = job_input.get_property("last_date", "01-01-1900")
 
     # Select the needed records from the source table using job_input's built-in method and a query parameter
     data = job_input.execute_query(
@@ -162,16 +128,12 @@ def run(job_input: IJobInput):
     if len(data) > 0:
         job_input.send_tabular_data_for_ingestion(
             data,
-            column_names=[x[1] for x in table_info],
-            destination_table="incremental_ingest_from_db_example"
+            column_names=[column[1] for column in table_info],
+            destination_table="incremental_ingest_from_db_example",
         )
 
         # Reset the last_date property value to the latest date in the source db table
-        job_input.set_all_properties(
-            {
-                "last_date": max([x[2] for x in data])
-            }
-        )
+        job_input.set_all_properties({"last_date": max(row[2] for row in data)})
 
     print(f"Success! {len(data)} rows were inserted.")
 ```
@@ -220,7 +182,7 @@ Upon successful completion of the Data Job, we should see a log similar to this:
 ```
 </details>
 
-**Please remember to add the new records in the source DB** after running the data job for the first time (as explained in the Database section above) in case you want to track the incremental ingestion effect. If no new records are added to the source database and the data job is run again, no new data will be ingested and the target table will stay the same.
+**Please remember to download the enriched source DB** after running the data job for the first time (as explained in the Database section above) in case you want to track the incremental ingestion effect. If the data job is run again with the initial source, no new data will be ingested and the target table will stay the same.
 
 After running the data job, we can check whether the new backup table was populated correctly by using the `sqlite-query` command afforded to us by the `vdk-sqlite` plugin, which we can use to execute queries against the configured SQLite database (`VDK_SQLITE_FILE` environment variable) without having to set up a data job for that.
 Since initially the `VDK_SQLITE_FILE` environment variable was set to the source DB, we need to reassign it to query the target DB instead and then execute the `sqlite-query` command:
