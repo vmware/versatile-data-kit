@@ -56,7 +56,7 @@ def run(job_input: IJobInput) -> None:
         INSERT OVERWRITE TABLE `{source_schema}`.`{source_view}` VALUES (
           (1, "mullen@actual.com"        , 2, 32, "CUSTOMER_MSP_TENANT", "actual Master Org"),
           (2, "johnlocke@vmware.com"     , 1, 6 , "CUSTOMER_POC"       , "VMware"           ),
-          (3, "lilly.johnsonn@goofys.com", 2, 32, "CUSTOMER"           , "Goofy             ),
+          (3, "lilly.johnsonn@goofys.com", 2, 32, "CUSTOMER"           , "Goofy"            ),
           (4, "jilliandoe@uncanny.ca"    , 2, 32, "PARTNER_SISO"       , "Uncanny Company"  ),
           (5, "jane.doe@vmware.com"      , 2, 32, "CUSTOMER"           , "VMware"           ),
           (6, "john.doe@pharmamed.com"   , 2, 32, "CUSTOMER"           , "PharmaMed"        ),

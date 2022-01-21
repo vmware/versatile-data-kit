@@ -76,8 +76,14 @@ class TemplateRegressionTests(unittest.TestCase):
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
         assert actual_rs.output and expected_rs.output
-        assert actual_rs.output == expected_rs.output
+        self.assertSetEqual(
+            expected, actual, f"Elements in {source_view} and {target_table} differ."
+        )
 
     def test_load_dimension_scd1_parameter_validation(self) -> None:
         self._run_template_with_bad_arguments(
@@ -412,7 +418,9 @@ class TemplateRegressionTests(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
-        assert not res.exception
+        # Expecting data job not to finish due to empty source.
+        assert res.exception
+        assert "Source view returns no results" in res.exception.args[0]
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
