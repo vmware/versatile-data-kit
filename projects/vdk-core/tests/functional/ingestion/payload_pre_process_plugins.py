@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import sys
+from dataclasses import dataclass
 from typing import List
+from typing import Optional
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IIngesterPlugin
@@ -26,6 +28,17 @@ class ConvertPayloadValuesToString(IIngesterPlugin):
 
 
 class AddPayloadSizeAsColumn(IIngesterPlugin):
+    @dataclass
+    class Payload:
+        payload: List[dict]
+        destination_table: Optional[str]
+        target: Optional[str]
+        collection_id: Optional[str]
+
+    def __init__(self):
+        self.payloads: List[AddPayloadSizeAsColumn.Payload] = []
+
+    # Do payload pre-processing
     def pre_ingest_process(
         self, payload: List[dict], metadata: IIngesterPlugin.IngestionMetadata = None
     ) -> List[dict]:
@@ -37,8 +50,48 @@ class AddPayloadSizeAsColumn(IIngesterPlugin):
 
         return processed_payloads
 
+    # Ingest pre-processed payload
+    def ingest_payload(
+        self,
+        payload: List[dict],
+        destination_table: Optional[str],
+        target: Optional[str] = None,
+        collection_id: Optional[str] = None,
+    ):
+        self.payloads.append(
+            AddPayloadSizeAsColumn.Payload(
+                payload, destination_table, target, collection_id
+            )
+        )
+
+    # Process ingestion metadata
+    def post_ingest_process(
+        self,
+        payload: Optional[List[dict]] = None,
+        ingestion_metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
+        exceptions: Optional[List] = None,
+    ) -> None:
+        pass
+
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         log.info("Initialize data job with ConvertPayloadValuesToString Plugin.")
 
         context.ingester.add_ingester_factory_method("add-payload-size", lambda: self)
+
+
+class DummyIngestionPlugin(IIngesterPlugin):
+    def ingest_payload(
+        self,
+        payload: List[dict],
+        destination_table: Optional[str],
+        target: Optional[str] = None,
+        collection_id: Optional[str] = None,
+    ):
+        log.info("Calling dummy ingest_payload() method.")
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        log.info("Initialize data job with DummyIngestion Plugin.")
+
+        context.ingester.add_ingester_factory_method("dummy-ingest", lambda: self)

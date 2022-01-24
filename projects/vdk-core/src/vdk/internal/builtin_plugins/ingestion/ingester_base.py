@@ -45,6 +45,7 @@ class IngesterBase(IIngester):
         op_id: str,
         ingester: IIngesterPlugin,
         ingest_config: IngesterConfiguration,
+        is_preprocessor: bool = False,
     ):
         """
         This constructor must be called by inheritors.
@@ -55,10 +56,15 @@ class IngesterBase(IIngester):
             OpId of the data job run.
         :param ingest_config: IngesterConfiguration
             Configuration related to the core ingestion API.
+        :param is_preprocessor: bool
+            Indicates if the ingestion plugin executed is a pre-processor or
+            not
         """
         self._data_job_name = data_job_name
         self._op_id = op_id
         self._ingester = ingester
+        self._is_preprocessor = is_preprocessor
+        self._pre_processed_payload = []
         self._number_of_worker_threads = ingest_config.get_number_of_worker_threads()
         self._payload_size_bytes_threshold = (
             ingest_config.get_payload_size_bytes_threshold()
@@ -86,6 +92,9 @@ class IngesterBase(IIngester):
         )
 
         self._start_workers()
+
+    def get_preprocessed_payload(self):
+        return self._pre_processed_payload
 
     def send_object_for_ingestion(
         self,
@@ -472,41 +481,65 @@ class IngesterBase(IIngester):
         data, etc.) and ingesting the data.
         """
         while self._closed.value == 0:
-            payload: Optional[Tuple] = None
-            ingestion_result: Optional[IIngesterPlugin.IngestionResult] = None
+            payload_dict: List[dict] = []
+            ingestion_result: Optional[IIngesterPlugin.IngestionMetadata] = None
             exceptions: List = list()
             try:
                 payload = self._payloads_queue.get()
                 payload_dict, destination_table, method, target, collection_id = payload
 
-                try:
-                    ingestion_result = self._ingester.ingest_payload(
-                        payload=payload_dict,
-                        destination_table=destination_table,
-                        target=target,
-                        collection_id=collection_id,
-                    )
+                if self._is_preprocessor:
+                    try:
+                        pre_processor_result = self._ingester.pre_ingest_process(
+                            payload=payload_dict,
+                            metadata=ingestion_result,
+                        )
+                        self._pre_processed_payload.append(pre_processor_result)
+                    except UserCodeError as e:
+                        self._plugin_errors[UserCodeError].increment()
+                        log.warning(
+                            "An UserCodeError occurred while "
+                            f"pre-processing data with {method} "
+                            "plugin."
+                        )
+                        exceptions.append(e)
+                    except Exception as e:
+                        self._plugin_errors[PlatformServiceError].increment()
+                        log.exception(
+                            "A platform error occurred while "
+                            f"pre-processing data with {method}"
+                            "plugin."
+                        )
+                        exceptions.append(e)
+                else:
+                    try:
+                        ingestion_result = self._ingester.ingest_payload(
+                            payload=payload_dict,
+                            destination_table=destination_table,
+                            target=target,
+                            collection_id=collection_id,
+                        )
 
-                    self._success_count.increment()
-                except VdkConfigurationError as e:
-                    self._plugin_errors[VdkConfigurationError].increment()
-                    # TODO: logging for every error might be too much
-                    # There could be million of uploads and millions of error logs would be hard to use.
-                    # But until we have a way to aggregate the errors and show
-                    # the most relevant errors it's better to make sure we do not hide an issue
-                    # and be verbose.
-                    log.exception(
-                        "A configuration error occurred while ingesting data."
-                    )
-                    exceptions.append(e)
-                except UserCodeError as e:
-                    self._plugin_errors[UserCodeError].increment()
-                    log.exception("An user error occurred while ingesting data.")
-                    exceptions.append(e)
-                except Exception as e:
-                    self._plugin_errors[PlatformServiceError].increment()
-                    log.exception("A platform error occurred while ingesting data.")
-                    exceptions.append(e)
+                        self._success_count.increment()
+                    except VdkConfigurationError as e:
+                        self._plugin_errors[VdkConfigurationError].increment()
+                        # TODO: logging for every error might be too much
+                        # There could be million of uploads and millions of error logs would be hard to use.
+                        # But until we have a way to aggregate the errors and show
+                        # the most relevant errors it's better to make sure we do not hide an issue
+                        # and be verbose.
+                        log.exception(
+                            "A configuration error occurred while ingesting data."
+                        )
+                        exceptions.append(e)
+                    except UserCodeError as e:
+                        self._plugin_errors[UserCodeError].increment()
+                        log.exception("An user error occurred while ingesting data.")
+                        exceptions.append(e)
+                    except Exception as e:
+                        self._plugin_errors[PlatformServiceError].increment()
+                        log.exception("A platform error occurred while ingesting data.")
+                        exceptions.append(e)
 
             except Exception as e:
                 self._fail_count.increment()
@@ -525,7 +558,7 @@ class IngesterBase(IIngester):
             try:
                 self._ingester.post_ingest_process(
                     payload=payload_dict,
-                    ingestion_result=ingestion_result,
+                    ingestion_metadata=ingestion_result,
                     exceptions=exceptions,
                 )
             except Exception as e:

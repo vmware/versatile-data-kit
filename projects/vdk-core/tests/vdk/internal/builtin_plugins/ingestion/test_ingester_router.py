@@ -93,10 +93,10 @@ def test_router_use_chained_ingest_plugins_send_object(
     mock_ingester_base.return_value.send_object_for_ingestion.assert_called_with(
         {"a": "b"}, None, "test-ingest", None, None
     )
-    # TODO: Uncomment when implementation is ready
-    # mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
-    #     ["b"], ["a"], None, "pre-ingest-test", None, None
-    # )
+
+    mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
+        ["b"], ["a"], None, "pre-ingest-test", None, None
+    )
 
 
 @patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
@@ -117,7 +117,7 @@ def test_router_use_chained_ingest_plugins_tabular_data(
     mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
         ["b"], ["a"], None, "test-ingest", None, None
     )
-    # TODO: Uncomment when implementation is ready
-    # mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
-    #     ["b"], ["a"], None, "pre-ingest-test", None, None
-    # )
+
+    mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
+        ["b"], ["a"], None, "pre-ingest-test", None, None
+    )

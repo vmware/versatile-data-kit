@@ -1,9 +1,12 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import Optional
+from typing import Union
 
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IIngesterRegistry
@@ -24,6 +27,7 @@ from vdk.internal.core.statestore import StateStore
 
 
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
+Payload = Union[Dict, List[Dict]]
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +44,10 @@ class IngesterRouter(IIngesterRegistry):
         self._log: logging.Logger = logging.getLogger(__name__)
         self._cached_ingesters: Dict[str, IngesterBase] = dict()
         self._ingester_builders: Dict[str, IngesterPluginFactory] = dict()
+        self._pre_processor_sequence: List = self.__get_pre_processor_sequence()
+        self._initialized_pre_processors: Optional[
+            List
+        ] = self.__get_initialized_pre_processors()
 
     def add_ingester_factory_method(
         self,
@@ -59,9 +67,27 @@ class IngesterRouter(IIngesterRegistry):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the default ones
-        # if set. `method` and `target` provided when the method is called take
-        # precedence over the ones set with environment variables.
+        # Pre-process payload
+        if self._initialized_pre_processors:
+            self._log.info(
+                "Starting pre-processing of payload with "
+                "pre-processing plugin sequence: "
+                f"{self._pre_processor_sequence}"
+            )
+            for pre_processor in self._initialized_pre_processors:
+                payload = self.__preprocess_payload_object(
+                    pre_processor=pre_processor,
+                    payload=payload,
+                    destination_table=destination_table,
+                    method=method,
+                    target=target,
+                    collection_id=collection_id,
+                )
+
+        # Use the method and target provided by customer, or load the
+        # default ones if set. `method` and `target` provided when the
+        # method is called take precedence over the ones set with
+        # environment variables.
         method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
         method = method.lower() if method is not None else None
         target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
@@ -111,9 +137,38 @@ class IngesterRouter(IIngesterRegistry):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the default ones
-        # if set. `method` and `target` provided when the method is called take
-        # precedence over the ones set with environment variables.
+        # Pre-process the tabular data if any pre-processors are specified
+        if self._initialized_pre_processors:
+            self._log.info(
+                "Starting pre-processing of tabular data with "
+                "pre-processing plugin sequence: "
+                f"{self._pre_processor_sequence}"
+            )
+
+            first_pre_processor = self._initialized_pre_processors.pop(0)
+            payload = self.__preprocess_tabular_data(
+                pre_processor=first_pre_processor,
+                rows=rows,
+                column_names=column_names,
+                destination_table=destination_table,
+                method=method,
+                target=target,
+                collection_id=collection_id,
+            )
+            for pre_processor in self._initialized_pre_processors:
+                payload = self.__preprocess_payload_object(
+                    pre_processor=pre_processor,
+                    payload=payload,
+                    destination_table=destination_table,
+                    method=method,
+                    target=target,
+                    collection_id=collection_id,
+                )
+
+        # Use the method and target provided by customer, or load the
+        # default ones if set. `method` and `target` provided when the
+        # method is called take precedence over the ones set with
+        # environment variables.
         method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
         target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
         self._log.info(
@@ -153,6 +208,89 @@ class IngesterRouter(IIngesterRegistry):
                 consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                 countermeasures=f"Provide either valid value for method, or install ingestion plugin that supports this type. "
                 f"Currently possible values are {list(self._ingester_builders.keys())}",
+            )
+
+    def __get_pre_processor_sequence(self) -> List:
+        test_envs = os.environ
+        """ Load pre-process ingestion sequence if any specified. """
+        pre_processor_sequence: Optional[str] = self._cfg.get_value(
+            "INGEST_PAYLOAD_PREPROCESS_SEQUENCE"
+        )
+        return pre_processor_sequence.split(",") if pre_processor_sequence else []
+
+    def __get_initialized_pre_processors(self) -> Optional[List]:
+        """Initialize pre-process ingestion plugin sequence if any."""
+        if self._pre_processor_sequence:
+            self._log.info("Initializing pre-process ingestion plugin sequence.")
+            return [self.__initialize_ingester(i) for i in self._pre_processor_sequence]
+        else:
+            return None
+
+    def __preprocess_payload_object(
+        self,
+        pre_processor: IngesterBase,
+        payload: Payload,
+        destination_table: Optional[str],
+        method: Optional[str],
+        target: Optional[str],
+        collection_id: Optional[str],
+    ) -> Optional[List[Dict]]:
+        """
+        Send payload to be processed by a pre-process plugin.
+        """
+        try:
+            if isinstance(payload, dict):
+                pre_processor.send_object_for_ingestion(
+                    payload, destination_table, method, target, collection_id
+                )
+                pre_processor.close()
+                return pre_processor.get_preprocessed_payload()
+            else:
+                for elem in payload:
+                    pre_processor.send_object_for_ingestion(
+                        elem, destination_table, method, target, collection_id
+                    )
+                    pre_processor.close()
+                    return pre_processor.get_preprocessed_payload()
+        except Exception as e:
+            self._log.error(
+                "Failed to send object for pre-processing. "
+                "Beware of possible data corruption. "
+                f"Exception was: {e}"
+            )
+
+    def __preprocess_tabular_data(
+        self,
+        pre_processor: IngesterBase,
+        rows: iter,
+        column_names: iter,
+        destination_table: Optional[str],
+        method: Optional[str],
+        target: Optional[str],
+        collection_id: Optional[str],
+    ) -> Optional[List[Dict]]:
+        """Send tabular data to be processed by a pre-process plugin"""
+        try:
+            pre_processor.send_tabular_data_for_ingestion(
+                rows, column_names, destination_table, method, target, collection_id
+            )
+            pre_processor.close()
+            return pre_processor.get_preprocessed_payload()
+        except Exception as e:
+            self._log.error(
+                "Failed to send tabular data for pre-processing. " f"Exception was: {e}"
+            )
+            errors.log_and_rethrow(
+                ResolvableBy.USER_ERROR,
+                self._log,
+                what_happened="Failed to send tabular data for pre-processing",
+                why_it_happened=f"Exception was: {e}",
+                consequences="Data is not pre-processed and this may lead to "
+                "possible data corruption",
+                countermeasures="Please look the error message and try to"
+                " fix the error and re-try.",
+                exception=e,
+                wrap_in_vdk_error=True,
             )
 
     def __ingest_object(
@@ -226,6 +364,7 @@ class IngesterRouter(IIngesterRegistry):
                 self._state.get(CommonStoreKeys.OP_ID),
                 ingester_plugin,
                 IngesterConfiguration(config=self._cfg),
+                True if method in self._pre_processor_sequence else False,
             )
 
         return self._cached_ingesters[method]
