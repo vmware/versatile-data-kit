@@ -18,22 +18,10 @@ class SlowlyChangingDimensionTypeOverwrite(TemplateArgumentsValidator):
     TemplateParams = SlowlyChangingDimensionTypeOverwriteParams
 
     def __init__(self) -> None:
-        super().__init__(
-            template_name="scd1",
-            sql_files=[
-                "00-test-if-view-matches-target.sql",
-                "01-insert-into-target.sql",
-                "02-refresh.sql",
-                "03-compute-stats.sql",
-            ],
-            sql_files_platform_is_responsible=[
-                "02-refresh.sql",
-                "03-compute-stats.sql",
-            ],
-        )
+        super().__init__()
 
 
-def get_validated_arguments(job_input: IJobInput):
-    return SlowlyChangingDimensionTypeOverwrite().get_validated_args(
+def run(job_input: IJobInput):
+    SlowlyChangingDimensionTypeOverwrite().get_validated_args(
         job_input, job_input.get_arguments()
     )

@@ -18,20 +18,11 @@ log = getLogger(__name__)
 class TemplateArgumentsValidator:
     TemplateParams: Type[BaseModel]
 
-    def __init__(
-        self,
-        template_name: str,
-        sql_files: List[str],
-        sql_files_platform_is_responsible: List[str],
-    ) -> None:
-        self.template_name = (
-            template_name  # FIXME: could be inferred from the template path
-        )
-        self.sql_files = sql_files
-        self.sql_files_platform_is_responsible = sql_files_platform_is_responsible  # used to decide blamee for failure, defaults to user
+    def __init__(self) -> None:
+        pass
 
     def get_validated_args(self, job_input: IJobInput, args: dict) -> dict:
-        args = self._validate_args(args)
+        args.update(self._validate_args(args))
         args["_vdk_template_insert_partition_clause"] = ""
 
         impala_helper = ImpalaHelper(cast(JobInput, job_input).get_managed_connection())

@@ -24,7 +24,7 @@ class LoadVersionedParams(BaseModel):
     active_to_column: str = "active_to"
     active_to_max_value: str = "9999-12-31"
 
-    @validator("tracked_columns")
+    @validator("tracked_columns", allow_reuse=True)
     def passwords_match(cls, tracked_columns, values, **kwargs):
         value_columns = values.get("value_columns")
         if type(value_columns) == list and not tracked_columns:
@@ -42,19 +42,7 @@ class LoadVersioned(TemplateArgumentsValidator):
     TemplateParams = LoadVersionedParams
 
     def __init__(self) -> None:
-        super().__init__(
-            template_name="load/versioned",
-            sql_files=[
-                "00-test-if-view-matches-target.sql",
-                "01-insert-into-target.sql",
-                "02-refresh.sql",
-                "03-compute-stats.sql",
-            ],
-            sql_files_platform_is_responsible=[
-                "02-refresh.sql",
-                "03-compute-stats.sql",
-            ],
-        )
+        super().__init__()
 
     def _validate_args(self, args: dict) -> dict:
         args = super()._validate_args(args)
@@ -72,5 +60,5 @@ class LoadVersioned(TemplateArgumentsValidator):
         )
 
 
-def get_validated_arguments(job_input: IJobInput):
-    return LoadVersioned().get_validated_args(job_input, job_input.get_arguments())
+def run(job_input: IJobInput):
+    LoadVersioned().get_validated_args(job_input, job_input.get_arguments())
