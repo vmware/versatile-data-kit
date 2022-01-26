@@ -10,4 +10,4 @@ UNION ALL
 (
   SELECT *
   FROM   {source_schema}.{source_view}
-)
+);

@@ -1,1 +1,1 @@
-REFRESH {target_schema}.{target_table}
+REFRESH {target_schema}.{target_table};

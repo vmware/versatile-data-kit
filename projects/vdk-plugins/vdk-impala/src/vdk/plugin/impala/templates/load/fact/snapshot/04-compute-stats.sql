@@ -1,1 +1,1 @@
-COMPUTE STATS {target_schema}.{target_table}
+COMPUTE STATS {target_schema}.{target_table};
