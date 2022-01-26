@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 from logging import getLogger
 from typing import cast
-from typing import List
 from typing import Type
 
 from pydantic import BaseModel
@@ -47,7 +46,7 @@ class TemplateArgumentsValidator:
         )
         source_view_has_results = raw_source_view_has_results[0][0]
         if not source_view_has_results:
-            log.info(f"Source view returns no results. Will NOT execute template!")
+            log.info("Source view returns no results. Will NOT execute template!")
             raise Exception(
                 "Source view returns no results. Will NOT execute template!"
             )
