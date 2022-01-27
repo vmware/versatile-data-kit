@@ -473,14 +473,14 @@ class IngesterBase(IIngester):
         """
         while self._closed.value == 0:
             payload: Optional[Tuple] = None
-            ingestion_result: Optional[IIngesterPlugin.IngestionResult] = None
+            ingestion_metadata: Optional[IIngesterPlugin.IngestionMetadata] = None
             exceptions: List = list()
             try:
                 payload = self._payloads_queue.get()
                 payload_dict, destination_table, method, target, collection_id = payload
 
                 try:
-                    ingestion_result = self._ingester.ingest_payload(
+                    ingestion_metadata = self._ingester.ingest_payload(
                         payload=payload_dict,
                         destination_table=destination_table,
                         target=target,
@@ -525,7 +525,7 @@ class IngesterBase(IIngester):
             try:
                 self._ingester.post_ingest_process(
                     payload=payload_dict,
-                    ingestion_result=ingestion_result,
+                    ingestion_metadata=ingestion_metadata,
                     exceptions=exceptions,
                 )
             except Exception as e:

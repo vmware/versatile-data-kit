@@ -216,7 +216,7 @@ def test_ingest_payload_and_post_ingestion_operation():
     )
     ingester_base._ingester.post_ingest_process.assert_called_with(
         payload=test_aggregated_payload,
-        ingestion_result=test_ingestion_result,
+        ingestion_metadata=test_ingestion_result,
         exceptions=[],
     )
 
@@ -243,6 +243,6 @@ def test_post_ingestion_operation_with_exceptions():
     ingester_base._ingester.ingest_payload.assert_called_once()
     ingester_base._ingester.post_ingest_process.assert_called_with(
         payload=test_aggregated_payload,
-        ingestion_result=None,
+        ingestion_metadata=None,
         exceptions=[test_exception],
     )
