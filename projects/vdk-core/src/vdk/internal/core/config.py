@@ -215,7 +215,6 @@ class ConfigurationBuilder:
             self.__config_key_to_value[key] = convert_value_to_type_of_default_type(
                 key, self.__config_key_to_value[key], default_value
             )
-        pass
 
     def build(self) -> Configuration:
         """
