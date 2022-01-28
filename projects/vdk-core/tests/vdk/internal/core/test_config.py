@@ -83,6 +83,21 @@ def test_set_value_overrides_default():
     assert cfg.get_value("key") == "value"
 
 
+def test_set_value_overrides_default_preserve_types():
+    builder = ConfigurationBuilder()
+    builder.set_value("key", "False")
+    builder.add("key", True, False, "key description")
+    builder.set_value("float", "11.12")
+    builder.add("float", 1.1, False, "key description")
+    cfg = builder.build()
+    assert cfg.get_value("key") == False
+    assert cfg.get_value("float") == 11.12
+
+    builder.set_value("int", "bad-value")
+    with pytest.raises(VdkConfigurationError):
+        builder.add("int", 1, False, "key description")
+
+
 def test_list_config_keys():
     builder = ConfigurationBuilder()
     builder.add("key1", 1)
