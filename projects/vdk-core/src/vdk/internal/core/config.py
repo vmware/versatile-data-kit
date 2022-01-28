@@ -166,6 +166,7 @@ class ConfigurationBuilder:
             self.__add_public(key, description, default_value)
         elif description:
             self.__add_public(key, description)
+        self.__adjust_type_if_value_set(key, default_value)
         return self
 
     def set_value(self, key: ConfigKey, value: ConfigValue) -> ConfigurationBuilder:
@@ -204,6 +205,17 @@ class ConfigurationBuilder:
         if default_value is not None:
             description += "\nDefault value is: '%s'." % default_value
         self.__config_key_to_description[key] = description
+
+    def __adjust_type_if_value_set(self, key: ConfigKey, default_value: ConfigValue):
+        """
+        As set_value can be called before add (which defines the configuration) we may need to adjust
+        the type of the value if it's already set.
+        """
+        if default_value is not None and key in self.__config_key_to_value:
+            self.__config_key_to_value[key] = convert_value_to_type_of_default_type(
+                key, self.__config_key_to_value[key], default_value
+            )
+        pass
 
     def build(self) -> Configuration:
         """
