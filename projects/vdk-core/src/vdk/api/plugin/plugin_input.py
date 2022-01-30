@@ -231,7 +231,6 @@ class IIngesterPlugin:
     """
 
     IngestionMetadata = NewType("IngestionMetadata", Dict)
-    ExceptionsList = NewType("ExceptionsList", List)
 
     def ingest_payload(
         self,
@@ -239,14 +238,14 @@ class IIngesterPlugin:
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IngestionMetadata] = None,
     ) -> Optional[IngestionMetadata]:
         """
         Do the actual ingestion of the payload
 
         :param payload: List[dict]
-            The payloads to be ingested. Depending on the number of payloads
-            to be processed, there might be 0 or many dict objects. Each dict
-            object is a separate payload.
+            The payload to be ingested, split into 1 or many dictionary
+            objects.
             Note: The memory size of the list is dependent on the
             payload_size_bytes_threshold attribute.
         :param destination_table: Optional[string]
@@ -262,7 +261,7 @@ class IIngesterPlugin:
                 Example:
                     http://example.com/<some-api>/<data-source_and-db-table>
             This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be
+            `INGEST_TARGET_DEFAULT` configuration variable is set. This can be
             made by plugins, which may set default value, or it can be
             overwritten by users.
         :param collection_id: string
@@ -270,6 +269,11 @@ class IIngesterPlugin:
             method invocations belong to same collection. Defaults to
             "data_job_name|OpID", meaning all method invocations from a data
             job run will belong to the same collection.
+        :param metadata: Optional[IngestionMetadata] dictionary object
+            containing metadata produced and possibly used by pre-ingest,
+            ingest, or post-ingest plugins.
+            NOTE: A read-only parameter. Whatever modifications are done to
+            this object, once returned, it is treated as a new object.
 
         :return: [Optional] IngestionMetadata, containing data about the
         ingestion process (information about the result from the ingestion
@@ -312,7 +316,7 @@ class IIngesterPlugin:
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
         metadata: Optional[IngestionMetadata] = None,
-    ) -> Union[List[Dict], Tuple[List[Dict], IngestionMetadata]]:
+    ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
         """
         Do some processing on the ingestion payload before passing it to the
         actual ingestion.
@@ -322,9 +326,18 @@ class IIngesterPlugin:
         implementing this method, and doing some payload processing:
 
         .. code-block:: python
-            def pre_ingest_process(self, payload: List[dict]) -> List[dict]:
+            def pre_ingest_process(self,
+                payload: List[dict],
+                destination_table: Optional[str],
+                target: Optional[str],
+                collection_id: Optional[str],
+                metadata: Optional[IngestionMetadata],
+            ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
                 # Ensure all values in the payload are strings
-                return [{k: str(v) for (k,v) in i.items()} for i in payload]
+                processed_payload = \
+                        [{k: str(v) for (k,v) in i.items()} for i in payload]
+
+                return processed_payload, metadata
 
         :param payload: List[dict] the ingestion payload to be processed.
             NOTE: A read-only parameter. Whatever modifications are done to
@@ -344,7 +357,7 @@ class IIngesterPlugin:
                 Example:
                       http://example.com/<some-api>/<data-source_and-db-table>
             This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be
+            `INGEST_TARGET_DEFAULT` configuration variable is set. This can be
             made by plugins, which may set default value, or it can be
             overwritten by users.
             NOTE: A read-only parameter. It is not expected to be modified and
@@ -356,15 +369,17 @@ class IIngesterPlugin:
             job run will belong to the same collection.
             NOTE: A read-only parameter. It is not expected to be modified and
             returned.
-        :param metadata: Optional[IngestionMetadata] dict object containing
-            metadata produced by the pre-ingest plugin, and possibly used by
-            other pre-ingest, ingest, or post-ingest plugins.
+        :param metadata: Optional[IngestionMetadata], a dictionary object
+            containing metadata produced by the pre-ingest plugin,
+            and possibly used by other pre-ingest, ingest, or post-ingest
+            plugins.
             NOTE: A read-only parameter. Whatever modifications are done to
             this object, once returned, it is treated as a new object.
-        :return: Union[List[Dict], Tuple[List[Dict], IngestionMetadata]],
-            either only the processed payload objects, or a tuple containing
-            the processed payload objects and an IngestionMetadata object with
-            ingestion metadata information.
+        :return: Tuple[List[Dict], Optional[IngestionMetadata]], a tuple
+            containing the processed payload objects and an
+            IngestionMetadata object with ingestion metadata information.
+            If no metadata is being added or processed, the metadata object
+            passed to this method can be returned as is (see code block above).
 
         :exception: If an exception occurs during this operation, all other
             pre-processing operations and the ingestion of the payload would
@@ -381,7 +396,7 @@ class IIngesterPlugin:
         destination_table: Optional[str] = None,
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
-        ingestion_metadata: Optional[IngestionMetadata] = None,
+        metadata: Optional[IngestionMetadata] = None,
         exception: Optional[Exception] = None,
     ) -> Optional[IngestionMetadata]:
         """
@@ -398,7 +413,7 @@ class IIngesterPlugin:
                 destination_table: Optional[str],
                 target: Optional[str],
                 collection_id: Optional[str],
-                ingestion_metadata: Optional[IngestionMetadata],
+                metadata: Optional[IngestionMetadata],
                 exception: Optional[Exception],
             ) -> Optional[IngestionMetadata]:
 
@@ -407,7 +422,7 @@ class IIngesterPlugin:
                 payload_sizes = [sys.getsizeof(i) for i in payload]
                 telemetry['payload_size'] = sum(payload_sizes)
                 telemetry['caught_ingest_exceptions'] = exceptions
-                telemetry |= ingestion_metadata
+                telemetry |= metadata
 
                 # Send telemetry to wherever is needed.
                 result = requests.post('example.com', data=telemetry)
@@ -417,9 +432,8 @@ class IIngesterPlugin:
 
 
         :param payload: Optional[List[dict]]
-            The payloads that have been ingested. Depending on the number
-            of payloads to be processed, there might 0 or many dict objects.
-            Each dict object is a separate payload.
+            The payload that has been ingested, represented as 0 or many
+            dictionary objects.
             NOTE: A read-only parameter. It is not expected to be modified and
             returned.
         :param destination_table: Optional[string]
@@ -437,7 +451,7 @@ class IIngesterPlugin:
                 Example:
                       http://example.com/<some-api>/<data-source_and-db-table>
             This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be
+            `INGEST_TARGET_DEFAULT` configuration variable is set. This can be
             made by plugins, which may set default value, or it can be
             overwritten by users.
             NOTE: A read-only parameter. It is not expected to be modified and
@@ -449,7 +463,7 @@ class IIngesterPlugin:
             job run will belong to the same collection.
             NOTE: A read-only parameter. It is not expected to be modified and
             returned.
-        :param ingestion_metadata: Optional[IngestionMetadata]
+        :param metadata: Optional[IngestionMetadata]
             The metadata from the ingestion operation, that plugin developers
             have decided to process further. This metadata can be either an
             IngestionMetadata object (which is effectively a dictionary), or

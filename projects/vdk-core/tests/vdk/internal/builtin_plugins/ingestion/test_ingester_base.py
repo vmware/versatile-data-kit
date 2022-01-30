@@ -190,14 +190,14 @@ def test_ingest_payload_multiple_destinations():
 def test_ingest_payload_and_post_ingestion_operation():
     test_payload = {"key1": "val1", "key2": "val2", "key3": "val3"}
     test_aggregated_payload = [{"key1": "val1", "key2": "val2", "key3": "val3"}]
-    test_ingestion_result = {"some_metadata": "some_ingestion_metadata"}
+    test_ingestion_metadata = {"some_metadata": "some_ingestion_metadata"}
     destination_table = "a_destination_table"
     method = "test_method"
     target = "some_target"
     collection_id = "test_job|42a420"
     ingester_base = create_ingester_base()
 
-    ingester_base._ingester.ingest_payload.return_value = test_ingestion_result
+    ingester_base._ingester.ingest_payload.return_value = test_ingestion_metadata
 
     ingester_base.send_object_for_ingestion(
         payload=test_payload,
@@ -216,8 +216,8 @@ def test_ingest_payload_and_post_ingestion_operation():
     )
     ingester_base._ingester.post_ingest_process.assert_called_with(
         payload=test_aggregated_payload,
-        ingestion_metadata=test_ingestion_result,
-        exceptions=[],
+        metadata=test_ingestion_metadata,
+        exception=None,
     )
 
 
@@ -243,6 +243,6 @@ def test_post_ingestion_operation_with_exceptions():
     ingester_base._ingester.ingest_payload.assert_called_once()
     ingester_base._ingester.post_ingest_process.assert_called_with(
         payload=test_aggregated_payload,
-        ingestion_metadata=None,
-        exceptions=[test_exception],
+        metadata=None,
+        exception=test_exception,
     )
