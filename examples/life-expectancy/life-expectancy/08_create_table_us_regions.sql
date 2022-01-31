@@ -1,6 +1,6 @@
 CREATE TABLE us_regions (
-    State varchar(32),
+    State varchar,
     StateCode varchar(2),
-    Region varchar(32),
-    Division varchar(32)
+    Region varchar,
+    Division varchar
 )
