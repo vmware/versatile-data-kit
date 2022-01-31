@@ -7,10 +7,7 @@ import sys
 
 import numpy as np
 import pandas as pd
-
-
 from le_utils.utils import build_insert_query
-
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
