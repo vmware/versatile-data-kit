@@ -157,6 +157,7 @@ This example also requires the following Python libraries, which are included in
 inspect
 math
 numpy
+openpyxl
 pandas
 ```
 
