@@ -1,5 +1,5 @@
 inspect
 math
 numpy
-openpyxl 
+openpyxl
 pandas
