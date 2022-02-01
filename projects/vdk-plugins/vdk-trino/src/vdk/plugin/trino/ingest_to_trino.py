@@ -31,6 +31,7 @@ class IngestToTrino(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: str = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ) -> None:
         """
         Performs the ingestion
@@ -42,7 +43,11 @@ class IngestToTrino(IIngesterPlugin):
             this parameter is currently unused
             TODO: figure out what to use target for
         :param collection_id:
-            an identifier specifying that data from different method invocations belongs to the same collection
+            an identifier specifying that data from different method
+            invocations belongs to the same collection
+        :param metadata:
+            an IngestionMetadata object that contains metadata about the
+            pre-ingestion and ingestion operations
         """
 
         log.info(

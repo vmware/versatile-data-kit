@@ -28,6 +28,7 @@ class IngestToGreenplum(IIngesterPlugin):
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ) -> None:
         """
         See parent class doc for details
