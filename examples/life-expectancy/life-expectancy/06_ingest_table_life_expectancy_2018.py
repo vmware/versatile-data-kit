@@ -33,9 +33,7 @@ def run(job_input: IJobInput):
     df = pd.read_csv(url, dtype=dtypes, na_values="*")
 
     job_input.send_tabular_data_for_ingestion(
-      df.itertuples(index=False),
-      destination_table="life_expectancy_2018",
-      column_names=df.columns.tolist()
+        df.itertuples(index=False),
+        destination_table="life_expectancy_2018",
+        column_names=df.columns.tolist(),
     )
-
-    

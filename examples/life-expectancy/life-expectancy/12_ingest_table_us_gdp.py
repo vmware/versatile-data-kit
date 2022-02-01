@@ -38,9 +38,8 @@ def run(job_input: IJobInput):
     )
     df.dropna(axis=0, inplace=True)
 
-     
     job_input.send_tabular_data_for_ingestion(
-      df.itertuples(index=False),
-      destination_table="us_gdp",
-      column_names=df.columns.tolist(),
+        df.itertuples(index=False),
+        destination_table="us_gdp",
+        column_names=df.columns.tolist(),
     )
