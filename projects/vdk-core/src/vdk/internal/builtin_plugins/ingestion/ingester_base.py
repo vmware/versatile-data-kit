@@ -530,7 +530,7 @@ class IngesterBase(IIngester):
                 )
             except Exception as e:
                 log.info(
-                    "Could not complete the post-ingestion operation. ",
+                    "Could not complete the post-ingestion operation. "
                     f"The error encountered was: {e}",
                 )
 
