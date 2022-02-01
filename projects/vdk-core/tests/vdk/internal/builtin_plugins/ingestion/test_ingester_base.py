@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from datetime import datetime
-from logging import error
 from unittest.mock import call
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -16,7 +15,8 @@ from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 
 
-def create_ingester_base() -> IngesterBase:
+def create_ingester_base(kwargs=None) -> IngesterBase:
+    kwargs = kwargs or {}
     config_key_value_pairs = {
         "ingester_number_of_worker_threads": 1,
         "ingester_payload_size_bytes_threshold": 100,
@@ -32,6 +32,7 @@ def create_ingester_base() -> IngesterBase:
         op_id="42a420",
         ingester=MagicMock(spec=IIngesterPlugin),
         ingest_config=IngesterConfiguration(test_config),
+        **kwargs
     )
 
 
@@ -79,6 +80,7 @@ def test_send_tabular_data_for_ingestion():
     method = "test_method"
     target = "some_target"
     collection_id = "test_job|42a420"
+    metadata = None
     ingester_base = create_ingester_base()
 
     ingester_base.send_tabular_data_for_ingestion(
@@ -95,6 +97,7 @@ def test_send_tabular_data_for_ingestion():
         destination_table=destination_table,
         target=target,
         collection_id=collection_id,
+        metadata=metadata,
     )
 
     with pytest.raises(errors.UserCodeError) as exc_info:
@@ -125,6 +128,7 @@ def test_plugin_ingest_payload():
     method = "test_method"
     target = "some_target"
     collection_id = "test_job|42a420"
+    metadata = None
     ingester_base = create_ingester_base()
 
     ingester_base.send_object_for_ingestion(
@@ -141,6 +145,7 @@ def test_plugin_ingest_payload():
         destination_table=destination_table,
         target=target,
         collection_id=collection_id,
+        metadata=metadata,
     )
 
 
@@ -154,6 +159,7 @@ def test_ingest_payload_multiple_destinations():
     method = "test_method"
     target = "some_target"
     collection_id = "test_job|42a420"
+    metadata = None
     ingester_base = create_ingester_base()
 
     ingester_base.send_object_for_ingestion(
@@ -177,6 +183,7 @@ def test_ingest_payload_multiple_destinations():
         target=target,
         destination_table=destination_table1,
         payload=test_expected_payload1,
+        metadata=metadata,
     )
 
     assert ingester_base._ingester.ingest_payload.call_args_list[1] == call(
@@ -184,6 +191,7 @@ def test_ingest_payload_multiple_destinations():
         target=target,
         destination_table=destination_table2,
         payload=test_expected_payload2,
+        metadata=metadata,
     )
 
 
@@ -195,7 +203,8 @@ def test_ingest_payload_and_post_ingestion_operation():
     method = "test_method"
     target = "some_target"
     collection_id = "test_job|42a420"
-    ingester_base = create_ingester_base()
+    post_ingest_plugin = MagicMock(spec=IIngesterPlugin)
+    ingester_base = create_ingester_base({"post_processors": [post_ingest_plugin]})
 
     ingester_base._ingester.ingest_payload.return_value = test_ingestion_metadata
 
@@ -213,9 +222,13 @@ def test_ingest_payload_and_post_ingestion_operation():
         destination_table=destination_table,
         target=target,
         collection_id=collection_id,
+        metadata=None,
     )
-    ingester_base._ingester.post_ingest_process.assert_called_with(
+    ingester_base._post_processors[0].post_ingest_process.assert_called_with(
         payload=test_aggregated_payload,
+        destination_table=destination_table,
+        target=target,
+        collection_id=collection_id,
         metadata=test_ingestion_metadata,
         exception=None,
     )
@@ -228,7 +241,8 @@ def test_post_ingestion_operation_with_exceptions():
     method = "test_method"
     target = "some_target"
     test_exception = errors.UserCodeError("Test User Exception")
-    ingester_base = create_ingester_base()
+    post_ingest_plugin = MagicMock(spec=IIngesterPlugin)
+    ingester_base = create_ingester_base({"post_processors": [post_ingest_plugin]})
 
     ingester_base._ingester.ingest_payload.side_effect = test_exception
 
@@ -241,8 +255,11 @@ def test_post_ingestion_operation_with_exceptions():
     ingester_base.close()
 
     ingester_base._ingester.ingest_payload.assert_called_once()
-    ingester_base._ingester.post_ingest_process.assert_called_with(
+    ingester_base._post_processors[0].post_ingest_process.assert_called_with(
         payload=test_aggregated_payload,
+        destination_table=destination_table,
+        target=target,
+        collection_id="test_job|42a420",
         metadata=None,
         exception=test_exception,
     )
