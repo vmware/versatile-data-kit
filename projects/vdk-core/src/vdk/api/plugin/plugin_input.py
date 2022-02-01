@@ -10,6 +10,7 @@ from typing import Dict
 from typing import List
 from typing import NewType
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
@@ -237,34 +238,42 @@ class IIngesterPlugin:
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IngestionMetadata] = None,
     ) -> Optional[IngestionMetadata]:
         """
         Do the actual ingestion of the payload
 
         :param payload: List[dict]
-            The payloads to be ingested. Depending on the number of payloads to be
-            processed, there might 0 or many dict objects. Each dict object is a
-            separate payload.
+            The payload to be ingested, split into 1 or many dictionary
+            objects.
             Note: The memory size of the list is dependent on the
             payload_size_bytes_threshold attribute.
         :param destination_table: Optional[string]
-            (Optional) The name of the table, where the data should be ingested into.
-            This argument is optional, and needs to be considered only when the name
-            of the destination table is not included in the payload itself.
+            (Optional) The name of the table, where the data should be
+            ingested into. This argument is optional, and needs to be
+            considered only when the name of the destination table is not
+            included in the payload itself.
         :param target: Optional[string]
             (Optional) Used to identify where the data should be ingested into.
                 Specifies a data source and its destination database.
                 The values for this parameter can be in the format
                 `<some-data-source_and-db-table>`, or as a URL.
-                Example: http://example.com/<some-api>/<data-source_and-db-table>
+                Example:
+                    http://example.com/<some-api>/<data-source_and-db-table>
             This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be made by
-            plugins, which may set default value, or it can be overwritten by users.
+            `INGEST_TARGET_DEFAULT` configuration variable is set. This can be
+            made by plugins, which may set default value, or it can be
+            overwritten by users.
         :param collection_id: string
-            (Optional) An identifier to indicate that data from different method
-            invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the
-            same collection.
+            (Optional) An identifier to indicate that data from different
+            method invocations belong to same collection. Defaults to
+            "data_job_name|OpID", meaning all method invocations from a data
+            job run will belong to the same collection.
+        :param metadata: Optional[IngestionMetadata] dictionary object
+            containing metadata produced and possibly used by pre-ingest,
+            ingest, or post-ingest plugins.
+            NOTE: A read-only parameter. Whatever modifications are done to
+            this object, once returned, it is treated as a new object.
 
         :return: [Optional] IngestionMetadata, containing data about the
         ingestion process (information about the result from the ingestion
@@ -294,15 +303,20 @@ class IIngesterPlugin:
 
                 return metadata
 
-        :exceptions: Exceptions raised while ingesting data can either be
-        handled at plugin level, or they will be automatically caught at the
-        vdk-core level.
+        :exception: Exceptions raised while ingesting data can either be
+            handled at plugin level, or they will be automatically caught at
+            the vdk-core level.
         """
         pass
 
     def pre_ingest_process(
-        self, payload: List[dict], metadata: Optional[IngestionMetadata] = None
-    ) -> (List[dict], Optional[IngestionMetadata]):
+        self,
+        payload: List[dict],
+        destination_table: Optional[str] = None,
+        target: Optional[str] = None,
+        collection_id: Optional[str] = None,
+        metadata: Optional[IngestionMetadata] = None,
+    ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
         """
         Do some processing on the ingestion payload before passing it to the
         actual ingestion.
@@ -312,26 +326,79 @@ class IIngesterPlugin:
         implementing this method, and doing some payload processing:
 
         .. code-block:: python
-            def pre_ingest_process(self, payload: List[dict]) -> List[dict]:
+            def pre_ingest_process(self,
+                payload: List[dict],
+                destination_table: Optional[str],
+                target: Optional[str],
+                collection_id: Optional[str],
+                metadata: Optional[IngestionMetadata],
+            ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
                 # Ensure all values in the payload are strings
-                return [{k: str(v) for (k,v) in i.items()} for i in payload]
+                processed_payload = \
+                        [{k: str(v) for (k,v) in i.items()} for i in payload]
+
+                return processed_payload, metadata
 
         :param payload: List[dict] the ingestion payload to be processed.
-        :param metadata: Optional[IngestionMetadata] dict object containing
-        metadata produced by the pre-ingest plugin, and possibly used by
-        other pre-ingest, ingest, or post-ingest plugins.
-        :return: (List[dict], Optional[IngestionMetadata]), a tuple
-        containing the processed payload and possibly an IngestionMetadata
-        object.
+            NOTE: A read-only parameter. Whatever modifications are done to
+            this object, once returned, it is treated as a new object.
+        :param destination_table: Optional[string]
+            (Optional) The name of the table, where the data should be
+            ingested into. This argument is optional, and needs to be
+            considered only when the name of the destination table is not
+            included in the payload itself.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param target: Optional[string]
+            (Optional) Used to identify where the data should be ingested into.
+                Specifies a data source and its destination database.
+                The values for this parameter can be in the format
+                `<some-data-source_and-db-table>`, or as a URL.
+                Example:
+                      http://example.com/<some-api>/<data-source_and-db-table>
+            This parameter does not need to be used, in case the
+            `INGEST_TARGET_DEFAULT` configuration variable is set. This can be
+            made by plugins, which may set default value, or it can be
+            overwritten by users.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param collection_id: string
+            (Optional) An identifier to indicate that data from different
+            method invocations belong to same collection. Defaults to
+            "data_job_name|OpID", meaning all method invocations from a data
+            job run will belong to the same collection.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param metadata: Optional[IngestionMetadata], a dictionary object
+            containing metadata produced by the pre-ingest plugin,
+            and possibly used by other pre-ingest, ingest, or post-ingest
+            plugins.
+            NOTE: A read-only parameter. Whatever modifications are done to
+            this object, once returned, it is treated as a new object.
+        :return: Tuple[List[Dict], Optional[IngestionMetadata]], a tuple
+            containing the processed payload objects and an
+            IngestionMetadata object with ingestion metadata information.
+            If no metadata is being added or processed, the metadata object
+            passed to this method can be returned as is (see code block above).
+
+        :exception: If an exception occurs during this operation, all other
+            pre-processing operations and the ingestion of the payload would
+            be terminated to prevent data corruption. In case the ingestion is
+            expected to happen regardless if there are exceptions or not,
+            then the exception handling needs to be implemented within this
+            method.
         """
         pass
 
     def post_ingest_process(
         self,
         payload: Optional[List[dict]] = None,
-        ingestion_metadata: Optional[IngestionMetadata] = None,
-        exceptions: Optional[List] = None,
-    ) -> None:
+        destination_table: Optional[str] = None,
+        target: Optional[str] = None,
+        collection_id: Optional[str] = None,
+        metadata: Optional[IngestionMetadata] = None,
+        exception: Optional[Exception] = None,
+    ) -> Optional[IngestionMetadata]:
         """
         Do post-ingestion processing of the ingestion payload
         or metadata from the ingestion operation.
@@ -343,31 +410,78 @@ class IIngesterPlugin:
             def post_ingest_process(
                 self,
                 payload: Optional[List[dict]],
-                ingestion_metadata: Optional[IngestionMetadata]
-                exceptions: Optional[List]
-            ) -> None:
+                destination_table: Optional[str],
+                target: Optional[str],
+                collection_id: Optional[str],
+                metadata: Optional[IngestionMetadata],
+                exception: Optional[Exception],
+            ) -> Optional[IngestionMetadata]:
+
                 # Prepare telemetry
                 telemetry = {}
                 payload_sizes = [sys.getsizeof(i) for i in payload]
                 telemetry['payload_size'] = sum(payload_sizes)
                 telemetry['caught_ingest_exceptions'] = exceptions
-                telemetry |= ingestion_metadata
+                telemetry |= metadata
 
                 # Send telemetry to wherever is needed.
-                requests.post('example.com', data=telemetry)
+                result = requests.post('example.com', data=telemetry)
+                telemetry["telemetry_req_status"] = result.status_code
+
+                return telemetry
 
 
         :param payload: Optional[List[dict]]
-            The payloads that have been ingested. Depending on the number
-            of payloads to be processed, there might 0 or many dict objects.
-            Each dict object is a separate payload.
-        :param ingestion_metadata: Optional[IngestionMetadata]
+            The payload that has been ingested, represented as 0 or many
+            dictionary objects.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param destination_table: Optional[string]
+            (Optional) The name of the table, where the data should be
+            ingested into. This argument is optional, and needs to be
+            considered only when the name of the destination table is not
+            included in the payload itself.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param target: Optional[string]
+            (Optional) Used to identify where the data should be ingested into.
+                Specifies a data source and its destination database.
+                The values for this parameter can be in the format
+                `<some-data-source_and-db-table>`, or as a URL.
+                Example:
+                      http://example.com/<some-api>/<data-source_and-db-table>
+            This parameter does not need to be used, in case the
+            `INGEST_TARGET_DEFAULT` configuration variable is set. This can be
+            made by plugins, which may set default value, or it can be
+            overwritten by users.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param collection_id: string
+            (Optional) An identifier to indicate that data from different
+            method invocations belong to same collection. Defaults to
+            "data_job_name|OpID", meaning all method invocations from a data
+            job run will belong to the same collection.
+            NOTE: A read-only parameter. It is not expected to be modified and
+            returned.
+        :param metadata: Optional[IngestionMetadata]
             The metadata from the ingestion operation, that plugin developers
             have decided to process further. This metadata can be either an
             IngestionMetadata object (which is effectively a dictionary), or
             None.
-        :param exceptions: Optional[List]
-            A list of all exceptions (if any) encountered while ingesting data.
+            NOTE: A read-only parameter. Whatever modifications are done to
+            this object, once returned, it is treated as a new object.
+        :param exception: Optional[Exception]
+            A caught exception (if any) encountered while ingesting data.
+            NOTE: A read-only parameter. Whatever modifications are done to
+            this object, once returned, it is treated as a new object.
+        :return: Optional[IngestionMetadata], an IngestionMetadata object
+            with information about this and possibly the previous processes (
+            pre-ingestion, ingestion, post-ingestion).
+        :exception: If an exception occurs during this operation, all other
+            post-processing operations would be terminated to prevent data
+            corruption. In case all post-process operations are expected to
+            be completed regardless if there are exceptions or not, then the
+            exception handling needs to be implemented within this method.
         """
         pass
 
