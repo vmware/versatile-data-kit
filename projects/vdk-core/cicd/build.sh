@@ -23,20 +23,32 @@ export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
 echo "Update pip to newest version"
 pip install -U pip
 
+# Below line uses --use-deprecated=legacy-resolver to temporary workaround a
+# dependency backtracking issue.
+# TODO: Remove the use of the legacy resolver once latest pip works as expected.
 echo "install dependencies from requirements.txt (used for development and testing)"
-pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
+pip install --use-deprecated="legacy-resolver" --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 
 echo "Setup git hook scripts with pre-commit install"
 pre-commit install
 
+# Below line uses --use-deprecated=legacy-resolver to temporary workaround a
+# dependency backtracking issue.
+# TODO: Remove the use of the legacy resolver once latest pip works as expected.
 echo "Install the vdk-core in editable mode (develop mode)"
-pip install -e .
+pip install --use-deprecated="legacy-resolver" -e .
 
+# Below line uses --use-deprecated=legacy-resolver to temporary workaround a
+# dependency backtracking issue.
+# TODO: Remove the use of the legacy resolver once latest pip works as expected.
 echo "Install common vdk test utils library (in editable mode)"
-pip install -e ../vdk-plugins/vdk-test-utils
+pip install --use-deprecated="legacy-resolver" -e ../vdk-plugins/vdk-test-utils
 
+# Below line uses --use-deprecated=legacy-resolver to temporary workaround a
+# dependency backtracking issue.
+# TODO: Remove the use of the legacy resolver once latest pip works as expected.
 echo "Run unit tests and generate coverage report"
-pip install pytest-cov
+pip install --use-deprecated="legacy-resolver" pytest-cov
 pytest --junitxml=tests.xml --cov vdk --cov-report term-missing --cov-report xml:coverage.xml
 
 echo "Done"

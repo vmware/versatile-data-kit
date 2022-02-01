@@ -7,3 +7,5 @@ click
 vdk-test-utils
 pytest-docker
 docker-compose
+pydantic
+pyarrow

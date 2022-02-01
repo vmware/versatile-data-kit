@@ -3,6 +3,6 @@
 
 services:
   impala:
-    image: "rooneyp1976/impala"
+    image: "cpcloud86/impala"
     ports:
       - "21050:21050"

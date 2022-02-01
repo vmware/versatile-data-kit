@@ -473,14 +473,14 @@ class IngesterBase(IIngester):
         """
         while self._closed.value == 0:
             payload: Optional[Tuple] = None
-            ingestion_result: Optional[IIngesterPlugin.IngestionResult] = None
-            exceptions: List = list()
+            ingestion_metadata: Optional[IIngesterPlugin.IngestionMetadata] = None
+            exception: Optional[Exception] = None
             try:
                 payload = self._payloads_queue.get()
                 payload_dict, destination_table, method, target, collection_id = payload
 
                 try:
-                    ingestion_result = self._ingester.ingest_payload(
+                    ingestion_metadata = self._ingester.ingest_payload(
                         payload=payload_dict,
                         destination_table=destination_table,
                         target=target,
@@ -498,15 +498,15 @@ class IngesterBase(IIngester):
                     log.exception(
                         "A configuration error occurred while ingesting data."
                     )
-                    exceptions.append(e)
+                    exception = e
                 except UserCodeError as e:
                     self._plugin_errors[UserCodeError].increment()
                     log.exception("An user error occurred while ingesting data.")
-                    exceptions.append(e)
+                    exception = e
                 except Exception as e:
                     self._plugin_errors[PlatformServiceError].increment()
                     log.exception("A platform error occurred while ingesting data.")
-                    exceptions.append(e)
+                    exception = e
 
             except Exception as e:
                 self._fail_count.increment()
@@ -517,7 +517,7 @@ class IngesterBase(IIngester):
                         "One or more rows were not ingested.\n"
                         "Exception was: {}".format(str(e))
                     )
-                    exceptions.append(e)
+                    exception = e
             finally:
                 self._payloads_queue.task_done()
 
@@ -525,8 +525,8 @@ class IngesterBase(IIngester):
             try:
                 self._ingester.post_ingest_process(
                     payload=payload_dict,
-                    ingestion_result=ingestion_result,
-                    exceptions=exceptions,
+                    metadata=ingestion_metadata,
+                    exception=exception,
                 )
             except Exception as e:
                 log.info(

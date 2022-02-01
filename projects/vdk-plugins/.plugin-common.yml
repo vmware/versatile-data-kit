@@ -28,6 +28,16 @@
     reports:
       junit: tests.xml
 
+.build-plugin-dind:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  extends: .build-plugin
+
 .release-plugin:
   stage: release
   before_script:
