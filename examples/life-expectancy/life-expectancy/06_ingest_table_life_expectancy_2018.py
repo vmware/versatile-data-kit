@@ -32,9 +32,10 @@ def run(job_input: IJobInput):
 
     df = pd.read_csv(url, dtype=dtypes, na_values="*")
 
-    log.info(df.head(5))
+    job_input.send_tabular_data_for_ingestion(
+      df.itertuples(index=False),
+      destination_table="life_expectancy_2018",
+      column_names=df.columns.tolist()
+    )
 
-    for i, row in df.iterrows():
-        query = build_insert_query(row, df.columns.tolist(), "life_expectancy_2018")
-
-        job_input.execute_query(query)
+    

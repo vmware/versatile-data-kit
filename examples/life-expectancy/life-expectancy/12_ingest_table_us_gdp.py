@@ -38,8 +38,9 @@ def run(job_input: IJobInput):
     )
     df.dropna(axis=0, inplace=True)
 
-    for i, row in df.iterrows():
-        log.info(row)
-        query = build_insert_query(row, df.columns.tolist(), "us_gdp")
-
-        job_input.execute_query(query)
+     
+    job_input.send_tabular_data_for_ingestion(
+      df.itertuples(index=False),
+      destination_table="us_gdp",
+      column_names=df.columns.tolist(),
+    )

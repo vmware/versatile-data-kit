@@ -42,9 +42,15 @@ def run(job_input: IJobInput):
     #    column_names=df.columns,
     #    method="trino",
     # )
-    for i, row in df.iterrows():
-        query = build_insert_query(
-            row, df.columns.tolist(), "life_expectancy_2010_2015"
-        )
+    #for i, row in df.iterrows():
+    #    query = build_insert_query(
+    #        row, df.columns.tolist(), "life_expectancy_2010_2015"
+    #    )
 
-        job_input.execute_query(query)
+    #    job_input.execute_query(query)
+
+    job_input.send_tabular_data_for_ingestion(
+      df.itertuples(index=False),
+      destination_table="life_expectancy_2010_2015",
+      column_names=df.columns.tolist()
+    )
