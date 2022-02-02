@@ -230,4 +230,21 @@ public class DataJobMetricsTest {
        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
        Assertions.assertEquals(0, gauges.size());
    }
+
+   @Test
+   @Order(13)
+   void testIncrementWatchTaskInvocations() {
+      dataJobMetrics.incrementWatchTaskInvocations();
+
+      var counter = meterRegistry.counter(DataJobMetrics.TAURUS_DATAJOB_WATCH_TASK_INVOCATIONS_COUNTER_NAME);
+      Assertions.assertEquals(1.0, counter.count(), 0.001);
+
+      dataJobMetrics.incrementWatchTaskInvocations();
+      dataJobMetrics.incrementWatchTaskInvocations();
+      dataJobMetrics.incrementWatchTaskInvocations();
+      dataJobMetrics.incrementWatchTaskInvocations();
+
+      counter = meterRegistry.counter(DataJobMetrics.TAURUS_DATAJOB_WATCH_TASK_INVOCATIONS_COUNTER_NAME);
+      Assertions.assertEquals(5.0, counter.count(), 0.001);
+   }
 }
