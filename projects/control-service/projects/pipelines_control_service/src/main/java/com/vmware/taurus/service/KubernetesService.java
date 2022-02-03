@@ -498,7 +498,7 @@ public abstract class KubernetesService implements InitializingBean {
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
         createCronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "");
+                volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), List.of(""));
     }
 
     // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking impl. details
@@ -507,11 +507,11 @@ public abstract class KubernetesService implements InitializingBean {
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
                               Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              String imagePullSecret)
+                              List<String> imagePullSecrets)
             throws ApiException {
         log.debug("Creating k8s cron job name:{}, image:{}", name, image);
         var cronJob = cronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecret);
+                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecrets);
         V1beta1CronJob nsJob = new BatchV1beta1Api(client).createNamespacedCronJob(namespace, cronJob, null, null, null);
         log.debug("Created k8s cron job: {}", nsJob);
         log.debug("Created k8s cron job name: {}, uid:{}, link:{}", nsJob.getMetadata().getName(), nsJob.getMetadata().getUid(), nsJob.getMetadata().getSelfLink());
@@ -523,7 +523,7 @@ public abstract class KubernetesService implements InitializingBean {
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
         updateCronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer,
-                initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), "");
+                initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), List.of(""));
     }
 
     public void updateCronJob(String name, String image,  Map<String, String> envs, String schedule,
@@ -531,10 +531,10 @@ public abstract class KubernetesService implements InitializingBean {
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
                               Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              String imagePullSecret)
+                              List<String> imagePullSecrets)
             throws ApiException {
         var cronJob = cronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
-                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecret);
+                volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecrets);
         V1beta1CronJob nsJob = new BatchV1beta1Api(client).replaceNamespacedCronJob(name, namespace, cronJob, null, null, null);
         log.debug("Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}", name, image, nsJob.getMetadata().getUid(), nsJob.getMetadata().getSelfLink());
     }
@@ -1171,12 +1171,13 @@ public abstract class KubernetesService implements InitializingBean {
         }
     }
 
-    private V1beta1CronJob cronJobFromTemplate(String name, String schedule, boolean suspend, V1Container jobContainer,
+    V1beta1CronJob cronJobFromTemplate(String name, String schedule, boolean suspend, V1Container jobContainer,
                                    V1Container initContainer, List<V1Volume> volumes,
                                    Map<String, String> jobDeploymentAnnotations,
                                    Map<String, String> jobPodLabels,
                                    Map<String, String> jobAnnotations,
-                                   Map<String, String> jobLabels, String imagePullSecret) {
+                                   Map<String, String> jobLabels,
+                                   List<String> imagePullSecrets) {
         V1beta1CronJob cronjob = loadCronjobTemplate();
         checkForMissingEntries(cronjob);
         cronjob.getMetadata().setName(name);
@@ -1192,13 +1193,16 @@ public abstract class KubernetesService implements InitializingBean {
         cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations().putAll(jobAnnotations);
         cronjob.getSpec().getJobTemplate().getMetadata().getLabels().putAll(jobLabels);
 
-        if(!StringUtils.isEmpty(imagePullSecret)) {
-            var imagePullSecretObj = new V1LocalObjectReferenceBuilder()
-                    .withName(imagePullSecret)
-                    .build();
-            cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setImagePullSecrets(List.of(imagePullSecretObj));
-        }
+        List<V1LocalObjectReference> imagePullSecretsObj = Optional.ofNullable(imagePullSecrets)
+              .stream()
+              .flatMap(secrets -> secrets.stream())
+              .filter(secret -> StringUtils.isNotEmpty(secret))
+              .map(secret -> new V1LocalObjectReferenceBuilder().withName(secret).build())
+              .collect(Collectors.toList());
 
+        if (!CollectionUtils.isEmpty(imagePullSecretsObj)) {
+            cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setImagePullSecrets(imagePullSecretsObj);
+        }
 
         return cronjob;
     }
