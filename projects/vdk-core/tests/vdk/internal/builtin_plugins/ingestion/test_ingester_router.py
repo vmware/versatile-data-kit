@@ -102,8 +102,8 @@ def test_router_chained_ingest_plugins(mock_ingester_base: MagicMock):
     mock_ingester_base.return_value.send_object_for_ingestion.assert_called_with(
         {"a": "b"}, None, "test", None, None
     )
-    assert len(router._initialized_pre_processors) == 1
-    assert len(router._initialized_post_processors) == 1
+    assert len(mock_ingester_base.call_args[1]["pre_processors"]) == 1
+    assert len(mock_ingester_base.call_args[1]["post_processors"]) == 1
 
 
 @patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
@@ -121,8 +121,8 @@ def test_router_no_chained_ingest_plugins(mock_ingester_base: MagicMock):
         {"a": "b"}, None, "test", None, None
     )
 
-    assert not router._initialized_pre_processors
-    assert not router._initialized_post_processors
+    assert not mock_ingester_base.call_args[1]["pre_processors"]
+    assert not mock_ingester_base.call_args[1]["post_processors"]
 
 
 def test_router_raise_error_chained_ingest_plugins_not_registered():
@@ -133,6 +133,7 @@ def test_router_raise_error_chained_ingest_plugins_not_registered():
     }
 
     router = create_ingester_router(config)
+    router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
 
     with pytest.raises(VdkConfigurationError):
         router.send_object_for_ingestion({"a": "b"})

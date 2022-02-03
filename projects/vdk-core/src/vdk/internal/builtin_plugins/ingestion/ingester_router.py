@@ -43,9 +43,6 @@ class IngesterRouter(IIngesterRegistry):
         self._cached_ingesters: Dict[str, IngesterBase] = dict()
         self._ingester_builders: Dict[str, IngesterPluginFactory] = dict()
 
-        self._initialized_pre_processors: Optional[List[IIngesterPlugin]] = None
-        self._initialized_post_processors: Optional[List[IIngesterPlugin]] = None
-
     def add_ingester_factory_method(
         self,
         method: str,
@@ -64,17 +61,6 @@ class IngesterRouter(IIngesterRegistry):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Initialize the pre- and post- processors.
-        if not self._initialized_pre_processors:
-            self._initialized_pre_processors = self.__get_initialized_processors(
-                "INGEST_PAYLOAD_PREPROCESS_SEQUENCE"
-            )
-
-        if not self._initialized_post_processors:
-            self._initialized_post_processors = self.__get_initialized_processors(
-                "INGEST_PAYLOAD_POSTPROCESS_SEQUENCE"
-            )
-
         # Use the method and target provided by customer, or load the default ones
         # if set. `method` and `target` provided when the method is called take
         # precedence over the ones set with environment variables.
@@ -127,17 +113,6 @@ class IngesterRouter(IIngesterRegistry):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Initialize the pre- and post- processors.
-        if not self._initialized_pre_processors:
-            self._initialized_pre_processors = self.__get_initialized_processors(
-                "INGEST_PAYLOAD_PREPROCESS_SEQUENCE"
-            )
-
-        if not self._initialized_post_processors:
-            self._initialized_post_processors = self.__get_initialized_processors(
-                "INGEST_PAYLOAD_POSTPROCESS_SEQUENCE"
-            )
-
         # Use the method and target provided by customer, or load the
         # default ones, if set. `method` and `target` provided when the
         # method is called take precedence over the ones set with
@@ -249,13 +224,21 @@ class IngesterRouter(IIngesterRegistry):
                 f"If upgraded recently consider reverting to previous version. Or use another method type.",
             )
         else:
+            # Initialize the pre- and post- processors.
+            initialized_pre_processors = self.__get_initialized_processors(
+                "INGEST_PAYLOAD_PREPROCESS_SEQUENCE"
+            )
+            initialized_post_processors = self.__get_initialized_processors(
+                "INGEST_PAYLOAD_POSTPROCESS_SEQUENCE"
+            )
+
             self._cached_ingesters[method] = IngesterBase(
                 self._state.get(ExecutionStateStoreKeys.JOB_NAME),
                 self._state.get(CommonStoreKeys.OP_ID),
                 ingester_plugin,
                 IngesterConfiguration(config=self._cfg),
-                pre_processors=self._initialized_pre_processors,
-                post_processors=self._initialized_post_processors,
+                pre_processors=initialized_pre_processors,
+                post_processors=initialized_post_processors,
             )
 
         return self._cached_ingesters[method]
