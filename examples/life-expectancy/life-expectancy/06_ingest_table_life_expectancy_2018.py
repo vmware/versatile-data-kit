@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import inspect
 import logging
+
 import numpy as np
 import pandas as pd
-
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
