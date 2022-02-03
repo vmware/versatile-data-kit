@@ -6,7 +6,8 @@ This example provides the complete code to perform the following tasks:
 
 The directory is organized as follows:
 * **life-expectancy** - contains jobs
-* **le_utils** - contains some auxiliary_functions.
+* **resources** - contains some additional files used by the dashboard
+* `dashboard.py` - contains the code to generate the dashboard
 
 ## Scenario
 
