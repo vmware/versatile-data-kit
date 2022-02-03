@@ -23,6 +23,7 @@ class IngestionToFile(IIngesterPlugin):
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ):
         """
         Ingest payload to file.
@@ -37,6 +38,9 @@ class IngestionToFile(IIngesterPlugin):
             will be ingested.
         :param collection_id: Optional[string]
             Optional argument. Currently not used.
+        :param metadata:
+            an IngestionMetadata object that contains metadata about the
+            pre-ingestion and ingestion operations
         """
         json_object = None
 

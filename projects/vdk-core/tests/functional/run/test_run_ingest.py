@@ -17,6 +17,7 @@ class FailingIngestIntoMemoryPlugin(IngestIntoMemoryPlugin):
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IngestIntoMemoryPlugin.IngestionMetadata] = None,
     ):
         raise IndexError("Random error from our plugin")
 

@@ -35,11 +35,20 @@ class IngestToTrinoTests(TestCase):
     def test_ingest_to_trino(self):
         runner = CliEntryBasedTestRunner(trino_plugin)
 
+        runner.invoke(["trino-query", "--query", "DROP TABLE IF EXISTS test_table "])
+
         runner.invoke(
             [
                 "trino-query",
                 "--query",
-                "CREATE TABLE IF NOT EXISTS test_table (some_data varchar, more_data varchar)",
+                "CREATE TABLE IF NOT EXISTS test_table "
+                "("
+                "str_data varchar, "
+                "int_data bigint,"
+                "float_data double,"
+                "bool_data boolean,"
+                "decimal_data decimal(4,2)"
+                ")",
             ]
         )
 
@@ -60,13 +69,14 @@ class IngestToTrinoTests(TestCase):
         )
 
         assert check_result.stdout == (
-            "--------------  --------------\n"
-            "some_test_data  more_test_data\n"
-            "some_test_data  more_test_data\n"
-            "some_test_data  more_test_data\n"
-            "some_test_data  more_test_data\n"
-            "some_test_data  more_test_data\n"
-            "--------------  --------------\n"
+            "------  --  ---  ----  ---\n"
+            "string  12  1.2  True  3.2\n"
+            "string  12  1.2  True  3.2\n"
+            "string  12  1.2  True  3.2\n"
+            "string  12  1.2  True  3.2\n"
+            "string  12  1.2  True  3.2\n"
+            "\n"
+            "------  --  ---  ----  ---\n"
         )
 
     def test_ingest_to_trino_no_dest_table(self):

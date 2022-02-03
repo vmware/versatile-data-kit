@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.monitoring;
 
 import com.vmware.taurus.service.model.DataJob;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
@@ -33,6 +34,7 @@ public class DataJobMetrics {
     public static final String TAURUS_DATAJOB_INFO_METRIC_NAME = "taurus.datajob.info";
     public static final String TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME = "taurus.datajob.notification.delay";
     public static final String TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME = "taurus.datajob.termination.status";
+    public static final String TAURUS_DATAJOB_WATCH_TASK_INVOCATIONS_COUNTER_NAME = "taurus.datajob.watch.task.invocations.counter";
     public static final String TAG_DATA_JOB = "data_job";
     public static final String TAG_EXECUTION_ID = "execution_id";
     public static final String TAG_TEAM = "team";
@@ -44,6 +46,7 @@ public class DataJobMetrics {
     public static final int DEFAULT_NOTIFICATION_DELAY_PERIOD_MINUTES = 240;
 
     private final MeterRegistry meterRegistry;
+    private final Counter watchTaskInvocationsCounter;
     private final Map<String, Gauge> infoGauges = new ConcurrentHashMap<>();
     private final Map<String, Gauge> delayGauges = new ConcurrentHashMap<>();
     private final Map<String, Gauge> statusGauges = new ConcurrentHashMap<>();
@@ -53,6 +56,21 @@ public class DataJobMetrics {
     @Autowired
     public DataJobMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
+
+        watchTaskInvocationsCounter = Counter.builder(TAURUS_DATAJOB_WATCH_TASK_INVOCATIONS_COUNTER_NAME)
+                .description("Counts the number of times the data jobs watching task is called.")
+                .register(this.meterRegistry);
+    }
+
+    /**
+     * Increments the counter used to track the number of times the {@link DataJobMonitor#watchJobs} method was invoked.
+     */
+    public void incrementWatchTaskInvocations() {
+        try {
+            watchTaskInvocationsCounter.increment();
+        } catch (Exception e) {
+            log.warn("Error while trying to increment counter.", e);
+        }
     }
 
     /**

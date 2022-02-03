@@ -153,6 +153,7 @@ class IngestIntoMemoryPlugin(IIngesterPlugin):
         destination_table: Optional[str],
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ):
         self.payloads.append(
             IngestIntoMemoryPlugin.Payload(
