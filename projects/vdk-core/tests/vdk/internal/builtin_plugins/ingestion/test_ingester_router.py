@@ -9,6 +9,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IngesterBase
 from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRouter
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import StateStore
 
 
@@ -76,48 +77,72 @@ def test_router_send_tabular_data_for_ingestion_no_default_method(
 
 
 @patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
-def test_router_use_chained_ingest_plugins_send_object(
-    mock_ingester_base: MagicMock,
-):
-    router = create_ingester_router({"ingest_method_default": "test-ingest"})
+def test_router_chained_ingest_plugins(mock_ingester_base: MagicMock):
+    config = {
+        "ingest_payload_preprocess_sequence": "pre-ingest-test",
+        "ingest_payload_postprocess_sequence": "post-ingest-test",
+        "ingest_method_default": "test",
+    }
 
+    router = create_ingester_router(config)
+
+    # Register plugins
     router.add_ingester_factory_method(
         "pre-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
     )
     router.add_ingester_factory_method(
-        "test-ingest", lambda: MagicMock(spec=IIngesterPlugin)
+        "post-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
     )
+    router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
+
+    # Send data for ingestion
+    router.send_object_for_ingestion({"a": "b"})
+
+    # Verify method calls
+    mock_ingester_base.return_value.send_object_for_ingestion.assert_called_with(
+        {"a": "b"}, None, "test", None, None
+    )
+    assert len(mock_ingester_base.call_args[1]["pre_processors"]) == 1
+    assert len(mock_ingester_base.call_args[1]["post_processors"]) == 1
+
+
+@patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
+def test_router_no_chained_ingest_plugins(mock_ingester_base: MagicMock):
+    router = create_ingester_router({"ingest_method_default": "test"})
+
+    router.add_ingester_factory_method(
+        "pre-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+    router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
 
     router.send_object_for_ingestion({"a": "b"})
 
     mock_ingester_base.return_value.send_object_for_ingestion.assert_called_with(
-        {"a": "b"}, None, "test-ingest", None, None
-    )
-    # TODO: Uncomment when implementation is ready
-    # mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
-    #     ["b"], ["a"], None, "pre-ingest-test", None, None
-    # )
-
-
-@patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
-def test_router_use_chained_ingest_plugins_tabular_data(
-    mock_ingester_base: MagicMock,
-):
-    router = create_ingester_router({"ingest_method_default": "test-ingest"})
-
-    router.add_ingester_factory_method(
-        "pre-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
-    )
-    router.add_ingester_factory_method(
-        "test-ingest", lambda: MagicMock(spec=IIngesterPlugin)
+        {"a": "b"}, None, "test", None, None
     )
 
-    router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
+    assert not mock_ingester_base.call_args[1]["pre_processors"]
+    assert not mock_ingester_base.call_args[1]["post_processors"]
 
-    mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
-        ["b"], ["a"], None, "test-ingest", None, None
+
+def test_router_raise_error_chained_ingest_plugins_not_registered():
+    config = {
+        "ingest_payload_preprocess_sequence": "pre-ingest-test",
+        "ingest_payload_postprocess_sequence": "post-ingest-test",
+        "ingest_method_default": "test",
+    }
+
+    router = create_ingester_router(config)
+    router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
+
+    with pytest.raises(VdkConfigurationError):
+        router.send_object_for_ingestion({"a": "b"})
+
+    with pytest.raises(VdkConfigurationError) as exc_info:
+        router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
+
+    error_msg = exc_info.value
+    assert (
+        "Could not create new processor plugin of type pre-ingest-test"
+        in error_msg.message
     )
-    # TODO: Uncomment when implementation is ready
-    # mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_called_with(
-    #     ["b"], ["a"], None, "pre-ingest-test", None, None
-    # )
