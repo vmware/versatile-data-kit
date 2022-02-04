@@ -39,6 +39,7 @@ class IngestOverHttp(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ) -> Optional[IngestionResult]:
         header = {"Content-Type": "application/octet-stream"}  # TODO: configurable
 

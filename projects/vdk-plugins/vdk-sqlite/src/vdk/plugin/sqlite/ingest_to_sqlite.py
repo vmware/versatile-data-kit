@@ -34,6 +34,7 @@ class IngestToSQLite(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: str = None,
         collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ) -> None:
         """
         Performs the ingestion
@@ -43,9 +44,14 @@ class IngestToSQLite(IIngesterPlugin):
         :param destination_table:
             the name of the table receiving the payload in the target database
         :param target:
-            the path to the database file; if left None, defaults to VDK_INGEST_TARGET_DEFAULT
+            the path to the database file; if left None, defaults to
+            VDK_INGEST_TARGET_DEFAULT
         :param collection_id:
-            an identifier specifying that data from different method invocations belongs to the same collection
+            an identifier specifying that data from different method
+            invocations belongs to the same collection
+        :param metadata:
+            an IngestionMetadata object that contains metadata about the
+            pre-ingestion and ingestion operations
         """
         target = target or self.conf.get_sqlite_file()
         if not target:

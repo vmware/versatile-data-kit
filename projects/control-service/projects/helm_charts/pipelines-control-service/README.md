@@ -122,6 +122,8 @@ Custom metrics are:
   is allowed to be delayed from its schedule before an alert is triggered)
    * tags:
      * data_job - the data job name
+* taurus.datajob.watch.task.invocations.counter (A counter that exposes the number of executions
+  of the data job monitoring task)
 
 
 ### Alerting

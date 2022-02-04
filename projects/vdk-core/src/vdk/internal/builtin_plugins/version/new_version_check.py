@@ -67,7 +67,7 @@ class Package:
                 )
                 return (-1,)
 
-            pattr = fr">{self.pkg}-(.+?)<"
+            pattr = rf">{self.pkg}-(.+?)<"
             versions = map(
                 self._ver_to_tuple,
                 re.findall(pattr, response.read().decode("utf-8"), flags=re.I),
