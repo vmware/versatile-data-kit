@@ -5,6 +5,11 @@
 
 package com.vmware.taurus.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobLabel;
@@ -14,6 +19,8 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -205,7 +212,7 @@ public class KubernetesServiceTest {
                 Assertions.fail("The method 'cronJobFromTemplate' does not exist.");
             }
             method.get().setAccessible(true);
-            V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, "");
+            V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, List.of(""));
             Assertions.assertEquals("test-job-name", cronjob.getMetadata().getName());
             Assertions.assertEquals("test-job-schedule", cronjob.getSpec().getSchedule());
             Assertions.assertEquals(true, cronjob.getSpec().isSuspend());
@@ -252,10 +259,67 @@ public class KubernetesServiceTest {
         testQuantityToMbConversion(64000, sixtyFourG);
     }
 
+   @Test
+   public void testCronJobFromTemplate_emptyImagePullSecretsList() {
+      KubernetesService mock = mockCronJobFromTemplate();
+      V1beta1CronJob v1beta1CronJob = mock.cronJobFromTemplate(
+            "", "", true,
+            null, null, null,
+            Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+            Collections.emptyMap(), Collections.emptyList());
+
+      Assertions.assertNull(v1beta1CronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getImagePullSecrets());
+   }
+
+   @Test
+   public void testCronJobFromTemplate_imagePullSecretsListWithEmptyValues() {
+      KubernetesService mock = mockCronJobFromTemplate();
+      V1beta1CronJob v1beta1CronJob = mock.cronJobFromTemplate(
+            "", "", true,
+            null, null, null,
+            Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+            Collections.emptyMap(), List.of("", ""));
+
+      Assertions.assertNull(v1beta1CronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getImagePullSecrets());
+   }
+
+   @Test
+   public void testCronJobFromTemplate_imagePullSecretsListWithOneNonEmptyValueAndOneEmptyValue() {
+      KubernetesService mock = mockCronJobFromTemplate();
+      String secretName = "test_secret_name";
+      V1beta1CronJob v1beta1CronJob = mock.cronJobFromTemplate(
+            "", "", true,
+            null, null, null,
+            Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+            Collections.emptyMap(), List.of("", secretName));
+
+      List<V1LocalObjectReference> actualImagePullSecrets =
+            v1beta1CronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getImagePullSecrets();
+
+      Assertions.assertNotNull(actualImagePullSecrets);
+      Assertions.assertEquals(1, actualImagePullSecrets.size());
+      Assertions.assertEquals(secretName, actualImagePullSecrets.get(0).getName());
+   }
+
     public void testQuantityToMbConversion(int expectedMb, String providedResources) throws Exception {
         var q = Quantity.fromString(providedResources);
         var actual = KubernetesService.convertMemoryToMBs(q);
         Assertions.assertEquals(expectedMb, actual);
     }
 
+    private KubernetesService mockCronJobFromTemplate() {
+       KubernetesService mock = Mockito.mock(KubernetesService.class);
+       Mockito.when(mock.cronJobFromTemplate(
+                   anyString(), anyString(), anyBoolean(),
+                   any(), any(), any(),
+                   any(), any(), any(),
+                   any(), anyList()))
+             .thenCallRealMethod();
+
+       ReflectionTestUtils.setField(mock, // inject into this object
+             "log", // assign to this field
+             Mockito.mock(Logger.class)); // object to be injected
+
+       return mock;
+    }
 }

@@ -12,6 +12,13 @@ MAJOR.MINOR - dd.MM.yyyy
 * **Breaking Changes**
 
 
+1.3 - 27.01.2022
+----
+* **Improvement**
+  * Publish Swagger UI to /data-jobs path<br>
+    That is consistent with REST API paths.
+
+
 1.3 - 20.12.2021
 ----
 * **Improvement**
