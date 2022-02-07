@@ -1,0 +1,4 @@
+global-include *.sql
+
+# this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
+# https://packaging.python.org/guides/using-manifest-in/
