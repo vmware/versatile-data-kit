@@ -1,0 +1,7 @@
+[
+  "target_schema",
+  "target_table",
+  "source_schema",
+  "source_view",
+  "last_arrival_ts"
+]

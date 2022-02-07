@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS life_expectancy_2010_2015

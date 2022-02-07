@@ -35,6 +35,10 @@ Then, from inside the run function in a Python step, you can use the `send_objec
 
 Run vdk config-help - search for those prefixed with "IMPALA_" to see what configuration options are available.
 
+# Disclaimer
+
+This plugin is tested against a specific impala version. The version comes from the docker-compose.yaml container's impala version. For more information on the imapala version tested against please google the docker image.
+
 # Testing
 
 Testing this plugin locally requires installing the dependencies listed in vdk-plugins/vdk-impala/requirements.txt

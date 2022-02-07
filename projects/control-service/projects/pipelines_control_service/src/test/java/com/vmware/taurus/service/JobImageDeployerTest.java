@@ -84,7 +84,7 @@ public class JobImageDeployerTest {
                    .createCronJob(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyString(),
                                    Mockito.anyBoolean(), Mockito.anyList(), Mockito.any(), Mockito.any(), Mockito.any(),
                                    Mockito.any(), Mockito.anyList(), Mockito.anyMap(), Mockito.anyMap(),
-                                   annotationCaptor.capture(), labelCaptor.capture(), Mockito.anyString());
+                                   annotationCaptor.capture(), labelCaptor.capture(), Mockito.anyList());
             //execute public method.
             jobImageDeployer.scheduleJob(dataJob, jobDeployment, false, "lastDeployedBy");
             //verify we called the method only once.
@@ -92,7 +92,7 @@ public class JobImageDeployerTest {
                    .createCronJob(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyString(),
                                    Mockito.anyBoolean(), Mockito.anyList(), Mockito.any(), Mockito.any(), Mockito.any(),
                                    Mockito.any(), Mockito.anyList(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(),
-                                   Mockito.anyMap(), Mockito.anyString());
+                                   Mockito.anyMap(), Mockito.anyList());
             //extract labels/annotations from call
             var labels = labelCaptor.getValue();
             var annotations = annotationCaptor.getValue();

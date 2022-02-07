@@ -10,6 +10,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PreDestroy;
@@ -20,6 +21,18 @@ import javax.sql.DataSource;
 @Configuration
 @Slf4j
 public class LockConfiguration {
+
+    /**
+     * We have experienced cases when operations against the database appear to hang
+     * indefinitely (usually after a connectivity issue with the database). As a result
+     * tasks that attempt to obtain a distributed lock, fail to start.
+     * This value is set directly on the JdbcTemplate as a query timeout in an attempt
+     * to force the database operation to time out and prevent such cases.
+     *
+     * @see   <a href="https://dzone.com/articles/threads-stuck-in-javanetsocketinputstreamsocketrea">
+     *     Threads Stuck in java.net.SocketInputStream.socketRead0 API</a>
+     */
+    private static final int LOCK_PROVIDER_QUERY_TIMEOUT_SECONDS = 60;
 
     private CustomLockProvider customLockProvider;
 
@@ -37,7 +50,9 @@ public class LockConfiguration {
      */
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
-        customLockProvider = new CustomLockProvider(dataSource, "shedlock");
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.setQueryTimeout(LOCK_PROVIDER_QUERY_TIMEOUT_SECONDS);
+        customLockProvider = new CustomLockProvider(jdbcTemplate, "shedlock");
         return customLockProvider;
     }
 

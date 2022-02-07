@@ -86,6 +86,10 @@ spec:
             - name: DOCKER_REGISTRY_SECRET
               value: {{ template "pipelines-control-service.fullname" . }}-docker-repo-creds
             {{- end }}
+            {{- if (include "shouldCreateVdkSdkDockerRepoSecret" .) }}
+            - name: VDK_SDK_DOCKER_REGISTRY_SECRET
+              value: {{ template "pipelines-control-service.vdkSdkDockerRepoSecretName" . }}
+            {{- end }}
             - name: DOCKER_REPOSITORY_URL
               value: "{{ .Values.deploymentDockerRepository }}"
             - name: DOCKER_VDK_BASE_IMAGE

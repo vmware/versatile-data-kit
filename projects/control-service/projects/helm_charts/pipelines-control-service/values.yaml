@@ -194,6 +194,18 @@ deploymentDockerRegistryPasswordReadOnly: ""
 ## Override if you build VDK SDK yourself instead of using one provided by default.
 deploymentVdkDistributionImage:
   registry: registry.hub.docker.com/versatiledatakit
+
+  ## Image registry types. Your account need to have pull permission over the registry. The supported values are:
+  ## - "generic" : Dockerhub or Harbor type registries - in this case you need to set deploymentVdkDistributionImage.registry* variables below
+  registryType: ""
+
+  ## [Required if deploymentVdkDistributionImage.registryType=generic and registry requires authentication]
+  ## Username and Password credentials in case the deploymentVdkDistributionImage.registryType is generic.
+  ## Container registry credentials used for authenticating when pulling VDK SDK image.
+  ## The account with those credentials needs to have pull permissions over the registry.
+  registryUsernameReadOnly: ""
+  registryPasswordReadOnly: ""
+
   repository: quickstart-vdk
   tag: "release"
 

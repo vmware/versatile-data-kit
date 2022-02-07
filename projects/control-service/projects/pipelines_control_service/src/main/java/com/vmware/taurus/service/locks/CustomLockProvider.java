@@ -10,8 +10,8 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 class CustomLockProvider extends JdbcTemplateLockProvider {
     private final Map<String, SimpleLock> activeLocks = new ConcurrentHashMap<>();
 
-    public CustomLockProvider(DataSource dataSource, String tableName) {
-        super(dataSource, tableName);
+    public CustomLockProvider(JdbcTemplate jdbcTemplate, String tableName) {
+        super(jdbcTemplate, tableName);
     }
 
     @NotNull

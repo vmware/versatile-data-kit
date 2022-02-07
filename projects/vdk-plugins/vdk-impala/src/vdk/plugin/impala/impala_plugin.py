@@ -1,6 +1,8 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
+import pathlib
 from typing import List
 
 import click
@@ -71,6 +73,38 @@ class ImpalaPlugin:
             lambda: _connection_by_configuration(self._impala_cfg),
         )
 
+        context.templates.add_template(
+            "load/dimension/scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
+        )
+
+        context.templates.add_template(
+            "scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
+        )
+
+        context.templates.add_template(
+            "load/dimension/scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
+        )
+
+        context.templates.add_template(
+            "scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
+        )
+
+        context.templates.add_template(
+            "load/fact/snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
+        )
+
+        context.templates.add_template(
+            "snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
+        )
+
+        context.templates.add_template(
+            "load/versioned", pathlib.Path(get_job_path("load/versioned"))
+        )
+
+        context.templates.add_template(
+            "versioned", pathlib.Path(get_job_path("load/versioned"))
+        )
+
     @staticmethod
     @hookimpl(hookwrapper=True, tryfirst=True)
     def run_step(context: JobContext, step: Step) -> None:
@@ -116,3 +150,14 @@ class ImpalaPlugin:
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")
+
+
+def get_jobs_parent_directory() -> pathlib.Path:
+    current_dir = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
+    jobs_dir = current_dir.joinpath("templates")
+    return jobs_dir
+
+
+def get_job_path(job_name: str) -> str:
+    """Get the path of the test data job returned as string so it can be passed easier as cmd line args"""
+    return str(get_jobs_parent_directory().joinpath(job_name))
