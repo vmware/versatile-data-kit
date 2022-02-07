@@ -42,6 +42,9 @@ public class JobImageDeployer {
    @Value("${datajobs.docker.registrySecret:}")
    private String dockerRegistrySecret = "";
 
+   @Value("${datajobs.vdk.docker.registrySecret:}")
+   private String vdkSdkDockerRegistrySecret = "";
+
    private static final String VOLUME_NAME = "vdk";
    private static final String VOLUME_MOUNT_PATH = "/vdk";
    private static final String KEYTAB_PRINCIPAL_ENV = "VDK_KEYTAB_PRINCIPAL";
@@ -218,13 +221,13 @@ public class JobImageDeployer {
                  enabled, List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
                  jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
-                 jobAnnotations, jobLabels, dockerRegistrySecret);
+                 jobAnnotations, jobLabels, List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
       } else {
          dataJobsKubernetesService.createCronJob(cronJobName, jobDeployment.getImageName(), jobContainerEnvVars, schedule,
                  enabled, List.of(), defaultConfigurations.dataJobRequests(),
                  defaultConfigurations.dataJobLimits(), jobContainer,
                  jobInitContainer, Arrays.asList(volume, secretVolume), jobDeploymentAnnotations, Collections.emptyMap(),
-                 jobAnnotations, jobLabels, dockerRegistrySecret);
+                 jobAnnotations, jobLabels, List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
       }
    }
 
