@@ -99,7 +99,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/data-jobs/swagger-resources/**",
                 "/data-jobs/configuration/**",
                 "/data-jobs/swagger-ui.html",
-                "/webjars/**",
+                "/data-jobs/webjars/**",
                 // There should not be sensitive data in prometheus, and it makes
                 // integration with the monitoring system easier if no auth is necessary.
                 "/data-jobs/debug/prometheus",

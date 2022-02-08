@@ -65,11 +65,13 @@ public class SwaggerConfig implements WebMvcConfigurer {
         final var configUi = "/swagger-resources/configuration/ui";
         final var configSecurity = "/swagger-resources/configuration/security";
         final var resources = "/swagger-resources";
+        final var webjars = "/webjars";
 
         registry.addRedirectViewController(PATH + apiDocs, apiDocs).setKeepQueryParams(true);
         registry.addRedirectViewController(PATH + resources, resources);
         registry.addRedirectViewController(PATH + configUi, configUi);
         registry.addRedirectViewController(PATH + configSecurity, configSecurity);
+        registry.addRedirectViewController(PATH + webjars, webjars);
         registry.addRedirectViewController(PATH, "/");
     }
 
