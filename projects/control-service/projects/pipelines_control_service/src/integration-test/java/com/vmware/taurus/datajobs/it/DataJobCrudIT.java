@@ -72,6 +72,10 @@ public class DataJobCrudIT extends BaseIT {
               .content(dataJobRequestBody)
               .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
+      mockMvc.perform(get("/data-jobs/webjars/springfox-swagger-ui/swagger-ui-bundle.js")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
 
       // Validation
       // Validate keytab created
