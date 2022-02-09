@@ -3,7 +3,6 @@
 from datetime import datetime
 from unittest.mock import call
 from unittest.mock import MagicMock
-from unittest.mock import patch
 
 import pytest
 from vdk.api.plugin.plugin_input import IIngesterPlugin
@@ -13,7 +12,6 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
 )
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
-
 
 shared_test_values = {
     "test_payload1": {"key1": "val1", "key2": "val2", "key3": "val3"},
@@ -28,7 +26,7 @@ shared_test_values = {
 }
 
 
-def create_ingester_base(kwargs=None) -> IngesterBase:
+def create_ingester_base(kwargs=None, config_dict=None, ingester=None) -> IngesterBase:
     kwargs = kwargs or {}
     config_key_value_pairs = {
         "ingester_number_of_worker_threads": 1,
@@ -38,19 +36,20 @@ def create_ingester_base(kwargs=None) -> IngesterBase:
         "ingester_log_upload_errors": False,
         "ingestion_payload_aggregator_timeout_seconds": 2,
     }
+    if config_dict is not None:
+        config_key_value_pairs.update(config_dict)
     test_config = Configuration(None, config_key_value_pairs, {})
 
     return IngesterBase(
         data_job_name="test_job",
         op_id="42a420",
-        ingester=MagicMock(spec=IIngesterPlugin),
+        ingester=MagicMock(spec=IIngesterPlugin) if ingester is None else ingester,
         ingest_config=IngesterConfiguration(test_config),
         **kwargs
     )
 
 
-@patch.object(IngesterBase, "_send", spec=True)
-def test_send_object_for_ingestion(mocked_send):
+def test_send_object_for_ingestion():
     test_unserializable_payload = {"key1": 42, "key2": datetime.utcnow()}
     ingester_base = create_ingester_base()
 
@@ -80,6 +79,35 @@ def test_send_object_for_ingestion(mocked_send):
             target=shared_test_values.get("target"),
         )
     assert exc_info.type == errors.UserCodeError
+
+
+def test_send_object_for_ingestion_send_to_wait():
+    ingester_base = create_ingester_base(
+        config_dict={"ingester_wait_to_finish_after_every_send": True}
+    )
+
+    ingester_base.send_object_for_ingestion(
+        payload=shared_test_values.get("test_payload1"),
+        destination_table=shared_test_values.get("destination_table1"),
+        method=shared_test_values.get("method"),
+        target=shared_test_values.get("target"),
+    )
+    assert ingester_base._ingester.ingest_payload.call_count == 1
+
+
+def test_send_tabular_data_for_ingestion_send_to_wait():
+    ingester_base = create_ingester_base(
+        config_dict={"ingester_wait_to_finish_after_every_send": True}
+    )
+
+    ingester_base.send_tabular_data_for_ingestion(
+        rows=iter([["testrow0testcol0", 42, None]]),
+        column_names=["testcol0", "testcol1", "testcol2"],
+        destination_table="foo",
+        method=shared_test_values.get("method"),
+        target=shared_test_values.get("target"),
+    )
+    assert ingester_base._ingester.ingest_payload.call_count == 1
 
 
 def test_send_tabular_data_for_ingestion():

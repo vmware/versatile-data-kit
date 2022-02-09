@@ -14,6 +14,7 @@ INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS = (
 INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE = (
     "INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE"
 )
+INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND = "INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND"
 
 
 class IngesterConfiguration:
@@ -42,6 +43,9 @@ class IngesterConfiguration:
         return int(
             self.__config.get_value(INGESTION_PAYLOAD_AGGREGATOR_TIMEOUT_SECONDS)
         )
+
+    def get_wait_to_finish_after_every_send(self) -> bool:
+        return bool(self.__config.get_value(INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND))
 
 
 def add_definitions(config_builder: ConfigurationBuilder):
@@ -100,4 +104,17 @@ def add_definitions(config_builder: ConfigurationBuilder):
         description="When set to true, if there is an ingesting error, and we fail to ingest some data,"
         " ingester will raise an exception at the end - during finalize_job phase (plugin hook)."
         "By default this will cause the data job to fail (this behaviour can be overridden by plugins).",
+    )
+    config_builder.add(
+        key=INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND,
+        default_value=False,
+        description="Data is send in background asynchronously. "
+        "By default after the data is queued, the send method "
+        "(send_object_for_ingestion and send_tabular_data_for_ingestion)"
+        " returns and does not wait for the actual transfer/processing. "
+        "VDK ingester framework will wait and block the whole job at the end only. "
+        "Set this to True and the send methods will block "
+        "until the data is processed and ingested by VDK before proceeding."
+        "If there is an error the send methods will not fail. "
+        "The job will fail at the end if INGESTER_SHOULD_RAISE_EXCEPTION_ON_FAILURE is set",
     )
