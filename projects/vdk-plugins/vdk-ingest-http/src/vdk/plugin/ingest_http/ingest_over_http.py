@@ -10,6 +10,8 @@ from typing import NewType
 from typing import Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
@@ -66,6 +68,52 @@ class IngestOverHttp(IIngesterPlugin):
         self._compression_encoding = context.core_context.configuration.get_value(
             "INGEST_OVER_HTTP_COMPRESSION_ENCODING"
         )
+        self._retry_total = (
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_RETRY_TOTAL"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_RETRY_TOTAL"
+            )
+            else None
+        )
+        self._retry_backoff_factor = (
+            float(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR"
+            )
+            else None
+        )
+        self._retry_status_forcelist = (
+            [
+                int(s)
+                for s in context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"
+                ).split(",")
+            ]
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"
+            )
+            else None
+        )
+
+        adapter = HTTPAdapter(
+            max_retries=Retry(
+                total=self._retry_total,
+                backoff_factor=self._retry_backoff_factor,
+                allowed_methods=False,  # retry on all (including post)
+                status_forcelist=self._retry_status_forcelist,
+            )
+        )
+        self._session = requests.Session()
+        self._session.mount("http://", adapter)
+        self._session.mount("https://", adapter)
 
     def ingest_payload(
         self,
@@ -132,12 +180,12 @@ class IngestOverHttp(IIngesterPlugin):
             compressed_size_in_bytes = sys.getsizeof(data)
 
         try:
-            req = requests.post(
+            req = self._session.post(
                 url=http_url,
                 json=data,
                 headers=headers,
                 timeout=(self._connect_timeout_seconds, self._read_timeout_seconds),
-                cert=self._cert_file_path,  # certifi.where(),
+                cert=self._cert_file_path,
                 verify=self._verify,
             )
             if 400 <= req.status_code < 500:

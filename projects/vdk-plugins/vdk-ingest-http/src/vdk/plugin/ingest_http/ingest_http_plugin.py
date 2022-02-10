@@ -51,6 +51,24 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         default_value="utf-8",
         description="Encoding used if compressing the payload",
     )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_RETRY_TOTAL",
+        default_value=10,
+        description="Total number of retries to allow. Takes precedence over other counts.",
+    )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR",
+        default_value=0,
+        description="A backoff factor to apply between attempts after the second try "
+        "(most errors are resolved immediately by a second try without a "
+        "delay). urllib3 will sleep for:: "
+        "{backoff factor} * (2 ** ({number of total retries} - 1))",
+    )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST",
+        default_value=None,
+        description="A string of comma-separated HTTP status codes that we should force a retry on.",
+    )
 
 
 @hookimpl
