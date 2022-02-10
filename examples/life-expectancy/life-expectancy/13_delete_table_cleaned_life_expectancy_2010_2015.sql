@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS cleaned_life_expectancy_2010_2015

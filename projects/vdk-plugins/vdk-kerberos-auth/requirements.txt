@@ -2,5 +2,8 @@ vdk-core
 minikerberos==0.1.0
 requests-kerberos
 
+# testing requirements
 vdk-test-utils
 pytest
+pytest-docker
+docker-compose

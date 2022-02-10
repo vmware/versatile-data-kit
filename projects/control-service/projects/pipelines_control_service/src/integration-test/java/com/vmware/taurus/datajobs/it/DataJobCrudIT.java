@@ -68,9 +68,13 @@ public class DataJobCrudIT extends BaseIT {
       testDataJobPostCreateWebHooks();
 
       // Execute get swagger with no user
-      mockMvc.perform(get("/swagger-ui.html")
+      mockMvc.perform(get("/data-jobs/swagger-ui.html")
               .content(dataJobRequestBody)
               .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/data-jobs/webjars/springfox-swagger-ui/swagger-ui-bundle.js")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
 
       // Validation

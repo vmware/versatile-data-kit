@@ -56,7 +56,27 @@ class IngesterConfigurationPlugin:
             variable.
             NOTE: If an ingestion plugin implements both pre-processing and
             ingestion logic, it would need to be specified both in
-            INGEST_PAYLOAD_PROCESS_SEQUENCE and INGEST_METHOD_DEFAULT.
+            INGEST_PAYLOAD_PREPROCESS_SEQUENCE and INGEST_METHOD_DEFAULT.
+            """,
+        )
+        config_builder.add(
+            key="INGEST_PAYLOAD_POSTPROCESS_SEQUENCE",
+            default_value=None,
+            description="""A string of coma-separated ingestion post-
+            processing plugin method names, indicating the sequence, in which
+            the ingestion post-processing plugins would process the metadata
+            generated during the ingestion.
+            Ecample:
+                    INGEST_PAYLOAD_POSTPROCESS_SEQUENCE="post-ingest-process,
+                    post-process"
+            The above example shows how the ingestion post-processing plugins
+            could be specified. In the example, the metadata generated from
+            the ingestion process would be processed first by the
+            `post-ingest-process`, and then by the `post-process` plugins.
+            NOTE: If an ingestion plugin implements pre-processing, ingestion
+            and post-processing logic, it would need to be specified in the
+            INGEST_PAYLOAD_PREPROCESS_SEQUENCE, INGEST_METHOD_DEFAULT and
+            INGEST_PAYLOAD_POSTPROCESS_SEQUENCE environment variables.
             """,
         )
 

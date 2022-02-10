@@ -91,6 +91,7 @@ public class DataJobMonitor {
             initialDelayString = "${datajobs.status.watch.initial.delay:10000}")
     @SchedulerLock(name = "watchJobs_schedulerLock")
     public void watchJobs() {
+        dataJobMetrics.incrementWatchTaskInvocations();
         try {
             dataJobsKubernetesService.watchJobs(
                     labelsToWatch,

@@ -3,6 +3,7 @@
 import logging
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import Optional
 
 from vdk.api.plugin.plugin_input import IIngesterPlugin
@@ -21,6 +22,7 @@ from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.core.statestore import StateStore
+from vdk.internal.util.utils import parse_config_sequence
 
 
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
@@ -111,9 +113,10 @@ class IngesterRouter(IIngesterRegistry):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the default ones
-        # if set. `method` and `target` provided when the method is called take
-        # precedence over the ones set with environment variables.
+        # Use the method and target provided by customer, or load the
+        # default ones, if set. `method` and `target` provided when the
+        # method is called take precedence over the ones set with
+        # environment variables.
         method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
         target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
         self._log.info(
@@ -221,14 +224,56 @@ class IngesterRouter(IIngesterRegistry):
                 f"If upgraded recently consider reverting to previous version. Or use another method type.",
             )
         else:
+            # Initialize the pre- and post- processors.
+            initialized_pre_processors = self.__get_initialized_processors(
+                "INGEST_PAYLOAD_PREPROCESS_SEQUENCE"
+            )
+            initialized_post_processors = self.__get_initialized_processors(
+                "INGEST_PAYLOAD_POSTPROCESS_SEQUENCE"
+            )
+
             self._cached_ingesters[method] = IngesterBase(
                 self._state.get(ExecutionStateStoreKeys.JOB_NAME),
                 self._state.get(CommonStoreKeys.OP_ID),
                 ingester_plugin,
                 IngesterConfiguration(config=self._cfg),
+                pre_processors=initialized_pre_processors,
+                post_processors=initialized_post_processors,
             )
 
         return self._cached_ingesters[method]
+
+    def __get_initialized_processors(self, config_var: str) -> List:
+        return [
+            self.__initialize_processor(i)
+            for i in parse_config_sequence(self._cfg, key=config_var, sep=",")
+        ]
+
+    def __initialize_processor(self, method) -> Optional[IIngesterPlugin]:
+        processor_plugin = None
+
+        try:
+            processor_plugin = self._ingester_builders[method]()
+        except KeyError:
+            self._log.error("Could not initialize processor plugin.")
+
+        if processor_plugin is None:
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                log=self._log,
+                what_happened="Could not create new processor plugin of type"
+                f" {method}.",
+                why_it_happened=f"VDK was run with method={method}, however "
+                "no valid ingestion processor plugin was "
+                "created.",
+                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                countermeasures="Seems to be a bug in the plugin for method"
+                f" {method}. Make sure it's correctly "
+                f"installed. If upgraded recently, consider"
+                " reverting to previous version. Or use "
+                "another method type.",
+            )
+        return processor_plugin
 
     def close(self):
         """
