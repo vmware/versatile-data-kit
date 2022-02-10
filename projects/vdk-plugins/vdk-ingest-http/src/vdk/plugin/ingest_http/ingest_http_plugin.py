@@ -20,6 +20,28 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     Here we define what configuration settings are needed for the Ingest HTTP plugin with reasonable defaults
     """
     config_builder.add(
+        key="INGEST_OVER_HTTP_CONNECT_TIMEOUT_SECONDS",
+        default_value=None,
+        description="How many seconds to wait for connecting to the server",
+    )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_READ_TIMEOUT_SECONDS",
+        default_value=None,
+        description="How many seconds to wait for the server to read data",
+    )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_VERIFY",
+        default_value=True,
+        description="Either a boolean, in which case it controls whether we verify "
+        "the server's TLS certificate, or a string, in which case it must be a path "
+        "to a CA bundle to use. Defaults to ``True``",
+    )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_CERT_FILE_PATH",
+        default_value=None,
+        description="Path to SSL client cert file (.pem)",
+    )
+    config_builder.add(
         key="INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES",
         default_value=None,
         description="When the payload size exceeds this optional integer threshold, then gzip compression is applied",

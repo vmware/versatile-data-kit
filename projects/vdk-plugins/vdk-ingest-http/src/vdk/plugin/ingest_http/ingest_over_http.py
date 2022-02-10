@@ -24,10 +24,44 @@ class IngestOverHttp(IIngesterPlugin):
     """
 
     def __init__(self, context: JobContext):
+        self._connect_timeout_seconds = (
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_CONNECT_TIMEOUT_SECONDS"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_CONNECT_TIMEOUT_SECONDS"
+            )
+            else None
+        )
+        self._read_timeout_seconds = (
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_READ_TIMEOUT_SECONDS"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_READ_TIMEOUT_SECONDS"
+            )
+            else None
+        )
+        self._verify = context.core_context.configuration.get_value(
+            "INGEST_OVER_HTTP_VERIFY"
+        )
+        self._cert_file_path = context.core_context.configuration.get_value(
+            "INGEST_OVER_HTTP_CERT_FILE_PATH"
+        )
         self._compression_threshold_bytes = (
-            context.core_context.configuration.get_value(
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES"
+                )
+            )
+            if context.core_context.configuration.get_value(
                 "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES"
             )
+            else None
         )
         self._compression_encoding = context.core_context.configuration.get_value(
             "INGEST_OVER_HTTP_COMPRESSION_ENCODING"
@@ -102,7 +136,9 @@ class IngestOverHttp(IIngesterPlugin):
                 url=http_url,
                 json=data,
                 headers=headers,
-                verify=False,  # nosec # TODO: disabled temporarily for easier testing, it must be configurable
+                timeout=(self._connect_timeout_seconds, self._read_timeout_seconds),
+                cert=self._cert_file_path,  # certifi.where(),
+                verify=self._verify,
             )
             if 400 <= req.status_code < 500:
                 errors.log_and_throw(
