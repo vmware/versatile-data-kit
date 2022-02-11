@@ -18,6 +18,7 @@ payload: dict = {
 }
 job_context = MagicMock()
 job_context.core_context.configuration.get_value.return_value = None
+encoding = "utf-8"
 
 
 def mocked_requests_post(url, *args, **kwargs):
@@ -38,7 +39,7 @@ def mocked_requests_post(url, *args, **kwargs):
     return MockResponse(None, 404)
 
 
-@mock.patch("requests.post", side_effect=mocked_requests_post)
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
 def test_ingest_over_http(mock_post):
     http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     http_ingester.ingest_payload(
@@ -52,22 +53,28 @@ def test_ingest_over_http(mock_post):
     payload["@table"] = "test_table"
 
     mock_post.assert_called_with(
-        headers={"Content-Type": "application/octet-stream"},
-        json=[payload],
         url="http://example.com/data-source",
-        verify=False,
+        json=[payload],
+        headers={"Content-Type": "application/octet-stream"},
+        timeout=(None, None),
+        cert=None,
+        verify=None,
     )
 
 
-@mock.patch("requests.post", side_effect=mocked_requests_post)
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_compression(mock_post):
-    threshold_bytes = 3
-    encoding = "utf-8"
+    def configuration_side_effect(*args, **kwargs):
+        if args[0] == "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES":
+            return 3
+        if args[0] == "INGEST_OVER_HTTP_COMPRESSION_ENCODING":
+            return encoding
+        return None
+
     job_context = MagicMock()
-    job_context.core_context.configuration.get_value.side_effect = [
-        threshold_bytes,
-        encoding,
-    ]
+    job_context.core_context.configuration.get_value.side_effect = (
+        configuration_side_effect
+    )
     http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     http_ingester.ingest_payload(
         payload=[payload],
@@ -85,19 +92,25 @@ def test_ingest_over_http_compression(mock_post):
         },
         json=gzip.compress(json.dumps([payload]).encode(encoding)),
         url="http://example.com/data-source",
-        verify=False,
+        timeout=(None, None),
+        cert=None,
+        verify=None,
     )
 
 
-@mock.patch("requests.post", side_effect=mocked_requests_post)
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_result(mock_post):
-    threshold_bytes = 3
-    encoding = "utf-8"
+    def configuration_side_effect(*args, **kwargs):
+        if args[0] == "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES":
+            return 3
+        if args[0] == "INGEST_OVER_HTTP_COMPRESSION_ENCODING":
+            return encoding
+        return None
+
     job_context = MagicMock()
-    job_context.core_context.configuration.get_value.side_effect = [
-        threshold_bytes,
-        encoding,
-    ]
+    job_context.core_context.configuration.get_value.side_effect = (
+        configuration_side_effect
+    )
     http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     ingestion_result = http_ingester.ingest_payload(
         payload=[payload],
@@ -112,7 +125,7 @@ def test_ingest_over_http_result(mock_post):
     assert ingestion_result["http_status"] == 200
 
 
-@mock.patch("requests.post", side_effect=mocked_requests_post)
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_missing_target(mock_post):
     http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     with pytest.raises(VdkConfigurationError):
@@ -122,7 +135,7 @@ def test_ingest_over_http_missing_target(mock_post):
         )
 
 
-@mock.patch("requests.post", side_effect=mocked_requests_post)
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_missing_destination_table(mock_post):
     test_payload = [{"key1": 42, "key2": True}]
     http_ingester: IngestOverHttp = IngestOverHttp(job_context)
@@ -133,7 +146,7 @@ def test_ingest_over_http_missing_destination_table(mock_post):
         )
 
 
-@mock.patch("requests.post", side_effect=mocked_requests_post)
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
 def test_ingest_over_http_request_errors(mock_post):
     http_ingester: IngestOverHttp = IngestOverHttp(job_context)
     with pytest.raises(UserCodeError):
@@ -149,3 +162,67 @@ def test_ingest_over_http_request_errors(mock_post):
             destination_table="test_table",
             target="http://example.com/wrong/data-source",
         )
+
+
+@mock.patch("requests.Session.mount")
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
+def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
+    retry_total = 10
+    retry_backoff_factor = 30
+    retry_status_forcelist = "500,502,503,504"
+
+    def configuration_side_effect(*args, **kwargs):
+        def arg(a):
+            return args[0] == a
+
+        if arg("INGEST_OVER_HTTP_CONNECT_TIMEOUT_SECONDS"):
+            return 10
+        if arg("INGEST_OVER_HTTP_READ_TIMEOUT_SECONDS"):
+            return 300
+        if arg("INGEST_OVER_HTTP_VERIFY"):
+            return True
+        if arg("INGEST_OVER_HTTP_CERT_FILE_PATH"):
+            return "cert.pem"
+        if arg("INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES"):
+            return 3
+        if arg("INGEST_OVER_HTTP_COMPRESSION_ENCODING"):
+            return encoding
+        if arg("INGEST_OVER_HTTP_RETRY_TOTAL"):
+            return retry_total
+        if arg("INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR"):
+            return retry_backoff_factor
+        if arg("INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"):
+            return retry_status_forcelist
+        return None
+
+    job_context = MagicMock()
+    job_context.core_context.configuration.get_value.side_effect = (
+        configuration_side_effect
+    )
+    IngestOverHttp(job_context).ingest_payload(
+        payload=[payload],
+        destination_table="test_table",
+        target="http://example.com/data-source",
+    )
+
+    retries_called = mock_mount.call_args[0][1].max_retries
+    assert retries_called.total == retry_total
+    assert retries_called.backoff_factor == retry_backoff_factor
+    assert (
+        ",".join(
+            [str(s) for s in mock_mount.call_args[0][1].max_retries.status_forcelist]
+        )
+        == retry_status_forcelist
+    )
+
+    mock_post.assert_called_with(
+        url="http://example.com/data-source",
+        json=gzip.compress(json.dumps([payload]).encode(encoding)),
+        headers={
+            "Content-Type": "application/octet-stream",
+            "Content-encoding": "gzip",
+        },
+        timeout=(10, 300),
+        cert="cert.pem",
+        verify=True,
+    )

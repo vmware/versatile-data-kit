@@ -10,6 +10,8 @@ from typing import NewType
 from typing import Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
@@ -24,14 +26,94 @@ class IngestOverHttp(IIngesterPlugin):
     """
 
     def __init__(self, context: JobContext):
+        self._connect_timeout_seconds = (
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_CONNECT_TIMEOUT_SECONDS"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_CONNECT_TIMEOUT_SECONDS"
+            )
+            else None
+        )
+        self._read_timeout_seconds = (
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_READ_TIMEOUT_SECONDS"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_READ_TIMEOUT_SECONDS"
+            )
+            else None
+        )
+        self._verify = context.core_context.configuration.get_value(
+            "INGEST_OVER_HTTP_VERIFY"
+        )
+        self._cert_file_path = context.core_context.configuration.get_value(
+            "INGEST_OVER_HTTP_CERT_FILE_PATH"
+        )
         self._compression_threshold_bytes = (
-            context.core_context.configuration.get_value(
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES"
+                )
+            )
+            if context.core_context.configuration.get_value(
                 "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES"
             )
+            else None
         )
         self._compression_encoding = context.core_context.configuration.get_value(
             "INGEST_OVER_HTTP_COMPRESSION_ENCODING"
         )
+        self._retry_total = (
+            int(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_RETRY_TOTAL"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_RETRY_TOTAL"
+            )
+            else None
+        )
+        self._retry_backoff_factor = (
+            float(
+                context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR"
+                )
+            )
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR"
+            )
+            else None
+        )
+        self._retry_status_forcelist = (
+            [
+                int(s)
+                for s in context.core_context.configuration.get_value(
+                    "INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"
+                ).split(",")
+            ]
+            if context.core_context.configuration.get_value(
+                "INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"
+            )
+            else None
+        )
+
+        adapter = HTTPAdapter(
+            max_retries=Retry(
+                total=self._retry_total,
+                backoff_factor=self._retry_backoff_factor,
+                allowed_methods=False,  # retry on all (including post)
+                status_forcelist=self._retry_status_forcelist,
+            )
+        )
+        self._session = requests.Session()
+        self._session.mount("https://", adapter)
+        self._session.mount("http://", adapter)  # nosec
 
     def ingest_payload(
         self,
@@ -98,11 +180,13 @@ class IngestOverHttp(IIngesterPlugin):
             compressed_size_in_bytes = sys.getsizeof(data)
 
         try:
-            req = requests.post(
+            req = self._session.post(
                 url=http_url,
                 json=data,
                 headers=headers,
-                verify=False,  # nosec # TODO: disabled temporarily for easier testing, it must be configurable
+                timeout=(self._connect_timeout_seconds, self._read_timeout_seconds),
+                cert=self._cert_file_path,
+                verify=self._verify,
             )
             if 400 <= req.status_code < 500:
                 errors.log_and_throw(
