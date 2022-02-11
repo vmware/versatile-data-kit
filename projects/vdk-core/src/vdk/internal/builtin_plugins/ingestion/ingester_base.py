@@ -95,6 +95,9 @@ class IngesterBase(IIngester):
         self._exception_on_failure = (
             ingest_config.get_should_raise_exception_on_failure()
         )
+        self._wait_to_finish_after_every_send = (
+            ingest_config.get_wait_to_finish_after_every_send()
+        )
 
         self._start_workers()
 
@@ -107,38 +110,7 @@ class IngesterBase(IIngester):
         collection_id: Optional[str] = None,
     ):
         """
-        Send a self-contained object, asynchronously, for ingestion.
-
-        :param payload: dictionary
-            The payload to be send for ingestion.
-        :param destination_table: Optional[string]
-            (Optional) The name of the table, where the data should be ingested into.
-            This parameter does not need to be passed, in case the table is included
-            in the payload itself.
-        :param method: Optional[string]
-            (Optional) Indicates the ingestion method to be used. For example:
-                    method="file" -> ingest to file
-                    method="http" -> ingest using HTTP POST requests
-                    method="kafka" -> ingest to kafka endpoint
-            This parameter does not need to be passed, as ingestion plugins set
-            a default value for it. In case multiple ingestion plugins are used,
-            an `INGEST_METHOD_DEFAULT` environment variable can be set that would
-            specify which plugin is to be used by default for ingestion.
-        :param target: Optional[string]
-            (Optional) Used to identify where the data should be ingested into.
-                The value for this parameter depends on the ingest method chosen.
-                For "http" method, it would require an HTTP URL.
-                    Example: http://example.com/<some>/<api>/<endpoint>
-                For "file" method, it would require a file name or path.
-
-                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
-            This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be made by
-            plugins, which may set default value, or it can be overwritten by users.
-        :param collection_id: Optional[string]
-            (Optional) An identifier to indicate that data from different method
-            invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the same collection.
+        See parent doc
         """
         self.__verify_payload_format(payload_dict=payload)
 
@@ -155,6 +127,8 @@ class IngesterBase(IIngester):
             collection_id=collection_id,
         )
 
+        self.__wait_if_necessary()
+
     def send_tabular_data_for_ingestion(
         self,
         rows: iter,
@@ -165,53 +139,7 @@ class IngesterBase(IIngester):
         collection_id: Optional[str] = None,
     ):
         """
-        Send tabular data for ingestion. The only condition for the rows and
-        columns of the tabular is to for them to be separate Iterator objects.
-
-        :param rows: Iterator
-            one of the following: PEP249 Cursor object, Iterable 2 dimensional
-            structure, A representation of a two-dimensional array that allows
-            iteration over rows. Can be a list of lists, iterator that returns next
-            row ("row" = list or tuple of values),
-            PEP249 cursor object with successfully executed SELECT statement, etc.
-            For example:
-                [
-                    [row0column0, row0column1]
-                    [row1column0, row1column1]
-                ]
-        :param column_names: list
-            the column names of the data in the same order as the values in data
-            provided in the rows parameter.
-            col[0] - corresponds to row0column0,row1column0,
-            col[1] to row0column1, row1column1.
-        :param destination_table: Optional[string]
-            (Optional) The name of the table, where the data should be ingested into.
-            This parameter does not need to be passed, in case the table is included
-            in the payload itself.
-        :param method: Optional[string]
-            (Optional) Indicates the ingestion method to be used. For example:
-                    method="file" -> ingest to file
-                    method="http" -> ingest using HTTP POST requests
-                    method="kafka" -> ingest to kafka endpoint
-            This parameter does not need to be passed, as ingestion plugins set
-            a default value for it. In case multiple ingestion plugins are used,
-            an `INGEST_METHOD_DEFAULT` environment variable can be set that would
-            specify which plugin is to be used by default for ingestion.
-        :param target: Optional[string]
-            (Optional) Used to identify where the data should be ingested into.
-                The value for this parameter depends on the ingest method chosen.
-                For "http" method, it would require an HTTP URL.
-                    Example: http://example.com/<some>/<api>/<endpoint>
-                For "file" method, it would require a file name or path.
-
-                See chosen ingest method (ingestion plugin) documentation for more details on the expected target format.
-            This parameter does not need to be used, in case the
-            `INGEST_TARGET_DEFAULT` environment variable is set. This can be made by
-            plugins, which may set default value, or it can be overwritten by users.
-        :param collection_id: Optional[string]
-            (Optional) An identifier to indicate that data from different method
-            invocations belong to same collection. Defaults to "data_job_name|OpID",
-            meaning all method invocations from a data job run will belong to the same collection.
+        See parent doc
         """
         if len(column_names) == 0 and destination_table is None:
             errors.log_and_throw(
@@ -273,6 +201,8 @@ class IngesterBase(IIngester):
                     target=target,
                     collection_id=collection_id,
                 )
+
+        self.__wait_if_necessary()
 
     def _send(
         self,
@@ -578,14 +508,25 @@ class IngesterBase(IIngester):
             t.daemon = True
             t.start()
 
+    def __wait_if_necessary(self):
+        if self._wait_to_finish_after_every_send:
+            self.__wait_to_finish()
+
+    def __wait_to_finish(self):
+        """
+        Wait for completion of processing of all data added to the payload
+        queue.
+        """
+        ingester_utils.wait_completion(
+            objects_queue=self._objects_queue, payloads_queue=self._payloads_queue
+        )
+
     def close(self):
         """
         Wait for completion of processing of all data added to the payload
         queue and then log the ingestion statistics.
         """
-        ingester_utils.wait_completion(
-            objects_queue=self._objects_queue, payloads_queue=self._payloads_queue
-        )
+        self.__wait_to_finish()
         self.close_now()
 
     def close_now(self):
@@ -595,7 +536,7 @@ class IngesterBase(IIngester):
         if self._closed.get_and_increment() == 0:
 
             if self._exception_on_failure:
-                self._handle_results()
+                self.__handle_results()
 
             log.info(
                 "Ingester statistics: \n\t\t"
@@ -670,7 +611,7 @@ class IngesterBase(IIngester):
                     "configured correctly.",
                 )
 
-    def _handle_results(self):
+    def __handle_results(self):
         if self._plugin_errors.get(UserCodeError, AtomicCounter(0)).value > 0:
             self._log_and_throw(
                 to_be_fixed_by=ResolvableBy.USER_ERROR,

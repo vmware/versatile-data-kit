@@ -124,6 +124,11 @@ class IIngester:
         """
         Sends a Python object, asynchronously, for ingestion.
 
+        The data (payload) is buffered by VDK Ingester framework and queued for ingestion.
+        The method then returns immediately unless ingester_wait_to_finish_after_every_send flag is set to true.
+        The data is then processed and sent asynchronously by multiple background threads in parallel
+         (the level of parallelism could be controlled by ingester_number_of_worker_threads configuration).
+
         Arguments:
             payload: dict
                 The passed object will be translated to a row in destination table.
@@ -206,6 +211,11 @@ class IIngester:
     ):
         """
         Sends tabular data, asynchronously, for ingestion.
+
+        The data (rows) is buffered by VDK Ingester framework and queued for ingestion.
+        The method then returns immediately unless ingester_wait_to_finish_after_every_send flag is set to true.
+        The data is then processed and sent asynchronously by multiple background threads in parallel
+         (the level of parallelism could be controlled by ingester_number_of_worker_threads configuration).
 
         Arguments:
             rows: one of the following: PEP249 Cursor object, Iterable 2 dimensional

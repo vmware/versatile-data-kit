@@ -10,7 +10,6 @@ rules:
       - ""
     resources:
       - "pods"
-      - "pods/log"
       - "secrets"
     verbs:
       - get
@@ -21,6 +20,14 @@ rules:
       - patch
       - watch
       - deletecollection
+  - apiGroups:
+      - ""
+    resources:
+      - "pods/log"
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - "batch"
     resources:
