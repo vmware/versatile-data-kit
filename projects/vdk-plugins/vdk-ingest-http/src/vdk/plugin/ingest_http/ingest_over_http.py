@@ -112,8 +112,8 @@ class IngestOverHttp(IIngesterPlugin):
             )
         )
         self._session = requests.Session()
-        self._session.mount("http://", adapter)
         self._session.mount("https://", adapter)
+        self._session.mount("http://", adapter)  # nosec
 
     def ingest_payload(
         self,
