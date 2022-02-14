@@ -448,6 +448,41 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       assertExecutionsEquals(expected, actualJobExecutions.get(0));
    }
 
+   @Test
+   public void testFindAllAndBuildResponse_filterByJobTeam_shouldNotReturnResult() throws Exception {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "test-job", "test-team");
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id123", actualDataJob, ExecutionStatus.SUCCEEDED);
+
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+            FILTER_FIELD, filterRaw
+      ));
+      when(filterRaw.get(DataJobExecutionFilter.TEAM_NAME_IN_FIELD)).thenReturn(List.of("other-test-team"));
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(0, actualJobExecutions.size());
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByJobTeam_shouldReturnResult() throws Exception {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "test-job", "test-team");
+      var expected = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id123", actualDataJob, ExecutionStatus.SUCCEEDED);
+
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+            FILTER_FIELD, filterRaw
+      ));
+      when(filterRaw.get(DataJobExecutionFilter.TEAM_NAME_IN_FIELD)).thenReturn(List.of(actualDataJob.getJobConfig().getTeam()));
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(1, actualJobExecutions.size());
+      assertExecutionsEquals(expected, actualJobExecutions.get(0));
+   }
+
    private void assertExecutionsEquals(DataJobExecution expectedJobExecution, Object actualJobExecutionObject) {
       com.vmware.taurus.controlplane.model.data.DataJobExecution actualJobExecution =
             (com.vmware.taurus.controlplane.model.data.DataJobExecution)actualJobExecutionObject;
