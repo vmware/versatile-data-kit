@@ -95,11 +95,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
                 "/",
-                "/data-jobs/v2/api-docs",
-                "/data-jobs/swagger-resources/**",
-                "/data-jobs/configuration/**",
-                "/data-jobs/swagger-ui.html",
-                "/data-jobs/webjars/**",
+                "/v2/api-docs",
+                "/swagger-resources/**",
+                "/configuration/**",
+                "/swagger-ui.html",
+                "/webjars/**",
                 // There should not be sensitive data in prometheus, and it makes
                 // integration with the monitoring system easier if no auth is necessary.
                 "/data-jobs/debug/prometheus",
