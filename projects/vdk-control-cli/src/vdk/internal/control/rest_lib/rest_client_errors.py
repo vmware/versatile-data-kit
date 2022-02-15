@@ -39,7 +39,8 @@ class ApiClientErrorDecorator:
                 error = dict(
                     what=self.__what,
                     why="The requested resource cannot be found. "
-                    "You may have a spelling mistake or the data job has not been created",
+                    "You may have a spelling mistake or the data job has not been created. "
+                    "Verify that the job team name is spelled correctly in your job's config.ini file.",
                     consequences=self.__consequences,
                     countermeasures="Make sure that the data job name and team name are spelled correctly "
                     "(it is case-sensitive) . "
