@@ -308,16 +308,16 @@ public class GraphQLExecutionsIT extends BaseIT {
 
    @Test
    public void testExecutions_filterByTeamNameIn() throws Exception {
-      var res = mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
-            .queryParam("query", getQuery())
-            .param(
-                  "\"filter\": {" +
+      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+                  .queryParam("query", getQuery())
+                  .param("variables", "{" +
+                        "\"filter\": {" +
                         "      \"teamNameIn\": [\"" + dataJobExecution1.getDataJob().getJobConfig().getTeam() + "\"]" +
                         "    }," +
                         "\"pageNumber\": 1," +
                         "\"pageSize\": 10" +
                         "}")
-            .with(user("user")))
+                  .with(user("user")))
             .andExpect(status().is(200))
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath(
