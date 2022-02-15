@@ -54,9 +54,18 @@ public class GraphQLExecutionsIT extends BaseIT {
    public void setup() {
       cleanup();
 
-      this.dataJob1 = jobsRepository.save(new DataJob(TEST_JOB_NAME_1, new JobConfig()));
-      this.dataJob2 = jobsRepository.save(new DataJob(TEST_JOB_NAME_2, new JobConfig()));
-      this.dataJob3 = jobsRepository.save(new DataJob(TEST_JOB_NAME_3, new JobConfig()));
+      var config1 = new JobConfig();
+      config1.setTeam("test-team1");
+
+      var config2 = new JobConfig();
+      config2.setTeam("test-team2");
+
+      var config3 = new JobConfig();
+      config3.setTeam("test-team3");
+
+      this.dataJob1 = jobsRepository.save(new DataJob(TEST_JOB_NAME_1, config1));
+      this.dataJob2 = jobsRepository.save(new DataJob(TEST_JOB_NAME_2, config2));
+      this.dataJob3 = jobsRepository.save(new DataJob(TEST_JOB_NAME_3, config3));
 
       OffsetDateTime now = OffsetDateTime.now();
       this.dataJobExecution1 = JobExecutionUtil.createDataJobExecution(
@@ -282,6 +291,33 @@ public class GraphQLExecutionsIT extends BaseIT {
                         "\"pageSize\": 10" +
                         "}")
                   .with(user("user")))
+            .andExpect(status().is(200))
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath(
+                  "$.data.content[*].id",
+                  Matchers.contains(dataJobExecution1.getId())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].jobName",
+                  Matchers.contains(dataJob1.getName())))
+            .andExpect(jsonPath(
+                  "$.data.content[*].status",
+                  Matchers.contains(dataJobExecution1.getStatus().toString())))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution3.getId()))))
+            .andExpect(jsonPath("$.data.content[*].id", Matchers.not(Matchers.contains(dataJobExecution2.getId()))));
+   }
+
+   @Test
+   public void testExecutions_filterByTeamNameIn() throws Exception {
+      var res = mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI)
+            .queryParam("query", getQuery())
+            .param(
+                  "\"filter\": {" +
+                        "      \"teamNameIn\": [\"" + dataJobExecution1.getDataJob().getJobConfig().getTeam() + "\"]" +
+                        "    }," +
+                        "\"pageNumber\": 1," +
+                        "\"pageSize\": 10" +
+                        "}")
+            .with(user("user")))
             .andExpect(status().is(200))
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath(
