@@ -11,7 +11,10 @@ variables:
 # Add all quickstart-vdk dependencies locations which trigger the dependency release when changed.
 # In this way, quickstart-vdk will always be tested before one or more dependencies are changed, and
 # this is important since quickstart-vdk has unpinned dependencies and when they are upgraded,
-# "pip install quickstart-vdk" installs their newest versions
+# "pip install quickstart-vdk" installs their newest versions.
+# Since quickstart-vdk us an "aggregation" distribution with the purpose of aggregating multiple plugins in a single
+# deliverable, we make an exception here and use hard-coded locations of dependencies (which is not a good practice) -
+# the exception is acceptable here, since the plugin itself is unique.
 .test_quickstart_vdk_changes: &test_quickstart_vdk_locations
   - "projects/vdk-core/*"
   - "projects/vdk-core/cicd/**/*"
