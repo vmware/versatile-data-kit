@@ -58,7 +58,6 @@ control_service_build_image:
       junit: ./projects/control-service/projects/**/build/test-results/test/TEST-*.xml
   only:
     refs:
-      - external_pull_requests
       - main
     changes: *control_service_change_locations
 
@@ -100,6 +99,34 @@ control_service_integration_test:
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
+
+control_service_publish_job_base_image:
+  image: docker:19.03.8
+  services:
+    - docker:19.03.8-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/job-base-image
+    - export VERSION_TAG="1.$CI_PIPELINE_ID"
+    - bash -ex ./publish-job-base.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+      - external_pull_requests
+    changes:
+      - projects/control-service/projects/job-base-image/**/*
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
 
 control_service_publish_job_builder_image:
   image: docker:19.03.8
