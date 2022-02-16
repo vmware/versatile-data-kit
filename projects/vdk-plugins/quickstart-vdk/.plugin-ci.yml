@@ -8,6 +8,25 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
+# Add all quickstart-vdk dependencies locations which trigger the dependency release when changed.
+# In this way, quickstart-vdk will always be tested before one or more dependencies are changed, and
+# this is important since quickstart-vdk has unpinned dependencies and when they are upgraded,
+# "pip install quickstart-vdk" installs their newest versions.
+# Since quickstart-vdk us an "aggregation" distribution with the purpose of aggregating multiple plugins in a single
+# deliverable, we make an exception here and use hard-coded locations of dependencies (which is not a good practice) -
+# the exception is acceptable here, since the plugin itself is unique.
+.test_quickstart_vdk_changes: &test_quickstart_vdk_locations
+  - "projects/vdk-core/*"
+  - "projects/vdk-core/cicd/**/*"
+  - "projects/vdk-core/src/**/*"
+  - "projects/vdk-core/tests/**/*"
+  - "projects/vdk-plugins/quickstart-vdk/**/*"
+  - "projects/vdk-plugins/vdk-plugin-control-cli/**/*"
+  - "projects/vdk-plugins/vdk-sqlite/**/*"
+  - "projects/vdk-plugins/vdk-ingest-http/**/*"
+  - "projects/vdk-plugins/vdk-ingest-file/**/*"
+  - "projects/vdk-plugins/vdk-server/**/*"
+
 
 .build-quickstart-vdk:
   variables:
@@ -31,6 +50,53 @@ build-py310-quickstart-vdk:
   image: "python:3.10"
 
 
+quickstart-vdk-release-candidate:
+  stage: pre_release
+  variables:
+    PLUGIN_NAME: quickstart-vdk
+  before_script:
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
+  extends: .release-plugin
+
+quickstart-vdk-release-candidate-base-image:
+  stage: pre_release_image
+  variables:
+    PLUGIN_NAME: quickstart-vdk
+  before_script:
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
+    - export BUILD_TYPE=pre-release
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
+  extends: .release-vdk-image
+
+quickstart-vdk-release-acceptance-test:
+  stage: pre_release_test
+  before_script:
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
+  script:
+    - cd projects/vdk-plugins/quickstart-vdk/
+    - set -x
+    - pip install -U pip
+    - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+    - export QUICKSTART_VDK_MAJOR_MINOR_VERSION=$(python3 setup.py --version | grep -o '[0-9]\.[0-9]')
+    - export VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION="${QUICKSTART_VDK_MAJOR_MINOR_VERSION}.${VDK_PATCH_VERSION}"
+    - export JOB_NAME=quickstart-vdk-release-test-job$(date +%s)
+    - vdk-heartbeat -f cicd/release_acceptance_test_heartbeat_config.ini
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
+
+
+# For now, release steps are triggered only when merging changes in vdk-plugins/quickstart-vdk
 release-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
