@@ -26,7 +26,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.plugin.control_cli_plugin import control_service_configuration
 
 
-@hookimpl
+@hookimpl(tryfirst=True)
 def vdk_command_line(root_command: click.Group):
     root_command.add_command(login)
     root_command.add_command(logout)
@@ -50,7 +50,6 @@ def vdk_command_line(root_command: click.Group):
 
 @hookimpl(tryfirst=True)
 def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-    """"""
     control_service_configuration.add_definitions(config_builder)
 
 
