@@ -109,6 +109,18 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
 
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/no-team-specified/jobs",
+    ).respond_with_json(response)
+
+    result = runner.invoke(list_command, ["-u", rest_api_url])
+    assert (
+        result.exit_code == 0
+    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert (
+        "test-job" in result.output
+    ), f"expected data not found in output: {result.output} "
+
 
 def test_list_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
