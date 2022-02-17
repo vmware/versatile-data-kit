@@ -28,7 +28,7 @@ from vdk.plugin.control_cli_plugin import control_service_configuration
 
 @hookimpl(
     tryfirst=True
-)  # hook will be tried first so any hooks which decorate these commands will be able to function
+)  # this hook will be executed first so that these commands can be decorated later if needed
 def vdk_command_line(root_command: click.Group):
     root_command.add_command(login)
     root_command.add_command(logout)
