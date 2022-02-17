@@ -68,7 +68,31 @@ public class DataJobCrudIT extends BaseIT {
       testDataJobPostCreateWebHooks();
 
       // Execute get swagger with no user
-      mockMvc.perform(get("/swagger-ui.html")
+      mockMvc.perform(get("/data-jobs/swagger-ui.html")
+              .content(dataJobRequestBody)
+              .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/data-jobs/webjars/springfox-swagger-ui/swagger-ui.css.map")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/data-jobs/webjars/springfox-swagger-ui/swagger-ui-bundle.js.map")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/swagger-resources/configuration/ui")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/swagger-resources/configuration/security")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/swagger-resources")
+                      .content(dataJobRequestBody)
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk());
+      mockMvc.perform(get("/v2/api-docs")
                       .content(dataJobRequestBody)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
