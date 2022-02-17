@@ -25,6 +25,7 @@ input DataJobExecutionFilter {
     endTimeGte: DateTime,
     statusIn: [DataJobExecutionStatus],
     jobNameIn: [String],
+    teamNameIn: [String],
     startTimeLte: DateTime,
     endTimeLte: DateTime
 }
