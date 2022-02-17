@@ -207,8 +207,6 @@ vdk list -t taurus -o json
     type=click.STRING,
     default=load_default_team_name(),
     cls=NotRequiredIfAllOperationExists,
-    required=True,
-    prompt="Job Team",
     help="The name of the team that Data Jobs belong to in the searched list."
     " Not required if (-a,--all) option is provided.",
 )
@@ -237,6 +235,7 @@ def list_command(
     cmd = JobList(rest_api_url)
     if team is None:
         team = "no-team-specified"
+        operation_all = FilterOperation.ALL.value
     cmd.list_jobs(
         team, (operation_all == FilterOperation.ALL.value), more_details, output
     )
