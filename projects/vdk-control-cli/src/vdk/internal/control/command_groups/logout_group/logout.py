@@ -5,8 +5,8 @@ from vdk.internal.control.configuration.vdk_config import VDKConfigFolder
 
 
 @click.command(
-    short_help="Logout the user from the Data Jobs Service.",
-    help="Logout the user from the Data Jobs Service by deleting their refresh token stored locally.",
+    short_help="Logout the user from the Control Service.",
+    help="Logout the user from the Control Service by deleting their refresh token stored locally.",
 )
 def logout():
     conf = VDKConfigFolder()

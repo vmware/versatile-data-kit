@@ -215,6 +215,7 @@ public class ExecutionDataFetcher {
                      .startTimeLte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD))
                      .endTimeLte((OffsetDateTime) filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD))
                      .jobNameIn((List<String>) filterRaw.get(DataJobExecutionFilter.JOB_NAME_IN_FIELD))
+                     .teamNameIn((List<String>) filterRaw.get(DataJobExecutionFilter.TEAM_NAME_IN_FIELD))
                      .build()
          );
       }
