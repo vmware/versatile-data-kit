@@ -9,6 +9,7 @@ import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.DataJobExecution_;
 import com.vmware.taurus.service.model.DataJob_;
+import com.vmware.taurus.service.model.JobConfig_;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,6 +54,11 @@ public class JobExecutionFilterSpec implements Specification<DataJobExecution> {
          if (CollectionUtils.isNotEmpty(filter.getJobNameIn())) {
             predicates.add(root.get(DataJobExecution_.DATA_JOB).get(DataJob_.NAME).in(filter.getJobNameIn()));
          }
+
+         if (CollectionUtils.isNotEmpty(filter.getTeamNameIn())) {
+            predicates.add(root.get(DataJobExecution_.DATA_JOB).get(DataJob_.JOB_CONFIG).get(JobConfig_.TEAM).in(filter.getTeamNameIn()));
+         }
+
       }
 
       return builder.and(predicates.toArray(new Predicate[0]));

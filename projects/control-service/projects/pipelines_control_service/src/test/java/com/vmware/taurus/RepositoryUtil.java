@@ -23,16 +23,21 @@ public final class RepositoryUtil {
       return createDataJob(jobsRepository, "test-job");
    }
 
-   public static DataJob createDataJob(JobsRepository jobsRepository, String jobName) {
+   public static DataJob createDataJob(JobsRepository jobsRepository, String jobName){
+      return createDataJob(jobsRepository, jobName, "test-team");
+   }
+
+   public static DataJob createDataJob(JobsRepository jobsRepository, String jobName, String jobTeam) {
       JobConfig config = new JobConfig();
       config.setSchedule("schedule");
-      config.setTeam("test-team");
+      config.setTeam(jobTeam);
       var expectedJob = new DataJob(jobName, config, DeploymentStatus.NONE);
       var actualJob = jobsRepository.save(expectedJob);
       Assertions.assertEquals(expectedJob, actualJob);
 
       return actualJob;
    }
+
 
    public static DataJobExecution createDataJobExecution(
          JobExecutionRepository jobExecutionRepository,
