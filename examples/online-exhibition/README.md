@@ -17,7 +17,7 @@ The paintings to be included in the exhibition are available on [Europeana](http
 
 ## Data Source
 
-Europeana provides a [REST API](https://pro.europeana.eu/page/intro#access) for accessing resources. For each resource, various information is available, including the organization that provided the resource. 
+Europeana provides a [REST API](https://pro.europeana.eu/page/intro#access) for accessing resources. For each resource, various information is available, including the organization that provided the resource.
 
 For each record, the REST API provides the following information:
 * completeness
@@ -64,7 +64,7 @@ The following JSON shows a record extract returned by the API:
         def: ["http://data.europeana.eu/agent/base/59832"],
         en:  ["Vincent van Gogh"]
     },
-    dcDescription: 
+    dcDescription:
         ["KU Leuven. Glasdia’s kunstgeschiedenis. Université de Louvain, tussen 1839 en 1939. Fotograaf onbekend. Toegevoegde informatie op dia. Stroming/Stijl: Postimpressionisme. Creatie/Bouw: 1889. Techniek/Materiaal: Olieverf op doek. Huidige locatie: Nederland, Otterlo, Kröller-Müller Museum. EuroPhot. Kunstgeschiedenis. 19de eeuw. Schilderkunst. Portret. EuroPhot. Art history. 19th century. Paintings. Portrait."],
         ...
 }]
@@ -90,7 +90,7 @@ To run this example, you need:
 For more details on how to install Versatile Data Kit, Trino DB, Streamlit and Versatile Data Kit plugin for Trino, please refer to [this link](https://github.com/vmware/versatile-data-kit/tree/main/examples/life-expectancy).
 
 ### Europeana API key
-We can obtain an Europeana API key by registering to [this link](https://pro.europeana.eu/page/get-api). We should complete a form that requests our email. Once we submit the form, the API key is sent by email. 
+We can obtain an Europeana API key by registering to [this link](https://pro.europeana.eu/page/get-api). We should complete a form that requests our email. Once we submit the form, the API key is sent by email.
 
 ### Other Requirements
 This example also requires the following Python libraries, which are included in the requirement.txt file:
@@ -147,7 +147,7 @@ Data Processing includes cleaning the `assets` table and extract only some usefu
 * title
 * rights
 
-Jobs 04-05 are devoted to Data Processing. The produced output is stored in a table, called `cleaned_assets`. 
+Jobs 04-05 are devoted to Data Processing. The produced output is stored in a table, called `cleaned_assets`.
 The following table shows an example of the produced table:
 |country|edmpreview                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |provider              |title                                                                                                                                                     |rights                                           |
 |-------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
