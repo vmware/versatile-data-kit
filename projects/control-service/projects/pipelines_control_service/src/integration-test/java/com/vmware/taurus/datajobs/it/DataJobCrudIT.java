@@ -80,19 +80,19 @@ public class DataJobCrudIT extends BaseIT {
                       .content(dataJobRequestBody)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
-      mockMvc.perform(get("/swagger-resources/configuration/ui")
+      mockMvc.perform(get("/data-jobs/swagger-resources/configuration/ui")
                       .content(dataJobRequestBody)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
-      mockMvc.perform(get("/swagger-resources/configuration/security")
+      mockMvc.perform(get("/data-jobs/swagger-resources/configuration/security")
                       .content(dataJobRequestBody)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
-      mockMvc.perform(get("/swagger-resources")
+      mockMvc.perform(get("/data-jobs/swagger-resources")
                       .content(dataJobRequestBody)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
-      mockMvc.perform(get("/v2/api-docs")
+      mockMvc.perform(get("/data-jobs/v2/api-docs")
                       .content(dataJobRequestBody)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk());
