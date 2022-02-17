@@ -233,7 +233,7 @@ def list_command(
     team: str, operation_all: str, more_details: int, rest_api_url: str, output: str
 ):
     cmd = JobList(rest_api_url)
-    if team == "":
+    if team is None:
         team = "no-team-specified"
         operation_all = FilterOperation.ALL.value
     cmd.list_jobs(

@@ -26,7 +26,9 @@ from vdk.internal.core.context import CoreContext
 from vdk.plugin.control_cli_plugin import control_service_configuration
 
 
-@hookimpl(tryfirst=True)
+@hookimpl(
+    tryfirst=True
+)  # hook will be tried first so any hooks which decorate these commands will be able to function
 def vdk_command_line(root_command: click.Group):
     root_command.add_command(login)
     root_command.add_command(logout)
