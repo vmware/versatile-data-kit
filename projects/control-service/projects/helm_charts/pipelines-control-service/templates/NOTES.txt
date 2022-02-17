@@ -15,7 +15,7 @@ To access Data Jobs API from outside your K8s cluster, follow the steps below:
 {{- if contains "NodePort" .Values.service.type }}
 
   export SERVICE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo "Data Jobs API URL: http://$SERVICE_IP:{{ .Values.service.internalPort }}/swagger-ui.html"
+  echo "Data Jobs API URL: http://$SERVICE_IP:{{ .Values.service.internalPort }}/data-jobs/swagger-ui.html"
 
 {{- else if contains "LoadBalancer" .Values.service.type }}
 
@@ -23,7 +23,7 @@ To access Data Jobs API from outside your K8s cluster, follow the steps below:
           Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ .Release.Name }}-svc'
 
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ .Release.Name }}-svc --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo "Data Jobs API URL: http://$SERVICE_IP:{{ .Values.service.internalPort }}/swagger-ui.html"
+  echo "Data Jobs API URL: http://$SERVICE_IP:{{ .Values.service.internalPort }}/data-jobs/swagger-ui.html"
 
 {{- else }}
 
