@@ -24,11 +24,13 @@ public class DataJobExecutionFilter {
    public static final String JOB_NAME_IN_FIELD = "jobNameIn";
    public static final String START_TIME_LTE_FIELD = "startTimeLte";
    public static final String END_TIME_LTE_FIELD = "endTimeLte";
+   public static final String TEAM_NAME_IN_FIELD = "teamNameIn";
 
    private OffsetDateTime startTimeGte;
    private OffsetDateTime endTimeGte;
    private List<ExecutionStatus> statusIn;
    private List<String> jobNameIn;
+   private List<String> teamNameIn;
    private OffsetDateTime startTimeLte;
    private OffsetDateTime endTimeLte;
 

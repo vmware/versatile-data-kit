@@ -7,6 +7,7 @@ package com.vmware.taurus.service.graphql.model;
 
 import com.vmware.taurus.service.model.DataJobExecution_;
 import com.vmware.taurus.service.model.DataJob_;
+import com.vmware.taurus.service.model.JobConfig_;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,7 @@ import java.util.Set;
 public class DataJobExecutionOrder {
 
    public static final String DATA_JOB_NAME = "jobName";
+   public static final String DATA_JOB_TEAM = "jobTeam";
 
    public static final Set<String> AVAILABLE_PROPERTIES = Set.of(
          DataJobExecution_.MESSAGE,
@@ -34,10 +36,12 @@ public class DataJobExecutionOrder {
          DataJobExecution_.STARTED_BY,
          DataJobExecution_.STATUS,
          DataJobExecution_.VDK_VERSION,
-         DATA_JOB_NAME);
+         DATA_JOB_NAME,
+         DATA_JOB_TEAM);
 
    public static final Map<String, String> PUBLIC_NAME_TO_DB_ENTITY_MAP = Map.of(
-         DATA_JOB_NAME, DataJobExecution_.DATA_JOB + "." + DataJob_.NAME
+         DATA_JOB_NAME, DataJobExecution_.DATA_JOB + "." + DataJob_.NAME,
+         DATA_JOB_TEAM, DataJobExecution_.DATA_JOB + "." + DataJob_.JOB_CONFIG + "." + JobConfig_.TEAM
    );
 
    public static final String PROPERTY_FIELD = "property";
