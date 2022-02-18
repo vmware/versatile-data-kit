@@ -41,11 +41,12 @@
 .release-plugin:
   stage: release
   before_script:
-    - cd projects/vdk-plugins/
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
   script:
+    - cd projects/vdk-plugins/
     - echo "Release plugin $PLUGIN_NAME"
     - cd $PLUGIN_NAME/ || exit 1
-    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
     - pip install -U pip setuptools wheel twine
     - python setup.py sdist --formats=gztar
     # provide the credentials as Gitlab variables
@@ -67,17 +68,18 @@
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - cd projects/vdk-plugins/
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
+    - export BUILD_TYPE=release
   script:
+    - cd projects/vdk-plugins/
     - echo "Build and release vdk image of plugin $PLUGIN_NAME"
     - cd $PLUGIN_NAME/ || exit 1
-    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${CI_PIPELINE_ID}\"/g" setup.py
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
     - apk add --no-cache git bash python3
     - python3 -V
     - python3 -m pip install -U setuptools configparser
     - export VDK_PACKAGE=$(python3 setup.py --name)
     - export VDK_VERSION=$(python3 setup.py --version)
-    - export BUILD_TYPE=release
     - bash -x ../../vdk-core/cicd/deploy-base-vdk-image.sh
   retry: !reference [.retry, retry_options]
   rules:

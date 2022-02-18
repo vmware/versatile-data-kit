@@ -25,7 +25,7 @@ image:
 deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
-  tag: "1.2.2"
+  tag: "1.2.3"
 
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)

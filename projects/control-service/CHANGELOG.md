@@ -11,6 +11,10 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+1.3 - 18.02.2022
+----
+* **Improvement**
+  * Support rootless data job deployment container images and builder jobs
 
 1.3 - 27.01.2022
 ----

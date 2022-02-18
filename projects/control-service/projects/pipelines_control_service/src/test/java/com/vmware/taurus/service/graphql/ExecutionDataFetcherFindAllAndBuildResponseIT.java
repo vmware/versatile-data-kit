@@ -448,6 +448,64 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       assertExecutionsEquals(expected, actualJobExecutions.get(0));
    }
 
+   @Test
+   public void testFindAllAndBuildResponse_filterByJobTeam_shouldNotReturnResult() throws Exception {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "test-job", "test-team");
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id123", actualDataJob, ExecutionStatus.SUCCEEDED);
+
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+            FILTER_FIELD, filterRaw
+      ));
+      when(filterRaw.get(DataJobExecutionFilter.TEAM_NAME_IN_FIELD)).thenReturn(List.of("other-test-team"));
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(0, actualJobExecutions.size());
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByJobTeam_shouldReturnResult() throws Exception {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "test-job", "test-team");
+      var expected = RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id123", actualDataJob, ExecutionStatus.SUCCEEDED);
+
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+            FILTER_FIELD, filterRaw
+      ));
+      when(filterRaw.get(DataJobExecutionFilter.TEAM_NAME_IN_FIELD)).thenReturn(List.of(actualDataJob.getJobConfig().getTeam()));
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+
+      Assertions.assertEquals(1, actualJobExecutions.size());
+      assertExecutionsEquals(expected, actualJobExecutions.get(0));
+   }
+
+   @Test
+   public void testFindAllAndBuildResponse_filterByJobTeam_shouldReturnMultipleResults() throws Exception {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "test-job", "test-team");
+      DataJob actualDataJob2 = RepositoryUtil.createDataJob(jobsRepository, "test-job2", "test-team");
+      DataJob actualDataJob3 = RepositoryUtil.createDataJob(jobsRepository, "test-job3", "other-test-team");
+
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id1234", actualDataJob, ExecutionStatus.SUCCEEDED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id1235", actualDataJob2, ExecutionStatus.SUCCEEDED);
+      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id1236", actualDataJob3, ExecutionStatus.SUCCEEDED);
+
+
+      when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(
+            FILTER_FIELD, filterRaw
+      ));
+      when(filterRaw.get(DataJobExecutionFilter.TEAM_NAME_IN_FIELD)).thenReturn(List.of(actualDataJob.getJobConfig().getTeam()));
+
+      DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
+      DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
+      List<Object> actualJobExecutions = response.getContent();
+      // Expecting two executions from data jobs with the same team.
+      Assertions.assertEquals(2, actualJobExecutions.size());
+   }
+
    private void assertExecutionsEquals(DataJobExecution expectedJobExecution, Object actualJobExecutionObject) {
       com.vmware.taurus.controlplane.model.data.DataJobExecution actualJobExecution =
             (com.vmware.taurus.controlplane.model.data.DataJobExecution)actualJobExecutionObject;

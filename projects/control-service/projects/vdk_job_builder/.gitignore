@@ -1,6 +1,0 @@
-.idea
-vdk_job_builder/__pycache__
-vdk_job_builder/__init__.pyc
-build
-dist
-vdk_job_builder.egg-info
