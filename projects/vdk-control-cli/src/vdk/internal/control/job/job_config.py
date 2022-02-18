@@ -5,11 +5,13 @@ import configparser
 import fileinput
 import logging
 import os
+import re
 import sys
+from typing import Any
+from typing import List
 
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.utils.control_utils import read_config_ini_file
-
 
 log = logging.getLogger(__name__)
 
@@ -36,10 +38,10 @@ class JobConfig:
             config_parser=self._config_ini, configuration_file_path=self._config_file
         )
 
-    def get_team(self):
+    def get_team(self) -> str:
         return self._get_value("owner", "team")
 
-    def set_team_if_exists(self, value):
+    def set_team_if_exists(self, value) -> None:
         """
         If 'team' option exists in section 'owner' of config.ini, value param is assigned to it and
         config.ini file is overwritten with the new team value.
@@ -47,35 +49,35 @@ class JobConfig:
         """
         return self._set_value("owner", "team", value)
 
-    def get_schedule_cron(self):
+    def get_schedule_cron(self) -> str:
         return self._get_value("job", "schedule_cron")
 
-    def get_enable_execution_notifications(self):
+    def get_enable_execution_notifications(self) -> bool:
         return self._get_boolean(
             "contacts", "enable_execution_notifications", fallback=True
         )
 
-    def get_notification_delay_period_minutes(self):
+    def get_notification_delay_period_minutes(self) -> int:
         return self._get_positive_int(
             "contacts", "notification_delay_period_minutes", fallback=240
         )
 
-    def get_contacts_notified_on_job_failure_user_error(self):
+    def get_contacts_notified_on_job_failure_user_error(self) -> List[str]:
         return self._get_contacts("notified_on_job_failure_user_error")
 
-    def get_contacts_notified_on_job_failure_platform_error(self):
+    def get_contacts_notified_on_job_failure_platform_error(self) -> List[str]:
         return self._get_contacts("notified_on_job_failure_platform_error")
 
-    def get_contacts_notified_on_job_success(self):
+    def get_contacts_notified_on_job_success(self) -> List[str]:
         return self._get_contacts("notified_on_job_success")
 
-    def get_contacts_notified_on_job_deploy(self):
+    def get_contacts_notified_on_job_deploy(self) -> List[str]:
         return self._get_contacts("notified_on_job_deploy")
 
-    def _get_boolean(self, section, key, fallback=None):
+    def _get_boolean(self, section, key, fallback=None) -> bool:
         return self._config_ini.getboolean(section, key, fallback=fallback)
 
-    def _get_positive_int(self, section, key, fallback=None):
+    def _get_positive_int(self, section, key, fallback=None) -> int:
         try:
             value = self._config_ini.getint(section, key, fallback=fallback)
             if value <= 0:
@@ -91,12 +93,12 @@ class JobConfig:
                 f"a positive integer and redeploy the job.",
             )
 
-    def _get_value(self, section, key):
+    def _get_value(self, section, key) -> Any:
         if self._config_ini.has_option(section, key):
             return self._config_ini.get(section, key)
         return ""
 
-    def _set_value(self, section, key, value):
+    def _set_value(self, section, key, value) -> bool:
         success = False
         if self._config_ini.has_option(section, key):
             for line in fileinput.input(self._config_file, inplace=1):
@@ -106,8 +108,9 @@ class JobConfig:
                 sys.stdout.write(line)
         return success
 
-    def _get_contacts(self, key):
+    def _get_contacts(self, key) -> List[str]:
         contacts_str = self._get_value("contacts", key).strip()
+        contacts = []
         if contacts_str:
-            return [x.strip() for x in contacts_str.split(";")]
-        return []
+            contacts = [x.strip() for x in re.split("[;,]", contacts_str)]
+        return contacts
