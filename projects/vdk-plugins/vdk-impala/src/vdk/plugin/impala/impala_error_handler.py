@@ -359,7 +359,7 @@ class ImpalaErrorHandler:
                     if "." not in fully_qualified_table_name:
                         try:
                             schema_match = re.search(
-                                r"create table\b\s`?(\w+)`?\.{}".format(
+                                r"create (?:table|view)\b\s`?(\w+)`?\.{}".format(
                                     fully_qualified_table_name
                                 ),
                                 recovery_cursor.get_managed_operation().get_operation(),
