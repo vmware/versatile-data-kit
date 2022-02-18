@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -38,6 +40,7 @@ import java.util.List;
 @EnableSwagger2
 @Controller
 public class SwaggerConfig implements WebMvcConfigurer {
+    private static final String PATH = "/data-jobs";
     private static final String AUTHORIZE_KEY_NAME = "Authorization Header (put 'Bearer access_token')";
 
     @Bean
@@ -54,6 +57,25 @@ public class SwaggerConfig implements WebMvcConfigurer {
                         new Tag("Data Jobs Deployment", "(Stable)"),
                         new Tag("Data Jobs Service", "(Stable)"),
                         new Tag("Data Jobs Sources", "(Stable)"));
+    }
+
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        final var apiDocs = "/v2/api-docs";
+        final var configUi = "/swagger-resources/configuration/ui";
+        final var configSecurity = "/swagger-resources/configuration/security";
+        final var resources = "/swagger-resources";
+
+        registry.addViewController(PATH + apiDocs).setViewName("forward:" + apiDocs);
+        registry.addViewController(PATH + configUi).setViewName("forward:" + configUi);
+        registry.addViewController(PATH + configSecurity).setViewName("forward:" + configSecurity);
+        registry.addViewController(PATH + resources).setViewName("forward:" + resources);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler(PATH + "/**").addResourceLocations("classpath:/META-INF/resources/");
     }
 
     // springfox does not support Bearer Token Auth from api.yaml so we hack it manually
