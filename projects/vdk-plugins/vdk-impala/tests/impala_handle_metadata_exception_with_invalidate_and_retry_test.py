@@ -49,3 +49,28 @@ def test_AlreadyExistsException_table_already_exists(patched_time_sleep):
         call(original_query),
     ]
     mock_native_cursor.execute.assert_has_calls(expected_calls)
+
+
+@patch("time.sleep", return_value=None)
+def test_AlreadyExistsException_view_already_exists(patched_time_sleep):
+    error_message = "AlreadyExistsException: Table test_table already exists"
+    exception = HiveServer2Error(error_message)
+    original_query = (
+        "CREATE VIEW test_schema.test_table AS "
+        "SELECT * "
+        "FROM test_mart.view_test_table;"
+    )
+    (mock_native_cursor, _, _, mock_recovery_cursor, _) = populate_mock_managed_cursor(
+        mock_exception_to_recover=exception, mock_operation=original_query
+    )
+
+    error_handler = ImpalaErrorHandler(logging.getLogger(), num_retries=1)
+    error_handler.handle_error(
+        caught_exception=exception, recovery_cursor=mock_recovery_cursor
+    )
+
+    expected_calls = [
+        call("invalidate metadata test_schema.test_table"),
+        call(original_query),
+    ]
+    mock_native_cursor.execute.assert_has_calls(expected_calls)
