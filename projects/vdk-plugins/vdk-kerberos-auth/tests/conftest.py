@@ -71,11 +71,7 @@ def kerberos_service(docker_ip, docker_services):
         # Add the data job principal to the Kerberos server and obtain a keytab for it.
         # Realm and pass are the same as those configured at server startup (see ./docker-compose.yml)
         datajob_name = "test-job"
-        keytab_filename = (
-            caller_directory.joinpath("jobs")
-            .joinpath(datajob_name)
-            .joinpath("test-job.keytab")
-        )
+        keytab_filename = caller_directory.joinpath("jobs").joinpath("test-job.keytab")
         if os.path.isfile(keytab_filename):
             os.remove(keytab_filename)
         result = _run_kadmin_query(f"add_principal -randkey pa__view_{datajob_name}")
@@ -86,10 +82,8 @@ def kerberos_service(docker_ip, docker_services):
         assert result == 0, "(kadmin) failed to create keytab"
 
         # Create another principal for the purposes of testing wrong credentials later
-        keytab_filename2 = (
-            caller_directory.joinpath("jobs")
-            .joinpath(datajob_name)
-            .joinpath("different_principal.keytab")
+        keytab_filename2 = caller_directory.joinpath("jobs").joinpath(
+            "different_principal.keytab"
         )
         if os.path.isfile(keytab_filename2):
             os.remove(keytab_filename2)
