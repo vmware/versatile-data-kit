@@ -24,33 +24,34 @@ vdk login
 \b
 # Login using non-interactive login - in other words using api token (also called refresh token)
 vdk login -t api-token -a 3ece313f612db1f03629313d847
-               """
+
+\b
+For example to setup Oauth2 provider as Google:
+
+First, create client using https://console.developers.google.com/apis/credentials/oauthclient
+redirect_uri should be set to http://127.0.0.1  (without the port)
+
+Execute: vdk login --oauth2-discovery-url https://accounts.google.com/o/oauth2/v2/auth\\?scope\\=profile --oauth2-exchange-url
+https://oauth2.googleapis.com/token --client-id 1234-example.apps.googleusercontent.com
+--client-secret 1234-example-secret
+
+For the authentication against Control Service to be successful, Control Service must be configured ot accept Google access tokens.
+"""
 )
 @click.option(
     "-u",
     "--api-token-authorization-url",
     help="Location of the API Token OAuth2 provider. It is used to exchange api refresh token for access token. "
-    "Response should match https://tools.ietf.org/html/rfc6749#section-5.1"
-    r"""
-
-    For example to setup Oauth2 provider as Google:
-
-    First, create client using https://console.developers.google.com/apis/credentials/oauthclient
-      redirect_uri should be set to http://127.0.0.1  (without the port)
-
-    Execute: vdk login --oauth2-discovery-url https://accounts.google.com/o/oauth2/v2/auth\?scope\=profile --oauth2-exchange-url
-    https://oauth2.googleapis.com/token --client-id 1234-example.apps.googleusercontent.com
-    --client-secret 1234-example-secret
-
-    For the authentication against Control Service to be successful,
-    Control Service must be configured ot accept Google access tokens
-    """,
+    "Response should match https://tools.ietf.org/html/rfc6749#section-5.1",
     cls=extended_option(hide_if_default=True),
 )
 @click.option(
     "-a",
     "--api-token",
     help="API Token for the OAuth2 provider used in exchange for Access Token. "
+    "It is acts as 'refresh token' (https://datatracker.ietf.org/doc/html/rfc6749#section-1.5)"
+    " - in other words it's used as credentials used to obtain access tokens. "
+    "That request is against URL specified by --api-token-authorization-url or VDK_API_TOKEN_AUTHORIZATION_URL. "
     'Required when authentication type is "api-token", ignored otherwise. ',
     cls=extended_option(),
 )
