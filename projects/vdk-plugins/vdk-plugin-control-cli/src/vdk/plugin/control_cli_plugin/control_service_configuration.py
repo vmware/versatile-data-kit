@@ -59,7 +59,7 @@ def add_definitions(config_builder: ConfigurationBuilder):
         "It is acts as 'refresh token' (https://datatracker.ietf.org/doc/html/rfc6749#section-1.5)"
         " - in other words it's used as credentials used to obtain access tokens. "
         "That request is against URL specified by API_TOKEN_AUTHORIZATION_URL. "
-        "Default API Token to use if another authentication has not been used with vdk login.",
+        "Default API Token used if another authentication has not been used with vdk login.",
     )
     config_builder.add(
         key=API_TOKEN_AUTHORIZATION_URL,
