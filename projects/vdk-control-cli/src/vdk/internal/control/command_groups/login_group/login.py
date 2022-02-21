@@ -28,7 +28,7 @@ vdk login -t api-token -a 3ece313f612db1f03629313d847
 \b
 For example to setup Oauth2 provider as Google:
 
-First, create client using https://console.developers.google.com/apis/credentials/oauthclient
+First, create a client using https://console.developers.google.com/apis/credentials/oauthclient
 redirect_uri should be set to http://127.0.0.1  (without the port)
 
 Execute: vdk login --oauth2-discovery-url https://accounts.google.com/o/oauth2/v2/auth\\?scope\\=profile --oauth2-exchange-url
