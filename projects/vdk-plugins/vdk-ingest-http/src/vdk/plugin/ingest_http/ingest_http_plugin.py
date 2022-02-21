@@ -69,6 +69,13 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         default_value=None,
         description="A string of comma-separated HTTP status codes that we should force a retry on.",
     )
+    config_builder.add(
+        key="INGEST_OVER_HTTP_ALLOW_NAN",
+        default_value=False,
+        description="If set to True, then NaN, Infinity, and -Infinity will be encoded as such."
+        "This behavior is not JSON specification compliant, but is consistent with most JavaScript based "
+        "encoders and decoders. Otherwise, it will be a ValueError to encode such floats.",
+    )
 
 
 @hookimpl
