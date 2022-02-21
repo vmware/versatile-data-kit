@@ -67,7 +67,9 @@ class TemplateRegressionTests(unittest.TestCase):
                 "VDK_KRB_AUTH": "kinit",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_FILENAME": str(
-                    pathlib.Path(data_job_path).joinpath("different_principal.keytab")
+                    pathlib.Path(data_job_path).parent.joinpath(
+                        "different_principal.keytab"
+                    )
                 ),
             },
         ):
@@ -86,7 +88,7 @@ class TemplateRegressionTests(unittest.TestCase):
                 "VDK_KRB_AUTH": "kinit",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_FILENAME": str(
-                    pathlib.Path(data_job_path).joinpath("non_existent.keytab")
+                    pathlib.Path(data_job_path).parent.joinpath("non_existent.keytab")
                 ),
             },
         ):
@@ -123,7 +125,9 @@ class TemplateRegressionTests(unittest.TestCase):
                 "VDK_KRB_AUTH": "minikerberos",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_FILENAME": str(
-                    pathlib.Path(data_job_path).joinpath("different_principal.keytab")
+                    pathlib.Path(data_job_path).parent.joinpath(
+                        "different_principal.keytab"
+                    )
                 ),
             },
         ):
@@ -142,7 +146,7 @@ class TemplateRegressionTests(unittest.TestCase):
                 "VDK_KRB_AUTH": "minikerberos",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_FILENAME": str(
-                    pathlib.Path(data_job_path).joinpath("non_existent.keytab")
+                    pathlib.Path(data_job_path).parent.joinpath("non_existent.keytab")
                 ),
             },
         ):

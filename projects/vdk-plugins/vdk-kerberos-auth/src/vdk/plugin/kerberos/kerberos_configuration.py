@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
+from pathlib import Path
 
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
@@ -26,7 +27,7 @@ class KerberosPluginConfiguration:
     def keytab_folder(self):
         keytab_folder = self.__config.get_value(KEYTAB_FOLDER)
         if keytab_folder is None:
-            keytab_folder = self.__job_directory
+            keytab_folder = Path(self.__job_directory).parent
         return keytab_folder
 
     def keytab_filename(self):
