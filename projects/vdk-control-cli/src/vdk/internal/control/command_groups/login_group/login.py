@@ -49,9 +49,9 @@ For the authentication against Control Service to be successful, Control Service
     "-a",
     "--api-token",
     help="API Token for the OAuth2 provider used in exchange for Access Token. "
-    "It is acts as 'refresh token' (https://datatracker.ietf.org/doc/html/rfc6749#section-1.5)"
-    " - in other words it's used as credentials used to obtain access tokens. "
-    "That request is against URL specified by --api-token-authorization-url or VDK_API_TOKEN_AUTHORIZATION_URL. "
+    "It acts as a 'refresh token' (https://datatracker.ietf.org/doc/html/rfc6749#section-1.5)"
+    " - in other words it's used as the credentials used to obtain access tokens. "
+    "This request is made against the URL specified by --api-token-authorization-url or the VDK_API_TOKEN_AUTHORIZATION_URL environment variable. "
     'Required when authentication type is "api-token", ignored otherwise. ',
     cls=extended_option(),
 )
