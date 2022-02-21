@@ -35,7 +35,7 @@ Execute: vdk login --oauth2-discovery-url https://accounts.google.com/o/oauth2/v
 https://oauth2.googleapis.com/token --client-id 1234-example.apps.googleusercontent.com
 --client-secret 1234-example-secret
 
-For the authentication against Control Service to be successful, Control Service must be configured ot accept Google access tokens.
+For the authentication against Control Service to be successful, Control Service must be configured to accept Google access tokens.
 """
 )
 @click.option(
