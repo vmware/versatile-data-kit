@@ -72,9 +72,9 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
         key="INGEST_OVER_HTTP_ALLOW_NAN",
         default_value=False,
-        description="If set to True, then NaN, Infinity, and -Infinity will be encoded as such."
-        "This behavior is not JSON specification compliant, but is consistent with most JavaScript based "
-        "encoders and decoders. Otherwise, it will be a ValueError to encode such floats.",
+        description="If set to False, then it will be a ``ValueError`` to serialize out of range ``float`` "
+        "values (``nan``, ``inf``, ``-inf``) in strict compliance of the JSON specification, "
+        "instead of using the JavaScript equivalents (``NaN``, ``Infinity``, ``-Infinity``).",
     )
 
 
