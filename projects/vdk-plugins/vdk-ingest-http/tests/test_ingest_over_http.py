@@ -54,7 +54,7 @@ def test_ingest_over_http(mock_post):
 
     mock_post.assert_called_with(
         url="http://example.com/data-source",
-        json=[payload],
+        data=json.dumps([payload]),
         headers={"Content-Type": "application/octet-stream"},
         timeout=(None, None),
         cert=None,
@@ -90,7 +90,7 @@ def test_ingest_over_http_compression(mock_post):
             "Content-Type": "application/octet-stream",
             "Content-encoding": "gzip",
         },
-        json=gzip.compress(json.dumps([payload]).encode(encoding)),
+        data=gzip.compress(json.dumps([payload]).encode(encoding)),
         url="http://example.com/data-source",
         timeout=(None, None),
         cert=None,
@@ -120,7 +120,7 @@ def test_ingest_over_http_result(mock_post):
 
     assert ingestion_result["uncompressed_size_in_bytes"] == sys.getsizeof([payload])
     assert ingestion_result["compressed_size_in_bytes"] == sys.getsizeof(
-        gzip.compress(json.dumps([payload]).encode(encoding))
+        gzip.compress(json.dumps([payload], allow_nan=False).encode(encoding))
     )
     assert ingestion_result["http_status"] == 200
 
@@ -170,6 +170,7 @@ def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
     retry_total = 10
     retry_backoff_factor = 30
     retry_status_forcelist = "500,502,503,504"
+    allow_nan = False
 
     def configuration_side_effect(*args, **kwargs):
         def arg(a):
@@ -193,6 +194,8 @@ def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
             return retry_backoff_factor
         if arg("INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"):
             return retry_status_forcelist
+        if arg("INGEST_OVER_HTTP_ALLOW_NAN"):
+            return allow_nan
         return None
 
     job_context = MagicMock()
@@ -217,7 +220,7 @@ def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
 
     mock_post.assert_called_with(
         url="http://example.com/data-source",
-        json=gzip.compress(json.dumps([payload]).encode(encoding)),
+        data=gzip.compress(json.dumps([payload], allow_nan=allow_nan).encode(encoding)),
         headers={
             "Content-Type": "application/octet-stream",
             "Content-encoding": "gzip",
@@ -226,3 +229,31 @@ def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
         cert="cert.pem",
         verify=True,
     )
+
+
+@mock.patch("json.dumps")
+def test_ingest_over_http_json_dumps_parameters_propagation(mock_jsondumps):
+    allow_nan = True
+
+    def configuration_side_effect(*args, **kwargs):
+        def arg(a):
+            return args[0] == a
+
+        if arg("INGEST_OVER_HTTP_ALLOW_NAN"):
+            return allow_nan
+        return None
+
+    job_context = MagicMock()
+    job_context.core_context.configuration.get_value.side_effect = (
+        configuration_side_effect
+    )
+    try:
+        IngestOverHttp(job_context).ingest_payload(
+            payload=[payload],
+            destination_table="test_table",
+            target="http://example.com/data-source",
+        )
+    except:
+        pass
+
+    mock_jsondumps.assert_called_with([payload], allow_nan=allow_nan)
