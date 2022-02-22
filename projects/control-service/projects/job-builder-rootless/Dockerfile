@@ -17,9 +17,21 @@ RUN chmod +x /build_image.sh
 
 # Setup Python and Git
 ## Update & Install dependencies
+## go and make are used to build amazon-ecr-credential-helper (see below)
 RUN apk add --no-cache --update \
     git \
-    bash
+    bash \
+    go \
+    make
+
+# pull and build amazon-ecr-credential-helper; it is required to authenticate to ecr when pushing images
+RUN git clone https://github.com/awslabs/amazon-ecr-credential-helper.git \
+    && cd amazon-ecr-credential-helper \
+    && make \
+    && mv bin/local/docker-credential-ecr-login /usr/local/bin \
+    && chmod +x /usr/local/bin/docker-credential-ecr-login \
+    && cd .. \
+    && rm amazon-ecr-credential-helper/ -rf
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.10/main python3=3.7.10-r0 py3-pip \
     && pip3 install -U pip \
