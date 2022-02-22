@@ -31,6 +31,7 @@ class SuccessfulRunTest(HeartbeatTest):
     @LogDecorator(log)
     def execute_test(self):
         status = None
+        success_status = "succeeded"
         try:
             status = self.__job_controller.check_job_execution_finished()
         except Exception as e:
@@ -40,10 +41,10 @@ class SuccessfulRunTest(HeartbeatTest):
                 f"successfully. However the job did not do it in time. "
                 f"Check data job logs for possible errors."
             )
-        if status != "success":
+        if status != success_status:
             raise AssertionError(
                 "Successful run test failed with unexpected data job status. "
                 f"It was waiting for data job {self.config.job_name} to complete "
-                f"with status 'success'. However the job completed with status {status}. "
+                f"with status '{success_status}'. However the job completed with status {status}. "
                 f"Check the data job logs for errors."
             )
