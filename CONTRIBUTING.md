@@ -102,7 +102,7 @@ To make a new public release, follow these steps:
 - Create a new release from the Releases menu - this will require a new tag;
 - Autogenerate the changelog (https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes), then sort the changes alphabetically; if all change names are prefixed with the component name, this will ensure changes are grouped by component. Sorting can be done using the `sort` utility available in MacOS and Linux distros; Clean up unnecessary commits (e.g automated commits like pre-commit.ci)
 - Review which components have received changes since the previous release - this should be apparent from the changelog;
-- Write a summary at the top of the major changes . It should include sections: 
+- Write a summary at the top of the major changes . It should include sections:
   - Major features include
   - Backwards incompatible changes
   - Removal of features
