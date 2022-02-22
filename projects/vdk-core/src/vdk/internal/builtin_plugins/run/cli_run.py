@@ -89,6 +89,9 @@ class CliRunImpl:
      \b
      # This will run the Data Job from directory example-job (it takes a few minutes)
      vdk run /home/user/data-jobs/example-job
+     \b
+     # Run data job with arguments.
+     vdk run example-job --arguments '{"key1": "value1","key2": "value2"}'
 
 """
 )
@@ -102,7 +105,10 @@ class CliRunImpl:
     required=False,
     help="Pass arguments. "
     "Those arguments will be passed to each step. "
-    "Must be in valid JSON format",
+    "Must be in valid JSON format. "
+    "Arguments are passed to each step. "
+    "They can be used as parameters in SQL queries and will be replaced automatically."
+    "Properties can also be specified as parameters in SQL, arguments would have higher priority for the same key.",
 )
 @click.pass_context
 def run(ctx: click.Context, data_job_directory: str, arguments: str) -> None:
