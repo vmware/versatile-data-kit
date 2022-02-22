@@ -5,7 +5,7 @@ import pathlib
 import setuptools
 
 
-__version__ = "0.1.dev1"
+__version__ = "0.2.dev1"
 
 setuptools.setup(
     name="quickstart-vdk",
