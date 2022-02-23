@@ -28,7 +28,7 @@ fi
 
 echo "Setup git hook scripts with pre-commit install"
 pip install -q pre-commit
-pre-commit install
+pre-commit install --hook-type commit-msg --hook-type pre-commit
 
 echo ""
 echo "You are all setup."
