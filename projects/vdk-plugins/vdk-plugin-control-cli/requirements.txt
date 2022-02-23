@@ -1,7 +1,7 @@
-vdk-core
-vdk-control-cli
+pytest-httpserver
 requests
+vdk-control-cli
+vdk-core
 
 # test deps
 vdk-test-utils
-pytest-httpserver
