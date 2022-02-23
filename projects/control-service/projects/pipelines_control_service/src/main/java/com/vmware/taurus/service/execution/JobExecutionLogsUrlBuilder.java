@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.execution;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -66,6 +67,8 @@ public class JobExecutionLogsUrlBuilder {
    @Value("${datajobs.executions.logsUrl.endTimeOffsetSeconds}")
    private long endTimeOffsetSeconds = 0;
 
+   Clock clock = Clock.systemDefaultZone();
+
    public String build(DataJobExecution dataJobExecution) {
       if (StringUtils.isEmpty(template)) {
          log.warn("The property 'datajobs.executions.logsUrl.template' is empty!");
@@ -101,7 +104,8 @@ public class JobExecutionLogsUrlBuilder {
       String format = dateFormat;
 
       if (dateTime == null) {
-         return "";
+         // if not set it to current time
+         dateTime = OffsetDateTime.now(clock);
       }
 
       Instant offsetDateTime = dateTime.toInstant().plusSeconds(offset);
