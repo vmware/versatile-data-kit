@@ -1,7 +1,7 @@
-vdk-core
 click
+pytest
+pytest-cov
+vdk-core
 
 # testing requirements
 vdk-test-utils
-pytest
-pytest-cov
