@@ -9,7 +9,7 @@ echo "Building plugin $PLUGIN_NAME"
 PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
 
 pip install -U pip setuptools pre-commit
-pre-commit install
+pre-commit install --hook-type commit-msg --hook-type pre-commit
 
 pip install --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 pip install -e . --extra-index-url $PIP_EXTRA_INDEX_URL
