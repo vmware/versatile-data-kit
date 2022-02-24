@@ -1,0 +1,37 @@
+
+
+image:
+  repository: trinodb/trino
+
+#service:
+#  type: LoadBalancer
+
+connectors:
+  # Connectors configuration usually contains sensitive data (like passwords, usernames, ...)
+  # so data is stored in a secret
+  # For testing purposes
+  # memory.properties: |-
+  #   connector.name=memory
+  #   memory.max-data-per-node=512MB
+  mysql.properties: |-
+    connector.name=mysql
+    connection-url=jdbc:mysql://vdk-mysql.vdk-amld.svc.cluster.local:3306
+    connection-user=root
+    connection-password=${MYSQL_ROOT_PASSWORD}
+
+resources:
+  limits:
+    cpu: 2
+    memory: 4G
+  requests:
+    cpu: 500m
+    memory: 1G
+
+server:
+  workers: 1
+  config:
+    http:
+      port: 1094
+
+service:
+  type: LoadBalancer
