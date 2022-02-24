@@ -30,7 +30,7 @@ echo "install dependencies from requirements.txt (used for development and testi
 pip install --use-deprecated="legacy-resolver" --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 
 echo "Setup git hook scripts with pre-commit install"
-pre-commit install
+pre-commit install --hook-type commit-msg --hook-type pre-commit
 
 # Below line uses --use-deprecated=legacy-resolver to temporary workaround a
 # dependency backtracking issue.

@@ -1,19 +1,11 @@
 # install dependencies used during development:
 # Usually same (version may be different) as install_requires in setup.cfg
 click~=7.1.2
-setuptools~=47.1
-pluggy~=0.13
-tabulate
 click-spinner
 
-vdk-control-service-api==1.0.6
-requests_oauthlib
-
-# Dependencies for creating HTTP calls against the OAuth2 provider. We can potentially remove those
-# and use requests_oauthlib only, but for now it seems like there are some custom logic with the first
-# OAuth2 provider which needs to be handled that way
-urllib3>=1.26.5
-requests>=2.25
+# Dependencies license report:
+pip-licenses
+pluggy~=0.13
 
 # TESTING dependencies:
 
@@ -23,6 +15,14 @@ pytest
 # So we will run pytest-cov only in gitlab ci and it's commented out here.
 # pytest-cov
 pytest-httpserver
+requests>=2.25
+requests_oauthlib
+setuptools~=47.1
+tabulate
 
-# Dependencies license report:
-pip-licenses
+# Dependencies for creating HTTP calls against the OAuth2 provider. We can potentially remove those
+# and use requests_oauthlib only, but for now it seems like there are some custom logic with the first
+# OAuth2 provider which needs to be handled that way
+urllib3>=1.26.5
+
+vdk-control-service-api==1.0.6
