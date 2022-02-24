@@ -117,5 +117,5 @@ To make a new public release, follow these steps:
   - vdk-control-cli's version source of truth is located [here](projects/vdk-control-cl/version.txt);
   - control-service's version source of truth is located [here](projects/control-service/projects/helm_charts/pipelines-control-service/version.txt);
 - Record the new versions as they are released and list them in the Release description;
-- Make sure you have clicked "Create a discussion for this release" button before publishing the new release
+- Make sure you have clicked the "Create a discussion for this release" button before publishing the new release
 - Post a tweet on the official VDK Twitter account, and on slack, announcing the new release and linking to it.
