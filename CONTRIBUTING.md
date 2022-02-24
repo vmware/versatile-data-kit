@@ -99,8 +99,8 @@ For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/
 # How to make a new VDK release
 
 See previous releases: https://github.com/vmware/versatile-data-kit/releases
-Release is a certain milestone of VDK where we share with the community the latest changes.
-We try to have public release every few weeks.
+A release is a certain milestone of VDK where we share the latest changes with the community. 
+We aim to make a new public release every few weeks.
 
 To make a new public release, follow these steps:
 - Create a new release from the Releases menu - this will require a new tag;
