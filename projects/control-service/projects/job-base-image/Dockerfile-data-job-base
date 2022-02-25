@@ -1,0 +1,33 @@
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices\
+# Creating data job base image with support for Oracle.
+
+ARG base_image=python:3.7-slim
+FROM $base_image
+
+# Set the working directory
+WORKDIR /job
+
+
+# Install native dependencies so that requirements in requirements.txt can be installed
+# some (like openssl) should be pre-installed in the base image but let's be explicit
+RUN set -ex \
+       && apt-get update \
+       && apt-get -y install --no-install-recommends \
+              build-essential openssl g++
+
+# Install the native dependencies necessary for cx_Oracle python library
+# See https://oracle.github.io/odpi/doc/installation.html#linux
+RUN set -ex \
+      && echo "Installing native dependencies related to support for cx_Oracle python library ..." \
+      && mkdir -p /opt/lib/native  \
+      && apt-get -y install  --no-install-recommends libaio1 curl unzip \
+      && curl --insecure --output oracle-instantclient.zip https://download.oracle.com/otn_software/linux/instantclient/1911000/instantclient-basic-linux.x64-19.11.0.0.0dbru.zip \
+      && unzip oracle-instantclient.zip -d /opt/lib/native/oracle && rm -f oracle-instantclient.zip \
+      && sh -c "echo /opt/lib/native/oracle/instantclient_19_11 > /etc/ld.so.conf.d/oracle-instantclient.conf" \
+      && ldconfig \
+      && apt-get purge -y --auto-remove curl unzip
+
+# libaio1 - LGPL-2.1+ https://developer.puri.sm/licenses/Librem5/Birch/libaio1/copyright
+# curl - MIT/X* modified https://curl.se/docs/copyright.html
+# unzip - MIT https://github.com/vipsoft/Unzip/blob/master/LICENSE
+# oracle instant client license - Oracle Technology Network Development and Distribution License Agreement https://www.oracle.com/downloads/licenses/instant-client-lic.html

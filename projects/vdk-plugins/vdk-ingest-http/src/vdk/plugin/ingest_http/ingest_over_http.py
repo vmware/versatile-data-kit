@@ -102,6 +102,9 @@ class IngestOverHttp(IIngesterPlugin):
             )
             else None
         )
+        self._allow_nan = context.core_context.configuration.get_value(
+            "INGEST_OVER_HTTP_ALLOW_NAN"
+        )
 
         adapter = HTTPAdapter(
             max_retries=Retry(
@@ -171,18 +174,20 @@ class IngestOverHttp(IIngesterPlugin):
     def __send_data(self, data, http_url, headers) -> IngestionResult:
         uncompressed_size_in_bytes = sys.getsizeof(data)
         compressed_size_in_bytes = None
+        data = json.dumps(data, allow_nan=self._allow_nan)
+
         if (
             self._compression_threshold_bytes
             and uncompressed_size_in_bytes >= self._compression_threshold_bytes
         ):
             headers["Content-encoding"] = "gzip"
-            data = gzip.compress(json.dumps(data).encode(self._compression_encoding))
+            data = gzip.compress(data.encode(self._compression_encoding))
             compressed_size_in_bytes = sys.getsizeof(data)
 
         try:
             req = self._session.post(
                 url=http_url,
-                json=data,
+                data=data,
                 headers=headers,
                 timeout=(self._connect_timeout_seconds, self._read_timeout_seconds),
                 cert=self._cert_file_path,

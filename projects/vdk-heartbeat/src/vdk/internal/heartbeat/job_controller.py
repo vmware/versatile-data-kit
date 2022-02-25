@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import tempfile
 import time
+from datetime import datetime
+from typing import Optional
 
 from vdk.internal.heartbeat.config import Config
 from vdk.internal.heartbeat.tracing import LogDecorator
@@ -336,9 +338,10 @@ class JobController:
         log.info("Execution started successfully.")
 
     @LogDecorator(log)
-    def check_job_execution_finished(self):
+    def check_job_execution_finished(self) -> Optional[str]:
         log.info("Checking if data job execution is still running.")
         job_execution_running = True
+        execution_list = []
         start = time.time()
 
         while (
@@ -359,20 +362,31 @@ class JobController:
             )
             execution_list = json.loads(response)
 
-            job_execution_running = False
-            for execution in execution_list:
-                if str(execution["status"]) == "running":
-                    job_execution_running = True
-                    log.info(
-                        f"Data job execution is in state {execution['status']}. Will wait 10 seconds and check again."
-                    )
-                    break
+            if execution_list:
+                job_execution_running = False
+                for execution in execution_list:
+                    if str(execution["status"]) == "running":
+                        job_execution_running = True
+                        log.info(
+                            f"Data job execution is in state {execution['status']}. Will wait 10 seconds and check again."
+                        )
+                        break
             time.sleep(10)
         log.info(f"Data job is running : {job_execution_running}")
         assert not job_execution_running, (
             f"VDK-heartbeat timed out. Job execution {self.config.job_name} "
             + f"did not finish in {self.config.RUN_TEST_TIMEOUT_SECONDS}."
         )
+        if not execution_list:
+            return None
+        latest_end_date = max(
+            datetime.fromisoformat(e["end_time"]) for e in execution_list
+        )
+        return [
+            e["status"]
+            for e in execution_list
+            if datetime.fromisoformat(e["end_time"]) == latest_end_date
+        ].pop()
 
     def _update_config_ini(self, heartbeat_job_dir):
         config_ini = configparser.ConfigParser()

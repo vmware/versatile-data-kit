@@ -1,9 +1,9 @@
-vdk-core
+docker-compose
 minikerberos==0.1.0
+pytest
+pytest-docker
 requests-kerberos
+vdk-core
 
 # testing requirements
 vdk-test-utils
-pytest
-pytest-docker
-docker-compose

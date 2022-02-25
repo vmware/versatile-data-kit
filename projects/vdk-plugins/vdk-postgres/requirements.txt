@@ -1,9 +1,9 @@
-vdk-core
-psycopg2-binary
-tabulate
 
 # testing requirements
 click
-vdk-test-utils
-pytest-docker
 docker-compose
+psycopg2-binary
+pytest-docker
+tabulate
+vdk-core
+vdk-test-utils

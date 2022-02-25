@@ -86,6 +86,51 @@ class TestSetTeam:
         with pytest.raises(VDKException):
             job_config.get_notification_delay_period_minutes()
 
+    def test_parse_notification_contacts(self):
+        self.__create_config_ini(
+            self.tmp_copy_job_test_config_ini_path,
+            [
+                ("notified_on_job_deploy", "a@abv.bg; b@dir.bg,   c@abv.bg ; d@dir.bg"),
+                (
+                    "notified_on_job_success",
+                    "a@abv.bg; b@dir.bg,   c@abv.bg ; d@dir.bg",
+                ),
+                (
+                    "notified_on_job_failure_user_error",
+                    "a@abv.bg; b@dir.bg,   c@abv.bg ; d@dir.bg",
+                ),
+                (
+                    "notified_on_job_failure_platform_error",
+                    "a@abv.bg; b@dir.bg,   c@abv.bg ; d@dir.bg",
+                ),
+            ],
+        )
+        job_config = JobConfig(self.tmp_copy_job_test_path)
+        assert job_config.get_contacts_notified_on_job_deploy() == [
+            "a@abv.bg",
+            "b@dir.bg",
+            "c@abv.bg",
+            "d@dir.bg",
+        ]
+        assert job_config.get_contacts_notified_on_job_success() == [
+            "a@abv.bg",
+            "b@dir.bg",
+            "c@abv.bg",
+            "d@dir.bg",
+        ]
+        assert job_config.get_contacts_notified_on_job_failure_user_error() == [
+            "a@abv.bg",
+            "b@dir.bg",
+            "c@abv.bg",
+            "d@dir.bg",
+        ]
+        assert job_config.get_contacts_notified_on_job_failure_platform_error() == [
+            "a@abv.bg",
+            "b@dir.bg",
+            "c@abv.bg",
+            "d@dir.bg",
+        ]
+
     @staticmethod
     def __create_config_ini(file, contacts):
         config = configparser.ConfigParser()
