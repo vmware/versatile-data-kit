@@ -1,4 +1,6 @@
 # Online Exhibition
+The objective of this scenario is to ingest and process in VDK Vincent Van Gogh's paintings available in [Europeana](https://www.europeana.eu/en), a well-known European aggregator for Cultural Heritage. Europeana provides all the Cultural Heritage objects through its public [REST API](https://pro.europeana.eu/page/intro#access).
+
 This example provides the complete code to perform the following tasks:
 
 * Data Ingestion from REST API
@@ -13,7 +15,7 @@ The directory is organized as follows:
 ## Scenario
 An association of emerging painters would like to set up an online exhibition on Vincent Van Gogh, a well-known Dutch post-impressionist painter. Within the online exhibition, the association would like to reserve a special section for paintings from the Rijksmuseum in Amsterdam.
 
-The paintings to be included in the exhibition are available on [Europeana](https://www.europeana.eu/en), a well-known European aggregator of the cultural heritage of various kinds. Europeana provides more than 800 works whose author is Vincent Van Gogh.
+The paintings to be included in the exhibition are available on [Europeana](https://www.europeana.eu/en), a well-known European aggregator of the cultural heritage of various kinds. Europeana provides more than 700 works whose author is Vincent Van Gogh.
 
 ## Data Source
 
@@ -21,11 +23,11 @@ Europeana provides a [REST API](https://pro.europeana.eu/page/intro#access) for 
 
 For each record, the REST API provides the following information:
 * completeness
-* country varchar,
-* dataProvider varchar,
-* dcCreator varchar,
-* dcCreatorLangAware varchar,
-* dcTitleLangAware varchar,
+* country,
+* dataProvider,
+* dcCreator,
+* dcCreatorLangAware,
+* dcTitleLangAware,
 * edmDatasetName
 * edmIsShownBy
 * edmPreview
@@ -84,13 +86,27 @@ To run this example, you need:
 * Versatile Data Kit
 * Trino DB
 * Versatile Data Kit plugin for Trino
+* Versatile Data Kit Server
 * Europeana API key
 * Streamlit
 
 For more details on how to install Versatile Data Kit, Trino DB, Streamlit and Versatile Data Kit plugin for Trino, please refer to [this link](https://github.com/vmware/versatile-data-kit/tree/main/examples/life-expectancy).
 
+### Versatile Data Kit Server
+In this example, we install the Versatile Data Kit (VDK) server locally.
+The VDK server requires the following prerequisites:
+* helm
+* docker
+* kind
+
+We can install the Versatile Data Kit Server through the following command:
+```
+vdk server --install
+```
+For more information on how to install the VDK server, you can refer to the [Official Documentation](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-locally)
+
 ### Europeana API key
-We can obtain an Europeana API key by registering to [this link](https://pro.europeana.eu/page/get-api). We should complete a form that requests our email. Once we submit the form, the API key is sent by email.
+We can obtain a Europeana API key by registering to [this link](https://pro.europeana.eu/page/get-api). We should complete a form that requests our email. Once we submit the form, the API key is sent by email.
 
 ### Other Requirements
 This example also requires the following Python libraries, which are included in the requirement.txt file:
@@ -107,12 +123,20 @@ trino_schema = online-exhibition
 ```
 
 ### Europeana API key
-The Europeana API key should be included in the `config.ini` file, in the `key` section, as follows:
+We can add the Europeana API key as a vdk property as follows:
+```
+vdk properties --set-secret api_key
+```
 
+vdk will ask you for the following information:
 ```
-[key]
-apy_key = YOUR_API_KEY
+vdk properties --set-secret api_key
+Job Name: online-exhibition
+Job Team: my-team
+api_key: YOUR_API_KEY
 ```
+
+Then, we will access it in data job with the `job_input.get_property()` method.
 
 ## Data Ingestion
 Data Ingestion uploads in the database output of the call to the Europeana REST API, defined in the Data Source section. Data Ingestion is performed through the following steps:

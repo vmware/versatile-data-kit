@@ -24,9 +24,10 @@ def run(job_input: IJobInput):
 
     # url of the U.S. Life Expectancy at Birth by State and Census Tract - 2010-2015 dataset
     # url = "http://data.cdc.gov/api/views/5h56-n989/rows.csv"
-    parser = configparser.ConfigParser()
-    parser.read(config_file)
-    api_key = parser.get("key", "api_key")
+    #parser = configparser.ConfigParser()
+    #parser.read(config_file)
+    #api_key = parser.get("key", "api_key")
+    api_key = job_input.get_property("key")
 
     start = 1
     rows = 100
