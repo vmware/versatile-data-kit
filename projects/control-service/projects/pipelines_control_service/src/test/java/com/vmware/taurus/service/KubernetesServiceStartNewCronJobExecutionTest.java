@@ -7,9 +7,9 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobEnvVar;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.BatchV1beta1Api;
-import io.kubernetes.client.models.*;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.models.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;

@@ -15,7 +15,7 @@ import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

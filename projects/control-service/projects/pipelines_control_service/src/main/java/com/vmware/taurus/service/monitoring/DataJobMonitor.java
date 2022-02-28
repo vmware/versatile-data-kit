@@ -17,7 +17,7 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionResult;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.lang3.StringUtils;

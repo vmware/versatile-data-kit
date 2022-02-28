@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.exception;
 
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 
 /**
  * Wrapper over Kubernetes Exception printing more details from ApiException
