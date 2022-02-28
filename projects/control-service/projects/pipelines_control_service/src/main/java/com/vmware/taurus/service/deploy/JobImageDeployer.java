@@ -13,7 +13,6 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.openapi.ApiException;
-// import io.kubernetes.client.openapi.models.V1LocalObjectReferenceBuilder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

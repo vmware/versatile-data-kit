@@ -52,6 +52,6 @@ project.ext {
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.7.2',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:2.10.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.21',
-            'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.1.Final',
+            'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.1.Final'
     ]
 }
