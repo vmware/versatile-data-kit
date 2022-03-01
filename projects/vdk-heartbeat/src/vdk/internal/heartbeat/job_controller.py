@@ -379,13 +379,14 @@ class JobController:
         )
         if not execution_list:
             return None
+
         latest_end_date = max(
-            datetime.fromisoformat(e["end_time"]) for e in execution_list
+            self._datetime_from_iso_format(str(e["end_time"])) for e in execution_list
         )
         return [
             e["status"]
             for e in execution_list
-            if datetime.fromisoformat(e["end_time"]) == latest_end_date
+            if self._datetime_from_iso_format(str(e["end_time"])) == latest_end_date
         ].pop()
 
     def _update_config_ini(self, heartbeat_job_dir):
@@ -458,3 +459,16 @@ def run(job_input):
             os.path.join(heartbeat_job_dir, "06_override_properties.py"), "w"
         ) as pyfile:
             pyfile.write(python_script)
+
+    @staticmethod
+    def _datetime_from_iso_format(datetime_string: str):
+        try:
+            return datetime.fromisoformat(datetime_string)
+        except ValueError as e:
+            log.info(
+                "An exception occurred while converting datetime string "
+                f"value of -- {datetime_string} -- to "
+                f"a datetime object. The exception was {e}"
+            )
+
+        return None
