@@ -1,2 +1,2 @@
-vdk-core
 click
+vdk-core

@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.execution;
 
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 
@@ -27,7 +28,7 @@ public class JobExecutionLogsUrlBuilderIT {
    private static final String TEST_JOB_NAME = "test-job-name";
    private static final String TEST_OP_ID = "test-op-id-1634127142";
    private static final OffsetDateTime TEST_START_TIME = OffsetDateTime.now();
-   private static final OffsetDateTime TEST_END_TIME = OffsetDateTime.now();
+   private static final OffsetDateTime TEST_END_TIME = OffsetDateTime.now().plusMinutes(10);
 
    private static final String LOGS_URL_TEMPLATE =
          "https://log-insight-base-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C" +
@@ -131,6 +132,16 @@ public class JobExecutionLogsUrlBuilderIT {
       assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, "", expectedLogsUrl);
    }
 
+   @Test
+   public void testBuild_noExecutionEndTime_shouldReturnLogsUrlWithEndTimeInTheFuture() {
+      // making sure that start time, current time and end time are differnet to reduce chance of false positives
+      var currentTime = TEST_START_TIME.plusMinutes(1);
+      ReflectionTestUtils.setField(logsUrlBuilder, "clock", Clock.fixed(currentTime.toInstant(), currentTime.getOffset()));
+
+      String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0, currentTime);
+      assertLogsUrlValid(LOGS_URL_TEMPLATE_RAW, JobExecutionLogsUrlBuilder.UNIX_DATE_FORMAT, expectedLogsUrl, null);
+   }
+
    private static String buildVarPlaceholder(String var) {
       return JobExecutionLogsUrlBuilder.VAR_PREFIX + var + JobExecutionLogsUrlBuilder.VAR_SUFFIX;
    }
@@ -139,17 +150,21 @@ public class JobExecutionLogsUrlBuilderIT {
       return dateTime.toInstant().plusSeconds(offset);
    }
 
-   private String buildExpectedLogsUrlDateFormatUnix(long startTimeOffset, long endTimeOffset) {
+   private String buildExpectedLogsUrlDateFormatUnix(long startTimeOffset, long endTimeOffset, OffsetDateTime endTime) {
       ReflectionTestUtils.setField(logsUrlBuilder, "startTimeOffsetSeconds", startTimeOffset);
       ReflectionTestUtils.setField(logsUrlBuilder, "endTimeOffsetSeconds", endTimeOffset);
 
       return MessageFormat.format(
-            LOGS_URL_TEMPLATE,
-            String.valueOf(getDateTime(TEST_START_TIME, startTimeOffset).toEpochMilli()),
-            String.valueOf(getDateTime(TEST_END_TIME, endTimeOffset).toEpochMilli()),
-            TEST_JOB_NAME,
-            TEST_OP_ID,
-            TEST_EXECUTION_ID);
+              LOGS_URL_TEMPLATE,
+              String.valueOf(getDateTime(TEST_START_TIME, startTimeOffset).toEpochMilli()),
+              String.valueOf(getDateTime(endTime, endTimeOffset).toEpochMilli()),
+              TEST_JOB_NAME,
+              TEST_OP_ID,
+              TEST_EXECUTION_ID);
+   }
+
+   private String buildExpectedLogsUrlDateFormatUnix(long startTimeOffset, long endTimeOffset) {
+      return  buildExpectedLogsUrlDateFormatUnix(startTimeOffset, endTimeOffset, TEST_END_TIME);
    }
 
    private String buildExpectedLogsUrlDateFormatIso(long startTimeOffset, long endTimeOffset) {
@@ -165,7 +180,12 @@ public class JobExecutionLogsUrlBuilderIT {
             TEST_EXECUTION_ID);
    }
 
+
    private void assertLogsUrlValid(String logsUrlTemplate, String logsUrlDateFormat, String expectedLogsUrl) {
+      assertLogsUrlValid(logsUrlTemplate, logsUrlDateFormat, expectedLogsUrl, TEST_END_TIME);
+   }
+
+   private void assertLogsUrlValid(String logsUrlTemplate, String logsUrlDateFormat, String expectedLogsUrl, OffsetDateTime executionEndTime) {
       ReflectionTestUtils.setField(logsUrlBuilder, "template", logsUrlTemplate);
       ReflectionTestUtils.setField(logsUrlBuilder, "dateFormat", logsUrlDateFormat);
 
@@ -175,7 +195,7 @@ public class JobExecutionLogsUrlBuilderIT {
             .dataJob(new DataJob(TEST_JOB_NAME, new JobConfig()))
             .opId(TEST_OP_ID)
             .startTime(TEST_START_TIME)
-            .endTime(TEST_END_TIME)
+            .endTime(executionEndTime)
             .build();
 
       String actualLogsUrl = logsUrlBuilder.build(execution);

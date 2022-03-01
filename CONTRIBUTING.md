@@ -98,14 +98,24 @@ For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/
 
 # How to make a new VDK release
 
+See previous releases: https://github.com/vmware/versatile-data-kit/releases
+A release is a certain milestone of VDK where we share the latest changes with the community.
+We aim to make a new public release every few weeks.
+
 To make a new public release, follow these steps:
 - Create a new release from the Releases menu - this will require a new tag;
-- Autogenerate the changelog (https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes), then sort the changes alphabetically; if all change names are prefixed with the component name, this will ensure changes are grouped by component. Sorting can be done using the `sort` utility available in MacOS and Linux distros;
+- Autogenerate the changelog (https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes), then sort the changes alphabetically; if all change names are prefixed with the component name, this will ensure changes are grouped by component. Sorting can be done using the `sort` utility available in MacOS and Linux distros; Clean up unnecessary commits (e.g automated commits like pre-commit.ci)
 - Review which components have received changes since the previous release - this should be apparent from the changelog;
+- Write a summary at the top of the release page. It should include sections:
+  - Major features include
+  - Backwards incompatible changes
+  - Removal of features
 - Create a new PR which bumps the minor versions of all newly changed components:
   - plugins' version source of truth is located inside their respective `setup.py` files;
   - vdk-core's version source of truth is located [here](projects/vdk-core/version.txt);
   - vdk-heartbeat's version source of truth is located [here](projects/vdk-heartbeat/version.txt);
   - vdk-control-cli's version source of truth is located [here](projects/vdk-control-cl/version.txt);
+  - control-service's version source of truth is located [here](projects/control-service/projects/helm_charts/pipelines-control-service/version.txt);
 - Record the new versions as they are released and list them in the Release description;
-- Post a tweet on the official VDK Twitter account, announcing the new release and linking to it.
+- Make sure you have clicked the "Create a discussion for this release" button before publishing the new release
+- Post a tweet on the official VDK Twitter account, and on slack, announcing the new release and linking to it.

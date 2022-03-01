@@ -1,11 +1,11 @@
-vdk-core
-impyla
-tabulate
 
 # testing requirements
 click
-vdk-test-utils
-pytest-docker
 docker-compose
-pydantic
+impyla
 pyarrow
+pydantic
+pytest-docker
+tabulate
+vdk-core
+vdk-test-utils

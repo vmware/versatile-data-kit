@@ -1,14 +1,14 @@
 
 --extra-index-url https://test.pypi.org/simple/
-vdk-control-cli
-
-thrift_sasl
-impyla
 
 click
 click-log
-requests
-retrying
+impyla
 pytest
 pytest-cov
+requests
+retrying
+
+thrift_sasl
 trino
+vdk-control-cli
