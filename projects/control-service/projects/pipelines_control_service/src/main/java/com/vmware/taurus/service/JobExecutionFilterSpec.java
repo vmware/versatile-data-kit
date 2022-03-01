@@ -11,7 +11,7 @@ import com.vmware.taurus.service.model.DataJobExecution_;
 import com.vmware.taurus.service.model.DataJob_;
 import com.vmware.taurus.service.model.JobConfig_;
 import lombok.AllArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;

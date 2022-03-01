@@ -17,7 +17,7 @@ import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

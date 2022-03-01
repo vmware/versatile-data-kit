@@ -20,7 +20,7 @@ import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

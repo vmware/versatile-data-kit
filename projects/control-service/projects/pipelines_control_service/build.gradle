@@ -60,6 +60,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
 
     implementation versions.'org.json:json'
     implementation versions.'io.kubernetes:client-java'
+    implementation versions.'io.kubernetes:client-java-api-fluent'
     implementation versions.'com.graphql-java:graphql-java-spring-boot-starter-webmvc'
     implementation versions.'com.cronutils:cron-utils'
     implementation versions.'commons-io:commons-io'
