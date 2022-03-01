@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 echo "Setup git hook scripts with pre-commit install"
 pip install pre-commit
-pre-commit install
+pre-commit install --hook-type commit-msg --hook-type pre-commit
 
 echo "Install the project in editable mode (develop mode)"
 pip install -e .
