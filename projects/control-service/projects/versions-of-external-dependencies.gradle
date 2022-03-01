@@ -28,7 +28,8 @@ project.ext {
             'org.zeroturnaround:zt-exec'                                         : 'org.zeroturnaround:zt-exec:1.12',
             'javax.mail:mail'                                                    : 'javax.mail:mail:1.4.7',
             'org.ini4j:ini4j'                                                    : 'org.ini4j:ini4j:0.5.4',
-            'io.kubernetes:client-java'                                          : 'io.kubernetes:client-java:6.0.1', //13.0.0
+            'io.kubernetes:client-java'                                          : 'io.kubernetes:client-java:13.0.0',
+            'io.kubernetes:client-java-api-fluent'                               : 'io.kubernetes:client-java-api-fluent:13.0.0',
             'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.1.5',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.9.0',

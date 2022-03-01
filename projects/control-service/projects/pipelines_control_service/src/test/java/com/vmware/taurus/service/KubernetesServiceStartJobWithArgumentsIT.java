@@ -7,9 +7,9 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import io.kubernetes.client.apis.BatchV1beta1Api;
-import io.kubernetes.client.models.V1JobSpec;
-import io.kubernetes.client.models.V1beta1CronJob;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.models.V1JobSpec;
+import io.kubernetes.client.openapi.models.V1beta1CronJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
