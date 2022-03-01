@@ -67,3 +67,36 @@ def test_run_check_log_level_configured_correctly():
     result: Result = runner.invoke(["-v", "INFO", "run", util.job_path("simple-job")])
     cli_assert_equal(0, result)
     assert debug_log_message not in result.output
+
+
+def test_run_config_variables_are_set():
+    class DebugConfigLog:
+        def __init__(self):
+            self.config = None
+
+        @hookimpl(tryfirst=True)
+        def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
+            self.config = context.core_context.configuration
+            return None  # continue with next hook impl.
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_ATTEMPT_ID": "env-attempt-id-overrides-config-ini",
+            "vdk_execution_id": "lower-case-env-exec-id",
+        },
+    ):
+        config_log = DebugConfigLog()
+        runner = CliEntryBasedTestRunner(config_log)
+        result: Result = runner.invoke(["run", util.job_path("job-with-config-ini")])
+        cli_assert_equal(0, result)
+
+        assert (
+            config_log.config.get_value("attempt_id")
+            == "env-attempt-id-overrides-config-ini"
+        )
+        assert config_log.config.get_value("execution_id") == "lower-case-env-exec-id"
+        assert (
+            config_log.config.get_value("other_config")
+            == "other-config-from-config-ini"
+        )
