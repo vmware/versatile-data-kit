@@ -6,8 +6,8 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    dir = pathlib.Path(__file__).parent.resolve()
-    name = dir.name
+    job_directory = pathlib.Path(__file__).parent.resolve()
+    name = job_directory.name
 
     assert job_input.get_name() == name
-    assert job_input.get_job_directory() == dir
+    assert job_input.get_job_directory() == job_directory
