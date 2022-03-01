@@ -24,9 +24,9 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
 )
+from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import CommonStoreKeys
-from vdk.internal.core.statestore import StateStore
 
 
 # TODO make this extensible so new job inputs can be added by plugins
@@ -38,22 +38,26 @@ class JobInput(IJobInput):
 
     def __init__(
         self,
-        managed_connection_builder: ManagedConnectionRouter,
-        statestore: StateStore,
-        properties_router: PropertiesRouter,
+        name: str,
+        job_directory: pathlib.Path,
+        core_context: CoreContext,
         job_arguments: IJobArguments,
         templates: ITemplate,
+        managed_connection_builder: ManagedConnectionRouter,
         ingester: IngesterRouter,
+        properties_router: PropertiesRouter,
     ):
         """Constructor."""
 
-        self.__managed_connection_builder = managed_connection_builder
-        self.__statestore = statestore
-        self.__properties_router = properties_router
-        self.__vdk_internal_telemetry = None
-        self.__ingester = ingester
+        self.__name = name
+        self.__job_directory = job_directory
+        self.__statestore = core_context.state
         self.__job_arguments = job_arguments
         self.__templates = templates
+        self.__managed_connection_builder = managed_connection_builder
+        self.__ingester = ingester
+        self.__properties_router = properties_router
+        self.__vdk_internal_telemetry = None
 
     # Connections
 
@@ -159,10 +163,10 @@ class JobInput(IJobInput):
             raise NotImplemented("Templates not wired to JobInput")
 
     def get_name(self) -> str:
-        pass
+        return self.__name
 
     def get_job_directory(self) -> pathlib.Path:
-        pass
+        return self.__job_directory
 
     def get_execution_properties(self) -> dict:
         start_time = self.__statestore.get(CommonStoreKeys.START_TIME)
