@@ -91,10 +91,12 @@ class JobContext:
         from vdk.internal.builtin_plugins.run.job_input import JobInput
 
         self.job_input = JobInput(
-            cast(ManagedConnectionRouter, self.connections),
-            self.core_context.state,
-            cast(PropertiesRouter, self.properties),
+            self.name,
+            self.job_directory,
+            self.core_context,
             self.job_args,
             cast(ITemplate, self.templates),
+            cast(ManagedConnectionRouter, self.connections),
             cast(IngesterRouter, self.ingester),
+            cast(PropertiesRouter, self.properties),
         )
