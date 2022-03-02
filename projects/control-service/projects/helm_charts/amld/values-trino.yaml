@@ -18,6 +18,7 @@ connectors:
     connection-url=jdbc:mysql://vdk-mysql.vdk-amld.svc.cluster.local:3306
     connection-user=root
     connection-password=${MYSQL_ROOT_PASSWORD}
+    allow-drop-table=true
 
 resources:
   limits:

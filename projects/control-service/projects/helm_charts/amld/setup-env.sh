@@ -1,6 +1,8 @@
-
+#!/bin/bash
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+
+
 
 source env.sh || echo "Provide env.sh with exported environment variables: VDK_API_TOKEN and GIT_TOKEN"
 
