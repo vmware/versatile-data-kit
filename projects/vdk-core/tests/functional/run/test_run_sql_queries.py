@@ -17,6 +17,7 @@ from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
 from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryConnection
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
+from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 
 log = logging.getLogger(__name__)
 
@@ -172,7 +173,7 @@ def test_run_managed_connection_and_query_fails_then_recovers():
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
-def test_run_job_with_arguments():
+def test_run_job_with_arguments_and_sql_substitution():
     db_plugin = SqLite3MemoryDbPlugin()
     runner = CliEntryBasedTestRunner(db_plugin)
 
@@ -187,3 +188,56 @@ def test_run_job_with_arguments():
 
     cli_assert_equal(0, result)
     assert db_plugin.db.execute_query("select * from test_table") == [("one", 123)]
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_job_with_properties_and_sql_substitution():
+    db_plugin = SqLite3MemoryDbPlugin()
+    props_plugin = TestPropertiesPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, props_plugin)
+    runner.clear_default_plugins()
+
+    props_plugin.properties_client.write_properties(
+        "job-with-args", "team", {"table_name": "test_table_props"}
+    )
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            job_path("job-with-args"),
+            "--arguments",
+            '{"counter": 123}',
+        ]
+    )
+
+    cli_assert_equal(0, result)
+    assert db_plugin.db.execute_query("select * from test_table_props") == [
+        ("one", 123)
+    ]
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_job_with_properties_and_sql_substitution_priority_order():
+    db_plugin = SqLite3MemoryDbPlugin()
+    props_plugin = TestPropertiesPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, props_plugin)
+    runner.clear_default_plugins()
+
+    props_plugin.properties_client.write_properties(
+        "job-with-args", "team", {"table_name": "test_table_props"}
+    )
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            job_path("job-with-args"),
+            "--arguments",
+            '{"table_name": "test_table_override", "counter": 123}',
+        ]
+    )
+
+    cli_assert_equal(0, result)
+    # we verify that test_table_override is used (over test_table_props) since arguments have higher priority
+    assert db_plugin.db.execute_query("select * from test_table_override") == [
+        ("one", 123)
+    ]
