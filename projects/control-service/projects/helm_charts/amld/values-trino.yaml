@@ -23,10 +23,10 @@ connectors:
 resources:
   limits:
     cpu: 2
-    memory: 4G
+    memory: 6G
   requests:
-    cpu: 500m
-    memory: 1G
+    cpu: 1
+    memory: 4G
 
 server:
   workers: 1

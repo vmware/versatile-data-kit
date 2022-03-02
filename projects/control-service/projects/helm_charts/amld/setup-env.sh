@@ -7,9 +7,14 @@
 source env.sh || echo "Provide env.sh with exported environment variables: VDK_API_TOKEN and GIT_TOKEN"
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm upgrade --install --wait --timeout 10m0s  vdk-mysql bitnami/mysql
 
-
+if ! helm list | grep vdk-mysql ;
+then
+  helm upgrade --install --wait --timeout 10m0s  vdk-mysql bitnami/mysql
+else
+  export  MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace vdk-amld vdk-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
+  helm upgrade --install --wait --timeout 10m0s  vdk-mysql bitnami/mysql --set auth.rootPassword=$MYSQL_ROOT_PASSWORD
+fi
 
 envsubst < values.yaml > values-secret.yaml
 
