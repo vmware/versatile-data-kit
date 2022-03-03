@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import configparser
 import inspect
 import logging
 import os
@@ -18,15 +17,7 @@ def run(job_input: IJobInput):
     """
     log.info(f"Starting job step {__name__}")
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(current_dir, "config.ini")
-    print(config_file)
-
-    # url of the U.S. Life Expectancy at Birth by State and Census Tract - 2010-2015 dataset
-    # url = "http://data.cdc.gov/api/views/5h56-n989/rows.csv"
-    # parser = configparser.ConfigParser()
-    # parser.read(config_file)
-    # api_key = parser.get("key", "api_key")
+    
     api_key = job_input.get_property("key")
 
     start = 1
