@@ -164,7 +164,7 @@ The following table shows an example of the `assets` table:
 |5           |['Germany']|['Deutsches Dokumentationszentrum für Kunstgeschichte - Bildarchiv Foto Marburg']|['http://data.europeana.eu/agent/base/59832', 'https://d-nb.info/gnd/118540416']|{'def': ['http://data.europeana.eu/agent/base/59832', 'https://d-nb.info/gnd/118540416']}|{'de': ['Olivenhain']}                                       |['199_DDB_BildarchivFotoMarburg']|['http://www.bildindex.de/bilder/d/fmc652207'] |['https://api.europeana.eu/thumbnail/v2/url.json?uri=http%3A%2F%2Fwww.bildindex.de%2Fbilder%2Fd%2Ffmc652207&type=IMAGE'] |nan             |nan                      |['199_DDB_BildarchivFotoMarburg']|5                    |https://www.europeana.eu/item/199/item_2ZUYGKUUIRUMW4UOOKQZ3GQBSZTZHZQC?utm_source=api&utm_medium=api&utm_campaign=ckwoetann|/199/item_2ZUYGKUUIRUMW4UOOKQZ3GQBSZTZHZQC|0    |['de']  |https://api.europeana.eu/record/199/item_2ZUYGKUUIRUMW4UOOKQZ3GQBSZTZHZQC.json?wskey=ckwoetann|0                  |['German Digital Library']|['http://rightsstatements.org/vocab/InC/1.0/']|29.144974|1643644327387|2019-04-16T10:53:59.830Z|1555412039830          |2022-01-31T11:04:15.728Z|1643627055728         |['Olivenhain']                                       |IMAGE|[False]|
 
 ## Data Processing
-Data Processing includes cleaning the `assets` table and extract only some useful information. Extracted information include the following columns:
+Data Processing includes cleaning the `assets` table and extracting only some useful information. Extracted information include the following columns:
 * country
 * edmPreview
 * provider
