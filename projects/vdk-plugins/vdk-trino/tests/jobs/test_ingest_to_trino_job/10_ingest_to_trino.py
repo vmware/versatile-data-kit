@@ -18,6 +18,18 @@ def run(job_input):
             payload=payload, destination_table="test_table"
         )
 
+    payload_with_types = {
+        "str_data": "string",
+        "int_data": 12,
+        "float_data": 1.2,
+        "bool_data": True,
+        "decimal_data": 3.2,
+    }
+
+    job_input.send_object_for_ingestion(
+        payload=payload_with_types, destination_table="test_table"
+    )
+
     # this setup:
     # a) partial payload (only few columns are included)
     # b) includes float data which is NaN
