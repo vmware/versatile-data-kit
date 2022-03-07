@@ -17,7 +17,7 @@ def run(job_input: IJobInput):
     """
     log.info(f"Starting job step {__name__}")
 
-    api_key = job_input.get_property("key")
+    api_key = job_input.get_property("api_key")
 
     start = 1
     rows = 100
