@@ -38,7 +38,7 @@ def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 def test_deploy_with_vdk_version_disable(
     httpserver: PluginHTTPServer, tmpdir: LocalPath
 ):
-    job_version, deploy_args = prepare_new_deploy(httpserver)
+    _, deploy_args = prepare_new_deploy(httpserver)
 
     runner = CliRunner()
     result = runner.invoke(deploy, [*deploy_args, "-v", "version", "--disable"])
