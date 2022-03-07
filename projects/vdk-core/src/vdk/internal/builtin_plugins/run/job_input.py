@@ -85,6 +85,7 @@ class JobInput(IJobInput):
     def _substitute_query_params(self, sql: str):
         sql = textwrap.dedent(sql).strip("\n") + "\n"
         query = sql
+        sql_susbstitute_args = {}
         if isinstance(
             self.__properties_router.get_properties_impl(), PropertiesNotAvailable
         ):
@@ -94,9 +95,8 @@ class JobInput(IJobInput):
                 "If passed job arguments will still be used"
             )
         else:
-            sql_args = self.get_all_properties()
-            sql_args.update(self.get_execution_properties())
-            query = SqlArgumentSubstitutor(sql_args).substitute(query)
+            sql_susbstitute_args.update(self.get_all_properties())
+        sql_susbstitute_args.update(self.get_execution_properties())
 
         sql_args = self.get_arguments()
         if not sql_args or type(sql_args) != dict:
@@ -105,7 +105,8 @@ class JobInput(IJobInput):
                 "so I won't be able to provide query parameter substitution capabilities with job arguments."
             )
         else:
-            query = SqlArgumentSubstitutor(sql_args).substitute(query)
+            sql_susbstitute_args.update(sql_args)
+        query = SqlArgumentSubstitutor(sql_susbstitute_args).substitute(query)
 
         return query
 
