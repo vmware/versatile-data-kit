@@ -3,10 +3,10 @@
 import json
 import os
 from json import JSONDecodeError
+from typing import Tuple
 
 from click.testing import CliRunner
 from py._path.local import LocalPath
-from pytest_httpserver.httpserver import QueryMatcher
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from taurus_datajob_api import DataJob
 from taurus_datajob_api import DataJobConfig
@@ -22,98 +22,69 @@ DEPLOYMENT_ID = "production"
 
 
 def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
-    rest_api_url = httpserver.url_for("")
+    _, deploy_args = prepare_new_deploy(httpserver)
 
-    mock_base_requests(httpserver)
-
-    job_version = DataJobVersion(version_sha="17012900f60461778c01ab24728807e70a5f2c87")
-
-    httpserver.expect_request(
-        uri="/data-jobs/for-team/test-team/jobs/test-job/sources",
-        method="POST",
-        headers={"Content-Type": "application/octet-stream"},
-        query_string="reason=reason",
-    ).respond_with_json(job_version.to_dict())
+    runner = CliRunner()
+    result = runner.invoke(deploy, deploy_args)
+    test_utils.assert_click_status(result, 0)
 
     test_job_path = find_test_resource("test-job")
+    assert os.path.exists(f"{test_job_path}.zip") is False
 
-    open(f"{test_job_path}.zip", "w")
+    posted_data = json.loads(httpserver.log[3][0].data)
+    assert posted_data["job_version"] is not None
 
-    assert os.path.exists(f"{test_job_path}.zip") is True
+
+def test_deploy_with_vdk_version_disable(
+    httpserver: PluginHTTPServer, tmpdir: LocalPath
+):
+    _, deploy_args = prepare_new_deploy(httpserver)
+
+    runner = CliRunner()
+    result = runner.invoke(deploy, [*deploy_args, "-v", "version", "--disable"])
+    test_utils.assert_click_status(result, 0)
+
+    posted_data = json.loads(httpserver.log[3][0].data)
+    assert posted_data["vdk_version"] == "version"
+    assert posted_data["enabled"] == False
+    assert posted_data["job_version"] is not None
+
+
+def test_deploy_update_remove(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    job_version, deploy_args = prepare_new_deploy(httpserver)
 
     runner = CliRunner()
     result = runner.invoke(
         deploy,
         [
-            "-n",
-            "test-job",
-            "-t",
-            "test-team",
-            "-p",
-            test_job_path,
-            "-u",
-            rest_api_url,
-            "-r",
-            "reason",
-        ],
-    )
-    test_utils.assert_click_status(result, 0)
-
-    result = runner.invoke(
-        deploy,
-        [
             "--update",
-            "-n",
-            "test-job",
-            "-t",
-            "test-team",
+            *deploy_args,
             "-v",
             "version",
-            "-p",
-            test_job_path,
-            "-u",
-            rest_api_url,
-            "-r",
-            "reason",
         ],
     )
     test_utils.assert_click_status(result, 0)
-
-    assert os.path.exists(f"{test_job_path}.zip") is False
 
     result = runner.invoke(
         deploy,
         [
             "--remove",
-            "-n",
-            "test-job",
-            "-t",
-            "test-team",
+            *deploy_args,
             "-v",
             "version",
-            "-p",
-            test_job_path,
-            "-u",
-            rest_api_url,
-            "-r",
-            "reason",
         ],
     )
     test_utils.assert_click_status(result, 0)
 
+
+def test_deploy_with_output_json(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    job_version, deploy_args = prepare_new_deploy(httpserver)
+
+    runner = CliRunner()
     result = runner.invoke(
         deploy,
         [
-            "-n",
-            "test-job",
-            "-t",
-            "test-team",
-            "-p",
-            test_job_path,
-            "-u",
-            rest_api_url,
-            "-r",
-            "reason",
+            *deploy_args,
             "-o",
             "json",
         ],
@@ -477,6 +448,38 @@ def test_deploy_failed_team_validation(httpserver: PluginHTTPServer, tmpdir: Loc
     )
     test_utils.assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
+
+
+def prepare_new_deploy(httpserver) -> Tuple[str, str]:
+    rest_api_url = httpserver.url_for("")
+    mock_base_requests(httpserver)
+    job_version = DataJobVersion(version_sha="17012900f60461778c01ab24728807e70a5f2c87")
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs/test-job/sources",
+        method="POST",
+        headers={"Content-Type": "application/octet-stream"},
+        query_string="reason=reason",
+    ).respond_with_json(job_version.to_dict())
+    test_job_path = find_test_resource("test-job")
+
+    open(f"{test_job_path}.zip", "w")
+
+    assert os.path.exists(f"{test_job_path}.zip") is True
+
+    deploy_args = [
+        "-n",
+        "test-job",
+        "-t",
+        "test-team",
+        "-p",
+        test_job_path,
+        "-u",
+        rest_api_url,
+        "-r",
+        "reason",
+    ]
+
+    return job_version, deploy_args
 
 
 def mock_base_requests(httpserver):
