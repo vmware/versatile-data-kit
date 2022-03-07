@@ -22,7 +22,7 @@ DEPLOYMENT_ID = "production"
 
 
 def test_deploy(httpserver: PluginHTTPServer, tmpdir: LocalPath):
-    job_version, deploy_args = prepare_new_deploy(httpserver)
+    _, deploy_args = prepare_new_deploy(httpserver)
 
     runner = CliRunner()
     result = runner.invoke(deploy, deploy_args)
