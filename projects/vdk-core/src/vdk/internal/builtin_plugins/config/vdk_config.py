@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 import pathlib
 from os import getenv
 from typing import Optional
@@ -131,8 +132,10 @@ Configuration for cloud execution is done in 'config.ini' file or the vdk cli.
         log.debug(
             f"Founds config keys: {config_keys}. Will check if environment variable is set for any"
         )
+        upper_cased_env = {k.upper(): v for k, v in os.environ.items()}
         for key in config_keys:
-            value = getenv(VDK_ + key.replace(".", "_").upper())
+            normalized_key = VDK_ + key.replace(".", "_").upper()
+            value = upper_cased_env.get(normalized_key)
             if value is not None:
                 log.debug(f"Found environment variable for key {key}")
                 config_builder.set_value(key, value)
