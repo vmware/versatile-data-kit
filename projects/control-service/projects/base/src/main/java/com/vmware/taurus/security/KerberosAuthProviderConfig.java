@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.authorization.config;
+package com.vmware.taurus.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -31,13 +32,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(101)
-@ConditionalOnProperty(value = "datajobs.properties.enableKerberosAuthentication")
+@ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
 public class KerberosAuthProviderConfig extends WebSecurityConfigurerAdapter {
 
-   @Value("${datajobs.properties.kerberosPrincipal}")
+   @Value("${datajobs.security.kerberos.kerberosPrincipal}")
    private String kerberosPrincipal;
 
-   @Value("${datajobs.properties.keytabFileLocation}")
+   @Value("${datajobs.security.kerberos.keytabFileLocation}")
    private String keytabFileLocation;
 
 
@@ -51,6 +52,11 @@ public class KerberosAuthProviderConfig extends WebSecurityConfigurerAdapter {
             .addFilterBefore(
                   spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
                   BasicAuthenticationFilter.class);
+   }
+
+   @Override
+   public void configure(WebSecurity web) {
+      web.ignoring().antMatchers(SecurityConfiguration.ENDPOINTS_TO_IGNORE);
    }
 
    @Override
