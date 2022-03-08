@@ -57,7 +57,6 @@ class JobController:
     def __get_vdk_version_arg(self):
         if self.config.deploy_job_vdk_version:
             return [
-                "--update",
                 "--vdk-version",
                 f"{self.config.deploy_job_vdk_version}",
             ]
@@ -246,7 +245,7 @@ class JobController:
         )
 
     @LogDecorator(log)
-    def enable_deployment_and_update_vdk_version(self):
+    def enable_deployment(self):
         self._execute(
             [
                 "deploy",
@@ -256,7 +255,6 @@ class JobController:
                 "-t",
                 self.config.job_team,
             ]
-            + self.__get_vdk_version_arg()
             + self.__get_rest_api_url_arg()
         )
 
@@ -293,6 +291,7 @@ class JobController:
                     "-r",
                     "Updating heartbeat data job",
                 ]
+                + self.__get_vdk_version_arg()
                 + self.__get_rest_api_url_arg()
             )
 
