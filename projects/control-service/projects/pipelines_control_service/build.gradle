@@ -37,8 +37,6 @@ dependencies { // Implementation dependencies are found on compile classpath of 
 
     // for authorization
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    implementation 'org.springframework.security.kerberos:spring-security-kerberos-web:1.0.1.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

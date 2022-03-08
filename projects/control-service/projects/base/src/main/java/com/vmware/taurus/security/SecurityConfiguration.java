@@ -59,6 +59,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final String customClaimName;
     private final Set<String> authorizedCustomClaimValues;
     private final Set<String> authorizedRoles;
+    public static final String[] ENDPOINTS_TO_IGNORE = {
+          "/",
+          "/data-jobs/v2/api-docs",
+          "/data-jobs/swagger-resources/**",
+//        "/data-jobs/configuration/**",
+          "/data-jobs/swagger-ui.html",
+          "/data-jobs/webjars/**",
+          // There should not be sensitive data in prometheus, and it makes
+          // integration with the monitoring system easier if no auth is necessary.
+          "/data-jobs/debug/prometheus",
+          // TODO: likely /data-jobs/debug is too permissive
+          // but until we can expose them in swagger they are very hard to use with Auth.
+          "/data-jobs/debug/**"};
 
     @Autowired
     public SecurityConfiguration(
@@ -93,19 +106,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(
-                "/",
-                "/data-jobs/v2/api-docs",
-                "/data-jobs/swagger-resources/**",
-//                "/data-jobs/configuration/**",
-                "/data-jobs/swagger-ui.html",
-                "/data-jobs/webjars/**",
-                // There should not be sensitive data in prometheus, and it makes
-                // integration with the monitoring system easier if no auth is necessary.
-                "/data-jobs/debug/prometheus",
-                // TODO: likely /data-jobs/debug is too permissive
-                // but until we can expose them in swagger they are very hard to use with Auth.
-                "/data-jobs/debug/**");
+        web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
     }
 
     private void enableSecurity(HttpSecurity http) throws Exception {
