@@ -23,6 +23,7 @@ from vdk.internal.control.configuration.defaults_config import (
 )
 from vdk.internal.core.errors import BaseVdkError
 from vdk.internal.core.errors import ErrorMessage
+from vdk.plugin.server import server_plugin_utils
 
 log = logging.getLogger(__name__)
 
@@ -102,13 +103,15 @@ class Installer:
             self.__get_kind_cluster()
             and self.__docker_container_exists(self.git_server_container_name)
             and self.__docker_container_exists(self.docker_registry_container_name)
+            and self.__control_service_is_up()
         ):
-            log.info("The Versatile Data Kit Control Service is installed")
+            log.info("The Versatile Data Kit Control Service is installed and running.")
             log.info(
                 "Access the REST API at http://localhost:8092/data-jobs/swagger-ui.html\n"
             )
         else:
-            log.info("No installation found")
+            log.info("No running installation found.")
+            sys.exit(1)
 
     @staticmethod
     def __get_current_directory() -> pathlib.Path:
@@ -121,7 +124,7 @@ class Installer:
         """
         docker_client = docker.from_env()
         try:
-            return next(
+            container_exists = next(
                 (
                     c
                     for c in docker_client.api.containers(all=True)
@@ -129,6 +132,10 @@ class Installer:
                 ),
                 None,
             )
+            log.debug(
+                f"Container {container_name} is {'' if container_exists else 'not'} present"
+            )
+            return container_exists
         except Exception as ex:
             log.error(f"Failed to search for a Docker container. {str(ex)}")
             sys.exit(1)
@@ -531,7 +538,12 @@ class Installer:
                 log.error(f"Stderr output: {stderr_as_str}")
                 sys.exit(result.returncode)
             stdout_as_str = result.stdout.decode("utf-8")
-            return self.kind_cluster_name in stdout_as_str.splitlines()
+            kind_cluster_exists = self.kind_cluster_name in stdout_as_str.splitlines()
+            if kind_cluster_exists:
+                log.debug(f"Kind cluster {self.kind_cluster_name} is present.")
+            else:
+                log.debug(f"Kind cluster {self.kind_cluster_name} is not present.")
+            return kind_cluster_exists
         except Exception as ex:
             log.error(
                 f'Failed to obtain information about the Kind cluster "{self.kind_cluster_name}". '
@@ -604,71 +616,7 @@ class Installer:
                     log.error(f"Stderr output: {stderr_as_str}")
                     exit(result.returncode)
                 result = subprocess.run(
-                    [
-                        "helm",
-                        "install",
-                        self.helm_installation_name,
-                        self.helm_chart_name,
-                        "--atomic",
-                        "--set",
-                        "service.type=ClusterIP",
-                        "--set",
-                        "deploymentBuilderResourcesDefault.limits.cpu=0",
-                        "--set",
-                        "deploymentBuilderResourcesDefault.requests.cpu=0",
-                        "--set",
-                        "deploymentBuilderResourcesDefault.limits.memory=0",
-                        "--set",
-                        "deploymentBuilderResourcesDefault.requests.memory=0",
-                        "--set",
-                        "deploymentDefaultDataJobsResources.limits.cpu=0",
-                        "--set",
-                        "deploymentDefaultDataJobsResources.requests.cpu=0",
-                        "--set",
-                        "deploymentDefaultDataJobsResources.limits.memory=0",
-                        "--set",
-                        "deploymentDefaultDataJobsResources.requests.memory=0",
-                        "--set",
-                        "resources.limits.cpu=0",
-                        "--set",
-                        "resources.requests.cpu=0",
-                        "--set",
-                        "resources.limits.memory=0",
-                        "--set",
-                        "resources.requests.memory=0",
-                        "--set",
-                        "cockroachdb.statefulset.replicas=1",
-                        "--set",
-                        "replicas=1",
-                        "--set",
-                        "ingress.enabled=true",
-                        "--set",
-                        "deploymentGitBranch=master",
-                        "--set",
-                        "deploymentDockerRegistryType=generic",
-                        "--set",
-                        f"deploymentDockerRepository={self.docker_registry_container_name}:5000",
-                        "--set",
-                        "proxyRepositoryURL=localhost:5000",
-                        "--set",
-                        f"deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git",
-                        "--set",
-                        f"deploymentGitUsername={self.git_server_admin_user}",
-                        "--set",
-                        f"deploymentGitPassword={self.git_server_admin_password}",
-                        "--set",
-                        f"uploadGitReadWriteUsername={self.git_server_admin_user}",
-                        "--set",
-                        f"uploadGitReadWritePassword={self.git_server_admin_password}",
-                        "--set",
-                        "extraEnvVars.GIT_SSL_ENABLED=false",
-                        "--set",
-                        "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
-                        "--set",
-                        "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
-                        "--set",
-                        "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
-                    ],
+                    self.__helm_install_command(git_server_ip),
                     capture_output=True,
                 )
                 if result.returncode != 0:
@@ -682,6 +630,73 @@ class Installer:
                 f"Failed to install Helm chart. Make sure you have Helm installed. {str(ex)}"
             )
             sys.exit(1)
+
+    def __helm_install_command(self, git_server_ip):
+        return [
+            "helm",
+            "install",
+            self.helm_installation_name,
+            self.helm_chart_name,
+            "--atomic",
+            "--set",
+            "service.type=ClusterIP",
+            "--set",
+            "deploymentBuilderResourcesDefault.limits.cpu=0",
+            "--set",
+            "deploymentBuilderResourcesDefault.requests.cpu=0",
+            "--set",
+            "deploymentBuilderResourcesDefault.limits.memory=0",
+            "--set",
+            "deploymentBuilderResourcesDefault.requests.memory=0",
+            "--set",
+            "deploymentDefaultDataJobsResources.limits.cpu=0",
+            "--set",
+            "deploymentDefaultDataJobsResources.requests.cpu=0",
+            "--set",
+            "deploymentDefaultDataJobsResources.limits.memory=0",
+            "--set",
+            "deploymentDefaultDataJobsResources.requests.memory=0",
+            "--set",
+            "resources.limits.cpu=0",
+            "--set",
+            "resources.requests.cpu=0",
+            "--set",
+            "resources.limits.memory=0",
+            "--set",
+            "resources.requests.memory=0",
+            "--set",
+            "cockroachdb.statefulset.replicas=1",
+            "--set",
+            "replicas=1",
+            "--set",
+            "ingress.enabled=true",
+            "--set",
+            "deploymentGitBranch=master",
+            "--set",
+            "deploymentDockerRegistryType=generic",
+            "--set",
+            f"deploymentDockerRepository={self.docker_registry_container_name}:5000",
+            "--set",
+            "proxyRepositoryURL=localhost:5000",
+            "--set",
+            f"deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git",
+            "--set",
+            f"deploymentGitUsername={self.git_server_admin_user}",
+            "--set",
+            f"deploymentGitPassword={self.git_server_admin_password}",
+            "--set",
+            f"uploadGitReadWriteUsername={self.git_server_admin_user}",
+            "--set",
+            f"uploadGitReadWritePassword={self.git_server_admin_password}",
+            "--set",
+            "extraEnvVars.GIT_SSL_ENABLED=false",
+            "--set",
+            "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
+            "--set",
+            "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
+            "--set",
+            "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
+        ]
 
     def __uninstall_helm_chart(self):
         log.info("Uninstalling Control Service...")
@@ -711,6 +726,7 @@ class Installer:
             config.load_kube_config()
             with client.ApiClient() as k8s_client:
                 try:
+                    log.debug("Deploy ingress controller...")
                     utils.create_from_yaml(
                         k8s_client,
                         self.__current_directory.joinpath("ingress-nginx-deploy.yaml"),
@@ -727,6 +743,7 @@ class Installer:
             w = watch.Watch()
             k8s_client = client.CoreV1Api()
             try:
+                log.debug("Wait for ingress controller to be ready ...")
                 for event in w.stream(
                     func=k8s_client.list_namespaced_pod,
                     namespace="ingress-nginx",
@@ -772,3 +789,13 @@ class Installer:
             log.error(f"Failed to clean up. {str(ex)}")
             exit(1)
         log.info("Done")
+
+    @staticmethod
+    def __control_service_is_up():
+        with server_plugin_utils.requests_retry_session() as s:
+            response: requests.Response = s.get("http://localhost:8092")
+            if response.status_code < 300:
+                log.debug("Control Service at http://localhost:8092 is UP.")
+            else:
+                log.debug("Control Service at http://localhost:8092 is DOWN.")
+            return response.status_code < 300
