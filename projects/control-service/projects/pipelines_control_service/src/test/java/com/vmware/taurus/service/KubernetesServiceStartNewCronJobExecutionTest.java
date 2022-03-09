@@ -141,8 +141,6 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
             .readNamespacedCronJob(
                   Mockito.eq(jobName),
                   Mockito.isNull(),
-                  Mockito.isNull(),
-                  Mockito.isNull(),
                   Mockito.isNull()))
             .thenReturn(result);
 

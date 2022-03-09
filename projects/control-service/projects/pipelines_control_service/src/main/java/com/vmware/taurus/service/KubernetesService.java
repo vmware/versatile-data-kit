@@ -365,7 +365,7 @@ public abstract class KubernetesService implements InitializingBean {
         log.debug("Reading k8s cron job: {}", cronJobName);
         V1beta1CronJob cronJob = null;
         try {
-            cronJob = new BatchV1beta1Api(client).readNamespacedCronJob(cronJobName, namespace, null, null, null);
+            cronJob = new BatchV1beta1Api(client).readNamespacedCronJob(cronJobName, namespace, null);
         } catch (ApiException e) {
             log.warn("Could not read cron job: {}; reason: {}", cronJobName, new KubernetesException("", e).toString());
         }
@@ -394,7 +394,7 @@ public abstract class KubernetesService implements InitializingBean {
 
     public void startNewCronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
                                          Map<String, String> envs, Map<String, Object> extraJobArguments, String jobName) throws ApiException {
-        var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null, null, null);
+        var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
 
         Optional<V1beta1JobTemplateSpec> jobTemplateSpec = Optional.ofNullable(cron)
               .map(v1beta1CronJob -> v1beta1CronJob.getSpec())
@@ -1279,7 +1279,7 @@ public abstract class KubernetesService implements InitializingBean {
     public Map<String, byte[]> getSecretData(String name) throws ApiException {
         CoreV1Api api = new CoreV1Api(client);
         try {
-            V1Secret v1Secret = api.readNamespacedSecret(name, this.namespace, null, null, null);
+            V1Secret v1Secret = api.readNamespacedSecret(name, this.namespace, null);
             return v1Secret.getData();
         } catch (ApiException e) {
             if (e.getCode() == 404) {
