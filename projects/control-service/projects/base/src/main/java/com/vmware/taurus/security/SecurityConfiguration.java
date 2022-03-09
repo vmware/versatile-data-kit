@@ -16,10 +16,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider;
+import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
+import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -29,6 +41,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +60,7 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @Slf4j
 @Configuration
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String AUTHORITY_PREFIX = "SCOPE_";
@@ -104,6 +118,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
     }
 
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http
+//              .authorizeRequests()
+//              .antMatchers("/**").authenticated()
+//              .and()
+//              .csrf().disable()
+//              .addFilterBefore(
+//                    spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
+//                    BasicAuthenticationFilter.class);
+//    }
+
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
@@ -112,18 +138,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private void enableSecurity(HttpSecurity http) throws Exception {
         log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
         http
-                .anonymous().disable()
-                .csrf().disable()
-                .authorizeRequests(authorizeRequests -> {
-                    if (!authorizedRoles.isEmpty()) {
-                        authorizeRequests
-                                .antMatchers("/**")
-                                .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
-                    }
-                    authorizeRequests.anyRequest().authenticated();
-                })
-                .oauth2ResourceServer().jwt()
-                .jwtAuthenticationConverter(jwtAuthenticationConverter());
+              .anonymous().disable()
+              .csrf().disable()
+              .authorizeRequests(authorizeRequests -> {
+                  if (!authorizedRoles.isEmpty()) {
+                      authorizeRequests
+                            .antMatchers("/**")
+                            .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
+                  }
+                  authorizeRequests.anyRequest().authenticated();
+              })
+              .addFilterBefore(
+                    spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
+                    BasicAuthenticationFilter.class)
+              .oauth2ResourceServer().jwt()
+              .jwtAuthenticationConverter(jwtAuthenticationConverter());
     }
 
     @Bean
@@ -180,4 +209,75 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
         return Collections.emptySet();
     }
+
+
+
+
+
+
+    @Value("${datajobs.security.kerberos.kerberosPrincipal}")
+    private String kerberosPrincipal;
+
+    @Value("${datajobs.security.kerberos.keytabFileLocation}")
+    private String keytabFileLocation;
+
+
+
+
+//    @Override
+//    public void configure(WebSecurity web) {
+//        web.ignoring().antMatchers(SecurityConfiguration.ENDPOINTS_TO_IGNORE);
+//    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(kerberosServiceAuthenticationProvider());
+
+    }
+
+    @Bean
+    public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
+          AuthenticationManager authenticationManager) {
+        SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authenticationManager);
+        return filter;
+    }
+
+    @Bean
+    public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() {
+        KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
+        provider.setTicketValidator(sunJaasKerberosTicketValidator());
+        provider.setUserDetailsService(dataJobsUserDetailsService());
+        return provider;
+    }
+
+    @Bean
+    public SunJaasKerberosTicketValidator sunJaasKerberosTicketValidator() {
+        SunJaasKerberosTicketValidator ticketValidator = new SunJaasKerberosTicketValidator();
+        ticketValidator.setServicePrincipal(kerberosPrincipal);
+        ticketValidator.setKeyTabLocation(new FileSystemResource(keytabFileLocation));
+        ticketValidator.setDebug(true);
+        return ticketValidator;
+    }
+
+    @Bean
+    public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
+        return new SecurityConfiguration.DataJobsUserDetailsService();
+    }
+
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    class DataJobsUserDetailsService implements UserDetailsService {
+
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            return new User(username, "", true, true, true, true, AuthorityUtils.createAuthorityList("ROLE_DATA_JOBS_USER"));
+        }
+
+    }
+
 }
