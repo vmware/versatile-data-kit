@@ -793,7 +793,9 @@ class Installer:
     @staticmethod
     def __control_service_is_up():
         with server_plugin_utils.requests_retry_session() as s:
-            response: requests.Response = s.get("http://localhost:8092")
+            response: requests.Response = s.get(
+                "http://localhost:8092/data-jobs/swagger-ui.html"
+            )
             if response.status_code < 300:
                 log.debug("Control Service at http://localhost:8092 is UP.")
             else:
