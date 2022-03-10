@@ -82,15 +82,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           // TODO: likely /data-jobs/debug is too permissive
           // but until we can expose them in swagger they are very hard to use with Auth.
           "/data-jobs/debug/**"};
-
-    @Value("${datajobs.security.kerberos.kerberosPrincipal}")
-    private String kerberosPrincipal;
-
-    @Value("${datajobs.security.kerberos.keytabFileLocation}")
-    private String keytabFileLocation;
-
-    @Value("${datajobs.security.kerberos.enabled:false}")
-    private boolean enableKRBAuth;
+    private final String kerberosPrincipal;
+    private final String keytabFileLocation;
 
     @Autowired
     public SecurityConfiguration(
@@ -100,7 +93,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             @Value("${datajobs.authorization.authorities-claim-name:}") String authoritiesClaimName,
             @Value("${datajobs.authorization.custom-claim-name:}") String customClaimName,
             @Value("${datajobs.authorization.authorized-custom-claim-values:}") String authorizedCustomClaimValues,
-            @Value("${datajobs.authorization.authorized-roles:}") String authorizedRoles) {
+            @Value("${datajobs.authorization.authorized-roles:}") String authorizedRoles,
+            @Value("${datajobs.security.kerberos.kerberosPrincipal}") String kerberosPrincipal,
+            @Value("${datajobs.security.kerberos.keytabFileLocation}") String keytabFileLocation) {
         this.featureFlags = featureFlags;
         this.jwksUri = jwksUri;
         this.issuer = issuer;
@@ -108,6 +103,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.customClaimName = customClaimName;
         this.authorizedCustomClaimValues = parseOrgIds(authorizedCustomClaimValues);
         this.authorizedRoles = parseRoles(authorizedRoles);
+        this.kerberosPrincipal = kerberosPrincipal;
+        this.keytabFileLocation = keytabFileLocation;
     }
 
     @Override
@@ -144,7 +141,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
               .oauth2ResourceServer().jwt()
               .jwtAuthenticationConverter(jwtAuthenticationConverter());
 
-        if (enableKRBAuth) {
+        if (featureFlags.isKRBAuthEnabled()) {
             http.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
                   BasicAuthenticationFilter.class);
         }
@@ -211,7 +208,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-        if (enableKRBAuth) {
+        if (featureFlags.isKRBAuthEnabled()) {
             auth.authenticationProvider(kerberosServiceAuthenticationProvider());
         }
     }
