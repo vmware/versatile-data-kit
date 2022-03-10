@@ -206,6 +206,14 @@ spec:
             - name: DATAJOBS_EXECUTIONS_LOGS_URL_END_TIME_OFFSET_SECONDS
               value: "{{ .Values.dataJob.executions.logsUrl.endTimeOffsetSeconds }}"
             {{- end }}
+#            {{- if .Values.security.kerberos.enabled }}
+#            - name: SECURITY_KERBEROS_KERBEROS_PRINCIPAL
+#              value: "{{ .Values.security.kerberos.kerberosPrincipal }}"
+#            - name: SECURITY_KERBEROS_KEYTAB_FILE_LOCATION
+#              value: "{{ .Values.security.kerberos.keytabFileLocation}}"
+#            - name: SECURITY_KERBEROS_KRB5_CONFIG_LOCATION
+#              value: "{{ .Values.security.kerberos.krb5ConfigLocation}}"
+#            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}

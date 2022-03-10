@@ -320,6 +320,19 @@ security:
 
       ## [ Required if security.enabled = True ]
       jwtIssuerUrl: ""
+#    kerberos:
+#      ## These values contain configuration settings for the kerberos authentication provider in control-service.
+#      enabled: false
+#      ## A string which contains the kerberos principal
+#      ## [ Required if kerberos.enabled = True ]
+#      kerberosPrincipal:
+#      ## Path(URI) to the keytab file location, needed to configure the KerberosAuthProvider in control-service
+#      ## [ Required if kerberos.enabled = True ]
+#      keytabFileLocation:
+#      ## Path(URI) to the krb5 config file location, needed to configure the KerberosAuthProvider in control-service
+#      ## [ Required if kerberos.enabled = True ]
+#      krb5ConfigLocation:
+
 
    ## Feature flag to enable/disable authorization
    authorizationEnabled: false
