@@ -6,7 +6,6 @@
 package com.vmware.taurus.security;
 
 import com.vmware.taurus.base.FeatureFlags;
-import io.swagger.models.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -60,7 +57,6 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @Slf4j
 @Configuration
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String AUTHORITY_PREFIX = "SCOPE_";
@@ -86,6 +82,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           // TODO: likely /data-jobs/debug is too permissive
           // but until we can expose them in swagger they are very hard to use with Auth.
           "/data-jobs/debug/**"};
+
+    @Value("${datajobs.security.kerberos.kerberosPrincipal}")
+    private String kerberosPrincipal;
+
+    @Value("${datajobs.security.kerberos.keytabFileLocation}")
+    private String keytabFileLocation;
+
+    @Value("${datajobs.security.kerberos.enabled:false}")
+    private boolean enableKRBAuth;
 
     @Autowired
     public SecurityConfiguration(
@@ -118,18 +123,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
     }
 
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//              .authorizeRequests()
-//              .antMatchers("/**").authenticated()
-//              .and()
-//              .csrf().disable()
-//              .addFilterBefore(
-//                    spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
-//                    BasicAuthenticationFilter.class);
-//    }
-
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
@@ -137,8 +130,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private void enableSecurity(HttpSecurity http) throws Exception {
         log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
-        http
-              .anonymous().disable()
+
+        http.anonymous().disable()
               .csrf().disable()
               .authorizeRequests(authorizeRequests -> {
                   if (!authorizedRoles.isEmpty()) {
@@ -148,11 +141,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                   }
                   authorizeRequests.anyRequest().authenticated();
               })
-              .addFilterBefore(
-                    spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
-                    BasicAuthenticationFilter.class)
               .oauth2ResourceServer().jwt()
               .jwtAuthenticationConverter(jwtAuthenticationConverter());
+
+        if (enableKRBAuth) {
+            http.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
+                  BasicAuthenticationFilter.class);
+        }
     }
 
     @Bean
@@ -210,32 +205,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return Collections.emptySet();
     }
 
-
-
-
-
-
-    @Value("${datajobs.security.kerberos.kerberosPrincipal}")
-    private String kerberosPrincipal;
-
-    @Value("${datajobs.security.kerberos.keytabFileLocation}")
-    private String keytabFileLocation;
-
-
-
-
-//    @Override
-//    public void configure(WebSecurity web) {
-//        web.ignoring().antMatchers(SecurityConfiguration.ENDPOINTS_TO_IGNORE);
-//    }
+    /*
+        KERBEROS config settings, a lot of these are optional.
+     */
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(kerberosServiceAuthenticationProvider());
-
+        if (enableKRBAuth) {
+            auth.authenticationProvider(kerberosServiceAuthenticationProvider());
+        }
     }
 
     @Bean
+    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
     public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
           AuthenticationManager authenticationManager) {
         SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
@@ -244,6 +226,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
     public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() {
         KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
         provider.setTicketValidator(sunJaasKerberosTicketValidator());
@@ -252,6 +235,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
     public SunJaasKerberosTicketValidator sunJaasKerberosTicketValidator() {
         SunJaasKerberosTicketValidator ticketValidator = new SunJaasKerberosTicketValidator();
         ticketValidator.setServicePrincipal(kerberosPrincipal);
@@ -261,12 +245,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
     public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
         return new SecurityConfiguration.DataJobsUserDetailsService();
     }
 
     @Override
     @Bean
+    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
@@ -275,7 +261,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         @Override
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-            return new User(username, "", true, true, true, true, AuthorityUtils.createAuthorityList("ROLE_DATA_JOBS_USER"));
+            return new User(username, "", true, true, true,
+                  true, AuthorityUtils.createAuthorityList("ROLE_DATA_JOBS_USER"));
         }
 
     }
