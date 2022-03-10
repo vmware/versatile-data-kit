@@ -135,7 +135,9 @@ class TrinoConnection(ManagedConnectionBase):
                         import json
 
                         data = json.loads(result[0][0])
-                        data["@type"] = "insert_select"
+                        data["@type"] = lineage_utils.determine_query_type_from_plan(
+                            data
+                        )
                         data["query"] = query
                         data["@id"] = query_id
                         data["status"] = "OK"

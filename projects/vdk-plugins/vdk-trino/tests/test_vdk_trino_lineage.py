@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
+import uuid
 from unittest import mock
 
 import pytest
@@ -17,9 +18,6 @@ VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 
-TEST_TABLE_1 = "test_table_1"
-TEST_TABLE_2 = "test_table_2"
-
 
 @pytest.mark.usefixtures("trino_service")
 @mock.patch.dict(
@@ -30,7 +28,9 @@ TEST_TABLE_2 = "test_table_2"
         VDK_TRINO_USE_SSL: "False",
     },
 )
-def test_lineage():
+def test_lineage_for_insert():
+
+    table_name = "test_table_" + uuid.uuid4().hex
 
     mock_lineage_logger = mock.MagicMock(LineageLogger)
 
@@ -42,18 +42,11 @@ def test_lineage():
     runner = CliEntryBasedTestRunner(TestConfigPlugin(), trino_plugin)
 
     result: Result = runner.invoke(
-        ["trino-query", "--query", f"create table {TEST_TABLE_1} (test_column varchar)"]
-    )
-    cli_assert_equal(0, result)
-    result: Result = runner.invoke(
-        ["trino-query", "--query", f"create table {TEST_TABLE_2} (test_column varchar)"]
+        ["trino-query", "--query", f"create table {table_name} (test_column varchar)"]
     )
     cli_assert_equal(0, result)
 
-    #   Test insert query
-    #   -----------------
-
-    insert_query = f"insert into {TEST_TABLE_1} values('test value')"
+    insert_query = f"insert into {table_name} values('test value')"
     result: Result = runner.invoke(["trino-query", "--query", insert_query])
     cli_assert_equal(0, result)
 
@@ -63,23 +56,49 @@ def test_lineage():
         def __eq__(self, lineage_data):
             import json
 
+            print("INSERT query lineage data:")
             print(json.dumps(lineage_data, indent=4))
             return (
                 lineage_data.keys()
                 >= {"@type", "query", "@id", "status", "outputTable"}
-                and lineage_data["@type"] == "insert_select"
+                and lineage_data["@type"] == "insert"
                 and lineage_data["status"] == "OK"
                 and lineage_data["query"] == insert_query
                 and re.fullmatch(r"[0-9]{10}\.[0-9]+", lineage_data["@id"])
-                and lineage_data["outputTable"]["schemaTable"]["table"] == TEST_TABLE_1
+                and lineage_data["outputTable"]["schemaTable"]["table"] == table_name
             )
 
     mock_lineage_logger.send.assert_called_with(InsertLineageDataMatch())
 
-    #   Test select query
-    #   -----------------
 
-    select_query = f"select * from {TEST_TABLE_1}"
+@pytest.mark.usefixtures("trino_service")
+@mock.patch.dict(
+    os.environ,
+    {
+        VDK_DB_DEFAULT_TYPE: "TRINO",
+        VDK_TRINO_PORT: "8080",
+        VDK_TRINO_USE_SSL: "False",
+    },
+)
+def test_lineage_for_select():
+
+    table_name = "test_table_" + uuid.uuid4().hex
+
+    mock_lineage_logger = mock.MagicMock(LineageLogger)
+
+    class TestConfigPlugin:
+        @hookimpl
+        def vdk_initialize(self, context):
+            context.state.set(LINEAGE_LOGGER_KEY, mock_lineage_logger)
+
+    runner = CliEntryBasedTestRunner(TestConfigPlugin(), trino_plugin)
+
+    result: Result = runner.invoke(
+        ["trino-query", "--query", f"create table {table_name} (test_column varchar)"]
+    )
+    cli_assert_equal(0, result)
+
+    select_query = f"select * from {table_name}"
     result: Result = runner.invoke(["trino-query", "--query", select_query])
     cli_assert_equal(0, result)
 
@@ -89,27 +108,66 @@ def test_lineage():
         def __eq__(self, lineage_data):
             import json
 
+            print("SELECT query lineage data:")
             print(json.dumps(lineage_data, indent=4))
             return (
                 lineage_data.keys()
                 >= {"@type", "query", "@id", "status", "inputTableColumnInfos"}
-                and lineage_data["@type"] == "insert_select"
+                and lineage_data["@type"] == "select"
                 and lineage_data["status"] == "OK"
                 and lineage_data["query"] == select_query
                 and re.fullmatch(r"[0-9]{10}\.[0-9]+", lineage_data["@id"])
                 and lineage_data["inputTableColumnInfos"][0]["table"]["schemaTable"][
                     "table"
                 ]
-                == TEST_TABLE_1
+                == table_name
             )
 
     mock_lineage_logger.send.assert_called_with(SelectLineageDataMatch())
 
-    #   Test insert_select query
-    #   -----------------
 
-    select_query = f"insert into {TEST_TABLE_2} select * from {TEST_TABLE_1}"
-    result: Result = runner.invoke(["trino-query", "--query", select_query])
+@pytest.mark.usefixtures("trino_service")
+@mock.patch.dict(
+    os.environ,
+    {
+        VDK_DB_DEFAULT_TYPE: "TRINO",
+        VDK_TRINO_PORT: "8080",
+        VDK_TRINO_USE_SSL: "False",
+    },
+)
+def test_lineage_for_insert_select():
+    table_name_from = "test_table_" + uuid.uuid4().hex
+    table_name_to = "test_table_" + uuid.uuid4().hex
+
+    mock_lineage_logger = mock.MagicMock(LineageLogger)
+
+    class TestConfigPlugin:
+        @hookimpl
+        def vdk_initialize(self, context):
+            context.state.set(LINEAGE_LOGGER_KEY, mock_lineage_logger)
+
+    runner = CliEntryBasedTestRunner(TestConfigPlugin(), trino_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "trino-query",
+            "--query",
+            f"create table {table_name_from} (test_column varchar)",
+        ]
+    )
+    cli_assert_equal(0, result)
+
+    result: Result = runner.invoke(
+        [
+            "trino-query",
+            "--query",
+            f"create table {table_name_to} (test_column varchar)",
+        ]
+    )
+    cli_assert_equal(0, result)
+
+    insert_select_query = f"insert into {table_name_to} select * from {table_name_from}"
+    result: Result = runner.invoke(["trino-query", "--query", insert_select_query])
     cli_assert_equal(0, result)
 
     # the lineage data is different on every run of the test,
@@ -118,27 +176,57 @@ def test_lineage():
         def __eq__(self, lineage_data):
             import json
 
+            print("INSERT..SELECT query lineage data:")
             print(json.dumps(lineage_data, indent=4))
             return (
                 lineage_data.keys()
                 >= {"@type", "query", "@id", "status", "inputTableColumnInfos"}
                 and lineage_data["@type"] == "insert_select"
                 and lineage_data["status"] == "OK"
-                and lineage_data["query"] == select_query
+                and lineage_data["query"] == insert_select_query
                 and re.fullmatch(r"[0-9]{10}\.[0-9]+", lineage_data["@id"])
                 and lineage_data["inputTableColumnInfos"][0]["table"]["schemaTable"][
                     "table"
                 ]
-                == TEST_TABLE_1
-                and lineage_data["outputTable"]["schemaTable"]["table"] == TEST_TABLE_2
+                == table_name_from
+                and lineage_data["outputTable"]["schemaTable"]["table"] == table_name_to
             )
 
     mock_lineage_logger.send.assert_called_with(InsertSelectLineageDataMatch())
 
-    #   Test rename table query
-    #   -----------------------
 
-    rename_query = f"alter table {TEST_TABLE_1} rename to {TEST_TABLE_1}_renamed"
+@pytest.mark.usefixtures("trino_service")
+@mock.patch.dict(
+    os.environ,
+    {
+        VDK_DB_DEFAULT_TYPE: "TRINO",
+        VDK_TRINO_PORT: "8080",
+        VDK_TRINO_USE_SSL: "False",
+    },
+)
+def test_lineage_for_rename_table():
+    table_name_from = "test_table_" + uuid.uuid4().hex
+    table_name_to = "test_table_" + uuid.uuid4().hex
+
+    mock_lineage_logger = mock.MagicMock(LineageLogger)
+
+    class TestConfigPlugin:
+        @hookimpl
+        def vdk_initialize(self, context):
+            context.state.set(LINEAGE_LOGGER_KEY, mock_lineage_logger)
+
+    runner = CliEntryBasedTestRunner(TestConfigPlugin(), trino_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "trino-query",
+            "--query",
+            f"create table {table_name_from} (test_column varchar)",
+        ]
+    )
+    cli_assert_equal(0, result)
+
+    rename_query = f"alter table {table_name_from} rename to {table_name_to}"
     result: Result = runner.invoke(["trino-query", "--query", rename_query])
     cli_assert_equal(0, result)
 
@@ -148,6 +236,7 @@ def test_lineage():
         def __eq__(self, lineage_data):
             import json
 
+            print("RENAME TABLE query lineage data:")
             print(json.dumps(lineage_data, indent=4))
             return (
                 lineage_data.keys()
@@ -156,8 +245,8 @@ def test_lineage():
                 and lineage_data["status"] == "OK"
                 and lineage_data["query"] == rename_query
                 and re.fullmatch(r"[0-9]{10}\.[0-9]+", lineage_data["@id"])
-                and lineage_data["table_from"] == TEST_TABLE_1
-                and lineage_data["table_to"] == f"{TEST_TABLE_1}_renamed"
+                and lineage_data["table_from"] == table_name_from
+                and lineage_data["table_to"] == table_name_to
             )
 
     mock_lineage_logger.send.assert_called_with(RenameTableLineageDataMatch())

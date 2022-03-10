@@ -1,5 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from typing import Any
+from typing import Dict
 
 
 def parse_rename_table_names(query: str) -> tuple:
@@ -34,3 +36,21 @@ def parse_rename_table_names(query: str) -> tuple:
         return table_from, table_to
     else:
         return None
+
+
+def determine_query_type_from_plan(lineage_data: Dict[str, Any]) -> str:
+    has_input = (
+        "inputTableColumnInfos" in lineage_data
+        and len(lineage_data["inputTableColumnInfos"]) > 0
+    )
+    has_output = (
+        "outputTable" in lineage_data and "schemaTable" in lineage_data["outputTable"]
+    )
+    if has_input and has_output:
+        return "insert_select"
+    elif has_input:
+        return "select"
+    elif has_output:
+        return "insert"
+    else:
+        return "undefined"
