@@ -64,10 +64,12 @@ class IManagedConnection:
 
         Query can contain parameters in format -> {query_parameter}. Parameters in the query will
         be automatically substituted if they exist in Data Job properties and arguments as keys.
+        If parameter with same key is used both as arguments and properties,
+        arguments (get_arguments()) will take precedence over properties (get_property()).
 
         Note:
             Parameters are case sensitive.
-            If a query parameter is not present in Data Job properties it will not be replaced in the query
+            If a query parameter is not present in Data Job properties or arguments it will not be replaced in the query
             and most likely result in query failure.
 
         Example usage:
