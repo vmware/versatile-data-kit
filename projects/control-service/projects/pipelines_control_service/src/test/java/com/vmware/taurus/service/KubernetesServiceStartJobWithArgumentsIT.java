@@ -35,7 +35,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
         V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
         BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
         Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(mockBatch);
-        Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any(), any(), any())).thenReturn(internalCronjobTemplate);
+        Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any())).thenReturn(internalCronjobTemplate);
         Mockito.doNothing().when(kubernetesService).createNewJob(any(), any(), any(), any());
         Mockito.doCallRealMethod().when(kubernetesService).startNewCronJobExecution(any(), any(), any(), any(), any(), any());
         kubernetesService.afterPropertiesSet();
