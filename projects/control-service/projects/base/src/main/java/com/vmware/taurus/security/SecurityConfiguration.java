@@ -84,6 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           "/data-jobs/debug/**"};
     private final String kerberosPrincipal;
     private final String keytabFileLocation;
+    private final String KERBEROS_AUTH_ENABLED_PROPERTY = "datajobs.security.kerberos.enabled";
 
     @Autowired
     public SecurityConfiguration(
@@ -214,7 +215,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
     public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
           AuthenticationManager authenticationManager) {
         SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
@@ -223,7 +224,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
     public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() {
         KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
         provider.setTicketValidator(sunJaasKerberosTicketValidator());
@@ -232,7 +233,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
     public SunJaasKerberosTicketValidator sunJaasKerberosTicketValidator() {
         SunJaasKerberosTicketValidator ticketValidator = new SunJaasKerberosTicketValidator();
         ticketValidator.setServicePrincipal(kerberosPrincipal);
@@ -242,14 +243,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
     public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
         return new SecurityConfiguration.DataJobsUserDetailsService();
     }
 
     @Override
     @Bean
-    @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
