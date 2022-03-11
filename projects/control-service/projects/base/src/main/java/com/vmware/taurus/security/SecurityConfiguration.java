@@ -84,7 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           "/data-jobs/debug/**"};
     private final String kerberosPrincipal;
     private final String keytabFileLocation;
-    private final String KERBEROS_AUTH_ENABLED_PROPERTY = "datajobs.security.kerberos.enabled";
+    private static final String KERBEROS_AUTH_ENABLED_PROPERTY = "datajobs.security.kerberos.enabled";
 
     @Autowired
     public SecurityConfiguration(
@@ -142,7 +142,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
               .oauth2ResourceServer().jwt()
               .jwtAuthenticationConverter(jwtAuthenticationConverter());
 
-        if (featureFlags.isKRBAuthEnabled()) {
+        if (featureFlags.isKrbAuthEnabled()) {
             http.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
                   BasicAuthenticationFilter.class);
         }
@@ -209,7 +209,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-        if (featureFlags.isKRBAuthEnabled()) {
+        if (featureFlags.isKrbAuthEnabled()) {
             auth.authenticationProvider(kerberosServiceAuthenticationProvider());
         }
     }
