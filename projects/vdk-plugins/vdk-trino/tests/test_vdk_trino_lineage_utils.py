@@ -6,10 +6,11 @@ import unittest
 from vdk.plugin.trino.lineage_utils import _get_input_tables_from_explain
 from vdk.plugin.trino.lineage_utils import _get_lineage_table_from_plan
 from vdk.plugin.trino.lineage_utils import _lineage_table_from_name
+from vdk.plugin.trino.lineage_utils import get_rename_table_lineage_from_query
 from vdk.plugin.trino.lineage_utils import is_heartbeat_query
 
 
-class TestStringMethods(unittest.TestCase):
+class TestLineageUtils(unittest.TestCase):
     def test_is_heartbeat_query(self):
         assert is_heartbeat_query("select 1")
         assert is_heartbeat_query("select 'aaa'")
@@ -119,6 +120,85 @@ class TestStringMethods(unittest.TestCase):
         assert table2.catalog == "hive"
         assert table2.schema == "history"
         assert table2.table == "palexiev"
+
+    def test_get_rename_table_lineage_from_query(self):
+        query = "alter table tbl_from rename to tbl_to"
+        lineage_data = get_rename_table_lineage_from_query(
+            query, "test_schema", "test_catalog"
+        )
+        assert lineage_data is not None
+        assert lineage_data.query == query
+        assert lineage_data.query_type == "rename_table"
+        assert lineage_data.query_status == "OK"
+        assert lineage_data.input_tables is not None
+        assert len(lineage_data.input_tables) == 1
+        assert lineage_data.input_tables[0].table == "tbl_from"
+        assert lineage_data.input_tables[0].schema == "test_schema"
+        assert lineage_data.input_tables[0].catalog == "test_catalog"
+        assert lineage_data.output_table is not None
+        assert lineage_data.output_table.table == "tbl_to"
+        assert lineage_data.output_table.schema == "test_schema"
+        assert lineage_data.output_table.catalog == "test_catalog"
+
+    def test_get_rename_table_lineage_from_query_with_schema(self):
+        query = "alter table test_schema.tbl_from rename to test_schema.tbl_to"
+        lineage_data = get_rename_table_lineage_from_query(
+            query, "wrong_schema", "test_catalog"
+        )
+        assert lineage_data is not None
+        assert lineage_data.query == query
+        assert lineage_data.query_type == "rename_table"
+        assert lineage_data.query_status == "OK"
+        assert lineage_data.input_tables is not None
+        assert len(lineage_data.input_tables) == 1
+        assert lineage_data.input_tables[0].table == "tbl_from"
+        assert lineage_data.input_tables[0].schema == "test_schema"
+        assert lineage_data.input_tables[0].catalog == "test_catalog"
+        assert lineage_data.output_table is not None
+        assert lineage_data.output_table.table == "tbl_to"
+        assert lineage_data.output_table.schema == "test_schema"
+        assert lineage_data.output_table.catalog == "test_catalog"
+
+    def test_get_rename_table_lineage_from_query_full_names(self):
+        query = "alter table test_catalog.test_schema.tbl_from rename to test_catalog.test_schema.tbl_to"
+        lineage_data = get_rename_table_lineage_from_query(
+            query, "wrong_schema", "wrong_catalog"
+        )
+        assert lineage_data is not None
+        assert lineage_data.query == query
+        assert lineage_data.query_type == "rename_table"
+        assert lineage_data.query_status == "OK"
+        assert lineage_data.input_tables is not None
+        assert len(lineage_data.input_tables) == 1
+        assert lineage_data.input_tables[0].table == "tbl_from"
+        assert lineage_data.input_tables[0].schema == "test_schema"
+        assert lineage_data.input_tables[0].catalog == "test_catalog"
+        assert lineage_data.output_table is not None
+        assert lineage_data.output_table.table == "tbl_to"
+        assert lineage_data.output_table.schema == "test_schema"
+        assert lineage_data.output_table.catalog == "test_catalog"
+
+    def test_get_rename_table_lineage_from_query_false_cases(self):
+        assert (
+            get_rename_table_lineage_from_query(
+                "alter table tbl1 add column col1 int", "test_schema", "test_catalog"
+            )
+            is None
+        )
+        assert (
+            get_rename_table_lineage_from_query(
+                "alter table tbl1 rename column col1 to col2",
+                "test_schema",
+                "test_catalog",
+            )
+            is None
+        )
+        assert (
+            get_rename_table_lineage_from_query(
+                "alter view view1 rename to view2", "test_schema", "test_catalog"
+            )
+            is None
+        )
 
 
 if __name__ == "__main__":
