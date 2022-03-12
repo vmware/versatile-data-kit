@@ -6,7 +6,7 @@
 package com.vmware.taurus.service.credentials;
 
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

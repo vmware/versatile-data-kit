@@ -26,4 +26,7 @@ public class FeatureFlags {
    @Value("${featureflag.authorization.enabled:false}")
    boolean authorizationEnabled = false;
 
+   @Value("${datajobs.security.kerberos.enabled:false}")
+   boolean krbAuthEnabled = false;
+
 }

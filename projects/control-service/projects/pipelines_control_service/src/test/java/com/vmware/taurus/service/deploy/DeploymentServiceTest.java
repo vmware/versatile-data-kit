@@ -14,7 +14,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.monitoring.DeploymentMonitor;
 import com.vmware.taurus.service.notification.DataJobNotification;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

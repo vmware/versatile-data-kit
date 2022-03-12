@@ -251,7 +251,14 @@ class JobDeploy:
 
     @ApiClientErrorDecorator()
     def create(
-        self, name: str, team: str, job_path: str, reason: str, output: str
+        self,
+        name: str,
+        team: str,
+        job_path: str,
+        reason: str,
+        output: str,
+        vdk_version: Optional[str],
+        enabled: Optional[bool],
     ) -> None:
         log.debug(
             f"Create Deployment of a job {name} of team {team} with local path {job_path} and reason {reason}"
@@ -297,6 +304,8 @@ class JobDeploy:
                 )
 
             self.__update_data_job_deploy_configuration(job_path, name, team)
-            self.update(name, team, None, data_job_version.version_sha, None, output)
+            self.update(
+                name, team, enabled, data_job_version.version_sha, vdk_version, output
+            )
         finally:
             self.__cleanup_archive(archive_path=archive_path)

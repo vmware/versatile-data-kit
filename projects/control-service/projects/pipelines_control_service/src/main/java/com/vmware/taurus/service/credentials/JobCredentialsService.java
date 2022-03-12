@@ -9,7 +9,7 @@ import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.ExternalSystemError.MainExternalSystem;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;

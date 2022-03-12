@@ -7,9 +7,9 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import io.kubernetes.client.apis.BatchV1beta1Api;
-import io.kubernetes.client.models.V1JobSpec;
-import io.kubernetes.client.models.V1beta1CronJob;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.models.V1JobSpec;
+import io.kubernetes.client.openapi.models.V1beta1CronJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
         V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
         BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
         Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(mockBatch);
-        Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any(), any(), any())).thenReturn(internalCronjobTemplate);
+        Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any())).thenReturn(internalCronjobTemplate);
         Mockito.doNothing().when(kubernetesService).createNewJob(any(), any(), any(), any());
         Mockito.doCallRealMethod().when(kubernetesService).startNewCronJobExecution(any(), any(), any(), any(), any(), any());
         kubernetesService.afterPropertiesSet();

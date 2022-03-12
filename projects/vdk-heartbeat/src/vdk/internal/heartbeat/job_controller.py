@@ -57,7 +57,6 @@ class JobController:
     def __get_vdk_version_arg(self):
         if self.config.deploy_job_vdk_version:
             return [
-                "--update",
                 "--vdk-version",
                 f"{self.config.deploy_job_vdk_version}",
             ]
@@ -246,7 +245,7 @@ class JobController:
         )
 
     @LogDecorator(log)
-    def enable_deployment_and_update_vdk_version(self):
+    def enable_deployment(self):
         self._execute(
             [
                 "deploy",
@@ -256,7 +255,6 @@ class JobController:
                 "-t",
                 self.config.job_team,
             ]
-            + self.__get_vdk_version_arg()
             + self.__get_rest_api_url_arg()
         )
 
@@ -293,6 +291,7 @@ class JobController:
                     "-r",
                     "Updating heartbeat data job",
                 ]
+                + self.__get_vdk_version_arg()
                 + self.__get_rest_api_url_arg()
             )
 
@@ -379,13 +378,14 @@ class JobController:
         )
         if not execution_list:
             return None
+
         latest_end_date = max(
-            datetime.fromisoformat(e["end_time"]) for e in execution_list
+            self._datetime_from_iso_format(str(e["end_time"])) for e in execution_list
         )
         return [
             e["status"]
             for e in execution_list
-            if datetime.fromisoformat(e["end_time"]) == latest_end_date
+            if self._datetime_from_iso_format(str(e["end_time"])) == latest_end_date
         ].pop()
 
     def _update_config_ini(self, heartbeat_job_dir):
@@ -458,3 +458,16 @@ def run(job_input):
             os.path.join(heartbeat_job_dir, "06_override_properties.py"), "w"
         ) as pyfile:
             pyfile.write(python_script)
+
+    @staticmethod
+    def _datetime_from_iso_format(datetime_string: str):
+        try:
+            return datetime.fromisoformat(datetime_string)
+        except ValueError as e:
+            log.info(
+                "An exception occurred while converting datetime string "
+                f"value of -- {datetime_string} -- to "
+                f"a datetime object. The exception was {e}"
+            )
+
+        return None

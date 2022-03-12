@@ -42,7 +42,7 @@ class Heartbeat:
 
             run_test.setup()
 
-            job_controller.enable_deployment_and_update_vdk_version()
+            job_controller.enable_deployment()
             job_controller.show_job_details()
 
             run_test.execute_test()

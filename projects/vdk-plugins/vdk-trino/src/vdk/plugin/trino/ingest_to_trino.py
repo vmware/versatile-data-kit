@@ -90,7 +90,9 @@ class IngestToTrino(IIngesterPlugin):
             )
 
     @staticmethod
-    def __to_bool(value: str) -> bool:
+    def __to_bool(value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
         if value == "true" or value == "True":
             return True
         if value == "false" or value == "False":

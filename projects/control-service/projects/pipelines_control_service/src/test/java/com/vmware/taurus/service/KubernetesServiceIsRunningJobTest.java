@@ -7,12 +7,12 @@ package com.vmware.taurus.service;
 
 import java.util.Collections;
 
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.BatchV1Api;
-import io.kubernetes.client.models.V1Job;
-import io.kubernetes.client.models.V1JobCondition;
-import io.kubernetes.client.models.V1JobList;
-import io.kubernetes.client.models.V1JobStatus;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.models.V1Job;
+import io.kubernetes.client.openapi.models.V1JobCondition;
+import io.kubernetes.client.openapi.models.V1JobList;
+import io.kubernetes.client.openapi.models.V1JobStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -73,7 +73,9 @@ public class KubernetesServiceIsRunningJobTest {
                   Mockito.isNull(),
                   Mockito.isNull(),
                   Mockito.isNull(),
+                  Mockito.isNull(),
                   Mockito.anyString(),
+                  Mockito.isNull(),
                   Mockito.isNull(),
                   Mockito.isNull(),
                   Mockito.isNull(),

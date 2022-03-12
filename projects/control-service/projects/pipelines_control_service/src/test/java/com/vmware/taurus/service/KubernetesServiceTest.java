@@ -14,7 +14,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobLabel;
 import io.kubernetes.client.custom.Quantity;
-import io.kubernetes.client.models.*;
+import io.kubernetes.client.openapi.models.*;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -106,8 +106,8 @@ public class KubernetesServiceTest {
       String cpuLimit = "2";
       Integer memoryRequest = 500;
       Integer memoryLimit = 1000;
-      DateTime startTime = DateTime.now();
-      DateTime endTime = DateTime.now();
+      OffsetDateTime startTime = OffsetDateTime.now();
+      OffsetDateTime endTime = OffsetDateTime.now();
       Integer succeeded = 1;
 
       V1Job expectedJob = new V1Job()
@@ -134,7 +134,7 @@ public class KubernetesServiceTest {
                   .startTime(startTime)
                   .completionTime(endTime)
                   .succeeded(succeeded));
-      KubernetesService.JobStatusCondition condition = new KubernetesService.JobStatusCondition(true, "type", "reason", "message", endTime.getMillis());
+      KubernetesService.JobStatusCondition condition = new KubernetesService.JobStatusCondition(true, "type", "reason", "message", endTime.toInstant().toEpochMilli());
 
       KubernetesService mock = Mockito.mock(KubernetesService.class);
       Mockito.when(mock.getTerminationStatus(expectedJob)).thenReturn(Optional.empty());
@@ -154,8 +154,8 @@ public class KubernetesServiceTest {
       Assertions.assertEquals(Float.valueOf(cpuLimit), actualJobExecution.getResourcesCpuLimit());
       Assertions.assertEquals(memoryRequest, actualJobExecution.getResourcesMemoryRequest());
       Assertions.assertEquals(memoryLimit, actualJobExecution.getResourcesMemoryLimit());
-      Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(startTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getStartTime());
-      Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(endTime.getMillis()), ZoneOffset.UTC), actualJobExecution.getEndTime());
+      Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(startTime.toInstant().toEpochMilli()), ZoneOffset.UTC), actualJobExecution.getStartTime());
+      Assertions.assertEquals(OffsetDateTime.ofInstant(Instant.ofEpochMilli(endTime.toInstant().toEpochMilli()), ZoneOffset.UTC), actualJobExecution.getEndTime());
       Assertions.assertTrue(actualJobExecution.getSucceeded());
    }
 
@@ -215,7 +215,7 @@ public class KubernetesServiceTest {
             V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, List.of(""));
             Assertions.assertEquals("test-job-name", cronjob.getMetadata().getName());
             Assertions.assertEquals("test-job-schedule", cronjob.getSpec().getSchedule());
-            Assertions.assertEquals(true, cronjob.getSpec().isSuspend());
+            Assertions.assertEquals(true, cronjob.getSpec().getSuspend());
             Assertions.assertEquals(Collections.EMPTY_MAP, cronjob.getSpec().getJobTemplate().getMetadata().getLabels());
             Assertions.assertEquals(Collections.EMPTY_MAP, cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations());
 

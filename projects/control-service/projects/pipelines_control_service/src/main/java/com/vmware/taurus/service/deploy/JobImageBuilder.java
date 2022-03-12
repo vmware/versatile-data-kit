@@ -10,7 +10,7 @@ import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeployment;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

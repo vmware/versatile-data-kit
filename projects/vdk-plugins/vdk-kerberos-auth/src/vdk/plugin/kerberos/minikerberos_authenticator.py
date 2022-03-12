@@ -1,14 +1,15 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import asyncio
 import logging
 import os
 import tempfile
 
-from minikerberos.common import KerberosCredential
-from minikerberos.communication import KerberosSocket
-from minikerberos.communication import KerbrosComm
+from minikerberos.common.creds import KerberosCredential
+from minikerberos.common.target import KerberosTarget
 from vdk.internal.core import errors
 from vdk.plugin.kerberos.base_authenticator import BaseAuthenticator
+from vdk.plugin.kerberos.vdk_kerberos_client import VdkAioKerberosClient
 
 log = logging.getLogger(__name__)
 
@@ -68,10 +69,14 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
             krb_credentials = KerberosCredential.from_keytab(
                 self._keytab_pathname, self._kerberos_principal, self._kerberos_realm
             )
-            krb_socket = KerberosSocket(self._kerberos_kdc_hostname)
-            krb_comm = KerbrosComm(krb_credentials, krb_socket)
-            krb_comm.get_TGT()
-            krb_comm.ccache.to_file(self._ccache_file)
+            krb_target = KerberosTarget(self._kerberos_kdc_hostname)
+            krb_client = VdkAioKerberosClient(krb_credentials, krb_target)
+
+            async def get_tgt():
+                await krb_client.get_TGT()
+
+            asyncio.run(get_tgt())
+            krb_client.ccache.to_file(self._ccache_file)
             log.info(
                 f"Got Kerberos TGT for {self._kerberos_principal}@{self._kerberos_realm} "
                 f"and stored to file: {self._ccache_file}"

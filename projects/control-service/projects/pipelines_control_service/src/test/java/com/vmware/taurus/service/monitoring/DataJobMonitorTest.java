@@ -12,7 +12,7 @@ import com.vmware.taurus.service.KubernetesService.JobExecution;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.text.IsEqualIgnoringCase;
