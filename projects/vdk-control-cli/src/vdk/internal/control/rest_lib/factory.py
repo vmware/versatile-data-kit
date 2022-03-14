@@ -50,7 +50,68 @@ class ApiClientFactory:
         # We are setting X-OPID - this is send in telemetry and printed in logs on server side - make it easier
         # to troubleshoot and trace requests across different services
         api_client.set_default_header("X-OPID", self.op_id)
+        self.__setup_kerberos_auth_if_necessary(api_client)
         return api_client
+
+    def __setup_kerberos_auth_if_necessary(self, api_client: ApiClient) -> None:
+        """
+        We are decorating call_api as we need to be able to inject
+        a newly generated (Kerberos) Authorization header on every request.
+        """
+        from vdk.internal.control.auth import kerberos_client
+
+        if not kerberos_client.is_kerberos_installed():
+            log.debug(
+                "Kerberos is is not installed. Kerberos authentication will not be used."
+            )
+            return None
+        if not self.vdk_config.kerberos_authentication_enabled:
+            log.debug(
+                "Kerberos authentication has been explicitly disabled with a flag ."
+            )
+            return None
+
+        auth = Authentication()
+        auth.update_kerberos_service_name(self.vdk_config.kerberos_service_name)
+
+        def call_api_decorator(fn):
+            def inner(
+                self,
+                resource_path,
+                method,
+                path_params=None,
+                query_params=None,
+                header_params=None,
+                *args,
+                **kwargs,
+            ):
+                auth_header = auth.read_kerberos_auth_header()
+                if auth_header:
+                    if header_params is None:
+                        header_params = {}
+                    header_params["Authorization"] = auth.read_kerberos_auth_header()
+                else:
+                    log.debug(
+                        "Could not generate Authorization header for Kerberos (GSS Negotiate). "
+                        "We will proceed with the request as normal "
+                        "but if authentication is required it may fail."
+                    )
+
+                return fn(
+                    resource_path,
+                    method,
+                    path_params,
+                    query_params,
+                    header_params,
+                    *args,
+                    **kwargs,
+                )
+
+            return inner
+
+        api_client.call_api = call_api_decorator(api_client.call_api).__get__(
+            api_client
+        )
 
     def get_jobs_api(self) -> DataJobsApi:
         return DataJobsApi(self._new_api_client())

@@ -79,6 +79,31 @@ class VDKConfig:
         return os.getenv("VDK_API_TOKEN", None)
 
     @property
+    def kerberos_authentication_enabled(self) -> bool:
+        """
+        If set to true, it will try to use Kerberos authentication for API requests if it's possible
+        (If kerberos module is installed and authentication request succeeds)
+        """
+        return os.getenv(
+            "VDK_CONTROL_KERBEROS_AUTHENTICATION_ENABLED", "True"
+        ).lower() in (
+            "true",
+            "1",
+            "t",
+        )
+
+    @property
+    def kerberos_service_name(self) -> str:
+        """
+        Kerberos service name of the API Server.
+        It's a string containing the service principal (for the API server) in the form 'type@fqdn'
+        (e.g. 'http@server.vdk.com').
+        """
+        return os.getenv(
+            "VDK_CONTROL_KERBEROS_SERVICE_NAME", "HTTP@taurus-data-pipelines-service"
+        )
+
+    @property
     def http_connect_timeout_seconds(self) -> int:
         return int(os.getenv("VDK_CONTROL_HTTP_CONNECT_TIMEOUT_SECONDS", "30"))
 

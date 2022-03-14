@@ -8,7 +8,9 @@ from typing import Optional
 from requests import post
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
+from vdk.internal.control.auth import kerberos_client
 from vdk.internal.control.auth.auth_request_values import AuthRequestValues
+from vdk.internal.control.auth.kerberos_client import KerberosTicket
 from vdk.internal.control.auth.login_types import LoginTypes
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.configuration.vdk_config import VDKConfigFolder
@@ -25,15 +27,16 @@ class AuthenticationCache:
 
     def __init__(
         self,
-        authorization_url=None,
-        refresh_token=None,
-        access_token=None,
-        access_token_expiration_time=0,
-        client_id="not-used",
-        client_secret="not-used",
-        api_token=None,
-        api_token_authorization_url=None,
-        auth_type=None,
+        authorization_url: str = None,
+        refresh_token: str = None,
+        access_token: str = None,
+        access_token_expiration_time: int = 0,
+        client_id: str = "not-used",
+        client_secret: str = "not-used",
+        api_token: str = None,
+        api_token_authorization_url: str = None,
+        auth_type: LoginTypes = None,
+        kerberos_service_name: str = None,
         **ignored_kwargs,
     ):
         """
@@ -63,6 +66,7 @@ class AuthenticationCache:
         self.api_token = api_token
         self.api_token_authorization_url = api_token_authorization_url
         self.auth_type = auth_type
+        self.kerberos_service_name = kerberos_service_name
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -70,11 +74,11 @@ class AuthenticationCache:
 
 class AuthenticationCacheSerDe:
     @staticmethod
-    def serialize(cache):
+    def serialize(cache) -> str:
         return json.dumps(cache.__dict__)
 
     @staticmethod
-    def deserialize(content: str):
+    def deserialize(content: str) -> AuthenticationCache:
         if content:
             return AuthenticationCache(**json.loads(content))
         else:
@@ -89,14 +93,14 @@ class Authentication:
         self.__vdk_config = vdk_config
         self._cache = self.__load_cache()
 
-    def __load_cache(self):
+    def __load_cache(self) -> AuthenticationCache:
         content = self._conf.read_credentials()
         return AuthenticationCacheSerDe.deserialize(content)
 
-    def __update_cache(self):
+    def __update_cache(self) -> None:
         self._conf.save_credentials(AuthenticationCacheSerDe.serialize(self._cache))
 
-    def __exchange_api_for_access_token(self):
+    def __exchange_api_for_access_token(self) -> None:
         try:
             log.debug(
                 f"Refresh API token against {self._cache.api_token_authorization_url} "
@@ -146,6 +150,17 @@ class Authentication:
             log.debug("Acquire access token (it's either expired or missing) ...")
             self.acquire_and_cache_access_token()
         return self._cache.access_token
+
+    def read_kerberos_auth_header(self) -> Optional[str]:
+        """
+        Return the header to be used by API requests to server supporting kerberos authentication.
+        You can see more details here http://python-notes.curiousefficiency.org/en/latest/python_kerberos.html
+        :return:
+        """
+        if self._cache.kerberos_service_name:
+            client = KerberosTicket(self._cache.kerberos_service_name)
+            return client.auth_header
+        return None
 
     def acquire_and_cache_access_token(self):
         """
@@ -256,6 +271,10 @@ class Authentication:
 
     def update_auth_type(self, auth_type):
         self._cache.auth_type = auth_type
+        self.__update_cache()
+
+    def update_kerberos_service_name(self, service):
+        self._cache.kerberos_service_name = service
         self.__update_cache()
 
     def _configured_api_token(self):

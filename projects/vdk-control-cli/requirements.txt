@@ -2,6 +2,7 @@
 # Usually same (version may be different) as install_requires in setup.cfg
 click~=8.0
 click-spinner
+kerberos
 
 # Dependencies license report:
 pip-licenses
