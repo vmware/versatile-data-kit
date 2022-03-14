@@ -8,10 +8,12 @@ To install the plugin, run:
 pip install vdk-kerberos-auth
 ```
 
-After it's installed the following happens:
+After it's install what happens:
 
-1. Upon installation and if KEYTAB_FILENAME and KEYTAB_PRINCIPAL are configured, it will try to authenticate ("kinit") at the start of every VDK command.
-2. Then when a client needs to talk to a kerberos provision server they would use the KerberosClient class to generate the header:
+1. Upon installation and if KEYTAB_FILENAME and KEYTAB_PRINCIPAL are configured, it will try to authenticate ("kinit") at the start of very VDK command.
+2. Then when a client needs to talk to kerberos provision server they would use KerberosClient class to generate header:
+With requests library, you'd use https://pypi.org/pypi/requests-kerberos.
+The following can be used if another http library does not support kerberos to generate Authorization header:
 ```python
 auth = KebrerosClient("http@server.fqdn.com")
 headers['Authorization'] =  auth.read_kerberos_auth_header()
