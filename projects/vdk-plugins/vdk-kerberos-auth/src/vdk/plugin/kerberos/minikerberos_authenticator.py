@@ -82,7 +82,7 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
                 f"and stored to file: {self._ccache_file}"
             )
         except Exception as e:
-            errors.log_and_throw(
+            errors.log_and_rethrow(
                 to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
                 log=log,
                 what_happened="Could not retrieve Kerberos TGT",
@@ -90,4 +90,6 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
                 consequences="Kerberos authentication will fail, and as a result the current process will fail.",
                 countermeasures="See stdout for details and fix the code, so that getting the TGT succeeds. "
                 "If you have custom Kerberos settings, set through environment variables make sure they are correct.",
+                exception=e,
+                wrap_in_vdk_error=True,
             )
