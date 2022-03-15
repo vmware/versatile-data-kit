@@ -6,7 +6,6 @@
 package com.vmware.taurus.security;
 
 import com.vmware.taurus.base.FeatureFlags;
-import io.swagger.models.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +13,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider;
+import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
+import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -29,6 +38,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +69,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final String customClaimName;
     private final Set<String> authorizedCustomClaimValues;
     private final Set<String> authorizedRoles;
+    public static final String[] ENDPOINTS_TO_IGNORE = {
+          "/",
+          "/data-jobs/v2/api-docs",
+          "/data-jobs/swagger-resources/**",
+//        "/data-jobs/configuration/**",
+          "/data-jobs/swagger-ui.html",
+          "/data-jobs/webjars/**",
+          // There should not be sensitive data in prometheus, and it makes
+          // integration with the monitoring system easier if no auth is necessary.
+          "/data-jobs/debug/prometheus",
+          // TODO: likely /data-jobs/debug is too permissive
+          // but until we can expose them in swagger they are very hard to use with Auth.
+          "/data-jobs/debug/**"};
+    private final String kerberosPrincipal;
+    private final String keytabFileLocation;
+    private static final String KERBEROS_AUTH_ENABLED_PROPERTY = "datajobs.security.kerberos.enabled";
 
     @Autowired
     public SecurityConfiguration(
@@ -68,7 +94,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             @Value("${datajobs.authorization.authorities-claim-name:}") String authoritiesClaimName,
             @Value("${datajobs.authorization.custom-claim-name:}") String customClaimName,
             @Value("${datajobs.authorization.authorized-custom-claim-values:}") String authorizedCustomClaimValues,
-            @Value("${datajobs.authorization.authorized-roles:}") String authorizedRoles) {
+            @Value("${datajobs.authorization.authorized-roles:}") String authorizedRoles,
+            @Value("${datajobs.security.kerberos.kerberosPrincipal}") String kerberosPrincipal,
+            @Value("${datajobs.security.kerberos.keytabFileLocation}") String keytabFileLocation) {
         this.featureFlags = featureFlags;
         this.jwksUri = jwksUri;
         this.issuer = issuer;
@@ -76,6 +104,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.customClaimName = customClaimName;
         this.authorizedCustomClaimValues = parseOrgIds(authorizedCustomClaimValues);
         this.authorizedRoles = parseRoles(authorizedRoles);
+        this.kerberosPrincipal = kerberosPrincipal;
+        this.keytabFileLocation = keytabFileLocation;
     }
 
     @Override
@@ -93,36 +123,29 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(
-                "/",
-                "/data-jobs/v2/api-docs",
-                "/data-jobs/swagger-resources/**",
-//                "/data-jobs/configuration/**",
-                "/data-jobs/swagger-ui.html",
-                "/data-jobs/webjars/**",
-                // There should not be sensitive data in prometheus, and it makes
-                // integration with the monitoring system easier if no auth is necessary.
-                "/data-jobs/debug/prometheus",
-                // TODO: likely /data-jobs/debug is too permissive
-                // but until we can expose them in swagger they are very hard to use with Auth.
-                "/data-jobs/debug/**");
+        web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
     }
 
     private void enableSecurity(HttpSecurity http) throws Exception {
         log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
-        http
-                .anonymous().disable()
-                .csrf().disable()
-                .authorizeRequests(authorizeRequests -> {
-                    if (!authorizedRoles.isEmpty()) {
-                        authorizeRequests
-                                .antMatchers("/**")
-                                .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
-                    }
-                    authorizeRequests.anyRequest().authenticated();
-                })
-                .oauth2ResourceServer().jwt()
-                .jwtAuthenticationConverter(jwtAuthenticationConverter());
+
+        http.anonymous().disable()
+              .csrf().disable()
+              .authorizeRequests(authorizeRequests -> {
+                  if (!authorizedRoles.isEmpty()) {
+                      authorizeRequests
+                            .antMatchers("/**")
+                            .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
+                  }
+                  authorizeRequests.anyRequest().authenticated();
+              })
+              .oauth2ResourceServer().jwt()
+              .jwtAuthenticationConverter(jwtAuthenticationConverter());
+
+        if (featureFlags.isKrbAuthEnabled()) {
+            http.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
+                  BasicAuthenticationFilter.class);
+        }
     }
 
     @Bean
@@ -179,4 +202,67 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
         return Collections.emptySet();
     }
+
+    /*
+        KERBEROS config settings, a lot of these are optional.
+     */
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) {
+        if (featureFlags.isKrbAuthEnabled()) {
+            auth.authenticationProvider(kerberosServiceAuthenticationProvider());
+        }
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+    public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
+          AuthenticationManager authenticationManager) {
+        SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authenticationManager);
+        return filter;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+    public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() {
+        KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
+        provider.setTicketValidator(sunJaasKerberosTicketValidator());
+        provider.setUserDetailsService(dataJobsUserDetailsService());
+        return provider;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+    public SunJaasKerberosTicketValidator sunJaasKerberosTicketValidator() {
+        SunJaasKerberosTicketValidator ticketValidator = new SunJaasKerberosTicketValidator();
+        ticketValidator.setServicePrincipal(kerberosPrincipal);
+        ticketValidator.setKeyTabLocation(new FileSystemResource(keytabFileLocation));
+        ticketValidator.setDebug(true);
+        return ticketValidator;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+    public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
+        return new SecurityConfiguration.DataJobsUserDetailsService();
+    }
+
+    @Override
+    @Bean
+    @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    class DataJobsUserDetailsService implements UserDetailsService {
+
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            return new User(username, "", true, true, true,
+                  true, AuthorityUtils.createAuthorityList("ROLE_DATA_JOBS_USER"));
+        }
+
+    }
+
 }

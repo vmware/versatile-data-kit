@@ -2,23 +2,22 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
-import pathlib
 import sqlite3
 from unittest import mock
 
 from click.testing import Result
-from functional.run import util
+from functional.run.util import job_path
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.plugin.test_utils.util_funcs import get_test_job_path
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
 from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryConnection
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
+from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +76,7 @@ def test_run_dbapi_connection_no_such_db_type():
     result: Result = runner.invoke(
         [
             "run",
-            util.job_path("simple-create-insert"),
+            job_path("simple-create-insert"),
         ]
     )
 
@@ -93,10 +92,7 @@ def test_run_dbapi_connection():
     result: Result = runner.invoke(
         [
             "run",
-            get_test_job_path(
-                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                "simple-create-insert",
-            ),
+            job_path("simple-create-insert"),
         ]
     )
 
@@ -111,10 +107,7 @@ def test_run_managed_connection_and_verify_query_length():
     result: Result = runner.invoke(
         [
             "run",
-            get_test_job_path(
-                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                "simple-create-insert-huge",
-            ),
+            job_path("simple-create-insert-huge"),
         ]
     )
 
@@ -133,10 +126,7 @@ def test_run_managed_connection_and_check_query_comments():
     result: Result = runner.invoke(
         [
             "run",
-            get_test_job_path(
-                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                "simple-create-insert",
-            ),
+            job_path("simple-create-insert"),
         ]
     )
 
@@ -159,10 +149,7 @@ def test_run_managed_connection_and_query_fails():
     result: Result = runner.invoke(
         [
             "run",
-            get_test_job_path(
-                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                "simple-create-insert-failed",
-            ),
+            job_path("simple-create-insert-failed"),
         ]
     )
 
@@ -178,10 +165,7 @@ def test_run_managed_connection_and_query_fails_then_recovers():
     result: Result = runner.invoke(
         [
             "run",
-            get_test_job_path(
-                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                "simple-create-insert-failed",
-            ),
+            job_path("simple-create-insert-failed"),
         ]
     )
 
@@ -189,17 +173,14 @@ def test_run_managed_connection_and_query_fails_then_recovers():
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
-def test_run_job_with_arguments():
+def test_run_job_with_arguments_and_sql_substitution():
     db_plugin = SqLite3MemoryDbPlugin()
     runner = CliEntryBasedTestRunner(db_plugin)
 
     result: Result = runner.invoke(
         [
             "run",
-            get_test_job_path(
-                pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                "job-with-args",
-            ),
+            job_path("job-with-args"),
             "--arguments",
             '{"table_name": "test_table", "counter": 123}',
         ]
@@ -207,3 +188,56 @@ def test_run_job_with_arguments():
 
     cli_assert_equal(0, result)
     assert db_plugin.db.execute_query("select * from test_table") == [("one", 123)]
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_job_with_properties_and_sql_substitution():
+    db_plugin = SqLite3MemoryDbPlugin()
+    props_plugin = TestPropertiesPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, props_plugin)
+    runner.clear_default_plugins()
+
+    props_plugin.properties_client.write_properties(
+        "job-with-args", "team", {"table_name": "test_table_props"}
+    )
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            job_path("job-with-args"),
+            "--arguments",
+            '{"counter": 123}',
+        ]
+    )
+
+    cli_assert_equal(0, result)
+    assert db_plugin.db.execute_query("select * from test_table_props") == [
+        ("one", 123)
+    ]
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_job_with_properties_and_sql_substitution_priority_order():
+    db_plugin = SqLite3MemoryDbPlugin()
+    props_plugin = TestPropertiesPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, props_plugin)
+    runner.clear_default_plugins()
+
+    props_plugin.properties_client.write_properties(
+        "job-with-args", "team", {"table_name": "test_table_props"}
+    )
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            job_path("job-with-args"),
+            "--arguments",
+            '{"table_name": "test_table_override", "counter": 123}',
+        ]
+    )
+
+    cli_assert_equal(0, result)
+    # we verify that test_table_override is used (over test_table_props) since arguments have higher priority
+    assert db_plugin.db.execute_query("select * from test_table_override") == [
+        ("one", 123)
+    ]

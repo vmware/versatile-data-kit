@@ -162,12 +162,12 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
 def deploy(
     name: str,
     team: str,
-    job_version: str,
-    vdk_version: str,
+    job_version: Optional[str],
+    vdk_version: Optional[str],
     enabled: Optional[bool],
-    job_path: str,
+    job_path: Optional[str],
     operation: str,
-    reason: str,
+    reason: Optional[str],
     rest_api_url: str,
     output: str,
 ):
@@ -178,7 +178,13 @@ def deploy(
         # default to ask for job version to update
         if not vdk_version and not job_version and enabled is None:
             job_version = get_or_prompt("Job Version", job_version)
-        return cmd.update(name, team, enabled, job_version, vdk_version, output)
+        if job_path:
+            reason = get_or_prompt("Reason", reason)
+            return cmd.create(
+                name, team, job_path, reason, output, vdk_version, enabled
+            )
+        else:
+            return cmd.update(name, team, enabled, job_version, vdk_version, output)
     if operation == DeployOperation.REMOVE:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
@@ -192,4 +198,4 @@ def deploy(
         default_name = os.path.basename(job_path)
         name = get_or_prompt("Job Name", name, default_name)
         reason = get_or_prompt("Reason", reason)
-        return cmd.create(name, team, job_path, reason, output)
+        return cmd.create(name, team, job_path, reason, output, vdk_version, enabled)

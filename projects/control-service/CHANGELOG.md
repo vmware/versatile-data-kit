@@ -11,6 +11,14 @@ MAJOR.MINOR - dd.MM.yyyy
 
 * **Breaking Changes**
 
+1.3 - 09.03.2022
+----
+* **Improvement**
+  * Adopted kubernetes-client 13.0
+
+* **Bug Fixes**
+  * Fix log link to always set endTime
+
 1.3 - 18.02.2022
 ----
 * **Improvement**
