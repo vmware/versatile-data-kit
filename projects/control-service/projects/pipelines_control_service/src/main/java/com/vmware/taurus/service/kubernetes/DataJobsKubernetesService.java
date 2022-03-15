@@ -5,9 +5,11 @@
 
 package com.vmware.taurus.service.kubernetes;
 
+import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.service.KubernetesService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +24,12 @@ import java.io.File;
 @Slf4j
 public class DataJobsKubernetesService extends KubernetesService {
 
+   @Autowired
+   private static FeatureFlags featureFlags;
+
    public DataJobsKubernetesService(@Value("${datajobs.deployment.k8s.namespace:}") String namespace,
                                     @Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig) {
-      super(namespace, kubeconfig, log);
+      super(namespace, kubeconfig, featureFlags.isK8sSupportsV1CronJob(), log);
       if (StringUtils.isBlank(kubeconfig) && !new File(kubeconfig).isFile()) {
          log.warn("Data Jobs (Deployment) Kubernetes service may not have been correctly bootstrapped. {} file is missing " +
                          "Will try to use same cluster as control Plane. But this is not recommended in production.",

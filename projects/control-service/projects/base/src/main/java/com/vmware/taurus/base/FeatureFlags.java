@@ -26,4 +26,7 @@ public class FeatureFlags {
    @Value("${featureflag.authorization.enabled:false}")
    boolean authorizationEnabled = false;
 
+   @Value("${featureflag.deployment.k8sSupportsV1CronJob:false}")
+   boolean k8sSupportsV1CronJob = false;
+
 }

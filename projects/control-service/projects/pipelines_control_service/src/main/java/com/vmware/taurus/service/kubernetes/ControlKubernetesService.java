@@ -5,8 +5,10 @@
 
 package com.vmware.taurus.service.kubernetes;
 
+import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.service.KubernetesService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ControlKubernetesService extends KubernetesService {
 
+   @Autowired
+   private static FeatureFlags featureFlags;
+
    // those should be null/empty when Control service is deployed in k8s hence default is empty
    public ControlKubernetesService(@Value("${datajobs.control.k8s.namespace:}") String namespace,
                                    @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig) {
-      super(namespace, kubeconfig, log);
+      super(namespace, kubeconfig, featureFlags.isK8sSupportsV1CronJob(), log);
    }
 }
