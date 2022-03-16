@@ -29,4 +29,7 @@ public class FeatureFlags {
    @Value("${featureflag.deployment.k8sSupportsV1CronJob:false}")
    boolean k8sSupportsV1CronJob = false;
 
+   @Value("${datajobs.security.kerberos.enabled:false}")
+   boolean krbAuthEnabled = false;
+
 }

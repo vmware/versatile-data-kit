@@ -75,6 +75,7 @@ class IngestToTrinoTests(TestCase):
             "string  12  1.2  True  3.2\n"
             "string  12  1.2  True  3.2\n"
             "string  12  1.2  True  3.2\n"
+            "string  12  1.2  True  3.2\n"
             "\n"
             "------  --  ---  ----  ---\n"
         )
