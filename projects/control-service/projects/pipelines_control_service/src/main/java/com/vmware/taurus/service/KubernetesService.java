@@ -11,7 +11,6 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.exception.JsonDissectException;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.exception.KubernetesJobDefinitionException;
@@ -233,7 +232,7 @@ public abstract class KubernetesService implements InitializingBean {
 
         // Step 1 - load the internal datajob template in order to validate it.
         try {
-            if(this.k8sSupportsV1CronJob) {
+            if(getK8sSupportsV1CronJob()) {
                 loadV1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
             } else {
                 loadV1beta1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
@@ -247,7 +246,7 @@ public abstract class KubernetesService implements InitializingBean {
         // Step 2 - load the configurable datajob template in order to validate it
         // when environment variable 'K8S_DATA_JOB_TEMPLATE_FILE' is set.
         if(!StringUtils.isEmpty(datajobTemplateFileLocation)) {
-            if(this.k8sSupportsV1CronJob) {
+            if(getK8sSupportsV1CronJob()) {
                 if(loadConfigurableV1CronjobTemplate() == null) {
                     log.warn("The configurable datajob template '{}' could not be loaded.", datajobTemplateFileLocation);
                 } else {
@@ -436,7 +435,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
-        return this.k8sSupportsV1CronJob ? readV1CronJob(cronJobName) : readV1beta1CronJob(cronJobName);
+        return getK8sSupportsV1CronJob() ? readV1CronJob(cronJobName) : readV1beta1CronJob(cronJobName);
     }
 
     public Optional<JobDeploymentStatus> readV1beta1CronJob(String cronJobName) {
@@ -468,7 +467,7 @@ public abstract class KubernetesService implements InitializingBean {
      * @return List of {@link JobDeploymentStatus} or empty list if there is an error while fetching data
      */
     public List<JobDeploymentStatus> readJobDeploymentStatuses() {
-        return this.k8sSupportsV1CronJob ? readV1CronJobDeploymentStatuses() : readV1beta1CronJobDeploymentStatuses();
+        return getK8sSupportsV1CronJob() ? readV1CronJobDeploymentStatuses() : readV1beta1CronJobDeploymentStatuses();
     }
 
     public List<JobDeploymentStatus> readV1beta1CronJobDeploymentStatuses() {
@@ -526,17 +525,17 @@ public abstract class KubernetesService implements InitializingBean {
                                          Map<String, String> envs, Map<String, Object> extraJobArguments, String jobName) throws ApiException {
         var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
         Optional<V1beta1JobTemplateSpec> jobTemplateSpec = Optional.ofNullable(cron)
-                .map(v1beta1CronJob -> v1beta1CronJob.getSpec())
-                .map(v1beta1CronJobSpec -> v1beta1CronJobSpec.getJobTemplate());
+                .map(V1beta1CronJob::getSpec)
+                .map(V1beta1CronJobSpec::getJobTemplate);
 
         Map<String, String> jobLabels = jobTemplateSpec
-                .map(v1beta1JobTemplateSpec -> v1beta1JobTemplateSpec.getMetadata())
-                .map(v1ObjectMeta1 -> v1ObjectMeta1.getLabels())
+                .map(V1beta1JobTemplateSpec::getMetadata)
+                .map(V1ObjectMeta::getLabels)
                 .orElse(Collections.emptyMap());
 
         Map<String, String> jobAnnotations = jobTemplateSpec
-                .map(v1beta1JobTemplateSpec -> v1beta1JobTemplateSpec.getMetadata())
-                .map(v1ObjectMeta -> v1ObjectMeta.getAnnotations())
+                .map(V1beta1JobTemplateSpec::getMetadata)
+                .map(V1ObjectMeta::getAnnotations)
                 .map(v1ObjectMetaAnnotations -> {
                     v1ObjectMetaAnnotations.putAll(annotations);
                     return v1ObjectMetaAnnotations;
@@ -544,12 +543,12 @@ public abstract class KubernetesService implements InitializingBean {
                 .orElse(annotations);
 
         V1JobSpec jobSpec = jobTemplateSpec
-                .map(v1beta1JobTemplateSpec -> v1beta1JobTemplateSpec.getSpec())
+                .map(V1beta1JobTemplateSpec::getSpec)
                 .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", cronJobName)));
 
         V1Container v1Container = Optional.ofNullable(jobSpec.getTemplate())
-                .map(v1PodTemplateSpec -> v1PodTemplateSpec.getSpec())
-                .map(v1PodSpec -> v1PodSpec.getContainers())
+                .map(V1PodTemplateSpec::getSpec)
+                .map(V1PodSpec::getContainers)
                 .map(v1Containers -> v1Containers.get(0))
                 .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' is not properly defined.", cronJobName)));
         if (!CollectionUtils.isEmpty(envs)) {
@@ -568,17 +567,17 @@ public abstract class KubernetesService implements InitializingBean {
         var cron = initBatchV1Api().readNamespacedCronJob(cronJobName, namespace, null);
 
         Optional<V1JobTemplateSpec> jobTemplateSpec = Optional.ofNullable(cron)
-              .map(v1CronJob -> v1CronJob.getSpec())
-              .map(v1CronJobSpec -> v1CronJobSpec.getJobTemplate());
+              .map(V1CronJob::getSpec)
+              .map(V1CronJobSpec::getJobTemplate);
 
         Map<String, String> jobLabels = jobTemplateSpec
-              .map(v1JobTemplateSpec -> v1JobTemplateSpec.getMetadata())
-              .map(v1ObjectMeta1 -> v1ObjectMeta1.getLabels())
+              .map(V1JobTemplateSpec::getMetadata)
+              .map(V1ObjectMeta::getLabels)
               .orElse(Collections.emptyMap());
 
         Map<String, String> jobAnnotations = jobTemplateSpec
-              .map(v1JobTemplateSpec -> v1JobTemplateSpec.getMetadata())
-              .map(v1ObjectMeta -> v1ObjectMeta.getAnnotations())
+              .map(V1JobTemplateSpec::getMetadata)
+              .map(V1ObjectMeta::getAnnotations)
               .map(v1ObjectMetaAnnotations -> {
                   v1ObjectMetaAnnotations.putAll(annotations);
                   return v1ObjectMetaAnnotations;
@@ -586,12 +585,12 @@ public abstract class KubernetesService implements InitializingBean {
               .orElse(annotations);
 
         V1JobSpec jobSpec = jobTemplateSpec
-              .map(v1JobTemplateSpec -> v1JobTemplateSpec.getSpec())
+              .map(V1JobTemplateSpec::getSpec)
               .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", cronJobName)));
 
         V1Container v1Container = Optional.ofNullable(jobSpec.getTemplate())
-              .map(v1PodTemplateSpec -> v1PodTemplateSpec.getSpec())
-              .map(v1PodSpec -> v1PodSpec.getContainers())
+              .map(V1PodTemplateSpec::getSpec)
+              .map(V1PodSpec::getContainers)
               .map(v1Containers -> v1Containers.get(0))
               .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' is not properly defined.", cronJobName)));
         if (!CollectionUtils.isEmpty(envs)) {
@@ -671,7 +670,7 @@ public abstract class KubernetesService implements InitializingBean {
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
-        if(this.k8sSupportsV1CronJob) {
+        if(getK8sSupportsV1CronJob()) {
             createV1CronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer, initContainer,
                     volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), List.of(""));
         } else {
@@ -687,7 +686,7 @@ public abstract class KubernetesService implements InitializingBean {
                               Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
                               List<String> imagePullSecrets)
             throws ApiException {
-        if(this.k8sSupportsV1CronJob) {
+        if(getK8sSupportsV1CronJob()) {
             createV1CronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer, initContainer,
                     volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecrets);
         } else {
@@ -701,8 +700,8 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              List<String> imagePullSecrets)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations,
+                              Map<String, String> jobLabels, List<String> imagePullSecrets)
             throws ApiException {
         log.debug("Creating k8s cron job name:{}, image:{}", name, image);
         var cronJob = v1beta1CronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
@@ -717,8 +716,8 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              List<String> imagePullSecrets)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations,
+                              Map<String, String> jobLabels, List<String> imagePullSecrets)
             throws ApiException {
         log.debug("Creating k8s cron job name:{}, image:{}", name, image);
         var cronJob = v1CronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
@@ -733,7 +732,7 @@ public abstract class KubernetesService implements InitializingBean {
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations)
             throws ApiException {
-        if(this.k8sSupportsV1CronJob) {
+        if(getK8sSupportsV1CronJob()) {
             updateV1CronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer,
                     initContainer, volumes, jobDeploymentAnnotations, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), List.of(""));
         } else {
@@ -746,10 +745,10 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              List<String> imagePullSecrets)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations,
+                              Map<String, String> jobLabels, List<String> imagePullSecrets)
             throws ApiException {
-        if(this.k8sSupportsV1CronJob) {
+        if(getK8sSupportsV1CronJob()) {
             updateV1CronJob(name, image, envs, schedule, enable, args, request, limit, jobContainer,
                     initContainer, volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecrets);
         } else {
@@ -762,8 +761,8 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              List<String> imagePullSecrets)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations,
+                              Map<String, String> jobLabels, List<String> imagePullSecrets)
             throws ApiException {
         var cronJob = v1beta1CronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
                 volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecrets);
@@ -775,8 +774,8 @@ public abstract class KubernetesService implements InitializingBean {
                               boolean enable, List<String> args, Resources request, Resources limit,
                               V1Container jobContainer, V1Container initContainer,
                               List<V1Volume> volumes, Map<String, String> jobDeploymentAnnotations,
-                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations, Map<String, String> jobLabels,
-                              List<String> imagePullSecrets)
+                              Map<String, String> jobPodLabels, Map<String, String> jobAnnotations,
+                              Map<String, String> jobLabels, List<String> imagePullSecrets)
             throws ApiException {
         var cronJob = v1CronJobFromTemplate(name, schedule, !enable, jobContainer, initContainer,
                 volumes, jobDeploymentAnnotations, jobPodLabels, jobAnnotations, jobLabels, imagePullSecrets);
@@ -866,11 +865,11 @@ public abstract class KubernetesService implements InitializingBean {
         // We want to track those jobs as submitted as well.
         // The getConditions() returns result only if the job is completed.
         return Optional.ofNullable(v1JobList)
-              .map(v1JobList1 -> v1JobList1.getItems())
+              .map(V1JobList::getItems)
               .stream()
               .flatMap(v1Jobs -> v1Jobs.stream())
-              .map(v1Job1 -> v1Job1.getStatus())
-              .map(v1JobStatus -> v1JobStatus.getConditions())
+              .map(V1Job::getStatus)
+              .map(V1JobStatus::getConditions)
               .anyMatch(v1JobConditions -> CollectionUtils.isEmpty(v1JobConditions));
     }
 
@@ -978,9 +977,9 @@ public abstract class KubernetesService implements InitializingBean {
         Objects.requireNonNull(job, "The job cannot be null");
 
         var containers = Optional.ofNullable(job.getSpec())
-              .map(v1JobSpec -> v1JobSpec.getTemplate())
-              .map(v1PodTemplateSpec -> v1PodTemplateSpec.getSpec())
-              .map(v1PodSpec -> v1PodSpec.getContainers())
+              .map(V1JobSpec::getTemplate)
+              .map(V1PodTemplateSpec::getSpec)
+              .map(V1PodSpec::getContainers)
               .orElse(null);
 
         return (containers != null && !containers.isEmpty()) ? containers.get(0).getName() : null;
@@ -1066,7 +1065,7 @@ public abstract class KubernetesService implements InitializingBean {
 
         Optional<Map<String, Quantity>> resourcesRequest = containerOptional
               .map(V1Container::getResources)
-              .map(v1ResourceRequirements -> v1ResourceRequirements.getRequests());
+              .map(V1ResourceRequirements::getRequests);
         jobExecutionStatusBuilder.resourcesCpuRequest(
               resourcesRequest
                     .map(stringQuantityMap -> stringQuantityMap.get(ContainerResourceType.CPU.getValue()))
@@ -1102,7 +1101,7 @@ public abstract class KubernetesService implements InitializingBean {
                     .orElse(null));
 
         // Job labels
-        Optional<Map<String, String>> labels = metadata.map(v1ObjectMeta -> v1ObjectMeta.getLabels());
+        Optional<Map<String, String>> labels = metadata.map(V1ObjectMeta::getLabels);
 
         jobExecutionStatusBuilder.jobVersion(
               labels.map(stringStringMap -> stringStringMap.get(JobLabel.VERSION.getValue()))
