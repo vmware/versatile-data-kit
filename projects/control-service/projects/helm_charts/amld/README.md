@@ -1,6 +1,8 @@
 # Setup environment for AMLD workshop
 
-Here are scripts that preapre the backend enviornment to be used in AMLD workshop
+Here are scripts that preapre the backend enviornment to be used in AMLD workshop.
+They are installed in same kubernetes cluster as one used by CICD - See https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD#how-to-connect-to-cicd-kubernetes
+The kubernetes namespace is "vdk-amld"
 
 The entry point is the setup-env.sh script.
 It will
