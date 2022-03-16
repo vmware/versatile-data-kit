@@ -21,9 +21,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ControlKubernetesService extends KubernetesService {
 
-   @Autowired
-   private FeatureFlags featureFlags;
-
    // those should be null/empty when Control service is deployed in k8s hence default is empty
    public ControlKubernetesService(@Value("${datajobs.control.k8s.namespace:}") String namespace,
                                    @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
