@@ -6,6 +6,18 @@
 
 source env.sh || echo "Provide env.sh with exported environment variables: VDK_API_TOKEN and GIT_TOKEN"
 
+
+if [ -n "$DOCKERHUB_READONLY_USERNAME" ]; then
+    dockerhub_secretname='secret-dockerhub-docker'
+    kubectl create secret docker-registry "$dockerhub_secretname" \
+                         --docker-server="https://index.docker.io/v1/" \
+                         --docker-username="$DOCKERHUB_READONLY_USERNAME" \
+                         --docker-password="$DOCKERHUB_READONLY_PASSWORD" \
+                         --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
+
+    kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$dockerhub_secretname'"}]}'
+  fi
+
 helm repo add bitnami https://charts.bitnami.com/bitnami
 
 if ! helm list | grep vdk-mysql ;
