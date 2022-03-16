@@ -166,7 +166,7 @@ public class KubernetesServiceTest {
     // check the final outcome directly in the K8s environment.
     @Test
     public void testCreateV1beta1CronJobFromInternalResource() {
-        KubernetesService service = new DataJobsKubernetesService("default", "someConfig");
+        KubernetesService service = new DataJobsKubernetesService("default", "someConfig", false);
         try {
             // Step 1 - load and check the internal cronjob template.
             service.afterPropertiesSet();
@@ -175,12 +175,12 @@ public class KubernetesServiceTest {
             // Step 2 - check whether an empty V1beta1CronJob object is properly populated
             //          with corresponding entries from the internal cronjob template.
             // First we load the internal cronjob template.
-            Method loadInternalCronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
-            if(loadInternalCronjobTemplate == null) {
+            Method loadInternalV1beta1CronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+            if(loadInternalV1beta1CronjobTemplate == null) {
                 Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
             }
-            loadInternalCronjobTemplate.setAccessible(true);
-            V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalCronjobTemplate.invoke(service);
+            loadInternalV1beta1CronjobTemplate.setAccessible(true);
+            V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
             // Prepare the 'v1beta1checkForMissingEntries' method.
             Method checkForMissingEntries = KubernetesService.class.getDeclaredMethod("v1beta1checkForMissingEntries", V1beta1CronJob.class);
             if(checkForMissingEntries == null) {

@@ -22,11 +22,12 @@ import org.springframework.stereotype.Service;
 public class ControlKubernetesService extends KubernetesService {
 
    @Autowired
-   private static FeatureFlags featureFlags;
+   private FeatureFlags featureFlags;
 
    // those should be null/empty when Control service is deployed in k8s hence default is empty
    public ControlKubernetesService(@Value("${datajobs.control.k8s.namespace:}") String namespace,
-                                   @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig) {
-      super(namespace, kubeconfig, featureFlags.isK8sSupportsV1CronJob(), log);
+                                   @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
+                                   @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob) {
+      super(namespace, kubeconfig, k8sSupportsV1CronJob, log);
    }
 }

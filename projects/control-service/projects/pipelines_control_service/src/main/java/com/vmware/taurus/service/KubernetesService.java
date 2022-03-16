@@ -525,7 +525,6 @@ public abstract class KubernetesService implements InitializingBean {
     private void startNewV1beta1CronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
                                          Map<String, String> envs, Map<String, Object> extraJobArguments, String jobName) throws ApiException {
         var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
-
         Optional<V1beta1JobTemplateSpec> jobTemplateSpec = Optional.ofNullable(cron)
                 .map(v1beta1CronJob -> v1beta1CronJob.getSpec())
                 .map(v1beta1CronJobSpec -> v1beta1CronJobSpec.getJobTemplate());
