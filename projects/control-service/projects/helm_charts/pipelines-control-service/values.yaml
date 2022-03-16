@@ -320,18 +320,40 @@ security:
 
       ## [ Required if security.enabled = True ]
       jwtIssuerUrl: ""
-#    kerberos:
-#      ## These values contain configuration settings for the kerberos authentication provider in control-service.
-#      enabled: false
-#      ## A string which contains the kerberos principal
-#      ## [ Required if kerberos.enabled = True ]
-#      kerberosPrincipal:
-#      ## Path(URI) to the keytab file location, needed to configure the KerberosAuthProvider in control-service
-#      ## [ Required if kerberos.enabled = True ]
-#      keytabFileLocation:
-#      ## Path(URI) to the krb5 config file location, needed to configure the KerberosAuthProvider in control-service
-#      ## [ Required if kerberos.enabled = True ]
-#      krb5ConfigLocation:
+   kerberos:
+      ## These values contain configuration settings for the kerberos authentication provider in control-service.
+      ## The values are exposed as environment variables through the helm chart
+      ## which get picked up by our spring application (contorl-service)
+      ## on startup. More information about kerberos and spring can be found here:
+      ## https://docs.spring.io/spring-security-kerberos/docs/current/reference/htmlsingle/index.html
+      ## You only need to set the flag and file contents with correct values and kerberos authentication should work,
+      ## provided global security is enabled.
+      ## Flag to determine whether kerberos authentication should be enabled/disabled
+      enabled: false
+      ## This is the path to which the kerberos authentication configuration files will be mounted in the pod.
+      ## [ Required if kerberos.enabled = True ]
+      kerberosMountPath : "/etc/security/kerberos"
+      ## A string which contains the kerberos principal
+      ## [ Required if kerberos.enabled = True ]
+      ## For more information on kerberos principal please review the official kerberos documentation:
+      ## https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5.4/doc/krb5-user/What-is-a-Kerberos-Principal_003f.html
+      kerberosPrincipal: ""
+      ## This is the filename of the keytab file
+      ## The contents of the variable keytabFileContents will be mounted as a secret to the specified path
+      ## essentially the file name, and it's contents.
+      ## [ Required if kerberos.enabled = True ]
+      ## For more information on kerberos keytabs please review the official kerberos documentation:
+      ## https://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html
+      keytabFileName: "authenticator-keytab-file.keytab"
+      keytabFileContents: ""
+      ## Path(URI) to the krb5 config file location, needed to configure the KerberosAuthProvider in control-service
+      ## The contents of the variable will be mounted as a secret to the specified path.
+      ## [ Required if kerberos.enabled = True ]
+      ## For more information on kerberos configuration files please review the official kerberos documentation:
+      ## https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html
+      krb5ConfigFileName: "krb5.conf"
+      krb5ConfigContents: ""
+
 
 
    ## Feature flag to enable/disable authorization

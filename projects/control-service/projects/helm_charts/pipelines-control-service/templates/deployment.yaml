@@ -206,14 +206,16 @@ spec:
             - name: DATAJOBS_EXECUTIONS_LOGS_URL_END_TIME_OFFSET_SECONDS
               value: "{{ .Values.dataJob.executions.logsUrl.endTimeOffsetSeconds }}"
             {{- end }}
-#            {{- if .Values.security.kerberos.enabled }}
-#            - name: SECURITY_KERBEROS_KERBEROS_PRINCIPAL
-#              value: "{{ .Values.security.kerberos.kerberosPrincipal }}"
-#            - name: SECURITY_KERBEROS_KEYTAB_FILE_LOCATION
-#              value: "{{ .Values.security.kerberos.keytabFileLocation}}"
-#            - name: SECURITY_KERBEROS_KRB5_CONFIG_LOCATION
-#              value: "{{ .Values.security.kerberos.krb5ConfigLocation}}"
-#            {{- end }}
+            {{- if .Values.security.kerberos.enabled }}
+            - name: SECURITY_KERBEROS_ENABLED
+              value: "{{ .Values.security.kerberos.enabled }}"
+            - name: SECURITY_KERBEROS_KERBEROS_PRINCIPAL
+              value: "{{ .Values.security.kerberos.kerberosPrincipal }}"
+            - name: SECURITY_KERBEROS_KEYTAB_FILE_LOCATION
+              value: "{{ .Values.security.kerberos.kerberosMountPath}}/{{ .Values.security.kerberos.keytabFileName }}"
+            - name: SECURITY_KERBEROS_KRB5_CONFIG_LOCATION
+              value: "{{ .Values.security.kerberos.kerberosMountPath}}/{{ .Values.security.kerberos.krb5ConfigFileName }}"
+            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}
@@ -228,6 +230,10 @@ spec:
             {{- if .Values.datajobTemplate.enabled }}
             - name: datajob-template-volume
               mountPath: "/etc/datajobs"
+            {{- end }}
+            {{- if .Values.security.kerberos.enabled }}
+            - name: kubernetes-authenticator-secret
+              mountPath: {{ .Values.security.kerberos.kerberosMountPath }}
             {{- end }}
           {{- if .Values.resources }}
           resources: {{ toYaml .Values.resources | nindent 12 }}
@@ -284,6 +290,16 @@ spec:
                 path: krb5.conf
               - key: vdk-options.ini
                 path: vdk-options.ini
+        {{- if .Values.security.kerberos.enabled }}
+        - name : kubernetes-authenticator-secret
+          secret:
+            secretName: kubernetes-authenticator-secret
+            items:
+              - key: {{ .Values.security.kerberos.krb5ConfigFileName }}
+                path: {{ .Values.security.kerberos.krb5ConfigFileName }}
+              - key: {{ .Values.security.kerberos.keytabFileName }}
+                path: {{ .Values.security.kerberos.keytabFileName }}
+        {{- end }}
         {{- if .Values.datajobTemplate.enabled }}
         - name: datajob-template-volume
           configMap:
