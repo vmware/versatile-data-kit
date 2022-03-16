@@ -192,11 +192,15 @@ public abstract class KubernetesService implements InitializingBean {
      * @param k8sSupportsV1CronJob Whether the target K8s cluster supports the V1CronJob API
      * @param log log to use - used in subclasses in order to set classname to subclass.
      */
-    protected KubernetesService(String namespace, String kubeconfig, Boolean k8sSupportsV1CronJob, Logger log) {
+    protected KubernetesService(String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
         this.namespace = namespace;
         this.kubeconfig = kubeconfig;
         this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
         this.log = log;
+    }
+
+    protected boolean getK8sSupportsV1CronJob() {
+        return this.k8sSupportsV1CronJob;
     }
 
     @Override
@@ -499,7 +503,7 @@ public abstract class KubernetesService implements InitializingBean {
 
     public void startNewCronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
                                          Map<String, String> envs, Map<String, Object> extraJobArguments, String jobName) throws ApiException {
-        if(this.k8sSupportsV1CronJob) {
+        if(getK8sSupportsV1CronJob()) {
             startNewV1CronJobExecution(
                     cronJobName,
                     executionId,
@@ -518,7 +522,7 @@ public abstract class KubernetesService implements InitializingBean {
         }
     }
 
-    public void startNewV1beta1CronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
+    private void startNewV1beta1CronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
                                          Map<String, String> envs, Map<String, Object> extraJobArguments, String jobName) throws ApiException {
         var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
 
@@ -560,7 +564,7 @@ public abstract class KubernetesService implements InitializingBean {
         createNewJob(executionId, jobSpec, jobLabels, jobAnnotations);
     }
 
-    public void startNewV1CronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
+    private void startNewV1CronJobExecution(String cronJobName, String executionId, Map<String, String> annotations,
                                          Map<String, String> envs, Map<String, Object> extraJobArguments, String jobName) throws ApiException {
         var cron = initBatchV1Api().readNamespacedCronJob(cronJobName, namespace, null);
 

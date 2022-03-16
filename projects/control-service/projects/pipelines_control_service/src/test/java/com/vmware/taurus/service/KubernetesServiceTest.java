@@ -71,6 +71,7 @@ public class KubernetesServiceTest {
    public void testGetJobExecutionStatus_emptyJob_shouldReturnEmptyJobExecutionStatus() {
       V1Job v1Job = new V1Job();
       KubernetesService mock = Mockito.mock(KubernetesService.class);
+      Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
       Mockito.when(mock.getTerminationStatus(v1Job)).thenReturn(Optional.empty());
       Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();
       Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional = mock.getJobExecutionStatus(v1Job, null);
@@ -137,6 +138,7 @@ public class KubernetesServiceTest {
       KubernetesService.JobStatusCondition condition = new KubernetesService.JobStatusCondition(true, "type", "reason", "message", endTime.toInstant().toEpochMilli());
 
       KubernetesService mock = Mockito.mock(KubernetesService.class);
+      Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
       Mockito.when(mock.getTerminationStatus(expectedJob)).thenReturn(Optional.empty());
       Mockito.when(mock.getJobExecutionStatus(expectedJob, condition)).thenCallRealMethod();
       Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional = mock.getJobExecutionStatus(expectedJob, condition);
@@ -173,16 +175,16 @@ public class KubernetesServiceTest {
             // Step 2 - check whether an empty V1beta1CronJob object is properly populated
             //          with corresponding entries from the internal cronjob template.
             // First we load the internal cronjob template.
-            Method loadInternalCronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalCronjobTemplate");
+            Method loadInternalCronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
             if(loadInternalCronjobTemplate == null) {
-                Assertions.fail("The method 'loadInternalCronjobTemplate' does not exist.");
+                Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
             }
             loadInternalCronjobTemplate.setAccessible(true);
             V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalCronjobTemplate.invoke(service);
-            // Prepare the 'checkForMissingEntries' method.
-            Method checkForMissingEntries = KubernetesService.class.getDeclaredMethod("checkForMissingEntries", V1beta1CronJob.class);
+            // Prepare the 'v1beta1checkForMissingEntries' method.
+            Method checkForMissingEntries = KubernetesService.class.getDeclaredMethod("v1beta1checkForMissingEntries", V1beta1CronJob.class);
             if(checkForMissingEntries == null) {
-                Assertions.fail("The method 'checkForMissingEntries' does not exist.");
+                Assertions.fail("The method 'v1beta1checkForMissingEntries' does not exist.");
             }
             checkForMissingEntries.setAccessible(true);
             V1beta1CronJob emptyCronjobToBeFixed = new V1beta1CronJob(); // Worst case scenario to test - empty cronjob.
@@ -207,9 +209,9 @@ public class KubernetesServiceTest {
             // Step 3 - create and check the actual cronjob.
             Method[] methods = KubernetesService.class.getDeclaredMethods();
             // This is much easier than describing the whole method signature.
-            Optional<Method> method = Arrays.stream(methods).filter(m -> m.getName().equals("cronJobFromTemplate")).findFirst();
+            Optional<Method> method = Arrays.stream(methods).filter(m -> m.getName().equals("v1beta1CronJobFromTemplate")).findFirst();
             if(method.isEmpty()) {
-                Assertions.fail("The method 'cronJobFromTemplate' does not exist.");
+                Assertions.fail("The method 'v1beta1cronJobFromTemplate' does not exist.");
             }
             method.get().setAccessible(true);
             V1beta1CronJob cronjob = (V1beta1CronJob) method.get().invoke(service, "test-job-name", "test-job-schedule", true, null, null, null, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, Collections.EMPTY_MAP, List.of(""));
@@ -309,6 +311,7 @@ public class KubernetesServiceTest {
 
     private KubernetesService mockCronJobFromTemplate() {
        KubernetesService mock = Mockito.mock(KubernetesService.class);
+       Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
        Mockito.when(mock.v1beta1CronJobFromTemplate(
                    anyString(), anyString(), anyBoolean(),
                    any(), any(), any(),
