@@ -325,6 +325,8 @@ security:
       ## which get picked up by our spring application (contorl-service)
       ## on startup. More information about kerberos and spring can be found here:
       ## https://docs.spring.io/spring-security-kerberos/docs/current/reference/htmlsingle/index.html
+      ## More information on kerberos authentication can be found here:
+      ## https://docs.oracle.com/cd/E23941_01/E26092/html/kerberos-auth.html
       ## You only need to set the flag and property contents with correct values and kerberos authentication should work,
       ## provided global security is enabled.
       ##
