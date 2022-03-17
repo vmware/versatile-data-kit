@@ -29,17 +29,17 @@ class NewVersionCheckPlugin:
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
         config_builder.add(
-            key=ConfigKey.PACKAGE_NAME,
+            key=ConfigKey.PACKAGE_NAME.value,
             default_value="vdk-core",
             description="Set distribution package name of the library to check for new version",
         )
         config_builder.add(
-            key=ConfigKey.PACKAGE_INDEX,
+            key=ConfigKey.PACKAGE_INDEX.value,
             default_value="https://pypi.org",
             description="Set distribution package name of the library to check for new version",
         )
         config_builder.add(
-            key=ConfigKey.VERSION_CHECK_PLUGINS,
+            key=ConfigKey.VERSION_CHECK_PLUGINS.value,
             default_value=True,
             description="Set to true if plugins should be checked for new version otherwise false",
         )
@@ -50,12 +50,12 @@ class NewVersionCheckPlugin:
             package_list = []
             cfg = context.configuration
 
-            package_name = cfg.get_value(ConfigKey.PACKAGE_NAME)
-            package_index = cfg.get_value(ConfigKey.PACKAGE_INDEX)
+            package_name = cfg.get_value(ConfigKey.PACKAGE_NAME.value)
+            package_index = cfg.get_value(ConfigKey.PACKAGE_INDEX.value)
             if new_package(package_name, package_index).check():
                 package_list.append(package_name)
 
-            if cfg.get_value(ConfigKey.VERSION_CHECK_PLUGINS):
+            if cfg.get_value(ConfigKey.VERSION_CHECK_PLUGINS.value):
                 log.debug("Will check for newer versions for all installed plugins.")
                 for dist_name, _ in version.list_installed_plugins():
                     if new_package(dist_name, package_index).check():
