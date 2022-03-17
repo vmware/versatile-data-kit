@@ -44,7 +44,7 @@ def test_version_check(mock_click_echo, mock_list, mock_package):
     context = build_core_context(
         check_plugin,
         {
-            new_version_check_plugin.ConfigKey.PACKAGE_INDEX: "https://testing.package.index"
+            new_version_check_plugin.ConfigKey.PACKAGE_INDEX.value: "https://testing.package.index"
         },
     )
     check_plugin.vdk_exit(context)
@@ -73,7 +73,8 @@ def test_version_check_skip_plugins(mock_list, mock_package):
 
     check_plugin = NewVersionCheckPlugin()
     context = build_core_context(
-        check_plugin, {new_version_check_plugin.ConfigKey.VERSION_CHECK_PLUGINS: False}
+        check_plugin,
+        {new_version_check_plugin.ConfigKey.VERSION_CHECK_PLUGINS.value: False},
     )
     check_plugin.vdk_exit(context)
 
@@ -93,7 +94,7 @@ def test_version_check_empty_package_index(mock_click_echo, mock_list, mock_pack
 
     check_plugin = NewVersionCheckPlugin()
     context = build_core_context(
-        check_plugin, {new_version_check_plugin.ConfigKey.PACKAGE_INDEX: ""}
+        check_plugin, {new_version_check_plugin.ConfigKey.PACKAGE_INDEX.value: ""}
     )
     check_plugin.vdk_exit(context)
 
