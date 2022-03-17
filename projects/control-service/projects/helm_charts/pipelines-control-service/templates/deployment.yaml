@@ -209,12 +209,12 @@ spec:
             {{- if .Values.security.kerberos.enabled }}
             - name: SECURITY_KERBEROS_ENABLED
               value: "{{ .Values.security.kerberos.enabled }}"
-            - name: SECURITY_KERBEROS_KERBEROS_PRINCIPAL
-              value: "{{ .Values.security.kerberos.kerberosPrincipal }}"
-            - name: SECURITY_KERBEROS_KEYTAB_FILE_LOCATION
-              value: "{{ .Values.security.kerberos.kerberosMountPath}}/{{ .Values.security.kerberos.keytabFileName }}"
+            - name: SECURITY_KERBEROS_SERVICE_PRINCIPAL
+              value: "{{ .Values.security.kerberos.kerberosServicePrincipal }}"
+            - name: SECURITY_KERBEROS_SERVICE_KEYTAB_FILE_LOCATION
+              value: "/etc/security/kerberos/authenticator-keytab-file.keytab"
             - name: SECURITY_KERBEROS_KRB5_CONFIG_LOCATION
-              value: "{{ .Values.security.kerberos.kerberosMountPath}}/{{ .Values.security.kerberos.krb5ConfigFileName }}"
+              value: "/etc/secrets/krb5.conf"
             {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
@@ -233,7 +233,7 @@ spec:
             {{- end }}
             {{- if .Values.security.kerberos.enabled }}
             - name: kubernetes-authenticator-secret
-              mountPath: {{ .Values.security.kerberos.kerberosMountPath }}
+              mountPath: "/etc/security/kerberos"
             {{- end }}
           {{- if .Values.resources }}
           resources: {{ toYaml .Values.resources | nindent 12 }}
@@ -295,10 +295,8 @@ spec:
           secret:
             secretName: kubernetes-authenticator-secret
             items:
-              - key: {{ .Values.security.kerberos.krb5ConfigFileName }}
-                path: {{ .Values.security.kerberos.krb5ConfigFileName }}
-              - key: {{ .Values.security.kerberos.keytabFileName }}
-                path: {{ .Values.security.kerberos.keytabFileName }}
+              - key: authenticator-keytab-file.keytab
+                path: authenticator-keytab-file.keytab
         {{- end }}
         {{- if .Values.datajobTemplate.enabled }}
         - name: datajob-template-volume

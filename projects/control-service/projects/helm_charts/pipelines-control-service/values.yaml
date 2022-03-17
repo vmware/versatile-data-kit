@@ -112,7 +112,6 @@ credentials:
    kerberosKadminUser: ""
    kerberosKadminPassword: ""
 
-
 ## The owner name and email address that will be used to send all Versatile Data Kit related email notifications.
 notificationOwnerEmail: "taurus@vmware.com"
 notificationOwnerName: "Versatile Data Kit"
@@ -326,35 +325,24 @@ security:
       ## which get picked up by our spring application (contorl-service)
       ## on startup. More information about kerberos and spring can be found here:
       ## https://docs.spring.io/spring-security-kerberos/docs/current/reference/htmlsingle/index.html
-      ## You only need to set the flag and file contents with correct values and kerberos authentication should work,
+      ## You only need to set the flag and property contents with correct values and kerberos authentication should work,
       ## provided global security is enabled.
-      ## Flag to determine whether kerberos authentication should be enabled/disabled
+      ##
+      ## The krb5.conf file that we use is the one specified in the credentials section and is required for kerberos
+      ## authentication to work. If kerberos authentication is enabled make sure the kerberosKrb5Conf property is set in
+      ## the credentials section as described in the documentation.
+      ##
+      ## Flag to determine whether kerberos authorization should be enabled/disabled
       enabled: false
-      ## This is the path to which the kerberos authentication configuration files will be mounted in the pod.
-      ## [ Required if kerberos.enabled = True ]
-      kerberosMountPath : "/etc/security/kerberos"
-      ## A string which contains the kerberos principal
-      ## [ Required if kerberos.enabled = True ]
       ## For more information on kerberos principal please review the official kerberos documentation:
       ## https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5.4/doc/krb5-user/What-is-a-Kerberos-Principal_003f.html
-      kerberosPrincipal: ""
-      ## This is the filename of the keytab file
-      ## The contents of the variable keytabFileContents will be mounted as a secret to the specified path
-      ## essentially the file name, and it's contents.
+      kerberosServicePrincipal: ""
       ## [ Required if kerberos.enabled = True ]
+      ## Contents of kerberos keytab used for authorization against control-service.
       ## For more information on kerberos keytabs please review the official kerberos documentation:
       ## https://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html
-      keytabFileName: "authenticator-keytab-file.keytab"
-      keytabFileContents: ""
-      ## Path(URI) to the krb5 config file location, needed to configure the KerberosAuthProvider in control-service
-      ## The contents of the variable will be mounted as a secret to the specified path.
-      ## [ Required if kerberos.enabled = True ]
-      ## For more information on kerberos configuration files please review the official kerberos documentation:
-      ## https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html
-      krb5ConfigFileName: "krb5.conf"
-      krb5ConfigContents: ""
-
-
+      ## You may use e.g. helm --set-file <filename.keytab> to set the contents of the file.
+      kerberosServiceKeytab: ""
 
    ## Feature flag to enable/disable authorization
    authorizationEnabled: false
