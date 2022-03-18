@@ -175,7 +175,7 @@ public abstract class KubernetesService implements InitializingBean {
     private String namespace;
     private String kubeconfig;
     private Logger log;
-    private Boolean k8sSupportsV1CronJob;
+    private boolean k8sSupportsV1CronJob;
     private ApiClient client;
 
     @Autowired
