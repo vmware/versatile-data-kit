@@ -233,14 +233,14 @@ vdk execute --logs -n example-job -t "Example Team" --execution-id example-job-1
 @click.option(
     "--start",
     "operation",
-    flag_value=ExecuteOperation.START,
+    flag_value=ExecuteOperation.START.value,
     help="Start execution of a Data Job. ",
 )
 @click.option(
     "--wait",
     "operation",
     hidden=True,
-    flag_value=ExecuteOperation.WAIT,
+    flag_value=ExecuteOperation.WAIT.value,
     help="Wait for current job execution (if any) to finish "
     "(if specified execution id wait for execution with given id to finish)."
     "Require --execution-id to be provided. "
@@ -249,27 +249,27 @@ vdk execute --logs -n example-job -t "Example Team" --execution-id example-job-1
 @click.option(
     "--cancel",
     "operation",
-    flag_value=ExecuteOperation.CANCEL,
+    flag_value=ExecuteOperation.CANCEL.value,
     help="Cancels a running or submitted Data Job execution. Requires --execution-id to be provided. "
     "Should be printed when using vdk execute --start",
 )
 @click.option(
     "--list",
     "operation",
-    flag_value=ExecuteOperation.LIST,
+    flag_value=ExecuteOperation.LIST.value,
     help="List recent and/or current executions of the Data Job. ",
 )
 @click.option(
     "--show",
     "operation",
-    flag_value=ExecuteOperation.SHOW,
+    flag_value=ExecuteOperation.SHOW.value,
     help="Shows details Data Job Executions. Requires --execution-id to be provided. "
     "Should be printed when using vdk execute --start",
 )
 @click.option(
     "--logs",
     "operation",
-    flag_value=ExecuteOperation.LOGS,
+    flag_value=ExecuteOperation.LOGS.value,
     help="Shows logs about Data Job Execution. It will either provide link to central logging system or"
     " print the logs locally."
     "If --execution-id is omitted, it will fetch logs from more recently started job execution."
@@ -292,26 +292,26 @@ def execute(
     name, team, execution_id, operation, rest_api_url, output, arguments
 ) -> None:
     cmd = JobExecute(rest_api_url)
-    if operation == ExecuteOperation.START:
+    if operation == ExecuteOperation.START.value:
         name = get_or_prompt("Job Name", name)
         cmd.start(name, team, output, arguments)
-    elif operation == ExecuteOperation.SHOW:
+    elif operation == ExecuteOperation.SHOW.value:
         name = get_or_prompt("Job Name", name)
         execution_id = get_or_prompt("Job Execution ID", execution_id)
         cmd.show(name, team, execution_id, output)
-    elif operation == ExecuteOperation.LIST:
+    elif operation == ExecuteOperation.LIST.value:
         name = get_or_prompt("Job Name", name)
         cmd.list(name, team, output)
-    elif operation == ExecuteOperation.CANCEL:
+    elif operation == ExecuteOperation.CANCEL.value:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
         execution_id = get_or_prompt("Job Execution ID", execution_id)
         cmd.cancel(name, team, execution_id)
-    elif operation == ExecuteOperation.LOGS:
+    elif operation == ExecuteOperation.LOGS.value:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
         cmd.logs(name, team, execution_id)
-    elif operation == ExecuteOperation.WAIT:
+    elif operation == ExecuteOperation.WAIT.value:
         name = get_or_prompt("Job Name", name)
         # cmd.wait(name, team)
         click.echo("Operation wait not implemented")
