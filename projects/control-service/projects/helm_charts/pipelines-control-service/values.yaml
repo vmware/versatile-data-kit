@@ -112,7 +112,6 @@ credentials:
    kerberosKadminUser: ""
    kerberosKadminPassword: ""
 
-
 ## The owner name and email address that will be used to send all Versatile Data Kit related email notifications.
 notificationOwnerEmail: "taurus@vmware.com"
 notificationOwnerName: "Versatile Data Kit"
@@ -320,6 +319,34 @@ security:
 
       ## [ Required if security.enabled = True ]
       jwtIssuerUrl: ""
+   kerberos:
+      ## These values contain configuration settings for the kerberos authentication provider in control-service.
+      ## The values are exposed as environment variables through the helm chart
+      ## which get picked up by our spring application (contorl-service)
+      ## on startup. More information about kerberos and spring can be found here:
+      ## https://docs.spring.io/spring-security-kerberos/docs/current/reference/htmlsingle/index.html
+      ## More information on kerberos authentication can be found here:
+      ## https://docs.oracle.com/cd/E23941_01/E26092/html/kerberos-auth.html
+      ## You only need to set the flag and property contents with correct values and kerberos authentication should work,
+      ## provided global security is enabled.
+      ##
+      ## The krb5.conf file that we use is the one specified in the credentials section and is required for kerberos
+      ## authentication to work. If kerberos authentication is enabled make sure the kerberosKrb5Conf property is set in
+      ## the credentials section as described in the documentation.
+      ##
+      ## Flag to determine whether kerberos authentication should be enabled/disabled
+      enabled: false
+      ## The service principal of the application, for example
+      ## "HTTP/full-qualified-domain-name@DOMAIN".
+      ## For more information on kerberos principal please review the official kerberos documentation:
+      ## https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5.4/doc/krb5-user/What-is-a-Kerberos-Principal_003f.html
+      kerberosServicePrincipal: ""
+      ## [ Required if kerberos.enabled = True ]
+      ## The keytab must contain the key for this principal.
+      ## For more information on kerberos keytabs please review the official kerberos documentation:
+      ## https://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html
+      ## You may use e.g. helm --set-file <filename.keytab> to set the contents of the file.
+      kerberosServiceKeytab: ""
 
    ## Feature flag to enable/disable authorization
    authorizationEnabled: false
