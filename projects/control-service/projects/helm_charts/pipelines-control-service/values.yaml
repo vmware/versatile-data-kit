@@ -334,13 +334,15 @@ security:
       ## authentication to work. If kerberos authentication is enabled make sure the kerberosKrb5Conf property is set in
       ## the credentials section as described in the documentation.
       ##
-      ## Flag to determine whether kerberos authorization should be enabled/disabled
+      ## Flag to determine whether kerberos authentication should be enabled/disabled
       enabled: false
+      ## The service principal of the application, for example
+      ## "HTTP/full-qualified-domain-name@DOMAIN".
       ## For more information on kerberos principal please review the official kerberos documentation:
       ## https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5.4/doc/krb5-user/What-is-a-Kerberos-Principal_003f.html
       kerberosServicePrincipal: ""
       ## [ Required if kerberos.enabled = True ]
-      ## Contents of kerberos keytab used for authorization against control-service.
+      ## The keytab must contain the key for this principal.
       ## For more information on kerberos keytabs please review the official kerberos documentation:
       ## https://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html
       ## You may use e.g. helm --set-file <filename.keytab> to set the contents of the file.
