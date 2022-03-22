@@ -138,9 +138,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
                   }
                   authorizeRequests.anyRequest().authenticated();
-              })
-              .oauth2ResourceServer().jwt()
-              .jwtAuthenticationConverter(jwtAuthenticationConverter());
+              });
+
+        if (featureFlags.isOAuth2Enabled()) {
+            http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
+        }
 
         if (featureFlags.isKrbAuthEnabled()) {
             http.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
