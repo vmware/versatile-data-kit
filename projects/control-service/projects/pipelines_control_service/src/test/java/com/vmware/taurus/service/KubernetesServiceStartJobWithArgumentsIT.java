@@ -32,6 +32,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     public void getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
 
         kubernetesService = Mockito.mock(KubernetesService.class);
+        Mockito.when(kubernetesService.getK8sSupportsV1CronJob()).thenReturn(false);
         V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
         BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
         Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(mockBatch);
@@ -131,15 +132,15 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     }
 
     private V1beta1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
-        KubernetesService service = new DataJobsKubernetesService("default", "someConfig");
+        KubernetesService service = new DataJobsKubernetesService("default", "someConfig", false);
         // V1betaCronJob initializing snippet copied from tests above, using reflection
         service.afterPropertiesSet();
-        Method loadInternalCronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalCronjobTemplate");
-        if (loadInternalCronjobTemplate == null) {
-            Assertions.fail("The method 'loadInternalCronjobTemplate' does not exist.");
+        Method loadInternalV1beta1CronjobTemplate = KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+        if (loadInternalV1beta1CronjobTemplate == null) {
+            Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
         }
-        loadInternalCronjobTemplate.setAccessible(true);
-        V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalCronjobTemplate.invoke(service);
+        loadInternalV1beta1CronjobTemplate.setAccessible(true);
+        V1beta1CronJob internalCronjobTemplate = (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
         var container = internalCronjobTemplate.getSpec()
                 .getJobTemplate()
                 .getSpec()

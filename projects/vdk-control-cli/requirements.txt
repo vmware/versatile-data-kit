@@ -1,6 +1,6 @@
 # install dependencies used during development:
 # Usually same (version may be different) as install_requires in setup.cfg
-click~=7.1.2
+click~=8.0
 click-spinner
 
 # Dependencies license report:

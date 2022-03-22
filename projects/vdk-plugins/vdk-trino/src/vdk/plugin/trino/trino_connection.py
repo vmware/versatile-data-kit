@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import time
 
 from tenacity import before_sleep_log
 from tenacity import retry
@@ -84,19 +83,13 @@ class TrinoConnection(ManagedConnectionBase):
         return conn
 
     def execute_query(self, query):
-        query_id = str(time.time())
-        lineage_data = self._get_lineage_data(query, query_id)
-        try:
-            res = self.execute_query_with_retries(query)
-            self._send_query_telemetry(query, query_id)
-            self.add_num_rows_after_query(lineage_data, res)
-            return res
-        except Exception as e:
-            self._send_query_telemetry(query, query_id, e)
-            raise
-        finally:
-            if self._lineage_logger and lineage_data:
+        res = self.execute_query_with_retries(query)
+        if self._lineage_logger:
+            lineage_data = self._get_lineage_data(query)
+            if lineage_data:
                 self._lineage_logger.send(lineage_data)
+        #  TODO: collect lineage for failed query
+        return res
 
     @retry(
         stop=stop_after_attempt(5),
@@ -109,72 +102,46 @@ class TrinoConnection(ManagedConnectionBase):
         res = super().execute_query(query)
         return res
 
-    def add_num_rows_after_query(self, lineage_data, res):
-        if lineage_data:
-            lineage_data["output_num_rows_after"] = self._get_output_table_num_rows(
-                lineage_data
-            )
-            if "outputTable" in lineage_data:
-                if res and res[0] and res[0][0]:
-                    lineage_data["output_num_rows_updated"] = res[0][0]
+    def _get_lineage_data(self, query):
 
-    def _get_lineage_data(self, query, query_id):
-        if self._lineage_logger:
+        from vdk.plugin.trino import lineage_utils
+        import sqlparse
+
+        statement = sqlparse.parse(query)[0]
+
+        if statement.get_type() == "ALTER":
+            rename_table_lineage = lineage_utils.get_rename_table_lineage_from_query(
+                query, self._schema, self._catalog
+            )
+            if rename_table_lineage:
+                log.debug("Collecting lineage for rename table operation ...")
+                return rename_table_lineage
+            else:
+                log.debug(
+                    "ALTER operation not a RENAME TABLE operation. No lineage will be collected."
+                )
+
+        elif statement.get_type() == "SELECT" or statement.get_type() == "INSERT":
+            if lineage_utils.is_heartbeat_query(query):
+                return None
+            log.debug("Collecting lineage for SELECT/INSERT query ...")
             try:
-                with closing_noexcept_on_close(self.__cursor()) as cur:
+                with closing_noexcept_on_close(self._cursor()) as cur:
                     cur.execute(f"EXPLAIN (TYPE IO, FORMAT JSON) {query}")
                     result = cur.fetchall()
                     if result:
-                        import json
-
-                        data = json.loads(result[0][0])
-                        data["@type"] = "taurus_query_io"
-                        data["query"] = query
-                        data["@id"] = query_id
-                        data[
-                            "output_num_rows_before"
-                        ] = self._get_output_table_num_rows(data)
-                        return data
+                        return lineage_utils.get_lineage_data_from_io_explain(
+                            query, result[0][0]
+                        )
             except Exception as e:
                 log.info(
                     f"Failed to get query io details for telemetry: {e}. Will continue with query execution"
                 )
                 return None
+        else:
+            log.debug(
+                "Unsupported query type for lineage collection. Will not collect lineage."
+            )
+            return None
 
-    def _get_output_table_num_rows(self, data):
-        if data and "outputTable" in data:
-            try:
-                outputTable = data["outputTable"]
-                catalog = outputTable["catalog"]
-                schema = outputTable["schemaTable"]["schema"]
-                table = outputTable["schemaTable"]["table"]
-                # TODO: escape potential reserved names
-                with closing_noexcept_on_close(self.__cursor()) as cur:
-                    cur.execute(  # nosec
-                        f"select count(1) from {catalog}.{schema}.{table}"
-                    )
-                    res = cur.fetchall()
-                    if res:
-                        return res[0][0]
-                    else:
-                        return None
-            except Exception as e:
-                log.info(
-                    f"Failed to get output table details: {e}. Will continue with query processing as normal"
-                )
-                return None
         return None
-
-    def _send_query_telemetry(self, query, query_id, exception=None):
-        if self._lineage_logger:
-            try:
-                data = dict()
-                data["@type"] = "taurus_query"
-                data["query"] = query
-                data["@id"] = query_id
-                data["status"] = "OK" if exception is None else "EXCEPTION"
-                if exception:
-                    data["error_message"] = str(exception)
-                self._lineage_logger.send(data)
-            except:
-                log.exception("Failed to send query details as telemetry.")

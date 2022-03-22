@@ -14,7 +14,7 @@ setuptools.setup(
     description="Versatile Data Kit SDK plugin provides support for trino database and trino transformation templates.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "trino", "tabulate"],
+    install_requires=["vdk-core", "trino", "tabulate", "sqlparse"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,

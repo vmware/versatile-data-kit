@@ -73,7 +73,7 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
 @click.option(
     "--create",
     "operation",
-    flag_value=DeployOperation.CREATE,
+    flag_value=DeployOperation.CREATE.value,
     default=True,
     help="Create a new deployment of a Data Job. "
     "You must set job path (--job-path) with the directory of the Data Job. "
@@ -86,7 +86,7 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
 @click.option(
     "--remove",
     "operation",
-    flag_value=DeployOperation.REMOVE,
+    flag_value=DeployOperation.REMOVE.value,
     help="Remove a deployment, so job will not be scheduled any more for execution. "
     "Currently running job will be allowed to finish.",
 )
@@ -94,7 +94,7 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
     "--update",
     "operation",
     hidden=True,
-    flag_value=DeployOperation.UPDATE,
+    flag_value=DeployOperation.UPDATE.value,
     help="Update specified deployment version of a Data Job for a cloud execution. "
     "It is used to revert to previous version. "
     "Deploy specific configuration will not be updated. "
@@ -119,7 +119,7 @@ vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
 @click.option(
     "--show",
     "operation",
-    flag_value=DeployOperation.SHOW,
+    flag_value=DeployOperation.SHOW.value,
     help="Shows details about deployed job.",
 )
 @click.option(
@@ -172,7 +172,7 @@ def deploy(
     output: str,
 ):
     cmd = JobDeploy(rest_api_url, output)
-    if operation == DeployOperation.UPDATE or enabled is not None:
+    if operation == DeployOperation.UPDATE.value or enabled is not None:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
         # default to ask for job version to update
@@ -185,15 +185,15 @@ def deploy(
             )
         else:
             return cmd.update(name, team, enabled, job_version, vdk_version, output)
-    if operation == DeployOperation.REMOVE:
+    if operation == DeployOperation.REMOVE.value:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
         return cmd.remove(name, team)
-    if operation == DeployOperation.SHOW:
+    if operation == DeployOperation.SHOW.value:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)
         return cmd.show(name, team, output)
-    if operation == DeployOperation.CREATE:
+    if operation == DeployOperation.CREATE.value:
         job_path = get_or_prompt("Job Path", job_path)
         default_name = os.path.basename(job_path)
         name = get_or_prompt("Job Name", name, default_name)
