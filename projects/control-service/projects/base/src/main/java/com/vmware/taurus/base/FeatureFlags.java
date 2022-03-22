@@ -30,7 +30,7 @@ public class FeatureFlags {
    @Value("${datajobs.security.kerberos.enabled:false}")
    boolean krbAuthEnabled = false;
 
-   @Value("${datajobs.security.oauth2.enabled}")
+   @Value("${datajobs.security.oauth2.enabled:false}")
    boolean oAuth2Enabled = true;
 
 }
