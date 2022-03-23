@@ -821,7 +821,7 @@ public abstract class KubernetesService implements InitializingBean {
                 .build();
         var spec = new V1JobSpecBuilder()
                 .withBackoffLimit(3) //TODO configure
-                .withTtlSecondsAfterFinished(cronJobTTLAfterFinished)  //TODO configure
+                .withTtlSecondsAfterFinished(cronJobTTLAfterFinished)
                 .withTemplate(template)
                 .build();
         createNewJob(name, spec, Collections.emptyMap(), Collections.emptyMap());
