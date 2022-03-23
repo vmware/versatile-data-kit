@@ -546,6 +546,8 @@ public abstract class KubernetesService implements InitializingBean {
                 .map(V1beta1JobTemplateSpec::getSpec)
                 .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", cronJobName)));
 
+        jobSpec.setTtlSecondsAfterFinished(3600);
+
         V1Container v1Container = Optional.ofNullable(jobSpec.getTemplate())
                 .map(V1PodTemplateSpec::getSpec)
                 .map(V1PodSpec::getContainers)
@@ -587,6 +589,8 @@ public abstract class KubernetesService implements InitializingBean {
         V1JobSpec jobSpec = jobTemplateSpec
               .map(V1JobTemplateSpec::getSpec)
               .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", cronJobName)));
+
+        jobSpec.setTtlSecondsAfterFinished(3600);
 
         V1Container v1Container = Optional.ofNullable(jobSpec.getTemplate())
               .map(V1PodTemplateSpec::getSpec)
