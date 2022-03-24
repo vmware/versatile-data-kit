@@ -1,8 +1,11 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 from pathlib import Path
+from typing import Optional
 
+from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 
@@ -13,10 +16,16 @@ KEYTAB_FILENAME = "KEYTAB_FILENAME"
 KEYTAB_PRINCIPAL = "KEYTAB_PRINCIPAL"
 KEYTAB_REALM = "KEYTAB_REALM"
 KERBEROS_KDC_HOST = "KERBEROS_KDC_HOST"
+KRB_AUTH_FAIL_FAST = "KRB_AUTH_FAIL_FAST"
 
 
 class KerberosPluginConfiguration:
-    def __init__(self, job_name: str, job_directory: str, config: Configuration):
+    def __init__(
+        self,
+        job_name: Optional[str],
+        job_directory: Optional[str],
+        config: Configuration,
+    ):
         self.__job_name = job_name
         self.__job_directory = job_directory
         self.__config = config
@@ -26,25 +35,40 @@ class KerberosPluginConfiguration:
 
     def keytab_folder(self):
         keytab_folder = self.__config.get_value(KEYTAB_FOLDER)
-        if keytab_folder is None:
+        if keytab_folder is None and self.__job_directory:
             keytab_folder = Path(self.__job_directory).parent
         return keytab_folder
 
     def keytab_filename(self):
         keytab_filename = self.__config.get_value(KEYTAB_FILENAME)
-        if keytab_filename is None:
+        if keytab_filename is None and self.__job_name:
             keytab_filename = f"{self.__job_name}.keytab"
         return keytab_filename
 
     def keytab_pathname(self):
-        return os.path.join(self.keytab_folder(), self.keytab_filename())
+        keytab_folder = self.keytab_folder()
+        keytab_filename = self.keytab_filename()
+        if not keytab_filename:
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                log=logging.getLogger(__name__),
+                what_happened="Cannot find keytab file location.",
+                why_it_happened="Keytab filename cannot be inferred from configuration.",
+                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                countermeasures="Provide configuration variables KEYTAB_FILENAME KEYTAB_FOLDER. "
+                "During vdk run they are automatically inferred from data job location "
+                "but for other commands they need to be explicitly set.",
+            )
+        if keytab_folder:
+            return os.path.join(keytab_folder, keytab_filename)
+        return keytab_filename
 
     def krb5_conf_filename(self):
         return self.__config.get_value(KRB5_CONF_FILENAME)
 
     def keytab_principal(self):
         keytab_principal = self.__config.get_value(KEYTAB_PRINCIPAL)
-        if keytab_principal is None:
+        if keytab_principal is None and self.__job_name:
             keytab_principal = f"pa__view_{self.__job_name}"
         return keytab_principal
 
@@ -53,6 +77,9 @@ class KerberosPluginConfiguration:
 
     def kerberos_host(self):
         return self.__config.get_value(KERBEROS_KDC_HOST)
+
+    def auth_fail_fast(self) -> bool:
+        return self.__config.get_value(KRB_AUTH_FAIL_FAST)
 
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
@@ -100,4 +127,13 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         default_value="localhost",
         description="Specifies the name of the Kerberos KDC (Key Distribution Center) host. "
         "This value is used only with the 'minikerberos' authentication type.",
+    )
+    config_builder.add(
+        key=KRB_AUTH_FAIL_FAST,
+        default_value=False,
+        description="Specify if the authenticator must raise exception "
+        "if it fails to successfully authenticate with kerberos (basically - kinit). "
+        "If set to false, only warning will be logged on authentication failure. "
+        "Subsequent kerberos related requests may fail but that'd fail lazily (on demand) "
+        "that makes it possible for non-kerberos related features to work.",
     )
