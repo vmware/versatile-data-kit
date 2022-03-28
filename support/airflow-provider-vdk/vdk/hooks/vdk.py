@@ -4,6 +4,7 @@ from airflow.providers.http.hooks.http import HttpHook
 from tenacity import sleep
 from tenacity import stop_after_attempt
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
+from vdk.internal.control.auth.auth import Authentication
 
 
 class VDKHook(HttpHook):
@@ -26,6 +27,10 @@ class VDKHook(HttpHook):
         self._retry_dict = {
             "stop": stop_after_attempt(retry_limit),
             "sleep": sleep(retry_delay),
+        }
+        self.headers = {
+            "content-type": "application/json",
+            "authorization": f"Bearer {Authentication().read_access_token()}",
         }
 
     def start_job_execution(self) -> None:

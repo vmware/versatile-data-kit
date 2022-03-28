@@ -18,7 +18,12 @@ setup(
     },
     license="Apache License 2.0",
     packages=["vdk", "vdk.hooks", "vdk.sensors", "vdk.operators"],
-    install_requires=["apache-airflow>=2.0", "tenacity>=6.2.0", "vdk-core"],
+    install_requires=[
+        "apache-airflow>=2.0",
+        "tenacity>=6.2.0",
+        "vdk-core",
+        "vdk-control-cli",
+    ],
     setup_requires=["setuptools", "wheel"],
     author="Versatile Data Kit Development Team",
     author_email="versatile-data-kit@vmware.com",
