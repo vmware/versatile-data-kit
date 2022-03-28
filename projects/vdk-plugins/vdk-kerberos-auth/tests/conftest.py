@@ -3,11 +3,12 @@
 import os
 import subprocess  # nosec
 import time
+from pathlib import Path
 from unittest import mock
 
 import pytest
+from pytest_docker.plugin import Services
 from vdk.plugin.test_utils.util_funcs import get_caller_directory
-
 
 krb5_realm = "EXAMPLE.COM"
 krb5_user = "admin/admin"
@@ -16,23 +17,46 @@ krb5_pass = "iamaserver"  # nosec
 
 def _run_kadmin_query(query) -> int:
     # no untrusted input can appear here
+    if os.environ.get("VDK_TEST_USE_KADMIN_DOCKER", "n").lower() in [
+        "yes",
+        "y",
+        "true",
+    ]:
+        cmd = [
+            "docker",
+            "run",
+            "--network=host",
+            "-v",
+            f'{os.environ.get("KRB5_CONFIG")}:/etc/krb5.conf',
+            "-v",
+            f"{str(get_caller_directory())}:/home",
+            "tozkata/kadmin",
+        ]
+    else:
+        cmd = ["kadmin"]
+
     return subprocess.run(  # nosec
         [
-            "kadmin",
+            *cmd,
             "-p",
             krb5_user,
             "-w",
             krb5_pass,
             "-q",
             query,
-        ]
+        ],
+        cwd=str(get_caller_directory()),
     ).returncode
 
 
 def _is_responsive():
+    return _run_kadmin_query("list_principals") == 0
+
+
+def _is_responsive_noexcept():
     try:
         return _run_kadmin_query("list_principals") == 0
-    except:
+    except Exception:
         return False
 
 
@@ -44,7 +68,7 @@ def docker_compose_file(pytestconfig):
 
 
 @pytest.fixture(scope="session")
-def kerberos_service(docker_ip, docker_services):
+def kerberos_service(docker_ip: str, docker_services: Services):
     """
     Ensure that Kerberos server is up and responsive.
     Do a post-startup server configuration.
@@ -64,16 +88,20 @@ def kerberos_service(docker_ip, docker_services):
             "KRB5_CONFIG": str(caller_directory.joinpath("krb5.conf")),
         },
     ):
-        docker_services.wait_until_responsive(
-            timeout=90.0, pause=0.3, check=_is_responsive
-        )
+        try:
+            docker_services.wait_until_responsive(
+                timeout=10.0, pause=0.3, check=_is_responsive_noexcept
+            )
+        except:
+            # check again so we can raise a visible error when something is wrong.
+            _is_responsive()
 
         # Add the data job principal to the Kerberos server and obtain a keytab for it.
         # Realm and pass are the same as those configured at server startup (see ./docker-compose.yml)
         datajob_name = "test-job"
-        keytab_filename = caller_directory.joinpath("jobs").joinpath("test-job.keytab")
-        if os.path.isfile(keytab_filename):
-            os.remove(keytab_filename)
+        keytab_filename = Path("jobs").joinpath("test-job.keytab")
+        if os.path.isfile(str(caller_directory.joinpath(keytab_filename))):
+            os.remove(str(caller_directory.joinpath(keytab_filename)))
         result = _run_kadmin_query(f"add_principal -randkey pa__view_{datajob_name}")
         assert result == 0, "(kadmin) failed to create principal"
         result = _run_kadmin_query(
@@ -82,11 +110,9 @@ def kerberos_service(docker_ip, docker_services):
         assert result == 0, "(kadmin) failed to create keytab"
 
         # Create another principal for the purposes of testing wrong credentials later
-        keytab_filename2 = caller_directory.joinpath("jobs").joinpath(
-            "different_principal.keytab"
-        )
-        if os.path.isfile(keytab_filename2):
-            os.remove(keytab_filename2)
+        keytab_filename2 = Path("jobs").joinpath("different_principal.keytab")
+        if os.path.isfile(caller_directory.joinpath(keytab_filename2)):
+            os.remove(caller_directory.joinpath(keytab_filename2))
         result = _run_kadmin_query(f"add_principal -randkey different_principal")
         assert result == 0, "(kadmin) failed to create principal"
         result = _run_kadmin_query(

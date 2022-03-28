@@ -172,6 +172,9 @@ public abstract class KubernetesService implements InitializingBean {
     @org.springframework.beans.factory.annotation.Value("${datajobs.control.k8s.data.job.template.file}")
     private String datajobTemplateFileLocation;
 
+    @org.springframework.beans.factory.annotation.Value("${datajobs.control.k8s.jobTTLAfterFinishedSeconds}")
+    private int jobTTLAfterFinishedSeconds;
+
     private String namespace;
     private String kubeconfig;
     private Logger log;
@@ -546,6 +549,8 @@ public abstract class KubernetesService implements InitializingBean {
                 .map(V1beta1JobTemplateSpec::getSpec)
                 .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", cronJobName)));
 
+        jobSpec.setTtlSecondsAfterFinished(jobTTLAfterFinishedSeconds);
+
         V1Container v1Container = Optional.ofNullable(jobSpec.getTemplate())
                 .map(V1PodTemplateSpec::getSpec)
                 .map(V1PodSpec::getContainers)
@@ -587,6 +592,8 @@ public abstract class KubernetesService implements InitializingBean {
         V1JobSpec jobSpec = jobTemplateSpec
               .map(V1JobTemplateSpec::getSpec)
               .orElseThrow(() -> new ApiException(String.format("K8S Cron Job '%s' does not exist or is not properly defined.", cronJobName)));
+
+        jobSpec.setTtlSecondsAfterFinished(jobTTLAfterFinishedSeconds);
 
         V1Container v1Container = Optional.ofNullable(jobSpec.getTemplate())
               .map(V1PodTemplateSpec::getSpec)
@@ -814,7 +821,7 @@ public abstract class KubernetesService implements InitializingBean {
                 .build();
         var spec = new V1JobSpecBuilder()
                 .withBackoffLimit(3) //TODO configure
-                .withTtlSecondsAfterFinished(3600)  //TODO configure
+                .withTtlSecondsAfterFinished(jobTTLAfterFinishedSeconds)
                 .withTemplate(template)
                 .build();
         createNewJob(name, spec, Collections.emptyMap(), Collections.emptyMap());
