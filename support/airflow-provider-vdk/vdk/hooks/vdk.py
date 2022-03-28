@@ -37,6 +37,7 @@ class VDKHook(HttpHook):
         """
         API path: POST /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/executions
 
+        :return: None
         """
         pass
 
@@ -45,6 +46,7 @@ class VDKHook(HttpHook):
         API path: DELETE /data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{execution_id}
 
         :param execution_id: ID of the job execution
+        :return: None
         """
         pass
 

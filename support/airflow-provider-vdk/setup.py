@@ -1,12 +1,13 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from setuptools import find_packages
 from setuptools import setup
 
 with open("README.md") as fh:
     long_description = fh.read()
 
-"""Perform the package airflow-provider-vdk setup."""
+"""
+Perform the package airflow-provider-vdk setup.
+"""
 setup(
     name="airflow-provider-vdk",
     version="0.0.1",
