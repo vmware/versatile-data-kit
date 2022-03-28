@@ -112,8 +112,6 @@ class IngesterBase(IIngester):
         """
         See parent doc
         """
-        self.__verify_payload_format(payload_dict=payload)
-
         if collection_id is None:
             collection_id = "{data_job_name}|{execution_id}".format(
                 data_job_name=self._data_job_name, execution_id=self._op_id
@@ -434,6 +432,11 @@ class IngesterBase(IIngester):
                             collection_id=collection_id,
                             metadata=ingestion_metadata,
                         )
+
+                    # Verify payload after pre-processing it, since this preprocessing might be responsible for
+                    # making it serializable
+                    for payload_dict in payload_obj:
+                        self.__verify_payload_format(payload_dict=payload_dict)
 
                     try:
                         ingestion_metadata = self._ingester.ingest_payload(
