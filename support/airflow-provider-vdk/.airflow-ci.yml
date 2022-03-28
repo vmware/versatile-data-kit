@@ -1,4 +1,4 @@
-.build-airflow-provider-vdk:
+build-airflow-provider-vdk:
   stage: build
   before_script:
     - cd support/airflow-provider-vdk
@@ -22,7 +22,7 @@
       junit: tests.xml
 
 
-.release-airflow-provider-vdk:
+release-airflow-provider-vdk:
   stage: release
   before_script:
     - export PROVIDER_PATCH_VERSION=${CI_PIPELINE_ID}
