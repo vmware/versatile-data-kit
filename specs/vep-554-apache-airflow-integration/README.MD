@@ -4,22 +4,6 @@
   aivanov@vmware.com)
 * **Status:** draft
 
-To get started with this template:
-
-- [ ] **Create an issue in Github (if one does not exists already)**
-- [ ] **Make a copy of this template directory.**
-  Copy this template into the specs directory and name it
-  `NNNN-short-descriptive-title`, where `NNNN` is the issue number (with no leading-zero
-  padding) created above.
-- [ ] **Fill out this file as best you can.**
-  There are instructions as HTML comments. At minimum, you should fill in the "Summary"
-  and "Motivation" sections.
-- [ ] **Create a PR for this VEP.**
-- [ ] **Merge early and iterate.**
-  Avoid getting hung up on specific details and instead aim to get the goals of the VEP
-  clarified and merged quickly. The best way to do this is to just start with the
-  high-level sections and fill out details incrementally in subsequent PRs.
-
 - [Summary](#summary)
 - [Glossary](#glossary)
 - [Motivation](#motivation)
@@ -60,6 +44,8 @@ managing Data Jobs.
 * **Data Job
   Execution**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-execution
 * **Apache Airflow (Airflow)**: https://airflow.apache.org/
+* **Airflow
+  Connection**: https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html
 * **VDK Provider**: VDK Airflow Community
   Provider (https://airflow.apache.org/docs/apache-airflow-providers/)
 * **DAG**: Directed Acyclic Graph
@@ -187,48 +173,6 @@ by providing a sensor operator derived from `airflow.sensors.base.BaseSensorOper
 which polls on the specific time intervals for job execution completion and does not hold
 the Airflow Worker.
 
-* Availability.
-    * The availability of the VDK Provider will be managed by Airflow, since it is going
-      to be deployed as part of Airflow ecosystem.
-
-* Capacity Estimation and Constraints TODO
-
-<!--
-* Capacity Estimation and Constraints
-    * Cost of data path: CPU cost per-IO, memory footprint, network footprint.
-    * Cost of control plane including cost of APIs, expected timeliness from layers
-      above.
-
-* Performance.
-    * Consider performance of data operations for different types of workloads. Consider
-      performance of control operations
-    * Consider performance under steady state as well under various pathological
-      scenarios, e.g., different failure cases, partitioning, recovery.
-    * Performance scalability along different dimensions, e.g. #objects, network
-      properties (latency, bandwidth), number of data jobs, processed/ingested data, etc.
-* Telemetry and monitoring changes (new metrics).
-* Configuration changes.
-* Upgrade / Downgrade Strategy (especially if it might be breaking change).
-* Troubleshooting
-    * What are possible failure modes.
-        * Detection: How can it be detected via metrics?
-        * Mitigations: What can be done to stop the bleeding, especially for already
-          running user workloads?
-        * Diagnostics: What are the useful log messages and their required logging levels
-          that could help debug the issue?
-        * Testing: Are there any tests for failure mode? If not, describe why._
-* Operability
-    * What are the SLIs (Service Level Indicators) an operator can use to determine the
-      health of the system.
-    * What are the expected SLOs
-* Test Plan
-    * Unit tests are expected. But are end to end test necessary. Do we need to extend
-      vdk-heartbeat ?
-* Dependencies
-    * On what services the feature depends on ? Are there new (external) dependencies
-      added?
--->
-
 #### VDK Hook
 
 Airflow Hooks act as an interface for communication with the external shared resources in
@@ -236,9 +180,7 @@ a DAG. In our case, the VDKHook will encapsulate the logic for the communication
 Control Service. It will provide methods for starting, canceling, and retrieving Data Job
 executions. Also, it will contain a built-in HTTP client with configurable retry and
 authentication mechanisms. The hook also will help to avoid storing connection
-authentication parameters in a DAG by
-using [Airflow Connections](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html)
-.
+authentication parameters in a DAG by using Airflow Connection.
 
 In this way, the implemented logic can be reused in different operators
 (e.g. VDKOperator and VDKSensorOperator). Such an approach provides better decoupling and
@@ -356,15 +298,88 @@ with DAG(
    sync_data_job >> async_data_job
 ```
 
+### Availability
+
+The availability of the VDK Provider will be managed by Airflow since it is going to be
+deployed as part of the Airflow ecosystem. Possible downtime of both Authorization Server
+and Control Service will be handled by implementing exponential backoff algorithm. Also,
+it is going to be fully configurable through the Airflow Connection.
+
+### Capacity Estimation and Constraints
+
+The load to the Control Service APIs from the Provider mostly depends on the following
+factors:
+
+* Number of concurrent Data Job Executions across the Airflow Workflows
+* Data Job Executions duration
+* Provider polling interval (by default 30 seconds, but it is configurable)
+
+A workflow that consists of one Data Job is going to perform 2 requests per minute to the
+Control Service APIs.
+
+For example, the following workflow consists of 5 Data Jobs like follows:
+
+* `Job 4` depends on `Job 1` and `Job 2`
+* `Job 5` depends on `Job 3`
+* The execution time of each of the following jobs is about 4 hours: `Job 1`, `Job 2`
+  , and `Job 3`
+* The execution time of each of the following jobs is about 2 hours: `Job 4`
+  and `Job 5`
+
+![sample-workflow.png](sample-workflow.png)
+
+During the first 4 hours of the workflow execution, the Provider will perform about 6 (
+3 jobs * 2 requests/minute) requests per minute or 1440 requests in total. For the next 2
+hours the Provider will perform about 4 (2 jobs * 2 requests/minute) requests per minute
+or 440 requests in total. In total the Provider will perform 1880 requests for the whole
+workflow execution.
+
+### Troubleshooting
+
+The Data Jobs within the same workflow will have the same unique operation id (op_id).
+The operation id will be provided by the operators through the HTTP header `X-OPID` of
+the Control Service APIs.
+
+<!--
+* Performance.
+    * Consider performance of data operations for different types of workloads. Consider
+      performance of control operations
+    * Consider performance under steady state as well under various pathological
+      scenarios, e.g., different failure cases, partitioning, recovery.
+    * Performance scalability along different dimensions, e.g. #objects, network
+      properties (latency, bandwidth), number of data jobs, processed/ingested data, etc.
+* Telemetry and monitoring changes (new metrics).
+* Configuration changes.
+* Upgrade / Downgrade Strategy (especially if it might be breaking change).
+* Troubleshooting
+    * What are possible failure modes.
+        * Detection: How can it be detected via metrics?
+        * Mitigations: What can be done to stop the bleeding, especially for already
+          running user workloads?
+        * Diagnostics: What are the useful log messages and their required logging levels
+          that could help debug the issue?
+        * Testing: Are there any tests for failure mode? If not, describe why._
+* Operability
+    * What are the SLIs (Service Level Indicators) an operator can use to determine the
+      health of the system.
+    * What are the expected SLOs
+* Dependencies
+    * On what services the feature depends on ? Are there new (external) dependencies
+      added?
+-->
+
+### Test Plan
+Unit and integration tests will be introduced by following the official Airflow guides:
+* https://airflow.apache.org/docs/apache-airflow-providers/howto/create-update-providers.html#initial-code-and-unit-tests
+* https://github.com/apache/airflow/blob/main/TESTING.rst#airflow-integration-tests
+
 ### Security and Permissions
 
 The communication between VDK Provider and Control Service will be secured through the
 use of HTTPS and OAuth 2.0. The most commonly used OAuth 2.0 flows will be supported (
 e.g. Client Credentials Flow, Refresh Token Flow, etc.).
 
-Secrets will be stored as part
-of [Airflow Connection](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html)
-like follows:
+Secrets will be stored as part of the Airflow Connection like follows:
 
 * Refresh Token Flow:
 

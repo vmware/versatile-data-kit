@@ -32,3 +32,16 @@ The following environment variables can be used to configure this plugin:
 | `VDK_KEYTAB_PRINCIPAL`  | Specifies the Kerberos principal. If left empty, the principal will be the job name prepended with 'pa__view_'.                                                |
 | `VDK_KEYTAB_REALM`      | Specifies the Kerberos realm. This value is used only with the 'minikerberos' authentication type. The default value is 'default_realm'.                       |
 | `VDK_KERBEROS_KDC_HOST` | Specifies the name of the Kerberos KDC (Key Distribution Center) host. This value is used only with the 'minikerberos' authentication type.                    |
+
+# Testing
+
+In order to run the tests you need pytest and docker and kerberos client (kadmin).
+
+You can use helper script `../build-plugin.sh` to build and test locally.
+
+On Mac OS kadmin may miss some options needed. In this case you can use kadmin in docker to run the tests
+```bash
+export VDK_TEST_USE_KADMIN_DOCKER=true
+cd /source/projects/vdk-plugins/vdk-kerberos-auth
+../build-plugin.sh
+```
