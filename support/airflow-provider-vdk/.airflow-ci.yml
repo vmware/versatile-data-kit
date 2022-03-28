@@ -8,11 +8,12 @@
       - always
 
 
-image: "python:3.7"
+
 
 
 build-airflow-provider-vdk:
   stage: build
+  image: "python:3.7"
   script:
     - cd support/airflow-provider-vdk
     - echo "Building VDK Airflow provider..."
@@ -36,6 +37,7 @@ build-airflow-provider-vdk:
 
 release-airflow-provider-vdk:
   stage: release
+  image: "python:3.7"
   script:
     - cd support/
     - echo "Releasing airflow-provider-vdk..."
