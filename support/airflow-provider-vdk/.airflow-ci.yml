@@ -25,12 +25,12 @@
 .release-airflow-provider-vdk:
   stage: release
   before_script:
-    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
+    - export PROVIDER_PATCH_VERSION=${CI_PIPELINE_ID}
   script:
     - cd support/
     - echo "Releasing airflow-provider-vdk..."
     - cd airflow-provider-vdk/ || exit 1
-    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
+    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${PROVIDER_PATCH_VERSION}\"/g" setup.py
     - pip install -U pip setuptools wheel twine
     - python setup.py sdist --formats=gztar
     # provide the credentials as Gitlab variables
