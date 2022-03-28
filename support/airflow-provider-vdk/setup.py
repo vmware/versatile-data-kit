@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from setuptools import setup
 
+__version__ = "0.0.1"
+
 with open("README.md") as fh:
     long_description = fh.read()
 
@@ -10,7 +12,7 @@ Perform the package airflow-provider-vdk setup.
 """
 setup(
     name="airflow-provider-vdk",
-    version="0.0.1",
+    version=__version__,
     description="Airflow provider for Versatile Data Kit.",
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -10,6 +10,7 @@ include:
   - "projects/control-service/cicd/.gitlab-ci.yml"
   - "projects/vdk-plugins/.plugin-common.yml"
   - "projects/vdk-plugins/*/.plugin-ci.yml"
+  - "support/airflow-provider-vdk/.airflow-ci.yml"
 
 stages:
   - build
