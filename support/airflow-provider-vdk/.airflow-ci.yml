@@ -1,3 +1,16 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+
+image: "python:3.7"
+
+
 build-airflow-provider-vdk:
   stage: build
   script:
