@@ -11,8 +11,11 @@ ci-job-testing-issue:
   stage: build
   script:
     - echo 'hello world'
-  only:
-    - external_pull_requests
+  rules: # we want to trigger build jobs if there are changes to this package,
+    # but not if there are changes to VDK plugins or the main directory
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/support/airflow-provider-vdk/**/*"
 
 build-airflow-provider-vdk:
   stage: build
