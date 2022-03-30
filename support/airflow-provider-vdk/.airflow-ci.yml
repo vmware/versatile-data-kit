@@ -7,9 +7,12 @@
     when:
       - always
 
-
-
-
+ci-job-testing-issue:
+  stage: build
+  script:
+    - echo 'hello world'
+  only:
+    - external_pull_requests
 
 build-airflow-provider-vdk:
   stage: build

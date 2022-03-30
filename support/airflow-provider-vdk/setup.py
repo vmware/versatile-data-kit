@@ -17,10 +17,17 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     entry_points={
-        "apache_airflow_provider": ["provider_info=vdk.__init__:get_provider_info"]
+        "apache_airflow_provider": [
+            "provider_info=vdk_airflow.__init__:get_provider_info"
+        ]
     },
     license="Apache License 2.0",
-    packages=["vdk", "vdk.hooks", "vdk.sensors", "vdk.operators"],
+    packages=[
+        "vdk_airflow",
+        "vdk_airflow.hooks",
+        "vdk_airflow.sensors",
+        "vdk_airflow.operators",
+    ],
     install_requires=[
         "apache-airflow>=2.0",
         "tenacity>=6.2.0",
