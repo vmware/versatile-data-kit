@@ -4,7 +4,7 @@
 
 def get_provider_info():
     return {
-        "package-name": "airflow-provider-vdk'",
+        "package-name": "airflow-provider-vdk",
         "name": "Versatile Data Kit Airflow Provider",
         "description": "Airflow provider for Versatile Data Kit.",
         "hook-class-names": ["vdk_airflow.hooks.vdk.VDKHook"],
