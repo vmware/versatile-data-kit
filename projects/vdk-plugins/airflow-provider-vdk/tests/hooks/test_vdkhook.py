@@ -6,4 +6,4 @@ from vdk_airflow.hooks.vdk import VDKHook
 def test_dummy():
     hook = VDKHook("conn_id", "job_name", "team_name")
 
-    assert True
+    assert hook
