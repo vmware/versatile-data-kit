@@ -12,7 +12,7 @@ build-airflow-provider-vdk:
   stage: build
   image: "python:3.7"
   script:
-    - cd support/airflow-provider-vdk
+    - cd projects/vdk-plugins/airflow-provider-vdk
     - echo "Building VDK Airflow provider..."
     - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
     - pip install -U pip setuptools pre-commit
@@ -25,7 +25,7 @@ build-airflow-provider-vdk:
     # but not if there are changes to VDK plugins or the main directory
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
-        - "support/airflow-provider-vdk/**/*"
+        - "projects/vdk-plugins/airflow-provider-vdk/**/*"
   artifacts:
     when: always
     reports:
@@ -36,7 +36,7 @@ release-airflow-provider-vdk:
   stage: release
   image: "python:3.7"
   script:
-    - cd support/
+    - cd projects/vdk-plugins/
     - echo "Releasing airflow-provider-vdk..."
     - cd airflow-provider-vdk/ || exit 1
     - pip install -U pip setuptools wheel twine
@@ -47,4 +47,4 @@ release-airflow-provider-vdk:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
-        - "support/airflow-provider-vdk/**/*"
+        - "projects/vdk-plugins/airflow-provider-vdk/**/*"
