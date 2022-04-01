@@ -45,6 +45,7 @@ class VDKHook(HttpHook):
             self._retry_dict, endpoint=endpoint, headers=self.headers, json={}
         )
         """
+
         pass
 
     def cancel_job_execution(self, execution_id: str) -> None:
@@ -61,6 +62,7 @@ class VDKHook(HttpHook):
             self._retry_dict, endpoint=endpoint, headers=self.headers, json={}
         )
         """
+
         pass
 
     def get_job_execution_log(self, execution_id: str) -> str:
@@ -77,6 +79,7 @@ class VDKHook(HttpHook):
             self._retry_dict, endpoint=endpoint, headers=self.headers
         )
         """
+
         pass
 
     def get_job_execution_status(self, execution_id: str):  # -> ExecutionStatus:
@@ -93,4 +96,5 @@ class VDKHook(HttpHook):
             self._retry_dict, endpoint=endpoint, data=dict(), headers=self.headers
         )
         """
+
         pass
