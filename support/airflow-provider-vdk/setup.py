@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from setuptools import find_namespace_packages
 from setuptools import setup
 
 __version__ = "0.0.1"
@@ -17,16 +18,14 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     entry_points={
-        "apache_airflow_provider": [
-            "provider_info=vdk_airflow.__init__:get_provider_info"
-        ]
+        "apache_airflow_provider": ["provider_info=vdk.__init__:get_provider_info"]
     },
     license="Apache License 2.0",
     packages=[
-        "vdk_airflow",
-        "vdk_airflow.hooks",
-        "vdk_airflow.sensors",
-        "vdk_airflow.operators",
+        "vdk_provider",
+        "vdk_provider.hooks",
+        "vdk_provider.sensors",
+        "vdk_provider.operators",
     ],
     install_requires=[
         "apache-airflow>=2.0",

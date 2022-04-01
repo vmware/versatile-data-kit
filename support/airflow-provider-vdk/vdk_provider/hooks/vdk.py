@@ -3,7 +3,6 @@
 from airflow.providers.http.hooks.http import HttpHook
 from tenacity import sleep
 from tenacity import stop_after_attempt
-from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.control.auth.auth import Authentication
 
 
@@ -38,15 +37,13 @@ class VDKHook(HttpHook):
         API path: POST /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/executions
 
         :return: None
-
+        """
         self.method = "POST"
 
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/deployments/{self.deployment_id}/executions"
         self.run_with_advanced_retry(
-            self._retry_dict, endpoint=endpoint, headers=self.headers
+            self._retry_dict, endpoint=endpoint, headers=self.headers, json={}
         )
-        """
-        pass
 
     def cancel_job_execution(self, execution_id: str) -> None:
         """
@@ -54,15 +51,13 @@ class VDKHook(HttpHook):
 
         :param execution_id: ID of the job execution
         :return: None
-
+        """
         self.method = "DELETE"
 
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}"
         self.run_with_advanced_retry(
-            self._retry_dict, endpoint=endpoint, headers=self.headers
+            self._retry_dict, endpoint=endpoint, headers=self.headers, json={}
         )
-        """
-        pass
 
     def get_job_execution_log(self, execution_id: str) -> str:
         """
@@ -70,28 +65,24 @@ class VDKHook(HttpHook):
 
         :param execution_id: ID of the job execution
         :return: job execution logs
-
+        """
         self.method = "GET"
 
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}/logs"
         return self.run_with_advanced_retry(
             self._retry_dict, endpoint=endpoint, headers=self.headers
         )
-        """
-        pass
 
-    def get_job_execution_status(self, execution_id: str) -> ExecutionStatus:
+    def get_job_execution_status(self, execution_id: str):  # -> ExecutionStatus:
         """
         API path: GET /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/executions
 
         :param execution_id: ID of the job execution
         :return: Execution status; either SUCCESS, NOT_RUNNABLE or ERROR
-
+        """
         self.method = "GET"
 
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/deployments/{self.deployment_id}/executions/{execution_id}"
         return self.run_with_advanced_retry(
-            self._retry_dict, endpoint=endpoint, headers=self.headers
+            self._retry_dict, endpoint=endpoint, data=dict(), headers=self.headers
         )
-        """
-        pass
