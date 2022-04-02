@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 class TestVDKHook(unittest.TestCase):
     @staticmethod
     @requests_mock.mock()
-    def test_start_job_execution(self, m):
+    def test_start_job_execution(m):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/deployments/production/executions"
         # Mock endpoint
         m.post(request_url)
@@ -33,7 +33,7 @@ class TestVDKHook(unittest.TestCase):
 
     @staticmethod
     @requests_mock.mock()
-    def test_cancel_job_execution(self, m):
+    def test_cancel_job_execution(m):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id"
         # Mock endpoint
         m.delete(request_url)
