@@ -1,11 +1,9 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import os
 import unittest
 from unittest import mock
 
-import pytest
 import requests_mock
 from vdk_provider.hooks.vdk import VDKHook
 
