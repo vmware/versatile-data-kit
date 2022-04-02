@@ -37,17 +37,13 @@ class VDKHook(HttpHook):
         API path: POST /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/executions
 
         :return: None
-
+        """
         self.method = "POST"
 
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/deployments/{self.deployment_id}/executions"
         self.run_with_advanced_retry(
             self._retry_dict, endpoint=endpoint, headers=self.headers, json={}
         )
-        """
-        self.method = "POST"
-
-        return None  # included this to ignore faulty codacy check
 
     def cancel_job_execution(self, execution_id: str) -> None:
         """
@@ -55,17 +51,13 @@ class VDKHook(HttpHook):
 
         :param execution_id: ID of the job execution
         :return: None
-
+        """
         self.method = "DELETE"
 
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}"
         self.run_with_advanced_retry(
             self._retry_dict, endpoint=endpoint, headers=self.headers, json={}
         )
-        """
-        self.method = "DELETE"
-
-        return None  # included this to ignore faulty codacy check
 
     def get_job_execution_log(self, execution_id: str) -> str:
         """
