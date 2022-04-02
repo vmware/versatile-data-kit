@@ -1,0 +1,50 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+
+build-airflow-provider-vdk:
+  stage: build
+  image: "python:3.7"
+  script:
+    - cd projects/vdk-plugins/airflow-provider-vdk
+    - echo "Building VDK Airflow provider..."
+    - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
+    - pip install -U pip setuptools pre-commit
+    - pre-commit install --hook-type commit-msg --hook-type pre-commit
+    - pip install -e . --extra-index-url $PIP_EXTRA_INDEX_URL
+    - pip install pytest-cov
+    - pytest --junitxml=tests.xml --cov vdk_airflow --cov-report term-missing --cov-report xml:coverage.xml
+  retry: !reference [.retry, retry_options]
+  rules: # we want to trigger build jobs if there are changes to this package,
+    # but not if there are changes to VDK plugins or the main directory
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/airflow-provider-vdk/**/*"
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+
+
+release-airflow-provider-vdk:
+  stage: release
+  image: "python:3.7"
+  script:
+    - cd projects/vdk-plugins/
+    - echo "Releasing airflow-provider-vdk..."
+    - cd airflow-provider-vdk/ || exit 1
+    - pip install -U pip setuptools wheel twine
+    - python setup.py sdist --formats=gztar
+    # provide the credentials as Gitlab variables
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - "projects/vdk-plugins/airflow-provider-vdk/**/*"
