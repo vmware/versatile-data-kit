@@ -18,7 +18,7 @@ build-airflow-provider-vdk:
     - pip install -U pip setuptools pre-commit
     - pre-commit install --hook-type commit-msg --hook-type pre-commit
     - pip install -e . --extra-index-url $PIP_EXTRA_INDEX_URL
-    - pip install pytest-cov
+    - pip install pytest-cov requests-mock
     - pytest --junitxml=tests.xml --cov vdk_airflow --cov-report term-missing --cov-report xml:coverage.xml
   retry: !reference [.retry, retry_options]
   rules: # we want to trigger build jobs if there are changes to this package,
