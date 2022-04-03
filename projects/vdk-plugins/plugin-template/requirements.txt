@@ -1,4 +1,0 @@
-pytest
-vdk-core
-
-vdk-test-utils
