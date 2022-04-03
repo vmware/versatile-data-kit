@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
     "os.environ", AIRFLOW_CONN_CONN_VDK="http://https%3A%2F%2Fwww.vdk-endpoint.org"
 )
 class TestVDKHook(unittest.TestCase):
-    def __init__(self):
+    def setUp(self):
         self.hook = VDKHook(
             conn_id="conn_vdk", job_name="test_job", team_name="test_team"
         )
