@@ -809,14 +809,19 @@ public abstract class KubernetesService implements InitializingBean {
 
     public void createJob(String name, String image, boolean privileged, Map<String, String> envs,
                           List<String> args, List<V1Volume> volumes, List<V1VolumeMount> volumeMounts,
-                          String imagePullPolicy, Resources request, Resources limit)
-          throws ApiException {
+                          String imagePullPolicy, Resources request, Resources limit,
+                          long runAsUser, long runAsGroup, long fsGroup) throws ApiException {
+
         log.debug("Creating k8s job name:{}, image:{}", name, image);
         var template = new V1PodTemplateSpecBuilder()
                 .withSpec(new V1PodSpecBuilder()
                         .withRestartPolicy("Never")
                         .withContainers(container(name, image, privileged, envs, args, volumeMounts, imagePullPolicy, request, limit, null))
                         .withVolumes(volumes)
+                        .withSecurityContext(new V1PodSecurityContext()
+                              .runAsUser(runAsUser)
+                              .runAsGroup(runAsGroup)
+                              .fsGroup(fsGroup))
                         .build())
                 .build();
         var spec = new V1JobSpecBuilder()
@@ -1540,46 +1545,45 @@ public abstract class KubernetesService implements InitializingBean {
         return cronjob;
     }
 
+    public static V1Container container(String name, String image, boolean privileged, Map<String, String> envs,
+          List<String> args, List<V1VolumeMount> volumeMounts, String imagePullPolicy,
+          Resources request, Resources limit, Probe probe, List commands) {
+        var builder = new V1ContainerBuilder()
+              .withName(name)
+              .withImage(image)
+              .withVolumeMounts(volumeMounts)
+              .withImagePullPolicy(imagePullPolicy)
+              .withSecurityContext(new V1SecurityContextBuilder()
+                    .withPrivileged(privileged)
+                    .build())
+              .withResources(new V1ResourceRequirementsBuilder()
+                    .withRequests(resources(request))
+                    .withLimits(resources(limit))
+                    .build())
+              .withEnv(envs.entrySet().stream()
+                    .map(KubernetesService::envVar)
+                    .collect(Collectors.toList()))
+              .withArgs(args)
+              .withCommand(commands);
+
+        if (probe != null) {
+            builder.withLivenessProbe(new V1ProbeBuilder()
+                  .withHttpGet(new V1HTTPGetActionBuilder()
+                        .withPort(new IntOrString(probe.port))
+                        .withPath(probe.path)
+                        .build())
+                  .withInitialDelaySeconds(probe.period)
+                  .withPeriodSeconds(probe.period)
+                  .build());
+        }
+
+        return builder.build();
+    }
+
     private static V1Container container(String name, String image, boolean privileged, Map<String, String> envs,
                                          List<String> args, List<V1VolumeMount> volumeMounts, String imagePullPolicy,
                                          Resources request, Resources limit, Probe probe) {
         return container(name, image, privileged, envs, args, volumeMounts, imagePullPolicy, request, limit, probe, List.of());
-    }
-
-
-    public static V1Container container(String name, String image, boolean privileged, Map<String, String> envs,
-                                        List<String> args, List<V1VolumeMount> volumeMounts, String imagePullPolicy,
-                                        Resources request, Resources limit, Probe probe, List commands) {
-        var builder = new V1ContainerBuilder()
-                .withName(name)
-                .withImage(image)
-                .withVolumeMounts(volumeMounts)
-                .withImagePullPolicy(imagePullPolicy)
-                .withSecurityContext(new V1SecurityContextBuilder()
-                        .withPrivileged(privileged)
-                        .build())
-                .withResources(new V1ResourceRequirementsBuilder()
-                        .withRequests(resources(request))
-                        .withLimits(resources(limit))
-                        .build())
-                .withEnv(envs.entrySet().stream()
-                        .map(KubernetesService::envVar)
-                        .collect(Collectors.toList()))
-                .withArgs(args)
-                .withCommand(commands);
-
-        if (probe != null) {
-            builder.withLivenessProbe(new V1ProbeBuilder()
-                    .withHttpGet(new V1HTTPGetActionBuilder()
-                            .withPort(new IntOrString(probe.port))
-                            .withPath(probe.path)
-                            .build())
-                    .withInitialDelaySeconds(probe.period)
-                    .withPeriodSeconds(probe.period)
-                    .build());
-        }
-
-        return builder.build();
     }
 
     private static Map<String, Quantity> resources(Resources resources) {

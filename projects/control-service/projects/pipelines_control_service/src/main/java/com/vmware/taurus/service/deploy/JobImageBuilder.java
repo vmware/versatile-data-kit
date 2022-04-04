@@ -64,6 +64,15 @@ public class JobImageBuilder {
    @Value("${datajobs.git.ssl.enabled}")
    private boolean gitDataJobsSslEnabled;
 
+   @Value("${datajobs.deployment.builder.securitycontext.runAsUser}")
+   private long  builderSecurityContextRunAsUser;
+
+   @Value("${datajobs.deployment.builder.securitycontext.runAsGroup}")
+   private long  builderSecurityContextRunAsGroup;
+
+   @Value("${datajobs.deployment.builder.securitycontext.fsGroup}")
+   private long  builderSecurityContextFsGroup;
+
    private final ControlKubernetesService controlKubernetesService;
    private final DockerRegistryService dockerRegistryService;
    private final DeploymentNotificationHelper notificationHelper;
@@ -154,7 +163,10 @@ public class JobImageBuilder {
             null,
             builderJobImagePullPolicy,
             kubernetesResources.builderRequests(),
-            kubernetesResources.builderLimits());
+            kubernetesResources.builderLimits(),
+            builderSecurityContextRunAsUser,
+            builderSecurityContextRunAsGroup,
+            builderSecurityContextFsGroup);
 
       log.debug("Waiting for builder job {} for data job version {}", builderJobName, jobDeployment.getGitCommitSha());
 
