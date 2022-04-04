@@ -27,6 +27,12 @@ deploymentBuilderImage:
   repository: job-builder
   tag: "1.2.3"
 
+deploymentBuilder:
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 1000
+    fsGroup: 1000
+
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)
 ##
