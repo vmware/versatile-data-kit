@@ -29,7 +29,6 @@ def run(job_input: IJobInput):
 
     df.columns = df.columns.str.replace(" ", "")
 
-
     job_input.send_tabular_data_for_ingestion(
         df.itertuples(index=False),
         destination_table="climate_extremes_index",

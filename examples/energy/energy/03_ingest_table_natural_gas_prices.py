@@ -18,9 +18,7 @@ def run(job_input: IJobInput):
     # url of the Natural gas prices dataset
     url = "https://datahub.io/core/natural-gas/r/daily.csv"
 
-
     df = pd.read_csv(url)
-
 
     job_input.send_tabular_data_for_ingestion(
         df.itertuples(index=False),

@@ -24,7 +24,7 @@ Analysts found two datasets:
 
 ## Data Source
 
-The Natural Gas Prices dataset contains 5,953 records, provided by the U.S. Energy Information Administration(EIA). Each record contains the daily price of natural gas. 
+The Natural Gas Prices dataset contains 5,953 records, provided by the U.S. Energy Information Administration(EIA). Each record contains the daily price of natural gas.
 For each record, the following information is available:
 * Date (provided on a daily basis)
 * Price (in dollars)
@@ -120,7 +120,7 @@ The following table shows an example of the produced table:
 | **1998** | 2.0883665338645407 |
 | **2008** | 8.862529644268777  |
 | **2009** | 3.942658730158732  |
-| **2012** | 2.7544841269841265 |         
+| **2012** | 2.7544841269841265 |
 
 Jobs 09-10 are devoted to the second step. The produced output is stored in a table, called `merged_tables`.
 
