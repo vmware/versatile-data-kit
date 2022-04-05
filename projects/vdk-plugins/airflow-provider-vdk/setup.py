@@ -30,6 +30,7 @@ setup(
         "tenacity>=6.2.0",
         "vdk-core",
         "vdk-control-cli",
+        "vdk-control-service-api",
     ],
     setup_requires=["setuptools", "wheel"],
     author="Versatile Data Kit Development Team",

@@ -7,11 +7,9 @@ from unittest import mock
 import requests_mock
 from vdk_provider.hooks.vdk import VDKHook
 
-
 log = logging.getLogger(__name__)
 
 
-# Mock the `conn_sample` Airflow connection
 @mock.patch.dict(
     "os.environ", AIRFLOW_CONN_CONN_VDK="http://https%3A%2F%2Fwww.vdk-endpoint.org"
 )
@@ -42,7 +40,3 @@ class TestVDKHook(unittest.TestCase):
 
         assert m.request_history[0].method == "DELETE"
         assert m.request_history[0].url == request_url
-
-
-if __name__ == "__main__":
-    unittest.main()
