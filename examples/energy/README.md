@@ -82,7 +82,7 @@ pandas
 ```
 
 ## Configuration
-The following example uses the same configuration as the [Life Expectancy](https://github.com/vmware/versatile-data-kit/tree/main/examples/life-expectancy) scenario, with the only difference on the trino schama used by the Versatile Data Kit configuration file:
+The following example uses the same configuration as the [Life Expectancy](https://github.com/vmware/versatile-data-kit/tree/main/examples/life-expectancy) scenario, with the only difference on the trino schema used by the Versatile Data Kit configuration file:
 ```
 trino_schema = energy
 ```
