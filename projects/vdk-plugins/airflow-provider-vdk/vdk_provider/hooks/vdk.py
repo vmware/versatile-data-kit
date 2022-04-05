@@ -3,9 +3,11 @@
 import logging
 
 from airflow.providers.http.hooks.http import HttpHook
+from taurus_datajob_api import DataJobExecutionRequest
 from tenacity import sleep
 from tenacity import stop_after_attempt
 from vdk.internal.control.auth.auth import Authentication
+from vdk.internal.control.rest_lib.factory import ApiClientFactory
 
 log = logging.getLogger(__name__)
 
@@ -26,22 +28,37 @@ class VDKHook(HttpHook):
         self.extra_options = {"timeout": timeout}
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
 
-        # hook methods will use HttpHook's `run_with_advanced_retry` method and pass the _retry_dict as a parameter
-        self._retry_dict = {
-            "stop": stop_after_attempt(retry_limit),
-            "sleep": sleep(retry_delay),
-        }
-        self.headers = {
-            "content-type": "application/json",
-            "authorization": f"Bearer {Authentication().read_access_token()}",
-        }
+        conn = self.get_connection(self.http_conn_id)
 
-    def start_job_execution(self) -> None:
+        if conn.host and "://" in conn.host:
+            self.base_url = conn.host
+        else:
+            # schema defaults to HTTP
+            schema = conn.schema if conn.schema else "http"
+            host = conn.host if conn.host else ""
+            self.base_url = schema + "://" + host
+
+        if conn.port:
+            self.base_url = self.base_url + ":" + str(conn.port)
+
+        self.__execution_api = ApiClientFactory(self.base_url).get_execution_api()
+
+        # hook methods will use HttpHook's `run_with_advanced_retry` method and pass the _retry_dict as a parameter
+        # self._retry_dict = {
+        #     "stop": stop_after_attempt(retry_limit),
+        #     "sleep": sleep(retry_delay),
+        # }
+        # self.headers = {
+        #     "content-type": "application/json",
+        #     "authorization": f"Bearer {Authentication().read_access_token()}",
+        # }
+
+    def start_job_execution(self, **request_kwargs) -> None:
         """
         Triggers a manual Datajob execution.
 
         :param: request_kwargs: Request arguments to be included with the HTTP request
-        """
+
         self.method = "POST"
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/deployments/{self.deployment_id}/executions"
 
@@ -52,13 +69,25 @@ class VDKHook(HttpHook):
             extra_options=self.extra_options,
             json={},
         )
+        """
+        execution_request = DataJobExecutionRequest(
+            started_by=f"vdk-control-cli",
+            args=request_kwargs,
+        )
+        _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
+            team_name=self.team_name,
+            job_name=self.job_name,
+            deployment_id=self.deployment_id,
+            data_job_execution_request=execution_request,
+        )
+        log.debug(f"Received headers: {headers}")
 
     def cancel_job_execution(self, execution_id: str) -> None:
         """
         Cancels a Datajob execution.
 
         :param execution_id: ID of the job execution
-        """
+
         self.method = "DELETE"
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}"
 
@@ -68,6 +97,10 @@ class VDKHook(HttpHook):
             headers=self.headers,
             extra_options=self.extra_options,
             json={},
+        )
+        """
+        self.__execution_api.data_job_execution_cancel(
+            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
         )
 
     def get_job_execution_log(self, execution_id: str) -> str:
