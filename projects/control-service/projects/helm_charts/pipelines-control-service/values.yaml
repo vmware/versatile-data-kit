@@ -29,9 +29,9 @@ deploymentBuilderImage:
 
 deploymentBuilder:
   securityContext:
-    runAsUser: 0
-    runAsGroup: 1000
-    fsGroup: 1000
+    runAsUser: "0"
+    runAsGroup: "1000"
+    fsGroup: "1000"
 
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)
