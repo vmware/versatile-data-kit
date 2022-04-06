@@ -417,7 +417,7 @@ Connection(
 ```
 where the `conn_type` would be "vdk" to identify that this is a Versatile Data Kit Connection.
 For the authentication to be successful, users would need to provide credentials as shown in the tables
-above, and an `extra` prameter pointing to the Authorization Server that would be used.
+above, and an `extra` parameter pointing to the Authorization Server that would be used.
 
 In terms of security, Airflow uses [Fernet](https://github.com/fernet/spec/) to encrypt passwords in
 connection configurations, which should be sufficient. However, this is where `vdk-control-cli` falls
