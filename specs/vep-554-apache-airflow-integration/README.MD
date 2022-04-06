@@ -377,7 +377,12 @@ Unit and integration tests will be introduced by following the official Airflow 
 
 The communication between VDK Provider and Control Service will be secured through the
 use of HTTPS and OAuth 2.0. The most commonly used OAuth 2.0 flows will be supported (
-e.g. Client Credentials Flow, Refresh Token Flow, etc.).
+e.g. Client Credentials Flow, Refresh Token Flow, etc.) by using `vdk-control-cli`'s authentication
+functionality. This would make `vdk-control-cli` a hard dependency of the Provider, though
+it is possible for the functionality to be moved as a separate library.
+
+Currently, `vdk-control-cli` fully supports the Refresh Token Flow, and provides partial support for
+the Client Credentials Flow.
 
 Secrets will be stored as part of the Airflow Connection like follows:
 
@@ -394,6 +399,31 @@ Secrets will be stored as part of the Airflow Connection like follows:
 |---------------------|---------------|
 | connection.login    | Client ID     |
 | connection.password | Client Secret |
+
+For the connection itself, a standard Airflow Connection object object would be used,
+
+```python
+Connection(
+  conn_id="",
+  conn_type="vdk",
+  description=None,
+  login="<client-id-or-empty>",
+  password="<password-or-oauth-token>",
+  host="<Control-Service-host-URL>",
+  port=,
+  schema=None,
+  extra=json.dumps(dict(auth_endpoint="<oauth2-authentication-endpoint>"))
+)
+```
+where the `conn_type` would be "vdk" to identify that this is a Versatile Data Kit Connection.
+For the authentication to be successful, users would need to provide credentials as shown in the tables
+above, and an `extra` prameter pointing to the Authorization Server that would be used.
+
+In terms of security, Airflow uses [Fernet](https://github.com/fernet/spec/) to encrypt passwords in
+connection configurations, which should be sufficient. However, this is where `vdk-control-cli` falls
+short, as it caches the credentials/tokens in plain text. Therefore, some code changes would be required
+to better secure credentials.
+
 
 <!--
 How is access control handled?
