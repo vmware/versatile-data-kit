@@ -400,7 +400,7 @@ Secrets will be stored as part of the Airflow Connection like follows:
 | connection.login    | Client ID     |
 | connection.password | Client Secret |
 
-For the connection itself, a standard Airflow Connection object object would be used,
+For the connection itself, a standard Airflow Connection object would be used,
 
 ```python
 Connection(
