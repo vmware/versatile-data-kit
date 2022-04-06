@@ -58,3 +58,8 @@ def run(job_input):
     job_input.execute_template('scd2', template_args)
     # . . .
 ```
+
+
+### Example
+
+See detailed example in the [VDK documentation here](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples#versioned-strategy--slowly-changing-dimension-type-2)
