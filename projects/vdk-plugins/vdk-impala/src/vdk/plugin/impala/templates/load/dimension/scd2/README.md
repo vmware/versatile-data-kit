@@ -1,6 +1,8 @@
 ### Purpose:
 
 Template used to load raw data from a Data Lake to target 'Slowly Changing Dimension Type 2' table in a Data Warehouse.
+This is very simple implementation whic overrides rows based on updated timestamp and ID. It's generally not recommended to use.
+Prefer to use ["sdc2" template instead](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples#versioned-strategy--slowly-changing-dimension-type-2)
 
 ### Details:
 
@@ -8,7 +10,7 @@ Explanation of SCD type 2 can be seen here: <https://en.wikipedia.org/wiki/Slowl
 
 ### Template Name (template_name):
 
-- "load/dimension/scd2"
+- "scd2_simple"
 
 ### Template Parameters (template_args):
 
