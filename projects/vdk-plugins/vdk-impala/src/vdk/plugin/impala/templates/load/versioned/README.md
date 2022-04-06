@@ -9,7 +9,7 @@ Explanation of SCD type 2 can be seen here: <https://en.wikipedia.org/wiki/Slowl
 
 ### Template Name (template_name):
 
-- "load/versioned"
+- "scd2"
 
 ### Template Parameters (template_args):
 
@@ -18,7 +18,7 @@ Explanation of SCD type 2 can be seen here: <https://en.wikipedia.org/wiki/Slowl
 - source_schema          - SC Data Lake schema containing the source view.
 - source_view            - SC Data Lake view where source data is loaded from.
 - id_column              - Column that holds the natural key of the target table.
-- value_columns          - A list of columns from the source that are considered errors. Present both in the source and the target tables.
+- value_columns          - A list of columns from the source that are copied. Present both in the source and the target tables.
 - tracked_columns        - A sublist of the value columns that are tracked for changes. Present both in the source and the target tables.
 - updated_at_column      - A column containing the update time of a record. Present in the source table. Optional (default value is "updated_at").
 - sk_column              - A surrogate key column that is automatically generated in the target table. Optional (default value is "sk").
@@ -54,3 +54,7 @@ def run(job_input):
     job_input.execute_template('load/versioned', template_args)
     # . . .
 ```
+
+### Example
+
+See full example of how to use the template in [our example documentation](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples#versioned-strategy--slowly-changing-dimension-type-2).

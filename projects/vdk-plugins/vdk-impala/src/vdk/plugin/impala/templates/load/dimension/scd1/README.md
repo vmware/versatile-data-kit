@@ -8,7 +8,7 @@ In summary, it overwrites the target table with the source data.
 
 ### Template Name (template_name):
 
-- "load/dimension/scd1"
+- "scd1"
 
 ### Template Parameters (template_args):
 
@@ -41,3 +41,7 @@ def run(job_input):
     job_input.execute_template("load/dimension/scd1", template_args)
     # . . .
 ```
+
+### Example
+
+See full example of how to use the template in [our example documentation](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples#overwrite-strategy-slowly-changing-dimension-type-1).
