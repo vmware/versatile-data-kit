@@ -73,6 +73,9 @@ public class JobImageBuilder {
    @Value("${datajobs.deployment.builder.securitycontext.fsGroup}")
    private long  builderSecurityContextFsGroup;
 
+   @Value("${datajobs.deployment.builder.serviceAccountName}")
+   private String  builderServiceAccountName;
+
    private final ControlKubernetesService controlKubernetesService;
    private final DockerRegistryService dockerRegistryService;
    private final DeploymentNotificationHelper notificationHelper;
@@ -166,7 +169,8 @@ public class JobImageBuilder {
             kubernetesResources.builderLimits(),
             builderSecurityContextRunAsUser,
             builderSecurityContextRunAsGroup,
-            builderSecurityContextFsGroup);
+            builderSecurityContextFsGroup,
+            builderServiceAccountName);
 
       log.debug("Waiting for builder job {} for data job version {}", builderJobName, jobDeployment.getGitCommitSha());
 

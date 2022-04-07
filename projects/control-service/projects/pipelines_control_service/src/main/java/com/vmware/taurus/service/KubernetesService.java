@@ -810,19 +810,24 @@ public abstract class KubernetesService implements InitializingBean {
     public void createJob(String name, String image, boolean privileged, Map<String, String> envs,
                           List<String> args, List<V1Volume> volumes, List<V1VolumeMount> volumeMounts,
                           String imagePullPolicy, Resources request, Resources limit,
-                          long runAsUser, long runAsGroup, long fsGroup) throws ApiException {
+                          long runAsUser, long runAsGroup, long fsGroup, String serviceAccountName) throws ApiException {
 
         log.debug("Creating k8s job name:{}, image:{}", name, image);
+        var podSpecBuilder = new V1PodSpecBuilder()
+              .withRestartPolicy("Never")
+              .withContainers(container(name, image, privileged, envs, args, volumeMounts, imagePullPolicy, request, limit, null))
+              .withVolumes(volumes)
+              .withSecurityContext(new V1PodSecurityContext()
+                    .runAsUser(runAsUser)
+                    .runAsGroup(runAsGroup)
+                    .fsGroup(fsGroup));
+
+        if (StringUtils.isNotEmpty(serviceAccountName)) {
+            podSpecBuilder.withServiceAccountName(serviceAccountName);
+        }
+
         var template = new V1PodTemplateSpecBuilder()
-                .withSpec(new V1PodSpecBuilder()
-                        .withRestartPolicy("Never")
-                        .withContainers(container(name, image, privileged, envs, args, volumeMounts, imagePullPolicy, request, limit, null))
-                        .withVolumes(volumes)
-                        .withSecurityContext(new V1PodSecurityContext()
-                              .runAsUser(runAsUser)
-                              .runAsGroup(runAsGroup)
-                              .fsGroup(fsGroup))
-                        .build())
+                .withSpec(podSpecBuilder.build())
                 .build();
         var spec = new V1JobSpecBuilder()
                 .withBackoffLimit(3) //TODO configure

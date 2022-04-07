@@ -228,6 +228,10 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_BUILDER_SECURITY_CONTEXT_FS_GROUP
               value: "{{ .Values.deploymentBuilder.securityContext.fsGroup }}"
             {{- end }}
+            {{- if .Values.deploymentBuilder.serviceAccountName }}
+            - name: DATAJOBS_DEPLOYMENT_BUILDER_SERVICE_ACCOUNT_NAME
+              value: "{{ .Values.deploymentBuilder.serviceAccountName }}"
+            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}
