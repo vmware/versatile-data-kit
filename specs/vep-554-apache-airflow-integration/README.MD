@@ -1,7 +1,7 @@
 # VEP-554: Apache Airflow Integration
 
 * **Author(s):** Miroslav Ivanov (miroslavi@vmware.com), Antoni Ivanov (
-  aivanov@vmware.com)
+  aivanov@vmware.com), Andon Andonov (andonova@vmware.com)
 * **Status:** draft
 
 - [Summary](#summary)
@@ -376,53 +376,72 @@ Unit and integration tests will be introduced by following the official Airflow 
 ### Security and Permissions
 
 The communication between VDK Provider and Control Service will be secured through the
-use of HTTPS and OAuth 2.0. The most commonly used OAuth 2.0 flows will be supported (
-e.g. Client Credentials Flow, Refresh Token Flow, etc.) by using `vdk-control-cli`'s authentication
-functionality. This would make `vdk-control-cli` a hard dependency of the Provider, though
-it is possible for the functionality to be moved as a separate library.
+use of HTTPS and OAuth 2.0 (as defined in [RFC6749](https://datatracker.ietf.
+org/doc/html/rfc6749)). The most commonly used OAuth 2.0
+flows will be supported by using and extending existing `vdk-control-cli`
+authentication functionality. The functionality would be extracted as a stand-alone
+library, which would make it more concise and lightweight, avoiding the
+installation of unneeded dependencies.
 
-Currently, `vdk-control-cli` fully supports the Refresh Token Flow, and provides partial support for
-the Client Credentials Flow.
+Having a stand-alone authentication library would also allow for the
+implementation of authentication flows like Basic Authentication with
+client credentials and described in RFC6749 as [Client Credentials Grant]
+(https://datatracker.ietf.org/doc/html/rfc6749#section-4.4), which would not
+necessarily be used by vdk-control-cli.
 
-Secrets will be stored as part of the Airflow Connection like follows:
+The library would provide an authentication class, which would accept
+arguments for identifying the client. For the case of the Airflow Provider
+a refresh token, as defined in https://datatracker.ietf.org/doc/html/rfc6749#section-1.5
+would be passed to this authentication class, though the class would be
+capable of accepting other arguments like username/password and client
+id/secret in case authentication flows requiring those are adopted in the
+future.
 
-* Refresh Token Flow:
+Other arguments that would be accepted by the authentication class would be
+authorization server endpoint as defined in https://datatracker.ietf.org/doc/html/rfc6749#section-1.1, which is to be called to obtain access token)
+and a boolean flag indicating if the credentials/secrets should be cached
+locally (by default this flag would be false, as in Airflow, we cannot
+cache data locally).
 
-| Name             | Value             |
-|------------------|-------------------|
-| connection.login | Empty             |
-| connection.password | Refresh/API token |
+If caching is enabled, the secrets and api tokens would need to be encrypted,
+as we do not have control over user environments, and we cannot guarantee that the file
+containing them would not end up in version control by mistake.
 
-* Client Credentials Flow:
-
-| Name                | Value         |
-|---------------------|---------------|
-| connection.login    | Client ID     |
-| connection.password | Client Secret |
-
-For the connection itself, a standard Airflow Connection object would be used,
+For storing the secrets in Airflow, a standard Airflow Connection object
+would be used,
 
 ```python
 Connection(
   conn_id="",
-  conn_type="vdk",
+  conn_type="vdk_default",
   description=None,
-  login="<client-id-or-empty>",
-  password="<password-or-oauth-token>",
+  login="<username-or-empty>",
+  password="<password-or-empty>",
   host="<Control-Service-host-URL>",
-  port=,
+  port="<Control-Service-port>",
   schema=None,
-  extra=json.dumps(dict(auth_endpoint="<oauth2-authentication-endpoint>"))
+  extra=json.dumps(
+      dict(
+          auth_server="<oauth2-authorization-server>",
+          auth_type="<authentication-type>",
+          client_id="<optional-user-client-id>",
+          secret="<optional-client-secret>",
+          token="<optional-oauth2/refresh-token>"
+      )
+  )
 )
 ```
-where the `conn_type` would be "vdk" to identify that this is a Versatile Data Kit Connection.
-For the authentication to be successful, users would need to provide credentials as shown in the tables
-above, and an `extra` parameter pointing to the Authorization Server that would be used.
+where the `conn_type` would be "vdk_default" to identify that this is a
+Versatile Data Kit Connection. For the authentication to be successful,
+users would need to provide `auth_server`, which should be a URL to the
+authorization server used to authenticate the user and `auth_type` indicating
+the authentication type. For this feature, the only supported
+authentication flow would be through the above-mentioned Refresh Token.
+However, having `auth_type` would allow us to adopt other authentication
+flows, like basic authentication through username/password, in the future.
 
-In terms of security, Airflow uses [Fernet](https://github.com/fernet/spec/) to encrypt passwords in
-connection configurations, which should be sufficient. However, this is where `vdk-control-cli` falls
-short, as it caches the credentials/tokens in plain text. Therefore, some code changes would be required
-to better secure credentials.
+In terms of security, Airflow uses [Fernet](https://github.com/fernet/spec/)
+to encrypt passwords in connection configurations, which should be sufficient.
 
 
 <!--
