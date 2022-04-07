@@ -4,9 +4,6 @@ import logging
 
 from airflow.providers.http.hooks.http import HttpHook
 from taurus_datajob_api import DataJobExecutionRequest
-from tenacity import sleep
-from tenacity import stop_after_attempt
-from vdk.internal.control.auth.auth import Authentication
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 
 log = logging.getLogger(__name__)
@@ -37,7 +34,7 @@ class VDKHook(HttpHook):
         :param: request_kwargs: Request arguments to be included with the HTTP request
         """
         execution_request = DataJobExecutionRequest(
-            started_by=f"airflow-provider-vdk",
+            started_by="airflow-provider-vdk",
             args=request_kwargs,
         )
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
