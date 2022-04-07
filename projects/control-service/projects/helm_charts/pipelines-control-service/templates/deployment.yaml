@@ -216,6 +216,22 @@ spec:
             - name: SECURITY_KERBEROS_KRB5_CONFIG_LOCATION
               value: "/etc/secrets/krb5.conf"
             {{- end }}
+            {{- if .Values.deploymentBuilder.securityContext.runAsUser }}
+            - name: DATAJOBS_DEPLOYMENT_BUILDER_SECURITY_CONTEXT_RUN_AS_USER
+              value: "{{ .Values.deploymentBuilder.securityContext.runAsUser }}"
+            {{- end }}
+            {{- if .Values.deploymentBuilder.securityContext.runAsGroup }}
+            - name: DATAJOBS_DEPLOYMENT_BUILDER_SECURITY_CONTEXT_RUN_AS_GROUP
+              value: "{{ .Values.deploymentBuilder.securityContext.runAsGroup }}"
+            {{- end }}
+            {{- if .Values.deploymentBuilder.securityContext.fsGroup }}
+            - name: DATAJOBS_DEPLOYMENT_BUILDER_SECURITY_CONTEXT_FS_GROUP
+              value: "{{ .Values.deploymentBuilder.securityContext.fsGroup }}"
+            {{- end }}
+            {{- if .Values.deploymentBuilder.serviceAccountName }}
+            - name: DATAJOBS_DEPLOYMENT_BUILDER_SERVICE_ACCOUNT_NAME
+              value: "{{ .Values.deploymentBuilder.serviceAccountName }}"
+            {{- end }}
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}

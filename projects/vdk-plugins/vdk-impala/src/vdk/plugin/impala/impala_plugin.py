@@ -86,7 +86,7 @@ class ImpalaPlugin:
         )
 
         context.templates.add_template(
-            "scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
+            "scd2_simple", pathlib.Path(get_job_path("load/dimension/scd2"))
         )
 
         context.templates.add_template(
@@ -94,15 +94,14 @@ class ImpalaPlugin:
         )
 
         context.templates.add_template(
-            "snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
+            "periodic_snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
         )
 
         context.templates.add_template(
             "load/versioned", pathlib.Path(get_job_path("load/versioned"))
         )
-
         context.templates.add_template(
-            "versioned", pathlib.Path(get_job_path("load/versioned"))
+            "scd2", pathlib.Path(get_job_path("load/versioned"))
         )
 
     @staticmethod

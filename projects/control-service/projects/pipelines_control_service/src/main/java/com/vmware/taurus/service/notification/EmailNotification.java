@@ -5,20 +5,24 @@
 
 package com.vmware.taurus.service.notification;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 /**
  * The EmailNotification class is responsible for implementing the email notifications functionality.
@@ -97,10 +101,12 @@ public class EmailNotification {
         return true;
     }
 
-    private String concatAddresses(Address[] addresses) {
-        return Arrays.asList(addresses)
-                .stream()
-                .map(addr -> addr.toString())
-                .collect(Collectors.joining(" "));
+    String concatAddresses(Address[] addresses) {
+        return addresses == null ?
+              null :
+              Arrays.asList(addresses)
+                    .stream()
+                    .map(addr -> addr.toString())
+                    .collect(Collectors.joining(" "));
     }
 }
