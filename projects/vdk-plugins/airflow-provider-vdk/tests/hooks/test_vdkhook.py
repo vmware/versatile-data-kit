@@ -29,7 +29,7 @@ class TestVDKHook(unittest.TestCase):
             "POST",
             request_url,
             _preload_content=True,
-            _request_timeout=None,
+            _request_timeout=1,
             body={"started_by": "airflow-provider-vdk", "args": {}},
             headers={
                 "Accept": "application/json",
@@ -52,7 +52,7 @@ class TestVDKHook(unittest.TestCase):
             "DELETE",
             request_url,
             _preload_content=True,
-            _request_timeout=None,
+            _request_timeout=1,
             body=None,
             headers={
                 "Accept": "application/json",

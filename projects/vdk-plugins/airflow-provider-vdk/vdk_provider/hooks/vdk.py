@@ -23,7 +23,7 @@ class VDKHook(HttpHook):
         super().__init__(http_conn_id=conn_id)
         self.job_name = job_name
         self.team_name = team_name
-        self.extra_options = {"timeout": timeout}
+        self.timeout = timeout
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
 
         self.__execution_api = ApiClientFactory(
@@ -45,6 +45,7 @@ class VDKHook(HttpHook):
             job_name=self.job_name,
             deployment_id=self.deployment_id,
             data_job_execution_request=execution_request,
+            _request_timeout=self.timeout,
         )
         log.debug(f"Received headers: {headers}")
 
@@ -55,7 +56,10 @@ class VDKHook(HttpHook):
         :param execution_id: ID of the job execution
         """
         self.__execution_api.data_job_execution_cancel(
-            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
+            team_name=self.team_name,
+            job_name=self.job_name,
+            execution_id=execution_id,
+            _request_timeout=self.timeout,
         )
 
     def get_job_execution_log(self, execution_id: str) -> str:
