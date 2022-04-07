@@ -32,6 +32,8 @@ deploymentBuilder:
     runAsUser: "0"
     runAsGroup: "1000"
     fsGroup: "1000"
+  ## The name of the ServiceAccount to use.
+  # serviceAccountName: ""
 
 
 ## String to partially override pipelines-control-service.fullname template (will maintain the release name)
