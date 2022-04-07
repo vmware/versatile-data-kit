@@ -25,22 +25,7 @@ class TestVDKHook(unittest.TestCase):
 
         self.hook.start_job_execution()
 
-        mocked_api_client_request.assert_called_with(
-            "POST",
-            request_url,
-            _preload_content=True,
-            _request_timeout=1,
-            body={"started_by": "airflow-provider-vdk", "args": {}},
-            headers={
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "User-Agent": mock.ANY,
-                "X-OPID": mock.ANY,
-                "Authorization": mock.ANY,
-            },
-            post_params=[],
-            query_params=[],
-        )
+        assert mocked_api_client_request.call_args_list[0][0] == ("POST", request_url)
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
     def test_cancel_job_execution(self, mocked_api_client_request):
@@ -48,18 +33,4 @@ class TestVDKHook(unittest.TestCase):
 
         self.hook.cancel_job_execution("test_execution_id")
 
-        mocked_api_client_request.assert_called_with(
-            "DELETE",
-            request_url,
-            _preload_content=True,
-            _request_timeout=1,
-            body=None,
-            headers={
-                "Accept": "application/json",
-                "User-Agent": mock.ANY,
-                "X-OPID": mock.ANY,
-                "Authorization": mock.ANY,
-            },
-            post_params=[],
-            query_params=[],
-        )
+        assert mocked_api_client_request.call_args_list[0][0] == ("DELETE", request_url)
