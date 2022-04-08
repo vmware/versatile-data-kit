@@ -1,10 +1,16 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
+import uuid
 
 from airflow.providers.http.hooks.http import HttpHook
+from taurus_datajob_api import ApiClient
+from taurus_datajob_api import Configuration
 from taurus_datajob_api import DataJobExecutionRequest
-from vdk.internal.control.rest_lib.factory import ApiClientFactory
+from taurus_datajob_api import DataJobsExecutionApi
+from urllib3 import Retry
+from vdk.internal.control.auth.auth import Authentication
 
 log = logging.getLogger(__name__)
 
@@ -23,9 +29,21 @@ class VDKHook(HttpHook):
         self.timeout = timeout
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
 
-        self.__execution_api = ApiClientFactory(
-            self._get_rest_api_url_from_connection()
-        ).get_execution_api()
+        # setting these manually to avoid using VDKConfig
+        self.op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
+        self.http_verify_ssl = os.getenv(
+            "VDK_CONTROL_HTTP_VERIFY_SSL", "True"
+        ).lower() in ("true", "1", "t")
+        self.http_connection_pool_maxsize = int(
+            os.getenv("VDK_CONTROL_HTTP_CONNECTION_POOL_MAXSIZE", "2")
+        )
+        self.http_total_retries = int(os.getenv("VDK_CONTROL_HTTP_TOTAL_RETRIES", "10"))
+        self.http_connect_retries = int(
+            os.getenv("VDK_CONTROL_HTTP_CONNECT_RETRIES", "6")
+        )
+        self.http_read_retries = int(os.getenv("VDK_CONTROL_HTTP_READ_RETRIES", "6"))
+
+        self.__execution_api = self._get_execution_api()
 
     def start_job_execution(self, **request_kwargs) -> None:
         """
@@ -108,3 +126,27 @@ class VDKHook(HttpHook):
             base_url = base_url + ":" + str(conn.port)
 
         return base_url
+
+    def _get_execution_api(self):
+        rest_api_url = self._get_rest_api_url_from_connection()
+
+        config = Configuration(host=rest_api_url, api_key=None)
+        config.connection_pool_maxsize = self.http_connection_pool_maxsize
+        config.retries = Retry(
+            total=self.http_total_retries,
+            connect=self.http_connect_retries,
+            read=self.http_read_retries,
+            backoff_factor=2,
+            status_forcelist=[500, 502, 503, 504],
+        )
+        config.client_side_validation = False
+        config.verify_ssl = self.http_verify_ssl
+
+        config.access_token = Authentication().read_access_token()
+
+        api_client = ApiClient(config)
+        # We are setting X-OPID - this is send in telemetry and printed in logs on server side - make it easier
+        # to troubleshoot and trace requests across different services
+        api_client.set_default_header("X-OPID", self.op_id)
+
+        return DataJobsExecutionApi(api_client)
