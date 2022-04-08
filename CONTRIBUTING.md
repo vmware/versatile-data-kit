@@ -72,7 +72,7 @@ In short, it looks like this:
 - Break code commits into small self-contained units;
 - Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit;
-- The change follows the [coding standard](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard)
+- The change must abide by the [Coding Standard](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard)
 
 Familiarize with [recommendations written here](https://github.com/vmware/versatile-data-kit/wiki/How-to-prepare-a-new-PR).
 
