@@ -60,7 +60,7 @@ Reviews and feedback will happen in the PR.
 Also, reach out to the community - through Slack or mail to discuss your idea. We are happy to help.
 
 ## Coding Standard
-The Versatile Data Kit coding standard can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
+The Versatile Data Kit Coding Standard can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
 
 # How to submit and merge
 
