@@ -29,7 +29,7 @@ setup(
         "apache-airflow>=2.0",
         "tenacity>=6.2.0",
         "vdk-core",
-        "vdk-control-cli",
+        "vdk-control-cli",  # TODO: drop this dependency and replace it with vdk-control-api-auth once that is complete
         "vdk-control-service-api",
     ],
     setup_requires=["setuptools", "wheel"],
