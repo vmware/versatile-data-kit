@@ -81,9 +81,12 @@ class VDKHook(HttpHook):
 
     def get_job_execution_log(self, execution_id: str) -> str:
         """
+
         :param execution_id: ID of the job execution
         :return: job execution logs
+
         self.method = "GET"
+
         endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}/logs"
         return self.run_with_advanced_retry(
             self._retry_dict, endpoint=endpoint, headers=self.headers
