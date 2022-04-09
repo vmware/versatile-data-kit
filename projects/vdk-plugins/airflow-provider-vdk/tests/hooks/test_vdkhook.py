@@ -33,3 +33,14 @@ class TestVDKHook(unittest.TestCase):
         self.hook.cancel_job_execution("test_execution_id")
 
         assert mocked_api_client_request.call_args_list[0][0] == ("DELETE", request_url)
+
+    @mock.patch("taurus_datajob_api.api_client.ApiClient.deserialize")
+    @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
+    def test_get_job_execution_status(
+        self, mocked_api_client_request, mock_deserialize
+    ):
+        request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id"
+
+        self.hook.get_job_execution_status("test_execution_id")
+
+        assert mocked_api_client_request.call_args_list[0][0] == ("GET", request_url)
