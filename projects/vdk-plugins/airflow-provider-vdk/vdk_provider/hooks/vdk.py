@@ -80,23 +80,18 @@ class VDKHook(HttpHook):
 
     def get_job_execution_log(self, execution_id: str) -> str:
         """
+        Returns the stored execution logs for a particular job execution.
 
         :param execution_id: ID of the job execution
         :return: job execution logs
-
-        self.method = "GET"
-
-        endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}/logs"
-        return self.run_with_advanced_retry(
-            self._retry_dict, endpoint=endpoint, headers=self.headers
-        )
         """
-        self.method = "DELETE"
-
-        return ""  # included this to ignore faulty codacy check
+        return self.__execution_api.data_job_logs_download(
+            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
+        ).logs
 
     def get_job_execution_status(self, execution_id: str) -> DataJobExecution:
         """
+        Returns the execution status for a particular job execution.
 
         :param execution_id: ID of the job execution
         :return: Execution status; either SUCCESS, NOT_RUNNABLE or ERROR
