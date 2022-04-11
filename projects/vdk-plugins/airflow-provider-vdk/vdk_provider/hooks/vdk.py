@@ -7,6 +7,7 @@ import uuid
 from airflow.providers.http.hooks.http import HttpHook
 from taurus_datajob_api import ApiClient
 from taurus_datajob_api import Configuration
+from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
 from taurus_datajob_api import DataJobsExecutionApi
 from urllib3 import Retry
@@ -79,37 +80,25 @@ class VDKHook(HttpHook):
 
     def get_job_execution_log(self, execution_id: str) -> str:
         """
+        Returns the stored execution logs for a particular job execution.
 
         :param execution_id: ID of the job execution
         :return: job execution logs
-
-        self.method = "GET"
-
-        endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/executions/{execution_id}/logs"
-        return self.run_with_advanced_retry(
-            self._retry_dict, endpoint=endpoint, headers=self.headers
-        )
         """
-        self.method = "DELETE"
+        return self.__execution_api.data_job_logs_download(
+            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
+        ).logs
 
-        return ""  # included this to ignore faulty codacy check
-
-    def get_job_execution_status(self, execution_id: str):  # -> ExecutionStatus:
+    def get_job_execution_status(self, execution_id: str) -> DataJobExecution:
         """
+        Returns the execution status for a particular job execution.
 
         :param execution_id: ID of the job execution
-        :return: Execution status; either SUCCESS, NOT_RUNNABLE or ERROR
-
-        self.method = "GET"
-
-        endpoint = f"/data-jobs/for-team/{self.team_name}/jobs/{self.job_name}/deployments/{self.deployment_id}/executions/{execution_id}"
-        return self.run_with_advanced_retry(
-            self._retry_dict, endpoint=endpoint, data=dict(), headers=self.headers
-        )
+        :return: The execution status object listing details about the status of this particular execution
         """
-        self.method = "DELETE"
-
-        return None  # included this to ignore faulty codacy check
+        return self.__execution_api.data_job_execution_read(
+            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
+        )
 
     def _get_rest_api_url_from_connection(self):
         conn = self.get_connection(self.http_conn_id)
