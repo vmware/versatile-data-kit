@@ -94,7 +94,7 @@ class VDKHook(HttpHook):
         Returns the execution status for a particular job execution.
 
         :param execution_id: ID of the job execution
-        :return: Execution status; either SUCCESS, NOT_RUNNABLE or ERROR
+        :return: The execution status object listing details about the status of this particular execution
         """
         return self.__execution_api.data_job_execution_read(
             team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
