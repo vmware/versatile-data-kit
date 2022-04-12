@@ -16,8 +16,11 @@ class VDKSensor(BaseSensorOperator):
         job_execution_id: str,
         poke_interval_secs: int = 30,
         timeout_secs: int = 24 * 60 * 60,
+        **kwargs
     ):
-        super().__init__(poke_interval=poke_interval_secs, timeout=timeout_secs)
+        super().__init__(
+            poke_interval=poke_interval_secs, timeout=timeout_secs, **kwargs
+        )
         self.job_execution_id = job_execution_id
 
         self.hook = VDKHook(conn_id, job_name, team_name)
