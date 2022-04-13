@@ -10,6 +10,7 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
+import org.apache.kerby.kerberos.kerb.KrbException;
 import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.apache.kerby.util.NetworkUtil;
 import org.junit.jupiter.api.AfterAll;
@@ -21,10 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.Ordered;
-import org.springframework.test.context.TestContext;
-import org.springframework.test.context.TestExecutionListener;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -32,7 +29,6 @@ import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-@TestExecutionListeners(value = {KerberosAuthenticationIT.KdcExecutionListener.class}, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @TestPropertySource(properties = {
       "test.dir=target",
       "featureflag.security.enabled=true",
@@ -58,19 +54,16 @@ public class KerberosAuthenticationIT {
 
    private static SimpleKdcServer simpleKdcServer;
 
-
    @Autowired
    private JobsRepository jobsRepository;
 
-   public static class KdcExecutionListener implements TestExecutionListener, Ordered {
-      @Override
-      public int getOrder() {
-         return 0;
-      }
+   @LocalServerPort
+   int randomPort;
 
-      @Override
-      public void beforeTestClass(final TestContext testContext) throws Exception {
-         // Initialize the KDC server
+   static {
+      // Initialize the KDC server
+      try {
+
          simpleKdcServer = new SimpleKdcServer();
          simpleKdcServer.setWorkDir(KDC_WORK_DIR);
          simpleKdcServer.setAllowTcp(true);
@@ -80,11 +73,11 @@ public class KerberosAuthenticationIT {
          simpleKdcServer.init();
          simpleKdcServer.start();
          simpleKdcServer.createAndExportPrincipals(KEYTAB, CLIENT_PRINCIPAL, TGT_PRINCIPAL);
+      } catch (Exception e) {
+         System.out.println(e);
       }
    }
 
-   @LocalServerPort
-   int randomPort;
 
    @BeforeAll
    public void addTestJob() {
@@ -120,8 +113,9 @@ public class KerberosAuthenticationIT {
    }
 
    @AfterAll
-   public void cleanup() {
+   public void cleanup() throws KrbException {
       KDC_WORK_DIR.deleteOnExit();
+      simpleKdcServer.stop();
    }
 
 }
