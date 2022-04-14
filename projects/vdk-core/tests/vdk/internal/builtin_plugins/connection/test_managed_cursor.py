@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import unittest.mock as mock
 from unittest.mock import call
 
 import pytest
@@ -163,3 +164,54 @@ def test_recovery__failure__execute():
     assert "Could not handle execution exception" == e.value.args[0]
     mock_connection_hook_spec.db_connection_recover_operation.assert_called_once()
     mock_native_cursor.execute.assert_called_once()
+
+
+def test_query_timing_successful_query(caplog):
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_connection_hook_spec,
+    ) = populate_mock_managed_cursor()
+    # set logging level to info
+    mock_managed_cursor._log.level = 20
+    mock_managed_cursor.execute(_query)
+    assert "Successful query duration H:M:S 0:00:" in str(caplog.records)
+
+
+def test_query_timing_recovered_query(caplog):
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_connection_hook_spec,
+    ) = populate_mock_managed_cursor()
+    # set logging level to info
+    mock_managed_cursor._log.level = 20
+    mock_native_cursor.execute.side_effect = [Exception("Mock exception")]
+    mock_managed_cursor.execute(_query)
+    assert "Recovered query duration H:M:S 0:00:" in str(caplog.records)
+
+
+def test_query_timing_failed_query(caplog):
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_connection_hook_spec,
+    ) = populate_mock_managed_cursor()
+    # set logging level to info
+    with mock.patch.object(
+        mock_managed_cursor.__class__, "_recover_operation"
+    ) as mocked_recover:
+        mock_managed_cursor._log.level = 20
+        exception = Exception("Mock exception")
+        mock_native_cursor.execute.side_effect = [exception]
+        mocked_recover.side_effect = [exception]
+        with pytest.raises(Exception):
+            mock_managed_cursor.execute(_query)
+
+    assert "Failed query duration H:M:S 0:00:" in str(caplog.records)

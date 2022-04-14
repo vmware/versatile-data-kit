@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import types
+from datetime import timedelta
+from timeit import default_timer as timer
 from typing import Any
 from typing import cast
 from typing import Collection
@@ -82,21 +84,28 @@ class ManagedCursor(PEP249Cursor):
             self._decorate_operation(managed_operation, operation)
 
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
+        query_start_time = timer()
         try:
             result = super().execute(
                 *managed_operation.get_operation_parameters_tuple()
             )
-            self._log.info("Executing query SUCCEEDED.")
+            self._log.info(f"Executing query SUCCEEDED. Query {self._get_query_duration(query_start_time)}")
             return result
         except Exception as e:
             try:
                 self._recover_operation(e, managed_operation)
+                self._log.info(
+                    f"Recovered query {self._get_query_duration(query_start_time)}"
+                )
             except Exception as e:
                 # todo: error classification
                 # if job_input_error_classifier.is_user_error(e):
                 blamee = errors.ResolvableBy.USER_ERROR
                 # else:
                 #     blamee = errors.ResolvableBy.PLATFORM_ERROR
+                self._log.info(
+                    f"Failed query {self._get_query_duration(query_start_time)}"
+                )
                 errors.log_and_rethrow(
                     blamee,
                     self._log,
@@ -146,6 +155,11 @@ class ManagedCursor(PEP249Cursor):
                     countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                     exception=e,
                 )
+    @staticmethod
+    def _get_query_duration(query_start_time: float):
+        query_end_time = timer()
+        difference = timedelta(seconds=query_end_time - query_start_time)
+        return f"duration H:M:S {difference}"
 
     def fetchall(self) -> Collection[Collection[Any]]:
         self._log.info("Fetching all results from query ...")
