@@ -207,5 +207,8 @@ class ManagedCursor(PEP249Cursor):
 
 def _get_query_duration(query_start_time: float):
     query_end_time = timer()
-    difference = timedelta(seconds=query_end_time - query_start_time)
-    return f"duration H:M:S {difference}"
+    seconds = timedelta(seconds=query_end_time - query_start_time).total_seconds()
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    difference = "{:02}h:{:02}m:{:02}s".format(int(hours), int(minutes), int(seconds))
+    return f"duration {difference}"

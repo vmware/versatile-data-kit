@@ -176,7 +176,7 @@ def test_query_timing_successful_query(caplog):
     # set logging level to info
     mock_managed_cursor._log.level = 20
     mock_managed_cursor.execute(_query)
-    assert "Query duration H:M:S 0:00:" in str(caplog.records)
+    assert "Query duration 00h:00m:" in str(caplog.records)
 
 
 def test_query_timing_recovered_query(caplog):
@@ -191,7 +191,7 @@ def test_query_timing_recovered_query(caplog):
     mock_managed_cursor._log.level = 20
     mock_native_cursor.execute.side_effect = [Exception("Mock exception")]
     mock_managed_cursor.execute(_query)
-    assert "Recovered query duration H:M:S 0:00:" in str(caplog.records)
+    assert "Recovered query duration 00h:00m:" in str(caplog.records)
 
 
 def test_query_timing_failed_query(caplog):
@@ -211,4 +211,4 @@ def test_query_timing_failed_query(caplog):
     with pytest.raises(Exception):
         mock_managed_cursor.execute(_query)
 
-    assert "Failed query duration H:M:S 0:00:" in str(caplog.records)
+    assert "Failed query duration 00h:00m:" in str(caplog.records)
