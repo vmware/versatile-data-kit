@@ -210,5 +210,5 @@ def _get_query_duration(query_start_time: float):
     seconds = timedelta(seconds=query_end_time - query_start_time).total_seconds()
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
-    difference = "{:02}h:{:02}m:{:02}s".format(int(hours), int(minutes), int(seconds))
+    difference = f"{int(hours):02}h:{int(minutes):02}m:{int(seconds):02}s"
     return f"duration {difference}"
