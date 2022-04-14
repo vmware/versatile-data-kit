@@ -1,0 +1,6 @@
+include src/vdk/plugin/marquez/docker-compose.yaml
+include src/vdk/plugin/marquez/.env
+include src/vdk/plugin/marquez/docker/*
+
+# this only work for source distribution (setup.py sdist) and not for binary distribution (bdist)
+# https://packaging.python.org/guides/using-manifest-in/
