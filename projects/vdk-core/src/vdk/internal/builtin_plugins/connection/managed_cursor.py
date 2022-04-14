@@ -78,52 +78,16 @@ class ManagedCursor(PEP249Cursor):
             None,
         )
         if self.__connection_hook_spec:
-            if (
-                self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
-            ):
-                self._log.debug("Validating query:\n%s" % operation)
-                try:
-                    self.__connection_hook_spec.db_connection_validate_operation(
-                        operation=operation, parameters=parameters
-                    )
-                except Exception as e:
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.USER_ERROR,
-                        self._log,
-                        what_happened="Validating query FAILED.",
-                        why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                        consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                        countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                        exception=e,
-                    )
-
-            if (
-                self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
-            ):
-                self._log.debug("Decorating query:\n%s" % operation)
-                decoration_cursor = DecorationCursor(
-                    self._cursor, self._log, managed_operation
-                )
-
-                try:
-                    self.__connection_hook_spec.db_connection_decorate_operation(
-                        decoration_cursor=decoration_cursor
-                    )
-                except Exception as e:
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.PLATFORM_ERROR,
-                        self._log,
-                        what_happened="Decorating query FAILED.",
-                        why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                        consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                        countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                        exception=e,
-                    )
+            self._validate_operation(operation, parameters)
+            self._decorate_operation(managed_operation, operation)
 
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         try:
-            super().execute(*managed_operation.get_operation_parameters_tuple())
+            result = super().execute(
+                *managed_operation.get_operation_parameters_tuple()
+            )
             self._log.info("Executing query SUCCEEDED.")
+            return result
         except Exception as e:
             try:
                 self._recover_operation(e, managed_operation)
@@ -137,6 +101,46 @@ class ManagedCursor(PEP249Cursor):
                     blamee,
                     self._log,
                     what_happened="Executing query FAILED.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    exception=e,
+                )
+
+    def _decorate_operation(self, managed_operation, operation):
+        if self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls():
+            self._log.debug("Decorating query:\n%s" % operation)
+            decoration_cursor = DecorationCursor(
+                self._cursor, self._log, managed_operation
+            )
+
+            try:
+                self.__connection_hook_spec.db_connection_decorate_operation(
+                    decoration_cursor=decoration_cursor
+                )
+            except Exception as e:
+                errors.log_and_rethrow(
+                    errors.ResolvableBy.PLATFORM_ERROR,
+                    self._log,
+                    what_happened="Decorating query FAILED.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    exception=e,
+                )
+
+    def _validate_operation(self, operation, parameters):
+        if self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
+            self._log.debug("Validating query:\n%s" % operation)
+            try:
+                self.__connection_hook_spec.db_connection_validate_operation(
+                    operation=operation, parameters=parameters
+                )
+            except Exception as e:
+                errors.log_and_rethrow(
+                    errors.ResolvableBy.USER_ERROR,
+                    self._log,
+                    what_happened="Validating query FAILED.",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
