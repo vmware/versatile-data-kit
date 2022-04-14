@@ -33,7 +33,7 @@ public class DataJobPropertiesIT extends BaseIT {
       // Setup
       String dataJobRequestBody = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_NAME);
 
-      // Execute create job (Post Create WebHook will return success for this call)
+      // Execute create job (Post Create WebHook will return success for this call )
       mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
             .with(user("user"))
             .content(dataJobRequestBody)
