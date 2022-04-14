@@ -89,13 +89,15 @@ class ManagedCursor(PEP249Cursor):
             result = super().execute(
                 *managed_operation.get_operation_parameters_tuple()
             )
-            self._log.info(f"Executing query SUCCEEDED. Query {self._get_query_duration(query_start_time)}")
+            self._log.info(
+                f"Executing query SUCCEEDED. Query {_get_query_duration(query_start_time)}"
+            )
             return result
         except Exception as e:
             try:
                 self._recover_operation(e, managed_operation)
                 self._log.info(
-                    f"Recovered query {self._get_query_duration(query_start_time)}"
+                    f"Recovered query {_get_query_duration(query_start_time)}"
                 )
             except Exception as e:
                 # todo: error classification
@@ -103,9 +105,7 @@ class ManagedCursor(PEP249Cursor):
                 blamee = errors.ResolvableBy.USER_ERROR
                 # else:
                 #     blamee = errors.ResolvableBy.PLATFORM_ERROR
-                self._log.info(
-                    f"Failed query {self._get_query_duration(query_start_time)}"
-                )
+                self._log.info(f"Failed query {_get_query_duration(query_start_time)}")
                 errors.log_and_rethrow(
                     blamee,
                     self._log,
@@ -155,11 +155,6 @@ class ManagedCursor(PEP249Cursor):
                     countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                     exception=e,
                 )
-    @staticmethod
-    def _get_query_duration(query_start_time: float):
-        query_end_time = timer()
-        difference = timedelta(seconds=query_end_time - query_start_time)
-        return f"duration H:M:S {difference}"
 
     def fetchall(self) -> Collection[Collection[Any]]:
         self._log.info("Fetching all results from query ...")
@@ -208,3 +203,9 @@ class ManagedCursor(PEP249Cursor):
             if type(e) is type(exception) and e.args == exception.args:  # re-raised
                 raise exception
             raise e from exception  # keep track of originating one
+
+
+def _get_query_duration(query_start_time: float):
+    query_end_time = timer()
+    difference = timedelta(seconds=query_end_time - query_start_time)
+    return f"duration H:M:S {difference}"
