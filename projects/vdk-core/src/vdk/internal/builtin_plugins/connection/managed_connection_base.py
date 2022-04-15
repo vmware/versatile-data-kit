@@ -16,8 +16,8 @@ from tenacity import retry_if_exception_type
 from tenacity import stop_after_attempt
 from tenacity import wait_exponential
 from vdk.api.job_input import IManagedConnection
-from vdk.api.plugin.connection_hook_spec import (
-    ConnectionHookSpec,
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
 )
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
@@ -40,7 +40,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
         self,
         log: logging.Logger = logger,
         db_con: Optional[PEP249Connection] = None,
-        connection_hook_spec: ConnectionHookSpec = None,
+        connection_hook_spec_factory: ConnectionHookSpecFactory = None,
     ):
         """
         this constructor MUST be called by inheritors
@@ -51,7 +51,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
             self._log = logging.getLogger(__name__)
         self._is_db_con_open: bool = db_con is not None
         self._db_con: Optional[PEP249Connection] = db_con
-        self._connection_hook_spec: ConnectionHookSpec = connection_hook_spec
+        self._connection_hook_spec_factory = connection_hook_spec_factory
 
     def __getattr__(self, attr):
         """
@@ -96,13 +96,14 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
     )
     def connect(self) -> PEP249Connection:
         """
-        :return: PEP249 Connection object (unmanaged)
+        :return: PEP249 Connection object (managed)
         """
         if not self._is_db_con_open:
             db_con = self._connect()
             self._log.debug(f"Established {str(db_con)}")
             self._is_db_con_open = True
             self._db_con = db_con
+
         return self
 
     # def get_managed_connection(self) -> PEP249Connection:
@@ -160,7 +161,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
             return ManagedCursor(
                 self._db_con.cursor(*args, **kwargs),
                 self._log,
-                self._connection_hook_spec,
+                self._connection_hook_spec_factory,
             )
         return super().cursor()
 

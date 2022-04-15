@@ -10,11 +10,15 @@ from typing import Collection
 from typing import Container
 from typing import Optional
 
-from vdk.api.plugin.connection_hook_spec import (
-    ConnectionHookSpec,
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
+)
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    DefaultConnectionHookImpl,
 )
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
@@ -29,16 +33,20 @@ class ManagedCursor(PEP249Cursor):
         self,
         cursor: Any,
         log: logging.Logger = None,
-        connection_hook_spec: ConnectionHookSpec = None,
+        connection_hook_spec_factory: ConnectionHookSpecFactory = None,
     ):
         if not log:
             log = logging.getLogger(__name__)
         super().__init__(cursor, log)
-        self.__connection_hook_spec = connection_hook_spec
+        self.__connection_hook_spec = None
+        if connection_hook_spec_factory:
+            self.__connection_hook_spec = (
+                connection_hook_spec_factory.get_connection_hook_spec()
+            )
 
     def __getattr__(self, attr):
         """
-        Dynamic interception and delegation of any (non-overridden) attribute access.
+        Dynamic interception and il of any (non-overridden) attribute access.
         In case an attribute is not explicitly managed (customized by overriding e.g. execute()) -
         this attribute is looked up then the call is delegated, ensuring default behaviour success path.
 
@@ -83,12 +91,9 @@ class ManagedCursor(PEP249Cursor):
             self._validate_operation(operation, parameters)
             self._decorate_operation(managed_operation, operation)
 
-        self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         query_start_time = timer()
         try:
-            result = super().execute(
-                *managed_operation.get_operation_parameters_tuple()
-            )
+            result = self._execute_operation(managed_operation)
             self._log.info(
                 f"Executing query SUCCEEDED. Query {_get_query_duration(query_start_time)}"
             )
@@ -116,13 +121,12 @@ class ManagedCursor(PEP249Cursor):
                     exception=e,
                 )
 
-    def _decorate_operation(self, managed_operation, operation):
+    def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
         if self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls():
             self._log.debug("Decorating query:\n%s" % operation)
             decoration_cursor = DecorationCursor(
                 self._cursor, self._log, managed_operation
             )
-
             try:
                 self.__connection_hook_spec.db_connection_decorate_operation(
                     decoration_cursor=decoration_cursor
@@ -138,7 +142,7 @@ class ManagedCursor(PEP249Cursor):
                     exception=e,
                 )
 
-    def _validate_operation(self, operation, parameters):
+    def _validate_operation(self, operation: str, parameters: Optional[Container]):
         if self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
             self._log.debug("Validating query:\n%s" % operation)
             try:
@@ -155,6 +159,23 @@ class ManagedCursor(PEP249Cursor):
                     countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                     exception=e,
                 )
+
+    def _execute_operation(self, managed_operation: ManagedOperation):
+        self._log.info("Executing query:\n%s" % managed_operation.get_operation())
+        execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
+        if self.__connection_hook_spec:
+            result = self.__connection_hook_spec.db_connection_execute_operation(
+                execution_cursor=execution_cursor
+            )
+        else:
+            self._log.debug(
+                "No connection hook spec defined. "
+                "Will invoke standard cursor execute implementation."
+            )
+            result = DefaultConnectionHookImpl().db_connection_execute_operation(
+                execution_cursor
+            )
+        return result
 
     def fetchall(self) -> Collection[Collection[Any]]:
         self._log.info("Fetching all results from query ...")

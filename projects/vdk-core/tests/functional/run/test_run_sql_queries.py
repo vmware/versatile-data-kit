@@ -3,11 +3,14 @@
 import logging
 import os
 import sqlite3
+from typing import Optional
 from unittest import mock
 
+import pluggy
 from click.testing import Result
 from functional.run.util import job_path
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -240,4 +243,56 @@ def test_run_job_with_properties_and_sql_substitution_priority_order():
     # we verify that test_table_override is used (over test_table_props) since arguments have higher priority
     assert db_plugin.db.execute_query("select * from test_table_override") == [
         ("one", 123)
+    ]
+
+
+class DbOperationTrackPlugin:
+    def __init__(self):
+        self.log = []
+
+    @hookimpl(hookwrapper=True)
+    def db_connection_execute_operation(
+        self, execution_cursor: ExecutionCursor
+    ) -> Optional[int]:
+        self.log.append("start")
+        out: pluggy.callers._Result
+        out = yield
+        self.log.append(("end", out.excinfo is None))
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_dbapi_connection_with_execute_hook():
+    db_plugin = SqLite3MemoryDbPlugin()
+    db_tracker = DbOperationTrackPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, db_tracker)
+
+    result: Result = runner.invoke(["run", job_path("simple-create-insert")])
+
+    cli_assert_equal(0, result)
+    assert db_tracker.log == [
+        "start",
+        ("end", True),
+        "start",
+        ("end", True),
+        "start",
+        ("end", True),
+    ]
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_dbapi_connection_failed_with_execute_hook():
+    db_plugin = SqLite3MemoryDbPlugin()
+    db_tracker = DbOperationTrackPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, db_tracker)
+
+    result: Result = runner.invoke(["run", job_path("simple-create-insert-failed")])
+
+    cli_assert_equal(1, result)
+    assert db_tracker.log == [
+        "start",
+        ("end", True),
+        "start",
+        ("end", True),
+        "start",
+        ("end", False),
     ]

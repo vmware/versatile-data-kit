@@ -4,8 +4,8 @@ import logging
 from typing import Any
 from typing import Callable
 
-from vdk.api.plugin.connection_hook_spec import (
-    ConnectionHookSpec,
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
 )
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
@@ -22,7 +22,7 @@ class WrappedConnection(ManagedConnectionBase):
         self,
         log: logging.Logger,
         new_connection_builder_function: Callable[[], PEP249Connection],
-        connection_hook_spec: ConnectionHookSpec,
+        connection_hook_spec_factory: ConnectionHookSpecFactory,
     ) -> None:
         """
         :param new_connection_builder_function: method that returns a new (e.g. SAP Hana) connection
@@ -30,9 +30,9 @@ class WrappedConnection(ManagedConnectionBase):
                 def connection() -> ManagedConnectionBase:
                     db = pyhdb.connect(host='hana-prod-d1.northpole.com', port=30015, user='claus', password='hohoho')
                     return db
-        :param connection_hook_spec: connection hook implementations from plugins
+        :param connection_hook_spec_factory: ConnectionHookSpecFactory
         """
-        super().__init__(log, None, connection_hook_spec)
+        super().__init__(log, None, connection_hook_spec_factory)
         self._log = logging.getLogger(__name__)
         self._new_connection_builder_function = new_connection_builder_function
 

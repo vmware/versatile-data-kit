@@ -1,10 +1,14 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 from unittest.mock import MagicMock
 
 import pytest
 from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
+)
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
 )
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
@@ -18,14 +22,19 @@ from vdk.internal.core.errors import VdkConfigurationError
 def managed_connection_router():
     conf = MagicMock(spec=Configuration)
     mock_conn = MagicMock(spec=PEP249Connection)
+    mock_connection_hook_spec_factory = MagicMock(spec=ConnectionHookSpecFactory)
 
     class TestManagedConnection(ManagedConnectionBase):
         def _connect(self) -> PEP249Connection:
             return mock_conn
 
+    test_managed_connection = TestManagedConnection(
+        logging.getLogger(), None, mock_connection_hook_spec_factory
+    )
+
     router = ManagedConnectionRouter(conf, MagicMock(spec=ConnectionHookSpec))
     router.add_open_connection_factory_method(
-        "TEST_DB", lambda: TestManagedConnection()
+        "TEST_DB", lambda: test_managed_connection
     )
     return router, mock_conn, conf
 

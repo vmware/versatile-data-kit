@@ -27,6 +27,10 @@ Decorator helper class for marking functions as hook implementations.
 The method name must match one of those defined as hookspec
 The method signature - the arguments need to be subset of arguments defined in hookspec
 
+If any hookimpl errors with an exception no further callbacks are invoked
+and the exception is packaged up and delivered to any wrappers
+before being re-raised at the hook invocation point.
+
 Plugin execution order can be configured in the decorator with following variables:
 
 If ``optionalhook`` is ``True`` a missing matching hook specification will not result
@@ -54,6 +58,8 @@ def func():
     # outcome.get_result() will raise exception if there was an exception before.
     after_other_hooks_executed(outcome.get_result())
     outcome.force_result(new_res)  # set new return result
+
+For more details see https://pluggy.readthedocs.io
 
 """
 hookimpl = pluggy.HookimplMarker(GROUP_NAME)
