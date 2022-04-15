@@ -163,3 +163,52 @@ def test_recovery__failure__execute():
     assert "Could not handle execution exception" == e.value.args[0]
     mock_connection_hook_spec.db_connection_recover_operation.assert_called_once()
     mock_native_cursor.execute.assert_called_once()
+
+
+def test_query_timing_successful_query(caplog):
+    (
+        _,
+        mock_managed_cursor,
+        _,
+        _,
+        _,
+    ) = populate_mock_managed_cursor()
+    # set logging level to info
+    mock_managed_cursor._log.level = 20
+    mock_managed_cursor.execute(_query)
+    assert "Query duration 00h:00m:" in str(caplog.records)
+
+
+def test_query_timing_recovered_query(caplog):
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        _,
+    ) = populate_mock_managed_cursor()
+    # set logging level to info
+    mock_managed_cursor._log.level = 20
+    mock_native_cursor.execute.side_effect = [Exception("Mock exception")]
+    mock_managed_cursor.execute(_query)
+    assert "Recovered query duration 00h:00m:" in str(caplog.records)
+
+
+def test_query_timing_failed_query(caplog):
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_connection_hook_spec,
+    ) = populate_mock_managed_cursor()
+    # set logging level to info
+
+    mock_managed_cursor._log.level = 20
+    exception = Exception("Mock exception")
+    mock_native_cursor.execute.side_effect = [exception]
+    mock_connection_hook_spec.db_connection_recover_operation.side_effect = [exception]
+    with pytest.raises(Exception):
+        mock_managed_cursor.execute(_query)
+
+    assert "Failed query duration 00h:00m:" in str(caplog.records)
