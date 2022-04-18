@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import socket
 import types
 from sys import modules
 from typing import cast
@@ -9,7 +10,11 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.statestore import CommonStoreKeys
+
+LOGGING_ENDPOINT_URL = "LOGGING_ENDPOINT_URL"
+LOGGING_ENDPOINT_PORT = "LOGGING_ENDPOINT_PORT"
 
 
 def configure_loggers(
@@ -17,6 +22,7 @@ def configure_loggers(
     attempt_id: str = "no-id",
     log_config_type: str = None,
     vdk_logging_level: str = "DEBUG",
+    log_endpoint: (str, int) = ("localhost", 514),
 ) -> None:
     """
     Configure default logging configuration
@@ -25,6 +31,7 @@ def configure_loggers(
     :param attempt_id: the id of the current job run attempt
     :param log_config_type: where the job is executed: CLOUD or LOCAL
     :param vdk_logging_level: The level for vdk specific logs.
+    :param log_endpoint: The URL and port of the endpoint to which logs are sent.
     """
 
     import logging.config
@@ -57,12 +64,21 @@ def configure_loggers(
         "stream": "ext://sys.stderr",
     }
 
+    _SYSLOG_HANDLER = {
+        "level": "DEBUG",
+        "class": "logging.handlers.SysLogHandler",
+        "formatter": "detailedFormatter",
+        "address": log_endpoint,
+        "socktype": socket.SOCK_DGRAM,
+        "facility": "user",
+    }
+
     if "CLOUD" == log_config_type:
         CLOUD = {  # @UnusedVariable
             "version": 1,
-            "handlers": {"consoleHandler": _CONSOLE_HANDLER},
+            "handlers": {"consoleHandler": _CONSOLE_HANDLER, "SysLog": _SYSLOG_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ["consoleHandler"]},
+            "root": {"handlers": ["consoleHandler", "SysLog"]},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }
@@ -126,6 +142,11 @@ class LoggingPlugin:
     """
 
     @hookimpl
+    def vdk_configure(self, config_builder: ConfigurationBuilder):
+        config_builder.add(key="LOGGING_ENDPOINT_URL", default_value="localhost")
+        config_builder.add(key="LOGGING_ENDPOINT_PORT", default_value=514)
+
+    @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         """
         Initialize logging for running Data Job.
@@ -141,12 +162,19 @@ class LoggingPlugin:
         vdk_log_level = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_VDK
         )
+        log_endpoint_url = context.core_context.configuration.get_value(
+            LOGGING_ENDPOINT_URL
+        )
+        log_endpoint_port = context.core_context.configuration.get_value(
+            LOGGING_ENDPOINT_PORT
+        )
         try:  # If logging initialization fails we want to attempt sending telemetry before exiting VDK
             configure_loggers(
                 job_name,
                 attempt_id,
                 log_config_type=log_config_type,
                 vdk_logging_level=vdk_log_level,
+                log_endpoint=(log_endpoint_url, log_endpoint_port),
             )
             log = logging.getLogger(__name__)
             log.debug(f"Initialized logging for log type {log_config_type}.")
