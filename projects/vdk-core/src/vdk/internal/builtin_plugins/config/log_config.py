@@ -13,8 +13,12 @@ from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.statestore import CommonStoreKeys
 
-LOGGING_ENDPOINT_URL = "LOGGING_ENDPOINT_URL"
-LOGGING_ENDPOINT_PORT = "LOGGING_ENDPOINT_PORT"
+SYSLOG_URL = "SYSLOG_URL"
+SYSLOG_PORT = "SYSLOG_PORT"
+SYSLOG_SOCK_TYPE = "SYSLOG_SOCK_TYPE"
+SYSLOG_ENABLED = "SYSLOG_ENABLED"
+
+SYSLOG_SOCK_TYPE_VALUES_DICT = {"UDP": socket.SOCK_DGRAM, "TCP": socket.SOCK_STREAM}
 
 
 def configure_loggers(
@@ -22,7 +26,7 @@ def configure_loggers(
     attempt_id: str = "no-id",
     log_config_type: str = None,
     vdk_logging_level: str = "DEBUG",
-    log_endpoint: (str, int) = ("localhost", 514),
+    syslog_args: (str, int, str, bool) = ("localhost", 514, "UDP", False),
 ) -> None:
     """
     Configure default logging configuration
@@ -64,21 +68,36 @@ def configure_loggers(
         "stream": "ext://sys.stderr",
     }
 
+    syslog_url, syslog_port, syslog_sock_type, syslog_enabled = syslog_args
+
+    if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT.keys():
+        errors.log_and_throw(
+            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+            log=log,
+            what_happened=f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
+            why_it_happened=f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
+            consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+            countermeasures=f"Provide either valid value for {SYSLOG_SOCK_TYPE} or install database plugin that supports this type. "
+            f"Currently possible values are {SYSLOG_SOCK_TYPE_VALUES_DICT.keys()}",
+        )
+
     _SYSLOG_HANDLER = {
         "level": "DEBUG",
         "class": "logging.handlers.SysLogHandler",
         "formatter": "detailedFormatter",
-        "address": log_endpoint,
-        "socktype": socket.SOCK_DGRAM,
+        "address": (syslog_url, syslog_port),
+        "socktype": SYSLOG_SOCK_TYPE_VALUES_DICT[syslog_sock_type],
         "facility": "user",
     }
+
+    handlers = ["consoleHandler", "SysLog"] if syslog_enabled else ["consoleHandler"]
 
     if "CLOUD" == log_config_type:
         CLOUD = {  # @UnusedVariable
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER, "SysLog": _SYSLOG_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ["consoleHandler", "SysLog"]},
+            "root": {"handlers": handlers},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }
@@ -90,7 +109,7 @@ def configure_loggers(
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER},
             "formatters": _FORMATTERS,
-            "root": {"handlers": ("consoleHandler",)},
+            "root": {"handlers": handlers},
             "loggers": _LOGGERS,
             "disable_existing_loggers": False,
         }
@@ -143,8 +162,10 @@ class LoggingPlugin:
 
     @hookimpl
     def vdk_configure(self, config_builder: ConfigurationBuilder):
-        config_builder.add(key="LOGGING_ENDPOINT_URL", default_value="localhost")
-        config_builder.add(key="LOGGING_ENDPOINT_PORT", default_value=514)
+        config_builder.add(key=SYSLOG_URL, default_value="localhost")
+        config_builder.add(key=SYSLOG_PORT, default_value=514)
+        config_builder.add(key=SYSLOG_ENABLED, default_value=False)
+        config_builder.add(key=SYSLOG_SOCK_TYPE, default_value="UDP")
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
@@ -162,19 +183,19 @@ class LoggingPlugin:
         vdk_log_level = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_VDK
         )
-        log_endpoint_url = context.core_context.configuration.get_value(
-            LOGGING_ENDPOINT_URL
+        syslog_url = context.core_context.configuration.get_value(SYSLOG_URL)
+        syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT)
+        syslog_sock_type = context.core_context.configuration.get_value(
+            SYSLOG_SOCK_TYPE
         )
-        log_endpoint_port = context.core_context.configuration.get_value(
-            LOGGING_ENDPOINT_PORT
-        )
+        syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
         try:  # If logging initialization fails we want to attempt sending telemetry before exiting VDK
             configure_loggers(
                 job_name,
                 attempt_id,
                 log_config_type=log_config_type,
                 vdk_logging_level=vdk_log_level,
-                log_endpoint=(log_endpoint_url, log_endpoint_port),
+                syslog_args=(syslog_url, syslog_port, syslog_sock_type, syslog_enabled),
             )
             log = logging.getLogger(__name__)
             log.debug(f"Initialized logging for log type {log_config_type}.")
