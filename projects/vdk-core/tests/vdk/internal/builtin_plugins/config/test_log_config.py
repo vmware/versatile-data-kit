@@ -8,6 +8,7 @@ import pytest
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.log_config import LoggingPlugin
+from vdk.internal.builtin_plugins.config.log_config import SYSLOG_SOCK_TYPE
 from vdk.internal.builtin_plugins.run.data_job import JobArguments
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.templates.template_impl import TemplatesImpl
@@ -40,6 +41,7 @@ def test_log_plugin(log_type, vdk_level, expected_vdk_level):
         ConfigurationBuilder()
         .add(vdk_config.LOG_CONFIG, log_type)
         .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
+        .add(SYSLOG_SOCK_TYPE, "UDP")
         .build()
     )
     core_context = CoreContext(MagicMock(spec=IPluginRegistry), conf, store)

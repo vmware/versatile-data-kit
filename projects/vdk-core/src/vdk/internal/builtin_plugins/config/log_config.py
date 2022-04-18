@@ -69,7 +69,6 @@ def configure_loggers(
     }
 
     syslog_url, syslog_port, syslog_sock_type, syslog_enabled = syslog_args
-    print(f"HERE {syslog_sock_type}")
 
     if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT.keys():
         errors.log_and_throw(
@@ -78,7 +77,7 @@ def configure_loggers(
             what_happened=f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
             why_it_happened=f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
             consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-            countermeasures=f"Please provide a valid value for {SYSLOG_SOCK_TYPE}."
+            countermeasures=f"Provide a valid value for {SYSLOG_SOCK_TYPE}."
             f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
         )
 
@@ -168,7 +167,7 @@ class LoggingPlugin:
         config_builder.add(
             key=SYSLOG_URL,
             default_value="localhost",
-            description="The URL of the endpoint to which VDK logs will be sent through SysLog.",
+            description="The hostname of the endpoint to which VDK logs will be sent through SysLog.",
         )
         config_builder.add(
             key=SYSLOG_PORT,
