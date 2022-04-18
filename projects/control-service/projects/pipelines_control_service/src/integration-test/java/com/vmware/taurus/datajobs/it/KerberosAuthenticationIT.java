@@ -7,6 +7,7 @@ package com.vmware.taurus.datajobs.it;
 import com.kerb4j.client.SpnegoClient;
 import com.kerb4j.client.SpnegoContext;
 import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
@@ -14,8 +15,10 @@ import org.apache.kerby.kerberos.kerb.KrbException;
 import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.apache.kerby.util.NetworkUtil;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +47,7 @@ import java.net.URL;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class KerberosAuthenticationIT {
+public class KerberosAuthenticationIT extends BaseIT {
    // composition in favour of inheritance, due to KDC instance is used via TestExecutionListeners and Test both (shared)
    private static final String WORK_DIR = "target";
    private static final File KDC_WORK_DIR = new File(WORK_DIR);
@@ -117,6 +120,18 @@ public class KerberosAuthenticationIT {
       jobsRepository.deleteAll();
       KDC_WORK_DIR.deleteOnExit();
       simpleKdcServer.stop();
+   }
+
+   @BeforeEach
+   @Override
+   public void startMiniKdc() throws Exception {
+      // Do nothing since we use apache kerby for this test.
+   }
+
+   @AfterEach
+   @Override
+   public void stopMiniKdc() {
+      // Do nothing since we use apache kerby for this test.
    }
 
 }
