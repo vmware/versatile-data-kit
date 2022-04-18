@@ -9,15 +9,12 @@ import com.kerb4j.client.SpnegoContext;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.JobConfig;
 import org.apache.kerby.kerberos.kerb.KrbException;
 import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.apache.kerby.util.NetworkUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -25,12 +22,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestPropertySource(properties = {
       "test.dir=target",
@@ -81,20 +83,19 @@ public class KerberosAuthenticationIT extends BaseIT {
       }
    }
 
+   private void createJob(String jobName, String teamName) throws Exception {
+      String body = getDataJobRequestBody(jobName, teamName);
 
-   @BeforeAll
-   public void addTestJob() {
-      // Add a dummy data job so that endpoint call returns 200 instead of 404
-      var dataJob = new DataJob();
-      var config = new JobConfig();
-      config.setTeam("test");
-      dataJob.setName("test");
-      dataJob.setJobConfig(config);
-      jobsRepository.save(dataJob);
+      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", teamName))
+                  .with(user("user"))
+                  .content(body)
+                  .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated());
    }
 
    @Test
    public void testAuthenticatedCall() throws Exception {
+      createJob("test", "test");
 
       SpnegoClient spnegoClient = SpnegoClient.loginWithKeyTab(CLIENT_PRINCIPAL, KEYTAB.getPath());
       URL url = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test/jobs/test");
