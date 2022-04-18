@@ -69,6 +69,7 @@ def configure_loggers(
     }
 
     syslog_url, syslog_port, syslog_sock_type, syslog_enabled = syslog_args
+    print(f"HERE {syslog_sock_type}")
 
     if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT.keys():
         errors.log_and_throw(
@@ -77,8 +78,8 @@ def configure_loggers(
             what_happened=f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
             why_it_happened=f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
             consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-            countermeasures=f"Provide either valid value for {SYSLOG_SOCK_TYPE} or install database plugin that supports this type. "
-            f"Currently possible values are {SYSLOG_SOCK_TYPE_VALUES_DICT.keys()}",
+            countermeasures=f"Please provide a valid value for {SYSLOG_SOCK_TYPE}."
+            f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
         )
 
     _SYSLOG_HANDLER = {
@@ -90,7 +91,9 @@ def configure_loggers(
         "facility": "user",
     }
 
-    handlers = ["consoleHandler", "SysLog"] if syslog_enabled else ["consoleHandler"]
+    handlers = ["consoleHandler"]
+    if syslog_enabled:
+        handlers.append("SysLog")
 
     if "CLOUD" == log_config_type:
         CLOUD = {  # @UnusedVariable
@@ -107,7 +110,7 @@ def configure_loggers(
     else:
         LOCAL = {  # @UnusedVariable
             "version": 1,
-            "handlers": {"consoleHandler": _CONSOLE_HANDLER},
+            "handlers": {"consoleHandler": _CONSOLE_HANDLER, "SysLog": _SYSLOG_HANDLER},
             "formatters": _FORMATTERS,
             "root": {"handlers": handlers},
             "loggers": _LOGGERS,
@@ -162,10 +165,26 @@ class LoggingPlugin:
 
     @hookimpl
     def vdk_configure(self, config_builder: ConfigurationBuilder):
-        config_builder.add(key=SYSLOG_URL, default_value="localhost")
-        config_builder.add(key=SYSLOG_PORT, default_value=514)
-        config_builder.add(key=SYSLOG_ENABLED, default_value=False)
-        config_builder.add(key=SYSLOG_SOCK_TYPE, default_value="UDP")
+        config_builder.add(
+            key=SYSLOG_URL,
+            default_value="localhost",
+            description="The URL of the endpoint to which VDK logs will be sent through SysLog.",
+        )
+        config_builder.add(
+            key=SYSLOG_PORT,
+            default_value=514,
+            description="The port of the endpoint to which VDK logs will be sent through SysLog.",
+        )
+        config_builder.add(
+            key=SYSLOG_ENABLED,
+            default_value=False,
+            description="If set to True, SysLog log forwarding is enabled.",
+        )
+        config_builder.add(
+            key=SYSLOG_SOCK_TYPE,
+            default_value="UDP",
+            description=f"Socket type for SysLog log forwarding connection. Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+        )
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
