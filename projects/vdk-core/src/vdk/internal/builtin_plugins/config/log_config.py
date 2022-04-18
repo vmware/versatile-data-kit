@@ -35,7 +35,7 @@ def configure_loggers(
     :param attempt_id: the id of the current job run attempt
     :param log_config_type: where the job is executed: CLOUD or LOCAL
     :param vdk_logging_level: The level for vdk specific logs.
-    :param log_endpoint: The URL and port of the endpoint to which logs are sent.
+    :param syslog_args: Arguments necessary for SysLog logging.
     """
 
     import logging.config
