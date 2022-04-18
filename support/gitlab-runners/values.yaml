@@ -75,7 +75,7 @@ runners:
     cpuLimit: 1000m
     memoryLimit: 4Gi
     cpuRequests: 500m
-    memoryRequests: 3Gi
+    memoryRequests: 2Gi
 
   ## Service Container specific configuration
   ##
