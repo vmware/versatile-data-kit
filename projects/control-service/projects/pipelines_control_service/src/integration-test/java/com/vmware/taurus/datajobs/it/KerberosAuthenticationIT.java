@@ -95,10 +95,10 @@ public class KerberosAuthenticationIT extends BaseIT {
 
    @Test
    public void testAuthenticatedCall() throws Exception {
-      createJob("test", "test");
+      createJob("testJob", "test");
 
       SpnegoClient spnegoClient = SpnegoClient.loginWithKeyTab(CLIENT_PRINCIPAL, KEYTAB.getPath());
-      URL url = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test/jobs/test");
+      URL url = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test/jobs/testJob");
       var krb5 = simpleKdcServer.getKrbClient().getKrbConfig();
       SpnegoContext context = spnegoClient.createContext(new URL("http://" + krb5.getKdcHost() + "/" + krb5.getKdcPort()));
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
