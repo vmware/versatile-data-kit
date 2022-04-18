@@ -114,6 +114,7 @@ public class KerberosAuthenticationIT {
 
    @AfterAll
    public void cleanup() throws KrbException {
+      jobsRepository.deleteAll();
       KDC_WORK_DIR.deleteOnExit();
       simpleKdcServer.stop();
    }
