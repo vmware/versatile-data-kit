@@ -72,9 +72,10 @@ If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CO
 # Contacts
 Feedback is very welcome via the [GitHub site as issues](https://github.com/vmware/versatile-data-kit/issues) or [pull requests](https://github.com/vmware/versatile-data-kit/pulls)
 
-Join [our mailing list](mailto:join-versatiledatakit@groups.vmware.com?subject=Invite%20me%20to%20the%20VDK%20mailing%20list) or [follow us on twitter](https://twitter.com/intent/follow?screen_name=VDKProject).
-Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
-Join our dedicated Slack channel on the [CNCF Slack workspace](https://events.linuxfoundation.org/archive/2020/kubecon-cloudnativecon-europe/attend/slack-guidelines/#getting-started) - simply search for #versatile-data-kit.
+- [Join our mailing list](mailto:join-versatiledatakit@groups.vmware.com?subject=Invite%20me%20to%20the%20VDK%20mailing%20list) 
+- [Follow us on twitter](https://twitter.com/intent/follow?screen_name=VDKProject).
+- Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
+- [Join our dedicated Slack channel](https://cloud-native.slack.com/archives/C033PSLKCPR) on the [CNCF Slack workspace](https://events.linuxfoundation.org/archive/2020/kubecon-cloudnativecon-europe/attend/slack-guidelines/#getting-started) - simply search for #versatile-data-kit or [click here to join the channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
 
 # Code of Conduct
 Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels and mailing lists is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
