@@ -2,7 +2,7 @@
  * Copyright 2021 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.vmware.taurus.datajobs.it;
+package com.vmware.taurus.authorization;
 
 import com.kerb4j.client.SpnegoClient;
 import com.kerb4j.client.SpnegoContext;
