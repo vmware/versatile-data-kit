@@ -7,8 +7,9 @@ package com.vmware.taurus.datajobs.it;
 import com.kerb4j.client.SpnegoClient;
 import com.kerb4j.client.SpnegoContext;
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.JobConfig;
 import org.apache.kerby.kerberos.kerb.KrbException;
 import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.apache.kerby.util.NetworkUtil;
@@ -17,22 +18,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestPropertySource(properties = {
       "test.dir=target",
@@ -48,8 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @ExtendWith(SpringExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class KerberosAuthenticationIT extends BaseIT {
+public class KerberosAuthenticationIT {
    // composition in favour of inheritance, due to KDC instance is used via TestExecutionListeners and Test both (shared)
    private static final String WORK_DIR = "target";
    private static final File KDC_WORK_DIR = new File(WORK_DIR);
@@ -62,13 +56,14 @@ public class KerberosAuthenticationIT extends BaseIT {
    @Autowired
    private JobsRepository jobsRepository;
 
+   private DataJob dataJob;
+
    @LocalServerPort
    int randomPort;
 
    static {
       // Initialize the KDC server
       try {
-
          simpleKdcServer = new SimpleKdcServer();
          simpleKdcServer.setWorkDir(KDC_WORK_DIR);
          simpleKdcServer.setAllowTcp(true);
@@ -83,22 +78,23 @@ public class KerberosAuthenticationIT extends BaseIT {
       }
    }
 
-   private void createJob(String jobName, String teamName) throws Exception {
-      String body = getDataJobRequestBody(jobName, teamName);
 
-      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", teamName))
-                  .with(user("user"))
-                  .content(body)
-                  .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated());
+   @BeforeEach
+   public void addTestJob() {
+      // Add a dummy data job so that endpoint call returns 200 instead of 404
+      dataJob = new DataJob();
+      var config = new JobConfig();
+      config.setTeam("test-team");
+      dataJob.setName("test-name");
+      dataJob.setJobConfig(config);
+      jobsRepository.save(dataJob);
    }
 
    @Test
    public void testAuthenticatedCall() throws Exception {
-      createJob("testjob", "testjob");
 
       SpnegoClient spnegoClient = SpnegoClient.loginWithKeyTab(CLIENT_PRINCIPAL, KEYTAB.getPath());
-      URL url = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/testjob/jobs/testjob");
+      URL url = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test-team/jobs/test-name");
       var krb5 = simpleKdcServer.getKrbClient().getKrbConfig();
       SpnegoContext context = spnegoClient.createContext(new URL("http://" + krb5.getKdcHost() + "/" + krb5.getKdcPort()));
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -116,23 +112,15 @@ public class KerberosAuthenticationIT extends BaseIT {
       Assertions.assertEquals(401, res);
    }
 
+   @AfterEach
+   public void cleanupJob() {
+      jobsRepository.delete(dataJob);
+   }
+
    @AfterAll
-   public void cleanup() throws KrbException {
-      jobsRepository.deleteAll();
+   public static void cleanup() throws KrbException {
       KDC_WORK_DIR.deleteOnExit();
       simpleKdcServer.stop();
-   }
-
-   @BeforeEach
-   @Override
-   public void startMiniKdc() throws Exception {
-      // Do nothing since we use apache kerby for this test.
-   }
-
-   @AfterEach
-   @Override
-   public void stopMiniKdc() {
-      // Do nothing since we use apache kerby for this test.
    }
 
 }
