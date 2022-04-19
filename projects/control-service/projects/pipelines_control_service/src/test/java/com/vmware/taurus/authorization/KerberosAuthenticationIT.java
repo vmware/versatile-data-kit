@@ -29,6 +29,18 @@ import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * This test is in the unit tests directory, because
+ * our integration tests use the MiniKdc server provided
+ * by spring which as of today hasn't received any updates
+ * in a long time and is problematic. However, minikdc leaves
+ * some files and configurations that interfere with apache kerby
+ * and both tests cannot run on the same runner (even after invoking
+ * the provided cleanup mehtods by the libraries). We should look into
+ * migrating to apache kerby for our integration tests too. This
+ * test was deemed OK to be a unit test since it runs fast (2 seconds)
+ * and doesn't rely on any external configurations or environments.
+ */
 @TestPropertySource(properties = {
       "test.dir=target",
       "featureflag.security.enabled=true",
@@ -44,7 +56,11 @@ import java.net.URL;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @ExtendWith(SpringExtension.class)
 public class KerberosAuthenticationIT {
-   // composition in favour of inheritance, due to KDC instance is used via TestExecutionListeners and Test both (shared)
+
+   /*
+    * Using static variables due to the KDC instance needing to init before
+    * spring startup code from the @SpringBootTest annotation.
+    */
    private static final String WORK_DIR = "target";
    private static final File KDC_WORK_DIR = new File(WORK_DIR);
    private static final File KEYTAB = new File(WORK_DIR + "/foo.keytab");
@@ -61,6 +77,11 @@ public class KerberosAuthenticationIT {
    @LocalServerPort
    int randomPort;
 
+   /*
+    * Static block is only reliable way of starting the KDC server before
+    * code invoked by the @SpringBootTest annotation. If you find a way to
+    * refactor this in a JUnit method such as @BeforeAll etc. feel free to.
+    */
    static {
       // Initialize the KDC server
       try {
@@ -77,7 +98,6 @@ public class KerberosAuthenticationIT {
          System.out.println(e);
       }
    }
-
 
    @BeforeEach
    public void addTestJob() {
