@@ -70,7 +70,7 @@ def configure_loggers(
 
     syslog_url, syslog_port, syslog_sock_type, syslog_enabled = syslog_args
 
-    if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT.keys():
+    if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT:
         errors.log_and_throw(
             to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
             log=log,
