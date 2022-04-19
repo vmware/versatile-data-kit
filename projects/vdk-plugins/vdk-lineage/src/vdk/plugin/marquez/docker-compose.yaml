@@ -1,0 +1,47 @@
+version: "3.7"
+services:
+  api:
+    image: "marquezproject/marquez:latest"
+    container_name: marquez-api
+    environment:
+      - MARQUEZ_PORT=${API_PORT}
+      - MARQUEZ_ADMIN_PORT=${API_ADMIN_PORT}
+    ports:
+      - "${API_PORT}:${API_PORT}"
+      - "${API_ADMIN_PORT}:${API_ADMIN_PORT}"
+    volumes:
+      - ./docker/wait-for-it.sh:/usr/src/app/wait-for-it.sh
+    links:
+      - "db:postgres"
+    depends_on:
+      - db
+    entrypoint: ["./wait-for-it.sh", "db:5432", "--", "./entrypoint.sh"]
+
+  web:
+    image: "marquezproject/marquez-web:latest"
+    container_name: marquez-web
+    environment:
+      - MARQUEZ_HOST=api
+      - MARQUEZ_PORT=${API_PORT}
+    ports:
+      - "${WEB_PORT}:${WEB_PORT}"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - api
+
+  db:
+    image: postgres:12.1
+    container_name: marquez-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - MARQUEZ_DB=marquez
+      - MARQUEZ_USER=marquez
+      - MARQUEZ_PASSWORD=marquez
+    volumes:
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    # Enables SQL statement logging (see: https://www.postgresql.org/docs/12/runtime-config-logging.html#GUC-LOG-STATEMENT)
+    # command: ["postgres", "-c", "log_statement=all"]

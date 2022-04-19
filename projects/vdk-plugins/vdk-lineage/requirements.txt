@@ -1,0 +1,6 @@
+
+# testing:
+pytest
+pytest-httpserver
+vdk-sqlite
+vdk-test-utils

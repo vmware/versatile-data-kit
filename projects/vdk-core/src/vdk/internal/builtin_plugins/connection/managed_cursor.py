@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import types
+from datetime import timedelta
+from timeit import default_timer as timer
 from typing import Any
 from typing import cast
 from typing import Collection
@@ -78,65 +80,76 @@ class ManagedCursor(PEP249Cursor):
             None,
         )
         if self.__connection_hook_spec:
-            if (
-                self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
-            ):
-                self._log.debug("Validating query:\n%s" % operation)
-                try:
-                    self.__connection_hook_spec.db_connection_validate_operation(
-                        operation=operation, parameters=parameters
-                    )
-                except Exception as e:
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.USER_ERROR,
-                        self._log,
-                        what_happened="Validating query FAILED.",
-                        why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                        consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                        countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                        exception=e,
-                    )
-
-            if (
-                self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
-            ):
-                self._log.debug("Decorating query:\n%s" % operation)
-                decoration_cursor = DecorationCursor(
-                    self._cursor, self._log, managed_operation
-                )
-
-                try:
-                    self.__connection_hook_spec.db_connection_decorate_operation(
-                        decoration_cursor=decoration_cursor
-                    )
-                except Exception as e:
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.PLATFORM_ERROR,
-                        self._log,
-                        what_happened="Decorating query FAILED.",
-                        why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                        consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                        countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                        exception=e,
-                    )
+            self._validate_operation(operation, parameters)
+            self._decorate_operation(managed_operation, operation)
 
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
+        query_start_time = timer()
         try:
-            super().execute(*managed_operation.get_operation_parameters_tuple())
-            self._log.info("Executing query SUCCEEDED.")
+            result = super().execute(
+                *managed_operation.get_operation_parameters_tuple()
+            )
+            self._log.info(
+                f"Executing query SUCCEEDED. Query {_get_query_duration(query_start_time)}"
+            )
+            return result
         except Exception as e:
             try:
                 self._recover_operation(e, managed_operation)
+                self._log.info(
+                    f"Recovered query {_get_query_duration(query_start_time)}"
+                )
             except Exception as e:
                 # todo: error classification
                 # if job_input_error_classifier.is_user_error(e):
                 blamee = errors.ResolvableBy.USER_ERROR
                 # else:
                 #     blamee = errors.ResolvableBy.PLATFORM_ERROR
+                self._log.info(f"Failed query {_get_query_duration(query_start_time)}")
                 errors.log_and_rethrow(
                     blamee,
                     self._log,
                     what_happened="Executing query FAILED.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    exception=e,
+                )
+
+    def _decorate_operation(self, managed_operation, operation):
+        if self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls():
+            self._log.debug("Decorating query:\n%s" % operation)
+            decoration_cursor = DecorationCursor(
+                self._cursor, self._log, managed_operation
+            )
+
+            try:
+                self.__connection_hook_spec.db_connection_decorate_operation(
+                    decoration_cursor=decoration_cursor
+                )
+            except Exception as e:
+                errors.log_and_rethrow(
+                    errors.ResolvableBy.PLATFORM_ERROR,
+                    self._log,
+                    what_happened="Decorating query FAILED.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    exception=e,
+                )
+
+    def _validate_operation(self, operation, parameters):
+        if self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
+            self._log.debug("Validating query:\n%s" % operation)
+            try:
+                self.__connection_hook_spec.db_connection_validate_operation(
+                    operation=operation, parameters=parameters
+                )
+            except Exception as e:
+                errors.log_and_rethrow(
+                    errors.ResolvableBy.USER_ERROR,
+                    self._log,
+                    what_happened="Validating query FAILED.",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
@@ -190,3 +203,12 @@ class ManagedCursor(PEP249Cursor):
             if type(e) is type(exception) and e.args == exception.args:  # re-raised
                 raise exception
             raise e from exception  # keep track of originating one
+
+
+def _get_query_duration(query_start_time: float):
+    query_end_time = timer()
+    seconds = timedelta(seconds=query_end_time - query_start_time).total_seconds()
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    difference = f"{int(hours):02}h:{int(minutes):02}m:{int(seconds):02}s"
+    return f"duration {difference}"
