@@ -32,7 +32,7 @@ from vdk.internal.core.statestore import StateStore
     ),
 )
 def test_log_plugin(log_type, vdk_level, expected_vdk_level):
-    with mock.patch("socket.socket.connect") as mock_connect:
+    with mock.patch("socket.socket.connect"):
         logging.getLogger().setLevel(logging.DEBUG)  # root level
         logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
 
