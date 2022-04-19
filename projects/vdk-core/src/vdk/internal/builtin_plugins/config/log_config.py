@@ -162,8 +162,9 @@ class LoggingPlugin:
     Define the logging plugin
     """
 
+    @staticmethod
     @hookimpl
-    def vdk_configure(self, config_builder: ConfigurationBuilder):
+    def vdk_configure(config_builder: ConfigurationBuilder):
         config_builder.add(
             key=SYSLOG_URL,
             default_value="localhost",
