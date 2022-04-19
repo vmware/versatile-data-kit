@@ -7,6 +7,7 @@ package com.vmware.taurus.authorization;
 import com.kerb4j.client.SpnegoClient;
 import com.kerb4j.client.SpnegoContext;
 import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.KerberosUtil;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
@@ -30,16 +31,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * This test is in the unit tests directory, because
- * our integration tests use the MiniKdc server provided
+ * This test is in the unit tests directory, because:
+ * A) it's fast (it takes a few seconds)
+ * B) It mocks and manages all its dependencies and does not create side effects .
+ * C) It does not work well with MiniKDC e.g
+ * Our integration tests use the MiniKdc server provided
  * by spring which as of today hasn't received any updates
  * in a long time and is problematic. However, minikdc leaves
  * some files and configurations that interfere with apache kerby
  * and both tests cannot run on the same runner (even after invoking
  * the provided cleanup mehtods by the libraries). We should look into
- * migrating to apache kerby for our integration tests too. This
- * test was deemed OK to be a unit test since it runs fast (2 seconds)
- * and doesn't rely on any external configurations or environments.
+ * migrating to apache kerby for our integration tests too.
  */
 @TestPropertySource(properties = {
       "test.dir=target",
@@ -112,16 +114,12 @@ public class KerberosAuthenticationIT {
 
    @Test
    public void testAuthenticatedCall() throws Exception {
-
-      SpnegoClient spnegoClient = SpnegoClient.loginWithKeyTab(CLIENT_PRINCIPAL, KEYTAB.getPath());
-      URL url = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test-team/jobs/test-name");
+      URL requestUrl = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test-team/jobs/test-name");
       var krb5 = simpleKdcServer.getKrbClient().getKrbConfig();
-      SpnegoContext context = spnegoClient.createContext(new URL("http://" + krb5.getKdcHost() + "/" + krb5.getKdcPort()));
-      HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-      conn.setRequestProperty("Authorization", context.createTokenAsAuthroizationHeader());
-      var res = conn.getResponseCode();
+      URL authUrl = new URL("http://" + krb5.getKdcHost() + "/" + krb5.getKdcPort());
+      var res = KerberosUtil.requestWithKerberosAuth(requestUrl, authUrl, CLIENT_PRINCIPAL, KEYTAB.getPath());
 
-      Assertions.assertEquals(200, res);
+      Assertions.assertEquals(200, res.getResponseCode());
    }
 
    @Test
