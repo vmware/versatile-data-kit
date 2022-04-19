@@ -1,4 +1,5 @@
 pytest
-vdk-core
-
+pytest-httpserver
+requests
+requests_oauthlib
 vdk-test-utils
