@@ -1,6 +1,8 @@
 # Versatile Data Kit Examples
 
-This section provides a set of examples that explore some of the features provided by Versatile Data Kit.
+This section provides the source code for examples that explore some of the features provided by Versatile Data Kit.
+
+For the full tutorials (articles about each example) please visit [Versatile Data Kit examples documentation](https://github.com/vmware/versatile-data-kit/wiki/Examples) 
 
 ## Basic Examples
 Tutorials to get started with generic ingestion tasks in VDK:
