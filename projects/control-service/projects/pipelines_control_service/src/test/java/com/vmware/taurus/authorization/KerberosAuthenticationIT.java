@@ -4,8 +4,6 @@
  */
 package com.vmware.taurus.authorization;
 
-import com.kerb4j.client.SpnegoClient;
-import com.kerb4j.client.SpnegoContext;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.KerberosUtil;
 import com.vmware.taurus.service.JobsRepository;
