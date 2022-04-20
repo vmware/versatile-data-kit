@@ -383,9 +383,13 @@ class JobController:
             (self._datetime_from_iso_format(e["end_time"]), e["status"])
             for e in execution_list
         ]
-        end_datetime_latest = max(
+        end_datetime_list = [
             e[0] for e in end_datetime_status_tuples if e[0] is not None
-        )
+        ]
+        if not end_datetime_list:
+            return None
+
+        end_datetime_latest = max(end_datetime_list)
 
         return [
             e[1] for e in end_datetime_status_tuples if e[0] == end_datetime_latest
