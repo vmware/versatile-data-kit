@@ -8,7 +8,7 @@ import setuptools
 Builds a package with the help of setuptools in order for this package to be imported in other projects
 """
 
-__version__ = "0.1.5"
+__version__ = "0.2.5"
 
 setuptools.setup(
     name="vdk-lineage",
