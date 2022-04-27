@@ -19,10 +19,10 @@ def test_routing():
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("default", lambda: mock_client)
 
-    router.get_properties_impl().set_all_properties({"a": "b"})
+    router.set_all_properties({"a": "b"})
     mock_client.write_properties.assert_called_with("foo", "test-team", {"a": "b"})
 
-    router.get_properties_impl().get_all_properties()
+    router.get_all_properties()
     mock_client.read_properties.assert_called_with("foo", "test-team")
 
 
@@ -35,14 +35,14 @@ def test_routing_error():
     router.set_properties_factory_method("default", raise_error)
 
     with pytest.raises(VdkConfigurationError):
-        router.get_properties_impl().set_all_properties({"a": "b"})
+        router.set_all_properties({"a": "b"})
 
 
 def test_routing_empty_error():
     router = PropertiesRouter("foo", Configuration({}, {}))
 
     with pytest.raises(VdkConfigurationError):
-        router.get_properties_impl().set_all_properties({"a": "b"})
+        router.set_all_properties({"a": "b"})
 
 
 def test_routing_choose_single_registered():
@@ -50,7 +50,7 @@ def test_routing_choose_single_registered():
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: mock_client)
 
-    router.get_properties_impl().set_all_properties({"a": "b"})
+    router.set_all_properties({"a": "b"})
     mock_client.write_properties.assert_called_with("foo", "test-team", {"a": "b"})
 
 
@@ -63,7 +63,7 @@ def test_routing_choose_default_type_chosen():
     router.set_properties_factory_method("foo", lambda: foo_mock_client)
     router.set_properties_factory_method("bar", lambda: bar_mock_client)
 
-    router.get_properties_impl().set_all_properties({"a": "b"})
+    router.set_all_properties({"a": "b"})
     foo_mock_client.write_properties.assert_called_with("foo", None, {"a": "b"})
     bar_mock_client.assert_not_called()
 
@@ -76,4 +76,4 @@ def test_routing_choose_too_many_choices():
     router.set_properties_factory_method("bar", lambda: bar_mock_client)
 
     with pytest.raises(VdkConfigurationError):
-        router.get_properties_impl().set_all_properties({"a": "b"})
+        router.set_all_properties({"a": "b"})
