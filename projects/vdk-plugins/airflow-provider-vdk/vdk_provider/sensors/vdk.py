@@ -1,10 +1,13 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 from typing import Any
 from typing import Dict
 
 from airflow.sensors.base import BaseSensorOperator
 from vdk_provider.hooks.vdk import VDKHook
+
+log = logging.getLogger(__name__)
 
 
 class VDKSensor(BaseSensorOperator):
@@ -28,14 +31,15 @@ class VDKSensor(BaseSensorOperator):
         job_execution_id: str,
         poke_interval_secs: int = 30,
         timeout_secs: int = 24 * 60 * 60,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             poke_interval=poke_interval_secs, timeout=timeout_secs, **kwargs
         )
+        self.conn_id = conn_id
+        self.job_name = job_name
+        self.team_name = team_name
         self.job_execution_id = job_execution_id
-
-        self.hook = VDKHook(conn_id, job_name, team_name)
 
     def poke(self, context: Dict[Any, Any]) -> bool:
         """
@@ -45,4 +49,20 @@ class VDKSensor(BaseSensorOperator):
         :param context: Airflow context passed through the DAG
         :return: True if some job status condition is met; False otherwise
         """
-        pass
+        with VDKHook(self.conn_id, self.job_name, self.team_name) as vdk_hook:
+            job_status = vdk_hook.get_job_execution_status(self.job_execution_id).status
+            log.info(
+                f"Current status of job execution {self.job_execution_id} is: {job_status}."
+            )
+
+            if job_status == "cancelled" or job_status == "skipped":
+                raise Exception(
+                    f"Job execution {self.job_execution_id} has been {job_status}."
+                )
+            elif job_status == "user_error" or job_status == "platform_error":
+                raise Exception(
+                    f"Job execution {self.job_execution_id} has failed due to a {job_status.replace('_', ' ')}. "
+                    f"Check job execution logs for more information."
+                )
+
+            return job_status == "succeeded"
