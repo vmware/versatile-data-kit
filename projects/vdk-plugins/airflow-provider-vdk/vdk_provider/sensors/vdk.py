@@ -52,12 +52,21 @@ class VDKSensor(BaseSensorOperator):
         """
         vdk_hook = VDKHook(self.conn_id, self.job_name, self.team_name)
 
-        job_status = vdk_hook.get_job_execution_status(self.job_execution_id).status
+        job_execution = vdk_hook.get_job_execution_status(self.job_execution_id)
+        job_status = job_execution.status
+
         log.info(
             f"Current status of job execution {self.job_execution_id} is: {job_status}."
         )
 
-        if job_status == "cancelled" or job_status == "skipped":
+        if job_status == "succeeded":
+            log.info(f"Job status: {job_execution}")
+            log.info(
+                f"Job logs: {vdk_hook.get_job_execution_log(self.job_execution_id)}"
+            )
+
+            return True
+        elif job_status == "cancelled" or job_status == "skipped":
             raise VDKJobExecutionException(
                 f"Job execution {self.job_execution_id} has been {job_status}."
             )
@@ -67,4 +76,4 @@ class VDKSensor(BaseSensorOperator):
                 f"Check job execution logs for more information."
             )
 
-        return job_status == "succeeded"
+        return False
