@@ -4,6 +4,7 @@ import logging
 import os
 import uuid
 
+from airflow.exceptions import AirflowException
 from airflow.providers.http.hooks.http import HttpHook
 from taurus_datajob_api import ApiClient
 from taurus_datajob_api import Configuration
@@ -14,6 +15,12 @@ from urllib3 import Retry
 from vdk.internal.control.auth.auth import Authentication
 
 log = logging.getLogger(__name__)
+
+
+class VDKJobExecutionException(AirflowException):
+    """
+    Exception class for exception raised for failed, cancelled or skipped job executions.
+    """
 
 
 class VDKHook(HttpHook):

@@ -6,6 +6,7 @@ from typing import Dict
 
 from airflow.sensors.base import BaseSensorOperator
 from vdk_provider.hooks.vdk import VDKHook
+from vdk_provider.hooks.vdk import VDKJobExecutionException
 
 log = logging.getLogger(__name__)
 
@@ -49,20 +50,21 @@ class VDKSensor(BaseSensorOperator):
         :param context: Airflow context passed through the DAG
         :return: True if some job status condition is met; False otherwise
         """
-        with VDKHook(self.conn_id, self.job_name, self.team_name) as vdk_hook:
-            job_status = vdk_hook.get_job_execution_status(self.job_execution_id).status
-            log.info(
-                f"Current status of job execution {self.job_execution_id} is: {job_status}."
+        vdk_hook = VDKHook(self.conn_id, self.job_name, self.team_name)
+
+        job_status = vdk_hook.get_job_execution_status(self.job_execution_id).status
+        log.info(
+            f"Current status of job execution {self.job_execution_id} is: {job_status}."
+        )
+
+        if job_status == "cancelled" or job_status == "skipped":
+            raise VDKJobExecutionException(
+                f"Job execution {self.job_execution_id} has been {job_status}."
+            )
+        elif job_status == "user_error" or job_status == "platform_error":
+            raise VDKJobExecutionException(
+                f"Job execution {self.job_execution_id} has failed due to a {job_status.replace('_', ' ')}. "
+                f"Check job execution logs for more information."
             )
 
-            if job_status == "cancelled" or job_status == "skipped":
-                raise Exception(
-                    f"Job execution {self.job_execution_id} has been {job_status}."
-                )
-            elif job_status == "user_error" or job_status == "platform_error":
-                raise Exception(
-                    f"Job execution {self.job_execution_id} has failed due to a {job_status.replace('_', ' ')}. "
-                    f"Check job execution logs for more information."
-                )
-
-            return job_status == "succeeded"
+        return job_status == "succeeded"
