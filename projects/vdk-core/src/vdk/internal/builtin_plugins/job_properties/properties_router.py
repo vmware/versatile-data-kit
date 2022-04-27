@@ -53,7 +53,7 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
     def set_all_properties(self, properties: dict):
         self.__get_properties_impl().set_all_properties(properties)
 
-    def has_properties_impl(self):
+    def has_properties_impl(self) -> bool:
         """
         If any properties implementation backend available
         :return: bool
