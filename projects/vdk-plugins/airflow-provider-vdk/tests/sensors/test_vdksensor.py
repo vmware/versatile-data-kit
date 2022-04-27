@@ -27,13 +27,13 @@ class TestVDKSensor(TestCase):
             status="submitted"
         )
 
-        assert self.sensor.poke(context={}) == False
+        self.assertEqual(self.sensor.poke(context={}), False)
 
     @mock.patch("vdk_provider.hooks.vdk.VDKHook.get_job_execution_status")
     def test_running_job_execution(self, mock_get_job_execution_status):
         mock_get_job_execution_status.return_value = DataJobExecution(status="running")
 
-        assert self.sensor.poke(context={}) == False
+        self.assertEqual(self.sensor.poke(context={}), False)
 
     @mock.patch("vdk_provider.hooks.vdk.VDKHook.get_job_execution_status")
     def test_succeeded_job_execution(self, mock_get_job_execution_status):
@@ -41,7 +41,7 @@ class TestVDKSensor(TestCase):
             status="succeeded"
         )
 
-        assert self.sensor.poke(context={}) == True
+        self.assertEqual(self.sensor.poke(context={}), True)
 
     @mock.patch("vdk_provider.hooks.vdk.VDKHook.get_job_execution_status")
     def test_cancelled_job_execution(self, mock_get_job_execution_status):
