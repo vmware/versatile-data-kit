@@ -1,7 +1,9 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+from typing import Any
 
+from vdk.api.job_input import IProperties
 from vdk.api.plugin.plugin_input import IPropertiesFactory
 from vdk.api.plugin.plugin_input import IPropertiesRegistry
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
@@ -24,7 +26,7 @@ from vdk.internal.util.decorators import LogDecorator
 log: logging.Logger = logging.getLogger(__name__)
 
 
-class PropertiesRouter(IPropertiesRegistry):
+class PropertiesRouter(IPropertiesRegistry, IProperties):
     """
     Implements registry of IProperties.
     """
@@ -42,7 +44,26 @@ class PropertiesRouter(IPropertiesRegistry):
     ) -> None:
         self.__properties_builders[properties_type] = properties_factory
 
-    def get_properties_impl(self):
+    def get_property(self, name: str, default_value: Any = None) -> str:
+        return self.__get_properties_impl().get_property(name, default_value)
+
+    def get_all_properties(self) -> dict:
+        return self.__get_properties_impl().get_all_properties()
+
+    def set_all_properties(self, properties: dict):
+        self.__get_properties_impl().set_all_properties(properties)
+
+    def has_properties_impl(self):
+        """
+        If any properties implementation backend available
+        :return: bool
+        """
+        return not isinstance(self.__get_properties_impl(), PropertiesNotAvailable)
+
+    def __get_properties_impl(self):
+        """
+        Singleton properties backend implementation.
+        """
         if not self.__cached_properties_impl:
             if self.__properties_builders:
                 self.__cached_properties_impl = (
