@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 class VDKJobExecutionException(AirflowException):
     """
-    Exception class for exception raised for failed, cancelled or skipped job executions.
+    Exception class for exceptions raised for failed, cancelled or skipped job executions.
     """
 
 
