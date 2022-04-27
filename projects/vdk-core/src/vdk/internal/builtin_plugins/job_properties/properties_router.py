@@ -16,11 +16,12 @@ from vdk.internal.builtin_plugins.job_properties.datajobs_service_properties imp
 from vdk.internal.builtin_plugins.job_properties.properties_config import (
     PropertiesConfiguration,
 )
-from vdk.internal.builtin_plugins.job_properties.Propertiesnotavailable import (
+from vdk.internal.builtin_plugins.job_properties.propertiesnotavailable import (
     PropertiesNotAvailable,
 )
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.util.decorators import LogDecorator
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -124,8 +125,30 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
                     f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())}",
                 )
 
+            for p in self.__config.get_properties_write_preprocess_sequence():
+                if p not in self.__properties_builders.keys():
+                    errors.log_and_throw(
+                        to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
+                        log=log,
+                        what_happened=f"A non-valid properties type {p} configured in "
+                        "PROPERTIES_WRITE_PREPROCESS_SEQUENCE.",
+                        why_it_happened=f"No IPropertiesServiceClient handler for property type {p} "
+                        "was registered in IPropertiesRegistry.",
+                        consequences="The write pre-processing failed.",
+                        countermeasures=f"Either remove the non-valid properties type {p} from "
+                        "PROPERTIES_WRITE_PREPROCESS_SEQUENCE configuration, or"
+                        "register a corresponding IPropertiesServiceClient "
+                        "implementation via set_properties_factory_method API.",
+                    )
+
             service_properties = DataJobsServiceProperties(
-                self.__job_name, self.__team_name, factory_method()
+                job_name=self.__job_name,
+                team_name=self.__team_name,
+                properties_service_client=factory_method(),
+                write_preprocessors=[
+                    self.__properties_builders.get(p)()
+                    for p in self.__config.get_properties_write_preprocess_sequence()
+                ],
             )
             return CachedPropertiesWrapper(service_properties)
         except Exception as e:

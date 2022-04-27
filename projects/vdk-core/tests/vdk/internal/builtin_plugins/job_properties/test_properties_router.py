@@ -9,6 +9,7 @@ from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
 
@@ -74,6 +75,77 @@ def test_routing_choose_too_many_choices():
     bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: foo_mock_client)
     router.set_properties_factory_method("bar", lambda: bar_mock_client)
+
+    with pytest.raises(VdkConfigurationError):
+        router.set_all_properties({"a": "b"})
+
+
+def test_preprocessing_sequence_success():
+    router = PropertiesRouter(
+        "foo",
+        Configuration(
+            {},
+            {
+                JobConfigKeys.TEAM: "test-team",
+                "properties_default_type": "foo",
+                "properties_write_preprocess_sequence": "bar1,bar2",
+            },
+        ),
+    )
+    foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar1_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar1_mock_client.write_properties.return_value = {"a1": "b1"}
+    bar2_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar2_mock_client.write_properties.return_value = {"a2": "b2"}
+    router.set_properties_factory_method("foo", lambda: foo_mock_client)
+    router.set_properties_factory_method("bar1", lambda: bar1_mock_client)
+    router.set_properties_factory_method("bar2", lambda: bar2_mock_client)
+
+    router.set_all_properties({"a": "b"})
+    bar1_mock_client.write_properties.assert_called_with("foo", "test-team", {"a": "b"})
+    bar2_mock_client.write_properties.assert_called_with(
+        "foo", "test-team", {"a1": "b1"}
+    )
+    foo_mock_client.write_properties.assert_called_with(
+        "foo", "test-team", {"a2": "b2"}
+    )
+
+
+def test_preprocessing_sequence_error():
+    router = PropertiesRouter(
+        "foo",
+        Configuration(
+            {},
+            {
+                JobConfigKeys.TEAM: "test-team",
+                "properties_default_type": "foo",
+                "properties_write_preprocess_sequence": "bar",
+            },
+        ),
+    )
+    foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar_mock_client.write_properties.side_effect = Exception()
+    router.set_properties_factory_method("foo", lambda: foo_mock_client)
+    router.set_properties_factory_method("bar", lambda: bar_mock_client)
+
+    with pytest.raises(UserCodeError):
+        router.set_all_properties({"a": "b"})
+
+
+def test_preprocessing_sequence_misconfigured():
+    router = PropertiesRouter(
+        "foo",
+        Configuration(
+            {},
+            {
+                "properties_default_type": "foo",
+                "properties_write_preprocess_sequence": "bar",
+            },
+        ),
+    )
+    foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    router.set_properties_factory_method("foo", lambda: foo_mock_client)
 
     with pytest.raises(VdkConfigurationError):
         router.set_all_properties({"a": "b"})

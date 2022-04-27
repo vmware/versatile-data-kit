@@ -17,9 +17,6 @@ from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRoute
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
-from vdk.internal.builtin_plugins.job_properties.Propertiesnotavailable import (
-    PropertiesNotAvailable,
-)
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,

@@ -117,8 +117,9 @@ class TestPropertiesServiceClient(IPropertiesServiceClient):
         res = deepcopy(self._props.get(job_name, {}))
         return res
 
-    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> None:
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
         self._props[job_name] = deepcopy(properties)
+        return self._props[job_name]
 
 
 class TestPropertiesPlugin:
