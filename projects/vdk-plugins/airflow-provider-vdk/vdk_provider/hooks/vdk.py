@@ -3,6 +3,7 @@
 import logging
 import os
 import uuid
+from enum import Enum
 
 from airflow.exceptions import AirflowException
 from airflow.providers.http.hooks.http import HttpHook
@@ -21,6 +22,20 @@ class VDKJobExecutionException(AirflowException):
     """
     Exception class for exceptions raised for failed, cancelled or skipped job executions.
     """
+
+
+class JobStatus(str, Enum):
+    """
+    Enum for the possible statuses a job execution can have.
+    """
+
+    SUBMITTED = "submitted"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    CANCELLED = "cancelled"
+    SKIPPED = "skipped"
+    USER_ERROR = "user_error"
+    PLATFORM_ERROR = "platform_error"
 
 
 class VDKHook(HttpHook):

@@ -5,6 +5,7 @@ from typing import Any
 from typing import Dict
 
 from airflow.sensors.base import BaseSensorOperator
+from vdk_provider.hooks.vdk import JobStatus
 from vdk_provider.hooks.vdk import VDKHook
 from vdk_provider.hooks.vdk import VDKJobExecutionException
 
@@ -59,18 +60,20 @@ class VDKSensor(BaseSensorOperator):
             f"Current status of job execution {self.job_execution_id} is: {job_status}."
         )
 
-        if job_status == "succeeded":
+        if job_status == JobStatus.SUCCEEDED:
             log.info(f"Job status: {job_execution}")
             log.info(
                 f"Job logs: {vdk_hook.get_job_execution_log(self.job_execution_id)}"
             )
 
             return True
-        elif job_status == "cancelled" or job_status == "skipped":
+        elif job_status == JobStatus.CANCELLED or job_status == JobStatus.SKIPPED:
             raise VDKJobExecutionException(
                 f"Job execution {self.job_execution_id} has been {job_status}."
             )
-        elif job_status == "user_error" or job_status == "platform_error":
+        elif (
+            job_status == JobStatus.USER_ERROR or job_status == JobStatus.PLATFORM_ERROR
+        ):
             log.info(
                 f"Job logs: {vdk_hook.get_job_execution_log(self.job_execution_id)}"
             )
