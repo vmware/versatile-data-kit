@@ -111,6 +111,34 @@ def test_preprocessing_sequence_success():
     )
 
 
+def test_preprocessing_sequence_success_outerscope_immutable():
+    router = PropertiesRouter(
+        "foo",
+        Configuration(
+            {},
+            {
+                JobConfigKeys.TEAM: "test-team",
+                "properties_default_type": "foo",
+                "properties_write_preprocess_sequence": "bar",
+            },
+        ),
+    )
+    foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
+    bar_mock_client.write_properties.return_value = {"a1": "b1"}
+
+    router.set_properties_factory_method("foo", lambda: foo_mock_client)
+    router.set_properties_factory_method("bar", lambda: bar_mock_client)
+
+    properties_outer = {"a": "b"}
+    router.set_all_properties(properties_outer)
+    bar_mock_client.write_properties.assert_called_with("foo", "test-team", {"a": "b"})
+    foo_mock_client.write_properties.assert_called_with(
+        "foo", "test-team", {"a1": "b1"}
+    )
+    assert properties_outer == {"a": "b"}
+
+
 def test_preprocessing_sequence_error():
     router = PropertiesRouter(
         "foo",
