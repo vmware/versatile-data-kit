@@ -71,9 +71,12 @@ class VDKSensor(BaseSensorOperator):
                 f"Job execution {self.job_execution_id} has been {job_status}."
             )
         elif job_status == "user_error" or job_status == "platform_error":
+            log.info(
+                f"Job logs: {vdk_hook.get_job_execution_log(self.job_execution_id)}"
+            )
             raise VDKJobExecutionException(
                 f"Job execution {self.job_execution_id} has failed due to a {job_status.replace('_', ' ')}. "
-                f"Check job execution logs for more information."
+                f"Check the job execution logs above for more information."
             )
 
         return False
