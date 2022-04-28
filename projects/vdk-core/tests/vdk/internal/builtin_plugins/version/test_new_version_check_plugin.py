@@ -37,7 +37,37 @@ def build_core_context(plugin, config: Dict):
     autospec=True,
 )
 @patch(f"click.echo", autospec=True)
-def test_version_check(mock_click_echo, mock_list, mock_package):
+def test_no_new_version_check(mock_click_echo, mock_list, mock_package):
+    mock_package.return_value.check.return_value = False
+    mock_list.return_value = [("dist", "plugin")]
+
+    check_plugin = NewVersionCheckPlugin()
+    context = build_core_context(
+        check_plugin,
+        {
+            new_version_check_plugin.ConfigKey.PACKAGE_INDEX.value: "https://testing.package.index"
+        },
+    )
+    check_plugin.vdk_exit(context)
+
+    mock_package.assert_any_call(
+        package_index="https://testing.package.index", package_name="vdk-core"
+    )
+    mock_package.assert_any_call(
+        package_index="https://testing.package.index", package_name="dist"
+    )
+
+    # we verify no command is suggested to the user
+    assert not mock_click_echo.mock_calls
+
+
+@patch(f"{new_package.__module__}.{new_package.__name__}", autospec=True)
+@patch(
+    f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
+    autospec=True,
+)
+@patch(f"click.echo", autospec=True)
+def test_new_version_check(mock_click_echo, mock_list, mock_package):
     mock_list.return_value = [("dist", "plugin")]
 
     check_plugin = NewVersionCheckPlugin()
@@ -68,7 +98,7 @@ def test_version_check(mock_click_echo, mock_list, mock_package):
     f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
     autospec=True,
 )
-def test_version_check_skip_plugins(mock_list, mock_package):
+def test_new_version_check_skip_plugins(mock_list, mock_package):
     mock_list.return_value = [("dist", "plugin")]
 
     check_plugin = NewVersionCheckPlugin()
@@ -89,7 +119,9 @@ def test_version_check_skip_plugins(mock_list, mock_package):
     autospec=True,
 )
 @patch(f"click.echo", autospec=True)
-def test_version_check_empty_package_index(mock_click_echo, mock_list, mock_package):
+def test_new_version_check_empty_package_index(
+    mock_click_echo, mock_list, mock_package
+):
     mock_list.return_value = [("dist", "plugin")]
 
     check_plugin = NewVersionCheckPlugin()
@@ -110,7 +142,7 @@ def test_version_check_empty_package_index(mock_click_echo, mock_list, mock_pack
     f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
     autospec=True,
 )
-def test_version_check_error(mock_list, mock_package):
+def test_new_version_check_error(mock_list, mock_package):
     mock_list.return_value = [("dist", "plugin")]
 
     check_plugin = NewVersionCheckPlugin()

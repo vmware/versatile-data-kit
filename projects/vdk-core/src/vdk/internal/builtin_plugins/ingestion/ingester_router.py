@@ -6,6 +6,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IIngesterRegistry
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IngesterBase
@@ -30,7 +31,7 @@ IngesterPluginFactory = Callable[[], IIngesterPlugin]
 log = logging.getLogger(__name__)
 
 
-class IngesterRouter(IIngesterRegistry):
+class IngesterRouter(IIngesterRegistry, IIngester):
     """
     Router class for the core Ingestion API. It takes care of routing the
     payloads to their respective ingestion plugins.
