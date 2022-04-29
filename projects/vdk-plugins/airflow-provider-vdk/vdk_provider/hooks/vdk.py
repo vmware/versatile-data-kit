@@ -126,14 +126,47 @@ class VDKHook(HttpHook):
             team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
         )
 
-    def wait_for_job(self, execution_id, wait_seconds, timeout):
+    def wait_for_job(
+        self, execution_id, wait_seconds: float = 3, timeout: Optional[float] = 60 * 60
+    ):
+        job_status = None
         start = time.monotonic()
         while True:
             if timeout and start + timeout < time.monotonic():
-                raise VdException(
-                    f"Timeout: Airbyte job {job_id} is not ready after {timeout}s"
+                raise VDKJobExecutionException(
+                    f"Timeout: Data Job execution {execution_id} is not complete after {timeout}s"
                 )
             time.sleep(wait_seconds)
+
+            try:
+                job_execution = self.get_job_execution_status(execution_id)
+                job_status = job_execution.status
+            except Exception as err:
+                self.log.info("VDK Control Service returned error: %s", err)
+                continue
+
+            if job_status == JobStatus.SUCCEEDED:
+                log.info(f"Job status: {job_execution}")
+                log.info(f"Job logs: {self.get_job_execution_log(execution_id)}")
+
+                break
+            elif job_status == JobStatus.CANCELLED or job_status == JobStatus.SKIPPED:
+                raise VDKJobExecutionException(
+                    f"Job execution {execution_id} has been {job_status}."
+                )
+            elif (
+                job_status == JobStatus.USER_ERROR
+                or job_status == JobStatus.PLATFORM_ERROR
+            ):
+                log.info(f"Job logs: {self.get_job_execution_log(execution_id)}")
+                raise VDKJobExecutionException(
+                    f"Job execution {execution_id} has failed due to a {job_status.replace('_', ' ')}. "
+                    f"Check the job execution logs above for more information."
+                )
+            else:
+                raise VDKJobExecutionException(
+                    f"Encountered unexpected status `{job_status}` for job execution `{execution_id}`"
+                )
 
     def _get_rest_api_url_from_connection(self):
         conn = self.get_connection(self.http_conn_id)
