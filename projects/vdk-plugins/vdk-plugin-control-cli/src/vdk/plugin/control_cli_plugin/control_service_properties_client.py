@@ -29,10 +29,11 @@ class ControlServicePropertiesServiceClient(IPropertiesServiceClient):
         return data
 
     @ConstrolServiceApiErrorDecorator()
-    def write_properties(self, job_name: str, team_name: str, properties: Dict):
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
         self.__properties_api.data_job_properties_update(
             team_name=team_name,
             job_name=job_name,
             deployment_id="TODO",
             request_body=properties,
         )
+        return properties
