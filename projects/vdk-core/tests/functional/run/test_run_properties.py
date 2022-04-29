@@ -1,5 +1,8 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import os
+from unittest import mock
+
 from click.testing import Result
 from functional.run import util
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -26,6 +29,9 @@ def test_run_properties():
     }
 
 
+@mock.patch.dict(
+    os.environ, {"VDK_PROPERTIES_WRITE_PREPROCESS_SEQUENCE": "test-property-decorated"}
+)
 def test_run_properties_write_preprocess_sequence():
     test_props = TestPropertiesPlugin()
     test_props_decorator = TestPropertiesDecoratedPlugin()

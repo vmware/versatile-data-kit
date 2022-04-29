@@ -142,12 +142,6 @@ class TestPropertiesDecoratedPlugin(IPropertiesServiceClient):
         return {**properties, **{"test": "True"}}
 
     @hookimpl
-    def vdk_configure(self, config_builder: ConfigurationBuilder):
-        config_builder.set_value(
-            key="PROPERTIES_WRITE_PREPROCESS_SEQUENCE", value="test-property-decorated"
-        )
-
-    @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         context.properties.set_properties_factory_method(
             "test-property-decorated", lambda: self
