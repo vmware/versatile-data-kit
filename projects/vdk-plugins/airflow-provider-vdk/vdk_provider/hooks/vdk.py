@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
+import time
 import uuid
 
 from airflow.providers.http.hooks.http import HttpHook
@@ -22,7 +23,7 @@ class VDKHook(HttpHook):
         conn_id: str,
         job_name: str,
         team_name: str,
-        timeout: int = 1,  # TODO: Set reasonable default
+        timeout: int = 5,  # TODO: Set reasonable default
     ):
         super().__init__(http_conn_id=conn_id)
         self.job_name = job_name
@@ -46,7 +47,7 @@ class VDKHook(HttpHook):
 
         self.__execution_api = self._get_execution_api()
 
-    def start_job_execution(self, **request_kwargs) -> None:
+    def start_job_execution(self, **request_kwargs) -> str:
         """
         Triggers a manual Datajob execution.
 
@@ -63,7 +64,10 @@ class VDKHook(HttpHook):
             data_job_execution_request=execution_request,
             _request_timeout=self.timeout,
         )
-        log.debug(f"Received headers: {headers}")
+        log.info(f"Received headers: {headers}")
+
+        job_execution_id = os.path.basename(headers["Location"])
+        return job_execution_id
 
     def cancel_job_execution(self, execution_id: str) -> None:
         """
@@ -99,6 +103,15 @@ class VDKHook(HttpHook):
         return self.__execution_api.data_job_execution_read(
             team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
         )
+
+    def wait_for_job(self, execution_id, wait_seconds, timeout):
+        start = time.monotonic()
+        while True:
+            if timeout and start + timeout < time.monotonic():
+                raise VdException(
+                    f"Timeout: Airbyte job {job_id} is not ready after {timeout}s"
+                )
+            time.sleep(wait_seconds)
 
     def _get_rest_api_url_from_connection(self):
         conn = self.get_connection(self.http_conn_id)
