@@ -25,14 +25,9 @@ setuptools.setup(
     "authentication.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=[],
+    install_requires=["requests", "requests_oauthlib"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={
-        "vdk.plugin.run": [
-            "vdk-control-api-auth = vdk.plugin.control_api_auth.control_api_auth_plugin"
-        ]
-    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
