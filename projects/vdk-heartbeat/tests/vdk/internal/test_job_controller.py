@@ -37,6 +37,11 @@ def test_check_job_execution_finished_no_exceptions_for_value_errors(patched_met
     res = test_controller.check_job_execution_finished()
     assert res == "finished"
 
+    # non-populated end_time
+    patched_method.return_value = '[{"status": "finished", "end_time": null}]'
+    res = test_controller.check_job_execution_finished()
+    assert res == "finished"
+
     patched_method.return_value = '[{"status": "finished", "end_time": ' "12345}]"
 
     res = test_controller.check_job_execution_finished()

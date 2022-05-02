@@ -379,13 +379,24 @@ class JobController:
         if not execution_list:
             return None
 
-        latest_end_date = max(
-            self._datetime_from_iso_format(str(e["end_time"])) for e in execution_list
+        end_datetime_status_tuples = [
+            (self._datetime_from_iso_format(e["end_time"]), e["status"])
+            for e in execution_list
+        ]
+
+        # latest status, where end_time is yet about to be populated
+        status_end_datetime_none_list = [
+            e[1] for e in end_datetime_status_tuples if e[0] is None
+        ]
+        if status_end_datetime_none_list:
+            return status_end_datetime_none_list.pop()
+
+        # latest status by datetime, since no unpopulated end_time
+        end_datetime_latest = max(
+            e[0] for e in end_datetime_status_tuples if e[0] is not None
         )
         return [
-            e["status"]
-            for e in execution_list
-            if self._datetime_from_iso_format(str(e["end_time"])) == latest_end_date
+            e[1] for e in end_datetime_status_tuples if e[0] == end_datetime_latest
         ].pop()
 
     def _update_config_ini(self, heartbeat_job_dir):
@@ -460,14 +471,13 @@ def run(job_input):
             pyfile.write(python_script)
 
     @staticmethod
-    def _datetime_from_iso_format(datetime_string: str):
+    def _datetime_from_iso_format(datetime_string):
         try:
             return datetime.fromisoformat(datetime_string)
-        except ValueError as e:
+        except Exception as e:
             log.info(
                 "An exception occurred while converting datetime string "
                 f"value of -- {datetime_string} -- to "
                 f"a datetime object. The exception was {e}"
             )
-
         return None
