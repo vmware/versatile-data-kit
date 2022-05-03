@@ -30,7 +30,7 @@ class VDKOperator(BaseOperator):
         team_name: str,
         asynchronous: bool = False,
         wait_seconds: float = 3,
-        timeout: Optional[float] = 60 * 60,
+        timeout_seconds: Optional[float] = 60 * 60,
         **kwargs,
     ):
         super().__init__(**kwargs)
