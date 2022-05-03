@@ -74,6 +74,7 @@ class VDKHook(HttpHook):
         Triggers a manual Datajob execution.
 
         :param: request_kwargs: Request arguments to be included with the HTTP request
+        :return: job execution ID
         """
         execution_request = DataJobExecutionRequest(
             started_by="airflow-provider-vdk",
@@ -86,7 +87,7 @@ class VDKHook(HttpHook):
             data_job_execution_request=execution_request,
             _request_timeout=self.timeout,
         )
-        log.info(f"Received headers: {headers}")
+        log.debug(f"Received headers: {headers}")
 
         job_execution_id = os.path.basename(headers["Location"])
         return job_execution_id
