@@ -12,15 +12,15 @@ log = logging.getLogger(__name__)
 
 class VDKOperator(BaseOperator):
     """
-    Operator used to start a Data Job execution inside a deployed Control Service.
+    Operator used to start a Data Job execution.
     Can be used synchronously or asynchronously.
 
     :param conn_id: Required. The ID of the Airflow connection used to connect to the Control Service
     :param job_name: Required. Name of the job which will have an execution triggered
     :param team_name: Required. Name of the team the job belongs to
-    :param asynchronous: Whether the operator runs asynchronously or not. If False, the operator will wait for the job to completed before returning
+    :param asynchronous: Whether the operator runs asynchronously or not. If False, the operator will wait for the job to complete before returning
     :param wait_seconds: How long to wait in between checking whether the execution is complete. Used only if asynchronous is set to False
-    :param timeout: How long until checking whether the execution is complete times out. Used only if asynchronous is set to False
+    :param timeout_seconds: How long until checking whether the execution is complete times out. Used only if asynchronous is set to False
     """
 
     def __init__(
@@ -39,7 +39,7 @@ class VDKOperator(BaseOperator):
         self.team_name = team_name
         self.asynchronous = asynchronous
         self.wait_seconds = wait_seconds
-        self.timeout = timeout
+        self.timeout_seconds = timeout_seconds
 
     def execute(self, context: Dict[Any, Any]) -> str:
         """
