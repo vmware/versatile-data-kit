@@ -19,6 +19,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 )
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.util.decorators import closing_noexcept_on_close
 
 DB_TYPE_SQLITE_MEMORY = "SQLITE_MEMORY"
@@ -117,8 +118,9 @@ class TestPropertiesServiceClient(IPropertiesServiceClient):
         res = deepcopy(self._props.get(job_name, {}))
         return res
 
-    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> None:
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
         self._props[job_name] = deepcopy(properties)
+        return self._props[job_name]
 
 
 class TestPropertiesPlugin:
@@ -129,6 +131,20 @@ class TestPropertiesPlugin:
     def initialize_job(self, context: JobContext) -> None:
         context.properties.set_properties_factory_method(
             "default", lambda: self.properties_client
+        )
+
+
+class TestPropertiesDecoratedPlugin(IPropertiesServiceClient):
+    def read_properties(self, job_name: str, team_name: str) -> Dict:
+        raise NotImplementedError()
+
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
+        return {**properties, **{"test": "True"}}
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.properties.set_properties_factory_method(
+            "test-property-decorated", lambda: self
         )
 
 
