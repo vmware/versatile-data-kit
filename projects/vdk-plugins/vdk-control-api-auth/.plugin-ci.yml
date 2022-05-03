@@ -3,29 +3,28 @@
 
 image: "python:3.7"
 
-# TODO: Uncomment when committing new changes
-#.build-vdk-control-api-auth:
-#  variables:
-#    PLUGIN_NAME: vdk-control-api-auth
-#  extends: .build-plugin
-#
-#build-py37-vdk-control-api-auth:
-#  extends: .build-vdk-control-api-auth
-#  image: "python:3.7"
-#
-#
-#build-py38-vdk-control-api-auth:
-#  extends: .build-vdk-control-api-auth
-#  image: "python:3.8"
-#
-#
-#build-py39-vdk-control-api-auth:
-#  extends: .build-vdk-control-api-auth
-#  image: "python:3.9"
-#
-#build-py310-vdk-control-api-auth:
-#  extends: .build-vdk-control-api-auth
-#  image: "python:3.10"
+.build-vdk-control-api-auth:
+  variables:
+    PLUGIN_NAME: vdk-control-api-auth
+  extends: .build-plugin
+
+build-py37-vdk-control-api-auth:
+  extends: .build-vdk-control-api-auth
+  image: "python:3.7"
+
+
+build-py38-vdk-control-api-auth:
+  extends: .build-vdk-control-api-auth
+  image: "python:3.8"
+
+
+build-py39-vdk-control-api-auth:
+  extends: .build-vdk-control-api-auth
+  image: "python:3.9"
+
+build-py310-vdk-control-api-auth:
+  extends: .build-vdk-control-api-auth
+  image: "python:3.10"
 
 # TODO: Uncomment when plugin is ready for release
 #release-vdk-control-api-auth:

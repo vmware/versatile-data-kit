@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class InMemPropertiesServiceClient(IPropertiesServiceClient):
     """
-    Impelmentation of IProperties that are kept only in memory.
+    Implementation of IProperties that are kept only in memory.
     """
 
     def __init__(self):
@@ -21,5 +21,6 @@ class InMemPropertiesServiceClient(IPropertiesServiceClient):
         res = deepcopy(self._props)
         return res
 
-    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> None:
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
         self._props = deepcopy(properties)
+        return self._props
