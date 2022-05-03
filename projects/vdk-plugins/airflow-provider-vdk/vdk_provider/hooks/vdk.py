@@ -2,10 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
-import time
 import uuid
 from enum import Enum
-from typing import Optional
 
 from airflow.exceptions import AirflowException
 from airflow.providers.http.hooks.http import HttpHook
