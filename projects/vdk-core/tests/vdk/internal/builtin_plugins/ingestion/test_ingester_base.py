@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from datetime import datetime
 from unittest.mock import call
 from unittest.mock import MagicMock
 
@@ -47,38 +46,6 @@ def create_ingester_base(kwargs=None, config_dict=None, ingester=None) -> Ingest
         ingest_config=IngesterConfiguration(test_config),
         **kwargs
     )
-
-
-def test_send_object_for_ingestion():
-    test_unserializable_payload = {"key1": 42, "key2": datetime.utcnow()}
-    ingester_base = create_ingester_base()
-
-    with pytest.raises(errors.UserCodeError) as exc_info:
-        ingester_base.send_object_for_ingestion(
-            payload=None,
-            destination_table=shared_test_values.get("destination_table1"),
-            method=shared_test_values.get("method"),
-            target=shared_test_values.get("target"),
-        )
-    assert exc_info.type == errors.UserCodeError
-
-    with pytest.raises(errors.UserCodeError) as exc_info:
-        ingester_base.send_object_for_ingestion(
-            payload="wrong_payload_type",
-            destination_table=None,
-            method=shared_test_values.get("method"),
-            target=shared_test_values.get("target"),
-        )
-    assert exc_info.type == errors.UserCodeError
-
-    with pytest.raises(errors.UserCodeError) as exc_info:
-        ingester_base.send_object_for_ingestion(
-            payload=test_unserializable_payload,
-            destination_table=shared_test_values.get("destination_table1"),
-            method=shared_test_values.get("method"),
-            target=shared_test_values.get("target"),
-        )
-    assert exc_info.type == errors.UserCodeError
 
 
 def test_send_object_for_ingestion_send_to_wait():

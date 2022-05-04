@@ -3,7 +3,7 @@
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       - id: check-yaml
         args: [ '--unsafe' ]
@@ -46,13 +46,13 @@ repos:
   #        -   id: mypy
   #            files: ^(src/|tests/|plugins/)
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.0.1
+    rev: v3.1.0
     hooks:
       - id: reorder-python-imports
         args: [ --py37-plus, '--application-directories=.:src' ]
   # use latest python syntax
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.1
+    rev: v2.32.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]

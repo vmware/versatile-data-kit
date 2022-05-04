@@ -49,10 +49,13 @@ class NewVersionCheckPlugin:
         try:
             package_list = []
             cfg = context.configuration
-
             package_name = cfg.get_value(ConfigKey.PACKAGE_NAME.value)
             package_index = cfg.get_value(ConfigKey.PACKAGE_INDEX.value)
+
             if new_package(package_name, package_index).check():
+                log.debug(
+                    f"New version found for package {package_name} from index {package_index}"
+                )
                 package_list.append(package_name)
 
             if cfg.get_value(ConfigKey.VERSION_CHECK_PLUGINS.value):
@@ -61,7 +64,7 @@ class NewVersionCheckPlugin:
                     if new_package(dist_name, package_index).check():
                         package_list.append(dist_name)
 
-            self._check_version(package_list, package_index)
+            self._print_new_version_message(package_list, package_index)
         except Exception as e:
             log.debug(
                 f"Could not check for new version release. "
@@ -69,13 +72,15 @@ class NewVersionCheckPlugin:
             )
 
     @staticmethod
-    def _check_version(package_list: List[str], package_index: str) -> None:
+    def _print_new_version_message(package_list: List[str], package_index: str) -> None:
         """
         Prints out a new version message for the listed packages.
 
         :param package_list: list of package names
         :param package_index: package index included in the printed `pip install` command
         """
+        if not package_list:
+            return
         not_single_package = len(package_list) > 1
 
         # if package index is not specified that we fetch it from pip repo (pypi.org)

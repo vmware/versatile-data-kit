@@ -45,7 +45,7 @@ class IngesterConfigurationPlugin:
             plugin method names, indicating the sequence in which the
             ingestion pre-processing plugins would process the payload. For
             example:
-                   INGEST_PAYLOAD_PROCESS_SEQUENCE="pre-ingest-process,
+                   INGEST_PAYLOAD_PREPROCESS_SEQUENCE="pre-ingest-process,
                    ingest-pre-process"
             would mean that the payload sent for ingestion would be first
             processed by a `pre-ingest-process` plugin, then by the
@@ -66,7 +66,7 @@ class IngesterConfigurationPlugin:
             processing plugin method names, indicating the sequence, in which
             the ingestion post-processing plugins would process the metadata
             generated during the ingestion.
-            Ecample:
+            Example:
                     INGEST_PAYLOAD_POSTPROCESS_SEQUENCE="post-ingest-process,
                     post-process"
             The above example shows how the ingestion post-processing plugins

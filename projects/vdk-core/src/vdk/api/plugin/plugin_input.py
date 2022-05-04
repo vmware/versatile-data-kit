@@ -40,12 +40,13 @@ class IPropertiesServiceClient:
         pass
 
     @abstractmethod
-    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> None:
+    def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
         """
         Write properties to the backend service. It overwrites all properties completely.
         :param team_name: The name of the team the job belongs to
         :param job_name: the name of the job
         :param properties: dictionary with the new job's properties
+        :return properties: dictionary with the properties handled
         """
         pass
 

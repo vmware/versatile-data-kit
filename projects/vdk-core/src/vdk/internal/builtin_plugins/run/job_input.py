@@ -17,9 +17,6 @@ from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRoute
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
-from vdk.internal.builtin_plugins.job_properties.Propertiesnotavailable import (
-    PropertiesNotAvailable,
-)
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
@@ -70,25 +67,19 @@ class JobInput(IJobInput):
     # Properties
 
     def get_property(self, name, default_value=None):
-        return self.__properties_router.get_properties_impl().get_property(
-            name, default_value
-        )
+        return self.__properties_router.get_property(name, default_value)
 
     def get_all_properties(self):
-        return self.__properties_router.get_properties_impl().get_all_properties()
+        return self.__properties_router.get_all_properties()
 
     def set_all_properties(self, properties):
-        return self.__properties_router.get_properties_impl().set_all_properties(
-            properties
-        )
+        return self.__properties_router.set_all_properties(properties)
 
     def _substitute_query_params(self, sql: str):
         sql = textwrap.dedent(sql).strip("\n") + "\n"
         query = sql
         sql_susbstitute_args = {}
-        if isinstance(
-            self.__properties_router.get_properties_impl(), PropertiesNotAvailable
-        ):
+        if not self.__properties_router.has_properties_impl():
             logging.getLogger(__name__).info(
                 "Data Job Properties has not been initialized., "
                 "so I won't be able to provide query properties substitution capabilities from job properties."

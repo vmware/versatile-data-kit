@@ -10,7 +10,7 @@ truncating all present target table records observed after t1.
 
 ### Template Name (template_name):
 
-- "load/fact/snapshot"
+- "periodic_snapshot"
 
 ### Template Parameters (template_args):
 
@@ -46,3 +46,7 @@ def run(job_input):
     job_input.execute_template('load/fact/snapshot', template_args)
     # . . .
 ```
+
+### Example
+
+See full example of how to use the template in [our example documentation](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples#append-strategy-periodic-snapshot-fact).

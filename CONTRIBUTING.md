@@ -59,6 +59,9 @@ Reviews and feedback will happen in the PR.
 
 Also, reach out to the community - through Slack or mail to discuss your idea. We are happy to help.
 
+## Coding Standard
+The Versatile Data Kit Coding Standard can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
+
 # How to submit and merge
 
 We use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow).
@@ -69,7 +72,7 @@ In short, it looks like this:
 - Break code commits into small self-contained units;
 - Commit messages must follow the template in [git-commit-template.txt](support/git-commit-template.txt).
   We aim to follow https://chris.beams.io/posts/git-commit;
-- projects/*/CHANGELOG.md Next version section should be updated accordingly.
+- The change must abide by the [Coding Standard](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard)
 
 Familiarize with [recommendations written here](https://github.com/vmware/versatile-data-kit/wiki/How-to-prepare-a-new-PR).
 
