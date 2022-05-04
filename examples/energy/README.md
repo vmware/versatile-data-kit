@@ -1,5 +1,6 @@
 # Energy
-The objective of this scenario is to ingest and process in VDK the following two CSV datasets:
+The objective of this scenario is to build an app that shows the relationship between Natural Gas prices in the U.S. and the temperature.
+The app uses VDK to ingest and process the following two CSV datasets:
 * [Natural Gas Prices from 1997 to 2020](https://datahub.io/core/natural-gas)
 * [U.S. Climate Extremes Index from 1910 to 2020](https://www.ncdc.noaa.gov/extremes/cei/graph/ne/01-12/2)
 
@@ -103,7 +104,7 @@ Jobs 04-06 are devoted to Data Ingestion of the U.S. Climate Extremes Index data
 ## Data Processing
 Data Processing includes two steps:
 * building an annual view of the `natural_gas_prices` with the average value of natural gas price
-* merging the two tables, the previus one and `climate_extremes_index`. Values are normalized in the interval [0,1] thus making possible a comparison among them.
+* merging the two tables, the previous one and `climate_extremes_index`. Values are normalized in the interval [0,1] thus making possible a comparison among them.
 
 Jobs 07-08 are devoted to the first step. The produced output is stored in a table, called `average_gas_price_by_year`.
 
