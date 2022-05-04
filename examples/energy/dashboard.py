@@ -20,7 +20,6 @@ conn = trino.dbapi.connect(
 )
 
 
-
 # Design the UI
 st.markdown("# Does the Natural Gas Price in the US depend on the temperature?")
 
