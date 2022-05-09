@@ -13,6 +13,11 @@ import org.apache.kerby.util.NetworkUtil;
 
 import java.io.File;
 
+/**
+ *  This class instantiates a test Kerberos server with a
+ *  client and server principals which can be used in testing
+ *  to authorize requests.
+ */
 @Getter
 @Slf4j
 public class TestKerberosServer {
