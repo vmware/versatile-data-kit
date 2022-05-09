@@ -10,13 +10,12 @@ import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import org.apache.kerby.kerberos.kerb.KrbException;
-import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
-import org.apache.kerby.util.NetworkUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +23,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -55,19 +53,8 @@ import java.net.URL;
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @ExtendWith(SpringExtension.class)
-public class KerberosAuthenticationIT {
-
-   /*
-    * Using static variables due to the KDC instance needing to init before
-    * spring startup code from the @SpringBootTest annotation.
-    */
-   private static final String WORK_DIR = "target";
-   private static final File KDC_WORK_DIR = new File(WORK_DIR);
-   private static final File KEYTAB = new File(WORK_DIR + "/foo.keytab");
-   private static final String CLIENT_PRINCIPAL = "client/localhost";
-   private static final String TGT_PRINCIPAL = "HTTP/localhost";
-
-   private static SimpleKdcServer simpleKdcServer;
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class KerberosAuthenticationIT extends TestKerberosServer {
 
    @Autowired
    private JobsRepository jobsRepository;
@@ -76,28 +63,6 @@ public class KerberosAuthenticationIT {
 
    @LocalServerPort
    int randomPort;
-
-   /*
-    * Static block is only reliable way of starting the KDC server before
-    * code invoked by the @SpringBootTest annotation. If you find a way to
-    * refactor this in a JUnit method such as @BeforeAll etc. feel free to.
-    */
-   static {
-      // Initialize the KDC server
-      try {
-         simpleKdcServer = new SimpleKdcServer();
-         simpleKdcServer.setWorkDir(KDC_WORK_DIR);
-         simpleKdcServer.setAllowTcp(true);
-         simpleKdcServer.setAllowUdp(true);
-         simpleKdcServer.setKdcUdpPort(NetworkUtil.getServerPort());
-         // Start the KDC server
-         simpleKdcServer.init();
-         simpleKdcServer.start();
-         simpleKdcServer.createAndExportPrincipals(KEYTAB, CLIENT_PRINCIPAL, TGT_PRINCIPAL);
-      } catch (Exception e) {
-         System.out.println(e);
-      }
-   }
 
    @BeforeEach
    public void addTestJob() {
@@ -113,9 +78,9 @@ public class KerberosAuthenticationIT {
    @Test
    public void testAuthenticatedCall() throws Exception {
       URL requestUrl = new URL("http://127.0.0.1:" + randomPort + "/data-jobs/for-team/test-team/jobs/test-name");
-      var krb5 = simpleKdcServer.getKrbClient().getKrbConfig();
+      var krb5 = getSimpleKdcServer().getKrbClient().getKrbConfig();
       URL authUrl = new URL("http://" + krb5.getKdcHost() + "/" + krb5.getKdcPort());
-      var res = KerberosUtil.requestWithKerberosAuth(requestUrl, authUrl, CLIENT_PRINCIPAL, KEYTAB.getPath());
+      var res = KerberosUtil.requestWithKerberosAuth(requestUrl, authUrl, getCLIENT_PRINCIPAL(), getKEYTAB().getPath());
 
       Assertions.assertEquals(200, res.getResponseCode());
    }
@@ -134,9 +99,8 @@ public class KerberosAuthenticationIT {
    }
 
    @AfterAll
-   public static void cleanup() throws KrbException {
-      KDC_WORK_DIR.deleteOnExit();
-      simpleKdcServer.stop();
+   public void cleanup() throws KrbException {
+      shutdownServer();
    }
 
 }
