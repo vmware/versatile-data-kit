@@ -124,7 +124,9 @@ class JobDeploy:
     ) -> None:
         job: DataJob = self.__read_data_job(name, team)
         local_config = JobConfig(job_path)
-        schedule = self.__check_value("schedule_cron", local_config.get_schedule_cron())
+        schedule = (
+            local_config.get_schedule_cron() or "0 0 30 2 *"
+        )  # defaults to Feb 30, or never if no schedule given
         contacts = DataJobContacts(
             local_config.get_contacts_notified_on_job_failure_user_error(),
             local_config.get_contacts_notified_on_job_failure_platform_error(),
