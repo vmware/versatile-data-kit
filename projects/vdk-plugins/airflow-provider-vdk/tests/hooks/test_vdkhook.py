@@ -24,7 +24,6 @@ class TestVDKHook(unittest.TestCase):
 
         self.hook.start_job_execution()
 
-        print(mock_call_api.call_args_list)
         assert (
             mock_call_api.call_args_list[0][0][0]
             == "/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/executions"
