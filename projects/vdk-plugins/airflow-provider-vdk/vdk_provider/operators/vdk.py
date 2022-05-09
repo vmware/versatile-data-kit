@@ -57,7 +57,7 @@ class VDKOperator(BaseOperator):
 
         if not self.asynchronous:
             log.info(f"Waiting for job execution {execution_id} to complete...")
-            vdk_hook.wait_for_job(execution_id, self.wait_seconds, self.timeout)
+            vdk_hook.wait_for_job(execution_id, self.wait_seconds, self.timeout_seconds)
             log.info(f"Job execution {execution_id} has completed successfully.")
 
         return execution_id

@@ -46,7 +46,7 @@ class VDKHook(HttpHook):
         conn_id: str,
         job_name: str,
         team_name: str,
-        timeout: int = 1,  # TODO: Set reasonable default
+        timeout: int = 5,  # TODO: Set reasonable default
     ):
         super().__init__(http_conn_id=conn_id)
         self.job_name = job_name
@@ -130,7 +130,6 @@ class VDKHook(HttpHook):
     def wait_for_job(
         self, execution_id, wait_seconds: float = 3, timeout: Optional[float] = 60 * 60
     ):
-        job_status = None
         start = time.monotonic()
         while True:
             if timeout and start + timeout < time.monotonic():
@@ -151,6 +150,8 @@ class VDKHook(HttpHook):
                 log.info(f"Job logs: {self.get_job_execution_log(execution_id)}")
 
                 break
+            elif job_status == JobStatus.SUBMITTED or job_status == JobStatus.RUNNING:
+                continue
             elif job_status == JobStatus.CANCELLED or job_status == JobStatus.SKIPPED:
                 raise VDKJobExecutionException(
                     f"Job execution {execution_id} has been {job_status}."
