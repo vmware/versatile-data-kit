@@ -21,7 +21,6 @@ import java.util.Optional;
  * TODO: Figure out how to connect to a testing KDC server via kadmin
  ** For some reason I (tsvetkovt@vmware.com) was not able to connect to MiniKdc or to a
  ** dockerized KDC with kadmin.
- * TODO we should think about moving away from MiniKDC as it's not maintained.
  */
 @Setter
 public class MiniKdcCredentialsRepository extends KerberosCredentialsRepository {
