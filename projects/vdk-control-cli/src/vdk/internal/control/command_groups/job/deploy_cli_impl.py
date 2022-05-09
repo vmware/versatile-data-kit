@@ -126,7 +126,7 @@ class JobDeploy:
         local_config = JobConfig(job_path)
         schedule = (
             local_config.get_schedule_cron() or "0 0 30 2 *"
-        )  # defaults to Feb 30, or never if no schedule given
+        )  # defaults to Feb 30 (i.e. never) if no schedule given
         contacts = DataJobContacts(
             local_config.get_contacts_notified_on_job_failure_user_error(),
             local_config.get_contacts_notified_on_job_failure_platform_error(),
