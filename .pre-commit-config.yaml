@@ -26,7 +26,7 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
-        language_version: python3.7
+        language_version: python3
   # ensure pydoc is up-to standard
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.1.1

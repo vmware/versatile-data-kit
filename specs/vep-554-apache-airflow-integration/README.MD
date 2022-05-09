@@ -376,8 +376,7 @@ Unit and integration tests will be introduced by following the official Airflow 
 ### Security and Permissions
 
 The communication between VDK Provider and Control Service will be secured through the
-use of HTTPS and OAuth 2.0 (as defined in [RFC6749](https://datatracker.ietf.
-org/doc/html/rfc6749)). The most commonly used OAuth 2.0
+use of HTTPS and OAuth 2.0 (as defined in [RFC6749](https://datatracker.ietf.org/doc/html/rfc6749)). The most commonly used OAuth 2.0
 flows will be supported by using and extending existing `vdk-control-cli`
 authentication functionality. The functionality would be extracted as a stand-alone
 library, which would make it more concise and lightweight, avoiding the
@@ -385,8 +384,7 @@ installation of unneeded dependencies.
 
 Having a stand-alone authentication library would also allow for the
 implementation of authentication flows like Basic Authentication with
-client credentials and described in RFC6749 as [Client Credentials Grant]
-(https://datatracker.ietf.org/doc/html/rfc6749#section-4.4), which would not
+client credentials and described in RFC6749 as [Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4), which would not
 necessarily be used by vdk-control-cli.
 
 The library would provide an authentication class, which would accept
