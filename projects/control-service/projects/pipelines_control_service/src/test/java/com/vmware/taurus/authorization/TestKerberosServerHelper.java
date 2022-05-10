@@ -13,9 +13,7 @@ import org.apache.kerby.util.NetworkUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * This class instantiates a test Kerberos server with a
@@ -23,7 +21,7 @@ import java.nio.file.Path;
  * to authorize requests.
  */
 @Slf4j
-public class TestKerberosServer {
+public class TestKerberosServerHelper {
 
    private static final String WORK_DIR = "target";
    private static final File KDC_WORK_DIR = new File(WORK_DIR);
