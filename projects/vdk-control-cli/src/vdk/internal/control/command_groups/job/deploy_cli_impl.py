@@ -8,6 +8,7 @@ from typing import Optional
 
 import click
 import click_spinner
+from croniter import croniter
 from tabulate import tabulate
 from taurus_datajob_api import ApiException
 from taurus_datajob_api import DataJob
@@ -124,7 +125,18 @@ class JobDeploy:
     ) -> None:
         job: DataJob = self.__read_data_job(name, team)
         local_config = JobConfig(job_path)
+
         schedule = self.__check_value("schedule_cron", local_config.get_schedule_cron())
+        # validating the schedule; we check it doesn't consist of 6 parts as well since croniter considers
+        # 6 part cron expressions valid (the sixth specifies the year), but the VDK control service does not
+        if len(schedule.split(" ")) > 5 or not croniter.is_valid(schedule):
+            raise VDKException(
+                what=f"Cannot deploy data job {name}",
+                why="The cron schedule specified in the job's config.ini file is not a valid cron expression.",
+                consequence="Data Job will not be deployed.",
+                countermeasure="Fix the job's cron schedule in the job's config.ini file.",
+            )
+
         contacts = DataJobContacts(
             local_config.get_contacts_notified_on_job_failure_user_error(),
             local_config.get_contacts_notified_on_job_failure_platform_error(),
