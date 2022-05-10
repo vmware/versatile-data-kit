@@ -23,6 +23,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -53,7 +54,6 @@ import java.net.URL;
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
 @ExtendWith(SpringExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class KerberosAuthenticationIT extends TestKerberosServer {
 
    @Autowired
@@ -81,7 +81,6 @@ public class KerberosAuthenticationIT extends TestKerberosServer {
       var krb5 = getSimpleKdcServer().getKrbClient().getKrbConfig();
       URL authUrl = new URL("http://" + krb5.getKdcHost() + "/" + krb5.getKdcPort());
       var res = KerberosUtil.requestWithKerberosAuth(requestUrl, authUrl, getCLIENT_PRINCIPAL(), getKEYTAB().getPath());
-
       Assertions.assertEquals(200, res.getResponseCode());
    }
 
@@ -99,8 +98,7 @@ public class KerberosAuthenticationIT extends TestKerberosServer {
    }
 
    @AfterAll
-   public void cleanup() throws KrbException {
+   public static void cleanup() throws KrbException, IOException {
       shutdownServer();
    }
-
 }
