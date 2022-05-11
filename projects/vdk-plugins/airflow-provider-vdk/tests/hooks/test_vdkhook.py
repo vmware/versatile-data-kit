@@ -18,13 +18,23 @@ class TestVDKHook(unittest.TestCase):
             conn_id="conn_vdk", job_name="test_job", team_name="test_team"
         )
 
-    @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
-    def test_start_job_execution(self, mocked_api_client_request):
-        request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/deployments/production/executions"
+    @mock.patch("taurus_datajob_api.api_client.ApiClient.call_api")
+    def test_start_job_execution(self, mock_call_api):
+        mock_call_api.return_value = (None, None, {"Location": "job-execution-id-01"})
 
         self.hook.start_job_execution()
 
-        assert mocked_api_client_request.call_args_list[0][0] == ("POST", request_url)
+        assert (
+            mock_call_api.call_args_list[0][0][0]
+            == "/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/executions"
+            and mock_call_api.call_args_list[0][0][1] == "POST"
+            and mock_call_api.call_args_list[0][0][2]
+            == {
+                "team_name": "test_team",
+                "job_name": "test_job",
+                "deployment_id": "production",
+            }
+        )
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
     def test_cancel_job_execution(self, mocked_api_client_request):
