@@ -88,6 +88,8 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'org.junit.jupiter:junit-jupiter-api'
     testImplementation versions.'org.junit.platform:junit-platform-suite-api'
     testRuntimeOnly versions.'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'com.kerb4j:kerb4j-client:0.1.2'
+    testImplementation 'org.apache.kerby:kerb-simplekdc:2.0.1'
 
 
     // transitive dependencies version force
