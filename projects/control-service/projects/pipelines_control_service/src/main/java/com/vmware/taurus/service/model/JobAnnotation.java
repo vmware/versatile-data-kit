@@ -14,7 +14,8 @@ public enum JobAnnotation {
    DEPLOYED_DATE("deployed-date"),
    DEPLOYED_BY("deployed-by"),
    EXECUTION_TYPE("execution-type"),
-   OP_ID("op-id");
+   OP_ID("op-id"),
+   UNSCHEDULED("unscheduled");
 
    @Getter
    private String value;
