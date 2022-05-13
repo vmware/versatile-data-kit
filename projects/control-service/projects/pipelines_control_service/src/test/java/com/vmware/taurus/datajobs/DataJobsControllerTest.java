@@ -53,6 +53,19 @@ public class DataJobsControllerTest {
    }
 
    @Test
+   public void testDataJobCreateUnscheduledJob() {
+      when(jobsService.createJob(any())).thenReturn(JobOperationResult.builder()
+              .completed(true)
+              .build());
+      UriBuilder builder = UriComponentsBuilder.fromHttpUrl("http://test.com/");
+      var testInst = new DataJobsController(jobsService, null, null, null, () -> builder);
+      DataJob dataJob = newJob("test-job", "team", "");
+      var response = testInst.dataJobCreate("team", dataJob, "");
+      var location = response.getHeaders().get(HttpHeaders.LOCATION).get(0);
+      assertEquals("http://test.com/data-jobs/for-team/team/jobs/test-job", location);
+   }
+
+   @Test
    public void testDataJobCreateNameValidity() {
       when(jobsService.createJob(any())).thenReturn(JobOperationResult.builder()
             .completed(true)
