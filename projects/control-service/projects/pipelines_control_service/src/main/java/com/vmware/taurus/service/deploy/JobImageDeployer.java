@@ -289,7 +289,7 @@ public class JobImageDeployer {
    private Map<String, String> getJobAnnotations(DataJob dataJob, String deployedBy){
       Map<String, String> jobPodAnnotations = new HashMap<>();
       jobPodAnnotations.put(JobAnnotation.SCHEDULE.getValue(), dataJob.getJobConfig().getSchedule());
-      jobPodAnnotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), (StringUtils.isEmpty(dataJob.getJobConfig().getSchedule()) ? "unscheduled" : "scheduled"));
+      jobPodAnnotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), "scheduled");
       jobPodAnnotations.put(JobAnnotation.DEPLOYED_BY.getValue(), deployedBy);
       jobPodAnnotations.put(JobAnnotation.DEPLOYED_DATE.getValue(), OffsetDateTime.now().toString());
       jobPodAnnotations.put(JobAnnotation.STARTED_BY.getValue(), "scheduled/runtime"); //TODO are those valid?
