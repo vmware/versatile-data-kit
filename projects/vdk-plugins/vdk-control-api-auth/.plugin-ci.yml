@@ -26,8 +26,7 @@ build-py310-vdk-control-api-auth:
   extends: .build-vdk-control-api-auth
   image: "python:3.10"
 
-# TODO: Uncomment when plugin is ready for release
-#release-vdk-control-api-auth:
-#  variables:
-#    PLUGIN_NAME: vdk-control-api-auth
-#  extends: .release-plugin
+release-vdk-control-api-auth:
+  variables:
+    PLUGIN_NAME: vdk-control-api-auth
+  extends: .release-plugin
