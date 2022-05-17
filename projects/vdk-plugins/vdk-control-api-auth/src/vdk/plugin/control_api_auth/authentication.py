@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
 from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.autorization_code_auth import RedirectAuthentication
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk.plugin.control_api_auth.login_types import LoginTypes
 
@@ -17,6 +18,7 @@ class Authentication:
         client_secret: str = None,
         token: str = None,
         authorization_url: str = None,
+        auth_discovery_url: str = None,
         auth_type: str = None,
         cache_locally: bool = False,
     ):
@@ -35,6 +37,8 @@ class Authentication:
             to obtain access token from the authorization server.
         :param authorization_url:
             The URL which exchanges token for access token.
+        :param auth_discovery_url:
+            Token or Authorization URI used to exchange grant for access token.
         :param auth_type:
             What type of authentication should be used (e.g., refresh_token,
             basic_auth, etc.).
@@ -48,6 +52,7 @@ class Authentication:
         self._client_secret = client_secret
         self._token = token
         self._auth_url = authorization_url
+        self._auth_discovery_url = auth_discovery_url
         self._auth_type = auth_type
         # Check if credentials should be cached on the local filesystem
         if cache_locally:
@@ -75,6 +80,8 @@ class Authentication:
 
         if self._auth_type == LoginTypes.API_TOKEN.value:
             self.__authenticate_with_api_token()
+        elif self._auth_type == LoginTypes.CREDENTIALS.value:
+            self.__authenticate_with_authorization_code()
         else:
             raise VDKAuthException(
                 what="Unexpected authentication type.",
@@ -101,6 +108,25 @@ class Authentication:
         """
         Authenticate with authorization code as described in
         https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1
+        This type of authentication relies on pkce
+        https://datatracker.ietf.org/doc/html/rfc7636
         :return:
         """
-        raise NotImplementedError("This method is yet to be implemented.")
+        if not self._client_id or not self._auth_discovery_url:
+            raise VDKAuthException(
+                what="Unable to log in.",
+                why=f"Login type {self._auth_type} requires client_id and "
+                "auth_discovery_url to be specified.",
+                consequence="The authentication operation cannot be complete.",
+                countermeasure="Specify client_id and auth_discovery_url and "
+                "repeat the login operation.",
+            )
+        else:
+            auth_code_flow = RedirectAuthentication(
+                client_id=self._client_id,
+                client_secret=self._client_secret,
+                oauth2_discovery_url=self._auth_discovery_url,
+                oauth2_exchange_url=self._auth_url,
+                auth=self._auth,
+            )
+            auth_code_flow.authentication_process()
