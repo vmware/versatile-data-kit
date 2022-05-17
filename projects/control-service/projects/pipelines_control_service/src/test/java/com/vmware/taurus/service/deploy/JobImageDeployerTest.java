@@ -146,4 +146,28 @@ public class JobImageDeployerTest {
       var jobContainer = containerCaptor.getValue();
       Assertions.assertEquals(testDataJob.getName(), jobContainer.getName());
    }
+
+   @Test
+   public void testJobNoSchedule() throws ApiException {
+      JobConfig jobConfig = new JobConfig();
+      jobConfig.setSchedule("");
+      testDataJob = new DataJob();
+      testDataJob.setName(TEST_JOB_NAME);
+      testDataJob.setJobConfig(jobConfig);
+
+      var jobDeployment = new JobDeployment();
+      jobDeployment.setDataJobName(TEST_JOB_NAME);
+      jobDeployment.setGitCommitSha("test-commit");
+      jobDeployment.setEnabled(true);
+      jobDeployment.setImageName("image");
+
+      jobImageDeployer.scheduleJob(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
+
+      ArgumentCaptor<String> scheduleCaptor = ArgumentCaptor.forClass(String.class);
+      verify(kubernetesService).createCronJob(anyString(), anyString(), anyMap(), scheduleCaptor.capture(), anyBoolean(),
+              anyList(), any(KubernetesService.Resources.class), any(KubernetesService.Resources.class),
+              any(V1Container.class), any(V1Container.class), anyList(), anyMap(), anyMap(), anyMap(), anyMap(), anyList());
+      Assertions.assertEquals("0 0 30 2 *", scheduleCaptor.getValue());
+      Assertions.assertEquals("", testDataJob.getJobConfig().getSchedule());
+   }
 }

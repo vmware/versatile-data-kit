@@ -26,6 +26,7 @@ public class K8SAnnotationsLabelsTest {
         var deployedBy = JobAnnotation.DEPLOYED_BY.getValue();
         var executionType = JobAnnotation.EXECUTION_TYPE.getValue();
         var opId = JobAnnotation.OP_ID.getValue();
+        var unscheduled = JobAnnotation.UNSCHEDULED.getValue();
 
         Assertions.assertEquals("com.vmware.taurus/schedule", schedule, msg);
         Assertions.assertEquals("com.vmware.taurus/started-by", startedBy, msg);
@@ -33,8 +34,9 @@ public class K8SAnnotationsLabelsTest {
         Assertions.assertEquals("com.vmware.taurus/deployed-by", deployedBy, msg);
         Assertions.assertEquals("com.vmware.taurus/execution-type", executionType, msg);
         Assertions.assertEquals("com.vmware.taurus/op-id", opId, msg);
+        Assertions.assertEquals("com.vmware.taurus/unscheduled", unscheduled, msg);
 
-        Assertions.assertEquals(6, JobAnnotation.values().length, msg);
+        Assertions.assertEquals(7, JobAnnotation.values().length, msg);
     }
 
     @Test
