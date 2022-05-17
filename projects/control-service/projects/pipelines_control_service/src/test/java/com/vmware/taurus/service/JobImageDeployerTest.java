@@ -98,7 +98,7 @@ public class JobImageDeployerTest {
             var annotations = annotationCaptor.getValue();
             //check everything was as expected
             Assertions.assertEquals(3, labels.size(), "Expecting three labels");
-            Assertions.assertEquals(6, annotations.size(), "Expecting five annotations");
+            Assertions.assertEquals(6, annotations.size(), "Expecting six annotations");
 
             var jobName = labels.get(JobLabel.NAME.getValue());
             var jobVersion = labels.get(JobLabel.VERSION.getValue());
