@@ -159,9 +159,9 @@ class LoginHandler:
         auth_code = ""
         state = ""
         if self.CODE_PARAMETER_KEY in query_components:
-            auth_code = query_components[bytes(self.CODE_PARAMETER_KEY)][0]
+            auth_code = query_components[self.CODE_PARAMETER_KEY][0]
         if self.STATE_PARAMETER_KEY in query_components:
-            state = query_components[bytes(self.STATE_PARAMETER_KEY)][0]
+            state = query_components[self.STATE_PARAMETER_KEY][0]
         if state != AuthRequestValues.STATE_PARAMETER_VALUE.value or not state:
             raise VDKAuthException(
                 what="Failed to login.",
