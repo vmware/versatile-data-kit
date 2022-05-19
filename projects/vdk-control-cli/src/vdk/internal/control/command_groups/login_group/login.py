@@ -1,14 +1,12 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import click
-from vdk.internal.control.auth.apikey_auth import ApiKeyAuthentication
-from vdk.internal.control.auth.auth import Authentication
 from vdk.internal.control.auth.login_types import LoginTypes
-from vdk.internal.control.auth.redirect_auth import RedirectAuthentication
-from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import extended_option
+from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.authentication import Authentication
 
 
 @click.command(
@@ -112,17 +110,28 @@ def login(
     oauth2_exchange_url,
 ):
     if auth_type == LoginTypes.CREDENTIALS.value:
-        if not client_id or not oauth2_discovery_url or not oauth2_exchange_url:
-            click.echo(
-                f"Login type: {auth_type} requires arguments:, --client-secret, --client-id, "
-                f"--oauth2-exchange-url, --oauth2-discovery-url"
+        try:
+            auth = Authentication(
+                client_id=client_id,
+                client_secret=client_secret,
+                auth_discovery_url=oauth2_discovery_url,
+                authorization_url=oauth2_exchange_url,
+                auth_type=auth_type,
+                cache_locally=True,
             )
-        else:
-            redirect_auth = RedirectAuthentication(
-                client_id, client_secret, oauth2_discovery_url, oauth2_exchange_url
-            )
-            redirect_auth.authentication_process()
+            auth.authenticate()
             click.echo("Login Successful")
+        except VDKAuthException as e:
+            if (
+                "requires client_id and auth_discovery_url to be specified" in e.message
+                or "auth_url was not specified." in e.message
+            ):
+                click.echo(
+                    f"Login type: {auth_type} requires arguments:, --client-secret, --client-id, "
+                    "--oauth2-exchange-url, --oauth2-discovery-url"
+                )
+            else:
+                click.echo(f"Login failed. Error was: {e.message}")
     elif auth_type == LoginTypes.API_TOKEN.value:
         api_token = cli_utils.get_or_prompt("Oauth2 API token", api_token)
         if not api_token:
@@ -134,8 +143,16 @@ def login(
                 countermeasure="Please login providing correct API Token. ",
             )
         else:
-            apikey_auth = ApiKeyAuthentication(api_token_authorization_url, api_token)
-            apikey_auth.authentication_process()
+            apikey_auth = Authentication(
+                authorization_url=api_token_authorization_url,
+                token=api_token,
+                auth_type=auth_type,
+                cache_locally=True,
+            )
+            try:
+                apikey_auth.authenticate()
+            except VDKAuthException as e:
+                click.echo(f"Login failed. Error was: {e.message}")
             click.echo("Login Successful")
     else:
         click.echo(f"Login type: {auth_type} not supported")
