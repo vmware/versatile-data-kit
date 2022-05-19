@@ -167,7 +167,9 @@ public class JobImageDeployer {
                               JobDeployment jobDeployment,
                               String lastDeployedBy) throws ApiException {
       log.debug("Deploy cron job for data job {}", dataJob);
-      String schedule = dataJob.getJobConfig().getSchedule();
+
+      // Schedule defaults to Feb 30 (i.e. never) if no schedule has been given.
+      String schedule = StringUtils.isEmpty(dataJob.getJobConfig().getSchedule()) ? "0 0 30 2 *" : dataJob.getJobConfig().getSchedule();
 
       var jobName = dataJob.getName();
       var volume = KubernetesService.volume(VOLUME_NAME);
@@ -291,6 +293,7 @@ public class JobImageDeployer {
       jobPodAnnotations.put(JobAnnotation.DEPLOYED_BY.getValue(), deployedBy);
       jobPodAnnotations.put(JobAnnotation.DEPLOYED_DATE.getValue(), OffsetDateTime.now().toString());
       jobPodAnnotations.put(JobAnnotation.STARTED_BY.getValue(), "scheduled/runtime"); //TODO are those valid?
+      jobPodAnnotations.put(JobAnnotation.UNSCHEDULED.getValue(), (StringUtils.isEmpty(dataJob.getJobConfig().getSchedule()) ? "true" : "false"));
       return jobPodAnnotations;
    }
 

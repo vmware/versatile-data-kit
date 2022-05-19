@@ -124,7 +124,12 @@ class JobDeploy:
     ) -> None:
         job: DataJob = self.__read_data_job(name, team)
         local_config = JobConfig(job_path)
-        schedule = self.__check_value("schedule_cron", local_config.get_schedule_cron())
+        schedule = local_config.get_schedule_cron()
+        if len(schedule) == 0:
+            log.warning(
+                "You have provided no schedule for your Data Job. "
+                "Note that your deployed job will not be scheduled and will only run when manually executed."
+            )
         contacts = DataJobContacts(
             local_config.get_contacts_notified_on_job_failure_user_error(),
             local_config.get_contacts_notified_on_job_failure_platform_error(),
@@ -196,7 +201,7 @@ class JobDeploy:
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
                 f"If notified_on_job_deploy option in config.ini is configured then "
                 f"notification will be sent on successful deploy or in case of an error.\n\n"
-                f"You can also execute `vdk deploy --show -t {team} -n {name}` and compare the printed version "
+                f"You can also execute `vdk deploy --show -t '{team}' -n '{name}'` and compare the printed version "
                 f"to the one of the newly deployed job - {deployment.job_version} - to verify that the deployment "
                 f"was successful."
             )

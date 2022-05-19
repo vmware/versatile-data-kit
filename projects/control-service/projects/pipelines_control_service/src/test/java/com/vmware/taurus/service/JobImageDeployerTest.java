@@ -98,7 +98,7 @@ public class JobImageDeployerTest {
             var annotations = annotationCaptor.getValue();
             //check everything was as expected
             Assertions.assertEquals(3, labels.size(), "Expecting three labels");
-            Assertions.assertEquals(5, annotations.size(), "Expecting five annotations");
+            Assertions.assertEquals(6, annotations.size(), "Expecting six annotations");
 
             var jobName = labels.get(JobLabel.NAME.getValue());
             var jobVersion = labels.get(JobLabel.VERSION.getValue());
@@ -113,6 +113,7 @@ public class JobImageDeployerTest {
             var deployedDate = annotations.get(JobAnnotation.DEPLOYED_DATE.getValue());
             var startedBy = annotations.get(JobAnnotation.STARTED_BY.getValue());
             var executionType = annotations.get(JobAnnotation.EXECUTION_TYPE.getValue());
+            var unscheduled = annotations.get(JobAnnotation.UNSCHEDULED.getValue());
 
             Assertions.assertEquals("schedule string", schedule);
             Assertions.assertEquals("lastDeployedBy", deployedBy);
@@ -120,6 +121,7 @@ public class JobImageDeployerTest {
                             "Testing if date is the same, we cannot be precise down to the millisecond.");
             Assertions.assertEquals("scheduled/runtime", startedBy);
             Assertions.assertEquals("scheduled", executionType);
+            Assertions.assertEquals("false", unscheduled);
 
         } catch (ApiException e) {
             e.printStackTrace();
