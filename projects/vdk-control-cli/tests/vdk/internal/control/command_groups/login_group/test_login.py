@@ -139,3 +139,72 @@ def test_login_credentials_with_browser_as_native_app_auth(
         )
 
         test_utils.assert_click_status(result, 0)
+
+
+def test_login_credentials_exceptions(httpserver: PluginHTTPServer):
+    with patch("webbrowser.open") as mock_browser:
+        test_utils.allow_oauthlib_insecure_transport()
+
+        mock_browser.side_effect = _mock_browser_login
+        httpserver.expect_request("/exchange").respond_with_json(
+            test_auth.get_json_response_mock()
+        )
+
+        runner = CliRunner()
+
+        # Assert error message when no --oauth2-exchange-url provided.
+        result = runner.invoke(
+            login,
+            [
+                "-t",
+                "credentials",
+                "--oauth2-discovery-url",
+                httpserver.url_for("/discovery"),
+                "--client-id",
+                "client_id",
+                "--client-secret",
+                "client_secret",
+            ],
+        )
+        assert (
+            "requires arguments:, --client-secret, --client-id, --oauth2-exchange-url, --oauth2-discovery-url"
+            in result.output
+        )
+
+        # Assert error message when no --oauth2-discovery-url provided.
+        result = runner.invoke(
+            login,
+            [
+                "-t",
+                "credentials",
+                "--oauth2-exchange-url",
+                httpserver.url_for("/exchange"),
+                "--client-id",
+                "client_id",
+                "--client-secret",
+                "client_secret",
+            ],
+        )
+        assert (
+            "requires arguments:, --client-secret, --client-id, --oauth2-exchange-url, --oauth2-discovery-url"
+            in result.output
+        )
+
+        # Assert error message when no --client-id provided.
+        result = runner.invoke(
+            login,
+            [
+                "-t",
+                "credentials",
+                "--oauth2-discovery-url",
+                httpserver.url_for("/discovery"),
+                "--oauth2-exchange-url",
+                httpserver.url_for("/exchange"),
+                "--client-secret",
+                "client_secret",
+            ],
+        )
+        assert (
+            "requires arguments:, --client-secret, --client-id, --oauth2-exchange-url, --oauth2-discovery-url"
+            in result.output
+        )
