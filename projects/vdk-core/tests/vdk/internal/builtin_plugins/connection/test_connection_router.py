@@ -34,7 +34,7 @@ def test_router_open_connection():
     router, mock_conn, _ = managed_connection_router()
 
     conn = router.open_connection("TEST_DB")
-    assert mock_conn == conn.connect()
+    assert conn is conn.connect()
 
 
 def test_router_raw_connection():
@@ -45,7 +45,9 @@ def test_router_raw_connection():
     router.add_open_connection_factory_method("RAW_DB", lambda: mock_conn)
 
     conn = router.open_connection("RAW_DB")
-    assert mock_conn == conn.connect()
+    assert mock_conn is conn._connect()
+    assert conn is conn.connect()
+    assert mock_conn is not conn.connect()
 
 
 def test_router_open_connection_closed():
@@ -54,7 +56,7 @@ def test_router_open_connection_closed():
     conn = router.open_connection("TEST_DB")
     conn.close()
     conn = router.open_connection("TEST_DB")
-    assert mock_conn == conn.connect()
+    assert conn is conn.connect()
 
 
 def test_router_no_such_connection():
@@ -68,11 +70,11 @@ def test_router_open_default_connection():
     router, mock_conn, mock_conf = managed_connection_router()
     mock_conf.get_value.return_value = "TEST_DB"
     conn = router.open_default_connection()
-    assert mock_conn == conn.connect()
+    assert conn is conn.connect()
 
 
 def test_router_open_default_connection_no_conf():
     router, mock_conn, mock_conf = managed_connection_router()
     mock_conf.get_value.return_value = None
     conn = router.open_default_connection()
-    assert mock_conn == conn.connect()
+    assert conn is conn.connect()
