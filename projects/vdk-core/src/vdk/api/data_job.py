@@ -20,7 +20,7 @@ class IStandaloneDataJob:
     Sample usage::
 
         with StandaloneDataJobFactory.create(datajob_directory) as job_input:
-            #... use job_input object to intreact with underlying data systems.
+            #... use job_input object to interact with underlying data systems.
     """
 
     @abstractmethod
