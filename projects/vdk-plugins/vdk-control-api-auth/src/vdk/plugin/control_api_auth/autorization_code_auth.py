@@ -22,7 +22,7 @@ from requests import HTTPError
 from requests import post
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
-from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.auth_exception import VDKLoginFailedError
 from vdk.plugin.control_api_auth.auth_request_values import AuthRequestValues
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk.plugin.control_api_auth.login_types import LoginTypes
@@ -133,7 +133,7 @@ class LoginHandler:
             response.raise_for_status()
             json_data = json.loads(response.text)
         except HTTPError as http_exception:
-            raise VDKAuthException(
+            raise VDKLoginFailedError(
                 what="Failed to login.",
                 why="HTTP error occurred during authorization workflow. "
                 f"Error was: HTTP error {http_exception.response.status_code}: {http_exception.response.content}",
@@ -145,7 +145,7 @@ class LoginHandler:
                 "and commands executed.",
             )
         except Exception as e:
-            raise VDKAuthException(
+            raise VDKLoginFailedError(
                 what=f"Failed to login: {str(e)}.",
                 why="Problem in the configuration or service. Cannot acquire tokens.",
                 consequence="Cannot login user.",
@@ -163,14 +163,14 @@ class LoginHandler:
         if self.STATE_PARAMETER_KEY in query_components:
             state = query_components[self.STATE_PARAMETER_KEY][0]
         if state != AuthRequestValues.STATE_PARAMETER_VALUE.value or not state:
-            raise VDKAuthException(
+            raise VDKLoginFailedError(
                 what="Failed to login.",
                 why="Possibly the request was intercepted.",
                 consequence="Cannot login user.",
                 countermeasure="Try to login again.",
             )
         if not auth_code:
-            raise VDKAuthException(
+            raise VDKLoginFailedError(
                 what="Authentication code is empty",
                 why="The user failed to authenticate properly.",
                 consequence="User will not be logged in.",
