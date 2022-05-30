@@ -82,5 +82,7 @@ Feedback is very welcome via the [GitHub site as issues](https://github.com/vmwa
 - Video [Data Transformation with Versatile Data Kit](https://youtu.be/2F6_REtupgA)
 - Blog Post [A complete example using the Versatile Data Kit and Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e)
 
+For the full list of resources go to [Community and Resources](https://github.com/vmware/versatile-data-kit/wiki/Community-and-Resources)
+
 # Code of Conduct
 Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels and mailing lists is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
