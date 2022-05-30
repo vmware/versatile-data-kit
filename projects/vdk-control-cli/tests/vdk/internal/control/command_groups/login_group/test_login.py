@@ -166,6 +166,7 @@ def test_login_credentials_exceptions(httpserver: PluginHTTPServer):
                 "client_secret",
             ],
         )
+        test_utils.assert_click_status(result, 1)
         assert (
             "requires arguments:, --client-secret, --client-id, --oauth2-exchange-url, --oauth2-discovery-url"
             in result.output
@@ -185,6 +186,7 @@ def test_login_credentials_exceptions(httpserver: PluginHTTPServer):
                 "client_secret",
             ],
         )
+        test_utils.assert_click_status(result, 1)
         assert (
             "requires arguments:, --client-secret, --client-id, --oauth2-exchange-url, --oauth2-discovery-url"
             in result.output
@@ -204,6 +206,7 @@ def test_login_credentials_exceptions(httpserver: PluginHTTPServer):
                 "client_secret",
             ],
         )
+        test_utils.assert_click_status(result, 1)
         assert (
             "requires arguments:, --client-secret, --client-id, --oauth2-exchange-url, --oauth2-discovery-url"
             in result.output
