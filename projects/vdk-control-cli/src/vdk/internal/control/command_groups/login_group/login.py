@@ -1,11 +1,14 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import sys
+
 import click
 from vdk.internal.control.auth.login_types import LoginTypes
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import extended_option
 from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.authentication import Authentication
 
 
@@ -121,17 +124,16 @@ def login(
             )
             auth.authenticate()
             click.echo("Login Successful")
+        except VDKInvalidAuthParamError:
+            click.echo(
+                f"Login type: {auth_type} requires arguments:, --client-secret, --client-id, "
+                "--oauth2-exchange-url, --oauth2-discovery-url"
+            )
+            sys.exit(1)
         except VDKAuthException as e:
-            if (
-                "requires client_id and auth_discovery_url to be specified" in e.message
-                or "auth_url was not specified." in e.message
-            ):
-                click.echo(
-                    f"Login type: {auth_type} requires arguments:, --client-secret, --client-id, "
-                    "--oauth2-exchange-url, --oauth2-discovery-url"
-                )
-            else:
-                click.echo(f"Login failed. Error was: {e.message}")
+            click.echo(f"Login failed. Error was: {e.message}")
+            sys.exit(1)
+
     elif auth_type == LoginTypes.API_TOKEN.value:
         api_token = cli_utils.get_or_prompt("Oauth2 API token", api_token)
         if not api_token:
@@ -153,6 +155,7 @@ def login(
                 apikey_auth.authenticate()
             except VDKAuthException as e:
                 click.echo(f"Login failed. Error was: {e.message}")
+                sys.exit(1)
             click.echo("Login Successful")
     else:
         click.echo(f"Login type: {auth_type} not supported")
