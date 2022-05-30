@@ -6,7 +6,7 @@ import pathlib
 from pathlib import Path
 from typing import Optional
 
-from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.auth_exception import VDKAuthOSError
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class AuthConfigFolder:
             base_dir, AuthConfigFolder.CONFIG_FOLDER_NAME
         )
         if os.path.isfile(self.vdk_config_folder):
-            raise VDKAuthException(
+            raise VDKAuthOSError(
                 what="Credentials file was not created",
                 why=f"There is a file named {self.vdk_config_folder}",
                 consequence="User won't be able to access Control Service",
@@ -102,7 +102,7 @@ class AuthConfigFolder:
                         parents=True, exist_ok=True
                     )
                 except Exception as e:
-                    raise VDKAuthException(
+                    raise VDKAuthOSError(
                         what="Configuration folder was not created and user is not logged in",
                         why=f"Cannot create: {self.vdk_config_folder} configuration folder: {str(e)}",
                         consequence="User won't be able to access Control Service",
@@ -116,7 +116,7 @@ class AuthConfigFolder:
             with open(credentials_file_path, "w+") as temp_file:
                 temp_file.write(content)
         except OSError as e:
-            raise VDKAuthException(
+            raise VDKAuthOSError(
                 what="Credentials file was not created",
                 why=f"Cannot create credentials file: {str(e)}",
                 consequence="User won't be able to access Control Service",
@@ -130,7 +130,7 @@ class AuthConfigFolder:
             try:
                 os.remove(credentials_file_path)
             except OSError as e:
-                raise VDKAuthException(
+                raise VDKAuthOSError(
                     what="Credentials file was not deleted",
                     why=f"Cannot delete credentials file in .vdk folder in home directory: {str(e)}",
                     consequence="User is not logged out",
@@ -146,7 +146,7 @@ class AuthConfigFolder:
                     return temp_file.read()
             return ""
         except OSError as e:
-            raise VDKAuthException(
+            raise VDKAuthOSError(
                 what="Credentials file cannot be accessed.",
                 why=f"Most likely not login. Error was: {str(e)}",
                 consequence="User won't be able to authenticate against Control Service",
