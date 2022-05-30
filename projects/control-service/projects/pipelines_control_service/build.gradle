@@ -92,7 +92,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation 'org.apache.kerby:kerb-simplekdc:2.0.1'
 
 
-    // transitive dependencies version force
+    // transitive dependencies version force;
     // on next upgrade, revise if those still need to be set explicitly
     implementation versions.'io.swagger:swagger-annotations'
     implementation versions.'io.swagger:swagger-models'
