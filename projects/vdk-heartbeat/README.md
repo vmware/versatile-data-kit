@@ -62,6 +62,7 @@ Releases are made to PyPI. <br>
 Versioning follows https://semver.org.
 
 * A release step in Gitlab CI is automatically triggered after merging changes if build/tests are successful.
+* To trigger a control-service integration tests image rebuild, commit any `control_service_change_locations`-defined change in [CONTRIBUTING.md](../control-service/cicd/.gitlab-ci.yml) - until automated
 * Update major or minor version when necessary only.
 
 ## Tests

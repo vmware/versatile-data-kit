@@ -265,6 +265,7 @@ control_service_release:
       - main
     changes: *control_service_change_locations
 
+# TODO: automatically rebuild image on vdk-heartbeat change
 control_service_vdk_heartbeat_release:
   image: docker:19.03.8
   services:
