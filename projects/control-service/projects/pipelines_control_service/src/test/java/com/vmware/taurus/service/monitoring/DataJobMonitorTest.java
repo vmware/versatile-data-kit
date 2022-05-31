@@ -530,14 +530,15 @@ public class DataJobMonitorTest {
 
     @Test
     @Order(29)
-    void testRecordJobExecutionStatus_withSameExecutionIdAndNewStatus_shouldNotUpdateLastExecution() {
+    void testRecordJobExecutionStatus_withSameExecutionIdAndNewStatus_shouldUpdateLastExecution() {
+        //Status gets updated from PLATFORM_ERROR to Succeeded with the same ID.
         JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionStatus.SUCCEEDED.getPodStatus());
 
         dataJobMonitor.recordJobExecutionStatus(jobExecution);
 
         Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
         Assertions.assertFalse(actualJob.isEmpty());
-        Assertions.assertEquals(ExecutionStatus.PLATFORM_ERROR, actualJob.get().getLastExecutionStatus());
+        Assertions.assertEquals(ExecutionStatus.SUCCEEDED, actualJob.get().getLastExecutionStatus());
     }
 
     @Test

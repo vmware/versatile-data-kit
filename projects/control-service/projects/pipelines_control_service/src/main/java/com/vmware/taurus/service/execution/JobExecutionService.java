@@ -234,7 +234,6 @@ public class JobExecutionService {
       //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
       var finalStatusSet = new HashSet<>(List.of(
             ExecutionStatus.CANCELLED,
-            ExecutionStatus.USER_ERROR,
             ExecutionStatus.SUCCEEDED,
             ExecutionStatus.SKIPPED));
       ExecutionStatus executionStatus = executionResult.getExecutionStatus();
