@@ -12,18 +12,18 @@ with DAG(
     catchup=False,
     tags=["example"],
 ) as dag:
-    op1 = VDKOperator(
+    job1 = VDKOperator(
         conn_id="example_vdk_connection",
         job_name="example_vdk_job1",
         team_name="team_name",
         task_id="job1",
     )
 
-    op2 = VDKOperator(
+    job2 = VDKOperator(
         conn_id="tms-example_vdk_connection",
         job_name="gg-example_vdk_job2",
         team_name="team_name",
         task_id="job2",
     )
 
-    op1 >> op2
+    job1 >> job2
