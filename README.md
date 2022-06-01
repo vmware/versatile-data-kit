@@ -77,5 +77,10 @@ Feedback is very welcome via the [GitHub site as issues](https://github.com/vmwa
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
 - [Join our dedicated Slack channel](https://cloud-native.slack.com/archives/C033PSLKCPR) on the [CNCF Slack workspace](https://events.linuxfoundation.org/archive/2020/kubecon-cloudnativecon-europe/attend/slack-guidelines/#getting-started) - simply search for #versatile-data-kit or [click here to join the channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
 
+# How to use Versatile Data Kit?
+- Video [Data Ingestion with Versatile Data Kit](https://youtu.be/JRV_5cxVQDU)
+- Video [Data Transformation with Versatile Data Kit](https://youtu.be/2F6_REtupgA)
+- Blog Post [A complete example using the Versatile Data Kit and Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e)
+
 # Code of Conduct
 Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels and mailing lists is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).

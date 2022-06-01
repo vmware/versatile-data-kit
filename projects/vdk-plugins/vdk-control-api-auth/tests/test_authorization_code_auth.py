@@ -4,7 +4,8 @@ import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from test_core_auth import allow_oauthlib_insecure_transport
 from test_core_auth import get_json_response_mock
-from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
+from vdk.plugin.control_api_auth.auth_exception import VDKLoginFailedError
 from vdk.plugin.control_api_auth.authentication import Authentication
 from vdk.plugin.control_api_auth.autorization_code_auth import LoginHandler
 from vdk.plugin.control_api_auth.autorization_code_auth import RedirectAuthentication
@@ -49,7 +50,7 @@ def test_login_handler_exceptions(httpserver: PluginHTTPServer):
         auth=auth,
     )
 
-    with pytest.raises(VDKAuthException) as exc_info:
+    with pytest.raises(VDKLoginFailedError) as exc_info:
         handler.login_with_authorization_code(
             path="http://test-url?code=test-auth-code&client_id=client-id&redirect_uri=http%3A%2F%2F127.0.0.1%3A9999&prompt=login"
         )
@@ -57,7 +58,7 @@ def test_login_handler_exceptions(httpserver: PluginHTTPServer):
     assert "Failed to login." in raised_exception.message
     assert "Possibly the request was intercepted." in raised_exception.message
 
-    with pytest.raises(VDKAuthException) as exc_info2:
+    with pytest.raises(VDKLoginFailedError) as exc_info2:
         handler.login_with_authorization_code(
             path="http://test-url?client_id=client-id&redirect_uri=http%3A%2F%2F127.0.0.1%3A9999&state=requested&prompt=login"
         )
@@ -75,7 +76,7 @@ def test_authorization_code_no_secret(httpserver: PluginHTTPServer):
         authorization_url=httpserver.url_for("/foo"),
         auth_type="credentials",
     )
-    with pytest.raises(VDKAuthException) as exc_info:
+    with pytest.raises(VDKInvalidAuthParamError) as exc_info:
         auth.authenticate()
 
     raised_exception = exc_info.value

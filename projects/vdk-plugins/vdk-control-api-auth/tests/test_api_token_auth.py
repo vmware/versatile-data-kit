@@ -4,7 +4,7 @@ import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from test_core_auth import allow_oauthlib_insecure_transport
 from test_core_auth import get_json_response_mock
-from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.authentication import Authentication
 
 
@@ -25,7 +25,7 @@ def test_api_token_success_authentication(httpserver: PluginHTTPServer):
 def test_api_token_no_auth_url():
     auth = Authentication(token="apitoken", auth_type="api-token")
 
-    with pytest.raises(VDKAuthException) as exc_info:
+    with pytest.raises(VDKInvalidAuthParamError) as exc_info:
         auth.authenticate()
 
     raised_exception = exc_info.value
@@ -38,7 +38,7 @@ def test_api_token_no_auth_type_specified(httpserver: PluginHTTPServer):
         token="apitoken", authorization_url=httpserver.url_for("/foo")
     )
 
-    with pytest.raises(VDKAuthException) as exc_info:
+    with pytest.raises(VDKInvalidAuthParamError) as exc_info:
         auth.authenticate()
     raised_exception = exc_info.value
 

@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
-from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
+from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.autorization_code_auth import RedirectAuthentication
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk.plugin.control_api_auth.login_types import LoginTypes
@@ -62,7 +62,7 @@ class Authentication:
 
     def authenticate(self) -> None:
         if not self._auth_type:
-            raise VDKAuthException(
+            raise VDKInvalidAuthParamError(
                 what="Unable to log in.",
                 why="auth_type was not specified.",
                 consequence="Subsequent requests to Control Service will not "
@@ -70,7 +70,7 @@ class Authentication:
                 countermeasure="Specify what type of authentication is to be " "used.",
             )
         if not self._auth_url:
-            raise VDKAuthException(
+            raise VDKInvalidAuthParamError(
                 what="Unable to log in.",
                 why="auth_url was not specified.",
                 consequence="Authentication is not possible. All subsequent "
@@ -83,7 +83,7 @@ class Authentication:
         elif self._auth_type == LoginTypes.CREDENTIALS.value:
             self.__authenticate_with_authorization_code()
         else:
-            raise VDKAuthException(
+            raise VDKInvalidAuthParamError(
                 what="Unexpected authentication type.",
                 why=f"Unknown auth_type {self._auth_type} was used.",
                 consequence="Authentication is not possible.",
@@ -113,7 +113,7 @@ class Authentication:
         :return:
         """
         if not self._client_id or not self._auth_discovery_url:
-            raise VDKAuthException(
+            raise VDKInvalidAuthParamError(
                 what="Unable to log in.",
                 why=f"Login type {self._auth_type} requires client_id and "
                 "auth_discovery_url to be specified.",
