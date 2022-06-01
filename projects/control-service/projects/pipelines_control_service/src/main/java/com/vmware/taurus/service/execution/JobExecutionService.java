@@ -230,11 +230,10 @@ public class JobExecutionService {
               jobExecutionRepository.findById(jobExecution.getExecutionId());
 
       //This set contains all the statuses that should not be changed to something else if present in the DB.
+      //All the elements in this list should therefore be a final status. Meaning non retryable statuses.
       //Using a hash set, because it allows null elements, no NullPointer when contains method called with null.
       var finalStatusSet = new HashSet<>(List.of(
             ExecutionStatus.CANCELLED,
-            ExecutionStatus.USER_ERROR,
-            ExecutionStatus.PLATFORM_ERROR,
             ExecutionStatus.SUCCEEDED,
             ExecutionStatus.SKIPPED));
       ExecutionStatus executionStatus = executionResult.getExecutionStatus();
@@ -242,7 +241,8 @@ public class JobExecutionService {
       // Optimization:
       // if there is an existing execution in the database and
       // the status has not changed (the new status is equal to the old one)
-      // do not update the record
+      // do not update the record. Does not update record if previous status is
+      // in the list above.
       if (dataJobExecutionPersistedOptional.isPresent() &&
               (dataJobExecutionPersistedOptional.get().getStatus() == executionResult.getExecutionStatus() ||
                       finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
