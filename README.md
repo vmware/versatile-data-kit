@@ -21,25 +21,18 @@
 
 # Overview
 
-Versatile Data Kit is a data engineering framework that enables Data Engineers to develop, troubleshoot, deploy, run, and manage data processing workloads (referred to as "Data Jobs").
-A "Data Job" enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database.
+Versatile Data Kit is a framework which enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is data processing workload** and can be written in Python or SQL. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
 
-# About Versatile Data Kit
+Versatile Data Kit consists of two main components:
 
-Versatile Data Kit provides an abstraction layer that helps solve common data engineering problems.
-It can be called by the workflow engine with the goal of making data engineers more efficient
-(for example, it ensures data applications are packaged, versioned and deployed correctly,
-while dealing with credentials, retries, reconnects, etc.).
-Everything exposed by Versatile Data Kit provides built-in monitoring, troubleshooting,
-and smart notification capabilities. For example, tracking both code and data modifications and the relations between them
-enables engineers to troubleshoot more quickly and provides an easy revert to a stable version.
+* A **Data SDK**, which provides all tools for data extraction, transformation and loading, as well as a plugin framework, which permits to extend the framework according to specific requirements of data application.
+* A **Control Service**, which permits to create, deploy, manage and execute Data Jobs in Kubernetes runtime environment.
 
-Versatile Data Kit consists of:
-
-* Control Service which enables creating, deploying, managing and executing Data Jobs in a Kubernetes runtime environment.
-  It offers multitenancy support, SSO, Access Control and auditing capabilities. It exposes CLI.
-* A development Kit to develop, test and run Data Jobs on your machine. It comes with common functionality for data ingestion and processing.
-
+To help solve common data engineering problems Versatile Data Kit:
+* allows ingestion of data from different sources including CSV files, JSON objects, data provided by REST API services, etc.,
+* ensures data applications are packaged, versioned and deployed correctly, while dealing with credentials, retries, reconnects, etc.,
+* provides built-in monitoring and smart notification capabilities,
+* tracks both code and data modifications and the relations between them enabling engineers to troubleshoot faster as well as providing an easy revert to a stable version.
 
 # Installation and Getting Started
 
