@@ -8,7 +8,6 @@ import requests
 from click.testing import CliRunner
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
-from vdk.internal.control.auth import test_auth
 from vdk.internal.control.command_groups.login_group.login import login
 from werkzeug import Request
 from werkzeug import Response
@@ -20,7 +19,7 @@ from werkzeug import Response
 def test_login(httpserver: PluginHTTPServer):
     test_utils.allow_oauthlib_insecure_transport()
     httpserver.expect_request("/foo").respond_with_json(
-        test_auth.get_json_response_mock()
+        test_utils.get_json_response_mock()
     )
 
     runner = CliRunner()
@@ -41,7 +40,7 @@ def test_login_credentials_manually(httpserver: PluginHTTPServer):
 
         test_utils.allow_oauthlib_insecure_transport()
         httpserver.expect_request("/exchange").respond_with_json(
-            test_auth.get_json_response_mock()
+            test_utils.get_json_response_mock()
         )
         runner = CliRunner()
         result = runner.invoke(
@@ -83,7 +82,7 @@ def test_login_credentials_with_browser(httpserver: PluginHTTPServer):
         mock_browser.side_effect = _mock_browser_login
 
         httpserver.expect_request("/exchange").respond_with_json(
-            test_auth.get_json_response_mock()
+            test_utils.get_json_response_mock()
         )
         runner = CliRunner()
         result = runner.invoke(
@@ -115,7 +114,9 @@ def test_login_credentials_with_browser_as_native_app_auth(
 
         def exchange_response(req: Request):
             if "code_verifier" in req.get_data(as_text=True):
-                response_data = json.dumps(test_auth.get_json_response_mock(), indent=4)
+                response_data = json.dumps(
+                    test_utils.get_json_response_mock(), indent=4
+                )
                 return Response(response_data, 200, None, None, "application/json")
             else:
                 return Response("Missing code_verifier which is required by PKCE", 400)
@@ -147,7 +148,7 @@ def test_login_credentials_exceptions(httpserver: PluginHTTPServer):
 
         mock_browser.side_effect = _mock_browser_login
         httpserver.expect_request("/exchange").respond_with_json(
-            test_auth.get_json_response_mock()
+            test_utils.get_json_response_mock()
         )
 
         runner = CliRunner()
