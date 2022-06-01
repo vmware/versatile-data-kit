@@ -530,14 +530,15 @@ public class DataJobMonitorTest {
 
     @Test
     @Order(29)
-    void testRecordJobExecutionStatus_withSameExecutionIdAndNewStatus_shouldNotUpdateLastExecution() {
+    void testRecordJobExecutionStatus_withSameExecutionIdAndNewStatus_shouldUpdateLastExecution() {
+        //Status gets updated from PLATFORM_ERROR to Succeeded with the same ID.
         JobExecution jobExecution = buildJobExecutionStatus("new-job", "old-execution-id", ExecutionStatus.SUCCEEDED.getPodStatus());
 
         dataJobMonitor.recordJobExecutionStatus(jobExecution);
 
         Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
         Assertions.assertFalse(actualJob.isEmpty());
-        Assertions.assertEquals(ExecutionStatus.PLATFORM_ERROR, actualJob.get().getLastExecutionStatus());
+        Assertions.assertEquals(ExecutionStatus.SUCCEEDED, actualJob.get().getLastExecutionStatus());
     }
 
     @Test
@@ -580,6 +581,47 @@ public class DataJobMonitorTest {
         Assertions.assertFalse(actualJob.isEmpty());
         // The last execution status should not have changed from SUCCEEDED to USER_ERROR because the execution is not recent
         Assertions.assertEquals(ExecutionStatus.SUCCEEDED, actualJob.get().getLastExecutionStatus());
+    }
+
+    @Test
+    @Order(33)
+    void testJobExecutionStatus_fromPlatformToUser_shouldUpdateExecution() {
+        // Clean up from previous tests
+        jobsRepository.deleteAll();
+        dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+        // Create data job
+        String jobId = "job-id-test";
+        var dataJob = new DataJob(jobId, new JobConfig(),
+              DeploymentStatus.NONE, ExecutionStatus.SUCCEEDED, "old-execution-id");
+        jobsRepository.save(dataJob);
+        // Change status to PLATFORM_ERROR
+        JobExecution jobExecution = buildJobExecutionStatus(jobId, "last-execution-id",
+              ExecutionStatus.PLATFORM_ERROR.getPodStatus(), false,
+              OffsetDateTime.now().minus(Duration.ofDays(2)),
+              OffsetDateTime.now().minus(Duration.ofDays(1)));
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+        // Check status is saved OK.
+        Optional<DataJob> actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.PLATFORM_ERROR, actualJob.get().getLastExecutionStatus());
+        // Check gauge status
+        var gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+        Assertions.assertEquals(1, gauges.size());
+        Assertions.assertEquals(ExecutionStatus.PLATFORM_ERROR.getAlertValue().doubleValue(), gauges.stream().findFirst().get().value());
+        // Change status to USER_ERROR, same execution ID simulating retry. Different ID's change without issues.
+        jobExecution = buildJobExecutionStatus(jobId, "last-execution-id",
+              ExecutionStatus.USER_ERROR.getPodStatus(), false,
+              OffsetDateTime.now().minus(Duration.ofDays(2)),
+              OffsetDateTime.now().minus(Duration.ofDays(1)));
+        dataJobMonitor.recordJobExecutionStatus(jobExecution);
+        // Check status is saved OK.
+        actualJob = jobsRepository.findById(jobExecution.getJobName());
+        Assertions.assertFalse(actualJob.isEmpty());
+        Assertions.assertEquals(ExecutionStatus.USER_ERROR, actualJob.get().getLastExecutionStatus());
+        // Check gauge status is changed OK.
+        gauges = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+        Assertions.assertEquals(1, gauges.size());
+        Assertions.assertEquals(ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(), gauges.stream().findFirst().get().value());
     }
 
     private static String randomId(String prefix) {

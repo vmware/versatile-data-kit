@@ -285,8 +285,8 @@ public class JobExecutionServiceUpdateExecutionIT {
 
    @Test
    public void testUpdateJobExecution_DbStatusPlatformErrorAndUpdateStatusRunning_NoUpdateExpected() {
-      //test which makes sure the status doesn't get updated if in failed
-      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.PLATFORM_ERROR, null, ExecutionStatus.PLATFORM_ERROR);
+      //test which checks that status gets updated if in PLATFORM_ERROR. Retries on errors are common and status could change.
+      testUpdateJobExecutionWithPreviousStatusInDatabase(ExecutionStatus.PLATFORM_ERROR, null, ExecutionStatus.RUNNING);
    }
 
    /**
