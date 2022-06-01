@@ -3,13 +3,13 @@
 import sys
 
 import click
-from vdk.internal.control.auth.login_types import LoginTypes
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import extended_option
 from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
 from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.authentication import Authentication
+from vdk.plugin.control_api_auth.login_types import LoginTypes
 
 
 @click.command(

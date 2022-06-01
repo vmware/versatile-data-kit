@@ -10,8 +10,8 @@ from taurus_datajob_api import DataJobsExecutionApi
 from taurus_datajob_api import DataJobsPropertiesApi
 from taurus_datajob_api import DataJobsSourcesApi
 from urllib3 import Retry
-from vdk.internal.control.auth.auth import Authentication
 from vdk.internal.control.configuration.vdk_config import VDKConfig
+from vdk.plugin.control_api_auth.authentication import Authentication
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class ApiClientFactory:
         self.config.client_side_validation = False
         self.config.verify_ssl = self.vdk_config.http_verify_ssl
 
-        auth = Authentication()
+        auth = Authentication(cache_locally=True)
         # For now there's no need to add auto-update since this is called usually in a shell script
         # and each command will have short execution life even when multiple requests to API are made.
         self.config.access_token = auth.read_access_token()
