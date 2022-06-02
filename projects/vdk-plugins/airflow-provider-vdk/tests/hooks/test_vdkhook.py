@@ -4,9 +4,17 @@ import logging
 import unittest
 from unittest import mock
 
+from vdk.plugin.control_api_auth.authentication import Authentication
 from vdk_provider.hooks.vdk import VDKHook
 
 log = logging.getLogger(__name__)
+
+
+# Monkey-patch the authentication logic to allow for more granular testing
+# of the VDKHook
+class PatchedAuth(Authentication):
+    def read_access_token(self) -> str:
+        return "test1token"
 
 
 class TestVDKHook(unittest.TestCase):
@@ -15,7 +23,10 @@ class TestVDKHook(unittest.TestCase):
     )
     def setUp(self):
         self.hook = VDKHook(
-            conn_id="conn_vdk", job_name="test_job", team_name="test_team"
+            conn_id="conn_vdk",
+            job_name="test_job",
+            team_name="test_team",
+            auth=PatchedAuth(),
         )
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.call_api")
@@ -46,9 +57,7 @@ class TestVDKHook(unittest.TestCase):
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.deserialize")
     @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
-    def test_get_job_execution_status(
-        self, mocked_api_client_request, mock_deserialize
-    ):
+    def test_get_job_execution_status(self, mocked_api_client_request, _):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id"
 
         self.hook.get_job_execution_status("test_execution_id")
@@ -57,7 +66,7 @@ class TestVDKHook(unittest.TestCase):
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.deserialize")
     @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
-    def test_get_job_execution_log(self, mocked_api_client_request, mock_deserialize):
+    def test_get_job_execution_log(self, mocked_api_client_request, _):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id/logs"
 
         self.hook.get_job_execution_log("test_execution_id")

@@ -3,10 +3,9 @@
 from unittest import mock
 from unittest import TestCase
 
-from taurus_datajob_api import ApiClient
 from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionLogs
-from taurus_datajob_api import DataJobsExecutionApi
+from vdk_provider.hooks.vdk import VDKHook
 from vdk_provider.operators.vdk import VDKOperator
 
 
@@ -67,9 +66,11 @@ class TestVDKOperator(TestCase):
     @mock.patch(
         "taurus_datajob_api.ApiClient.call_api", side_effect=call_api_return_func
     )
-    def test_execute(self, mock_call_api):
+    @mock.patch.object(VDKHook, "_get_access_token", return_value="test1token")
+    def test_execute(self, mock_access_token, mock_call_api):
         self.operator.execute({})
 
+        mock_access_token.assert_called_once()
         assert (
             (
                 mock_call_api.call_args_list[0][0][0]
