@@ -5,6 +5,9 @@ from typing import Tuple
 from unittest.mock import MagicMock
 
 import pytest
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
+)
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
@@ -61,10 +64,12 @@ def get_test_managed_and_raw_connection() -> Tuple[
     ManagedConnectionBase, PEP249Connection
 ]:
     mock_conn = MagicMock(spec=PEP249Connection)
+    connection_hook_spec_factory = MagicMock(spec=ConnectionHookSpecFactory)
+    connection_hook_spec_factory.get_connection_hook_spec.return_value = MagicMock()
 
     class ConcretePEP249Connection(ManagedConnectionBase):
         def _connect(self) -> PEP249Connection:
             return mock_conn
 
-    conn = ConcretePEP249Connection(log)
+    conn = ConcretePEP249Connection(log, None, connection_hook_spec_factory)
     return conn, mock_conn
