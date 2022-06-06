@@ -4,6 +4,7 @@ from datetime import datetime
 
 from airflow import DAG
 from vdk_provider.operators.vdk import VDKOperator
+from vdk_provider.sensors.vdk import VDKSensor
 
 # instantiate the dag
 with DAG(
@@ -18,7 +19,16 @@ with DAG(
         conn_id="example_vdk_connection",
         job_name="example_vdk_job1",
         team_name="example_team_name",
+        asynchronous=True,
         task_id="job1",
+    )
+
+    job1_sensor = VDKSensor(
+        conn_id="example_vdk_connection",
+        job_name="example_vdk_job1",
+        team_name="example_team_name",
+        job_execution_id=job1.output,
+        task_id="job1_sensor",
     )
 
     # run data job example_vdk_job2 belonging to team example_team_name
@@ -30,5 +40,6 @@ with DAG(
     )
 
     # declare job dependencies
-    # example_vdk_job1 is executed first, and if it succeeds, example_vdk_job2 is executed
-    job1 >> job2
+    # example_vdk_job1 is executed first; then, the corresponding sensor pings the control-service periodically
+    # until the job execution completes and if it is successful, example_vdk_job2 is executed
+    job1_sensor >> job2
