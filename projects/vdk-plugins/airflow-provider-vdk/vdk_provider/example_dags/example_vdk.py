@@ -6,7 +6,11 @@ from airflow import DAG
 from vdk_provider.operators.vdk import VDKOperator
 from vdk_provider.sensors.vdk import VDKSensor
 
-# instantiate the dag
+# instantiate the DAG; the structure looks like this:
+# DAG:  - job1
+#       - job1_sensor >> job2
+# This means that job1 and job1_sensor start simultaneously, and if the sensor
+# confirms job1 is successful, job2 starts
 with DAG(
     "example_vdk",
     schedule_interval=None,

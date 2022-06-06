@@ -53,8 +53,6 @@ class VDKSensor(BaseSensorOperator):
         :param context: Airflow context passed through the DAG
         :return: True if some job status condition is met; False otherwise
         """
-        # raise Exception(f"XCOM: {self.job_execution_id}")
-
         vdk_hook = VDKHook(self.conn_id, self.job_name, self.team_name)
 
         job_execution = vdk_hook.get_job_execution_status(self.job_execution_id)
