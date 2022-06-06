@@ -5,6 +5,5 @@ from vdk.plugin.test_utils import util_plugins
 
 
 def test_vdk_test_utils():
-    assert 1 == 1
-    # assert util_plugins
-    # assert util_funcs
+    assert util_plugins
+    assert util_funcs
