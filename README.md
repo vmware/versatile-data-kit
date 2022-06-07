@@ -21,7 +21,7 @@
 
 # Overview
 
-Versatile Data Kit is a framework which enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is data processing workload** and can be written in Python or SQL. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
+Versatile Data Kit is a framework which enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is a data processing workload** and can be written in Python, SQL, or both at the same time. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
 
 Versatile Data Kit consists of two main components:
 
