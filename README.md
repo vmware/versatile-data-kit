@@ -29,9 +29,9 @@ Versatile Data Kit consists of two main components:
 * A **Control Service**, which permits to create, deploy, manage and execute Data Jobs in Kubernetes runtime environment.
 
 To help solve common data engineering problems Versatile Data Kit:
-* allows ingestion of data from different sources including CSV files, JSON objects, data provided by REST API services, etc.,
-* ensures data applications are packaged, versioned and deployed correctly, while dealing with credentials, retries, reconnects, etc.,
-* provides built-in monitoring and smart notification capabilities,
+* allows ingestion of data from different sources including CSV files, JSON objects, data provided by REST API services, etc.;
+* ensures data applications are packaged, versioned and deployed correctly, while dealing with credentials, retries, reconnects, etc.;
+* provides built-in monitoring and smart notification capabilities;
 * tracks both code and data modifications and the relations between them enabling engineers to troubleshoot faster as well as providing an easy revert to a stable version.
 
 # Installation and Getting Started
