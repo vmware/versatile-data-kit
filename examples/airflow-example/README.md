@@ -56,7 +56,7 @@ Enter the following commands in the command prompt (if you are on a Windows syst
 ```console
 export VDK_DB_DEFAULT_TYPE=SQLITE
 export VDK_INGEST_METHOD_DEFAULT=sqlite
-export VDK_INGEST_TARGET_DEFAULT=vdk-increment-sqlite.db
+export VDK_INGEST_TARGET_DEFAULT=airflow-example-target-db.db
 export VDK_CONTROL_SERVICE_REST_API_URL=http://localhost:8092/
 ```
 **Note:** If you want to ingest data into another target (i.e. another database - Postgres, Trino, etc.), install the appropriate plugin using `pip install vdk-plugin-name` and change `VDK_INGEST_METHOD_DEFAULT` environment variable. See a list of plugins [here](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins).
@@ -79,11 +79,42 @@ airflow-ingest-job1/
 ├── config.ini
 ```
 
+<details>
+  <summary>10_ingest.py</summary>
+
+```py
+TODO
+```
+</details>
+<details>
+  <summary>config.ini</summary>
+
+```ini
+TODO
+```
+</details>
+
 ```
 airflow-ingest-job2/
 ├── 10_ingest.py
 ├── config.ini
 ```
+
+
+<details>
+  <summary>10_ingest.py</summary>
+
+```py
+TODO
+```
+</details>
+<details>
+  <summary>config.ini</summary>
+
+```ini
+TODO
+```
+</details>
 
 ```
 airflow-transform-job/
@@ -92,10 +123,17 @@ airflow-transform-job/
 ```
 
 <details>
-  <summary>10_ingest.py</summary>
+  <summary>10_transform.py</summary>
 
 ```py
+TODO
+```
+</details>
+<details>
+  <summary>config.ini</summary>
 
+```ini
+TODO
 ```
 </details>
 
