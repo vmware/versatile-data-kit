@@ -25,7 +25,7 @@ Versatile Data Kit is a framework which enables Data Engineers to develop, deplo
 
 Versatile Data Kit consists of two main components:
 
-* A **Data SDK**, which provides all tools for data extraction, transformation and loading, as well as a plugin framework, which permits to extend the framework according to specific requirements of data application.
+* A **Data SDK**, which provides all tools for the automation of data extraction, transformation and loading, as well as a plugin framework which allows users to extend the framework according to their specific requirements.
 * A **Control Service**, which allows users to create, deploy, manage and execute Data Jobs in Kubernetes runtime environment.
 
 To help solve common data engineering problems Versatile Data Kit:
