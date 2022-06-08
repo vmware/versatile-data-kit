@@ -50,7 +50,9 @@ class VDKOperator(BaseOperator):
         :param context: Airflow context passed through the DAG
         :return: The job execution ID
         """
-        vdk_hook = VDKHook(self.conn_id, self.job_name, self.team_name)
+        vdk_hook = VDKHook(
+            conn_id=self.conn_id, job_name=self.job_name, team_name=self.team_name
+        )
 
         execution_id = vdk_hook.start_job_execution()
         log.info(f"Started job execution {execution_id}.")
