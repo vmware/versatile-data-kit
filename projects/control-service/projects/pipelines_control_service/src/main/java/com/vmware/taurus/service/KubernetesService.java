@@ -11,14 +11,13 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vmware.taurus.exception.JsonDissectException;
-import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.exception.KubernetesJobDefinitionException;
+import com.vmware.taurus.exception.*;
 import com.vmware.taurus.service.deploy.DockerImageName;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
+import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -180,6 +179,8 @@ public abstract class KubernetesService implements InitializingBean {
     private Logger log;
     private boolean k8sSupportsV1CronJob;
     private ApiClient client;
+
+    private JobExecutionRepository jobExecutionRepository;
 
     @Autowired
     private UserAgentService userAgentService;
@@ -633,6 +634,11 @@ public abstract class KubernetesService implements InitializingBean {
     public void cancelRunningCronJob(String teamName, String jobName, String executionId) throws ApiException {
         log.info("K8S deleting job for team: {} data job name: {} execution: {}", teamName, jobName, executionId);
         try {
+            if (jobExecutionRepository.findById(executionId).isEmpty()) {
+                log.info("Execution: {} for data job: {} with team: {} not found! The data job has likely completed before it could be cancelled.", executionId, teamName, jobName);
+                throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
+            }
+
             var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
                     null,
                     null,
