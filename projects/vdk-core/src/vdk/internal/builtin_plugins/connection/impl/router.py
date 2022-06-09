@@ -5,11 +5,11 @@ from typing import Callable
 from typing import Dict
 from typing import Union
 
-from vdk.api.plugin.connection_hook_spec import (
-    ConnectionHookSpec,
-)
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.internal.builtin_plugins.config.vdk_config import DB_DEFAULT_TYPE
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
+)
 from vdk.internal.builtin_plugins.connection.impl.wrapped_connection import (
     WrappedConnection,
 )
@@ -29,9 +29,13 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
     In both cases dbtype must match the string in which the plugin register itself with.
     """
 
-    def __init__(self, cfg: Configuration, connection_hook_spec: ConnectionHookSpec):
+    def __init__(
+        self,
+        cfg: Configuration,
+        connection_hook_spec_factory: ConnectionHookSpecFactory,
+    ):
         self._cfg: Configuration = cfg
-        self._connection_hook_spec = connection_hook_spec
+        self._connection_hook_spec_factory = connection_hook_spec_factory
         self._log: logging.Logger = logging.getLogger(__name__)
         self._connections: Dict[str, ManagedConnectionBase] = dict()
         self._connection_builders: Dict[
@@ -94,8 +98,8 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
         conn = self._connection_builders[dbtype]()
         if isinstance(conn, ManagedConnectionBase):
             self._connections[dbtype] = conn
-            if not conn._connection_hook_spec:
-                conn._connection_hook_spec = self._connection_hook_spec
+            if not conn._connection_hook_spec_factory:
+                conn._connection_hook_spec_factory = self._connection_hook_spec_factory
         elif conn is None:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
@@ -111,6 +115,8 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
             log = logging.getLogger(conn.__class__.__name__)
             conn.close()  # we will let ManagedConnection to open it when needed.
             self._connections[dbtype] = WrappedConnection(
-                log, self._connection_builders[dbtype], self._connection_hook_spec
+                log,
+                self._connection_builders[dbtype],
+                self._connection_hook_spec_factory,
             )
         return self._connections[dbtype]

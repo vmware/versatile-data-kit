@@ -4,6 +4,7 @@ from unittest import mock
 from unittest import TestCase
 
 from taurus_datajob_api import DataJobExecution
+from vdk_provider.hooks.vdk import VDKHook
 from vdk_provider.hooks.vdk import VDKJobExecutionException
 from vdk_provider.sensors.vdk import VDKSensor
 
@@ -11,6 +12,7 @@ from vdk_provider.sensors.vdk import VDKSensor
 @mock.patch.dict(
     "os.environ", AIRFLOW_CONN_TEST_CONN_ID="http://https%3A%2F%2Fwww.vdk-endpoint.org"
 )
+@mock.patch.object(VDKHook, "_get_access_token", return_value="test1token")
 @mock.patch("taurus_datajob_api.api_client.ApiClient.deserialize")
 @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
 @mock.patch("vdk_provider.hooks.vdk.VDKHook.get_job_execution_status")
@@ -25,32 +27,51 @@ class TestVDKSensor(TestCase):
         )
 
     def test_submmitted_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(
             status="submitted"
         )
 
         self.assertEqual(self.sensor.poke(context={}), False)
+        mock_access_token.assert_called_once()
 
     def test_running_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(status="running")
 
         self.assertEqual(self.sensor.poke(context={}), False)
+        mock_access_token.assert_called_once()
 
     def test_succeeded_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(
             status="succeeded"
         )
 
         self.assertEqual(self.sensor.poke(context={}), True)
+        mock_access_token.assert_called_once()
 
     def test_cancelled_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(
             status="cancelled"
@@ -59,20 +80,30 @@ class TestVDKSensor(TestCase):
         with self.assertRaises(VDKJobExecutionException) as e:
             self.sensor.poke(context={})
 
+        mock_access_token.assert_called_once()
         self.assertEqual(str(e.exception), "Job execution test_id has been cancelled.")
 
     def test_skipped_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(status="skipped")
 
         with self.assertRaises(VDKJobExecutionException) as e:
             self.sensor.poke(context={})
 
+        mock_access_token.assert_called_once()
         self.assertEqual(str(e.exception), "Job execution test_id has been skipped.")
 
     def test_user_error_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(
             status="user_error"
@@ -81,13 +112,18 @@ class TestVDKSensor(TestCase):
         with self.assertRaises(VDKJobExecutionException) as e:
             self.sensor.poke(context={})
 
+        mock_access_token.assert_called_once()
         self.assertEqual(
             str(e.exception),
             "Job execution test_id has failed due to a user error. Check the job execution logs above for more information.",
         )
 
     def test_platform_error_job_execution(
-        self, mock_get_job_execution_status, mock_request, mock_deserialize
+        self,
+        mock_get_job_execution_status,
+        mock_request,
+        mock_deserialize,
+        mock_access_token,
     ):
         mock_get_job_execution_status.return_value = DataJobExecution(
             status="platform_error"
@@ -96,6 +132,7 @@ class TestVDKSensor(TestCase):
         with self.assertRaises(VDKJobExecutionException) as e:
             self.sensor.poke(context={})
 
+        mock_access_token.assert_called_once()
         self.assertEqual(
             str(e.exception),
             "Job execution test_id has failed due to a platform error. Check the job execution logs above for more information.",

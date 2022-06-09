@@ -159,50 +159,6 @@ class VDKConfigFolder:
                         countermeasure=f"Check if the client has write access to: {base_dir}",
                     )
 
-    def save_credentials(self, content):
-        try:
-            credentials_file_path = self.__get_cred_file()
-            log.debug(f"Save vdk credential file: {credentials_file_path} ")
-            with open(credentials_file_path, "w+") as temp_file:
-                temp_file.write(content)
-        except OSError as e:
-            raise VDKException(
-                what="Credentials file was not created",
-                why=f"Cannot create credentials file: {str(e)}",
-                consequence="User won't be able to access Control Service",
-                countermeasure="Check permissions of vdk-cred.json file in .vdk folder inside home directory",
-            )
-
-    def delete_credentials(self):
-        credentials_file_path = self.__get_cred_file()
-        log.debug(f"Delete vdk credential file: {credentials_file_path} ...")
-        if os.path.exists(credentials_file_path):
-            try:
-                os.remove(credentials_file_path)
-            except OSError as e:
-                raise VDKException(
-                    what="Credentials file was not deleted",
-                    why=f"Cannot delete credentials file in .vdk folder in home directory: {str(e)}",
-                    consequence="User is not logged out",
-                    countermeasure="Check permissions of vdk-cred.json file in .vdk folder in home directory",
-                )
-
-    def read_credentials(self):
-        try:
-            credentials_file_path = self.__get_cred_file()
-            log.debug(f"Reading vdk credential file: {credentials_file_path} ...")
-            if os.path.isfile(credentials_file_path):
-                with open(credentials_file_path) as temp_file:
-                    return temp_file.read()
-            return ""
-        except OSError as e:
-            raise VDKException(
-                what="Credentials file cannot be accessed.",
-                why=f"Most likely not login. Error was: {str(e)}",
-                consequence="User won't be able to authenticate against Control Service",
-                countermeasure="Make sure you have executed vdk login first. ",
-            )
-
     def read_configuration(self, section, option, fallback=None):
         try:
             configuration_file_path = self.__get_configuration_file()
@@ -273,9 +229,6 @@ class VDKConfigFolder:
             config_parser.add_section(section)
 
         config_parser.set(section=section, option=option, value=value)
-
-    def __get_cred_file(self):
-        return os.path.join(self.vdk_config_folder, VDKConfigFolder.CREDENTIALS_FILE)
 
     def __get_configuration_file(self):
         return os.path.join(self.vdk_config_folder, VDKConfigFolder.CONFIGURATION_FILE)

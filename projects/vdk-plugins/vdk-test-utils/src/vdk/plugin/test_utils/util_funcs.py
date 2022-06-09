@@ -17,8 +17,15 @@ from vdk.api.plugin.core_hook_spec import CoreHookSpecs
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal import cli_entry
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    ConnectionHookSpecFactory,
+)
+from vdk.internal.builtin_plugins.connection.connection_hooks import (
+    DefaultConnectionHookImpl,
+)
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
@@ -197,12 +204,16 @@ def populate_mock_managed_cursor(
 
     managed_operation = ManagedOperation(mock_operation, mock_parameters)
     mock_connection_hook_spec = MagicMock(spec=ConnectionHookSpec)
+    connection_hook_spec_factory = MagicMock(spec=ConnectionHookSpecFactory)
+    connection_hook_spec_factory.get_connection_hook_spec.return_value = (
+        mock_connection_hook_spec
+    )
     mock_native_cursor = MagicMock(spec=PEP249Cursor)
 
     managed_cursor = ManagedCursor(
         cursor=mock_native_cursor,
         log=logging.getLogger(),
-        connection_hook_spec=mock_connection_hook_spec,
+        connection_hook_spec_factory=connection_hook_spec_factory,
     )
 
     decoration_cursor = DecorationCursor(mock_native_cursor, None, managed_operation)
@@ -211,6 +222,15 @@ def populate_mock_managed_cursor(
         decoration_operation_callback = (
             mock_connection_hook_spec.db_connection_decorate_operation
         )
+
+    def stub_db_connection_execute_operation(execution_cursor: ExecutionCursor):
+        return DefaultConnectionHookImpl().db_connection_execute_operation(
+            execution_cursor
+        )
+
+    mock_connection_hook_spec.db_connection_execute_operation = (
+        stub_db_connection_execute_operation
+    )
 
     return (
         mock_native_cursor,

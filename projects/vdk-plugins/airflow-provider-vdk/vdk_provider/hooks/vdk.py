@@ -2,12 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
+import sys
 import time
 import uuid
 from enum import Enum
+from typing import Any
+from typing import Dict
 from typing import Optional
 
 from airflow.exceptions import AirflowException
+from airflow.models import Connection
 from airflow.providers.http.hooks.http import HttpHook
 from taurus_datajob_api import ApiClient
 from taurus_datajob_api import Configuration
@@ -15,7 +19,12 @@ from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
 from taurus_datajob_api import DataJobsExecutionApi
 from urllib3 import Retry
-from vdk.internal.control.auth.auth import Authentication
+from vdk.plugin.control_api_auth.authentication import Authentication
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -41,18 +50,29 @@ class JobStatus(str, Enum):
 
 
 class VDKHook(HttpHook):
+    """
+    Interact with Verstile Data Kit (VDK) Control Service
+    """
+
+    conn_name_attr = "vdk_conn_id"
+    default_conn_name = "vdk_default"
+    conn_type = "vdk"
+    hook_name = "VDK"
+
     def __init__(
         self,
-        conn_id: str,
         job_name: str,
         team_name: str,
+        conn_id: str = default_conn_name,
         timeout: int = 5,  # TODO: Set reasonable default
-    ):
+        **kwargs,
+    ) -> None:
         super().__init__(http_conn_id=conn_id)
         self.job_name = job_name
         self.team_name = team_name
         self.timeout = timeout
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
+        self.auth: Optional[Authentication] = kwargs.pop("auth", None)
 
         # setting these manually to avoid using VDKConfig
         self.op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
@@ -69,6 +89,10 @@ class VDKHook(HttpHook):
         self.http_read_retries = int(os.getenv("VDK_CONTROL_HTTP_READ_RETRIES", "6"))
 
         self.__execution_api = self._get_execution_api()
+
+    @cached_property
+    def conn(self) -> Connection:
+        return self.get_connection(self.http_conn_id)
 
     def start_job_execution(self, **request_kwargs) -> str:
         """
@@ -171,18 +195,16 @@ class VDKHook(HttpHook):
                 )
 
     def _get_rest_api_url_from_connection(self):
-        conn = self.get_connection(self.http_conn_id)
-
-        if conn.host and "://" in conn.host:
-            base_url = conn.host
+        if self.conn.host and "://" in self.conn.host:
+            base_url = self.conn.host
         else:
             # schema defaults to HTTPS
-            schema = conn.schema if conn.schema else "https"
-            host = conn.host if conn.host else ""
+            schema = self.conn.schema if self.conn.schema else "https"
+            host = self.conn.host if self.conn.host else ""
             base_url = schema + "://" + host
 
-        if conn.port:
-            base_url = base_url + ":" + str(conn.port)
+        if self.conn.port:
+            base_url = base_url + ":" + str(self.conn.port)
 
         return base_url
 
@@ -201,7 +223,7 @@ class VDKHook(HttpHook):
         config.client_side_validation = False
         config.verify_ssl = self.http_verify_ssl
 
-        config.access_token = Authentication().read_access_token()
+        config.access_token = self._get_access_token()
 
         api_client = ApiClient(config)
         # We are setting X-OPID - this is send in telemetry and printed in logs on server side - make it easier
@@ -209,3 +231,34 @@ class VDKHook(HttpHook):
         api_client.set_default_header("X-OPID", self.op_id)
 
         return DataJobsExecutionApi(api_client)
+
+    def _get_access_token(self) -> str:
+        if self.auth:
+            return self.auth.read_access_token()
+        else:
+            self._login()
+            return self.auth.read_access_token()
+
+    def _login(self) -> None:
+        self.auth = Authentication(
+            username=self.conn.login,
+            password=self.conn.password,
+            client_id=self.conn.extra_dejson.get("client_id", None),
+            client_secret=self.conn.extra_dejson.get("secret", None),
+            token=self.conn.extra_dejson.get("token", None),
+            authorization_url=self.conn.extra_dejson.get("auth_server", None),
+            auth_type=self.conn.extra_dejson.get("auth_type", None),
+            cache_locally=True,
+        )
+        self.auth.authenticate()
+
+    @staticmethod
+    def get_ui_field_behaviour() -> Dict[str, Any]:
+        """
+         Builds custom behaviour for the VDK connection in the Airflow UI
+        :return: A dictionary with the connection form fields as they should
+                 appear in the UI.
+        """
+        return {
+            "relabeling": {"login": "Username", "host": "REST Api URL"},
+        }

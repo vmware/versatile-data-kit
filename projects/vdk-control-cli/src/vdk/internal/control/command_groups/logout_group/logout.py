@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import click
-from vdk.internal.control.configuration.vdk_config import VDKConfigFolder
+from vdk.plugin.control_api_auth.auth_config import AuthConfigFolder
 
 
 @click.command(
@@ -9,5 +9,5 @@ from vdk.internal.control.configuration.vdk_config import VDKConfigFolder
     help="Logout the user from the Control Service by deleting their refresh token stored locally.",
 )
 def logout():
-    conf = VDKConfigFolder()
+    conf = AuthConfigFolder()
     conf.delete_credentials()

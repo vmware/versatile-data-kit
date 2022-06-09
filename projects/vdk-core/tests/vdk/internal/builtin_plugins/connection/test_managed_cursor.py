@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 from unittest.mock import call
 
 import pytest
@@ -166,6 +167,7 @@ def test_recovery__failure__execute():
 
 
 def test_query_timing_successful_query(caplog):
+    caplog.set_level(logging.INFO)
     (
         _,
         mock_managed_cursor,
@@ -173,13 +175,12 @@ def test_query_timing_successful_query(caplog):
         _,
         _,
     ) = populate_mock_managed_cursor()
-    # set logging level to info
-    mock_managed_cursor._log.level = 20
     mock_managed_cursor.execute(_query)
     assert "Query duration 00h:00m:" in str(caplog.records)
 
 
 def test_query_timing_recovered_query(caplog):
+    caplog.set_level(logging.INFO)
     (
         mock_native_cursor,
         mock_managed_cursor,
@@ -187,14 +188,13 @@ def test_query_timing_recovered_query(caplog):
         _,
         _,
     ) = populate_mock_managed_cursor()
-    # set logging level to info
-    mock_managed_cursor._log.level = 20
     mock_native_cursor.execute.side_effect = [Exception("Mock exception")]
     mock_managed_cursor.execute(_query)
     assert "Recovered query duration 00h:00m:" in str(caplog.records)
 
 
 def test_query_timing_failed_query(caplog):
+    caplog.set_level(logging.INFO)
     (
         mock_native_cursor,
         mock_managed_cursor,
@@ -202,9 +202,7 @@ def test_query_timing_failed_query(caplog):
         _,
         mock_connection_hook_spec,
     ) = populate_mock_managed_cursor()
-    # set logging level to info
 
-    mock_managed_cursor._log.level = 20
     exception = Exception("Mock exception")
     mock_native_cursor.execute.side_effect = [exception]
     mock_connection_hook_spec.db_connection_recover_operation.side_effect = [exception]

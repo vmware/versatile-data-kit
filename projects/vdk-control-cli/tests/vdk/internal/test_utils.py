@@ -46,3 +46,15 @@ def allow_oauthlib_insecure_transport():
 
 def disable_vdk_authentication():
     os.environ["VDK_AUTHENTICATION_DISABLE"] = "true"
+
+
+def get_json_response_mock():
+    json_response_mock = {
+        "id_token": "",
+        "token_type": "bearer",
+        "expires_in": 1799,
+        "scope": "csp:support_user",
+        "access_token": "axczfe12casASDCz",
+        "refresh_token": "refresh",
+    }
+    return json_response_mock

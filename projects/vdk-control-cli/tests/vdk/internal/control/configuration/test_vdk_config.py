@@ -9,11 +9,13 @@ import pytest
 from vdk.internal.control.configuration.vdk_config import VDKConfigFolder
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.test_utils import find_test_resource
+from vdk.plugin.control_api_auth.auth_config import AuthConfigFolder
+from vdk.plugin.control_api_auth.auth_exception import VDKAuthOSError
 
 
 def test_save_and_delete_credentials_success():
     with tempfile.TemporaryDirectory() as dirpath:
-        conf = VDKConfigFolder(dirpath)
+        conf = AuthConfigFolder(dirpath)
         mock_auth_content = json.dumps(
             {
                 "access_token": "axczfe12casASDCz",
@@ -43,14 +45,14 @@ def test_save_and_delete_credentials_success():
 def test_config_folder_named_file_exists_error():
     with tempfile.TemporaryDirectory() as dir_path:
         with open(os.path.join(dir_path, ".vdk.internal"), "wb+"):
-            with pytest.raises(VDKException):
-                VDKConfigFolder(dir_path)
+            with pytest.raises(VDKAuthOSError):
+                AuthConfigFolder(dir_path)
 
 
 def test_config_folder_parent_paths_created():
     with tempfile.TemporaryDirectory() as dir_path:
         config_path = os.path.join(dir_path, "parent_dir", ".vdk_dir")
-        VDKConfigFolder(config_path)
+        AuthConfigFolder(config_path)
 
 
 # TODO: Check why os.chmod(cred_file_mock, stat.S_IREAD) don't change permissions in the gitlab runner container
@@ -71,7 +73,7 @@ def test_config_folder_parent_paths_created():
 
 def test_delete_before_save():
     with tempfile.TemporaryDirectory() as dir_path:
-        conf = VDKConfigFolder(dir_path)
+        conf = AuthConfigFolder(dir_path)
         conf.delete_credentials()
 
 
