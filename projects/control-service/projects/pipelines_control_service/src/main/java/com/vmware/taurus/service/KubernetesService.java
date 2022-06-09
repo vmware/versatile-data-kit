@@ -17,7 +17,6 @@ import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
-import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -179,8 +178,6 @@ public abstract class KubernetesService implements InitializingBean {
     private Logger log;
     private boolean k8sSupportsV1CronJob;
     private ApiClient client;
-
-    private JobExecutionRepository jobExecutionRepository;
 
     @Autowired
     private UserAgentService userAgentService;
