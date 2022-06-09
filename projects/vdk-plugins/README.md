@@ -100,8 +100,8 @@ Sequence of evaluation:
 1. db_connection_validate_operation
 2. db_connection_decorate_operation
 3. db_connection_execute_operation
- * in case of recovery needed -> db_connection_recover_operation 
-        
+ * in case of recovery needed -> db_connection_recover_operation
+
 Check out the [connection hook spec](../vdk-core/src/vdk/api/plugin/connection_hook_spec.py) documentation for more details.
 
 ## Public interfaces
