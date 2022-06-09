@@ -25,6 +25,8 @@ class VDKSensor(BaseSensorOperator):
     :param kwargs: extra parameters which will be passed to the BaseSensorOperator superclass
     """
 
+    template_fields = ("job_execution_id",)
+
     def __init__(
         self,
         conn_id: str,
