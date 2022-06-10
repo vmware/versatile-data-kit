@@ -93,6 +93,17 @@ The above image shows the normal run cycle of a data job. The hooks shown are on
 
 Check out the [JobRunSpecs class](../vdk-core/src/vdk/api/plugin/core_hook_spec.py) documentation for more details.
 
+### Managed Database Connection Cycle
+
+These are hook specifications that enable plugins to hook at PEP249 connection and cursor events during execution.
+Sequence of evaluation:
+1. db_connection_validate_operation
+2. db_connection_decorate_operation
+3. db_connection_execute_operation
+ * in case of recovery needed -> db_connection_recover_operation
+
+Check out the [connection hook spec](../vdk-core/src/vdk/api/plugin/connection_hook_spec.py) documentation for more details.
+
 ## Public interfaces
 
 Any backwards compatibility guarantees apply only to public interfaces.
