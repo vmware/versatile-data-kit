@@ -179,6 +179,7 @@ public class DataJobMonitor {
     void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
         log.debug("Storing Data Job execution status: {}", jobStatus);
         String dataJobName = jobStatus.getJobName();
+        String containerTerminationReason = jobStatus.getContainerTerminationReason();
         ExecutionResult executionResult = JobExecutionResultManager.getResult(jobStatus);
 
         if (StringUtils.isBlank(dataJobName)) {
@@ -195,7 +196,7 @@ public class DataJobMonitor {
         final DataJob dataJob = dataJobOptional.get();
 
         // Update the job execution and the last execution state
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult)
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult, containerTerminationReason)
                 .ifPresent(jobsService::updateLastExecution);
 
         // Update the termination status from the last execution

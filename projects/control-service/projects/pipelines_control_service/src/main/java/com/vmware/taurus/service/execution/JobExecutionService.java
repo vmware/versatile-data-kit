@@ -219,7 +219,8 @@ public class JobExecutionService {
    public Optional<com.vmware.taurus.service.model.DataJobExecution> updateJobExecution(
          final DataJob dataJob,
          final KubernetesService.JobExecution jobExecution,
-         ExecutionResult executionResult) {
+         ExecutionResult executionResult,
+         String containerTerminationMessage) {
 
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
@@ -268,7 +269,7 @@ public class JobExecutionService {
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
-              .message(getJobExecutionApiMessage(executionStatus))
+              .message(getJobExecutionApiMessage(executionStatus, containerTerminationMessage))
               .opId(jobExecution.getOpId())
               .endTime(jobExecution.getEndTime())
               .vdkVersion(executionResult.getVdkVersion())
@@ -394,10 +395,16 @@ public class JobExecutionService {
       return returnValue;
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus) {
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, String podTerminationMessage) {
       switch (executionStatus) {
          case SKIPPED:
             return "Skipping job execution due to another parallel running execution.";
+         case USER_ERROR:
+            if (StringUtils.equalsIgnoreCase(podTerminationMessage,
+                  JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)) {
+               return "Out of memory error on the K8S pod. Please optimize your data job.";
+            }
+            return executionStatus.getPodStatus();
          default:
             return executionStatus.getPodStatus();
       }

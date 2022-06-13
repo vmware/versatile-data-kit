@@ -148,10 +148,53 @@ public class JobExecutionServiceUpdateExecutionIT {
    }
 
    @Test
+   void testSetOomError_fromUserError_shouldHaveExecutionOomError() {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      KubernetesService.JobExecution expectedJobExecution = createJobExecution(
+            actualDataJob,
+            false,
+            "User error",
+            OffsetDateTime.now().minusDays(1),
+            OffsetDateTime.now(),
+            JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY);
+
+      DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
+            actualDataJob.getJobConfig().getTeam(),
+            actualDataJob.getName(),
+            expectedJobExecution.getExecutionId());
+
+      Assert.assertNotNull(actualJobExecution.getStartTime());
+      Assert.assertEquals(DataJobExecution.StatusEnum.USER_ERROR, actualJobExecution.getStatus());
+      Assert.assertEquals("Out of memory error on the K8S pod. Please optimize your data job.", actualJobExecution.getMessage());
+   }
+
+   @Test
+   void testSetOomError_fromUserError_shouldNotHaveExecutionOomError() {
+      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+      KubernetesService.JobExecution expectedJobExecution = createJobExecution(
+            actualDataJob,
+            false,
+            "User error",
+            OffsetDateTime.now().minusDays(1),
+            OffsetDateTime.now(),
+            "Unrelated container termination message.");
+
+      DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
+            actualDataJob.getJobConfig().getTeam(),
+            actualDataJob.getName(),
+            expectedJobExecution.getExecutionId());
+
+      Assert.assertNotNull(actualJobExecution.getStartTime());
+      Assert.assertEquals(DataJobExecution.StatusEnum.USER_ERROR, actualJobExecution.getStatus());
+      Assert.assertEquals("User error", actualJobExecution.getMessage());
+   }
+
+   @Test
    void testUpdateJobExecution_withoutStartTime_shouldRecordExecutionStartTimeNow() {
       DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
       KubernetesService.JobExecution expectedJobExecution = createJobExecution(
             actualDataJob,
+            null,
             null,
             null,
             null,
@@ -172,7 +215,8 @@ public class JobExecutionServiceUpdateExecutionIT {
          Boolean succeeded,
          String terminationMessage,
          OffsetDateTime startTime,
-         OffsetDateTime endTime) {
+         OffsetDateTime endTime,
+         String containerTerminationMessage) {
 
       KubernetesService.JobExecution jobExecution = KubernetesService.JobExecution.builder()
             .succeeded(succeeded)
@@ -193,7 +237,7 @@ public class JobExecutionServiceUpdateExecutionIT {
             .podTerminationMessage(terminationMessage)
             .build();
       ExecutionResult executionResult = JobExecutionResultManager.getResult(jobExecution);
-      jobExecutionService.updateJobExecution(dataJob, jobExecution, executionResult);
+      jobExecutionService.updateJobExecution(dataJob, jobExecution, executionResult, containerTerminationMessage);
 
       return jobExecution;
    }
@@ -211,7 +255,8 @@ public class JobExecutionServiceUpdateExecutionIT {
             actualExecutionSucceeded,
             actualTerminationMessage,
             OffsetDateTime.now(),
-            OffsetDateTime.now());
+            OffsetDateTime.now(),
+            "");
       DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
             actualDataJob.getJobConfig().getTeam(),
             actualDataJob.getName(),
@@ -323,7 +368,7 @@ public class JobExecutionServiceUpdateExecutionIT {
               .deployedDate(OffsetDateTime.now())
               .podTerminationMessage(expectedStatus.getPodStatus()).build();
       ExecutionResult executionResult = JobExecutionResultManager.getResult(attemptedExecutionUpdate);
-      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionResult);
+      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionResult, null);
       var actualJobExecution = jobExecutionRepository.findById(attemptedExecutionUpdate.getExecutionId()).get();
 
       Assertions.assertEquals(expectedStatus, actualJobExecution.getStatus());
