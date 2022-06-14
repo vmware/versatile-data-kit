@@ -37,7 +37,7 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
             // Only the team field currently support the 'equals' and 'like' operator
             String part = filter.getPattern();
             part = part.replace("%", ".*").trim();
-            return config.getTeam().toLowerCase().matches(part.toLowerCase());
+            return config.getTeam().toLowerCase().contains(part.toLowerCase());
          });
       }
 
