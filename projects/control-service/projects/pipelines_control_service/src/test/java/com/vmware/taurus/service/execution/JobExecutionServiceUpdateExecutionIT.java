@@ -153,7 +153,7 @@ public class JobExecutionServiceUpdateExecutionIT {
       KubernetesService.JobExecution expectedJobExecution = createJobExecution(
             actualDataJob,
             false,
-            "User error",
+            null,
             OffsetDateTime.now().minusDays(1),
             OffsetDateTime.now(),
             JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY);
@@ -177,7 +177,7 @@ public class JobExecutionServiceUpdateExecutionIT {
             "User error",
             OffsetDateTime.now().minusDays(1),
             OffsetDateTime.now(),
-            "Unrelated container termination message.");
+            "Not OOM user error.");
 
       DataJobExecution actualJobExecution = jobExecutionService.readJobExecution(
             actualDataJob.getJobConfig().getTeam(),
@@ -235,9 +235,10 @@ public class JobExecutionServiceUpdateExecutionIT {
             .deployedBy("test_deployed_by")
             .deployedDate(OffsetDateTime.now())
             .podTerminationMessage(terminationMessage)
+            .containerTerminationReason(containerTerminationMessage)
             .build();
       ExecutionResult executionResult = JobExecutionResultManager.getResult(jobExecution);
-      jobExecutionService.updateJobExecution(dataJob, jobExecution, executionResult, containerTerminationMessage);
+      jobExecutionService.updateJobExecution(dataJob, jobExecution, executionResult);
 
       return jobExecution;
    }
@@ -368,7 +369,7 @@ public class JobExecutionServiceUpdateExecutionIT {
               .deployedDate(OffsetDateTime.now())
               .podTerminationMessage(expectedStatus.getPodStatus()).build();
       ExecutionResult executionResult = JobExecutionResultManager.getResult(attemptedExecutionUpdate);
-      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionResult, null);
+      jobExecutionService.updateJobExecution(actualDataJob, attemptedExecutionUpdate, executionResult);
       var actualJobExecution = jobExecutionRepository.findById(attemptedExecutionUpdate.getExecutionId()).get();
 
       Assertions.assertEquals(expectedStatus, actualJobExecution.getStatus());

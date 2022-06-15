@@ -219,8 +219,7 @@ public class JobExecutionService {
    public Optional<com.vmware.taurus.service.model.DataJobExecution> updateJobExecution(
          final DataJob dataJob,
          final KubernetesService.JobExecution jobExecution,
-         ExecutionResult executionResult,
-         String containerTerminationMessage) {
+         ExecutionResult executionResult) {
 
       if (StringUtils.isBlank(jobExecution.getExecutionId())) {
          log.warn("Could not store Data Job execution due to the missing execution id: {}", jobExecution);
@@ -269,7 +268,7 @@ public class JobExecutionService {
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
-              .message(getJobExecutionApiMessage(executionStatus, containerTerminationMessage))
+              .message(getJobExecutionApiMessage(executionStatus, jobExecution.getContainerTerminationReason()))
               .opId(jobExecution.getOpId())
               .endTime(jobExecution.getEndTime())
               .vdkVersion(executionResult.getVdkVersion())
