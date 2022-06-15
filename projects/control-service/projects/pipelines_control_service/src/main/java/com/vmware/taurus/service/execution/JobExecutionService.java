@@ -394,12 +394,12 @@ public class JobExecutionService {
       return returnValue;
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, String podTerminationMessage) {
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, String containerTerminationMessage) {
       switch (executionStatus) {
          case SKIPPED:
             return "Skipping job execution due to another parallel running execution.";
          case USER_ERROR:
-            if (StringUtils.equalsIgnoreCase(podTerminationMessage,
+            if (StringUtils.equalsIgnoreCase(containerTerminationMessage,
                   JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)) {
                return "Out of memory error on the K8S pod. Please optimize your data job.";
             }
