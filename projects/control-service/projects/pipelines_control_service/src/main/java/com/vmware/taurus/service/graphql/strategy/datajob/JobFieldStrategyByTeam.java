@@ -40,7 +40,7 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
             var configTeamLower = config.getTeam().toLowerCase();
             var partLower = part.toLowerCase();
 
-            return configTeamLower.matches(partLower) || configTeamLower.contains(partLower);
+            return configTeamLower.matches(partLower) || configTeamLower.trim().equals(partLower.trim());
          });
       }
 
