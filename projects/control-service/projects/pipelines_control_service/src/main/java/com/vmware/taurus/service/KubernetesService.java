@@ -11,7 +11,11 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vmware.taurus.exception.*;
+import com.vmware.taurus.exception.JsonDissectException;
+import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.exception.KubernetesJobDefinitionException;
+import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
+import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
 import com.vmware.taurus.service.deploy.DockerImageName;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
@@ -642,7 +646,7 @@ public abstract class KubernetesService implements InitializingBean {
                 //Status of the operation. One of: "Success" or "Failure"
                 if (operationResponse.getStatus().equals("Failure")) {
                     log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
-                    throw new ApiException(operationResponse.getCode(), operationResponse.getMessage());
+                    throw new KubernetesException(operationResponse.getMessage(), new ApiException(operationResponse.getCode(), operationResponse.getMessage()));
                 }
             } catch (NullPointerException e) {
                 log.info("Execution: {} for data job: {} with team: {} not found! The data job has likely completed before it could be cancelled.", executionId, teamName, jobName);
