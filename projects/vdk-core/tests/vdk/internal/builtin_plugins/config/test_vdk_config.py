@@ -43,7 +43,7 @@ def test_vdk_config_env_variable_dots_replaced():
     os.environ,
     {"VDK_OPTION_WITH_DASH": "value1", "no_prefix_option_dash": "value2"},
 )
-def test_vdk_config_env_variable_dots_replaced():
+def test_vdk_config_env_variable_dash_replaced():
     envVarsConfig = EnvironmentVarsConfigPlugin()
     configuration_builder = ConfigurationBuilder()
     configuration_builder.add("option-with-dash", "")
