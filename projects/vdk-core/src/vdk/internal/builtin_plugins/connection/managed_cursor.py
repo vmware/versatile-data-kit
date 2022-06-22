@@ -19,14 +19,14 @@ from vdk.internal.builtin_plugins.connection.connection_hooks import (
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
-from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
+from vdk.internal.builtin_plugins.connection.proxy_cursor import ProxyCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
 
 
-class ManagedCursor(PEP249Cursor):
+class ManagedCursor(ProxyCursor):
     """
-    PEP249 Cursor
+    PEP249 Managed Cursor. It takes and sits on the control and data path of SQL querie and client.
     """
 
     def __init__(

@@ -3,6 +3,7 @@
 import logging
 import os
 import sqlite3
+from typing import cast
 from typing import Optional
 from unittest import mock
 
@@ -72,19 +73,20 @@ class SyntaxErrorRecoverySqLite3MemoryDbPlugin:
             recovery_cursor.retries_increment()
 
 
-@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+@mock.patch.dict(os.environ, {})
 def test_run_dbapi_connection_no_such_db_type():
     runner = CliEntryBasedTestRunner()
 
-    result: Result = runner.invoke(
-        [
-            "run",
-            job_path("simple-create-insert"),
-        ]
-    )
+    with mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY}):
+        result: Result = runner.invoke(
+            [
+                "run",
+                job_path("simple-create-insert"),
+            ]
+        )
 
-    cli_assert_equal(1, result)
-    assert "VdkConfigurationError" in result.output
+        cli_assert_equal(1, result)
+        assert "VdkConfigurationError" in result.output
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
@@ -296,3 +298,23 @@ def test_run_dbapi_connection_failed_with_execute_hook():
         "start",
         ("end", False),
     ]
+
+
+def test_run_dbapi_connection_with_execute_hook_proxies(tmpdir):
+    class QueryExecutePlugin:
+        @hookimpl(hookwrapper=True)
+        def db_connection_execute_operation(
+            self, execution_cursor: ExecutionCursor
+        ) -> Optional[int]:
+            # nonstandard convenience method and not part of PEP 249 standard
+            # so this should be proxied to native cursor
+            cast(sqlite3.Cursor, execution_cursor).executescript("select 1")
+            yield
+            cast(sqlite3.Cursor, execution_cursor).executescript("select 2")
+
+    db_plugin = SqLite3MemoryDbPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin, QueryExecutePlugin())
+
+    result: Result = runner.invoke(["run", job_path("simple-create-insert")])
+
+    cli_assert_equal(0, result)

@@ -25,13 +25,12 @@ class DefaultConnectionHookImpl:
     @hookimpl(trylast=True)
     def db_connection_execute_operation(self, execution_cursor: ExecutionCursor) -> Any:
         managed_operation = execution_cursor.get_managed_operation()
-        native_cursor = execution_cursor.get_native_cursor()
         if managed_operation.get_parameters():
-            native_result = native_cursor.execute(
+            native_result = execution_cursor.execute(
                 managed_operation.get_operation(), managed_operation.get_parameters()
             )
         else:
-            native_result = native_cursor.execute(managed_operation.get_operation())
+            native_result = execution_cursor.execute(managed_operation.get_operation())
         return ExecuteOperationResult(native_result)
 
 
