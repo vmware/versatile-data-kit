@@ -108,6 +108,9 @@ class EnvironmentVarsConfigPlugin:
     Configuration loaded from environment variables.
     """
 
+    def __normalize_key(self, key):
+        return key.replace("-", "_").replace(".", "_").upper()
+
     @hookimpl(trylast=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
         """
@@ -134,10 +137,17 @@ Configuration for cloud execution is done in 'config.ini' file or the vdk cli.
         )
         upper_cased_env = {k.upper(): v for k, v in os.environ.items()}
         for key in config_keys:
-            normalized_key = VDK_ + key.replace(".", "_").upper()
+            normalized_key_with_vdk_prefix = VDK_ + self.__normalize_key(key)
+            normalized_key = self.__normalize_key(key)
             value = upper_cased_env.get(normalized_key)
-            if value is not None:
-                log.debug(f"Found environment variable for key {key}")
+            value_with_vdk_prefix = upper_cased_env.get(normalized_key_with_vdk_prefix)
+            if value_with_vdk_prefix is not None:
+                log.debug(
+                    f"Found environment variable {normalized_key_with_vdk_prefix} for key {key}"
+                )
+                config_builder.set_value(key, value_with_vdk_prefix)
+            elif value is not None:
+                log.debug(f"Found environment variable {normalized_key} for key {key}")
                 config_builder.set_value(key, value)
 
 
