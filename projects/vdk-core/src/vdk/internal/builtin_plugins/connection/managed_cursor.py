@@ -26,7 +26,7 @@ from vdk.internal.core import errors
 
 class ManagedCursor(ProxyCursor):
     """
-    PEP249 Managed Cursor. It takes and sits on the control and data path of SQL querie and client.
+    PEP249 Managed Cursor. It takes and sits on the control and data path of SQL queries and client.
     """
 
     def __init__(
