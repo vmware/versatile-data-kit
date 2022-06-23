@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
+import math
 import os
 import pathlib
 from typing import cast
 from typing import Dict
+from typing import List
 from typing import Optional
 
 import click
@@ -45,6 +47,25 @@ class CliRunImpl:
                 wrap_in_vdk_error=True,
             )
 
+    @staticmethod
+    def __split_into_chunks(exec_steps: List, chunks: int) -> List:
+        """
+        Generator that splits the list of execution steps into sequential
+        sub-lists.
+        :param exec_steps: the list of execution steps
+        :param chunks: the number of sublists that need to be produced
+        :return: a list of the sub-lists produced
+        """
+        quotient, remainder = divmod(len(exec_steps), chunks)
+        for i in range(chunks):
+            subsequent_iteration = (quotient + 1) * (
+                i if i < remainder else remainder
+            ) + quotient * (0 if i < remainder else i - remainder)
+            yield exec_steps[
+                subsequent_iteration : subsequent_iteration
+                + (quotient + 1 if i < remainder else quotient)
+            ]
+
     def create_and_run_data_job(
         self,
         context: CoreContext,
@@ -62,7 +83,25 @@ class CliRunImpl:
         execution_result = None
         try:
             execution_result = job.run(args)
-            log.info(f"Data Job execution summary: {execution_result}")
+
+            # On some platforms, if the size of a string is too large, the
+            # logging module starts throwing OSError: [Errno 40] Message too long,
+            # so it is safer if we split large strings into smaller chunks.
+            string_exec_result = str(execution_result)
+            if len(string_exec_result) > 5000:
+                temp_exec_result = json.loads(string_exec_result)
+                steps = temp_exec_result.pop("steps_list")
+
+                log.info(
+                    f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
+                )
+
+                chunks = math.ceil(len(string_exec_result) / 5000)
+                for i in self.__split_into_chunks(exec_steps=steps, chunks=chunks):
+                    log.info(f"Execution Steps: {json.dumps(i, indent=2)}")
+
+            else:
+                log.info(f"Data Job execution summary: {execution_result}")
         except BaseException as e:
             errors.log_and_rethrow(
                 job_input_error_classifier.whom_to_blame(
