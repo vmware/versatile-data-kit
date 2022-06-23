@@ -29,7 +29,7 @@ class ExecutionCursor(ProxyCursor):
         But it's useful to be exposed in case the native library used provide some extra features.
         For example Impala (impyla driver) provides a way to get the profile of a query after it's executed
         which can be printed to aid debugging.
-        * Give access to the result of execute operation (through) ExecuteOperationResult which in vendor specific.
+        * Give access to the result of execute operation (through) ExecuteOperationResult which is vendor specific.
 
     See connection_hook_spec#db_connection_execute_operation for more details and examples how to use it.
     """
