@@ -23,7 +23,7 @@ class ExecuteOperationResult:
 
 class ExecutionCursor(ProxyCursor):
     """
-    Extends PEP249Cursor to provide:
+    Extends ProxyCursor to provide:
         * ability to directly access and execute operations with the native cursor.
         Generally it is not execpted to be used. Perhaps only if default implementation does not work (which should be almost never)
         But it's useful to be exposed in case the native library used provide some extra features.
