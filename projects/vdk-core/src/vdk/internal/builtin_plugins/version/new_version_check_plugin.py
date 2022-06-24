@@ -19,6 +19,7 @@ class ConfigKey(str, Enum):
     PACKAGE_NAME = "PACKAGE_NAME"
     PACKAGE_INDEX = "PACKAGE_INDEX"
     VERSION_CHECK_PLUGINS = "VERSION_CHECK_PLUGINS"
+    VERSION_CHECK_DISABLED = "VERSION_CHECK_DISABLED"
 
 
 def new_package(package_name: str, package_index: str) -> Package:
@@ -43,12 +44,25 @@ class NewVersionCheckPlugin:
             default_value=True,
             description="Set to true if plugins should be checked for new version otherwise false",
         )
+        config_builder.add(
+            key=ConfigKey.VERSION_CHECK_DISABLED.value,
+            default_value=False,
+            description="Set to true if version check is disabled completely. "
+            "It might make sense for managed/cloud executions where version is controlled.",
+        )
 
     @hookimpl
     def vdk_exit(self, context: CoreContext) -> None:
         try:
             package_list = []
             cfg = context.configuration
+            is_disabled = cfg.get_value(ConfigKey.VERSION_CHECK_DISABLED.value)
+            if is_disabled:
+                log.debug(
+                    "VERSION_CHECK_DISABLED is set to true, skipping version check."
+                )
+                return
+
             package_name = cfg.get_value(ConfigKey.PACKAGE_NAME.value)
             package_index = cfg.get_value(ConfigKey.PACKAGE_INDEX.value)
 
