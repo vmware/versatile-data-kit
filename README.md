@@ -1,4 +1,5 @@
-![Versatile Data Kit](./support/images/versatile-data-kit.svg)
+![Versatile Data Kit](./support/images/versatile-data-kit.svg#gh-light-mode-only)
+![Versatile Data Kit](./support/images/versatile-data-kit-dark-background.svg#gh-dark-mode-only)
 
 <p align="center">
     <a href="https://github.com/vmware/versatile-data-kit/pulse" alt="Activity">
