@@ -154,4 +154,3 @@ The best way to reach us with a question when contributing is to ask on:
 * The original GitHub issue
 * [Our Slack channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
 * Join our [Community Meetings](https://github.com/vmware/versatile-data-kit/wiki/Community-Meeting-and-Open-Discussion-Notes)
-
