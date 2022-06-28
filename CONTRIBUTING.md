@@ -16,7 +16,7 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
 
 # Getting Started
 
-### Contribution Flow
+## Contribution Flow
 
 This is a rough outline of what a contributor's workflow looks like:
 
