@@ -481,17 +481,19 @@ class Installer:
                         "--name",
                         self.kind_cluster_name,
                     ],
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                 )
                 if os.path.exists(temp_file):
                     os.remove(temp_file)
                 if result.returncode != 0:
-                    stderr_as_str = result.stderr.decode("utf-8")
+                    stdout_as_str = result.stdout.decode("utf-8")
+                    log.info(f"Command output: {stdout_as_str}")
                     log.info(
                         f'Failed to create Kind cluster "{self.kind_cluster_name}". '
+                        "Check logs above for more information."
                         "If you have a previous installation, remove it by running `vdk server -u` and try again."
                     )
-                    log.info(f"Stderr output: {stderr_as_str}")
                     sys.exit(0)
             except Exception as ex:
                 log.error(
@@ -508,11 +510,12 @@ class Installer:
         try:
             result = subprocess.run(
                 ["kind", "delete", "cluster", "--name", self.kind_cluster_name],
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
             if result.returncode != 0:
-                stderr_as_str = result.stderr.decode("utf-8")
-                log.error(f"Stderr output: {stderr_as_str}")
+                stdout_as_str = result.stdout.decode("utf-8")
+                log.info(f"Command output: {stdout_as_str}")
         except Exception as ex:
             log.error(
                 f'Failed to delete Kind cluster "{self.kind_cluster_name}". Make sure you have Kind installed. {str(ex)}'
@@ -531,11 +534,12 @@ class Installer:
                     "get",
                     "clusters",
                 ],
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
             if result.returncode != 0:
-                stderr_as_str = result.stderr.decode("utf-8")
-                log.error(f"Stderr output: {stderr_as_str}")
+                stdout_as_str = result.stdout.decode("utf-8")
+                log.info(f"Command output: {stdout_as_str}")
                 sys.exit(result.returncode)
             stdout_as_str = result.stdout.decode("utf-8")
             kind_cluster_exists = self.kind_cluster_name in stdout_as_str.splitlines()
@@ -604,24 +608,30 @@ class Installer:
                         self.helm_repo_local_name,
                         self.helm_repo_url,
                     ],
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                 )
                 if result.returncode != 0:
-                    stderr_as_str = result.stderr.decode("utf-8")
-                    log.error(f"Stderr output: {stderr_as_str}")
+                    stdout_as_str = result.stdout.decode("utf-8")
+                    log.info(f"Command output: {stdout_as_str}")
                     exit(result.returncode)
-                result = subprocess.run(["helm", "repo", "update"], capture_output=True)
+                result = subprocess.run(
+                    ["helm", "repo", "update"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
                 if result.returncode != 0:
-                    stderr_as_str = result.stderr.decode("utf-8")
-                    log.error(f"Stderr output: {stderr_as_str}")
+                    stdout_as_str = result.stdout.decode("utf-8")
+                    log.info(f"Command output: {stdout_as_str}")
                     exit(result.returncode)
                 result = subprocess.run(
                     self.__helm_install_command(git_server_ip),
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                 )
                 if result.returncode != 0:
-                    stderr_as_str = result.stderr.decode("utf-8")
-                    log.error(f"Stderr output: {stderr_as_str}")
+                    stdout_as_str = result.stdout.decode("utf-8")
+                    log.info(f"Command output: {stdout_as_str}")
                     exit(result.returncode)
                 else:
                     log.info("Control Service installed successfully")
@@ -637,7 +647,7 @@ class Installer:
             "install",
             self.helm_installation_name,
             self.helm_chart_name,
-            "--atomic",
+            # "--atomic",
             "--set",
             "service.type=ClusterIP",
             "--set",
@@ -696,17 +706,23 @@ class Installer:
             "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
             "--set",
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
+            "--set",
+            "security.enabled=false",
+            "--set",
+            "extraEnvVars.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost",
         ]
 
     def __uninstall_helm_chart(self):
         log.info("Uninstalling Control Service...")
         try:
             result = subprocess.run(
-                ["helm", "uninstall", self.helm_installation_name], capture_output=True
+                ["helm", "uninstall", self.helm_installation_name],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
             if result.returncode != 0:
-                stderr_as_str = result.stderr.decode("utf-8")
-                log.error(f"Stderr output: {stderr_as_str}")
+                stdout_as_str = result.stdout.decode("utf-8")
+                log.info(f"Command output: {stdout_as_str}")
             else:
                 log.info("Control Service uninstalled successfully")
         except Exception as ex:
