@@ -38,8 +38,8 @@ To help solve common data engineering problems Versatile Data Kit:
 * tracks both code and data modifications and the relations between them, enabling engineers to troubleshoot faster and providing an easy revert to a stable version.
 
 
-#### Data lifecycle and where VDK fits in
-![Data Lifecycle](./support/images/versatile-data-kit-data-lifecycle.png)
+#### Data Journey and where VDK fits in
+![Data Journey](./support/images/versatile-data-kit-data-lifecycle.png)
 
 # Installation and Getting Started
 
