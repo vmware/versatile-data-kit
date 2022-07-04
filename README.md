@@ -39,7 +39,7 @@ To help solve common data engineering problems Versatile Data Kit:
 
 
 #### Data Journey and where VDK fits in
-![Data Journey](./support/images/versatile-data-kit-data-lifecycle.png)
+![Data Journey](https://user-images.githubusercontent.com/11227374/177147627-cb15dbc4-f0fb-422d-9ede-2702e4074f57.svg)
 
 # Installation and Getting Started
 
