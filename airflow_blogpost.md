@@ -41,7 +41,7 @@ Alternatively, a connection can be set up through the `airflow` CLI using the fo
 airflow connections add vdk-conn --conn-host localhost --conn-port 8092 --conn-type VDK
 ```
 
-![How to add a connection through the Airflow UI](./blogpost_images/add_conn.jpeg)
+![How to add a connection through the Airflow UI](./blogpost_images/add_conn.png)
 
 Next, make sure the jobs you want to include in your DAG are deployed and enabled. For the purposes of our tutorial, we'll be dealing with three Data jobs - `ingest-job1`, `ingest-job2`, `transform-job` - two of which will be ingesting data, and one which will be transforming the ingested data. We will not be discussing the exact implementations of these jobs - such details can be found in the Examples section of our wiki here - https://github.com/vmware/versatile-data-kit/wiki/Examples
 
@@ -126,7 +126,7 @@ with DAG(
 Next, we'll need to place this file in our dags directory. By default, on Linux and MacOS systems this will be in `~/airflow/dags` but it can be changed in Airflow's configuration file.
 Once the file is located there, Airflow's scheduler will automatically pick it up and it will be available through the Airflow CLI and UI.
 
-[Where to find the DAG in the Airflow UI](./blogpost_images/view_dag_in_ui.png)
+![Where to find the DAG in the Airflow UI](./blogpost_images/view_dag_in_ui.png)
 
 Finally, we need to trigger the DAG through the Airflow UI and observe the job executions.
 
