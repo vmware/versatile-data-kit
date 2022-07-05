@@ -8,13 +8,42 @@
 <!-- TODO: code coverage -->
 </p>
 
-The Versatile Data Kit project team welcomes contributions from the community.
+# Contributing to Versatile Data Kit
 
-If you wish to contribute code, but you have not signed our contributor license agreement ([CLA](https://cla.vmware.com/cla/1/preview)),
-our bot will update the issue when you open a Pull Request.
-For any questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq).
+We welcome contributions from the community and first want to thank you for taking the time to contribute!
 
-# Structure of the project
+Please familiarize yourself with the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md) before contributing.
+
+* _CLA: Before you start working with Versatile Data Kit, please read and sign our Contributor License Agreement [CLA](https://cla.vmware.com/cla/1/preview). If you wish to contribute code and you have not signed our contributor license agreement (CLA), our bot will update the issue when you open a Pull Request. For any questions about the CLA process, please refer to our [FAQ]([https://cla.vmware.com/faq](https://cla.vmware.com/faq))._
+
+## Ways to contribute
+
+We welcome many different types of contributions and not all of them need a Pull request. Contributions may include:
+
+* New features and proposals
+* Documentation
+* Bug fixes
+* Issue Triage
+* Answering questions and giving feedback
+* Helping to onboard new contributors
+* Other related activities
+
+# Getting Started
+
+## Contribution Flow
+
+This is a rough outline of what a contributor's workflow looks like:
+
+* Make a fork of the repository within your GitHub account
+* Create a topic branch in your fork from where you want to base your work - name your branch according to our naming convention - person/<github-username>/<feature-name>
+* Make commits of logical units
+* Make sure your commit messages are with the proper format, quality and descriptiveness (see below)
+* Push your changes to the topic branch in your fork
+* Create a pull request containing that commit
+
+We follow the GitHub workflow and you can find more details on the [GitHub flow documentation](https://docs.github.com/en/get-started/quickstart/github-flow).
+
+## Structure of the project
 
 * projects - the interesting part, aka the source code - there is a separate folder for each component;
   * control-service - Java spring-based API for managing the lifecycle of data jobs: job definitions, job deployments, and executions in Kubernetes;
@@ -27,7 +56,7 @@ For any questions about the CLA process, please refer to our [FAQ](https://cla.v
 * examples - list of example use-cases. Each example directory has its README with detailed explanations;
 * specs - specs for feature proposals and architecture documents.
 
-# How to build, debug
+## How to build, debug
 
 To boostrap the project run
 ```bash
@@ -45,7 +74,7 @@ If in doubt, open the .gitlab-ci.yml file of the project.
 Read through the Gitlab CI file to find the build process confirmed to work by an automated continuous integration (CI).
 CI runs in Docker Linux containers, so if you have docker installed, you will be able to replicate the process.
 
-# How to prepare your change
+## How to prepare your change
 
 Versatile Data Kit project uses GitHub issues and pull requests to track what work needs to be done,
 what work is currently in progress, and who work is assigned to.
@@ -62,7 +91,7 @@ Also, reach out to the community - through Slack or mail to discuss your idea. W
 ## Coding Standard
 The Versatile Data Kit Coding Standard can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
 
-# How to submit and merge
+## How to submit and merge
 
 We use [Github Flow](https://docs.github.com/en/get-started/quickstart/github-flow).
 In short, it looks like this:
@@ -78,7 +107,7 @@ Familiarize with [recommendations written here](https://github.com/vmware/versat
 
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
-# Changelog
+## Changelog
 It's important to update CHANGELOG.md with any adjustments to the project.
 Versioning of all components follows https://semver.org
 
@@ -91,7 +120,15 @@ Changelog has the following sections:
 Each component project maintains its own CHANGELOG.
 Go to projects/component-name/CHANGELOG.md to see the changelog of the component
 
-# CI
+
+Before submitting your pull request, we advise you to use the following:
+## Pull Request Checklist
+
+1. Check if your code changes will pass both code linting checks and unit tests.
+2. Ensure your commit messages are descriptive. Be sure to include any related GitHub issue references in the commit message. See [GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) for referencing issues and commits.
+3. Check the commits and commits messages and ensure they are free from typos.
+
+## CI
 
 We are using CI as a code based on Gitlab CI.
 Entrypoint of CICD is the file .gitlab-ci.yml.
@@ -99,7 +136,7 @@ Entrypoint of CICD is the file .gitlab-ci.yml.
 There you can find the full definition of the CI/CD pipeline.
 For more details see the [CICD wiki in our Dev Guide](https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD)
 
-# How to make a new VDK release
+## How to make a new VDK release
 
 See previous releases: https://github.com/vmware/versatile-data-kit/releases
 A release is a certain milestone of VDK where we share the latest changes with the community.
@@ -122,3 +159,12 @@ To make a new public release, follow these steps:
 - Record the new versions as they are released and list them in the Release description;
 - Make sure you have clicked the "Create a discussion for this release" button before publishing the new release
 - Post a tweet on the official VDK Twitter account, and on slack, announcing the new release and linking to it.
+
+
+## Ask for Help
+
+The best way to reach us with a question when contributing is to ask on:
+
+* The original GitHub issue
+* [Our Slack channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
+* Join our [Community Meetings](https://github.com/vmware/versatile-data-kit/wiki/Community-Meeting-and-Open-Discussion-Notes)

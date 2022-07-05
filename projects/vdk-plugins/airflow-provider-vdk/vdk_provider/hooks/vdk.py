@@ -248,7 +248,7 @@ class VDKHook(HttpHook):
             token=self.conn.extra_dejson.get("token", None),
             authorization_url=self.conn.extra_dejson.get("auth_server", None),
             auth_type=self.conn.extra_dejson.get("auth_type", None),
-            cache_locally=True,
+            cache_locally=False,
         )
         self.auth.authenticate()
 
@@ -261,4 +261,5 @@ class VDKHook(HttpHook):
         """
         return {
             "relabeling": {"login": "Username", "host": "REST Api URL"},
+            "hidden_fields": ["schema"],
         }

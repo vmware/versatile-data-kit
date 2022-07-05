@@ -1,4 +1,5 @@
-![Versatile Data Kit](./support/images/versatile-data-kit.svg)
+![Versatile Data Kit](./support/images/versatile-data-kit.svg#gh-light-mode-only)
+![Versatile Data Kit](./support/images/versatile-data-kit-dark-background.svg#gh-dark-mode-only)
 
 <p align="center">
     <a href="https://github.com/vmware/versatile-data-kit/pulse" alt="Activity">
@@ -21,18 +22,25 @@
 
 # Overview
 
-Versatile Data Kit is a framework which enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is a data processing workload** and can be written in Python, SQL, or both at the same time. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
+Versatile Data Kit (VDK) is an open source framework that enables anybody with basic SQL or Python knowledge to create their own data pipelines.
+
+Versatile Data Kit enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is a data processing workload** and can be written in Python, SQL, or both at the same time. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
 
 Versatile Data Kit consists of two main components:
 
-* A **Data SDK**, which provides all tools for the automation of data extraction, transformation and loading, as well as a plugin framework which allows users to extend the framework according to their specific requirements.
-* A **Control Service**, which allows users to create, deploy, manage and execute Data Jobs in Kubernetes runtime environment.
+* A **Data SDK** provides all tools for the automation of data extraction, transformation, and loading, as well as a plugin framework that allows users to extend the framework according to their specific requirements.
+* A **Control Service** allows users to create, deploy, manage and execute Data Jobs in Kubernetes runtime environment.
 
 To help solve common data engineering problems Versatile Data Kit:
-* allows ingestion of data from different sources including CSV files, JSON objects, data provided by REST API services, etc.;
-* ensures data applications are packaged, versioned and deployed correctly, while dealing with credentials, retries, reconnects, etc.;
+* allows ingestion of data from different sources, including CSV files, JSON objects, data provided by REST API services, etc.;
+* ensures data applications are packaged, versioned, and deployed correctly while dealing with credentials, retries, reconnects, etc.;
 * provides built-in monitoring and smart notification capabilities;
-* tracks both code and data modifications and the relations between them enabling engineers to troubleshoot faster as well as providing an easy revert to a stable version.
+* tracks both code and data modifications and the relations between them, enabling engineers to troubleshoot faster and providing an easy revert to a stable version.
+
+
+#### Data Journey and where VDK fits in
+![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
+![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
 
 # Installation and Getting Started
 
