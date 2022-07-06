@@ -8,7 +8,7 @@ import setuptools
 Builds a package with the help of setuptools in order for this package to be imported in other projects
 """
 
-__version__ = "0.2.5"
+__version__ = "0.3.0"
 
 setuptools.setup(
     name="vdk-lineage",
@@ -20,6 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "vdk-core",
+        "vdk-lineage-model",
         "sqlparse",
         "sqllineage",
         "openlineage-integration-common",

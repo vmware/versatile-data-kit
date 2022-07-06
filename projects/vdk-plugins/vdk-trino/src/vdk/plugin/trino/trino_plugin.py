@@ -11,6 +11,7 @@ import pluggy
 import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
@@ -25,7 +26,6 @@ from vdk.internal.core.statestore import ImmutableStoreKey
 from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino import trino_config
 from vdk.plugin.trino.ingest_to_trino import IngestToTrino
-from vdk.plugin.trino.lineage import LineageLogger
 from vdk.plugin.trino.trino_config import TrinoConfiguration
 from vdk.plugin.trino.trino_connection import TrinoConnection
 
@@ -37,7 +37,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     trino_config.add_definitions(config_builder)
 
 
-LINEAGE_LOGGER_KEY = StoreKey[LineageLogger]("trino-lineage-logger")
+LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
 
 TrinoConnectionFunc = Callable[[], PEP249Connection]
 CONNECTION_FUNC_KEY = ImmutableStoreKey[TrinoConnectionFunc]("trino-connection-method")

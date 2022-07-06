@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 
-from vdk.plugin.trino.lineage import LineageData
-from vdk.plugin.trino.lineage import LineageTable
+from vdk.api.lineage.model.sql.model import LineageData
+from vdk.api.lineage.model.sql.model import LineageTable
 
 
 def is_heartbeat_query(query: str):
