@@ -10,7 +10,7 @@ pip install vdk-kerberos-auth
 
 After it's installed the following happens:
 
-1. Upon installation and if KEYTAB_FILENAME and KEYTAB_PRINCIPAL are configured, it will try to authenticate ("kinit") at the start of very VDK command.
+1. Upon installation and if KEYTAB_FILENAME and KEYTAB_PRINCIPAL are configured, it will try to authenticate ("kinit") at the start of every VDK command.
 2. Then when a client needs to talk to kerberos provision server they would use KerberosClient class to generate header:
 ```python
 auth = KebrerosClient("http@server.fqdn.com")
