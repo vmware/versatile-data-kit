@@ -5,7 +5,7 @@ from typing import Optional
 
 class KerberosClient:
     """
-    Use this class to access prepared Kerberos Negotate header that can be used in HTTP API requests.
+    Use this class to access prepared Kerberos Negotiate header that can be used in HTTP API requests.
     It's expected to be set as an "Authorization header"
     Example usage
 
