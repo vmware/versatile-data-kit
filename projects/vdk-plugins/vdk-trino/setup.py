@@ -5,7 +5,7 @@ import pathlib
 import setuptools
 
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 setuptools.setup(
     name="vdk-trino",
@@ -14,7 +14,7 @@ setuptools.setup(
     description="Versatile Data Kit SDK plugin provides support for trino database and trino transformation templates.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "trino", "tabulate", "sqlparse"],
+    install_requires=["vdk-core", "vdk-lineage-model", "trino", "tabulate", "sqlparse"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,

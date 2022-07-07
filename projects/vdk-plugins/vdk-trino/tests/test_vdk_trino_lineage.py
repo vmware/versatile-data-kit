@@ -6,12 +6,12 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
+from vdk.api.lineage.model.sql.model import LineageData
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.trino import trino_plugin
-from vdk.plugin.trino.lineage import LineageData
-from vdk.plugin.trino.lineage import LineageLogger
 from vdk.plugin.trino.trino_plugin import LINEAGE_LOGGER_KEY
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
@@ -20,7 +20,7 @@ VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 
 
 class TestConfigPlugin:
-    def __init__(self, lineage_logger: LineageLogger):
+    def __init__(self, lineage_logger: ILineageLogger):
         self.lineage_logger = lineage_logger
 
     @hookimpl
@@ -43,7 +43,7 @@ def execute_query(runner, query: str):
     },
 )
 def test_lineage_not_collected_for_heartbeat_query():
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -63,7 +63,7 @@ def test_lineage_not_collected_for_heartbeat_query():
 def test_lineage_for_insert():
     table_name = "test_table_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -101,7 +101,7 @@ def test_lineage_for_select():
 
     table_name = "test_table_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -140,7 +140,7 @@ def test_lineage_for_insert_select():
     table_name_source = "test_tbl_src_" + uuid.uuid4().hex
     table_name_dest = "test_tbl_dst_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -181,7 +181,7 @@ def test_lineage_for_insert_select_full_names():
     table_name_source = "test_tbl_src_" + uuid.uuid4().hex
     table_name_dest = "test_tbl_dst_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -228,7 +228,7 @@ def test_lineage_for_rename_table():
     table_name_from = "test_table_" + uuid.uuid4().hex
     table_name_to = "test_table_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -266,7 +266,7 @@ def test_lineage_for_rename_table_full_names():
     table_name_from = "test_table_" + uuid.uuid4().hex
     table_name_to = "test_table_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -310,7 +310,7 @@ def test_lineage_for_rename_table_if_exists():
     table_name_from = "test_table_" + uuid.uuid4().hex
     table_name_to = "test_table_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
@@ -348,7 +348,7 @@ def test_lineage_for_rename_table_if_exists():
 def test_lineage_not_collected_for_some_queries():
     table_name = "test_table_" + uuid.uuid4().hex
 
-    mock_lineage_logger = mock.MagicMock(LineageLogger)
+    mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
         TestConfigPlugin(mock_lineage_logger), trino_plugin
     )
