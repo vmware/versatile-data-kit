@@ -3,6 +3,6 @@
 
 services:
   trino:
-    image: "trinodb/trino"
+    image: "trinodb/trino:372"
     ports:
       - "8080:8080"
