@@ -72,7 +72,6 @@ Examples:
 # List all jobs for team taurus
 vdk show -n job-name -t team-name
                 """,
-    hidden=True,
 )
 @click.option(
     "-n", "--name", prompt="Job Name", type=click.STRING, help="The job name."
