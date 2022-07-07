@@ -222,7 +222,6 @@ vdk list -t taurus -o json
 @click.option(
     "-m",
     "--more-details",
-    hidden=True,
     count=True,
     help="Include more details about the jobs. Specify the flag multiple times to make the output even more verbose .",
 )
