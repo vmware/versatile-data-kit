@@ -42,12 +42,19 @@ Apache Airflow is written almost entirely in Python. Versatile Data Kit’s comm
 Versatile Data Kit employs an extensible architecture which allows users to develop plugins for it which may provide various new functionality such as connecting to different types of databases or ingestion methods, offering CLI commands, and more. Additionally, Versatile Data Kit already has a wide library of officially-supported plugins.
 Apache Airflow offers users the capability to write their own providers and executors, which lets users work at their preferred level of abstraction.
 
-# API Comparison
+# Comparison
 
 | Requirement            | Airflow                | Versatile Data Kit     |
 |------------------------|------------------------|------------------------|
-| UI                     | Web UI and command-line interface |
-
+| UI                     | Web UI and CLI         | Only a CLI             |
+| Workload API           | API which permits the creation of operators | JobInput API allows workloads to be positioned on the data path by offering methods for asynchronous ingestion, template execution, query execution and decoration |
+| Multitenancy           | Resource-based permissions | Support for separate teams, Properties API |
+| SSO Support            | No support by default but it can be patched in | Support for Oauth2 |
+| Trigger workload execution on new data received | Airflow sensor | No support |
+| Deployment API         | None; DAG files must be manually placed within the /dags folder of the Airflow server | Support for automatic deployment of jobs from local files through VDK CLI |
+| Workload versioning    | None | Automatic Data job versioning upon deployment |
+| Support for templates  | None | Built-in Kimball templates available through JobInput API |
+| Workload logs          | Available through UI | Available through CLI |
 
 # Reasons to choose Airflow
 
