@@ -55,7 +55,7 @@ Apache Airflow offers users the capability to write their own providers and exec
 | Workload versioning    | None | Automatic Data job versioning upon deployment |
 | Support for templates  | None | Built-in Kimball templates available through JobInput API |
 | Workload logs          | Available through UI | Available through CLI |
-| Monitoring             | Support for StatsD monitors | Support for Prometheus, Wavefront monitoring |
+| Monitoring             | Support for StatsD monitoring | Support for Prometheus, Wavefront monitoring |
 
 # Reasons to choose Airflow
 
