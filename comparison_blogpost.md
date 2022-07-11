@@ -1,15 +1,6 @@
 # Summary
 
-Overall, Apache Airflow is the heavier, more feature-dense and battle-tested service of the two, while Versatile Data Kit is more minimal and lightweight in comparison without sacrificing any fundamental capability and while offering a higher level of extensibility.
-
-# Comparison points
-
-* Pricing
-* Scheduling
-* Simplicity/Ease of use
-* Workloads
-* Language
-
+Overall, Apache Airflow is the heavier, more feature-dense and battle-tested service of the two, while Versatile Data Kit is more minimal and lightweight in comparison without sacrificing any fundamental capability and while offering a higher level of extensibility and positioning workloads on the datapath through its workload API.
 
 # Pricing
 
@@ -59,15 +50,15 @@ Apache Airflow offers users the capability to write their own providers and exec
 
 # Reasons to choose Airflow
 
-You prefer established software which has survived the test of time
-You value the Airflow DAG as a workload dependency expression
-The wider community support appeals to you as troubleshooting any potential problem will be easier
+* You prefer established software which has survived the test of time
+* You value the Airflow DAG as a workload dependency expression
+* The wider community support appeals to you as troubleshooting any potential problem will be easier
 
 # Reasons to choose VDK
 
-Your use case is too simple to fully benefit from a heavyweight service such as Airflow
-You prefer managing your SQL scripts as files directly
-You see value in the higher level of extensibility
+* Your use case is too simple to fully benefit from a heavyweight service such as Airflow
+* You prefer managing your SQL scripts as files directly
+* You see value in the higher level of extensibility
 
 # Reasons to use both
 
