@@ -1,10 +1,6 @@
 # Summary
 
-Overall, Apache Airflow is the heavier, more feature-dense and battle-tested service of the two, while Versatile Data Kit is more minimal and lightweight in comparison without sacrificing any fundamental capability and while offering a higher level of extensibility and positioning workloads on the datapath through its workload API.
-
-# Pricing
-
-Both are free and open-source. Additionally, both Apache Airflow and Versatile Data Kit are licensed under the Apache License Version 2.0.
+Overall, Apache Airflow is the heavier, more feature-dense and battle-tested service of the two, while Versatile Data Kit is more minimal and lightweight in comparison without sacrificing any fundamental capability and while offering a higher level of extensibility and positioning workloads on the data path through its workload API.
 
 # Workload Scheduling
 
@@ -23,10 +19,7 @@ Overall, Apache Airflow is the more feature-dense service, while Versatile Data 
 Versatile Data Kit allows you to deploy and run workloads consisting of Python files, SQL scripts, or a mixture of both.
 Apache Airflow workloads can be composed of many different types of operators which serve a wider pool of functions compared to Versatile Data Kit.
 Operators must be written in Python, so technically speaking any workload that Apache Airflow can execute, Versatile Data Kit could as well, however such use cases are not considered idiomatic.
-
-# Language
-
-Apache Airflow is written almost entirely in Python. Versatile Data Kit’s command-line interface is also written in Python, while its Control Service is written in Java.
+In contrast, Versatile Data Kit offers a JobInput API, which allows workloads to be positioned on the data path by offering out-of-the-box methods for asynchronous ingestion, template execution, query execution and decoration.
 
 # Extensibility
 
@@ -37,6 +30,9 @@ Apache Airflow offers users the capability to write their own providers and exec
 
 | Requirement            | Airflow                | Versatile Data Kit     |
 |------------------------|------------------------|------------------------|
+| Price                  | Free and Open Source   | Free and Open Source   |
+| License                | Apache License 2.0     | Apache License 2.0     |
+| Language               | Written entirely in Python | CLI written in Python, Control Service written in Java |
 | UI                     | Web UI and CLI         | Only a CLI             |
 | Workload API           | API which permits the creation of operators | JobInput API allows workloads to be positioned on the data path by offering methods for asynchronous ingestion, template execution, query execution and decoration |
 | Multitenancy           | Resource-based permissions | Support for separate teams, Properties API |
@@ -62,4 +58,4 @@ Apache Airflow offers users the capability to write their own providers and exec
 
 # Reasons to use both
 
-As of the release of the Airflow provider for Versatile Data Kit, users are able to operate on Data jobs managed in a deployed instance of the VDK Control Service. This will benefit users who prefer Versatile Data Kit overall, but miss the capacity of Airflow to express interdependent workloads. Now users can develop and use DAGs, where each task triggers a Data job execution through a configured connection to a Control Service.
+As of the release of the Airflow provider for Versatile Data Kit, users are able to operate on Data jobs managed in a deployed instance of the VDK Control Service. This will benefit users who prefer Versatile Data Kit overall for the specific level of abstraction it operates on, but miss the capacity of Airflow to express interdependent workloads. Now users can develop and use DAGs, where each task triggers a Data job execution through a configured connection to a Control Service.
