@@ -26,7 +26,7 @@ In contrast, Versatile Data Kit offers a JobInput API, which allows workloads to
 Versatile Data Kit employs an extensible architecture which allows users to develop plugins for it which may provide various new functionality such as connecting to different types of databases or ingestion methods, offering CLI commands, and more. Additionally, Versatile Data Kit already has a wide library of officially-supported plugins.
 Apache Airflow offers users the capability to write their own providers and executors, which lets users work at their preferred level of abstraction.
 
-# Comparison
+# Comparison Table
 
 | Requirement            | Airflow                | Versatile Data Kit     |
 |------------------------|------------------------|------------------------|
