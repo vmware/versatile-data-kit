@@ -16,6 +16,8 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.models.V1Status;
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +45,9 @@ public class JobExecutionServiceCancelExecutionIT {
 
     @MockBean
     private DataJobsKubernetesService dataJobsKubernetesService;
+
+    // @MockBean
+    // private V1Status operationResponse;
 
     private DataJob testJob;
 
@@ -80,6 +85,25 @@ public class JobExecutionServiceCancelExecutionIT {
     public void testCancelFinishedExecution() {
         String jobExecutionId = "test-job-id";
         RepositoryUtil.createDataJobExecution(jobExecutionRepository, jobExecutionId, testJob, ExecutionStatus.SUCCEEDED);
+
+        var actualException = Assertions.assertThrows(DataJobExecutionCannotBeCancelledException.class,
+                () -> jobExecutionService.cancelDataJobExecution("test-team", "testJob", jobExecutionId));
+
+        var exceptionMessage = actualException.getMessage();
+        Assertions.assertTrue(exceptionMessage.contains("Specified data job execution is not in running or submitted state."),
+                "Unexpected exception message content.");
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, actualException.getHttpStatus());
+    }
+
+    @Test
+    public void testCancelExecutionWhichFinishedDuringCanceling() {
+        String jobExecutionId = "test-job-id";
+        RepositoryUtil.createDataJobExecution(jobExecutionRepository, jobExecutionId, testJob, ExecutionStatus.RUNNING);
+
+
+        // Mockito.doThrow(new NullPointerException()).when(V1Status.class).getStatus();
+        V1Status mockOperationResponse = Mockito.mock(V1Status.class);
+        Mockito.when(mockOperationResponse.getStatus()).thenReturn("Failure"); // thenThrow(new NullPointerException());
 
         var actualException = Assertions.assertThrows(DataJobExecutionCannotBeCancelledException.class,
                 () -> jobExecutionService.cancelDataJobExecution("test-team", "testJob", jobExecutionId));
