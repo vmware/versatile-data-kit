@@ -19,14 +19,14 @@ cd "$(dirname $0)" || exit 1
 cd ..
 
 echo "install dependencies from requirements.txt (used for development and testing)"
-pip install -r requirements.txt
+pip install --upgrade-strategy eager -U -r requirements.txt
 
 echo "Setup git hook scripts with pre-commit install"
 pip install pre-commit
 pre-commit install --hook-type commit-msg --hook-type pre-commit
 
 echo "Install the project in editable mode (develop mode)"
-pip install -e .
+pip install --upgrade-strategy eager -U -e .
 
 echo "Run unit tests and generate coverage report"
 pip install pytest-cov

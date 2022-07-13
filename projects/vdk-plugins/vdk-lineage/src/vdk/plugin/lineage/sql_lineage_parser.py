@@ -4,8 +4,8 @@ import logging
 from contextlib import contextmanager
 from typing import Optional
 
-from vdk.api.lineage.sql.data import LineageData
-from vdk.api.lineage.sql.data import LineageTable
+from vdk.api.lineage.model.sql.model import LineageData
+from vdk.api.lineage.model.sql.model import LineageTable
 
 log = logging.getLogger(__name__)
 

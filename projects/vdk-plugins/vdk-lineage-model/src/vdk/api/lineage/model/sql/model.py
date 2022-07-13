@@ -41,19 +41,13 @@ class LineageData:
     query: str
         The original query
     query_type: str
-        Type of operation (see below for supported values)
+        Type of operation
     query_status: str
         'OK' or 'EXCEPTION'
     input_tables: List[LineageTable]
         An array of LineageTable objects (see LineageTable)
     output_table: LineageTable
         A LineageTable object (see LineageTable)
-
-    Supported query_type values are:
-        - insert
-        - select
-        - insert_select
-        - rename_table
     """
 
     query: str

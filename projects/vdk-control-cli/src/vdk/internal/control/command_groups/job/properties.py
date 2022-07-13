@@ -222,7 +222,6 @@ class JobProperties:
      vdk properties --list
 
                     """,
-    hidden=True,
 )
 @click.option(
     "-n", "--name", prompt="Job Name", type=click.STRING, help="The job name."

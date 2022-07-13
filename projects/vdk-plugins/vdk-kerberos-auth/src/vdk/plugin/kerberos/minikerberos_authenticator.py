@@ -75,7 +75,22 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
             async def get_tgt():
                 await krb_client.get_TGT()
 
-            asyncio.run(get_tgt())
+            # Create a separate event loop and run minikerberos coroutines in it
+            # to avoid interfering with other plugins or with data jobs that
+            # rely on asyncio functionality, as well. The steps of the process
+            # are as follows:
+            # 1) Create a new event loop which is different from the default one
+            # 2) Execute the `get_tgt()` coroutine and wait until it is
+            #    finished.
+            # 3) After the kerberos TGT is retrieved and the coroutine has
+            #    finished, close the event loop. As it is a single coroutine,
+            #    we don't really need to do anything else.
+            loop = asyncio.new_event_loop()
+            try:
+                loop.run_until_complete(get_tgt())
+            finally:
+                loop.close()
+
             krb_client.ccache.to_file(self._ccache_file)
             log.info(
                 f"Got Kerberos TGT for {self._kerberos_principal}@{self._kerberos_realm} "
