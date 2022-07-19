@@ -118,22 +118,67 @@ public class DataJobMonitor {
     } catch (IOException | ApiException e) {
       log.info("Failed to watch jobs. Error was: {}", e.getMessage());
     }
-  }
 
-  /**
-   * Creates gauges that expose configuration information and termination status for the specified
-   * data jobs. If the gauges already exist for a particular data job, they are updated if
-   * necessary.
-   *
-   * @param dataJobs The data jobs for which to create or update gauges.
-   */
-  public void updateDataJobsGauges(final Iterable<DataJob> dataJobs) {
-    Objects.requireNonNull(dataJobs);
+    /**
+     * This method is annotated with {@link SchedulerLock} to prevent it from being executed simultaneously
+     * by more than one instance of the service in a multi-node deployment. This aims to reduce the number
+     * of rps to the Kubernetes API as well as to avoid errors due to concurrent database writes.
+     * <p>
+     * The flow is as follows:
+     * <ol>
+     *     <li>At any given point only one of the nodes will acquire the lock and execute the method.</li>
+     *     <li>A lock will be held for no longer than 10 minutes (as configured in {@link ThreadPoolConf}),
+     *     which should be enough for a watch to complete (it currently has 5 minutes timeout).</li>
+     *     <li>The other nodes will skip their schedules until after this node completes.</li>
+     *     <li>When a termination status of a job is updated by the node holding the lock, the other nodes will
+     *     be eventually consistent within 5 seconds (by default) due to the continuous updates done here:
+     *     {@link DataJobMonitorSync#updateDataJobStatus}.</li>
+     *     <li>Subsequently, when one of the other nodes acquires the lock, it will detect all changes since
+     *     its own last run (see {@code lastWatchTime}) and rewrite them. We can potentially improve on
+     *     this by sharing the lastWatchTime amongst the nodes.</li>
+     * </ol>
+     *
+     * @see <a href="https://github.com/lukas-krecan/ShedLock">ShedLock</a>
+     */
+    @Scheduled(
+            fixedDelayString = "${datajobs.status.watch.interval:1000}",
+            initialDelayString = "${datajobs.status.watch.initial.delay:10000}")
+    @SchedulerLock(name = "watchJobs_schedulerLock")
+    public void watchJobs() {
+        dataJobMetrics.incrementWatchTaskInvocations();
+        try {
+            dataJobsKubernetesService.watchJobs(
+                    labelsToWatch,
+                    s -> {
+                        log.info("Termination message of Data Job {} with execution {}: {}",
+                                s.getJobName(), s.getExecutionId(), s.getPodTerminationMessage());
+                        recordJobExecutionStatus(s);
+                    },
+                    runningJobExecutionIds -> {
+                        jobExecutionService.syncJobExecutionStatuses(runningJobExecutionIds);
+                    },
+                    lastWatchTime);
+            // Move the lastWatchTime one minute into the past to account for events that
+            // could have happened after the watch has completed until now
+            lastWatchTime = Instant.now().minusMillis(ONE_MINUTE_MILLIS).toEpochMilli();
+        } catch (IOException | ApiException e) {
+            log.info("Failed to watch jobs. Error was: {}", e.getMessage());
+        }
+    }
 
-    dataJobs.forEach(
-        job -> {
-          updateDataJobInfoGauges(job);
-          updateDataJobTerminationStatusGauge(job);
+
+    /**
+     * Creates gauges that expose configuration information and termination status for the specified data jobs.
+     * If the gauges already exist for a particular data job, they are updated if necessary.
+     *
+     * @param dataJobs The data jobs for which to create or update gauges.
+     */
+    public void updateDataJobsGauges(final Iterable<DataJob> dataJobs) {
+        Objects.requireNonNull(dataJobs);
+
+        dataJobs.forEach(job -> {
+            updateDataJobInfoGauges(job);
+            updateDataJobTerminationStatusMetrics(job);
         });
   }
 
@@ -195,29 +240,74 @@ public class DataJobMonitor {
       return;
     }
 
-    Optional<DataJob> dataJobOptional = jobsRepository.findById(dataJobName);
-    if (dataJobOptional.isEmpty()) {
-      log.debug("Data job {} was deleted or hasn't been created", dataJobName);
-      return;
+    /**
+     * Creates metrics (a gauge and counters) that expose termination status
+     * for the specified data job and count the number of instances of the said
+     * status.
+     * If a gauge or counters already exist for the data job, they are updated
+     * if necessary.
+     *
+     * @param dataJob The data job for which to create or update a gauge.
+     */
+    void updateDataJobTerminationStatusMetrics(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
+
+        if (dataJob.getLatestJobTerminationStatus() == null ||
+                StringUtils.isEmpty(dataJob.getLatestJobExecutionId())) {
+            return;
+        }
+
+        dataJobMetrics.updateTerminationStatusGauge(dataJob);
+        dataJobMetrics.incrementTerminationStatusCounter(dataJob);
     }
 
-    final DataJob dataJob = dataJobOptional.get();
+    /**
+     * Creates gauges that expose configuration information for the specified data job.
+     * If the gauges already exist for the data job, they are updated if necessary.
+     *
+     * @param dataJob The data job for which to create or update the gauges.
+     */
+    void updateDataJobInfoGauges(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
 
-    // Update the job execution and the last execution state
-    jobExecutionService
-        .updateJobExecution(dataJob, jobStatus, executionResult)
-        .ifPresent(jobsService::updateLastExecution);
+        dataJobMetrics.updateInfoGauges(dataJob);
+    }
 
-    // Update the termination status from the last execution
-    jobExecutionService
-        .getLastExecution(dataJobName)
-        .ifPresent(
-            e -> {
-              if (jobsService.updateTerminationStatus(e)) {
-                jobsRepository
-                    .findById(dataJobName)
-                    .ifPresent(this::updateDataJobTerminationStatusGauge);
-              }
-            });
-  }
+    /**
+     * Record Data Job execution status. It will record when a job has started, finished, failed or skipped.
+     *
+     * @param jobStatus - the job status of the job. The same information is sent as telemetry by Measureable annotation.
+     */
+    @Measurable(includeArg = 0, argName = "execution_status")
+    @Transactional
+    void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
+        log.debug("Storing Data Job execution status: {}", jobStatus);
+        String dataJobName = jobStatus.getJobName();
+        ExecutionResult executionResult = JobExecutionResultManager.getResult(jobStatus);
+
+        if (StringUtils.isBlank(dataJobName)) {
+            log.warn("Data job name is empty");
+            return;
+        }
+
+        Optional<DataJob> dataJobOptional = jobsRepository.findById(dataJobName);
+        if (dataJobOptional.isEmpty()) {
+            log.debug("Data job {} was deleted or hasn't been created", dataJobName);
+            return;
+        }
+
+        final DataJob dataJob = dataJobOptional.get();
+
+        // Update the job execution and the last execution state
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult)
+                .ifPresent(jobsService::updateLastExecution);
+
+        // Update the termination status from the last execution
+        jobExecutionService.getLastExecution(dataJobName)
+                .ifPresent(e -> {
+                    if (jobsService.updateTerminationStatus(e)) {
+                        jobsRepository.findById(dataJobName).ifPresent(this::updateDataJobTerminationStatusMetrics);
+                    }
+                });
+    }
 }

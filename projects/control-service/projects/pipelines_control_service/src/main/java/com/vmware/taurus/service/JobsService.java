@@ -43,66 +43,92 @@ import com.vmware.taurus.service.webhook.WebHookResult;
 @AllArgsConstructor
 public class JobsService {
 
-  private static final Logger log = LoggerFactory.getLogger(JobsService.class);
+   private static final Logger log = LoggerFactory.getLogger(JobsService.class);
 
-  private final JobsRepository jobsRepository;
-  private final DeploymentService deploymentService;
-  private final JobCredentialsService credentialsService;
-  private final WebHookRequestBodyProvider webHookRequestBodyProvider;
-  private final PostCreateWebHookProvider postCreateWebHookProvider;
-  private final PostDeleteWebHookProvider postDeleteWebHookProvider;
-  private final DataJobMetrics dataJobMetrics;
+   private final JobsRepository jobsRepository;
+   private final DeploymentService deploymentService;
+   private final JobCredentialsService credentialsService;
+   private final WebHookRequestBodyProvider webHookRequestBodyProvider;
+   private final PostCreateWebHookProvider postCreateWebHookProvider;
+   private final PostDeleteWebHookProvider postDeleteWebHookProvider;
+   private final DataJobMetrics dataJobMetrics;
 
-  public JobOperationResult deleteJob(String name) {
-    if (!jobsRepository.existsById(name)) {
-      return JobOperationResult.builder().completed(false).build();
-    }
 
-    WebHookRequestBody requestBody =
-        webHookRequestBodyProvider.constructPostDeleteBody(jobsRepository.findById(name).get());
-    Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
-    if (isInvocationSuccessful(resultHolder)) {
-      credentialsService.deleteJobCredentials(name);
-      deploymentService.deleteDeployment(name);
-      jobsRepository.deleteById(name);
-      dataJobMetrics.clearGauges(name);
+   public JobOperationResult deleteJob(String name) {
+      if (!jobsRepository.existsById(name)) {
+         return JobOperationResult.builder()
+               .completed(false)
+               .build();
+      }
 
-      return JobOperationResult.builder().completed(true).build();
-    } else {
-      log.debug(
-          "Post Delete WebHook Provider returns unsuccessful result. Job: {} will not be persisted"
-              + " ...",
-          name);
+      WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostDeleteBody(jobsRepository.findById(name).get());
+      Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
+      if (isInvocationSuccessful(resultHolder)) {
+         credentialsService.deleteJobCredentials(name);
+         deploymentService.deleteDeployment(name);
+         jobsRepository.deleteById(name);
+         dataJobMetrics.clearGauges(name);
+         dataJobMetrics.clearCounters(name);
 
-      // Propagate the webhook status code and message
-      return JobOperationResult.builder()
-          .completed(false)
-          .webHookResult(resultHolder.get())
-          .build();
-    }
-  }
+         return JobOperationResult.builder()
+               .completed(true)
+               .build();
+      } else {
+         log.debug("Post Delete WebHook Provider returns unsuccessful result. Job: {} will not be persisted ...", name);
 
-  /**
-   * Creates a data job if it doesn't exist
-   *
-   * @param jobInfo the job details, not null
-   * @return JobOperationResult with information whether the job was created and didn't exist before
-   *     the operation. In addition it will contain WebHookResult in case the WebHookRequest returns
-   *     4xx error.
-   */
-  public JobOperationResult createJob(DataJob jobInfo) {
-    Objects.requireNonNull(jobInfo);
-    Objects.requireNonNull(jobInfo.getJobConfig());
-    if (jobsRepository.existsById(jobInfo.getName())) {
-      return JobOperationResult.builder().completed(false).build();
-    }
+         //Propagate the webhook status code and message
+         return JobOperationResult.builder()
+               .completed(false)
+               .webHookResult(resultHolder.get())
+               .build();
+      }
+   }
 
-    WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostCreateBody(jobInfo);
-    Optional<WebHookResult> resultHolder = postCreateWebHookProvider.invokeWebHook(requestBody);
-    if (isInvocationSuccessful(resultHolder)) {
-      // Save the data job and update the job info metrics
-      if (jobInfo.getJobConfig().isGenerateKeytab()) {
-        credentialsService.createJobCredentials(jobInfo.getName());
+   /**
+    * Creates a data job if it doesn't exist
+    *
+    * @param jobInfo
+    *       the job details, not null
+    * @return JobOperationResult with information whether the job was created and didn't exist before the operation.
+    * In addition it will contain WebHookResult in case the WebHookRequest returns 4xx error.
+    */
+   public JobOperationResult createJob(DataJob jobInfo) {
+      Objects.requireNonNull(jobInfo);
+      Objects.requireNonNull(jobInfo.getJobConfig());
+      if (jobsRepository.existsById(jobInfo.getName())) {
+         return JobOperationResult.builder()
+               .completed(false)
+               .build();
+      }
+
+      WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostCreateBody(jobInfo);
+      Optional<WebHookResult> resultHolder = postCreateWebHookProvider.invokeWebHook(requestBody);
+      if (isInvocationSuccessful(resultHolder)) {
+         // Save the data job and update the job info metrics
+         if (jobInfo.getJobConfig().isGenerateKeytab()) {
+            credentialsService.createJobCredentials(jobInfo.getName());
+         }
+         var dataJob = jobsRepository.save(jobInfo);
+         dataJobMetrics.updateInfoGauges(dataJob);
+
+         return JobOperationResult.builder()
+               .completed(true)
+               .build();
+      } else {
+         log.debug("Post Create WebHook Provider returns unsuccessful result. Job: {} will not be persisted ...",
+               jobInfo.getName());
+
+         //Propagate the webhook status code and message
+         return JobOperationResult.builder()
+               .completed(false)
+               .webHookResult(resultHolder.get())
+               .build();
+      }
+   }
+
+   private boolean isInvocationSuccessful(Optional<WebHookResult> resultHolder) {
+      if (resultHolder.isPresent()) {
+         return resultHolder.get().isSuccess();
       }
       var dataJob = jobsRepository.save(jobInfo);
       dataJobMetrics.updateInfoGauges(dataJob);
