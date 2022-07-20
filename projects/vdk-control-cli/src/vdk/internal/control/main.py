@@ -24,6 +24,7 @@ from vdk.internal.control.configuration.default_options import DefaultOptions
 from vdk.internal.control.configuration.log_config import configure_loggers
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.plugin import control_plugin_manager
+
 """
 This the starting point for the Python vdk console script.
 """
