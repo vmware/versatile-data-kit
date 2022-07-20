@@ -18,6 +18,15 @@ repos:
       - id: requirements-txt-fixer
       - id: detect-private-key
       - id: fix-byte-order-marker
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.2.0
+    hooks:
+      - id: pretty-format-java
+        args: [--autofix]
+        # we want ot run only if there *.java files changed
+        # presumably then we'd have java installed otherwise java should not be required
+        always_run: false
+        files: ^.*\.java$
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.17.0
     hooks:
