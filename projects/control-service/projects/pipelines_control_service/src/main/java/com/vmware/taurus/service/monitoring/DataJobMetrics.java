@@ -15,11 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -34,10 +30,12 @@ public class DataJobMetrics {
     public static final String TAURUS_DATAJOB_INFO_METRIC_NAME = "taurus.datajob.info";
     public static final String TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME = "taurus.datajob.notification.delay";
     public static final String TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME = "taurus.datajob.termination.status";
+    public static final String TAURUS_DATAJOB_TERMINATION_STATUS_COUNTER_NAME = "taurus.datajob.termination.status.counter";
     public static final String TAURUS_DATAJOB_WATCH_TASK_INVOCATIONS_COUNTER_NAME = "taurus.datajob.watch.task.invocations.counter";
     public static final String TAG_DATA_JOB = "data_job";
     public static final String TAG_EXECUTION_ID = "execution_id";
     public static final String TAG_TEAM = "team";
+    public static final String TAG_STATUS = "status";
     public static final String TAG_EMAIL_NOTIFIED_ON_SUCCESS = "email_notified_on_success";
     public static final String TAG_EMAIL_NOTIFIED_ON_USER_ERROR = "email_notified_on_user_error";
     public static final String TAG_EMAIL_NOTIFIED_ON_PLATFORM_ERROR = "email_notified_on_platform_error";
@@ -50,6 +48,7 @@ public class DataJobMetrics {
     private final Map<String, Gauge> infoGauges = new ConcurrentHashMap<>();
     private final Map<String, Gauge> delayGauges = new ConcurrentHashMap<>();
     private final Map<String, Gauge> statusGauges = new ConcurrentHashMap<>();
+    private final Map<String, Counter> statusCounters = new ConcurrentHashMap<>();
     private final Map<String, Integer> currentDelays = new ConcurrentHashMap<>();
     private final Map<String, Integer> currentStatuses = new ConcurrentHashMap<>();
 
@@ -174,6 +173,33 @@ public class DataJobMetrics {
     }
 
     /**
+     * Creates a "taurus.datajob.termination.status.counter" counter for the specified
+     * data job and execution status, if one does not exist. If a counter already
+     * exists, its value is incremented.
+     *
+     * @param dataJob The data job for which to increment the counter.
+     * */
+    public void incrementTerminationStatusCounter(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
+
+        try {
+            var dataJobName = dataJob.getName();
+            var dataJobStatus = dataJob.getLastExecutionStatus().getAlertValue().toString();
+            var jobStatusKey = dataJobName + "__" + dataJobStatus;
+            var counter = statusCounters.getOrDefault(jobStatusKey, null);
+            var tags = createStatusCounterTags(dataJob);
+
+            if (counter == null) {
+                statusCounters.computeIfAbsent(jobStatusKey, name -> createTerminationStatusCounter(dataJobName, tags, dataJobStatus));
+            } else {
+                counter.increment();
+            }
+        } catch (Exception e) {
+            log.warn("An exception occurred while incrementing the termination status counter of data job {} and status {}", dataJob.getName(), dataJob.getLatestJobTerminationStatus().getAlertValue().toString());
+        }
+    }
+
+    /**
      * Removes all gauges associated with the specified data job.
      *
      * @param dataJobName The name of the data job for which to clear all gauges.
@@ -182,6 +208,15 @@ public class DataJobMetrics {
         removeInfoGauge(dataJobName);
         removeNotificationDelayGauge(dataJobName);
         removeTerminationStatusGauge(dataJobName);
+    }
+
+    /**
+     * Removes all counters associated with the specified data job.
+     *
+     * @param dataJobName The name of the data job for which to clear all counters.
+     */
+    public void clearCounters(final String dataJobName) {
+        removeTerminationStatusCounters(dataJobName);
     }
 
     /**
@@ -301,6 +336,54 @@ public class DataJobMetrics {
         }
     }
 
+    private Counter createTerminationStatusCounter(final String dataJobName, final Tags tags, final String status) {
+        var counter = Counter.builder(TAURUS_DATAJOB_TERMINATION_STATUS_COUNTER_NAME)
+                .description("Counts the number of specific statuses per job")
+                .tags(tags)
+                .register(meterRegistry);
+        log.info("Counter for data job {} and status {} was created.", dataJobName, status);
+        return counter;
+    }
+
+    /**
+     * Removes all termination status counters associated with a data job.
+     * Status counters for each data job are stored in the statusCounters
+     * hash map, in the form:
+     *    `<data-job-name>__<execution-status> : <counter-object>`
+     * and we need to iterate over the hash map, in order to find all instances
+     * that need to be removed.
+     *
+     * @param dataJobName the name of the data job
+     * */
+    private void removeTerminationStatusCounters(final String dataJobName) {
+        try {
+            if (StringUtils.isNotBlank(dataJobName)) {
+                Set<String> toBeDeleted = new HashSet<>();
+                String filter = dataJobName + "__";
+
+                for (Map.Entry<String, Counter> pair : statusCounters.entrySet()) {
+                    if (pair.getKey().contains(filter)) {
+                        toBeDeleted.add(pair.getKey());
+                    }
+                }
+
+                if (!toBeDeleted.isEmpty()) {
+                    for (String key : toBeDeleted) {
+                        var counter = statusCounters.getOrDefault(key, null);
+                        meterRegistry.remove(counter);
+                        statusCounters.remove(key);
+                    }
+                } else {
+                    log.info("No termination status counters found for data job: {}", dataJobName);
+                }
+            } else {
+                log.warn("The termination status counters cannot be removed: data job name is empty.");
+            }
+        } catch (Exception e) {
+            log.warn("An exception occurred while removing a termination status counter of data job {}", dataJobName);
+        }
+    }
+
     private boolean isGaugeChanged(final Gauge gauge, final Tags newTags) {
         if (gauge == null) {
             return false;
@@ -333,5 +416,15 @@ public class DataJobMetrics {
         return Tags.of(
                 TAG_DATA_JOB, dataJob.getName(),
                 TAG_EXECUTION_ID, dataJob.getLatestJobExecutionId());
+    }
+
+    private Tags createStatusCounterTags(final DataJob dataJob) {
+        Objects.requireNonNull(dataJob);
+
+        return Tags.of(
+                TAG_DATA_JOB, dataJob.getName(),
+                TAG_TEAM, dataJob.getJobConfig().getTeam(),
+                TAG_STATUS, dataJob.getLatestJobTerminationStatus().getAlertValue().toString()
+        );
     }
 }

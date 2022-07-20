@@ -124,7 +124,7 @@ public class DataJobMonitor {
 
         dataJobs.forEach(job -> {
             updateDataJobInfoGauges(job);
-            updateDataJobTerminationStatusGauge(job);
+            updateDataJobTerminationStatusMetrics(job);
         });
     }
 
@@ -141,12 +141,15 @@ public class DataJobMonitor {
     }
 
     /**
-     * Creates a gauge that exposes termination status for the specified data job.
-     * If a gauge already exists for the data job, it is updated if necessary.
+     * Creates metrics (a gauge and counters) that expose termination status
+     * for the specified data job and count the number of instances of the said
+     * status.
+     * If a gauge or counters already exist for the data job, they are updated
+     * if necessary.
      *
      * @param dataJob The data job for which to create or update a gauge.
      */
-    void updateDataJobTerminationStatusGauge(final DataJob dataJob) {
+    void updateDataJobTerminationStatusMetrics(final DataJob dataJob) {
         Objects.requireNonNull(dataJob);
 
         if (dataJob.getLatestJobTerminationStatus() == null ||
@@ -155,6 +158,7 @@ public class DataJobMonitor {
         }
 
         dataJobMetrics.updateTerminationStatusGauge(dataJob);
+        dataJobMetrics.incrementTerminationStatusCounter(dataJob);
     }
 
     /**
@@ -202,7 +206,7 @@ public class DataJobMonitor {
         jobExecutionService.getLastExecution(dataJobName)
                 .ifPresent(e -> {
                     if (jobsService.updateTerminationStatus(e)) {
-                        jobsRepository.findById(dataJobName).ifPresent(this::updateDataJobTerminationStatusGauge);
+                        jobsRepository.findById(dataJobName).ifPresent(this::updateDataJobTerminationStatusMetrics);
                     }
                 });
     }

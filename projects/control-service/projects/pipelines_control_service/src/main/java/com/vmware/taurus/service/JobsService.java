@@ -69,6 +69,7 @@ public class JobsService {
          deploymentService.deleteDeployment(name);
          jobsRepository.deleteById(name);
          dataJobMetrics.clearGauges(name);
+         dataJobMetrics.clearCounters(name);
 
          return JobOperationResult.builder()
                .completed(true)
