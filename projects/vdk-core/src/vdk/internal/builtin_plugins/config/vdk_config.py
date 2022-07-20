@@ -64,6 +64,7 @@ class CoreConfigDefinitionPlugin:
         config_builder.add(
             LOG_LEVEL_VDK,
             None,
+            True,
             "Logging verbosity of VDK code can be controlled from here. "
             "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
             "If not set python default or one set by vdk -v LEVEL is used. ",
