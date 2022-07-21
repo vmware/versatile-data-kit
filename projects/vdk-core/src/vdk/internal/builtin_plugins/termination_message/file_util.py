@@ -23,7 +23,7 @@ class WriteToFileAction:
             return
 
         try:
-            with open(self.filename, "a") as file:
+            with open(self.filename, "w") as file:
                 file.write(message)
         except OSError as e:
             if self.show_log_messages:
