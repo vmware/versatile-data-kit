@@ -178,5 +178,6 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
             .build();
 
       jobExecutionRepository.save(jobExecution);
+
    }
 }
