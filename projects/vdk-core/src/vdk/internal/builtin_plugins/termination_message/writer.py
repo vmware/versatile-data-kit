@@ -84,4 +84,4 @@ class TerminationMessageWriterPlugin:
             status = "Platform error"
 
         termination_message["status"] = status
-        file_util.append_to_file(json.dumps(termination_message))
+        file_util.write_to_file(json.dumps(termination_message))
