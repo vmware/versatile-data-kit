@@ -97,14 +97,14 @@ class TestTerminationMessageWriterPlugin(unittest.TestCase):
         # check message was written successfully
         self._check_message_status("Skipped")
 
-    def _check_message_status(self, expected_message):
-        expected_message = (
-            f'{{"vdk_version": "{get_version()}", "status": "{expected_message}"}}'
+    def _check_message_status(self, expected_status):
+        expected_status = (
+            f'{{"vdk_version": "{get_version()}", "status": "{expected_status}"}}'
         )
         with open(
             self.configuration.get_value("TERMINATION_MESSAGE_WRITER_OUTPUT_FILE")
         ) as file:
-            assert file.read() == expected_message
+            assert file.read() == expected_status
 
 
 class WriterTest(unittest.TestCase):
