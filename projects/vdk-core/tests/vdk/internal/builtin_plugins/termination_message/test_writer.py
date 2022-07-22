@@ -18,7 +18,7 @@ from vdk.internal.core.errors import get_blamee_overall
 from vdk.internal.core.statestore import StateStore
 
 
-class TestWriterIdempotence(unittest.TestCase):
+class TestTerminationMessageWriterPlugin(unittest.TestCase):
     def setUp(self) -> None:
         self.termination_plugin = TerminationMessageWriterPlugin()
         configuration_builder = ConfigurationBuilder()
@@ -47,13 +47,13 @@ class TestWriterIdempotence(unittest.TestCase):
             False, False, self.configuration, False
         )
         # check message was written successfully
-        self._check_message("Success")
+        self._check_message_status("Success")
         # write another message
         self.termination_plugin.write_termination_message(
             False, False, self.configuration, False
         )
         # check idempotence
-        self._check_message("Success")
+        self._check_message_status("Success")
 
     def test_last_message_persisted(self):
         # write a success message
@@ -61,13 +61,13 @@ class TestWriterIdempotence(unittest.TestCase):
             False, False, self.configuration, False
         )
         # check message was written successfully
-        self._check_message("Success")
+        self._check_message_status("Success")
         # write failure message
         self.termination_plugin.write_termination_message(
             True, False, self.configuration, False
         )
         # check fail message is present
-        self._check_message("Platform error")
+        self._check_message_status("Platform error")
 
     def test_user_error_message(self):
         # write user error message
@@ -75,13 +75,13 @@ class TestWriterIdempotence(unittest.TestCase):
             True, True, self.configuration, False
         )
         # check message was written successfully
-        self._check_message("User error")
+        self._check_message_status("User error")
         # write user error message
         self.termination_plugin.write_termination_message(
             True, True, self.configuration, False
         )
         # check message idempotent
-        self._check_message("User error")
+        self._check_message_status("User error")
 
     def test_execution_skipped_message(self):
         # write execution skipped
@@ -89,15 +89,15 @@ class TestWriterIdempotence(unittest.TestCase):
             False, False, self.configuration, True
         )
         # check message was written successfully
-        self._check_message("Skipped")
+        self._check_message_status("Skipped")
         # check idempotence
         self.termination_plugin.write_termination_message(
             False, False, self.configuration, True
         )
         # check message was written successfully
-        self._check_message("Skipped")
+        self._check_message_status("Skipped")
 
-    def _check_message(self, expected_message):
+    def _check_message_status(self, expected_message):
         expected_message = (
             f'{{"vdk_version": "{get_version()}", "status": "{expected_message}"}}'
         )
