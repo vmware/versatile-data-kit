@@ -78,12 +78,13 @@ control_service_integration_test:
     GIT_PASSWORD: $CICD_GIT_PASSWORD
     GIT_USERNAME_READ_WRITE: $CICD_GIT_USER
     GIT_PASSWORD_READ_WRITE: $CICD_GIT_PASSWORD
+    DEFAULT_JVM_OPTS: "-Djdk.tls.client.protocols=TLSv1.2"
   script:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
-    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace -Djdk.tls.client.protocols=TLSv1.2
+    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
