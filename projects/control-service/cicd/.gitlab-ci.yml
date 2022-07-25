@@ -25,7 +25,7 @@
 .control_service_base_build:
   image: docker:19.03.8
   before_script:
-    - apk --no-cache add git openjdk11-jdk curl --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    - apk --no-cache add git openjdk11.0.15-jdk curl --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
     - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
     - chmod +x ./aws-iam-authenticator
     - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
@@ -83,7 +83,8 @@ control_service_integration_test:
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
-    - ./gradlew -v -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
+    - ./gradlew -v
+    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
