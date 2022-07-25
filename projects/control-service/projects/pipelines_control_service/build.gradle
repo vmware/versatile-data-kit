@@ -16,7 +16,6 @@ apply from: '../java-common.gradle'
 apply from: '../application.gradle'
 apply from: '../maven.gradle'
 apply from: '../versions-of-external-dependencies.gradle'
-apply plugin: 'application'
 
 // Uncomment this in case we revert to semantic versioning
 // version = file('version.txt').text.trim()
@@ -128,7 +127,6 @@ test {
 }
 
 testSets {
-    applicationDefaultJvmArgs = ["-Djdk.tls.client.protocols=TLSv1.2"]
     integrationTest { dirName = 'integration-test' }
     tasks.integrationTest { useJUnitPlatform() }
 }
