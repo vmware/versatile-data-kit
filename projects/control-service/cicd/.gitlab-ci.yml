@@ -83,7 +83,7 @@ control_service_integration_test:
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
-    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
+    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace -Djdk.tls.client.protocols=TLSv1.2
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
