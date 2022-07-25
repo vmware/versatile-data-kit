@@ -22,6 +22,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Properties;
 import java.util.function.Predicate;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -95,6 +97,12 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
    @Value("${integrationTest.controlNamespace:}")
    private String controlNamespace;
    private boolean ownsControlNamespace = false;
+
+   @BeforeAll
+   static void setUpProperties() {
+      Properties prop = System.getProperties();
+      prop.setProperty("jdk.tls.client.protocols", "TLSv1.2");
+   }
 
    @BeforeEach
    public void before() throws Exception {
