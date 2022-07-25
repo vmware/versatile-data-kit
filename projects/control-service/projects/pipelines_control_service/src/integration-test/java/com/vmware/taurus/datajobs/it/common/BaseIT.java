@@ -102,6 +102,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
    static void setUpProperties() {
       Properties prop = System.getProperties();
       prop.setProperty("jdk.tls.client.protocols", "TLSv1.2");
+      prop.setProperty("keyalg", "RSA");
    }
 
    @BeforeEach
