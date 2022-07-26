@@ -635,24 +635,24 @@ public abstract class KubernetesService implements InitializingBean {
     public void cancelRunningCronJob(String teamName, String jobName, String executionId) throws ApiException {
         log.info("K8S deleting job for team: {} data job name: {} execution: {}", teamName, jobName, executionId);
         try {
-            var operationResponse = new BatchV1Api(client).deleteNamespacedJob(executionId, namespace, null,
-                    null,
-                    null,
-                    null,
-                    "Foreground",
-                    null);
+            var operationResponse = initBatchV1Api().deleteNamespacedJob(
+                  executionId,
+                  namespace,
+                  null,
+                  null,
+                  null,
+                  null,
+                  "Foreground",
+                  null);
 
-            try {
-                //Status of the operation. One of: "Success" or "Failure"
-                if (operationResponse.getStatus().equals("Failure")) {
-                    log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
-                    throw new KubernetesException(operationResponse.getMessage(), new ApiException(operationResponse.getCode(), operationResponse.getMessage()));
-                }
-            } catch (NullPointerException e) {
+            //Status of the operation. One of: "Success" or "Failure"
+            if (operationResponse == null || operationResponse.getStatus() == null) {
                 log.info("Execution: {} for data job: {} with team: {} not found! The data job has likely completed before it could be cancelled.", executionId, teamName, jobName);
                 throw new DataJobExecutionCannotBeCancelledException(executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
+            } else if (operationResponse.getStatus().equals("Failure")) {
+                log.warn("Failed to delete K8S job. Reason: {} Details: {}", operationResponse.getReason(), operationResponse.getDetails().toString());
+                throw new KubernetesException(operationResponse.getMessage(), new ApiException(operationResponse.getCode(), operationResponse.getMessage()));
             }
-
         } catch (JsonSyntaxException e) {
             if (e.getCause() instanceof IllegalStateException) {
                 IllegalStateException ise = (IllegalStateException) e.getCause();
