@@ -153,3 +153,21 @@ def test_new_version_check_error(mock_list, mock_package):
     check_plugin.vdk_exit(context)
 
     mock_package.assert_not_called()
+
+
+@patch(f"{new_package.__module__}.{new_package.__name__}", autospec=True)
+@patch(
+    f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
+    autospec=True,
+)
+def test_new_version_check_disabled(mock_list, mock_package):
+    mock_list.return_value = [("dist", "plugin")]
+
+    check_plugin = NewVersionCheckPlugin()
+    context = build_core_context(
+        check_plugin,
+        {new_version_check_plugin.ConfigKey.VERSION_CHECK_DISABLED.value: True},
+    )
+    check_plugin.vdk_exit(context)
+
+    mock_package.assert_not_called()

@@ -18,12 +18,21 @@ class WriteToFileAction:
         self.filename = filename
         self.show_log_messages = show_log_messages
 
-    def append_to_file(self, message):
+    def write_to_file(self, message) -> None:
+        """
+        This method is intended to be used by the termination message plugin.
+        Writes a message to the configured filename (truncating it first).
+        This means that if two or more messages are writen only the latest one
+        will be the actual data job termination messsage.
+
+        :param message: Json formatted string with the termination message
+        :return: None
+        """
         if not self.filename:
             return
 
         try:
-            with open(self.filename, "a") as file:
+            with open(self.filename, "w") as file:
                 file.write(message)
         except OSError as e:
             if self.show_log_messages:

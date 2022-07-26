@@ -270,7 +270,7 @@ class IngesterBase(IIngester):
                 ) = self._queue_payload_for_posting(
                     aggregated_payload,
                     number_of_payloads,
-                    destination_table,
+                    current_destination_table,
                     method,
                     current_target,
                     current_collection_id,

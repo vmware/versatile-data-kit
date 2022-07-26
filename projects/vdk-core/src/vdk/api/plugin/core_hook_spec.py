@@ -105,7 +105,7 @@ class CoreHookSpecs:
         """
         Called in case the CLI is about to exit with error.
 
-        :return: True if exception is handled and does not need to be logged by main
+        :return: True if exception is handled and does not need to be logged by main, nor affect the exit code
         """
         pass
 

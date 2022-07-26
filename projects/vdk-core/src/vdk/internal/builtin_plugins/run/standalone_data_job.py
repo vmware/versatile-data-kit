@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import logging
 import pathlib
 import sys
 from pathlib import Path
@@ -25,6 +26,8 @@ from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.plugin.plugin import PluginRegistry
+
+log = logging.getLogger(__name__)
 
 
 class NoOpStepDataJobHookImplPlugin(DataJobDefaultHookImplPlugin):
@@ -141,12 +144,17 @@ class StandaloneDataJob(IStandaloneDataJob):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         exit_code = 0
         if exc_type:
-            cast(CoreHookSpecs, self._plugin_registry.hook()).vdk_exception(
+            handled = cast(CoreHookSpecs, self._plugin_registry.hook()).vdk_exception(
                 exception=exc_value
             )
-            exit_code = (
-                exc_value.exit_code if isinstance(exc_value, ClickException) else 1
-            )
+            # if at least one hook implementation returned handled, means we do not need to log the exception
+            if not (True in handled):
+                log.exception("Exiting with exception.")
+                exit_code = (
+                    exc_value.exit_code if isinstance(exc_value, ClickException) else 1
+                )
+            else:
+                exit_code = 0
         else:
             cast(JobRunHookSpecs, self._plugin_registry.hook()).finalize_job(
                 context=self._job_context

@@ -23,7 +23,7 @@
   - projects/control-service/projects/helm_charts/pipelines-control-service/**
 
 .control_service_base_build:
-  image: docker:19.03.8
+  image: docker:19.03.15
   before_script:
     - apk --no-cache add git openjdk11-jdk curl --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
     - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
@@ -34,7 +34,7 @@
 control_service_build_image:
   extends: .control_service_base_build
   services:
-    - docker:19.03.8-dind
+    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -83,7 +83,8 @@ control_service_integration_test:
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
-    - ./gradlew :pipelines_control_service:integrationTest --info --stacktrace
+    - ./gradlew -v
+    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
@@ -103,9 +104,9 @@ control_service_integration_test:
 
 
 control_service_publish_job_base_image:
-  image: docker:19.03.8
+  image: docker:19.03.15
   services:
-    - docker:19.03.8-dind
+    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -130,9 +131,9 @@ control_service_publish_job_base_image:
 
 
 control_service_publish_job_builder_image:
-  image: docker:19.03.8
+  image: docker:19.03.15
   services:
-    - docker:19.03.8-dind
+    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -154,9 +155,9 @@ control_service_publish_job_builder_image:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_publish_image:
-  image: docker:19.03.8
+  image: docker:19.03.15
   services:
-    - docker:19.03.8-dind
+    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -184,7 +185,7 @@ control_service_publish_image:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_publish_api_client:
-  image: docker:19.03.8
+  image: docker:19.03.15
   stage: publish_artifacts
   script:
     - apk add --no-cache py-pip openjdk11-jdk git python
@@ -246,7 +247,7 @@ control_service_post_deployment_test:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_release:
-  image: docker:19.03.8
+  image: docker:19.03.15
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
@@ -267,9 +268,9 @@ control_service_release:
 
 # TODO: automatically rebuild image on vdk-heartbeat change
 control_service_vdk_heartbeat_release:
-  image: docker:19.03.8
+  image: docker:19.03.15
   services:
-    - docker:19.03.8-dind
+    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2

@@ -3,7 +3,7 @@
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.3.0
     hooks:
       - id: check-yaml
         args: [ '--unsafe' ]
@@ -23,7 +23,7 @@ repos:
     hooks:
       - id: gitlint
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
       - id: black
         language_version: python3
@@ -36,7 +36,7 @@ repos:
           - --select=D101,D103,D300
           - --match='(?!test_).*\.py'
   - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: 'v3.0.0a4'
+    rev: 'v3.0.0a5'
     hooks:
       - id: pylint
         args: [ --exit-zero ]
@@ -46,13 +46,13 @@ repos:
   #        -   id: mypy
   #            files: ^(src/|tests/|plugins/)
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.1.0
+    rev: v3.8.1
     hooks:
       - id: reorder-python-imports
         args: [ --py37-plus, '--application-directories=.:src' ]
   # use latest python syntax
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.32.1
+    rev: v2.37.1
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -65,7 +65,7 @@ repos:
   #        args: [ -s, B101 ]
   # add copyright notice
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.2.0
+    rev: v1.3.0
     hooks:
       - id: insert-license
         files: \.java$

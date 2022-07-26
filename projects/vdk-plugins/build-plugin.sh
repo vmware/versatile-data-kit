@@ -16,7 +16,11 @@ pip install --upgrade --upgrade-strategy eager -e . --extra-index-url $PIP_EXTRA
 
 # List exceptions to below check here.
 # Those are not technically plugins so they would not have entry point defined.
-if [ "$PLUGIN_NAME" != 'quickstart-vdk' ] && [ "$PLUGIN_NAME" != 'vdk-test-utils' ] && [ "$PLUGIN_NAME" != 'vdk-control-api-auth' ]; then
+if [ "$PLUGIN_NAME" != 'quickstart-vdk' ] && \
+   [ "$PLUGIN_NAME" != 'vdk-test-utils' ] && \
+   [ "$PLUGIN_NAME" != 'vdk-control-api-auth' ] && \
+   [ "$PLUGIN_NAME" != 'vdk-lineage-model' ]
+then
 
   echo "Check plugin entry point is configured correctly ..."
   if ! vdk version 2>&1 | grep -q "$PLUGIN_NAME"; then

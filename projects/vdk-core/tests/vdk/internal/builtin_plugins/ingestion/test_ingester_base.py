@@ -77,6 +77,39 @@ def test_send_tabular_data_for_ingestion_send_to_wait():
     assert ingester_base._ingester.ingest_payload.call_count == 1
 
 
+def test_send_tabular_data_for_ingestion_send_multiple_rows():
+    ingester_base = create_ingester_base(
+        config_dict={
+            "ingester_number_of_worker_threads": 2,
+            "ingester_objects_queue_size": 3,
+            "ingester_payloads_queue_size": 3,
+            "ingestion_payload_aggregator_timeout_seconds": 0.5,
+        }
+    )
+
+    ingester_base.send_tabular_data_for_ingestion(
+        rows=iter(
+            [
+                ["testrow0testcol0", 12, None],
+                ["testrow1testcol0", 22, None],
+                ["testrow2testcol0", 32, None],
+                ["testrow3testcol0", 42, None],
+                ["testrow4testcol0", 52, None],
+                ["testrow5testcol0", 62, None],
+                ["testrow6testcol0", 72, None],
+                ["testrow7testcol0", 82, None],
+                ["testrow8testcol0", 92, None],
+            ]
+        ),
+        column_names=["testcol0", "testcol1", "testcol2"],
+        destination_table="foo",
+        method=shared_test_values.get("method"),
+        target=shared_test_values.get("target"),
+    )
+    ingester_base.close()
+    assert ingester_base._ingester.ingest_payload.call_count == 9
+
+
 def test_send_tabular_data_for_ingestion():
     test_rows = iter([["testrow0testcol0", 42, None]])
     test_columns = ["testcol0", "testcol1", "testcol2"]

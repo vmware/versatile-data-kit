@@ -268,7 +268,7 @@ public class JobExecutionService {
 
       com.vmware.taurus.service.model.DataJobExecution dataJobExecution = dataJobExecutionBuilder
               .status(executionStatus)
-              .message(getJobExecutionApiMessage(executionStatus))
+              .message(getJobExecutionApiMessage(executionStatus, jobExecution.getContainerTerminationReason()))
               .opId(jobExecution.getOpId())
               .endTime(jobExecution.getEndTime())
               .vdkVersion(executionResult.getVdkVersion())
@@ -394,10 +394,16 @@ public class JobExecutionService {
       return returnValue;
    }
 
-   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus) {
+   private static String getJobExecutionApiMessage(ExecutionStatus executionStatus, String containerTerminationMessage) {
       switch (executionStatus) {
          case SKIPPED:
             return "Skipping job execution due to another parallel running execution.";
+         case USER_ERROR:
+            if (StringUtils.equalsIgnoreCase(containerTerminationMessage,
+                  JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)) {
+               return "Out of memory error on the K8S pod. Please optimize your data job.";
+            }
+            return executionStatus.getPodStatus();
          default:
             return executionStatus.getPodStatus();
       }
