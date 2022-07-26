@@ -1,20 +1,19 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import csv
 import os
 from unittest import mock
-import csv
 
 from click.testing import Result
 from vdk.plugin.csv import csv_plugin
-from vdk.plugin.test_utils.util_funcs import cli_assert_equal
-from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 from vdk.plugin.sqlite import sqlite_configuration
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
-
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
+from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 
 
 def _get_file(filename):
@@ -88,11 +87,11 @@ def test_ingestion_csv_with_options():
 def test_csv_export(tmpdir):
     db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
-            os.environ,
-            {
-                "VDK_DB_DEFAULT_TYPE": "SQLITE",
-                "VDK_SQLITE_FILE": db_dir,
-            },
+        os.environ,
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": db_dir,
+        },
     ):
         # create table first, as the ingestion fails otherwise
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
@@ -106,8 +105,10 @@ def test_csv_export(tmpdir):
 
         mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
         sqlite_ingest = IngestToSQLite(mock_sqlite_conf)
-        payload = [{"some_data": "some_test_data", "more_data": "more_test_data"},
-                   {"some_data": "some_test_data_copy", "more_data": "more_test_data_copy"}]
+        payload = [
+            {"some_data": "some_test_data", "more_data": "more_test_data"},
+            {"some_data": "some_test_data_copy", "more_data": "more_test_data_copy"},
+        ]
 
         sqlite_ingest.ingest_payload(
             payload=payload,
@@ -115,14 +116,13 @@ def test_csv_export(tmpdir):
             target=db_dir,
         )
 
-        runner.invoke(
-            ["export-csv", "--query", "SELECT * FROM test_table"]
-        )
+        runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
         output = []
-        with open(os.path.join(os.path.abspath(os.getcwd()), "result.csv"), 'r') as file:
-            reader = csv.reader(file, delimiter=',')
+        with open(
+            os.path.join(os.path.abspath(os.getcwd()), "result.csv")) as file:
+            reader = csv.reader(file, delimiter=",")
             for row in reader:
                 output.append(row)
 
-        assert output[0] == ['some_test_data', 'more_test_data']
-        assert output[1] == ['some_test_data_copy', 'more_test_data_copy']
+        assert output[0] == ["some_test_data", "more_test_data"]
+        assert output[1] == ["some_test_data_copy", "more_test_data_copy"]

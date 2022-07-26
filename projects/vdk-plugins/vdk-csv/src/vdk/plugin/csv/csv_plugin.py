@@ -3,21 +3,21 @@
 """
 VDK CSV plugin script.
 """
+import csv
 import json
 import logging
 import os
-import csv
 import pathlib
 
 import click
 from click import Context
+from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.cli_run import run
-from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
-from tabulate import tabulate
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.util.decorators import closing_noexcept_on_close
+from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 from vdk.plugin.sqlite import sqlite_configuration
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
@@ -115,7 +115,8 @@ def initialize_job(context: JobContext) -> None:
 
 
 @click.command(
-    name="export-csv", help="Execute a SQL query against a local SQLite database and export to a local CSV file."
+    name="export-csv",
+    help="Execute a SQL query against a local SQLite database and export to a local CSV file.",
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.option("-n", "--name", type=click.STRING, default="result.csv", required=False)
@@ -137,10 +138,12 @@ def export_csv(ctx: click.Context, query, name: str, path: str):
             path = os.path.abspath(os.getcwd())
         fullpath = os.path.join(path, name)
         if os.path.exists(fullpath):
-            click.echo(f"Already existing path: {fullpath}. Try again with another path or file name.")
+            click.echo(
+                f"Already existing path: {fullpath}. Try again with another path or file name."
+            )
         else:
-            with open(fullpath, 'w', encoding='UTF8', newline='') as f:
-                writer = csv.writer(f, lineterminator='\n')
+            with open(fullpath, "w", encoding="UTF8", newline="") as f:
+                writer = csv.writer(f, lineterminator="\n")
                 for row in res:
                     writer.writerow(row)
             click.echo(f"You can find the result here: {fullpath}")
