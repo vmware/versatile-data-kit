@@ -6,11 +6,9 @@ from unittest import mock
 
 from click.testing import Result
 from vdk.plugin.csv import csv_plugin
-from vdk.plugin.sqlite import sqlite_configuration
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
-from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
