@@ -7,6 +7,7 @@ from typing import Any
 from typing import List
 from typing import Optional
 
+from click import ClickException
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core import errors
 from vdk.internal.core.errors import ErrorMessage
@@ -77,7 +78,11 @@ class ExecutionResult:
         Returns main exception to be used as a failure reason for the data job.
         """
         if self.exception:
-            return self.exception
+            return (
+                Exception(self.exception.message)
+                if isinstance(self.exception, ClickException)
+                else self.exception
+            )
         step_exceptions = map(lambda x: x.exception, self.steps_list)
         step_exception = next(filter(lambda e: e is not None, step_exceptions), None)
         if step_exception:
