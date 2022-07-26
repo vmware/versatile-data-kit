@@ -693,6 +693,8 @@ class Installer:
             "--set",
             "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
             "--set",
+            "extraEnvVars.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost",
+            "--set",
             "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
             "--set",
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
