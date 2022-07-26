@@ -116,7 +116,7 @@ def initialize_job(context: JobContext) -> None:
 
 @click.command(
     name="export-csv",
-    help="Execute a SQL query against a local SQLite database and export to a local CSV file.",
+    help="Execute a SQL query against a configured database and export the result to a local CSV file.",
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.option("-n", "--name", type=click.STRING, default="result.csv", required=False)
