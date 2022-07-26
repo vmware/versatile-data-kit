@@ -116,8 +116,7 @@ def test_csv_export(tmpdir):
 
         runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
         output = []
-        with open(
-            os.path.join(os.path.abspath(os.getcwd()), "result.csv")) as file:
+        with open(os.path.join(os.path.abspath(os.getcwd()), "result.csv")) as file:
             reader = csv.reader(file, delimiter=",")
             for row in reader:
                 output.append(row)
