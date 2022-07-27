@@ -5,9 +5,9 @@ import os
 from unittest import mock
 
 from click import ClickException
+from click.testing import Result
 from pytest import raises
 from vdk.internal.core.errors import UserCodeError
-from click.testing import Result
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
@@ -122,7 +122,7 @@ def test_csv_export(tmpdir):
             reader = csv.reader(file, delimiter=",")
             for row in reader:
                 output.append(row)
-        raise Exception(output) 
+        raise Exception(output)
         assert output[0] == ["some_test_data", "more_test_data"]
         assert output[1] == ["some_test_data_copy", "more_test_data_copy"]
 
@@ -160,4 +160,3 @@ def test_csv_export_with_no_data(tmpdir):
         )
         with raises(UserCodeError):
             runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
-

@@ -10,9 +10,9 @@ import os
 
 import click
 from click import Context
-from vdk.internal.core import errors
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.cli_run import run
+from vdk.internal.core import errors
 from vdk.internal.util.decorators import closing_noexcept_on_close
 from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 @click.command(
     name="ingest-csv",
     help="Ingest CSV file."
-         """
+    """
 The ingestion destination depends on how vdk has been configured.
 See vdk config-help  - search for "ingest" to check for possible ingestion configurations.
 
@@ -66,7 +66,7 @@ vdk ingest-csv -f revenue.csv --options='{"names": ["gender", "os", "visits", "a
     default=None,
     type=click.STRING,
     help="The table in which the csv file will be ingested into."
-         "If not specified, it will default to the csv file name without the extension",
+    "If not specified, it will default to the csv file name without the extension",
 )
 @click.option(
     "-o",
@@ -74,8 +74,8 @@ vdk ingest-csv -f revenue.csv --options='{"names": ["gender", "os", "visits", "a
     default="{}",
     type=click.STRING,
     help="""Pass extra options when reading CSV file formatted as json. For example {"sep": ";", "verbose": true} """
-         "Those are the same options as passed to pandas.read_csv. See "
-         "https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html.",
+    "Those are the same options as passed to pandas.read_csv. See "
+    "https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html.",
 )
 @click.pass_context
 def ingest_csv(ctx: Context, file: str, table_name: str, options: str) -> None:
