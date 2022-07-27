@@ -4,6 +4,9 @@ import csv
 import os
 from unittest import mock
 
+from click import ClickException
+from pytest import raises
+from vdk.internal.core.errors import UserCodeError
 from click.testing import Result
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
@@ -83,7 +86,7 @@ def test_ingestion_csv_with_options():
 
 
 def test_csv_export(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = "vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {
@@ -91,7 +94,6 @@ def test_csv_export(tmpdir):
             "VDK_SQLITE_FILE": db_dir,
         },
     ):
-        # create table first, as the ingestion fails otherwise
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
         runner.invoke(
             [
@@ -120,6 +122,42 @@ def test_csv_export(tmpdir):
             reader = csv.reader(file, delimiter=",")
             for row in reader:
                 output.append(row)
-
+        raise Exception(output) 
         assert output[0] == ["some_test_data", "more_test_data"]
         assert output[1] == ["some_test_data_copy", "more_test_data_copy"]
+
+
+def test_export_csv_with_already_existing_file():
+    runner = CliEntryBasedTestRunner(csv_plugin)
+    with raises(UserCodeError):
+        runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
+
+
+def test_csv_export_with_no_data(tmpdir):
+    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": db_dir,
+        },
+    ):
+        runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
+        runner.invoke(
+            [
+                "sqlite-query",
+                "--query",
+                "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
+            ]
+        )
+        mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
+        sqlite_ingest = IngestToSQLite(mock_sqlite_conf)
+        payload = []
+        sqlite_ingest.ingest_payload(
+            payload=payload,
+            destination_table="test_table",
+            target=db_dir,
+        )
+        with raises(UserCodeError):
+            runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
+
