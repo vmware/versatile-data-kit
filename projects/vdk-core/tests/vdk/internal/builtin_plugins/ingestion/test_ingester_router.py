@@ -142,7 +142,6 @@ def test_router_raise_error_chained_ingest_plugins_not_registered():
         router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
 
     error_msg = exc_info.value
-    assert (
-        "Could not create new processor plugin of type pre-ingest-test"
-        in error_msg.message
+    assert "Could not create new processor plugin of type pre-ingest-test" in str(
+        error_msg
     )

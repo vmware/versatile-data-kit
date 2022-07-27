@@ -21,8 +21,6 @@ from types import TracebackType
 from typing import Any
 from typing import cast
 
-from click import ClickException
-
 
 class ResolvableBy(str, Enum):
     """
@@ -51,7 +49,7 @@ CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableBy.PLATFORM_ERROR
 log = logging.getLogger(__name__)
 
 
-class BaseVdkError(ClickException):
+class BaseVdkError(Exception):
     """For all errors risen from our "code" (vdk)
 
     There are two child branches in exception hierarchy:
