@@ -55,6 +55,21 @@ def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
     )
 
 
+def test_run_exception_handled(tmp_termination_msg_file: pathlib.Path):
+    errors.clear_intermediate_errors()
+
+    class ExceptionHandler:
+        @staticmethod
+        @hookimpl
+        def vdk_exception(self, exception: Exception) -> bool:
+            return True
+
+    runner = CliEntryBasedTestRunner(ExceptionHandler())
+
+    result: Result = runner.invoke(["run", util.job_path("simple-job")])
+    cli_assert_equal(0, result)
+
+
 def test_run_job_plugin_fails(tmp_termination_msg_file):
     errors.clear_intermediate_errors()
 
