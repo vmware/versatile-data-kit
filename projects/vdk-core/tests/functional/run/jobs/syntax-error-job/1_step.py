@@ -4,4 +4,4 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    syntax error
+    syntax error # type: ignore
