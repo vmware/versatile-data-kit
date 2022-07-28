@@ -84,7 +84,7 @@ control_service_integration_test:
     - mkdir -p ~/.kube
     - cp $KUBECONFIG ~/.kube/config
     - ./gradlew -v
-    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
+    - ./gradlew -Dorg.gradle.jvmargs=-Xmx4096m :pipelines_control_service:integrationTest --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
