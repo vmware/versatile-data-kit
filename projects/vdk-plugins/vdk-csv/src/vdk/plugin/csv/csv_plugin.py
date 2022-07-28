@@ -13,8 +13,10 @@ from click import Context
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.cli_run import run
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
 from vdk.internal.util.decorators import closing_noexcept_on_close
 from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
+from vdk.plugin.csv.csv_export_job import csv_export_step
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 
@@ -109,26 +111,15 @@ def export_csv(ctx: click.Context, query, name: str, path: str):
             "Will not proceed with exporting",
             "Use another name or choose another location for the file",
         )
-    conf = SQLiteConfiguration(ctx.obj.configuration)
-    conn = SQLiteConnection(conf.get_sqlite_file())
-    with closing_noexcept_on_close(conn.new_connection().cursor()) as cursor:
-        cursor.execute(query)
-        res = cursor.fetchall()
-        if not res:
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "Cannot create the result csv file.",
-                f"""No data was found """,
-                "Will not proceed with exporting",
-                "Try with another query or check the database explicitly.",
-            )
-
-        with open(fullpath, "w", encoding="UTF8", newline="") as f:
-            writer = csv.writer(f, lineterminator="\n")
-            for row in res:
-                writer.writerow(row)
-        click.echo(f"You can find the result here: {fullpath}")
+    args = dict(query=query, fullpath=fullpath)
+    try:
+        ctx.invoke(
+                run,
+                data_job_directory=os.path.dirname(csv_export_step.__file__),
+                arguments=json.dumps(args),
+        )
+    except UserCodeError as e:
+        raise e
 
 
 @hookimpl
