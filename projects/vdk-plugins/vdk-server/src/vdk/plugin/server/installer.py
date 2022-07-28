@@ -480,6 +480,8 @@ class Installer:
                         "--config=kind-cluster-config.yaml",
                         "--name",
                         self.kind_cluster_name,
+                        "--image",
+                        "kindest/node:v1.20.15",
                     ],
                     capture_output=True,
                 )
