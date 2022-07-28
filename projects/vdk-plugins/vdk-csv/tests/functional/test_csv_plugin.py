@@ -86,13 +86,13 @@ def test_ingestion_csv_with_options():
 
 
 def test_csv_export(tmpdir):
-    db_dir = "vdk-sqlite.db"
+    db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": db_dir,
-        },
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SQLITE",
+                "VDK_SQLITE_FILE": db_dir,
+            },
     ):
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
         runner.invoke(
@@ -122,25 +122,37 @@ def test_csv_export(tmpdir):
             reader = csv.reader(file, delimiter=",")
             for row in reader:
                 output.append(row)
+<<<<<<< HEAD
         raise Exception(output)
+=======
+
+>>>>>>> ea6bf9f (Added asserts for stdout to tests)
         assert output[0] == ["some_test_data", "more_test_data"]
         assert output[1] == ["some_test_data_copy", "more_test_data_copy"]
 
 
 def test_export_csv_with_already_existing_file():
+    path = os.path.abspath(os.getcwd())
+    open(os.path.join(path, 'result2.csv'), 'w')
     runner = CliEntryBasedTestRunner(csv_plugin)
-    with raises(UserCodeError):
-        runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
+    assert runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]).output == (
+        'Error: An error in data job code  occurred. The error should be resolved by '
+        'User Error. Here are the details:\n'
+        '  WHAT HAPPENED : Cannot create the result csv file.\n'
+        'WHY IT HAPPENED : File with name result2.csv already exists in '
+        f'{path}\n'
+        '   CONSEQUENCES : Will not proceed with exporting\n'
+        'COUNTERMEASURES : Use another name or choose another location for the file\n')
 
 
 def test_csv_export_with_no_data(tmpdir):
     db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": db_dir,
-        },
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SQLITE",
+                "VDK_SQLITE_FILE": db_dir,
+            },
     ):
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
         runner.invoke(
@@ -158,5 +170,15 @@ def test_csv_export_with_no_data(tmpdir):
             destination_table="test_table",
             target=db_dir,
         )
+<<<<<<< HEAD
         with raises(UserCodeError):
             runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
+=======
+        assert runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result3.csv"]).output == (
+            'Error: An error in data job code  occurred. The error should be resolved by '
+            'User Error. Here are the details:\n'
+            '  WHAT HAPPENED : Cannot create the result csv file.\n'
+            'WHY IT HAPPENED : No data was found\n'
+            '   CONSEQUENCES : Will not proceed with exporting\n'
+            'COUNTERMEASURES : Try with another query or check the database explicitly.\n')
+>>>>>>> ea6bf9f (Added asserts for stdout to tests)
