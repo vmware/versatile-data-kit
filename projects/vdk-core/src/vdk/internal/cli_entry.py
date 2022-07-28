@@ -7,7 +7,6 @@ from typing import List
 
 import click
 import click_log
-from click import ClickException
 from click_plugins import with_plugins
 from pkg_resources import iter_entry_points
 from vdk.api.plugin.core_hook_spec import CoreHookSpecs
@@ -143,7 +142,7 @@ class CliEntry:
             # if at least one hook implementation returned handled, means we do not need to log the exception
             if not (True in handled):
                 log.exception("Exiting with exception.")
-                exit_code = e.exit_code if isinstance(e, ClickException) else 1
+                exit_code = 1
             else:
                 exit_code = 0
             return exit_code
