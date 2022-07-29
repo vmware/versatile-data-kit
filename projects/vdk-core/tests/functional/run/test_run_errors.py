@@ -28,6 +28,15 @@ def tmp_termination_msg_file(tmpdir) -> pathlib.Path:
         yield pathlib.Path(out_file)
 
 
+def test_initialize_step_user_error(tmp_termination_msg_file):
+    errors.clear_intermediate_errors()
+    runner = CliEntryBasedTestRunner()
+
+    result: Result = runner.invoke(["run", util.job_path("syntax-error-job")])
+    cli_assert_equal(1, result)
+    assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "User error"
+
+
 def test_run_user_error(tmp_termination_msg_file):
     errors.clear_intermediate_errors()
     runner = CliEntryBasedTestRunner()
