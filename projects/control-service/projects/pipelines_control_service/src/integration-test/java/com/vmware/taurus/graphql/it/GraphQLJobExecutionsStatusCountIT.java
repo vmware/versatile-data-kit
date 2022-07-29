@@ -15,6 +15,7 @@ import com.vmware.taurus.service.model.ExecutionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
@@ -25,6 +26,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+@TestPropertySource(properties = {
+      "datajobs.status.watch.interval=3800000",
+      "datajobs.status.watch.initial.delay=3800000"
+})
 public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
 
    @Autowired
@@ -144,7 +150,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
               .lastDeployedBy("test_user")
               .lastDeployedDate(OffsetDateTime.now())
               .jobVersion("test_version")
-              .jobSchedule("*/5 * * * *")
+              .jobSchedule("0 5 31 2 *")
               .opId("test_op_id")
               .vdkVersion("test_vdk_version")
               .build();
