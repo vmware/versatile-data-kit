@@ -480,6 +480,8 @@ class Installer:
                         "--config=kind-cluster-config.yaml",
                         "--name",
                         self.kind_cluster_name,
+                        "--image",
+                        "kindest/node:v1.20.15",
                     ],
                     capture_output=True,
                 )
@@ -692,6 +694,8 @@ class Installer:
             "extraEnvVars.GIT_SSL_ENABLED=false",
             "--set",
             "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
+            "--set",
+            "extraEnvVars.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost",
             "--set",
             "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
             "--set",

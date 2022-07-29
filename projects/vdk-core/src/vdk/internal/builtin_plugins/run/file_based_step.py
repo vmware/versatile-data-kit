@@ -74,8 +74,27 @@ class StepFuncFactory:
             sys.path.insert(0, str(step.job_dir))
             filename = step.file_path.name
             namespace = "step_" + str(filename).lower().strip(".py")
-            python_module = imp.load_source(namespace, str(step.file_path))
             success = False
+
+            try:
+                log.debug("Loading %s ..." % filename)
+                python_module = imp.load_source(namespace, str(step.file_path))
+                log.debug("Loading %s SUCCESS" % filename)
+            except BaseException as e:
+                log.info("Loading %s FAILURE" % filename)
+                errors.log_and_rethrow(
+                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                    log=log,
+                    what_happened="Failed loading job sources of %s" % filename,
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
+                    + " Most likely importing a dependency or data job step failed, see"
+                    + " logs for details and fix the failed step (details in stacktrace).",
+                    exception=e,
+                    wrap_in_vdk_error=True,
+                )
+
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":
                     try:

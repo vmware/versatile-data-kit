@@ -28,6 +28,15 @@ def tmp_termination_msg_file(tmpdir) -> pathlib.Path:
         yield pathlib.Path(out_file)
 
 
+def test_initialize_step_user_error(tmp_termination_msg_file):
+    errors.clear_intermediate_errors()
+    runner = CliEntryBasedTestRunner()
+
+    result: Result = runner.invoke(["run", util.job_path("syntax-error-job")])
+    cli_assert_equal(1, result)
+    assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "User error"
+
+
 def test_run_user_error(tmp_termination_msg_file):
     errors.clear_intermediate_errors()
     runner = CliEntryBasedTestRunner()
@@ -53,6 +62,21 @@ def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
     assert (
         json.loads(tmp_termination_msg_file.read_text())["status"] == "Platform error"
     )
+
+
+def test_run_exception_handled(tmp_termination_msg_file: pathlib.Path):
+    errors.clear_intermediate_errors()
+
+    class ExceptionHandler:
+        @staticmethod
+        @hookimpl
+        def vdk_exception(self, exception: Exception) -> bool:
+            return True
+
+    runner = CliEntryBasedTestRunner(ExceptionHandler())
+
+    result: Result = runner.invoke(["run", util.job_path("simple-job")])
+    cli_assert_equal(0, result)
 
 
 def test_run_job_plugin_fails(tmp_termination_msg_file):
