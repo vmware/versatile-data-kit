@@ -127,7 +127,13 @@ test {
 }
 
 testSets {
-    integrationTest { dirName = 'integration-test' }
+
+    integrationTest {
+        dirName = 'integration-test'
+        minHeapSize = "1024m" // initial heap size
+        maxHeapSize = "2048m" // maximum heap size
+        jvmArgs '-XX:MaxPermSize=2048m' // mem argument for the test JVM}
+    }
     tasks.integrationTest { useJUnitPlatform() }
 }
 
