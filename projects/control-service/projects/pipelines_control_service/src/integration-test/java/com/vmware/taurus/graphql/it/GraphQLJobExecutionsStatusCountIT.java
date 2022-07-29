@@ -109,10 +109,10 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
    @Test
    public void testExecutionStatusCount_expectOneSuccessfulOneFailed(String jobName, String username) throws Exception {
       var expectedEndTimeLarger = OffsetDateTime.now();
-
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.PLATFORM_ERROR, jobName);
-
+      addJobExecution(expectedEndTimeLarger.plusSeconds(2), ExecutionStatus.SUCCEEDED, jobName);
+      Thread.sleep(1000);
+      addJobExecution(expectedEndTimeLarger.plusSeconds(30), ExecutionStatus.PLATFORM_ERROR, jobName);
+      Thread.sleep(1000);
       mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
               .andExpect(status().is(200))
               .andExpect(content().contentType("application/json"))

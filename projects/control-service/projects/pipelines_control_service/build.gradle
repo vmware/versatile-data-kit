@@ -124,9 +124,6 @@ jar {
 
 test {
     useJUnitPlatform()
-    minHeapSize = "1024m" // initial heap size
-    maxHeapSize = "4098m" // maximum heap size
-    jvmArgs '-XX:MaxPermSize=3072m' // mem argument for the test JVM
 }
 
 testSets {
