@@ -2,14 +2,14 @@
 
 A set of Airflow operators, sensors and a connection hook intended to help schedule Versatile Data Kit jobs using Apache Airflow.
 
-# Usage 
+# Usage
 
-To install it simply run: 
+To install it simply run:
 ```
 pip install airflow-provider-vdk
 ```
 
-Then you can create workflow of data jobs like this: 
+Then you can create workflow of data jobs like this:
 
 ```
 from datetime import datetime
@@ -53,10 +53,10 @@ with DAG(
 
 See [full example here](https://github.com/vmware/versatile-data-kit/tree/main/examples/airflow-example)
 
-# Demo 
+# Demo
 
-You can see demo during one of the community meetings here: https://www.youtube.com/watch?v=c3j1aOALjVU&t=690s 
+You can see demo during one of the community meetings here: https://www.youtube.com/watch?v=c3j1aOALjVU&t=690s
 
-# Architecture 
+# Architecture
 
 See the [vdk enhancement proposal spec here](https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-554-apache-airflow-integration)
