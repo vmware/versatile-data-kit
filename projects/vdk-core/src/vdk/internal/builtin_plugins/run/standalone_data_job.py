@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 from typing import cast
 
-from click import ClickException
 from vdk.api.data_job import IStandaloneDataJob
 from vdk.api.job_input import IJobInput
 from vdk.api.plugin.core_hook_spec import CoreHookSpecs
@@ -150,9 +149,7 @@ class StandaloneDataJob(IStandaloneDataJob):
             # if at least one hook implementation returned handled, means we do not need to log the exception
             if not (True in handled):
                 log.exception("Exiting with exception.")
-                exit_code = (
-                    exc_value.exit_code if isinstance(exc_value, ClickException) else 1
-                )
+                exit_code = 2
             else:
                 exit_code = 0
         else:

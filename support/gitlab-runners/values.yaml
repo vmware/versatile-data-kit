@@ -73,7 +73,7 @@ runners:
   ## TODO: Have runners for big and small jobs.
   builds:
     cpuLimit: 1000m
-    memoryLimit: 4Gi
+    memoryLimit: 6Gi
     cpuRequests: 500m
     memoryRequests: 2Gi
 
