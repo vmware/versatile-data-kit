@@ -4,4 +4,4 @@ vdk-core
 # testing
 vdk-test-utils
 
-
+vdk-sqlite
