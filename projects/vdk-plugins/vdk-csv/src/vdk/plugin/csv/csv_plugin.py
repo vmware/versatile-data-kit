@@ -11,9 +11,9 @@ import click
 from click import Context
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.cli_run import run
-from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 from vdk.internal.core import errors
 from vdk.plugin.csv.csv_export_job import csv_export_step
+from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 
 log = logging.getLogger(__name__)
 
@@ -108,9 +108,9 @@ def export_csv(ctx: click.Context, query, name: str, path: str):
         )
     args = dict(query=query, fullpath=fullpath)
     ctx.invoke(
-                run,
-                data_job_directory=os.path.dirname(csv_export_step.__file__),
-                arguments=json.dumps(args),
+        run,
+        data_job_directory=os.path.dirname(csv_export_step.__file__),
+        arguments=json.dumps(args),
     )
 
 

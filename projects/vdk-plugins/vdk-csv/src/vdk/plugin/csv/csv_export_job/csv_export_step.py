@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import csv
+import logging
 
 from vdk.api.job_input import IJobInput
 from vdk.internal.core import errors
@@ -28,9 +28,7 @@ class CsvExporter:
             writer = csv.writer(f, lineterminator="\n")
             for row in query_result:
                 writer.writerow(row)
-        log.info(
-            f"Exported data successfully.You can find the result here: {fullpath}"
-        )
+        log.info(f"Exported data successfully.You can find the result here: {fullpath}")
 
 
 def run(job_input: IJobInput) -> None:
