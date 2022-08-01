@@ -1,7 +1,7 @@
 pandas
 vdk-core
 
+vdk-sqlite
+
 # testing
 vdk-test-utils
-
-vdk-sqlite
