@@ -9,7 +9,7 @@ To install it simply run:
 pip install airflow-provider-vdk
 ```
 
-Then you can create workflow of data jobs like this:
+Then you can create a workflow of data jobs (deployed by VDK Control Service) like this:
 
 ```
 from datetime import datetime
