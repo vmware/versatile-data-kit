@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import hashlib
 import logging
 from typing import Any
 from typing import Dict

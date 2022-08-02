@@ -20,7 +20,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     # Declare needed configuration, it will be injected automatically fron file, env variables, etc.
     config_builder.add(
         key="anonymization_fields",
-        default_value='{"exchange_rates_series": ["No"]}',
+        default_value='{"table_name": ["column_name"]}',
         description="Map with entity/table name and list of attributes names that need to be anonymized."
         "Checks are case sensitive.",
     )

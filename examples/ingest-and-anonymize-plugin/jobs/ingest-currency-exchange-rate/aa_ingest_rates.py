@@ -1,15 +1,10 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import os
-import pathlib
 
 import requests
 import xmltodict
 from vdk.api.job_input import IJobInput
-from vdk.internal.builtin_plugins.run.standalone_data_job import (
-    StandaloneDataJobFactory,
-)
 
 log = logging.getLogger(__name__)
 

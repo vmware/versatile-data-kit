@@ -8,7 +8,7 @@ For example the data is https://api.nbp.pl/api/exchangerates/rates/c/eur/2011-01
 
 And it will be ingested automatically in Database tables.
 
-![ingest](https://user-images.githubusercontent.com/2536458/175025089-de94c534-db4f-4ea2-b651-9e4b4ca4f839.png)
+![ingest](https://user-images.githubusercontent.com/2536458/182484154-d346cfa6-66b5-4e0a-8f5e-6db35a6c823b.jpg)
 
 
 ## Demo
@@ -33,6 +33,8 @@ vdk sqlite-query -q "select * from exchange_rates_series"
 ```
 It would look something like
 ```
+No              EffectiveDate       Bid     Ask
+--------------  ---------------  ------  ------
 246/C/NBP/2011  2011-12-21       4.408   4.497
 247/C/NBP/2011  2011-12-22       4.4015  4.4905
 ```
@@ -41,12 +43,20 @@ Later, we can install the plugin. Go to [../plugins/vdk-poc-anonymize](../../plu
 ```
 pip install ../plugins/vdk-poc-anonymize
 ```
-and uncomment in config.ini (that can also be set system wide - applied for all jobs)
+and uncomment in config.ini (that can also be set system wide - applied for all jobs but that's separate topic) so it looks liek this:
 ```
 ingest_payload_preprocess_sequence=anonymize
+anonymization_fields={"exchange_rates_series": ["No"]}
 ```
 
 If we re-ran the job we'd see that now the "No" column is anonymized.
+
+```
+No              EffectiveDate       Bid     Ask
+--------------  ---------------  ------  ------
+86b04e00dda412  2011-01-03       3.9207  3.9999
+920505d46208ba  2011-01-04       3.9115  3.9905
+```
 
 
 ## Short VDK Data Job creation and writing tutorial
