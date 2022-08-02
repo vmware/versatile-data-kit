@@ -37,7 +37,7 @@ It would look something like
 247/C/NBP/2011  2011-12-22       4.4015  4.4905
 ```
 
-Later we can install the plugin Go to [../plugins/vdk-poc-anonymize](../../plugins/vdk-poc-anonymize) for more info
+Later, we can install the plugin. Go to [../plugins/vdk-poc-anonymize](../../plugins/vdk-poc-anonymize) for more info
 ```
 pip install ../plugins/vdk-poc-anonymize
 ```
