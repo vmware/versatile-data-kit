@@ -18,7 +18,7 @@ Install VDK:
 pip install quickstart-vdk
 ```
 
-Now we can run the data job , it wll ingest data into local (sqlite db). This can be changed by changing ingest_method_default in config.ini
+Now we can run the data job, it will ingest data into local (sqlite db). This can be changed by changing ingest_method_default in config.ini
 ```bash
 cd jobs
 # Install jobs dependecies locally (those are automatically installed upon 'cloud' deploy)
