@@ -20,7 +20,7 @@ from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
     },
 )
 def test_anonymization_ingestion():
-    # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+    # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
     # and mock large parts of it - e.g passed our own plugins
     destination_plugin = IngestIntoMemoryPlugin()
     runner = CliEntryBasedTestRunner(anonymization_plugin, destination_plugin)
