@@ -29,7 +29,7 @@ class AnonymizationIngesterPlugin(IIngesterPlugin):
         self._anonymization_fields = anonymization_fields
         self._anonymizer = anonymizer
 
-    def _anonymize_if_needed(self, destination_table, key: str, value: Any):
+    def _anonymize_if_needed(self, destination_table: str, key: str, value: Any):
         table = destination_table if destination_table else ""
         if (
             key
