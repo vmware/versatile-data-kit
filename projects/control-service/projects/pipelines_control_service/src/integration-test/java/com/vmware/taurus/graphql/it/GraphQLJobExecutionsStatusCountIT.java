@@ -27,10 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@TestPropertySource(properties = {
-      "datajobs.status.watch.interval=3800000",
-      "datajobs.status.watch.initial.delay=3800000"
-})
 public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
 
    @Autowired
