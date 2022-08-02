@@ -20,10 +20,6 @@ apply from: '../versions-of-external-dependencies.gradle'
 // Uncomment this in case we revert to semantic versioning
 // version = file('version.txt').text.trim()
 
-tasks.withType(JavaExec) {
-    jvmArgs = ['-Xms2048m', '-Xmx5120m']
-}
-
 bootJar {
     mainClass.set('com.vmware.taurus.ServiceApp')
 }
@@ -128,9 +124,6 @@ jar {
 
 test {
     useJUnitPlatform()
-    minHeapSize = "1024m" // initial heap size
-    maxHeapSize = "2048m" // maximum heap size
-    jvmArgs '-XX:MaxPermSize=2048m' // mem argument for the test JVM
 }
 
 testSets {

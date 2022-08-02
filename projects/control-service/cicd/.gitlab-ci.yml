@@ -80,7 +80,6 @@ control_service_integration_test:
     GIT_PASSWORD: $CICD_GIT_PASSWORD
     GIT_USERNAME_READ_WRITE: $CICD_GIT_USER
     GIT_PASSWORD_READ_WRITE: $CICD_GIT_PASSWORD
-    GRADLE_OPTS: -Xmx3072m
   script:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
