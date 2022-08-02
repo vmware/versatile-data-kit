@@ -25,7 +25,7 @@
 .control_service_base_build:
   image: docker:19.03.15
   variables:
-    _JAVA_OPTIONS: "-Xms2048m -Xmx5120m"
+    _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
     - apk --no-cache add git openjdk11-jdk curl --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
     - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
