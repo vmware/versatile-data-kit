@@ -1,6 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from src.vdk.internal.builtin_plugins.job_properties.inmemproperties import (
+from vdk.internal.builtin_plugins.job_properties.inmemproperties import (
     InMemPropertiesServiceClient,
 )
 from vdk.api.plugin.hook_markers import hookimpl
