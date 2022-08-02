@@ -145,7 +145,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
               .lastDeployedBy("test_user")
               .lastDeployedDate(OffsetDateTime.now())
               .jobVersion("test_version")
-              .jobSchedule("0 5 31 2 *")
+              .jobSchedule("*/5 * * * *")
               .opId("test_op_id")
               .vdkVersion("test_vdk_version")
               .build();
