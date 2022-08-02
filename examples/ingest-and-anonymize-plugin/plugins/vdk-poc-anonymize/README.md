@@ -15,7 +15,7 @@ pip install vdk-poc-anonymize
 
 ### Configuration
 
-(vdk config-help is useful command to browse all config options of your installation of vdk)
+(`vdk config-help` is useful command to browse all config options of your installation of vdk)
 
 | Name | Description | (example)  Value |
 |---|---|---|
