@@ -22,5 +22,9 @@ class InMemPropertiesServiceClient(IPropertiesServiceClient):
         return res
 
     def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
+        log.warning(
+            "You are using In Memory Properties client. "
+            "That means the properties will not be persisted past the Data Job run."
+        )
         self._props = deepcopy(properties)
         return self._props
