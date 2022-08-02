@@ -127,6 +127,9 @@ def test_export_csv_with_already_existing_file():
     path = os.path.abspath(os.getcwd())
     open(os.path.join(path, "result2.csv"), "w")
     runner = CliEntryBasedTestRunner(csv_plugin)
+    result = runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"])
+    raise Exception(f"RESULT: {result.__dict__}")
+    """
     assert runner.invoke(
         ["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]
     ).output == (
@@ -138,6 +141,7 @@ def test_export_csv_with_already_existing_file():
         "   CONSEQUENCES : Will not proceed with exporting\n"
         "COUNTERMEASURES : Use another name or choose another location for the file\n"
     )
+    """
 
 
 def test_csv_export_with_no_data(tmpdir):
@@ -172,6 +176,15 @@ def test_csv_export_with_no_data(tmpdir):
             destination_table="test_table",
             target=db_dir,
         )
+        result = runner.invoke([
+                    "export-csv",
+                    "--query",
+                    "SELECT * FROM test_table",
+                    "--name",
+                    "result3.csv",
+                ])
+        raise Exception(f"RESULT: {result.__dict__}")
+        """
         assert str(
             runner.invoke(
                 [
@@ -190,3 +203,4 @@ def test_csv_export_with_no_data(tmpdir):
             "   CONSEQUENCES : Will not proceed with exporting\n"
             "COUNTERMEASURES : Try with another query or check the database explicitly.\n"
         )
+        """
