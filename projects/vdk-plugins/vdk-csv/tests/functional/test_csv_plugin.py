@@ -127,14 +127,7 @@ def test_export_csv_with_already_existing_file():
     path = os.path.abspath(os.getcwd())
     open(os.path.join(path, "result2.csv"), "w")
     runner = CliEntryBasedTestRunner(csv_plugin)
-    result = runner.invoke(
-        ["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]
-    )
-    raise Exception(f"RESULT: {result.__dict__}")
-    """
-    assert runner.invoke(
-        ["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]
-    ).output == (
+    assert (
         "Error: An error in data job code  occurred. The error should be resolved by "
         "User Error. Here are the details:\n"
         "  WHAT HAPPENED : Cannot create the result csv file.\n"
@@ -142,8 +135,7 @@ def test_export_csv_with_already_existing_file():
         f"{path}\n"
         "   CONSEQUENCES : Will not proceed with exporting\n"
         "COUNTERMEASURES : Use another name or choose another location for the file\n"
-    )
-    """
+    ) in runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]).stdout
 
 
 def test_csv_export_with_no_data(tmpdir):
@@ -178,33 +170,18 @@ def test_csv_export_with_no_data(tmpdir):
             destination_table="test_table",
             target=db_dir,
         )
-        result = runner.invoke(
-            [
-                "export-csv",
-                "--query",
-                "SELECT * FROM test_table",
-                "--name",
-                "result3.csv",
-            ]
-        )
-        raise Exception(f"RESULT: {result.__dict__}")
-        """
-        assert str(
-            runner.invoke(
-                [
-                    "export-csv",
-                    "--query",
-                    "SELECT * FROM test_table",
-                    "--name",
-                    "result3.csv",
-                ]
-            ).output
-        ).__contains__(
+        assert (
             "Error: An error in data job code  occurred. The error should be resolved by "
             "User Error. Here are the details:\n"
             "  WHAT HAPPENED : Cannot create the result csv file.\n"
             "WHY IT HAPPENED : No data was found\n"
             "   CONSEQUENCES : Will not proceed with exporting\n"
             "COUNTERMEASURES : Try with another query or check the database explicitly.\n"
-        )
-        """
+        ) in runner.invoke([
+                "export-csv",
+                "--query",
+                "SELECT * FROM test_table",
+                "--name",
+                "result3.csv",
+            ]).stdout
+
