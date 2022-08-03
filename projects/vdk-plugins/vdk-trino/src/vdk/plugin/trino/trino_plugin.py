@@ -4,15 +4,14 @@ import logging
 import os
 import pathlib
 from typing import Callable
-from typing import Optional
 
 import click
-import pluggy
 import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -94,7 +93,7 @@ def initialize_job(context: JobContext) -> None:
 
 @hookimpl(hookwrapper=True, tryfirst=True)
 def run_step(context: JobContext, step: Step) -> None:
-    out: pluggy.callers._Result
+    out: HookCallResult
     out = yield
     if out.excinfo:
         exc_type, exc_value, exc_traceback = out.excinfo

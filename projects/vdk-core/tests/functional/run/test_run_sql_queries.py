@@ -7,10 +7,10 @@ from typing import cast
 from typing import Optional
 from unittest import mock
 
-import pluggy
 from click.testing import Result
 from functional.run.util import job_path
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
@@ -257,7 +257,7 @@ class DbOperationTrackPlugin:
         self, execution_cursor: ExecutionCursor
     ) -> Optional[int]:
         self.log.append("start")
-        out: pluggy.callers._Result
+        out: HookCallResult
         out = yield
         self.log.append(("end", out.excinfo is None))
 

@@ -45,7 +45,7 @@ in the chain of N hook implementations.
 If ``hookwrapper`` is ``True`` the hook implementations needs to execute exactly
 one ``yield``.  The code before the ``yield`` is run early before any non-hookwrapper
 function is run.  The code after the ``yield`` is run after all non-hookwrapper
-function have run.  The ``yield`` receives a :py:class:`.callers._Result` object
+function have run.  The ``yield`` receives a :py:class:`HookCallResult` object
 representing the exception or result outcome of the inner calls (including other
 hookwrapper calls).
 Example:

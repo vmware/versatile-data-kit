@@ -6,9 +6,9 @@ import pathlib
 from typing import List
 
 import click
-import pluggy
 from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
@@ -107,7 +107,7 @@ class ImpalaPlugin:
     @staticmethod
     @hookimpl(hookwrapper=True, tryfirst=True)
     def run_step(context: JobContext, step: Step) -> None:
-        out: pluggy.callers._Result
+        out: HookCallResult
         out = yield
 
         if out.result.exception:
