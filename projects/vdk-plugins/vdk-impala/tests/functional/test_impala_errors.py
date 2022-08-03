@@ -30,7 +30,7 @@ def tmp_termination_msg_file(tmpdir) -> pathlib.Path:
         yield pathlib.Path(out_file)
 
 
-# @pytest.mark.usefixtures("impala_service")
+@pytest.mark.usefixtures("impala_service")
 @mock.patch.dict(
     os.environ,
     {
