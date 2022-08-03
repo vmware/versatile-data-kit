@@ -29,7 +29,7 @@ VDK_IMPALA_PORT = "VDK_IMPALA_PORT"
         VDK_IMPALA_PORT: "21050",
     },
 )
-@pytest.mark.usefixtures("impala_service")
+# @pytest.mark.usefixtures("impala_service")
 class TemplateRegressionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(impala_plugin)

@@ -19,7 +19,7 @@ VDK_IMPALA_SYNC_DDL = "VDK_IMPALA_SYNC_DDL"
 VDK_IMPALA_QUERY_POOL = "VDK_IMPALA_QUERY_POOL"
 
 
-@pytest.mark.usefixtures("impala_service")
+# @pytest.mark.usefixtures("impala_service")
 class ImpalaConnectionTest(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(impala_plugin)
