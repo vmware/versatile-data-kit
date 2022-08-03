@@ -92,37 +92,43 @@ def ingest_csv(ctx: Context, file: str, table_name: str, options: str) -> None:
 Examples:
 
 \b
-# This will execute the given query and save the data 
-# in a CSV file with name result.csv in the current directory 
-# if there is no file with the same name there 
+# This will execute the given query and save the data
+# in a CSV file with name result.csv in the current directory
+# if there is no file with the same name there
 vdk export-csv -q  "SELECT * FROM test_table"
 
 \b
-# This will execute the given query and save the data 
+# This will execute the given query and save the data
 # in a CSV file with name result1.csv in User/Documents/csv
-# if there is no file with the same name there 
+# if there is no file with the same name there
 vdk export-csv -q  "SELECT * FROM test_table" -p User/Documents/csv -n result1.csv
 
     """,
     no_args_is_help=True,
 )
-@click.option("-q",
-              "--query",
-              type=click.STRING,
-              required=True,
-              help="The query that will be executed against the specified database.")
-@click.option("-n",
-              "--name",
-              type=click.STRING,
-              default="result.csv",
-              required=False,
-              help="The name of the CSV file that will be created.")
-@click.option("-p",
-              "--path",
-              type=click.STRING,
-              default="",
-              required=False,
-              help="Path to the directory where the CSV file will be saved.")
+@click.option(
+    "-q",
+    "--query",
+    type=click.STRING,
+    required=True,
+    help="The query that will be executed against the specified database.",
+)
+@click.option(
+    "-n",
+    "--name",
+    type=click.STRING,
+    default="result.csv",
+    required=False,
+    help="The name of the CSV file that will be created.",
+)
+@click.option(
+    "-p",
+    "--path",
+    type=click.STRING,
+    default="",
+    required=False,
+    help="Path to the directory where the CSV file will be saved.",
+)
 @click.pass_context
 def export_csv(ctx: click.Context, query, name: str, path: str):
     if not path:

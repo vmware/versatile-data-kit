@@ -126,25 +126,34 @@ def test_csv_export(tmpdir):
 def test_export_csv_with_already_existing_file(tmpdir):
     db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
-            os.environ,
-            {
-                "VDK_DB_DEFAULT_TYPE": "SQLITE",
-                "VDK_SQLITE_FILE": db_dir,
-            },
+        os.environ,
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": db_dir,
+        },
     ):
         path = os.path.abspath(os.getcwd())
         open(os.path.join(path, "result2.csv"), "w")
         runner = CliEntryBasedTestRunner(csv_plugin)
-        result = runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"])
+        result = runner.invoke(
+            [
+                "export-csv",
+                "--query",
+                "SELECT * FROM test_table",
+                "--name",
+                "result2.csv",
+            ]
+        )
         result_output = str(result.output)
         assert (
-                   'Error: An error in data job code  occurred. The error should be resolved by '
-                   'User Error. Here are the details:\n'
-                   '  WHAT HAPPENED : Cannot create the result csv file.\n'
-                   'WHY IT HAPPENED : File with name result2.csv already exists in '
-                   f'{path}\n'
-                   '   CONSEQUENCES : Will not proceed with exporting\n'
-                   'COUNTERMEASURES : Use another name or choose another location for the file\n') in result_output
+            "Error: An error in data job code  occurred. The error should be resolved by "
+            "User Error. Here are the details:\n"
+            "  WHAT HAPPENED : Cannot create the result csv file.\n"
+            "WHY IT HAPPENED : File with name result2.csv already exists in "
+            f"{path}\n"
+            "   CONSEQUENCES : Will not proceed with exporting\n"
+            "COUNTERMEASURES : Use another name or choose another location for the file\n"
+        ) in result_output
 
 
 def test_csv_export_with_no_data(tmpdir):
@@ -179,12 +188,21 @@ def test_csv_export_with_no_data(tmpdir):
             destination_table="test_table",
             target=db_dir,
         )
-        result = runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result3.csv"])
+        result = runner.invoke(
+            [
+                "export-csv",
+                "--query",
+                "SELECT * FROM test_table",
+                "--name",
+                "result3.csv",
+            ]
+        )
         result_output = str(result.output)
         assert (
-                    'Error: An error in data job code  occurred. The error should be resolved by '
-                    'User Error. Here are the details:\n'
-                    '  WHAT HAPPENED : Cannot create the result csv file.\n'
-                    'WHY IT HAPPENED : No data was found\n'
-                    '   CONSEQUENCES : Will not proceed with exporting\n'
-                    'COUNTERMEASURES : Try with another query or check the database explicitly.\n') in result_output
+            "Error: An error in data job code  occurred. The error should be resolved by "
+            "User Error. Here are the details:\n"
+            "  WHAT HAPPENED : Cannot create the result csv file.\n"
+            "WHY IT HAPPENED : No data was found\n"
+            "   CONSEQUENCES : Will not proceed with exporting\n"
+            "COUNTERMEASURES : Try with another query or check the database explicitly.\n"
+        ) in result_output
