@@ -135,7 +135,9 @@ def test_export_csv_with_already_existing_file():
         f"{path}\n"
         "   CONSEQUENCES : Will not proceed with exporting\n"
         "COUNTERMEASURES : Use another name or choose another location for the file\n"
-    ) in runner.invoke(["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]).stdout
+    ) in runner.invoke(
+        ["export-csv", "--query", "SELECT * FROM test_table", "--name", "result2.csv"]
+    ).stdout
 
 
 def test_csv_export_with_no_data(tmpdir):
@@ -177,11 +179,12 @@ def test_csv_export_with_no_data(tmpdir):
             "WHY IT HAPPENED : No data was found\n"
             "   CONSEQUENCES : Will not proceed with exporting\n"
             "COUNTERMEASURES : Try with another query or check the database explicitly.\n"
-        ) in runner.invoke([
+        ) in runner.invoke(
+            [
                 "export-csv",
                 "--query",
                 "SELECT * FROM test_table",
                 "--name",
                 "result3.csv",
-            ]).stdout
-
+            ]
+        ).stdout
