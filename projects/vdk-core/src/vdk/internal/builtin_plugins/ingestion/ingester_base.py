@@ -543,9 +543,9 @@ class IngesterBase(IIngester):
 
             log.info(
                 "Ingester statistics: \n\t\t"
-                f"Successful uploads:{self._success_count}\n\t\t"
-                f"Failed uploads:{self._fail_count}\n\t\t"
-                f"ingesting plugin errors:{self._plugin_errors}\n\t\t"
+                f"Successful uploads: {self._success_count}\n\t\t"
+                f"Failed uploads: {self._fail_count}\n\t\t"
+                f"Ingesting plugin errors: {'None' if not self._plugin_errors else dict(self._plugin_errors)}\n\t\t"
             )
 
     def _pre_process_payload(
