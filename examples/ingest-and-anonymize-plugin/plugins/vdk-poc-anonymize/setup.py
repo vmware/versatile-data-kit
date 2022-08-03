@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="vdk-poc-anonymize",
-    version="1.0",
+    version="0.1",
     description="POC Anonymization plugin",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
