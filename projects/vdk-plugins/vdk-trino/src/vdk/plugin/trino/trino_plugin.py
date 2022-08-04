@@ -99,8 +99,8 @@ def run_step(context: JobContext, step: Step) -> None:
         exc_type, exc_value, exc_traceback = out.excinfo
         if isinstance(exc_value, TrinoUserError):
             raise UserCodeError(ErrorMessage()) from exc_value
-    if out.result:
-        step_result: StepResult = out.result
+    if out.get_result():
+        step_result: StepResult = out.get_result()
         if isinstance(step_result.exception, requests.exceptions.ConnectionError):
             raise VdkConfigurationError(
                 ErrorMessage(

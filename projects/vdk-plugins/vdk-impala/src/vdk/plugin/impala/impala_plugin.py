@@ -110,17 +110,17 @@ class ImpalaPlugin:
         out: HookCallResult
         out = yield
 
-        if out.result.exception:
-            if is_impala_user_error(out.result.exception):
+        if out.get_result().exception:
+            if is_impala_user_error(out.get_result().exception):
                 raise UserCodeError(
                     ErrorMessage(
                         summary="Error occurred.",
-                        what=f"Error occurred. Exception message: {out.result.exception}",
+                        what=f"Error occurred. Exception message: {out.get_result().exception}",
                         why="Review exception for details.",
                         consequences="Data Job execution will not continue.",
                         countermeasures="Review exception for details.",
                     )
-                ) from out.result.exception
+                ) from out.get_result().exception
 
     @staticmethod
     @hookimpl
