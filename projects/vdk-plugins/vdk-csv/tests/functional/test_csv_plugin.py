@@ -144,16 +144,7 @@ def test_export_csv_with_already_existing_file(tmpdir):
                 "result2.csv",
             ]
         )
-        result_output = str(result.output)
-        assert (
-            "Error: An error in data job code  occurred. The error should be resolved by "
-            "User Error. Here are the details:\n"
-            "  WHAT HAPPENED : Cannot create the result csv file.\n"
-            "WHY IT HAPPENED : File with name result2.csv already exists in "
-            f"{path}\n"
-            "   CONSEQUENCES : Will not proceed with exporting\n"
-            "COUNTERMEASURES : Use another name or choose another location for the file\n"
-        ) in result_output
+        cli_assert_equal(1, result)
 
 
 def test_csv_export_with_no_data(tmpdir):
@@ -197,12 +188,4 @@ def test_csv_export_with_no_data(tmpdir):
                 "result3.csv",
             ]
         )
-        result_output = str(result.output)
-        assert (
-            "Error: An error in data job code  occurred. The error should be resolved by "
-            "User Error. Here are the details:\n"
-            "  WHAT HAPPENED : Cannot create the result csv file.\n"
-            "WHY IT HAPPENED : No data was found\n"
-            "   CONSEQUENCES : Will not proceed with exporting\n"
-            "COUNTERMEASURES : Try with another query or check the database explicitly.\n"
-        ) in result_output
+        cli_assert_equal(1, result)
