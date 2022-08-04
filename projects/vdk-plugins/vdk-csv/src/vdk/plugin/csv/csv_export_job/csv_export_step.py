@@ -20,7 +20,7 @@ class CsvExporter:
                 errors.ResolvableBy.USER_ERROR,
                 log,
                 "Cannot create the result csv file.",
-                f"""No data was found """,
+                """No data was found """,
                 "Will not proceed with exporting",
                 "Try with another query or check the database explicitly.",
             )

@@ -5,6 +5,7 @@ import os
 from unittest import mock
 
 from click.testing import Result
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
@@ -144,6 +145,7 @@ def test_export_csv_with_already_existing_file(tmpdir):
                 "result2.csv",
             ]
         )
+        assert isinstance(result.exception, UserCodeError)
         cli_assert_equal(1, result)
 
 
@@ -188,4 +190,5 @@ def test_csv_export_with_no_data(tmpdir):
                 "result3.csv",
             ]
         )
+        assert isinstance(result.exception, UserCodeError)
         cli_assert_equal(1, result)
