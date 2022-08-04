@@ -67,6 +67,3 @@ class ImpalaConnection(ManagedConnectionBase):
         )
 
         return conn
-
-    def execute_query(self, query: str):
-        return super().execute_query(query)
