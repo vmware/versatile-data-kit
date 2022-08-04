@@ -84,7 +84,7 @@ def test_run_job_plugin_fails(tmp_termination_msg_file):
 
     class RunJobFailsPlugin:
         @staticmethod
-        @hookimpl(hookwrapper=True)
+        @hookimpl()
         def run_job(context: JobContext) -> None:
             raise OverflowError("Overflow")
 

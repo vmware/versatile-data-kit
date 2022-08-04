@@ -43,7 +43,9 @@ class PluginException(Exception):
 """
 Alias for the type of plugin hook call result returned in hookWrapper=True types of plugin hooks
 """
-HookCallResult = pluggy.callers._Result
+HookCallResult = (
+    pluggy.callers._Result if pluggy.__version__ < "1.0" else pluggy._callers._Result
+)
 
 
 class IPluginRegistry(metaclass=ABCMeta):

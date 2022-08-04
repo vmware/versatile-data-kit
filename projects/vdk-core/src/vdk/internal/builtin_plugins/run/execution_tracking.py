@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pluggy
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
@@ -38,7 +39,7 @@ class ExecutionTrackingPlugin:
         It executes the provided steps starting from context.step_tree_root in sequential order (using BFS)
         using
         """
-        out: pluggy.callers._Result
+        out: HookCallResult
         out = yield
 
         result: ExecutionResult = out.get_result()
@@ -50,7 +51,7 @@ class ExecutionTrackingPlugin:
         state = context.core_context.state
 
         state.get(ExecutionStateStoreKeys.STEPS_STARTED).append(step.name)
-        out: pluggy.callers._Result
+        out: HookCallResult
         out = yield
         if out.excinfo:
             state.get(ExecutionStateStoreKeys.STEPS_FAILED).append(step.name)

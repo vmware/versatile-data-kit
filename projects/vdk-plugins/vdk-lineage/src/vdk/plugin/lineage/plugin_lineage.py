@@ -6,12 +6,12 @@ from abc import abstractmethod
 from typing import List
 from typing import Optional
 
-import pluggy
 from openlineage.client import OpenLineageClient
 from openlineage.client.facet import ParentRunFacet
 from openlineage.client.run import RunEvent
 from openlineage.client.run import RunState
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
@@ -94,7 +94,7 @@ class OpenLineagePlugin:
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
-        out: pluggy.callers._Result
+        out: HookCallResult
         out = yield
         if self.__client:
             result: ExecutionResult = out.get_result()

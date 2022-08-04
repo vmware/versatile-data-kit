@@ -100,7 +100,7 @@ class ConnectionHookSpec:
                 # let's track duration of the query
                 start = time.time()
                 log.info(f"Starting query: {execution_cursor.get_managed_operation().get_operation()}")
-                outcome: pluggy.callers._Result
+                outcome: HookCallResult
                 outcome = yield # we yield the execution to other implementations (including default one)
                 is_success: bool = outcome.excinfo is None
                 log.info(f"Query finished. duration: {time.time() - start}. is_success: {is_success}")
@@ -112,7 +112,7 @@ class ConnectionHookSpec:
 
             @hookimpl(hookwrapper=True)
             db_connection_execute_operation(execution_cursor: ExecutionCursor) -> Optional[int]:
-                outcome: pluggy.callers._Result
+                outcome: HookCallResult
                 outcome = yield #
                 outcome.force_result(new_result)  # set new return result
 
