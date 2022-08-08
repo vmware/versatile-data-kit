@@ -11,6 +11,8 @@ import click
 from click import Context
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.cli_run import run
+from vdk.internal.core import errors
+from vdk.plugin.csv.csv_export_job import csv_export_step
 from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 
 log = logging.getLogger(__name__)
@@ -83,6 +85,61 @@ def ingest_csv(ctx: Context, file: str, table_name: str, options: str) -> None:
     click.echo(f"Ingesting csv file {file} finished.")
 
 
+@click.command(
+    name="export-csv",
+    help="Execute a SQL query against a configured database and export the result to a local CSV file."
+    """
+Examples:
+
+\b
+# This will execute the given query and save the data
+# in a CSV file with name result.csv in the current directory
+# if there is no file with the same name there
+vdk export-csv -q  "SELECT * FROM test_table"
+
+\b
+# This will execute the given query and save the data
+# in a CSV file with name result1.csv in User/Documents/csv
+# if there is no file with the same name there
+vdk export-csv -q  "SELECT * FROM test_table" -f User/Documents/csv/result1.csv
+
+    """,
+    no_args_is_help=True,
+)
+@click.option(
+    "-q",
+    "--query",
+    type=click.STRING,
+    required=True,
+    help="The query that will be executed against the specified database.",
+)
+@click.option(
+    "-f",
+    "--file",
+    help="Path to the csv file. It must not exist.",
+    default=os.path.join(os.path.abspath(os.getcwd()), "result.csv"),
+    type=click.Path(dir_okay=False, resolve_path=True),
+)
+@click.pass_context
+def export_csv(ctx: click.Context, query: str, file: str):
+    if os.path.exists(file):
+        errors.log_and_throw(
+            errors.ResolvableBy.USER_ERROR,
+            log,
+            "Cannot create the result csv file.",
+            f"""{file} already exists. """,
+            "Will not proceed with exporting",
+            "Use another name or choose another location for the file",
+        )
+    args = dict(query=query, fullpath=file)
+    ctx.invoke(
+        run,
+        data_job_directory=os.path.dirname(csv_export_step.__file__),
+        arguments=json.dumps(args),
+    )
+
+
 @hookimpl
 def vdk_command_line(root_command: click.Group) -> None:
     root_command.add_command(ingest_csv)
+    root_command.add_command(export_csv)
