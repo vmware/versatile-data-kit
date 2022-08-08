@@ -8,7 +8,7 @@ from vdk.api.job_input import IJobInput
 log = logging.getLogger(__name__)
 
 
-class CsvExporter:
+class CsvExporter:  
     def __init__(self, job_input: IJobInput):
         self.__job_input = job_input
 

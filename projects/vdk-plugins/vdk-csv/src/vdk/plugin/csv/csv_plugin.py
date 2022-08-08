@@ -101,7 +101,7 @@ vdk export-csv -q  "SELECT * FROM test_table"
 # This will execute the given query and save the data
 # in a CSV file with name result1.csv in User/Documents/csv
 # if there is no file with the same name there
-vdk export-csv -q  "SELECT * FROM test_table" -p User/Documents/csv -n result1.csv
+vdk export-csv -q  "SELECT * FROM test_table" -f User/Documents/csv/result1.csv
 
     """,
     no_args_is_help=True,
@@ -114,36 +114,24 @@ vdk export-csv -q  "SELECT * FROM test_table" -p User/Documents/csv -n result1.c
     help="The query that will be executed against the specified database.",
 )
 @click.option(
-    "-n",
-    "--name",
-    type=click.STRING,
-    default="result.csv",
-    required=False,
-    help="The name of the CSV file that will be created.",
-)
-@click.option(
-    "-p",
-    "--path",
-    type=click.STRING,
-    default="",
-    required=False,
-    help="Path to the directory where the CSV file will be saved.",
+    "-f",
+    "--file",
+    help="Path to the csv file. It must not exist.",
+    default=os.path.join(os.path.abspath(os.getcwd()), "result.csv"),
+    type=click.Path(dir_okay=False, resolve_path=True),
 )
 @click.pass_context
-def export_csv(ctx: click.Context, query, name: str, path: str):
-    if not path:
-        path = os.path.abspath(os.getcwd())
-    fullpath = os.path.join(path, name)
-    if os.path.exists(fullpath):
+def export_csv(ctx: click.Context, query: str, file: str):
+    if os.path.exists(file):
         errors.log_and_throw(
             errors.ResolvableBy.USER_ERROR,
             log,
             "Cannot create the result csv file.",
-            f"""File with name {name} already exists in {path} """,
+            f"""{file} already exists. """,
             "Will not proceed with exporting",
             "Use another name or choose another location for the file",
         )
-    args = dict(query=query, fullpath=fullpath)
+    args = dict(query=query, fullpath=file)
     ctx.invoke(
         run,
         data_job_directory=os.path.dirname(csv_export_step.__file__),

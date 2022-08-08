@@ -114,10 +114,10 @@ def test_csv_export(tmpdir):
             destination_table="test_table",
             target=db_dir,
         )
-
-        runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
+        result = runner.invoke(["export-csv", "--query", "SELECT * FROM test_table"])
         output = []
-        with open(os.path.join(os.path.abspath(os.getcwd()), "result.csv")) as file:
+        path = os.path.abspath(os.getcwd())
+        with open(os.path.join(path, "result.csv")) as file:
             reader = csv.reader(file, delimiter=",")
             for row in reader:
                 output.append(row)
@@ -142,7 +142,7 @@ def test_export_csv_with_already_existing_file(tmpdir):
                     "export-csv",
                     "--query",
                     "SELECT * FROM test_table",
-                    "--name",
+                    "--file",
                     "result2.csv",
                 ]
             )
@@ -166,7 +166,7 @@ def test_csv_export_with_nonexistent_table(tmpdir):
                 "export-csv",
                 "--query",
                 "SELECT * FROM test_table",
-                "--name",
+                "--file",
                 "result3.csv",
             ]
         )
@@ -191,20 +191,12 @@ def test_csv_export_with_no_data(tmpdir):
                 "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
             ]
         )
-        mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
-        sqlite_ingest = IngestToSQLite(mock_sqlite_conf)
-        payload = []
-        sqlite_ingest.ingest_payload(
-            payload=payload,
-            destination_table="test_table",
-            target=db_dir,
-        )
         runner.invoke(
             [
                 "export-csv",
                 "--query",
                 "SELECT * FROM test_table",
-                "--name",
+                "--file",
                 "result4.csv",
             ]
         )
