@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import os
+import sys
+from sqlite3 import OperationalError
 from unittest import mock
 
 from click.testing import Result
@@ -149,7 +151,39 @@ def test_export_csv_with_already_existing_file(tmpdir):
         cli_assert_equal(1, result)
 
 
+def test_csv_export_with_nonexistent_table(tmpdir):
+    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": db_dir,
+        },
+    ):
+        runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
+        runner.invoke(
+            [
+                "sqlite-query",
+                "--query",
+                "DROP TABLE IF EXISTS test_table",
+            ]
+        )
+        mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
+        sqlite_ingest = IngestToSQLite(mock_sqlite_conf)
+        result = runner.invoke(
+            [
+                "export-csv",
+                "--query",
+                "SELECT * FROM test_table",
+                "--name",
+                "result3.csv",
+            ]
+        )
+        assert isinstance(result.exception, OperationalError)
+
+
 def test_csv_export_with_no_data(tmpdir):
+    print(sys.path)
     db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
@@ -167,10 +201,10 @@ def test_csv_export_with_no_data(tmpdir):
             ]
         )
         runner.invoke(
-            [
-                "sqlite-query",
-                "--query",
-                "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
+          [
+              "sqlite-query",
+              "--query",
+              "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
             ]
         )
         mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
@@ -181,14 +215,18 @@ def test_csv_export_with_no_data(tmpdir):
             destination_table="test_table",
             target=db_dir,
         )
-        result = runner.invoke(
+        runner.invoke(
             [
                 "export-csv",
                 "--query",
                 "SELECT * FROM test_table",
                 "--name",
-                "result3.csv",
+                "result4.csv"
             ]
         )
-        assert isinstance(result.exception, UserCodeError)
-        cli_assert_equal(1, result)
+        output = []
+        with open(os.path.join(os.path.abspath(os.getcwd()), "result4.csv")) as file:
+            reader = csv.reader(file, delimiter=",")
+            for row in reader:
+                output.append(row)
+        assert len(output) == 0

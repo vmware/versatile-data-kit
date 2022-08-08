@@ -15,15 +15,6 @@ class CsvExporter:
 
     def export(self, query: str, fullpath: str):
         query_result = self.__job_input.execute_query(query)
-        if not query_result:
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "Cannot create the result csv file.",
-                """No data was found """,
-                "Will not proceed with exporting",
-                "Try with another query or check the database explicitly.",
-            )
         with open(fullpath, "w", encoding="UTF8", newline="") as f:
             writer = csv.writer(f, lineterminator="\n")
             for row in query_result:
