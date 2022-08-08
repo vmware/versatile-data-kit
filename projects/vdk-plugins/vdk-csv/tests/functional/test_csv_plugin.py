@@ -135,19 +135,18 @@ def test_export_csv_with_already_existing_file(tmpdir):
         },
     ):
         path = os.path.abspath(os.getcwd())
-        open(os.path.join(path, "result2.csv"), "w")
-        runner = CliEntryBasedTestRunner(csv_plugin)
-        result = runner.invoke(
-            [
-                "export-csv",
-                "--query",
-                "SELECT * FROM test_table",
-                "--name",
-                "result2.csv",
-            ]
-        )
-        assert isinstance(result.exception, UserCodeError)
-        cli_assert_equal(1, result)
+        with open(os.path.join(path, "result2.csv"), "w"):
+            runner = CliEntryBasedTestRunner(csv_plugin)
+            result = runner.invoke(
+                [
+                    "export-csv",
+                    "--query",
+                    "SELECT * FROM test_table",
+                    "--name",
+                    "result2.csv",
+                ])
+            assert isinstance(result.exception, UserCodeError)
+            cli_assert_equal(1, result)
 
 
 def test_csv_export_with_nonexistent_table(tmpdir):
