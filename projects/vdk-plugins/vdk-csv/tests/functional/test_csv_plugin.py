@@ -144,7 +144,8 @@ def test_export_csv_with_already_existing_file(tmpdir):
                     "SELECT * FROM test_table",
                     "--name",
                     "result2.csv",
-                ])
+                ]
+            )
             assert isinstance(result.exception, UserCodeError)
             cli_assert_equal(1, result)
 
