@@ -151,10 +151,10 @@ class IManagedConnectionRegistry:
             @hookimpl
             def initialize_job(context: JobContext) -> None:
                 context.connections.add_open_connection_factory_method(
-                    "BIG_QUERY", lambda: dbapi.connect(host=cfg.get_value('host'), post=cfg.get_value('port')
+                    "BIG-QUERY", lambda: dbapi.connect(host=cfg.get_value('host'), post=cfg.get_value('port')
                 )
 
-        :param dbtype: the name of the database connection - e.g: redshift, impala, presto, big-query, postgres, etc.
+        :param dbtype: the name of the database connection (case-insensitive) - e.g: redshift, impala, presto, big-query, postgres, etc.
         :param open_connection_func:
             The function must implement the code necessary to open a new connection that includes getting all configuration necessary like url, user, etc.
             The function can return either original PEP 249 (DBAPI) Connection from the python library for the given database
