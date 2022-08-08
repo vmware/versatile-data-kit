@@ -4,7 +4,6 @@ import csv
 import logging
 
 from vdk.api.job_input import IJobInput
-from vdk.internal.core import errors
 
 log = logging.getLogger(__name__)
 

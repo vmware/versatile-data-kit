@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import os
-import sys
 from sqlite3 import OperationalError
 from unittest import mock
 
@@ -161,15 +160,7 @@ def test_csv_export_with_nonexistent_table(tmpdir):
         },
     ):
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
-        runner.invoke(
-            [
-                "sqlite-query",
-                "--query",
-                "DROP TABLE IF EXISTS test_table",
-            ]
-        )
-        mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
-        sqlite_ingest = IngestToSQLite(mock_sqlite_conf)
+        drop_table(runner, "test_table")
         result = runner.invoke(
             [
                 "export-csv",
@@ -183,7 +174,6 @@ def test_csv_export_with_nonexistent_table(tmpdir):
 
 
 def test_csv_export_with_no_data(tmpdir):
-    print(sys.path)
     db_dir = str(tmpdir) + "vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
@@ -193,13 +183,7 @@ def test_csv_export_with_no_data(tmpdir):
         },
     ):
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
-        runner.invoke(
-            [
-                "sqlite-query",
-                "--query",
-                "DROP TABLE IF EXISTS test_table",
-            ]
-        )
+        drop_table(runner, "test_table")
         runner.invoke(
             [
                 "sqlite-query",
@@ -230,3 +214,13 @@ def test_csv_export_with_no_data(tmpdir):
             for row in reader:
                 output.append(row)
         assert len(output) == 0
+
+
+def drop_table(runner: CliEntryBasedTestRunner, table: str):
+    runner.invoke(
+        [
+            "sqlite-query",
+            "--query",
+            f"DROP TABLE IF EXISTS {table}",
+        ]
+    )
