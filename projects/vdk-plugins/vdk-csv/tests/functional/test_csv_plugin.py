@@ -201,10 +201,10 @@ def test_csv_export_with_no_data(tmpdir):
             ]
         )
         runner.invoke(
-          [
-              "sqlite-query",
-              "--query",
-              "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
+            [
+                "sqlite-query",
+                "--query",
+                "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
             ]
         )
         mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
@@ -221,7 +221,7 @@ def test_csv_export_with_no_data(tmpdir):
                 "--query",
                 "SELECT * FROM test_table",
                 "--name",
-                "result4.csv"
+                "result4.csv",
             ]
         )
         output = []
