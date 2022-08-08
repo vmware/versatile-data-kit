@@ -8,4 +8,5 @@ pydantic
 pytest-docker
 tabulate
 vdk-core
+vdk-lineage-model
 vdk-test-utils

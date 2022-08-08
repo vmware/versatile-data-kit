@@ -5,7 +5,7 @@ import pathlib
 import setuptools
 
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 setuptools.setup(
     name="vdk-impala",
@@ -14,7 +14,14 @@ setuptools.setup(
     description="Versatile Data Kit SDK plugin provides support for Impala database.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "impyla", "tabulate", "pydantic", "pyarrow"],
+    install_requires=[
+        "vdk-core",
+        "vdk-lineage-model",
+        "impyla",
+        "tabulate",
+        "pydantic",
+        "pyarrow",
+    ],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     include_package_data=True,
