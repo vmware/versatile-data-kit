@@ -24,7 +24,6 @@ def test_run_when_step_fails():
 
     result = data_job.run()
     assert result.is_failed()
-    assert result.blamee is None
     assert isinstance(result.get_exception_to_raise(), IndentationError)
     assert result.get_blamee() == ResolvableBy.USER_ERROR
 
