@@ -22,6 +22,7 @@ from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
+from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
 
 
 def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
@@ -149,6 +150,9 @@ class ImpalaPlugin:
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")
+    plugin_registry.load_plugin_with_hooks_impl(
+        ImpalaLineagePlugin(), "impala-lineage-plugin"
+    )
 
 
 def get_jobs_parent_directory() -> pathlib.Path:
