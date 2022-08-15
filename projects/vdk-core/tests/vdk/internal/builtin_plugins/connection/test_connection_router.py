@@ -46,6 +46,13 @@ def test_router_open_connection():
     assert conn is conn.connect()
 
 
+def test_router_open_connection_case_insensitive_type():
+    router, mock_conn, _ = managed_connection_router()
+
+    conn = router.open_connection("test_db")
+    assert conn is conn.connect()
+
+
 def test_router_raw_connection():
     conf = MagicMock(spec=Configuration)
     router = ManagedConnectionRouter(conf, MagicMock(spec=ConnectionHookSpec))

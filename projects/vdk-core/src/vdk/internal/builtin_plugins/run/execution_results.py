@@ -8,9 +8,10 @@ from typing import List
 from typing import Optional
 
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
-from vdk.internal.core import errors
 from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import find_whom_to_blame_from_exception
 from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import ResolvableBy
 
 
 @dataclass(frozen=True)
@@ -34,7 +35,7 @@ class StepResult:
     # Exception if thrown
     exception: Optional[BaseException] = None
     # who is responsible for resolving the error
-    blamee: Optional[errors.ResolvableBy] = None
+    blamee: Optional[ResolvableBy] = None
 
 
 class ExecutionResult:
@@ -49,8 +50,9 @@ class ExecutionResult:
         start_time: datetime,
         end_time: datetime,
         status: ExecutionStatus,
-        exception: Optional[BaseException],
         steps_list: List[StepResult],
+        exception: Optional[BaseException],
+        blamee: Optional[ResolvableBy],
     ):
         self.data_job_name = data_job_name
         self.execution_id = execution_id
@@ -59,6 +61,7 @@ class ExecutionResult:
         self.status = status
         self.steps_list = steps_list
         self.exception = exception
+        self.blamee = blamee
 
     def is_failed(self):
         return self.status == ExecutionStatus.ERROR
@@ -94,13 +97,23 @@ class ExecutionResult:
                 )
             )
 
+    def get_blamee(self) -> Optional[ResolvableBy]:
+        if self.blamee:
+            return self.blamee
+        exception = self.get_exception_to_raise()
+
+        step_raising_exception = next(
+            filter(lambda s: s.exception == exception, self.steps_list)
+        )
+        if step_raising_exception:
+            return step_raising_exception.blamee
+        return find_whom_to_blame_from_exception(exception)
+
     def __repr__(self):
         data = self.__dict__.copy()
         # make dates more human-readble
         data["start_time"] = self.start_time.isoformat()
         data["end_time"] = self.end_time.isoformat()
-        if self.exception:
-            data["exception_name"] = str(self.exception.__class__.__name__)
 
         step_lists_of_dicts = list()
         for step in self.steps_list:
@@ -123,6 +136,12 @@ class ExecutionResult:
             step_lists_of_dicts.append(d)
 
         data["steps_list"] = step_lists_of_dicts
+
+        if self.is_failed():
+            data["exception_name"] = str(
+                self.get_exception_to_raise().__class__.__name__
+            )
+            data["blamee"] = self.get_blamee()
 
         def default_serialization(o: Any) -> Any:
             return o.__dict__ if "__dict__" in dir(o) else str(o)

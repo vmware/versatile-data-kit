@@ -7,6 +7,7 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 
 
 class NonJsonSerializable:
@@ -33,8 +34,9 @@ def test_serialization():
         datetime.fromisoformat("2012-10-12 00:00:00"),
         datetime.fromisoformat("2012-10-12 01:00:00"),
         ExecutionStatus.SUCCESS,
-        None,
         [],
+        None,
+        None,
     )
 
     assert (
@@ -46,7 +48,8 @@ def test_serialization():
   "end_time": "2012-10-12T01:00:00",
   "status": "success",
   "steps_list": [],
-  "exception": null
+  "exception": null,
+  "blamee": null
 }"""
     )
 
@@ -64,7 +67,7 @@ def test_get_exception_to_raise_main_error():
     assert result.get_exception_to_raise() == error
 
 
-def _prepare_execution_result(error, step_error):
+def _prepare_execution_result(error, step_error, blamee=None):
     step_result = StepResult(
         "step",
         "type",
@@ -81,8 +84,9 @@ def _prepare_execution_result(error, step_error):
         datetime.fromisoformat("2012-10-12 00:00:00"),
         datetime.fromisoformat("2012-10-12 01:00:00"),
         ExecutionStatus.SUCCESS,
-        error,
         [step_result],
+        error,
+        blamee,
     )
     return result
 
@@ -97,6 +101,7 @@ def test_serialization_non_serializable():
         ExecutionStatus.ERROR,
         "details",
         exception,
+        ResolvableBy.USER_ERROR,
     )
     result = ExecutionResult(
         "job-name",
@@ -104,8 +109,9 @@ def test_serialization_non_serializable():
         datetime.fromisoformat("2012-10-12 00:00:00"),
         datetime.fromisoformat("2012-10-12 01:00:00"),
         ExecutionStatus.ERROR,
-        exception,
         [step_result],
+        exception,
+        ResolvableBy.USER_ERROR,
     )
 
     result_as_string = result.__repr__()
