@@ -3,6 +3,7 @@
 import logging
 import re
 import sys
+import time
 from typing import cast
 from typing import Optional
 from typing import Tuple
@@ -68,7 +69,14 @@ class ImpalaLineagePlugin:
         query_statement = cursor._cursor.query_string
         if self._is_keepalive_statement(query_statement):
             return None  # do not capture lineage for connection keepalive queries like "select 1"
+        start_time = time.time_ns()
         query_profile = cursor.get_profile(profile_format=TRuntimeProfileFormat.STRING)
+        end_time = time.time_ns()
+        log.debug(
+            "Successfully retrieved query profile to calculate data lineage for last executed query."
+            f"Time taken to retrieve profile: {(end_time - start_time) / 1000000} milliseconds t"
+            f"Profile size: {sys.getsizeof(query_profile)} bytes"
+        )
         if "Query Status: OK" not in query_profile:
             return None  # do not capture lineage for failed queries
         inputs, output = self._parse_inputs_outputs(query_profile)
@@ -100,12 +108,16 @@ class ImpalaLineagePlugin:
         return list(set(inputs)), output
 
     @staticmethod
-    def _get_lineage_table_from_table_name(table_name: str) -> LineageTable:
+    def _get_lineage_table_from_table_name(
+        table_name: Optional[str],
+    ) -> Optional[LineageTable]:
+        if table_name is None:
+            return None
         split_name = table_name.split(".")
         return LineageTable(schema=split_name[0], table=split_name[1], catalog=None)
 
     @staticmethod
-    def _is_keepalive_statement(query_statement):
+    def _is_keepalive_statement(query_statement: str) -> bool:
         return query_statement.endswith(
             "\n select 1 -- Testing if connection is alive."
         )
