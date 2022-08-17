@@ -884,3 +884,18 @@ dataJob:
       # In case of negative number it will be subtracted from the {{end_time}}.
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
+  # configuration for the fluentd data collector (https://github.com/vmware/kube-fluentd-operator),
+  # which is currently used for collecting Data Job logs;
+  # filter and match refer to the fluentd config directives, see here https://docs.fluentd.org/configuration/config-file;
+  fluentd:
+    enabled: false
+    filter: |-
+      @type parser
+      key_name log
+      reserve_data true
+      remove_key_name_field true
+      <parse>
+        @type json
+      </parse>
+    match: |-
+      @type elastic
