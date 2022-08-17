@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
+from unittest.mock import call
 from unittest.mock import MagicMock
 
 import pytest
@@ -12,6 +13,8 @@ from vdk.internal.builtin_plugins.templates.template_impl import TemplatesImpl
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.statestore import StateStore
+from vdk.internal.core.statestore import StoreKey
 
 
 def test_template_builder():
@@ -41,6 +44,7 @@ def test_template_execute():
     )
     mock_job_factory.new_datajob.return_value = mock_job
     mock_context = MagicMock(spec=CoreContext)
+    mock_context.state = MagicMock(spec=StateStore)
     templates = TemplatesImpl("foo", mock_context, mock_job_factory)
     templates.add_template("name", pathlib.Path("/tmp/template"))
 
@@ -82,3 +86,26 @@ def test_template_execute_no_such():
 
     with pytest.raises(UserCodeError):
         templates.execute_template("no-such", {"arg": "value"})
+
+
+def test_template_running_state():
+    mock_job_factory = MagicMock(spec=DataJobFactory)
+    mock_job = MagicMock(spec=DataJob)
+    mock_job.run.return_value = ExecutionResult(
+        "foo", "1", None, None, ExecutionStatus.SUCCESS, [], None, None
+    )
+    mock_job_factory.new_datajob.return_value = mock_job
+    mock_context = MagicMock(spec=CoreContext)
+    mock_context.state = MagicMock(spec=StateStore)
+    templates = TemplatesImpl("foo", mock_context, mock_job_factory)
+    templates.add_template("name", pathlib.Path("/tmp/template"))
+
+    templates.execute_template("name", {"arg": "value"})
+
+    mock_context.state.set.assert_has_calls(
+        [call(StoreKey(key="vdk.template_running"), True)]
+    )
+    mock_context.state.set.assert_called_with(
+        StoreKey(key="vdk.template_running"), False
+    )
+    assert mock_context.state.set.call_count == 2

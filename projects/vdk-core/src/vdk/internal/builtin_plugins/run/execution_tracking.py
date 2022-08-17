@@ -32,6 +32,7 @@ class ExecutionTrackingPlugin:
         state.set(ExecutionStateStoreKeys.STEPS_SUCCEEDED, [])
         state.set(ExecutionStateStoreKeys.STEPS_FAILED, [])
         state.set(ExecutionStateStoreKeys.EXECUTION_RESULT, None)
+        state.set(ExecutionStateStoreKeys.TEMPLATE_RUNNING, False)
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> None:

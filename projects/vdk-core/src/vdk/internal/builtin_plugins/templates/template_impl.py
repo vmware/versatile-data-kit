@@ -8,6 +8,7 @@ from vdk.api.job_input import ITemplate
 from vdk.api.plugin.plugin_input import ITemplateRegistry
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
+from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
 
@@ -45,7 +46,13 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         template_job = self._datajob_factory.new_datajob(
             template_directory, self._core_context, name=self._job_name
         )
-        result = template_job.run(template_args)
+        self._core_context.state.set(ExecutionStateStoreKeys.TEMPLATE_RUNNING, True)
+        try:
+            result = template_job.run(template_args)
+        finally:
+            self._core_context.state.set(
+                ExecutionStateStoreKeys.TEMPLATE_RUNNING, False
+            )
         if result.is_failed():
             if result.get_exception_to_raise():
                 raise result.get_exception_to_raise()

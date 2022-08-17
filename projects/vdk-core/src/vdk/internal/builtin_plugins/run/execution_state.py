@@ -20,3 +20,4 @@ class ExecutionStateStoreKeys:
     EXECUTION_RESULT: StoreKey[Optional[ExecutionResult]] = StoreKey(
         "vdk.execution_result"
     )
+    TEMPLATE_RUNNING: StoreKey[bool] = StoreKey("vdk.template_running")

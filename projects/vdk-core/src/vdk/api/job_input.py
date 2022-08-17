@@ -321,6 +321,9 @@ class ITemplate:
 
         You can see the full list of available templates and instructions on their usage here: TODO
 
+        During a template data job execution, a state store entry of ExecutionStateStoreKeys.TEMPLATE_RUNNING with
+        key "vdk.template_running" is available.
+
         Arguments:
 
             template_name: str
