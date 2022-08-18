@@ -1,7 +1,9 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.core.statestore import StoreKey
@@ -20,4 +22,6 @@ class ExecutionStateStoreKeys:
     EXECUTION_RESULT: StoreKey[Optional[ExecutionResult]] = StoreKey(
         "vdk.execution_result"
     )
-    TEMPLATE_RUNNING: StoreKey[bool] = StoreKey("vdk.template_running")
+    TEMPLATE_RUNNING: StoreKey[Optional[Tuple[str, Dict]]] = StoreKey(
+        "vdk.template_running"
+    )

@@ -46,13 +46,13 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         template_job = self._datajob_factory.new_datajob(
             template_directory, self._core_context, name=self._job_name
         )
-        self._core_context.state.set(ExecutionStateStoreKeys.TEMPLATE_RUNNING, True)
+        self._core_context.state.set(
+            ExecutionStateStoreKeys.TEMPLATE_RUNNING, (name, template_args)
+        )  # immutable?
         try:
             result = template_job.run(template_args)
         finally:
-            self._core_context.state.set(
-                ExecutionStateStoreKeys.TEMPLATE_RUNNING, False
-            )
+            self._core_context.state.set(ExecutionStateStoreKeys.TEMPLATE_RUNNING, None)
         if result.is_failed():
             if result.get_exception_to_raise():
                 raise result.get_exception_to_raise()

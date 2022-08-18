@@ -98,14 +98,16 @@ def test_template_running_state():
     mock_context = MagicMock(spec=CoreContext)
     mock_context.state = MagicMock(spec=StateStore)
     templates = TemplatesImpl("foo", mock_context, mock_job_factory)
-    templates.add_template("name", pathlib.Path("/tmp/template"))
+    name = "name"
+    args = {"arg": "value"}
+    templates.add_template(name, pathlib.Path("/tmp/template"))
 
-    templates.execute_template("name", {"arg": "value"})
+    templates.execute_template(name, args)
 
     mock_context.state.set.assert_has_calls(
-        [call(StoreKey(key="vdk.template_running"), True)]
+        [call(StoreKey(key="vdk.template_running"), (name, args))]
     )
     mock_context.state.set.assert_called_with(
-        StoreKey(key="vdk.template_running"), False
+        StoreKey(key="vdk.template_running"), None
     )
     assert mock_context.state.set.call_count == 2
