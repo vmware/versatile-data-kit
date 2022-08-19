@@ -142,15 +142,15 @@ paths:
         Check the latest example for the full list of supported query fields.<br/><br/>
 
         Simplest query that you could make is to fetch the job names
-        <pre>
-        {<br/>
-          jobs(pageNumber: 1, pageSize: 25) {<br/>
-            content {<br/>
-              jobName<br/>
-            }<br/>
-          }<br/>
-        }<br/>
-        </pre><br/>
+        ```
+        {
+          jobs(pageNumber: 1, pageSize: 25) {
+            content {
+              jobName
+            }
+          }
+        }
+        ```
 
         You could also use filtering and sorting function. Filter object has <b>property, pattern and sort</b> fields.<br/>
         * <b>property</b> points out which field you want to filter, if you point out some other field that is not supported,
@@ -160,155 +160,161 @@ paths:
         If a pattern string is not provided, then you must atleast provide the property field<br/>
         * <b>sort</b> should be an enum value - ASC (ascending) or DESC (descending) option [not required, default is ASC]
         Multiple filters could be applied, but <b>maximum one should contain sorting</b>!
-        <pre>
-        {<br/>
-          jobs(<br/>
-            pageNumber: 1,<br/>
-            pageSize: 25,<br/>
-            filter: [{<br/>
-              property: "jobName",<br/>
-              pattern: "starshot",<br/>
-              sort: "DESC"<br/>
-            }],<br/>
-          ) {<br/>
-            content {<br/>
-              jobName<br/>
-            }<br/>
-          }<br/>
-        }<br/>
-        </pre><br/>
+        ```
+        {
+          jobs(
+            pageNumber: 1,
+            pageSize: 25,
+            filter: [{
+              property: "jobName",
+              pattern: "starshot",
+              sort: DESC
+            }],
+          ) {
+            content {
+              jobName
+            }
+          }
+        }
+        ```
 
         You could also search for a string into the properties that you are requesting, for instance:
         This query will search for job names, team names and descriptions which contains the provided "starshot" string
-        <pre>
-        {<br/>
-          jobs(<br/>
-            pageNumber: 1,<br/>
-            pageSize: 25,<br/>
-            search: "starshot"<br/>
-          ) {<br/>
-            content {<br/>
-              jobName,<br/>
-              config {<br/>
-                team<br/>
-                description<br/>
-              }<br/>
-            }<br/>
-          }<br/>
-        }<br/>
-        </pre><br/>
+        ```
+        {
+          jobs(
+            pageNumber: 1,
+            pageSize: 25,
+            search: "starshot"
+          ) {
+            content {
+              jobName,
+              config {
+                team
+                description
+              }
+            }
+          }
+        }
+        ```
 
         Data jobs execution could also be searched by providing arguments to the <b>execution</b> field.
         Same as parent query arguments, the <b>pageNumber</b> and <b>pageSize</b> arguments are required! Page number should be a <b>number greater than 1</b>,
         and pageSize <b>should be between 1 and 100 results</b> (per page). You can also <b>filter</b> using the similar object structure as the parent query,
         but currently <b>filtering is not supported</b>, you can only provide field for sorting.
         This query will search
-        <pre>
-        {<br/>
-          jobs(<br/>
-            pageNumber: 1,<br/>
-            pageSize: 25,<br/>
-          ) {<br/>
-            content {<br/>
-              jobName,<br/>
-              deployments {<br/>
-                id<br/>
-                executions(<br/>
-                  pageNumber: 1,<br/>
-                  pageSize: 5<br/>
-                  filter: [{<br/>
-                    property: "deployments.executions.startTime",<br/>
-                    sort: "DESC",<br/>
-                  }],<br/>
-                ) {<br/>
+        ```
+        {
+          jobs(
+            pageNumber: 1,
+            pageSize: 25,
+          ) {
+            content {
+              jobName,
+              deployments {
+                id
+                executions(
+                  pageNumber: 1,
+                  pageSize: 5,
+                  filter: [{
+                    teamNameIn: ["starshot"]
+                  }],
+                  order: {
+                    property: "startTime",
+                      direction: DESC
+                  }
+                ) {
                   id
                   status
                   startTime
                   endTime
-                {</br>
-              }<br/>
-            }<br/>
-          }<br/>
-        }<br/>
-        </pre><br/>
+                {
+              }
+            }
+          }
+        }
+        ```
 
         Full example of currently available for fetching fields. Note that if you combine searching and filtering, first
         it will apply filters and then within filtered jobs it will apply the search, vice versa is currently not supported:
-        <pre>
-        {<br/>
-          jobs(<br/>
-            pageNumber: 1,<br/>
-            pageSize: 25,<br/>
-            search: "daily",<br/>
-            filter: [{<br/>
-              property: "jobName",<br/>
-              pattern: "import-sql",<br/>
-            },{<br/>
-              property: "team",<br/>
-              pattern: "starshot",<br/>
-              sort: "DESC" <br/>
-            },{<br/>
-              property: "deployments.enabled",<br/>
-              pattern: "enabled",<br/>
-            }],<br/>
-          ) {<br/>
-            content {<br/>
-              jobName<br/>
-              config {<br/>
-                team<br/>
-                description<br/>
-                sourceUrl<br/>
-                schedule {<br/>
-                  scheduleCron<br/>
-                  nextRunEpochSeconds<br/>
-                }<br/>
-                contacts {<br/>
-                  notifiedOnJobFailureUserError<br/>
-                  notifiedOnJobFailurePlatformError<br/>
-                  notifiedOnJobSuccess<br/>
-                  notifiedOnJobDeploy<br/>
-                }<br/>
-              }<br/>
-              deployments {<br/>
-                id<br/>
-                enabled<br/>
-                jobVersion<br/>
-                mode<br/>
-                executions(<br/>
-                  pageNumber: 1,<br/>
-                  pageSize: 25<br/>
-                  filter: [{<br/>
-                    property: "deployments.executions.status",<br/>
-                    sort: "ASC",<br/>
-                  }],<br/>
-                ) {<br/>
-                  id<br/>
-                  type<br/>
-                  status<br/>
-                  message<br/>
-                  startTime<br/>
-                  endTime<br/>
-                  opId<br/>
-                  vkdVersion<br/>
-                  jobVersion<br/>
-                  jobSchedule<br/>
-                  resourcesCpuRequest<br/>
-                  resourcesCpuLimit</br>
-                  resourcesMemoryRequest</br>
-                  resourcesMemoryLimit</br>
-                  deployedDate</br>
-                  deployedBy</br>
-                  startedBy</br>
-                  logsUrl</br>
-                }<br/>
-              }<br/>
-            }<br/>
-            totalPages<br/>
-            totalItems<br/>
-            }<br/>
-          }<br/>
-        }<br/>
-        </pre><br/>
+        ```
+        {
+          jobs(
+            pageNumber: 1,
+            pageSize: 25,
+            search: "daily",
+            filter: [{
+              property: "jobName",
+              pattern: "import-sql",
+            },{
+              property: "team",
+              pattern: "starshot",
+              sort: DESC
+            },{
+              property: "deployments.enabled",
+              pattern: "enabled",
+            }],
+          ) {
+            content {
+              jobName
+              config {
+                team
+                description
+                sourceUrl
+                schedule {
+                  scheduleCron
+                  nextRunEpochSeconds
+                }
+                contacts {
+                  notifiedOnJobFailureUserError
+                  notifiedOnJobFailurePlatformError
+                  notifiedOnJobSuccess
+                  notifiedOnJobDeploy
+                }
+              }
+              deployments {
+                id
+                enabled
+                jobVersion
+                mode
+                executions(
+                  pageNumber: 1,
+                  pageSize: 25,
+                  filter: [{
+                    teamNameIn: ["starshot"]
+                  }],
+                  order: {
+                    property: "startTime",
+                      direction: DESC
+                  }
+                ) {
+                  id
+                  type
+                  status
+                  message
+                  startTime
+                  endTime
+                  opId
+                  vkdVersion
+                  jobVersion
+                  jobSchedule
+                  resourcesCpuRequest
+                  resourcesCpuLimit
+                  resourcesMemoryRequest
+                  resourcesMemoryLimit
+                  deployedDate
+                  deployedBy
+                  startedBy
+                  logsUrl
+                }
+              }
+            }
+            totalPages
+            totalItems
+            }
+          }
+        }
+        ```
 
       parameters:
         - name: team_name
