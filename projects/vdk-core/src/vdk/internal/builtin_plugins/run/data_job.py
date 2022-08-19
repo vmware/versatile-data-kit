@@ -7,6 +7,7 @@ import pathlib
 from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
+from typing import Optional
 
 from vdk.api.job_input import IJobArguments
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
@@ -255,7 +256,9 @@ class DataJob:
         return self._name
 
     # TODO: this also can be a hook - e.g job run_cycle_algorithm
-    def run(self, args: dict = None) -> ExecutionResult:
+    def run(
+        self, args: dict = None, template_name: str | None = None
+    ) -> ExecutionResult:
         """
         This is basic implementation of Data Job run(execution) cycle algorithm.
         All stages are pluggable as hooks.
@@ -282,7 +285,9 @@ class DataJob:
             core_context=self._core_context,
             job_args=JobArguments(args),
             templates=TemplatesImpl(
-                job_name=self.name, core_context=self._core_context
+                job_name=self.name,
+                core_context=self._core_context,
+                template_name=template_name,
             ),
         )
         self._plugin_hook.initialize_job(context=job_context)

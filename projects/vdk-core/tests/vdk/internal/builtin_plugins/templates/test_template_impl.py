@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
-from unittest.mock import call
 from unittest.mock import MagicMock
 
 import pytest
@@ -88,7 +87,7 @@ def test_template_execute_no_such():
         templates.execute_template("no-such", {"arg": "value"})
 
 
-def test_template_running_state():
+def test_template_name_not_set():
     mock_job_factory = MagicMock(spec=DataJobFactory)
     mock_job = MagicMock(spec=DataJob)
     mock_job.run.return_value = ExecutionResult(
@@ -98,16 +97,42 @@ def test_template_running_state():
     mock_context = MagicMock(spec=CoreContext)
     mock_context.state = MagicMock(spec=StateStore)
     templates = TemplatesImpl("foo", mock_context, mock_job_factory)
+    templates.add_template("name", pathlib.Path("/tmp/template"))
+
+    templates.execute_template("name", {"arg": "value"})
+    assert not [
+        c
+        for c in mock_context.state.set.call_args_list
+        if c[0][0] == StoreKey(key="vdk.template_name")
+    ]
+
+
+def test_template_name_set():
+    mock_job_factory = MagicMock(spec=DataJobFactory)
+    mock_job = MagicMock(spec=DataJob)
+    mock_job.run.return_value = ExecutionResult(
+        "foo", "1", None, None, ExecutionStatus.SUCCESS, [], None, None
+    )
+    mock_job_factory.new_datajob.return_value = mock_job
+    mock_context = MagicMock(spec=CoreContext)
+    mock_context.state = MagicMock(spec=StateStore)
+
+    template_name = "template_name"
+    templates = TemplatesImpl("foo", mock_context, mock_job_factory, template_name)
     name = "name"
-    args = {"arg": "value"}
     templates.add_template(name, pathlib.Path("/tmp/template"))
 
-    templates.execute_template(name, args)
-
-    mock_context.state.set.assert_has_calls(
-        [call(StoreKey(key="vdk.template_running"), (name, args))]
-    )
+    templates.execute_template(name, {"arg": "value"})
     mock_context.state.set.assert_called_with(
-        StoreKey(key="vdk.template_running"), None
+        StoreKey(key="vdk.template_name"), template_name
     )
-    assert mock_context.state.set.call_count == 2
+    assert (
+        len(
+            [
+                c
+                for c in mock_context.state.set.call_args_list
+                if c[0][0] == StoreKey(key="vdk.template_name")
+            ]
+        )
+        == 1
+    )
