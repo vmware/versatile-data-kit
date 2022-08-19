@@ -269,6 +269,10 @@ class DataJob:
         """
         if args is None:
             args = {}
+        if template_name:
+            self._core_context.state.set(
+                ExecutionStateStoreKeys.TEMPLATE_NAME, template_name
+            )
 
         if not self._core_context.plugin_registry.has_plugin(
             DataJobDefaultHookImplPlugin.__name__
@@ -290,11 +294,6 @@ class DataJob:
                 template_name=template_name,
             ),
         )
-        if template_name:
-            self._core_context.state.set(
-                ExecutionStateStoreKeys.TEMPLATE_NAME, template_name
-            )
-
         self._plugin_hook.initialize_job(context=job_context)
 
         start_time = datetime.utcnow()
