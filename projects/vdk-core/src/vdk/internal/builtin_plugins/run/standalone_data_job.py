@@ -7,7 +7,6 @@ import pathlib
 import sys
 from pathlib import Path
 from typing import cast
-from typing import Optional
 
 from vdk.api.data_job import IStandaloneDataJob
 from vdk.api.job_input import IJobInput

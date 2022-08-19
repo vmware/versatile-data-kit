@@ -9,7 +9,6 @@ from vdk.api.job_input import ITemplate
 from vdk.api.plugin.plugin_input import ITemplateRegistry
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
-from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
 
