@@ -30,10 +30,7 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         self._datajob_factory = (
             DataJobFactory() if datajob_factory is None else datajob_factory
         )
-        if template_name:
-            self._core_context.state.set(
-                ExecutionStateStoreKeys.TEMPLATE_NAME, template_name
-            )
+        self._template_name = template_name
 
     def add_template(self, name: str, template_directory: pathlib.Path):
         if (

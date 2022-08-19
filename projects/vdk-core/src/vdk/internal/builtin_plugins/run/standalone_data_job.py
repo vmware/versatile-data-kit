@@ -7,6 +7,7 @@ import pathlib
 import sys
 from pathlib import Path
 from typing import cast
+from typing import Optional
 
 from vdk.api.data_job import IStandaloneDataJob
 from vdk.api.job_input import IJobInput
@@ -17,6 +18,7 @@ from vdk.internal.builtin_plugins import builtin_hook_impl
 from vdk.internal.builtin_plugins.internal_hookspecs import InternalHookSpecs
 from vdk.internal.builtin_plugins.run.data_job import DataJobDefaultHookImplPlugin
 from vdk.internal.builtin_plugins.run.data_job import JobArguments
+from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.execution_tracking import ExecutionTrackingPlugin
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -64,6 +66,7 @@ class StandaloneDataJob(IStandaloneDataJob):
         name: str | None = None,
         job_args: dict | None = None,
         extra_plugins: list = [],
+        template_name: str | None = None,
     ):
         if data_job_directory is None and name is None:
             raise ValueError(
@@ -85,6 +88,7 @@ class StandaloneDataJob(IStandaloneDataJob):
         self._plugin_registry.load_plugin_with_hooks_impl(
             builtin_hook_impl, "core-plugin"
         )
+        self._template_name = template_name
 
         cast(CoreHookSpecs, self._plugin_registry.hook()).vdk_start.call_historic(
             kwargs=dict(plugin_registry=self._plugin_registry, command_line_args=[])
@@ -97,6 +101,8 @@ class StandaloneDataJob(IStandaloneDataJob):
         configuration = conf_builder.build()
 
         core_context = CoreContext(self._plugin_registry, configuration, StateStore())
+        if template_name:
+            core_context.state.set(ExecutionStateStoreKeys.TEMPLATE_NAME, template_name)
         core_context.plugin_registry.load_plugin_with_hooks_impl(
             ExecutionTrackingPlugin()
         )
@@ -123,7 +129,9 @@ class StandaloneDataJob(IStandaloneDataJob):
                 core_context=self._core_context,
                 job_args=JobArguments(self._job_args),
                 templates=TemplatesImpl(
-                    job_name=self._name, core_context=self._core_context
+                    job_name=self._name,
+                    core_context=self._core_context,
+                    template_name=self._template_name,
                 ),
             )
 
@@ -170,6 +178,7 @@ class StandaloneDataJobFactory:
         name: str | None = None,
         job_args: dict | None = None,
         extra_plugins: list = [],
+        template_name: str | None = None,
     ) -> IStandaloneDataJob:
         """
         Arguments:
@@ -182,10 +191,13 @@ class StandaloneDataJobFactory:
                 Data Job arguments are also used for parameter substitution in queries, see execute_query docstring.
             extra_plugins: Optional[list]
                 List of extra plugins to register.  Mostly useful during testing
+            template_name: Optional[str]
+                Template name, in case the data job is a template execution.
         """
         return StandaloneDataJob(
             data_job_directory=data_job_directory,
             name=name,
             job_args=job_args,
             extra_plugins=extra_plugins,
+            template_name=template_name,
         )

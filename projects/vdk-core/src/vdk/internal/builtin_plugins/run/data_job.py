@@ -13,6 +13,7 @@ from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
+from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.file_based_step import JobFilesLocator
 from vdk.internal.builtin_plugins.run.file_based_step import StepFuncFactory
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
@@ -289,6 +290,11 @@ class DataJob:
                 template_name=template_name,
             ),
         )
+        if template_name:
+            self._core_context.state.set(
+                ExecutionStateStoreKeys.TEMPLATE_NAME, template_name
+            )
+
         self._plugin_hook.initialize_job(context=job_context)
 
         start_time = datetime.utcnow()
