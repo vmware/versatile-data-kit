@@ -7,7 +7,6 @@ import pathlib
 from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
-from typing import Optional
 
 from vdk.api.job_input import IJobArguments
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
