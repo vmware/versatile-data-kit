@@ -669,7 +669,15 @@ class IngesterBase(IIngester):
         # Check if payload dict is valid json
         # TODO: optimize the check - we should not need to serialize the payload every time
         try:
-            json.dumps(payload_dict)
+            from decimal import Decimal
+
+            class DecimalJsonEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, Decimal):
+                        return float(obj)
+                    return super().default(obj)
+
+            json.dumps(payload_dict, cls=DecimalJsonEncoder)
         except (TypeError, OverflowError, Exception) as e:
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
