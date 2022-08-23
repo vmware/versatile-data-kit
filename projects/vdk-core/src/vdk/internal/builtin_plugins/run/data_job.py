@@ -111,6 +111,7 @@ class DataJobDefaultHookImplPlugin:
         """
         start_time = datetime.utcnow()
         exception = None
+        blamee = None
         steps = context.step_builder.get_steps()
         step_results = []
 
@@ -133,6 +134,7 @@ class DataJobDefaultHookImplPlugin:
                 )
             except BaseException as e:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
+                exception = e
                 errors.log_exception(
                     blamee,
                     log,
@@ -167,8 +169,9 @@ class DataJobDefaultHookImplPlugin:
             start_time,
             datetime.utcnow(),
             execution_status,
-            exception,
             step_results,
+            exception,
+            blamee,
         )
         return execution_result
 
@@ -306,8 +309,9 @@ class DataJob:
                 start_time,
                 datetime.utcnow(),
                 ExecutionStatus.ERROR,
-                ex,
                 [],
+                ex,
+                blamee,
             )
             return execution_result
 

@@ -8,6 +8,7 @@ from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.core.errors import ResolvableBy
 from vdk.plugin.test_utils.util_funcs import DataJobBuilder
 
 
@@ -23,8 +24,8 @@ def test_run_when_step_fails():
 
     result = data_job.run()
     assert result.is_failed()
-    assert result.exception is None
-    assert isinstance(result.get_exception(), IndentationError)
+    assert isinstance(result.get_exception_to_raise(), IndentationError)
+    assert result.get_blamee() == ResolvableBy.USER_ERROR
 
 
 def test_run_when_step_succeeds():
@@ -32,6 +33,8 @@ def test_run_when_step_succeeds():
     job_builder.add_step_func(lambda s, i: True)
     result = job_builder.build().run()
     assert result.is_success()
+    assert result.exception is None
+    assert result.blamee is None
 
 
 def test_run_job_with_default_hook():

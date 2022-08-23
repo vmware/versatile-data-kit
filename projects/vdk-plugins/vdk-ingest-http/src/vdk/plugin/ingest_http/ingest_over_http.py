@@ -128,7 +128,7 @@ class IngestOverHttp(IIngesterPlugin):
     ) -> Optional[IngestionResult]:
         header = {"Content-Type": "application/octet-stream"}  # TODO: configurable
 
-        log.info(
+        log.debug(
             f"Ingesting payloads for target: {target}; "
             f"collection_id: {collection_id}"
         )

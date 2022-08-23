@@ -10,6 +10,7 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.templates.template_impl import TemplatesImpl
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 
 
@@ -36,7 +37,7 @@ def test_template_execute():
     mock_job_factory = MagicMock(spec=DataJobFactory)
     mock_job = MagicMock(spec=DataJob)
     mock_job.run.return_value = ExecutionResult(
-        "foo", "1", None, None, ExecutionStatus.SUCCESS, None, []
+        "foo", "1", None, None, ExecutionStatus.SUCCESS, [], None, None
     )
     mock_job_factory.new_datajob.return_value = mock_job
     mock_context = MagicMock(spec=CoreContext)
@@ -54,7 +55,14 @@ def test_template_execute_template_fails_raise_exception():
     mock_job_factory = MagicMock(spec=DataJobFactory)
     mock_job = MagicMock(spec=DataJob)
     mock_job.run.return_value = ExecutionResult(
-        "foo", "1", None, None, ExecutionStatus.ERROR, AttributeError("dummy"), []
+        "foo",
+        "1",
+        None,
+        None,
+        ExecutionStatus.ERROR,
+        [],
+        AttributeError("dummy"),
+        ResolvableBy.USER_ERROR,
     )
     mock_job_factory.new_datajob.return_value = mock_job
     mock_context = MagicMock(spec=CoreContext)

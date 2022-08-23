@@ -52,7 +52,7 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
         """
         Add new connection factory method. See parent doc for more.
         """
-        self._connection_builders[dbtype] = open_connection_func
+        self._connection_builders[dbtype.lower()] = open_connection_func
 
     def open_default_connection(self) -> ManagedConnectionBase:
         """
@@ -74,6 +74,7 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
         or it will thrown an error
         :return: the new connection if succesfull or throws an expception
         """
+        dbtype = dbtype.lower() if dbtype else None
         if dbtype in self._connections:
             conn = self._connections[dbtype]
             if conn._is_connected():
@@ -94,7 +95,7 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
             f"Currently possible values are {list(self._connection_builders.keys())}",
         )
 
-    def __create_connection(self, dbtype):
+    def __create_connection(self, dbtype: str):
         conn = self._connection_builders[dbtype]()
         if isinstance(conn, ManagedConnectionBase):
             self._connections[dbtype] = conn

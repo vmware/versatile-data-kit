@@ -1,4 +1,5 @@
 This plugin allows vdk-core to interface with and execute queries against an Impala database.
+Additionally, it can collect lineage data, assuming a lineage logger has been provided through the vdk-core configuration.
 
 # Usage
 
@@ -18,6 +19,25 @@ For example
     def run(job_input: IJobInput):
         job_input.execute_query("select 'Hi Impala!'")
 ```
+
+### Lineage
+
+The package can gather lineage data for all successful Impala SQL queries that have actually read or written data.
+Other plugins can read and optionally send the lineage data to separate system.
+They need to provide ILineageLogger implementation and hook this way:
+```python
+    @hookimpl
+    def vdk_initialize(context: CoreContext) -> None:
+        context.state.set(StoreKey[ILineageLogger]("impala-lineage-logger"), MyLogger())
+```
+
+Lineage is calculated based on the executed query profile. It is retrieved via the cursor by executing additional RPC
+request against the same Impala node that has coordinated the query right after the original query has successfully
+finished. See https://impala.apache.org/docs/build/html/topics/impala_logging.html for more information how profiles are
+stored and here https://impala.apache.org/docs/build/impala-3.1.pdf for more information about the profiles themselves.
+
+If enabled, query plan is retrieved for every successfully executed query against Impala excluding keepalive queries
+like "Select 1".
 
 <!-- ## Ingestion - not yet implemented so this part is commented out
 

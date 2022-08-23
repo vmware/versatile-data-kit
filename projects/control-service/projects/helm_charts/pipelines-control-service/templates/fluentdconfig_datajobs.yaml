@@ -1,0 +1,22 @@
+{{- if .Values.dataJob.fluentd.enabled }}
+apiVersion: logs.vdp.vmware.com/v1beta1
+kind: FluentdConfig
+metadata:
+  name: {{ include "pipelines-control-service.fullname" . }}-data-jobs-parser
+  namespace: {{ template "pipelines-control-service.deploymentK8sNamespace" . }}
+spec:
+  fluentconf: |
+    {{- if .Values.dataJob.fluentd.extra }}
+    {{ .Values.dataJob.fluentd.extra | indent 4 | trim }}
+    {{- end }}
+    {{- if .Values.dataJob.fluentd.filter }}
+    <filter **>
+      {{ .Values.dataJob.fluentd.filter | indent 6 | trim }}
+    </filter>
+    {{- end }}
+    {{- if .Values.dataJob.fluentd.match }}
+    <match **>
+      {{ .Values.dataJob.fluentd.match | indent 6 | trim }}
+    </match>
+    {{- end }}
+{{- end }}
