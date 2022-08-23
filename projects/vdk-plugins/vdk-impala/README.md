@@ -49,7 +49,7 @@ like "Select 1".
 
 * [SCD1](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/dimension/scd1)
 * [SCD2](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/versioned) dimension tables
-* [periodic snapshot fact table](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/snapshot)
+* [Periodic Snapshot Fact Table](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/snapshot)
 
 See following [tutorial](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples) for more details. It is based on Trino but it is the same for Impala (only db configuration is changed).
 
