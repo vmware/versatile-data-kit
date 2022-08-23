@@ -51,7 +51,7 @@ like "Select 1".
 * [SCD2](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/versioned) dimension tables
 * [Periodic Snapshot Fact Table](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/snapshot)
 
-See following [tutorial](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples) for more details. It is based on Trino but it is the same for Impala (only db configuration is changed).
+See the following [tutorial](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples) for more details. It is based on Trino but the process is equivalent for Impala (only the database configuration requires change).
 
 <!-- ## Ingestion - not yet implemented so this part is commented out
 
