@@ -2,7 +2,7 @@ This plugin allows vdk-core to interface with and execute queries against an Imp
 
 # Features
 
-* It provides powerful recovery mechanism handling a lot of challenges - like eventual consistency issues in Impala and more. In one production deployment of VDK it was able to improve SLA of Impala from 95% (queries directly to Impala) to 99% (queries using VDK to Impala).
+* It provides a powerful recovery mechanism handling a lot of challenges - like eventual consistency issues in Impala and more. In one production deployment of VDK it was able to improve SLA of Impala from 95% (queries directly to Impala) to 99% (queries using VDK to Impala).
 * It automatically classifies error based on who is best responsible to handle them - user (job owner) vs platform (infra owner) errors.
 * It provides impelmentation of Kimbal templates for generating [SCD1](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/dimension/scd1), [SCD2](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/versioned) dimension tables, [periodic snapshot fact table](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/snapshot)
 * It can collect lineage data, assuming a lineage logger has been provided through the vdk-core configuration (see `vdk config-help` for more info)
