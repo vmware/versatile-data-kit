@@ -157,6 +157,19 @@ control_service_publish_job_builder_image:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
+
+control_service_publish_job_builder_secure_image:
+  extends: control_service_publish_job_builder_image
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/job-builder-secure
+    - bash -ex ./publish-vdk-job-builder-secure.sh
+  only:
+    changes:
+      - projects/control-service/projects/job-builder-secure/version.txt
+
+
 control_service_publish_image:
   image: docker:19.03.15
   services:
