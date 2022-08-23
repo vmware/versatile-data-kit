@@ -9,6 +9,8 @@ import logging
 import queue
 import threading
 import uuid
+from decimal import Decimal
+from json import JSONEncoder
 from typing import Any
 from typing import List
 
@@ -44,6 +46,19 @@ class AtomicCounter:
 
     def __repr__(self) -> str:
         return str(self)
+
+
+class DecimalJsonEncoder(JSONEncoder):
+    """
+    This class is used to avoid an issue with the __verify_payload_format serialization check.
+    Normally, including data of type Decimal would cause that check to fail so we've amended
+    the default JsonEncoder object used to convert Decimal values to floats to avoid this issue.
+    """
+
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 def get_page_generator(data, page_size=10000):
