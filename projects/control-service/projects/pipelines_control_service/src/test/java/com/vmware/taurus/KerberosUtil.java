@@ -15,27 +15,26 @@ import java.net.URL;
 import java.security.PrivilegedActionException;
 
 public class KerberosUtil {
-   /**
-    * Creates and returns a connection to a kerberos secured endpoint.
-    *
-    * @param requestURL the endpoint to make the connection to.
-    * @param kdcAuthURL the KDC server's host.
-    * @param clientPrincipal the principal aka username.
-    * @param keytabLocation the keytab file with the credentials.
-    * @return HttpURLConnection object which can be used to make requests.
-    * @throws IOException
-    * @throws PrivilegedActionException
-    * @throws GSSException
-    */
-   public static HttpURLConnection requestWithKerberosAuth(URL requestURL, URL kdcAuthURL,
-                                                           String clientPrincipal, String keytabLocation)
-         throws IOException, PrivilegedActionException, GSSException {
+  /**
+   * Creates and returns a connection to a kerberos secured endpoint.
+   *
+   * @param requestURL the endpoint to make the connection to.
+   * @param kdcAuthURL the KDC server's host.
+   * @param clientPrincipal the principal aka username.
+   * @param keytabLocation the keytab file with the credentials.
+   * @return HttpURLConnection object which can be used to make requests.
+   * @throws IOException
+   * @throws PrivilegedActionException
+   * @throws GSSException
+   */
+  public static HttpURLConnection requestWithKerberosAuth(
+      URL requestURL, URL kdcAuthURL, String clientPrincipal, String keytabLocation)
+      throws IOException, PrivilegedActionException, GSSException {
 
-      SpnegoClient spnegoClient = SpnegoClient.loginWithKeyTab(clientPrincipal, keytabLocation);
-      SpnegoContext context = spnegoClient.createContext(kdcAuthURL);
-      HttpURLConnection conn = (HttpURLConnection) requestURL.openConnection();
-      conn.setRequestProperty("Authorization", context.createTokenAsAuthroizationHeader());
-      return conn;
-
-   }
+    SpnegoClient spnegoClient = SpnegoClient.loginWithKeyTab(clientPrincipal, keytabLocation);
+    SpnegoContext context = spnegoClient.createContext(kdcAuthURL);
+    HttpURLConnection conn = (HttpURLConnection) requestURL.openConnection();
+    conn.setRequestProperty("Authorization", context.createTokenAsAuthroizationHeader());
+    return conn;
+  }
 }

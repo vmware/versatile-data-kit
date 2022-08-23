@@ -53,169 +53,170 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
-   private static Logger log = LoggerFactory.getLogger(BaseIT.class);
+  private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
-   public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
-   public static final String TEST_JOB_DEPLOYMENT_ID = "testing";
-   protected static final String TEST_USERNAME = "user";
+  public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
+  public static final String TEST_JOB_DEPLOYMENT_ID = "testing";
+  protected static final String TEST_USERNAME = "user";
 
-   protected static final String JOBS_URI = "/data-jobs/for-team/supercollider/jobs";
-   protected static final String HEADER_X_OP_ID = "X-OPID";
+  protected static final String JOBS_URI = "/data-jobs/for-team/supercollider/jobs";
+  protected static final String HEADER_X_OP_ID = "X-OPID";
 
-   protected static final ObjectMapper mapper = new ObjectMapper();
+  protected static final ObjectMapper mapper = new ObjectMapper();
 
-   @TestConfiguration
-   static class KerberosConfig {
+  @TestConfiguration
+  static class KerberosConfig {
 
-      @Bean
-      @Primary
-      public KerberosCredentialsRepository credentialsRepository(){
-         return new MiniKdcCredentialsRepository();
+    @Bean
+    @Primary
+    public KerberosCredentialsRepository credentialsRepository() {
+      return new MiniKdcCredentialsRepository();
+    }
+  }
+
+  @Autowired private MiniKdcCredentialsRepository kerberosCredentialsRepository;
+
+  @Autowired protected DataJobsKubernetesService dataJobsKubernetesService;
+
+  @Autowired protected ControlKubernetesService controlKubernetesService;
+
+  @Autowired protected MockMvc mockMvc;
+
+  @Autowired private WebApplicationContext context;
+
+  @Value("${integrationTest.dataJobsNamespace:}")
+  private String dataJobsNamespace;
+
+  private boolean ownsDataJobsNamespace = false;
+
+  @Value("${integrationTest.controlNamespace:}")
+  private String controlNamespace;
+
+  private boolean ownsControlNamespace = false;
+
+  @BeforeEach
+  public void before() throws Exception {
+    log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+
+    kerberosCredentialsRepository.setMiniKdc(getKdc());
+
+    if (StringUtils.isBlank(dataJobsNamespace)) {
+      dataJobsNamespace = "test-ns-" + Instant.now().toEpochMilli();
+      log.info("Create namespace {}", dataJobsNamespace);
+      dataJobsKubernetesService.createNamespace(dataJobsNamespace);
+      this.ownsDataJobsNamespace = true;
+    } else {
+      log.info("Using predefined data jobs namespace {}", dataJobsNamespace);
+    }
+    ReflectionTestUtils.setField(dataJobsKubernetesService, "namespace", dataJobsNamespace);
+
+    if (StringUtils.isBlank(controlNamespace)) {
+      controlNamespace = "test-ns-" + Instant.now().toEpochMilli();
+      ;
+      log.info("Create namespace {}", controlNamespace);
+      controlKubernetesService.createNamespace(controlNamespace);
+      this.ownsControlNamespace = true;
+    } else {
+      log.info("Using predefined control namespace {}", controlNamespace);
+    }
+    ReflectionTestUtils.setField(controlKubernetesService, "namespace", controlNamespace);
+  }
+
+  @AfterEach
+  public void after() {
+    if (ownsDataJobsNamespace) {
+      try {
+        dataJobsKubernetesService.deleteNamespace(dataJobsNamespace);
+      } catch (ApiException e) {
+        log.error(String.format("Error while deleting namespace %s", dataJobsNamespace), e);
       }
-   }
-
-   @Autowired
-   private MiniKdcCredentialsRepository kerberosCredentialsRepository;
-
-   @Autowired
-   protected DataJobsKubernetesService dataJobsKubernetesService;
-
-   @Autowired
-   protected ControlKubernetesService controlKubernetesService;
-
-   @Autowired
-   protected MockMvc mockMvc;
-
-   @Autowired
-   private WebApplicationContext context;
-
-   @Value("${integrationTest.dataJobsNamespace:}")
-   private String dataJobsNamespace;
-   private boolean ownsDataJobsNamespace = false;
-   @Value("${integrationTest.controlNamespace:}")
-   private String controlNamespace;
-   private boolean ownsControlNamespace = false;
-
-   @BeforeEach
-   public void before() throws Exception {
-      log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
-      mockMvc = MockMvcBuilders
-              .webAppContextSetup(context)
-              .apply(springSecurity())
-              .build();
-
-      kerberosCredentialsRepository.setMiniKdc(getKdc());
-
-      if (StringUtils.isBlank(dataJobsNamespace)) {
-         dataJobsNamespace = "test-ns-" + Instant.now().toEpochMilli();
-         log.info("Create namespace {}", dataJobsNamespace);
-         dataJobsKubernetesService.createNamespace(dataJobsNamespace);
-         this.ownsDataJobsNamespace = true;
-      } else {
-         log.info("Using predefined data jobs namespace {}", dataJobsNamespace);
+    }
+    if (ownsControlNamespace) {
+      try {
+        controlKubernetesService.deleteNamespace(controlNamespace);
+      } catch (ApiException e) {
+        log.error(String.format("Error while deleting namespace %s", controlNamespace), e);
       }
-      ReflectionTestUtils.setField(dataJobsKubernetesService, "namespace", dataJobsNamespace);
+    }
+  }
 
-      if (StringUtils.isBlank(controlNamespace)) {
-         controlNamespace = "test-ns-" + Instant.now().toEpochMilli();;
-         log.info("Create namespace {}", controlNamespace);
-         controlKubernetesService.createNamespace(controlNamespace);
-         this.ownsControlNamespace = true;
-      } else {
-         log.info("Using predefined control namespace {}", controlNamespace);
+  public static Matcher<String> lambdaMatcher(Predicate<String> predicate) {
+    return new BaseMatcher<String>() {
+      @Override
+      public boolean matches(Object actual) {
+        return predicate.test((String) actual);
       }
-      ReflectionTestUtils.setField(controlKubernetesService, "namespace", controlNamespace);
-   }
 
-   @AfterEach
-   public void after() {
-      if (ownsDataJobsNamespace) {
-         try {
-            dataJobsKubernetesService.deleteNamespace(dataJobsNamespace);
-         } catch (ApiException e) {
-            log.error(String.format("Error while deleting namespace %s", dataJobsNamespace), e);
-         }
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("failed to match predicate");
       }
-      if (ownsControlNamespace) {
-         try {
-            controlKubernetesService.deleteNamespace(controlNamespace);
-         } catch (ApiException e) {
-            log.error(String.format("Error while deleting namespace %s", controlNamespace), e);
-         }
+    };
+  }
+
+  protected Matcher<String> isDate(OffsetDateTime value) {
+    return new BaseMatcher<>() {
+      @Override
+      public boolean matches(Object actual) {
+        return value.isEqual(OffsetDateTime.parse((String) actual));
       }
-   }
 
-   public static Matcher<String> lambdaMatcher(Predicate<String> predicate) {
-      return new BaseMatcher<String>() {
-         @Override
-         public boolean matches(Object actual) {
-            return predicate.test((String) actual);
-         }
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("failed to match date");
+      }
+    };
+  }
 
-         @Override
-         public void describeTo(Description description) {
-            description.appendText("failed to match predicate");
-         }
-      };
-   }
+  public static String getDataJobRequestBody(String teamName, String jobName)
+      throws JsonProcessingException {
+    var job = new com.vmware.taurus.controlplane.model.data.DataJob();
+    job.setJobName(jobName);
+    job.setTeam(teamName);
+    DataJobConfig config = new DataJobConfig();
+    DataJobSchedule schedule = new DataJobSchedule();
+    schedule.setScheduleCron(TEST_JOB_SCHEDULE);
+    config.setSchedule(schedule);
+    job.setConfig(config);
 
-   protected Matcher<String> isDate(OffsetDateTime value) {
-      return new BaseMatcher<>() {
-         @Override
-         public boolean matches(Object actual) {
-            return value.isEqual(OffsetDateTime.parse((String) actual));
-         }
+    return mapper.writeValueAsString(job);
+  }
 
-         @Override
-         public void describeTo(Description description) {
-            description.appendText("failed to match date");
-         }
-      };
-   }
+  protected com.vmware.taurus.service.model.DataJob getDataJobRepositoryModel(
+      String teamName, String jobName) {
+    var job = new com.vmware.taurus.service.model.DataJob();
+    job.setName(jobName);
+    JobConfig config = new JobConfig();
+    config.setTeam(teamName);
+    config.setSchedule(TEST_JOB_SCHEDULE);
+    job.setJobConfig(config);
+    return job;
+  }
 
-   public static String getDataJobRequestBody(String teamName, String jobName) throws JsonProcessingException {
-      var job = new com.vmware.taurus.controlplane.model.data.DataJob();
-      job.setJobName(jobName);
-      job.setTeam(teamName);
-      DataJobConfig config = new DataJobConfig();
-      DataJobSchedule schedule = new DataJobSchedule();
-      schedule.setScheduleCron(TEST_JOB_SCHEDULE);
-      config.setSchedule(schedule);
-      job.setConfig(config);
+  public static String getDataJobDeploymentRequestBody(String jobVersion)
+      throws JsonProcessingException {
+    var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
+    jobDeployment.setJobVersion(jobVersion);
+    jobDeployment.setMode(DataJobMode.RELEASE);
+    jobDeployment.setResources(new DataJobResources());
+    jobDeployment.setSchedule(new DataJobSchedule());
+    jobDeployment.setId(TEST_JOB_DEPLOYMENT_ID);
 
-      return mapper.writeValueAsString(job);
-   }
+    return mapper.writeValueAsString(jobDeployment);
+  }
 
-   protected com.vmware.taurus.service.model.DataJob getDataJobRepositoryModel(String teamName, String jobName) {
-      var job = new com.vmware.taurus.service.model.DataJob();
-      job.setName(jobName);
-      JobConfig config = new JobConfig();
-      config.setTeam(teamName);
-      config.setSchedule(TEST_JOB_SCHEDULE);
-      job.setJobConfig(config);
-      return job;
-   }
+  public String getDataJobDeploymentEnableRequestBody(boolean enabled)
+      throws JsonProcessingException {
+    var enable = new DataJobDeployment();
+    enable.enabled(enabled);
+    return mapper.writeValueAsString(enable);
+  }
 
-   public static String getDataJobDeploymentRequestBody(String jobVersion) throws JsonProcessingException {
-      var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
-      jobDeployment.setJobVersion(jobVersion);
-      jobDeployment.setMode(DataJobMode.RELEASE);
-      jobDeployment.setResources(new DataJobResources());
-      jobDeployment.setSchedule(new DataJobSchedule());
-      jobDeployment.setId(TEST_JOB_DEPLOYMENT_ID);
-
-      return mapper.writeValueAsString(jobDeployment);
-   }
-
-   public String getDataJobDeploymentEnableRequestBody(boolean enabled) throws JsonProcessingException {
-      var enable = new DataJobDeployment();
-      enable.enabled(enabled);
-      return mapper.writeValueAsString(enable);
-   }
-
-   public String getDataJobDeploymentVdkVersionRequestBody(String vdkVersion) throws JsonProcessingException {
-      var deployment = new DataJobDeployment();
-      deployment.setVdkVersion(vdkVersion);
-      return mapper.writeValueAsString(deployment);
-   }
+  public String getDataJobDeploymentVdkVersionRequestBody(String vdkVersion)
+      throws JsonProcessingException {
+    var deployment = new DataJobDeployment();
+    deployment.setVdkVersion(vdkVersion);
+    return mapper.writeValueAsString(deployment);
+  }
 }

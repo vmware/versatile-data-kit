@@ -18,52 +18,51 @@ import com.vmware.taurus.service.model.converter.ExecutionStatusConverter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @Entity
 public class DataJobExecution {
 
-   @Id
-   private String id;
+  @Id private String id;
 
-   @ManyToOne
-   @JoinColumn(name = "job_name", nullable = false)
-   @ToString.Exclude
-   @EqualsAndHashCode.Exclude
-   private DataJob dataJob;
+  @ManyToOne
+  @JoinColumn(name = "job_name", nullable = false)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private DataJob dataJob;
 
-   @Column(nullable = false)
-   private ExecutionType type;
+  @Column(nullable = false)
+  private ExecutionType type;
 
-   @Column(nullable = false)
-   @Convert(converter = ExecutionStatusConverter.class)
-   private ExecutionStatus status;
+  @Column(nullable = false)
+  @Convert(converter = ExecutionStatusConverter.class)
+  private ExecutionStatus status;
 
-   private String message;
+  private String message;
 
-   @Column(nullable = false)
-   private String opId;
+  @Column(nullable = false)
+  private String opId;
 
-   private OffsetDateTime startTime;
+  private OffsetDateTime startTime;
 
-   private OffsetDateTime endTime;
+  private OffsetDateTime endTime;
 
-   private String vdkVersion;
+  private String vdkVersion;
 
-   private String jobVersion;
+  private String jobVersion;
 
-   private String jobSchedule;
+  private String jobSchedule;
 
-   private Float resourcesCpuRequest;
+  private Float resourcesCpuRequest;
 
-   private Float resourcesCpuLimit;
+  private Float resourcesCpuLimit;
 
-   private Integer resourcesMemoryRequest;
+  private Integer resourcesMemoryRequest;
 
-   private Integer resourcesMemoryLimit;
+  private Integer resourcesMemoryLimit;
 
-   private OffsetDateTime lastDeployedDate;
+  private OffsetDateTime lastDeployedDate;
 
-   private String lastDeployedBy;
+  private String lastDeployedBy;
 
-   private String startedBy;
+  private String startedBy;
 }

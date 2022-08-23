@@ -26,44 +26,48 @@ import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 @Component
 public class GraphQLProvider {
 
-   private GraphQL graphQL;
+  private GraphQL graphQL;
 
-   private GraphQLDataFetchers graphQLDataFetchers;
+  private GraphQLDataFetchers graphQLDataFetchers;
 
-   private ExecutionDataFetcher executionDataFetcher;
+  private ExecutionDataFetcher executionDataFetcher;
 
-   public GraphQLProvider(GraphQLDataFetchers graphQLDataFetchers, ExecutionDataFetcher executionDataFetcher) {
-      this.graphQLDataFetchers = graphQLDataFetchers;
-      this.executionDataFetcher = executionDataFetcher;
-   }
+  public GraphQLProvider(
+      GraphQLDataFetchers graphQLDataFetchers, ExecutionDataFetcher executionDataFetcher) {
+    this.graphQLDataFetchers = graphQLDataFetchers;
+    this.executionDataFetcher = executionDataFetcher;
+  }
 
-   @Bean
-   public GraphQL graphQL() {
-      return graphQL;
-   }
+  @Bean
+  public GraphQL graphQL() {
+    return graphQL;
+  }
 
-   @PostConstruct
-   public void init() throws IOException {
-      // TODO refactor this to use non-beta methods
-      URL url = Resources.getResource("schema.graphqls");
-      String sdl = Resources.toString(url, Charsets.UTF_8);
-      GraphQLSchema graphQLSchema = buildSchema(sdl);
-      this.graphQL = GraphQL.newGraphQL(graphQLSchema).build();
-   }
+  @PostConstruct
+  public void init() throws IOException {
+    // TODO refactor this to use non-beta methods
+    URL url = Resources.getResource("schema.graphqls");
+    String sdl = Resources.toString(url, Charsets.UTF_8);
+    GraphQLSchema graphQLSchema = buildSchema(sdl);
+    this.graphQL = GraphQL.newGraphQL(graphQLSchema).build();
+  }
 
-   private GraphQLSchema buildSchema(String sdl) {
-      TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl);
-      RuntimeWiring runtimeWiring = buildWiring();
-      SchemaGenerator schemaGenerator = new SchemaGenerator();
-      return schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
-   }
+  private GraphQLSchema buildSchema(String sdl) {
+    TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl);
+    RuntimeWiring runtimeWiring = buildWiring();
+    SchemaGenerator schemaGenerator = new SchemaGenerator();
+    return schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
+  }
 
-   private RuntimeWiring buildWiring() {
-      return RuntimeWiring.newRuntimeWiring()
-            .scalar(ExtendedScalars.DateTime)
-            .type(newTypeWiring("Query")
-                  .dataFetcher(GraphQLUtils.JOBS_QUERY, graphQLDataFetchers.findAllAndBuildDataJobPage())
-                  .dataFetcher(GraphQLUtils.EXECUTIONS_QUERY, executionDataFetcher.findAllAndBuildResponse()))
-            .build();
-   }
+  private RuntimeWiring buildWiring() {
+    return RuntimeWiring.newRuntimeWiring()
+        .scalar(ExtendedScalars.DateTime)
+        .type(
+            newTypeWiring("Query")
+                .dataFetcher(
+                    GraphQLUtils.JOBS_QUERY, graphQLDataFetchers.findAllAndBuildDataJobPage())
+                .dataFetcher(
+                    GraphQLUtils.EXECUTIONS_QUERY, executionDataFetcher.findAllAndBuildResponse()))
+        .build();
+  }
 }

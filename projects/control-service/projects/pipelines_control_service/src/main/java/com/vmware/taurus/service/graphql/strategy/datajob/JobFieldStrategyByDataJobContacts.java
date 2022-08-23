@@ -18,34 +18,37 @@ import java.util.function.Predicate;
 
 @Component
 public class JobFieldStrategyByDataJobContacts extends FieldStrategy<V2DataJob> {
-   private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(e -> e.getConfig().getContacts(),
-         Comparator.nullsLast((o1, o2) -> {
-            boolean o1ContactPresent = isContactPresent(o1);
-            boolean o2ContactPresent = isContactPresent(o2);
-            return Boolean.compare(o1ContactPresent, o2ContactPresent);
-         }));
+  private static final Comparator<V2DataJob> COMPARATOR_DEFAULT =
+      Comparator.comparing(
+          e -> e.getConfig().getContacts(),
+          Comparator.nullsLast(
+              (o1, o2) -> {
+                boolean o1ContactPresent = isContactPresent(o1);
+                boolean o2ContactPresent = isContactPresent(o2);
+                return Boolean.compare(o1ContactPresent, o2ContactPresent);
+              }));
 
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.DATA_JOB_CONTACTS;
-   }
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.DATA_JOB_CONTACTS;
+  }
 
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(Criteria<V2DataJob> criteria, Filter filter) {
-      var predicate = criteria.getPredicate();
-      return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
-   }
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(Criteria<V2DataJob> criteria, Filter filter) {
+    var predicate = criteria.getPredicate();
+    return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
+  }
 
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(String searchStr) {
-      // searching by notification is not meaningful yet
-      return dataJob -> true;
-   }
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(String searchStr) {
+    // searching by notification is not meaningful yet
+    return dataJob -> true;
+  }
 
-   private static boolean isContactPresent(DataJobContacts contacts) {
-      return CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobDeploy()) ||
-            CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobFailurePlatformError()) ||
-            CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobFailureUserError()) ||
-            CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobSuccess());
-   }
+  private static boolean isContactPresent(DataJobContacts contacts) {
+    return CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobDeploy())
+        || CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobFailurePlatformError())
+        || CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobFailureUserError())
+        || CollectionUtils.isNotEmpty(contacts.getNotifiedOnJobSuccess());
+  }
 }

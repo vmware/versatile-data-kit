@@ -22,74 +22,72 @@ import java.util.List;
 @ExtendWith(MockitoExtension.class)
 public class DeploymentMonitorSyncTest {
 
-   @Mock
-   private JobsRepository jobsRepository;
+  @Mock private JobsRepository jobsRepository;
 
-   @Mock
-   private DeploymentMonitor deploymentMonitor;
+  @Mock private DeploymentMonitor deploymentMonitor;
 
-   @InjectMocks
-   private DeploymentMonitorSync deploymentMonitorSync;
+  @InjectMocks private DeploymentMonitorSync deploymentMonitorSync;
 
-   @Test
-   public void testEmptyRepository() throws InterruptedException {
-      Iterable<DataJob> mockJobs = new ArrayList<DataJob>();
-      Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
+  @Test
+  public void testEmptyRepository() throws InterruptedException {
+    Iterable<DataJob> mockJobs = new ArrayList<DataJob>();
+    Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
 
-      deploymentMonitorSync.updateJobDeploymentStatuses();
+    deploymentMonitorSync.updateJobDeploymentStatuses();
 
-      Mockito.verify(deploymentMonitor, Mockito.times(0)).updateDataJobStatus(Mockito.any(), Mockito.any());
-   }
+    Mockito.verify(deploymentMonitor, Mockito.times(0))
+        .updateDataJobStatus(Mockito.any(), Mockito.any());
+  }
 
-   @Test
-   public void testOneJobInRepository() throws InterruptedException {
-      List<DataJob> mockJobs = new ArrayList<DataJob>();
-      mockJobs.add(new DataJob("test-job", new JobConfig(), DeploymentStatus.SUCCESS));
-      Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
+  @Test
+  public void testOneJobInRepository() throws InterruptedException {
+    List<DataJob> mockJobs = new ArrayList<DataJob>();
+    mockJobs.add(new DataJob("test-job", new JobConfig(), DeploymentStatus.SUCCESS));
+    Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
 
-      deploymentMonitorSync.updateJobDeploymentStatuses();
+    deploymentMonitorSync.updateJobDeploymentStatuses();
 
-      Mockito.verify(deploymentMonitor, Mockito.times(1))
-              .updateDataJobStatus("test-job", DeploymentStatus.SUCCESS);
-   }
+    Mockito.verify(deploymentMonitor, Mockito.times(1))
+        .updateDataJobStatus("test-job", DeploymentStatus.SUCCESS);
+  }
 
-   @Test
-   public void testTwoJobsInRepository() throws InterruptedException {
-      List<DataJob> mockJobs = new ArrayList<DataJob>();
-      mockJobs.add(new DataJob("test-job", new JobConfig()));
-      mockJobs.add(new DataJob("test-job-2", new JobConfig(), DeploymentStatus.PLATFORM_ERROR));
-      Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
+  @Test
+  public void testTwoJobsInRepository() throws InterruptedException {
+    List<DataJob> mockJobs = new ArrayList<DataJob>();
+    mockJobs.add(new DataJob("test-job", new JobConfig()));
+    mockJobs.add(new DataJob("test-job-2", new JobConfig(), DeploymentStatus.PLATFORM_ERROR));
+    Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
 
-      deploymentMonitorSync.updateJobDeploymentStatuses();
+    deploymentMonitorSync.updateJobDeploymentStatuses();
 
-      Mockito.verify(deploymentMonitor, Mockito.times(0))
-              .updateDataJobStatus("test-job", DeploymentStatus.NONE);
+    Mockito.verify(deploymentMonitor, Mockito.times(0))
+        .updateDataJobStatus("test-job", DeploymentStatus.NONE);
 
-      Mockito.verify(deploymentMonitor, Mockito.times(1))
-              .updateDataJobStatus("test-job-2", DeploymentStatus.PLATFORM_ERROR);
-   }
+    Mockito.verify(deploymentMonitor, Mockito.times(1))
+        .updateDataJobStatus("test-job-2", DeploymentStatus.PLATFORM_ERROR);
+  }
 
-   @Test
-   public void testJobWithNoneStatusSkipped() throws InterruptedException {
-      List<DataJob> mockJobs = new ArrayList<DataJob>();
-      mockJobs.add(new DataJob("test-job", new JobConfig()));
-      Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
+  @Test
+  public void testJobWithNoneStatusSkipped() throws InterruptedException {
+    List<DataJob> mockJobs = new ArrayList<DataJob>();
+    mockJobs.add(new DataJob("test-job", new JobConfig()));
+    Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
 
-      deploymentMonitorSync.updateJobDeploymentStatuses();
+    deploymentMonitorSync.updateJobDeploymentStatuses();
 
-      Mockito.verify(deploymentMonitor, Mockito.times(0))
-              .updateDataJobStatus(Mockito.any(), Mockito.any());
-   }
+    Mockito.verify(deploymentMonitor, Mockito.times(0))
+        .updateDataJobStatus(Mockito.any(), Mockito.any());
+  }
 
-   @Test
-   public void testJobWithNullStatusHandled() throws InterruptedException {
-      List<DataJob> mockJobs = new ArrayList<DataJob>();
-      mockJobs.add(new DataJob("test-job", new JobConfig(), null));
-      Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
+  @Test
+  public void testJobWithNullStatusHandled() throws InterruptedException {
+    List<DataJob> mockJobs = new ArrayList<DataJob>();
+    mockJobs.add(new DataJob("test-job", new JobConfig(), null));
+    Mockito.when(jobsRepository.findAll()).thenReturn(mockJobs);
 
-      deploymentMonitorSync.updateJobDeploymentStatuses();
+    deploymentMonitorSync.updateJobDeploymentStatuses();
 
-      Mockito.verify(deploymentMonitor, Mockito.times(0))
-              .updateDataJobStatus(Mockito.any(), Mockito.any());
-   }
+    Mockito.verify(deploymentMonitor, Mockito.times(0))
+        .updateDataJobStatus(Mockito.any(), Mockito.any());
+  }
 }

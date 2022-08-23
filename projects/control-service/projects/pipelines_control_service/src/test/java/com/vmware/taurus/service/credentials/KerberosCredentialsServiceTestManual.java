@@ -14,34 +14,34 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * TODO: enable it in CICD:
- * apk --no-cache add krb5
- * + pointing to the krb5.conf
- * + using hadoop-minikdc or docker KDC server
+ * TODO: enable it in CICD: apk --no-cache add krb5 + pointing to the krb5.conf + using
+ * hadoop-minikdc or docker KDC server
  */
 public class KerberosCredentialsServiceTestManual {
 
-    @Test
-    public void test() throws IOException {
-        String kadminUser = System.getProperty("kadmin_password", "phuser/admin");
-        String kadminPassword = System.getProperty("kadmin_password");
+  @Test
+  public void test() throws IOException {
+    String kadminUser = System.getProperty("kadmin_password", "phuser/admin");
+    String kadminPassword = System.getProperty("kadmin_password");
 
-        Assumptions.assumeTrue(kadminPassword != null && !kadminPassword.isBlank(),
-                "kadmin_password is missing. Assuming test is disabled.");
+    Assumptions.assumeTrue(
+        kadminPassword != null && !kadminPassword.isBlank(),
+        "kadmin_password is missing. Assuming test is disabled.");
 
-        KerberosCredentialsRepository service = new KerberosCredentialsRepository(kadminUser, kadminPassword);
+    KerberosCredentialsRepository service =
+        new KerberosCredentialsRepository(kadminUser, kadminPassword);
 
-        File file = File.createTempFile("keytab_test", ".keytab");
-        file.deleteOnExit();
+    File file = File.createTempFile("keytab_test", ".keytab");
+    file.deleteOnExit();
 
-        String principal = "taurus-pipelines-test-user";
-        service.deletePrincipal(principal);
-        Assertions.assertFalse(service.principalExists(principal));
-        service.createPrincipal(principal, Optional.of(file));
-        Assertions.assertTrue(service.principalExists(principal));
-        Assertions.assertTrue(file.exists());
-        Assertions.assertTrue(file.length() > 0);
-        service.deletePrincipal(principal);
-        Assertions.assertFalse(service.principalExists(principal));
-    }
+    String principal = "taurus-pipelines-test-user";
+    service.deletePrincipal(principal);
+    Assertions.assertFalse(service.principalExists(principal));
+    service.createPrincipal(principal, Optional.of(file));
+    Assertions.assertTrue(service.principalExists(principal));
+    Assertions.assertTrue(file.exists());
+    Assertions.assertTrue(file.length() > 0);
+    service.deletePrincipal(principal);
+    Assertions.assertFalse(service.principalExists(principal));
+  }
 }

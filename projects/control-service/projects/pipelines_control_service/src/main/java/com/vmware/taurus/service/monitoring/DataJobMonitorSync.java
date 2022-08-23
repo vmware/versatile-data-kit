@@ -15,21 +15,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataJobMonitorSync {
 
-    private final DataJobMonitor dataJobMonitor;
-    private final JobsRepository jobsRepository;
+  private final DataJobMonitor dataJobMonitor;
+  private final JobsRepository jobsRepository;
 
-    @Autowired
-    public DataJobMonitorSync(DataJobMonitor dataJobMonitor, JobsRepository jobsRepository) {
-        this.dataJobMonitor = dataJobMonitor;
-        this.jobsRepository = jobsRepository;
-    }
+  @Autowired
+  public DataJobMonitorSync(DataJobMonitor dataJobMonitor, JobsRepository jobsRepository) {
+    this.dataJobMonitor = dataJobMonitor;
+    this.jobsRepository = jobsRepository;
+  }
 
-    @Scheduled(
-            fixedDelayString = "${datajobs.monitoring.sync.interval:5000}",
-            initialDelayString = "${datajobs.monitoring.sync.initial.delay:10000}")
-    public void updateDataJobStatus() {
-        final var dataJobs = jobsRepository.findAll();
-        dataJobMonitor.updateDataJobsGauges(dataJobs);
-        dataJobMonitor.clearDataJobsGaugesNotIn(dataJobs);
-    }
+  @Scheduled(
+      fixedDelayString = "${datajobs.monitoring.sync.interval:5000}",
+      initialDelayString = "${datajobs.monitoring.sync.initial.delay:10000}")
+  public void updateDataJobStatus() {
+    final var dataJobs = jobsRepository.findAll();
+    dataJobMonitor.updateDataJobsGauges(dataJobs);
+    dataJobMonitor.clearDataJobsGaugesNotIn(dataJobs);
+  }
 }

@@ -20,40 +20,47 @@ import java.util.function.Predicate;
 @Component
 public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
 
-   private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
-           e -> e.getConfig().getTeam(), Comparator.nullsLast(Comparator.naturalOrder()));
+  private static final Comparator<V2DataJob> COMPARATOR_DEFAULT =
+      Comparator.comparing(
+          e -> e.getConfig().getTeam(), Comparator.nullsLast(Comparator.naturalOrder()));
 
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
-      Predicate<V2DataJob> predicate = criteria.getPredicate();
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(
+      @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
+    Predicate<V2DataJob> predicate = criteria.getPredicate();
 
-      if (filterProvided(filter)) {
-         predicate = predicate.and(dataJob -> {
-            V2DataJobConfig config = dataJob.getConfig();
-            if (config == null || config.getTeam() == null) {
-               return false;
-            }
+    if (filterProvided(filter)) {
+      predicate =
+          predicate.and(
+              dataJob -> {
+                V2DataJobConfig config = dataJob.getConfig();
+                if (config == null || config.getTeam() == null) {
+                  return false;
+                }
 
-            // Only the team field currently support the 'equals' and 'like' operator
-            String part = filter.getPattern();
-            part = part.replace("%", ".*").trim();
-            var configTeamLower = config.getTeam().toLowerCase();
-            var partLower = part.toLowerCase();
+                // Only the team field currently support the 'equals' and 'like' operator
+                String part = filter.getPattern();
+                part = part.replace("%", ".*").trim();
+                var configTeamLower = config.getTeam().toLowerCase();
+                var partLower = part.toLowerCase();
 
-            return configTeamLower.matches(partLower) || configTeamLower.trim().equals(partLower.trim());
-         });
-      }
+                return configTeamLower.matches(partLower)
+                    || configTeamLower.trim().equals(partLower.trim());
+              });
+    }
 
-      return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
-   }
+    return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
+  }
 
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return dataJob -> dataJob.getConfig() != null && StringUtils.containsIgnoreCase(dataJob.getConfig().getTeam(), searchStr);
-   }
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
+    return dataJob ->
+        dataJob.getConfig() != null
+            && StringUtils.containsIgnoreCase(dataJob.getConfig().getTeam(), searchStr);
+  }
 
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.TEAM;
-   }
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.TEAM;
+  }
 }

@@ -21,52 +21,55 @@ import java.util.function.Predicate;
 @Component
 public class JobFieldStrategyBySourceUrl extends FieldStrategy<V2DataJob> {
 
-   private final String gitDataJobsUrl;
+  private final String gitDataJobsUrl;
 
-   private final String getGitDataJobsBranch;
+  private final String getGitDataJobsBranch;
 
-   public JobFieldStrategyBySourceUrl(
-         @Value("${datajobs.git.url}") String gitDataJobsUrl,
-         @Value("${datajobs.git.branch}") String getGitDataJobsBranch,
-         @Value("${datajobs.git.ssl.enabled}") boolean gitDataJobsSslEnabled) {
+  public JobFieldStrategyBySourceUrl(
+      @Value("${datajobs.git.url}") String gitDataJobsUrl,
+      @Value("${datajobs.git.branch}") String getGitDataJobsBranch,
+      @Value("${datajobs.git.ssl.enabled}") boolean gitDataJobsSslEnabled) {
 
-      this.gitDataJobsUrl = GitWrapper.constructCorrectGitUrl(gitDataJobsUrl, gitDataJobsSslEnabled);
-      this.getGitDataJobsBranch = getGitDataJobsBranch;
-   }
+    this.gitDataJobsUrl = GitWrapper.constructCorrectGitUrl(gitDataJobsUrl, gitDataJobsSslEnabled);
+    this.getGitDataJobsBranch = getGitDataJobsBranch;
+  }
 
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.SOURCE_URL;
+  }
 
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.SOURCE_URL;
-   }
+  /** Sorting and filtering through the source url is meaningless */
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(
+      @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
+    return criteria;
+  }
 
-   /**
-    * Sorting and filtering through the source url is meaningless
-    */
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
-      return criteria;
-   }
+  /** Searching through the source url is meaningless */
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
+    return x -> false;
+  }
 
-   /**
-    * Searching through the source url is meaningless
-    */
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return x -> false;
-   }
+  @Override
+  public void alterFieldData(V2DataJob dataJob) {
+    V2DataJobConfig config = dataJob.getConfig();
 
-   @Override
-   public void alterFieldData(V2DataJob dataJob) {
-      V2DataJobConfig config = dataJob.getConfig();
+    if (config == null || gitDataJobsUrl == null) {
+      return;
+    }
 
-      if (config == null || gitDataJobsUrl == null) {
-         return;
-      }
-
-      String sourceUrl = StringUtils.stripFilenameExtension(gitDataJobsUrl)
-               .concat(String.format("/-/tree/%s/%s", getGitDataJobsBranch, dataJob.getJobName())); // TODO in TAUR-1400, when deployments are implemented, replace master
-      config.setSourceUrl(sourceUrl);
-      dataJob.setConfig(config);
-   }
+    String sourceUrl =
+        StringUtils.stripFilenameExtension(gitDataJobsUrl)
+            .concat(
+                String.format(
+                    "/-/tree/%s/%s",
+                    getGitDataJobsBranch,
+                    dataJob
+                        .getJobName())); // TODO in TAUR-1400, when deployments are implemented,
+                                         // replace master
+    config.setSourceUrl(sourceUrl);
+    dataJob.setConfig(config);
+  }
 }

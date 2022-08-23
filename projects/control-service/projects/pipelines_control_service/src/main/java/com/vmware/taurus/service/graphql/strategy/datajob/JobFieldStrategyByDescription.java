@@ -19,35 +19,39 @@ import java.util.function.Predicate;
 @Component
 public class JobFieldStrategyByDescription extends FieldStrategy<V2DataJob> {
 
-   private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
-           e -> e.getConfig().getDescription(), Comparator.nullsLast(Comparator.naturalOrder()));
+  private static final Comparator<V2DataJob> COMPARATOR_DEFAULT =
+      Comparator.comparing(
+          e -> e.getConfig().getDescription(), Comparator.nullsLast(Comparator.naturalOrder()));
 
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
-      Predicate<V2DataJob> predicate = criteria.getPredicate();
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(
+      @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
+    Predicate<V2DataJob> predicate = criteria.getPredicate();
 
-      if (filterProvided(filter)) {
-         predicate = predicate.and(dataJob ->
-               dataJob.getConfig() != null &&
-                     StringUtils.containsIgnoreCase(dataJob.getConfig().getDescription(), filter.getPattern()));
+    if (filterProvided(filter)) {
+      predicate =
+          predicate.and(
+              dataJob ->
+                  dataJob.getConfig() != null
+                      && StringUtils.containsIgnoreCase(
+                          dataJob.getConfig().getDescription(), filter.getPattern()));
+    }
+
+    return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
+  }
+
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
+    return dataJob -> {
+      if (dataJob.getConfig() == null) {
+        return false;
       }
+      return StringUtils.containsIgnoreCase(dataJob.getConfig().getDescription(), searchStr);
+    };
+  }
 
-      return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
-   }
-
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return dataJob -> {
-         if (dataJob.getConfig() == null) {
-            return false;
-         }
-         return StringUtils.containsIgnoreCase(dataJob.getConfig().getDescription(), searchStr);
-      };
-   }
-
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.DESCRIPTION;
-   }
-
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.DESCRIPTION;
+  }
 }

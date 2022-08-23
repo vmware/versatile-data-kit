@@ -12,6 +12,6 @@ import java.util.function.Predicate;
 
 @Value
 public class Criteria<T> {
-   Predicate<T> predicate;
-   Comparator<T> comparator;
+  Predicate<T> predicate;
+  Comparator<T> comparator;
 }

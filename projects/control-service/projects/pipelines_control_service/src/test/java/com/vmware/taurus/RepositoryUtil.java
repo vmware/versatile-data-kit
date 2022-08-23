@@ -19,87 +19,117 @@ import java.time.OffsetDateTime;
 
 public final class RepositoryUtil {
 
-   public static DataJob createDataJob(JobsRepository jobsRepository) {
-      return createDataJob(jobsRepository, "test-job");
-   }
+  public static DataJob createDataJob(JobsRepository jobsRepository) {
+    return createDataJob(jobsRepository, "test-job");
+  }
 
-   public static DataJob createDataJob(JobsRepository jobsRepository, String jobName){
-      return createDataJob(jobsRepository, jobName, "test-team");
-   }
+  public static DataJob createDataJob(JobsRepository jobsRepository, String jobName) {
+    return createDataJob(jobsRepository, jobName, "test-team");
+  }
 
-   public static DataJob createDataJob(JobsRepository jobsRepository, String jobName, String jobTeam) {
-      JobConfig config = new JobConfig();
-      config.setSchedule("schedule");
-      config.setTeam(jobTeam);
-      var expectedJob = new DataJob(jobName, config, DeploymentStatus.NONE);
-      var actualJob = jobsRepository.save(expectedJob);
-      Assertions.assertEquals(expectedJob, actualJob);
+  public static DataJob createDataJob(
+      JobsRepository jobsRepository, String jobName, String jobTeam) {
+    JobConfig config = new JobConfig();
+    config.setSchedule("schedule");
+    config.setTeam(jobTeam);
+    var expectedJob = new DataJob(jobName, config, DeploymentStatus.NONE);
+    var actualJob = jobsRepository.save(expectedJob);
+    Assertions.assertEquals(expectedJob, actualJob);
 
-      return actualJob;
-   }
+    return actualJob;
+  }
 
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      ExecutionStatus executionStatus) {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus) {
+    return createDataJobExecution(
+        jobExecutionRepository, executionId, dataJob, executionStatus, "test_message");
+  }
 
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message");
-   }
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      ExecutionStatus executionStatus,
+      OffsetDateTime startTime,
+      OffsetDateTime endTime) {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus,
-         OffsetDateTime startTime,
-         OffsetDateTime endTime) {
+    return createDataJobExecution(
+        jobExecutionRepository,
+        executionId,
+        dataJob,
+        executionStatus,
+        "test_message",
+        startTime,
+        endTime);
+  }
 
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message", startTime, endTime);
-   }
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      ExecutionStatus executionStatus,
+      String message,
+      OffsetDateTime startTime) {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus,
-         String message,
-         OffsetDateTime startTime) {
+    return createDataJobExecution(
+        jobExecutionRepository,
+        executionId,
+        dataJob,
+        executionStatus,
+        message,
+        startTime,
+        OffsetDateTime.now());
+  }
 
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, message, startTime, OffsetDateTime.now());
-   }
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      ExecutionStatus executionStatus,
+      OffsetDateTime startTime) {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus,
-         OffsetDateTime startTime) {
+    return createDataJobExecution(
+        jobExecutionRepository,
+        executionId,
+        dataJob,
+        executionStatus,
+        "test_message",
+        startTime,
+        OffsetDateTime.now());
+  }
 
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, "test_message", startTime, OffsetDateTime.now());
-   }
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      ExecutionStatus executionStatus,
+      String message) {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus,
-         String message) {
+    return createDataJobExecution(
+        jobExecutionRepository,
+        executionId,
+        dataJob,
+        executionStatus,
+        message,
+        OffsetDateTime.now(),
+        OffsetDateTime.now());
+  }
 
-      return createDataJobExecution(jobExecutionRepository, executionId, dataJob, executionStatus, message, OffsetDateTime.now(), OffsetDateTime.now());
-   }
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      ExecutionStatus executionStatus,
+      String message,
+      OffsetDateTime startTime,
+      OffsetDateTime endTime) {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         ExecutionStatus executionStatus,
-         String message,
-         OffsetDateTime startTime,
-         OffsetDateTime endTime) {
-
-      var expectedJobExecution = DataJobExecution.builder()
+    var expectedJobExecution =
+        DataJobExecution.builder()
             .id(executionId)
             .dataJob(dataJob)
             .startTime(startTime)
@@ -119,6 +149,6 @@ public final class RepositoryUtil {
             .vdkVersion("test_vdk_version")
             .build();
 
-      return jobExecutionRepository.save(expectedJobExecution);
-   }
+    return jobExecutionRepository.save(expectedJobExecution);
+  }
 }
