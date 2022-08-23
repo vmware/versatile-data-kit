@@ -17,7 +17,7 @@ shared_test_values = {
     "test_payload1": {"key1": "val1", "key2": "val2", "key3": "val3"},
     "test_payload2": {"key1": Decimal(1), "key2": 2, "key3": 3},
     "test_expected_payload1": [{"key1": "val1", "key2": "val2", "key3": "val3"}],
-    "test_expected_payload2": [{"key1": 1, "key2": 2, "key3": 3}],
+    "test_expected_payload2": [{"key1": Decimal(1), "key2": 2, "key3": 3}],
     "destination_table1": "a_destination_table",
     "destination_table2": "another_destination_table",
     "method": "test_method",
