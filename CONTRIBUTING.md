@@ -152,7 +152,7 @@ To make a new public release, follow these steps:
 - Review which components have received changes since the previous release - this should be apparent from the changelog;
 - Record the latest versions of the components included in the release (from the auto generated notes) and list them in the Release description;
     - You can see the current version (as of time of release) of a Python package in https://pypi.org/search/?q=
-    - You can see the current version (as of time of release) of control service in [helm repo here](https://gitlab.com/vmware-analytics/versatile-data-kit-helm-registry/-/packages)
+    - You can see the current version (as of time of release) of the Control Service in [the helm repo here](https://gitlab.com/vmware-analytics/versatile-data-kit-helm-registry/-/packages)
 - Make sure you have clicked the "Create a discussion for this release" button before publishing the new release
 - Post a tweet on the official VDK Twitter account, and on slack, announcing the new release and linking to it.
 
