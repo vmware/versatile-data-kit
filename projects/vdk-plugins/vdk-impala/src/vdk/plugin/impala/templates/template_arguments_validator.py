@@ -48,6 +48,7 @@ class TemplateArgumentsValidator:
         if not source_view_has_results:
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
+                log,
                 "Source view returned no results.",
                 "Likely the source table is empty or non existent.",
                 "Will not execute template.",
