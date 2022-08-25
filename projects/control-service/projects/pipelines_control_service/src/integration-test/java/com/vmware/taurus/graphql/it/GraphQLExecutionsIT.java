@@ -91,13 +91,13 @@ public class GraphQLExecutionsIT extends BaseIT {
 
   private static String getQuery() {
     return "query($filter: DataJobExecutionFilter, $order: DataJobExecutionOrder, $pageNumber: Int,"
-               + " $pageSize: Int) {  executions(pageNumber: $pageNumber, pageSize: $pageSize,"
-               + " filter: $filter, order: $order) {    content {      id      jobName     "
-               + " startTime      endTime      status      deployment {        id        enabled   "
-               + "     jobVersion        deployedDate        deployedBy        resources {         "
-               + "  cpuLimit           cpuRequest           memoryLimit           memoryRequest    "
-               + "    }        schedule {           scheduleCron        }        vdkVersion      } "
-               + "   }    totalPages    totalItems  }}";
+        + " $pageSize: Int) {  executions(pageNumber: $pageNumber, pageSize: $pageSize,"
+        + " filter: $filter, order: $order) {    content {      id      jobName     "
+        + " startTime      endTime      status      deployment {        id        enabled   "
+        + "     jobVersion        deployedDate        deployedBy        resources {         "
+        + "  cpuLimit           cpuRequest           memoryLimit           memoryRequest    "
+        + "    }        schedule {           scheduleCron        }        vdkVersion      } "
+        + "   }    totalPages    totalItems  }}";
   }
 
   private void cleanup() {

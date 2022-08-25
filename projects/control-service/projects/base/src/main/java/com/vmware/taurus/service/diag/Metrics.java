@@ -25,7 +25,7 @@ public enum Metrics {
   ,
 
   error_stacktrace // String: java.lang.RuntimeException: Just throwing. \r\n\tat
-                   // com.vmware.taurus.service.diag.DiagnosticsController.throwException(DiagnosticsController.java:28) ...
+  // com.vmware.taurus.service.diag.DiagnosticsController.throwException(DiagnosticsController.java:28) ...
   ,
 
   http_body_type // String (contains body.getClass.getName() ): java.lang.String

@@ -56,7 +56,7 @@ public class JobExecutionCleanupService {
   @Scheduled(
       cron =
           "${datajobs.executions.cleanupJob.scheduleCron:0 0 */3 * * *}") // default value is every
-                                                                          // 3 hours
+  // 3 hours
   public void cleanupExecutions() {
     log.info("Starting DataJobExecutionCleanup and incrementing invocations counter.");
     dataJobExecutionCleanupMonitor.countInvocation();

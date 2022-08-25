@@ -25,7 +25,7 @@ public abstract class TaurusExceptionBase extends RuntimeException {
     super(
         msg.toString(),
         cause); // do not guard against NullPointerException. We want to always fail if msg is not
-                // filled in
+    // filled in
     this.errorMessage = msg;
     if (!validateMessage()) {
       throw new Bug("An error without complete description was defined or thrown.", this);

@@ -14,7 +14,6 @@ import com.vmware.taurus.service.notification.DataJobNotification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-
 /** Track the progress of a deployment. */
 @Component
 @RequiredArgsConstructor

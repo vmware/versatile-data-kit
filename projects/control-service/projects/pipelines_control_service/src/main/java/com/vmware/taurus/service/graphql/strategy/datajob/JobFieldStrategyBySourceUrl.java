@@ -66,9 +66,8 @@ public class JobFieldStrategyBySourceUrl extends FieldStrategy<V2DataJob> {
                 String.format(
                     "/-/tree/%s/%s",
                     getGitDataJobsBranch,
-                    dataJob
-                        .getJobName())); // TODO in TAUR-1400, when deployments are implemented,
-                                         // replace master
+                    dataJob.getJobName())); // TODO in TAUR-1400, when deployments are implemented,
+    // replace master
     config.setSourceUrl(sourceUrl);
     dataJob.setConfig(config);
   }

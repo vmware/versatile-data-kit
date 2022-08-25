@@ -110,9 +110,9 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
 
   private static String getQuery() {
     return "query($filter: DataJobExecutionFilter, $order: DataJobExecutionOrder, $pageNumber: Int,"
-               + " $pageSize: Int) {  executions(pageNumber: $pageNumber, pageSize: $pageSize,"
-               + " filter: $filter, order: $order) {    content {      id      logsUrl    }   "
-               + " totalPages    totalItems  }}";
+        + " $pageSize: Int) {  executions(pageNumber: $pageNumber, pageSize: $pageSize,"
+        + " filter: $filter, order: $order) {    content {      id      logsUrl    }   "
+        + " totalPages    totalItems  }}";
   }
 
   private void cleanup() {

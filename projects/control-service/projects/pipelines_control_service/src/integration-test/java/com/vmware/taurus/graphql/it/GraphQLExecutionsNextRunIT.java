@@ -38,8 +38,8 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
 
   private String getQuery(String sortOrder) {
     return "{\n"
-               + "  jobs(pageNumber: 1, pageSize: 100, filter: [{property:"
-               + " \"config.schedule.nextRunEpochSeconds\", sort:"
+        + "  jobs(pageNumber: 1, pageSize: 100, filter: [{property:"
+        + " \"config.schedule.nextRunEpochSeconds\", sort:"
         + sortOrder
         + "}]) {\n"
         + "    content {\n"
@@ -57,8 +57,8 @@ public class GraphQLExecutionsNextRunIT extends BaseIT {
 
   private String getQueryWithFilter(String filter) {
     return "{\n"
-               + "  jobs(pageNumber: 1, pageSize: 100, filter: [{property:"
-               + " \"config.schedule.nextRunEpochSeconds\", pattern:"
+        + "  jobs(pageNumber: 1, pageSize: 100, filter: [{property:"
+        + " \"config.schedule.nextRunEpochSeconds\", pattern:"
         + filter
         + "}]) {\n"
         + "    content {\n"
