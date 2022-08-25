@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 public class ControlplaneApplicationTests {
 
-    @Test
-    public void smoke() {
-    }
+  @Test
+  public void smoke() {}
 }

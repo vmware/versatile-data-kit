@@ -11,22 +11,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
 /**
- * PostDeleteWebHookProvider class which delegates custom post data job delete operations via
- * a request to a third party webhook server.
- * <p>
- * Uses a single method {@link PostDeleteWebHookProvider#invokeWebHook(WebHookRequestBody)}
- * which triggers a webhook to a server to execute various Post Delete Data Jobs operations.
- * </p>
+ * PostDeleteWebHookProvider class which delegates custom post data job delete operations via a
+ * request to a third party webhook server.
+ *
+ * <p>Uses a single method {@link PostDeleteWebHookProvider#invokeWebHook(WebHookRequestBody)} which
+ * triggers a webhook to a server to execute various Post Delete Data Jobs operations.
  */
 @Service
 @Slf4j
 public class PostDeleteWebHookProvider extends WebHookService<WebHookRequestBody> {
-   public PostDeleteWebHookProvider(@Value("${datajobs.post.delete.webhook.endpoint}")
-                                            String webHookEndpoint,
-                                    @Value("${datajobs.post.delete.webhook.internal.errors.retries:-1}")
-                                            int retriesOn5xxErrors) {
-      super(webHookEndpoint, retriesOn5xxErrors, log);
-   }
+  public PostDeleteWebHookProvider(
+      @Value("${datajobs.post.delete.webhook.endpoint}") String webHookEndpoint,
+      @Value("${datajobs.post.delete.webhook.internal.errors.retries:-1}") int retriesOn5xxErrors) {
+    super(webHookEndpoint, retriesOn5xxErrors, log);
+  }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class DataJobPage {
-   private List<Object> content;
-   private Integer totalItems;
-   private Integer totalPages;
+  private List<Object> content;
+  private Integer totalItems;
+  private Integer totalPages;
 }

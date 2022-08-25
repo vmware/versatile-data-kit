@@ -10,11 +10,11 @@ import lombok.Data;
 
 @Data
 public class V2DataJobConfig {
-   private String dbDefaultType;
-   private String team;
-   private String description;
-   private V2DataJobSchedule schedule;
-   private DataJobContacts contacts;
-   private Boolean generateKeytab = true;
-   private String sourceUrl;
+  private String dbDefaultType;
+  private String team;
+  private String description;
+  private V2DataJobSchedule schedule;
+  private DataJobContacts contacts;
+  private Boolean generateKeytab = true;
+  private String sourceUrl;
 }

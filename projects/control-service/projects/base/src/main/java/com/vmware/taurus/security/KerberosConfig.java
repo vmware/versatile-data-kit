@@ -15,14 +15,14 @@ import org.springframework.security.kerberos.authentication.sun.GlobalSunJaasKer
 @ConditionalOnProperty(value = "datajobs.security.kerberos.enabled")
 public class KerberosConfig {
 
-   @Value("${datajobs.security.kerberos.krb5ConfigLocation}")
-   private String krb5ConfigLocation;
+  @Value("${datajobs.security.kerberos.krb5ConfigLocation}")
+  private String krb5ConfigLocation;
 
-   @Bean
-   public GlobalSunJaasKerberosConfig globalSunJaasKerberosConfig() {
-      var config = new GlobalSunJaasKerberosConfig();
-      config.setDebug(true);
-      config.setKrbConfLocation(krb5ConfigLocation);
-      return config;
-   }
+  @Bean
+  public GlobalSunJaasKerberosConfig globalSunJaasKerberosConfig() {
+    var config = new GlobalSunJaasKerberosConfig();
+    config.setDebug(true);
+    config.setKrbConfLocation(krb5ConfigLocation);
+    return config;
+  }
 }

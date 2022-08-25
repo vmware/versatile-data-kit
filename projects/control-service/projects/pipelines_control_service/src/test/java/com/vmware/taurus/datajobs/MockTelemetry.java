@@ -18,16 +18,16 @@ import java.util.List;
 @Configuration
 public class MockTelemetry {
 
-    public static List<String> payloads = new ArrayList<>();
+  public static List<String> payloads = new ArrayList<>();
 
-    @Bean
-    @Primary
-    public ITelemetry telemetryClient() {
-        return new ITelemetry() {
-            @Override
-            public void sendAsync(String payload) {
-                payloads.add(payload);
-            }
-        };
-    }
+  @Bean
+  @Primary
+  public ITelemetry telemetryClient() {
+    return new ITelemetry() {
+      @Override
+      public void sendAsync(String payload) {
+        payloads.add(payload);
+      }
+    };
+  }
 }

@@ -15,15 +15,16 @@ import com.vmware.taurus.service.model.ExecutionType;
 
 public class JobExecutionUtil {
 
-   public static DataJobExecution createDataJobExecution(
-         JobExecutionRepository jobExecutionRepository,
-         String executionId,
-         DataJob dataJob,
-         OffsetDateTime startTime,
-         OffsetDateTime endTime,
-         ExecutionStatus executionStatus) {
+  public static DataJobExecution createDataJobExecution(
+      JobExecutionRepository jobExecutionRepository,
+      String executionId,
+      DataJob dataJob,
+      OffsetDateTime startTime,
+      OffsetDateTime endTime,
+      ExecutionStatus executionStatus) {
 
-      var jobExecution = DataJobExecution.builder()
+    var jobExecution =
+        DataJobExecution.builder()
             .id(executionId)
             .dataJob(dataJob)
             .startTime(startTime)
@@ -43,6 +44,6 @@ public class JobExecutionUtil {
             .vdkVersion("test_vdk_version")
             .build();
 
-      return jobExecutionRepository.save(jobExecution);
-   }
+    return jobExecutionRepository.save(jobExecution);
+  }
 }

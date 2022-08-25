@@ -30,157 +30,175 @@ import static org.mockito.ArgumentMatchers.anyString;
 @ExtendWith(MockitoExtension.class)
 public abstract class BaseWebHookProviderTest {
 
-   private static final int ONE_RETRY = 1;
-   private static final int INVOCATION_PLUS_ONE_RETRY_COUNT = 2;
-   private static final int SINGLE_INVOCATION_COUNT = 1;
+  private static final int ONE_RETRY = 1;
+  private static final int INVOCATION_PLUS_ONE_RETRY_COUNT = 2;
+  private static final int SINGLE_INVOCATION_COUNT = 1;
 
-   @Mock
-   RestTemplate restTemplate;
+  @Mock RestTemplate restTemplate;
 
-   WebHookRequestBody requestBody;
+  WebHookRequestBody requestBody;
 
-   abstract WebHookService<WebHookRequestBody> getWebHookProvider();
+  abstract WebHookService<WebHookRequestBody> getWebHookProvider();
 
-   @BeforeEach
-   public void setUp() {
-      requestBody = new WebHookRequestBody();
-      requestBody.setRequestedHttpPath("/data-jobs");
-      requestBody.setRequestedHttpVerb("SOME");
-      requestBody.setRequestedResourceId(null);
-      requestBody.setRequesterUserId("auserov");
-      requestBody.setRequestedResourceTeam(null);
-      requestBody.setRequestedResourceName("data-job");
-   }
+  @BeforeEach
+  public void setUp() {
+    requestBody = new WebHookRequestBody();
+    requestBody.setRequestedHttpPath("/data-jobs");
+    requestBody.setRequestedHttpVerb("SOME");
+    requestBody.setRequestedResourceId(null);
+    requestBody.setRequesterUserId("auserov");
+    requestBody.setRequestedResourceTeam(null);
+    requestBody.setRequestedResourceName("data-job");
+  }
 
-   @Test
-   public void testBadRequestStatus() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      ResponseEntity re = new ResponseEntity<>(
-              "Bad request: The post create action needs more parameters",
-              null,
-              HttpStatus.BAD_REQUEST);
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenReturn(re);
+  @Test
+  public void testBadRequestStatus() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    ResponseEntity re =
+        new ResponseEntity<>(
+            "Bad request: The post create action needs more parameters",
+            null,
+            HttpStatus.BAD_REQUEST);
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
-      WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
-      Assertions.assertEquals("Bad request: The post create action needs more parameters", webHookResult.getMessage());
-      Assertions.assertEquals(HttpStatus.BAD_REQUEST, webHookResult.getStatus());
-      Assertions.assertEquals(false, webHookResult.isSuccess());
-   }
+    WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
+    Assertions.assertEquals(
+        "Bad request: The post create action needs more parameters", webHookResult.getMessage());
+    Assertions.assertEquals(HttpStatus.BAD_REQUEST, webHookResult.getStatus());
+    Assertions.assertEquals(false, webHookResult.isSuccess());
+  }
 
-   @Test
-   public void testWebHookSuccess() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      ResponseEntity re = new ResponseEntity<>(
-              "Good request",
-              null,
-              HttpStatus.ACCEPTED);
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenReturn(re);
+  @Test
+  public void testWebHookSuccess() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    ResponseEntity re = new ResponseEntity<>("Good request", null, HttpStatus.ACCEPTED);
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
-      WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
-      Assertions.assertEquals("", webHookResult.getMessage());
-      Assertions.assertEquals(HttpStatus.ACCEPTED, webHookResult.getStatus());
-      Assertions.assertEquals(true, webHookResult.isSuccess());
-   }
+    WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
+    Assertions.assertEquals("", webHookResult.getMessage());
+    Assertions.assertEquals(HttpStatus.ACCEPTED, webHookResult.getStatus());
+    Assertions.assertEquals(true, webHookResult.isSuccess());
+  }
 
-   @Test
-   public void testRestClientResponseExceptionHandling() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenThrow(new RestClientResponseException(
-              "Bad request",
-              HttpStatus.BAD_REQUEST.value(),
-              anyString(),
-              Mockito.any(HttpHeaders.class),
-              any(),
-              any()));
+  @Test
+  public void testRestClientResponseExceptionHandling() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenThrow(
+            new RestClientResponseException(
+                "Bad request",
+                HttpStatus.BAD_REQUEST.value(),
+                anyString(),
+                Mockito.any(HttpHeaders.class),
+                any(),
+                any()));
 
-      WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
-      Assertions.assertEquals("", webHookResult.getMessage());
-      Assertions.assertEquals(HttpStatus.BAD_REQUEST, webHookResult.getStatus());
-      Assertions.assertEquals(false, webHookResult.isSuccess());
-   }
+    WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
+    Assertions.assertEquals("", webHookResult.getMessage());
+    Assertions.assertEquals(HttpStatus.BAD_REQUEST, webHookResult.getStatus());
+    Assertions.assertEquals(false, webHookResult.isSuccess());
+  }
 
-   @Test
-   public void testInformationalStatusCode() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      ResponseEntity re = new ResponseEntity<>(
-              "User authorized",
-              null,
-              HttpStatus.CONTINUE);
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenReturn(re);
+  @Test
+  public void testInformationalStatusCode() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.CONTINUE);
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
-      Assertions.assertThrows(ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
-   }
+    Assertions.assertThrows(
+        ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
+  }
 
-   @Test
-   public void testRedirectionStatusCode() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      ResponseEntity re = new ResponseEntity<>(
-              "User authorized",
-              null,
-              HttpStatus.MOVED_PERMANENTLY);
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenReturn(re);
+  @Test
+  public void testRedirectionStatusCode() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.MOVED_PERMANENTLY);
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
-      Assertions.assertThrows(ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
-   }
+    Assertions.assertThrows(
+        ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
+  }
 
-   @Test
-   public void testServiceUnavailableWithRetry() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      ReflectionTestUtils.setField(getWebHookProvider(), "retriesOn5xxErrors", ONE_RETRY);
-      ResponseEntity re = new ResponseEntity<>(
-              "Service unavailable",
-              null,
-              HttpStatus.SERVICE_UNAVAILABLE);
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenReturn(re);
+  @Test
+  public void testServiceUnavailableWithRetry() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    ReflectionTestUtils.setField(getWebHookProvider(), "retriesOn5xxErrors", ONE_RETRY);
+    ResponseEntity re =
+        new ResponseEntity<>("Service unavailable", null, HttpStatus.SERVICE_UNAVAILABLE);
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
-      Assertions.assertThrows(ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
-      Mockito.verify(restTemplate, Mockito.times(INVOCATION_PLUS_ONE_RETRY_COUNT)).exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any());
-   }
+    Assertions.assertThrows(
+        ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
+    Mockito.verify(restTemplate, Mockito.times(INVOCATION_PLUS_ONE_RETRY_COUNT))
+        .exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any());
+  }
 
-   @Test
-   public void testInternalErrorDefaultNoRetry() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
-      ResponseEntity re = new ResponseEntity<>(
-              "Internal Server error",
-              null,
-              HttpStatus.INTERNAL_SERVER_ERROR);
-      Mockito.when(restTemplate.exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any())).thenReturn(re);
+  @Test
+  public void testInternalErrorDefaultNoRetry() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "http://localhost:4444");
+    ResponseEntity re =
+        new ResponseEntity<>("Internal Server error", null, HttpStatus.INTERNAL_SERVER_ERROR);
+    Mockito.when(
+            restTemplate.exchange(
+                Mockito.anyString(),
+                Mockito.any(HttpMethod.class),
+                Mockito.any(),
+                Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
-      Assertions.assertThrows(ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
-      Mockito.verify(restTemplate, Mockito.times(SINGLE_INVOCATION_COUNT)).exchange(Mockito.anyString(),
-              Mockito.any(HttpMethod.class),
-              Mockito.any(),
-              Mockito.<Class<String>>any());
-   }
+    Assertions.assertThrows(
+        ExternalSystemError.class, () -> getWebHookProvider().invokeWebHook(requestBody));
+    Mockito.verify(restTemplate, Mockito.times(SINGLE_INVOCATION_COUNT))
+        .exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any());
+  }
 
-   @Test
-   public void testWebHookEndpointNotConfigured() {
-      ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "");
+  @Test
+  public void testWebHookEndpointNotConfigured() {
+    ReflectionTestUtils.setField(getWebHookProvider(), "webHookEndpoint", "");
 
-      Assertions.assertTrue(getWebHookProvider().invokeWebHook(requestBody).isEmpty());
-   }
+    Assertions.assertTrue(getWebHookProvider().invokeWebHook(requestBody).isEmpty());
+  }
 }

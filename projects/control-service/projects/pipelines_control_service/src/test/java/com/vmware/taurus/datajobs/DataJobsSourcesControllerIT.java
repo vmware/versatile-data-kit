@@ -38,81 +38,102 @@ import java.nio.file.Path;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = ControlplaneApplication.class )
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = ControlplaneApplication.class)
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
-@ActiveProfiles({"MockKubernetes", "MockKerberos",  "unittest", "MockTelemetry"})
-@TestExecutionListeners(listeners = DataJobsSourcesControllerIT.SetGitUrlAsTempFolder.class,
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@ActiveProfiles({"MockKubernetes", "MockKerberos", "unittest", "MockTelemetry"})
+@TestExecutionListeners(
+    listeners = DataJobsSourcesControllerIT.SetGitUrlAsTempFolder.class,
+    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class DataJobsSourcesControllerIT {
 
-   @TempDir
-   static File temporaryFolder;
+  @TempDir static File temporaryFolder;
 
-   // team name can have spaces in it so we are purposefully using one with space
-   private static final String TEST_TEAM_NAME = "test team";
-   private static final String TEST_JOB_NAME = "test-job-sources";
+  // team name can have spaces in it so we are purposefully using one with space
+  private static final String TEST_TEAM_NAME = "test team";
+  private static final String TEST_JOB_NAME = "test-job-sources";
 
-   @Autowired
-   private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-   private final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
-   static class SetGitUrlAsTempFolder implements TestExecutionListener {
+  static class SetGitUrlAsTempFolder implements TestExecutionListener {
 
-      @Override
-      public void beforeTestExecution(TestContext testContext) throws GitAPIException {
-         if (testContext.hasApplicationContext()) {
-            GitWrapper bean = testContext.getApplicationContext().getBean(GitWrapper.class);
+    @Override
+    public void beforeTestExecution(TestContext testContext) throws GitAPIException {
+      if (testContext.hasApplicationContext()) {
+        GitWrapper bean = testContext.getApplicationContext().getBean(GitWrapper.class);
 
-            var git = Git.init().setDirectory(temporaryFolder).call();
-            git.commit().setMessage("Initial commit").call();
-            ReflectionTestUtils.setField(bean, "gitDataJobsUrl", "file://" + temporaryFolder);
-         }
+        var git = Git.init().setDirectory(temporaryFolder).call();
+        git.commit().setMessage("Initial commit").call();
+        ReflectionTestUtils.setField(bean, "gitDataJobsUrl", "file://" + temporaryFolder);
       }
-   }
+    }
+  }
 
+  @BeforeEach
+  public void beforeEach() throws Exception {
+    var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
 
-   @BeforeEach
-   public void beforeEach() throws Exception {
-      var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
+    String body = mapper.writeValueAsString(job);
+    mockMvc
+        .perform(
+            post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated());
+  }
 
-      String body = mapper.writeValueAsString(job);
-      mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-              .content(body).contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isCreated());
-   }
+  @AfterEach
+  public void afterEach() throws Exception {
+    mockMvc
+        .perform(
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+  }
 
-   @AfterEach
-   public void afterEach() throws Exception {
-      mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
-              .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-   }
+  @Test
+  @WithMockUser
+  public void testDataJobSourcesNotFound() throws Exception {
+    mockMvc
+        .perform(
+            get(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME)))
+        .andExpect(status().isNotFound());
+  }
 
-   @Test
-   @WithMockUser
-   public void testDataJobSourcesNotFound() throws Exception {
-      mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME)))
-              .andExpect(status().isNotFound());
-   }
+  @Test
+  @WithMockUser
+  public void testDataJobSourcesUploadDownload(@TempDir Path tempDir) throws Exception {
+    byte[] jobZipBinary =
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("file_test/test_job.zip"));
 
-   @Test
-   @WithMockUser
-   public void testDataJobSourcesUploadDownload(@TempDir Path tempDir) throws Exception {
-      byte[] jobZipBinary = IOUtils.toByteArray(
-              getClass().getClassLoader().getResourceAsStream("file_test/test_job.zip"));
+    mockMvc
+        .perform(
+            post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .content(jobZipBinary)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM))
+        .andExpect(status().isOk());
 
-      mockMvc.perform(
-              post(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
-                      .content(jobZipBinary)
-                      .contentType(MediaType.APPLICATION_OCTET_STREAM))
-              .andExpect(status().isOk());
-
-     var downlaodedJobZipBinary = mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME)))
-              .andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray();
-      File jobDir = FileUtils.unzipDataJob(new ByteArrayResource(downlaodedJobZipBinary), tempDir.toFile(), TEST_JOB_NAME);
-      Assertions.assertTrue(jobDir.isDirectory());
-   }
-
+    var downlaodedJobZipBinary =
+        mockMvc
+            .perform(
+                get(
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME)))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsByteArray();
+    File jobDir =
+        FileUtils.unzipDataJob(
+            new ByteArrayResource(downlaodedJobZipBinary), tempDir.toFile(), TEST_JOB_NAME);
+    Assertions.assertTrue(jobDir.isDirectory());
+  }
 }

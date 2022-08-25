@@ -12,12 +12,11 @@ import org.springframework.data.domain.Sort;
 @Data
 @AllArgsConstructor
 public class Filter {
-   private String property;
-   private String pattern;
-   private Sort.Direction sort;
+  private String property;
+  private String pattern;
+  private Sort.Direction sort;
 
-   public static Filter of(String property, String pattern, Sort.Direction sort) {
-      return new Filter(property, pattern, sort);
-   }
-
+  public static Filter of(String property, String pattern, Sort.Direction sort) {
+    return new Filter(property, pattern, sort);
+  }
 }

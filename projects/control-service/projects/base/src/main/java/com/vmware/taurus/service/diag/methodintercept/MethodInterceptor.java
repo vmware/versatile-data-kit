@@ -23,82 +23,84 @@ import java.util.function.Consumer;
 
 /**
  * An aspect to intercept method invocations and record diagnostics information regarding method
- * calls. The intention is to record all method calls annotated with Measurable.
- * Data is sent both to PH as well as logged as metrics to OI.
- * <p>
- * About AOP: the instrumentation/injection (weaving) is done at runtime using proxies (Spring AOP).
- * </p>
+ * calls. The intention is to record all method calls annotated with Measurable. Data is sent both
+ * to PH as well as logged as metrics to OI.
+ *
+ * <p>About AOP: the instrumentation/injection (weaving) is done at runtime using proxies (Spring
+ * AOP).
  */
 @Aspect
 @Component
-@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(value = EnableComponents.DIAGNOSTICS_INTERCEPTOR, havingValue = "true", matchIfMissing = true)
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+    value = EnableComponents.DIAGNOSTICS_INTERCEPTOR,
+    havingValue = "true",
+    matchIfMissing = true)
 public class MethodInterceptor {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+  private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    public MethodInterceptor(OperationContext operationContext, Consumer<DiagnosticsContext> diagsConsumer) {
-        this.diagnosticsExecutor = Executors.newFixedThreadPool(5);
-        //this.phUtil = phoneHomeUtil;
-        this.operationContext = operationContext;
-        this.diagsConsumer = diagsConsumer;
+  @Autowired
+  public MethodInterceptor(
+      OperationContext operationContext, Consumer<DiagnosticsContext> diagsConsumer) {
+    this.diagnosticsExecutor = Executors.newFixedThreadPool(5);
+    // this.phUtil = phoneHomeUtil;
+    this.operationContext = operationContext;
+    this.diagsConsumer = diagsConsumer;
+  }
+
+  private final OperationContext operationContext;
+  private final Consumer<DiagnosticsContext> diagsConsumer;
+
+  private Executor diagnosticsExecutor;
+
+  @Pointcut("within(@com.vmware.taurus.service.diag.methodintercept.Measurable *)")
+  public void beanAnnotatedWithMeasurable() {}
+
+  @Pointcut("within(@com.vmware.taurus.service.diag.methodintercept.MeasurableContainer *)")
+  public void beanAnnotatedWithMeasurableContainer() {}
+
+  @Pointcut("execution(@com.vmware.taurus.service.diag.methodintercept.Measurable * *(..))")
+  public void methodAnnotatedWithMeasurable() {}
+
+  @Pointcut(
+      "execution(@com.vmware.taurus.service.diag.methodintercept.MeasurableContainer * *(..))")
+  public void methodAnnotatedWithMeasurableContainer() {}
+
+  /**
+   * Around advice for all methods annotated with Measurable.
+   *
+   * @param pjp ProceedingJoinPoint
+   * @return Object output from targeted method invocation
+   * @throws Throwable if there's any error on target method invocation
+   */
+  @Around(
+      "methodAnnotatedWithMeasurable() || beanAnnotatedWithMeasurable() "
+          + "|| methodAnnotatedWithMeasurableContainer() || beanAnnotatedWithMeasurableContainer()")
+  public Object aroundMethod(final ProceedingJoinPoint pjp) throws Throwable {
+    Object res;
+    DiagnosticsContext diagContext = new DiagnosticsContext();
+    diagContext.methodResult = diagContext;
+    try {
+      diagContext.joinPoint = pjp;
+      diagContext.stopWatch = new StopWatch();
+      diagContext.stopWatch.start();
+      diagContext.methodResult = res = pjp.proceed();
+    } catch (Exception e) {
+      diagContext.error = e;
+      throw e;
+    } finally {
+      after(diagContext);
     }
+    return res;
+  }
 
-    private final OperationContext operationContext;
-    private final Consumer<DiagnosticsContext> diagsConsumer;
-
-    private Executor diagnosticsExecutor;
-
-    @Pointcut("within(@com.vmware.taurus.service.diag.methodintercept.Measurable *)")
-    public void beanAnnotatedWithMeasurable() {
+  private void after(DiagnosticsContext diagnosticsContext) {
+    try {
+      diagnosticsContext.stopWatch.stop();
+      diagnosticsContext.opId = this.operationContext.getOpId();
+      operationContext.setJoinPoint(diagnosticsContext.joinPoint);
+      this.diagsConsumer.accept(diagnosticsContext);
+    } catch (Exception e) { // do not fail business logic because of diagnostics
+      log.warn("Failed gathering metrics. Continuing.", e);
     }
-
-    @Pointcut("within(@com.vmware.taurus.service.diag.methodintercept.MeasurableContainer *)")
-    public void beanAnnotatedWithMeasurableContainer() {
-    }
-
-    @Pointcut("execution(@com.vmware.taurus.service.diag.methodintercept.Measurable * *(..))")
-    public void methodAnnotatedWithMeasurable() {
-    }
-
-    @Pointcut("execution(@com.vmware.taurus.service.diag.methodintercept.MeasurableContainer * *(..))")
-    public void methodAnnotatedWithMeasurableContainer() {
-    }
-
-    /**
-     * Around advice for all methods annotated with Measurable.
-     *
-     * @param pjp ProceedingJoinPoint
-     * @return Object output from targeted method invocation
-     * @throws Throwable if there's any error on target method invocation
-     */
-    @Around("methodAnnotatedWithMeasurable() || beanAnnotatedWithMeasurable() " +
-            "|| methodAnnotatedWithMeasurableContainer() || beanAnnotatedWithMeasurableContainer()")
-    public Object aroundMethod(final ProceedingJoinPoint pjp) throws Throwable {
-        Object res;
-        DiagnosticsContext diagContext = new DiagnosticsContext();
-        diagContext.methodResult = diagContext;
-        try {
-            diagContext.joinPoint = pjp;
-            diagContext.stopWatch = new StopWatch();
-            diagContext.stopWatch.start();
-            diagContext.methodResult = res = pjp.proceed();
-        } catch (Exception e) {
-            diagContext.error = e;
-            throw e;
-        } finally {
-            after(diagContext);
-        }
-        return res;
-    }
-
-    private void after(DiagnosticsContext diagnosticsContext) {
-        try {
-            diagnosticsContext.stopWatch.stop();
-            diagnosticsContext.opId = this.operationContext.getOpId();
-            operationContext.setJoinPoint(diagnosticsContext.joinPoint);
-            this.diagsConsumer.accept(diagnosticsContext);
-        } catch (Exception e) { //do not fail business logic because of diagnostics
-            log.warn("Failed gathering metrics. Continuing.", e);
-        }
-    }
+  }
 }

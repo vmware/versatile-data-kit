@@ -6,5 +6,7 @@
 package com.vmware.taurus.service.model;
 
 public enum DataJobStatus {
-   NOT_DEPLOYED, ENABLED, DISABLED
+  NOT_DEPLOYED,
+  ENABLED,
+  DISABLED
 }

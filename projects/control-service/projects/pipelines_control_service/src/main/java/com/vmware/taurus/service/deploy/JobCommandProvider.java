@@ -13,46 +13,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class provides the command list for the K8S' data job
- * container. The command list executes the data job, by calling
- * vdk run ...
+ * This class provides the command list for the K8S' data job container. The command list executes
+ * the data job, by calling vdk run ...
  */
 @Component
 public class JobCommandProvider {
-    private List<String> command;
+  private List<String> command;
 
-    public JobCommandProvider() {
+  public JobCommandProvider() {
 
-        this.command = List.of(
-                "/bin/bash",
-                "-c",
-                "export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && /vdk/vdk run"
-        );
-    }
+    this.command =
+        List.of(
+            "/bin/bash",
+            "-c",
+            "export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ &&"
+                + " /vdk/vdk run");
+  }
 
-    private String getJobNameArgument(String jobName) {
-        return String.format(" ./%s", jobName);
-    }
+  private String getJobNameArgument(String jobName) {
+    return String.format(" ./%s", jobName);
+  }
 
-    private String getExtraArguments(String arguments) {
-        return String.format(" --arguments '%s'", arguments);
-    }
+  private String getExtraArguments(String arguments) {
+    return String.format(" --arguments '%s'", arguments);
+  }
 
-    public List<String> getJobCommand(String jobName) {
+  public List<String> getJobCommand(String jobName) {
 
-        return List.of(
-                command.get(0),
-                command.get(1),
-                command.get(2) + getJobNameArgument(jobName)
-        );
-    }
+    return List.of(command.get(0), command.get(1), command.get(2) + getJobNameArgument(jobName));
+  }
 
-    public List<String> getJobCommand(String jobName, Map<String, Object> extraArguments) throws JsonProcessingException {
-        var arguments = new ObjectMapper().writeValueAsString(extraArguments);
-        return List.of(
-                command.get(0),
-                command.get(1),
-                command.get(2) + getJobNameArgument(jobName) + getExtraArguments(arguments)
-        );
-    }
+  public List<String> getJobCommand(String jobName, Map<String, Object> extraArguments)
+      throws JsonProcessingException {
+    var arguments = new ObjectMapper().writeValueAsString(extraArguments);
+    return List.of(
+        command.get(0),
+        command.get(1),
+        command.get(2) + getJobNameArgument(jobName) + getExtraArguments(arguments));
+  }
 }

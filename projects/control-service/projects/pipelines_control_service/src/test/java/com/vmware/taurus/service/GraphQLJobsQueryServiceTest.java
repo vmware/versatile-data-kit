@@ -21,25 +21,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 class GraphQLJobsQueryServiceTest {
 
-   @Mock
-   private GraphQL graphQL;
-   @Mock
-   private JsonSerializer jsonSerializer;
-   @Mock
-   private OperationContext operationContext;
+  @Mock private GraphQL graphQL;
+  @Mock private JsonSerializer jsonSerializer;
+  @Mock private OperationContext operationContext;
 
-   private GraphQLJobsQueryService queryService;
+  private GraphQLJobsQueryService queryService;
 
-   @BeforeEach
-   void beforeEach() {
-      queryService = new GraphQLJobsQueryService(graphQL, jsonSerializer, operationContext);
-   }
+  @BeforeEach
+  void beforeEach() {
+    queryService = new GraphQLJobsQueryService(graphQL, jsonSerializer, operationContext);
+  }
 
-   @Test
-   void testQueryService_whenConvertingNullString_shouldReturnEmptyMap() {
-      Map<String, Object> stringObjectMap = queryService.convertVariablesJson(null);
+  @Test
+  void testQueryService_whenConvertingNullString_shouldReturnEmptyMap() {
+    Map<String, Object> stringObjectMap = queryService.convertVariablesJson(null);
 
-      assertThat(stringObjectMap).isEmpty();
-   }
-
+    assertThat(stringObjectMap).isEmpty();
+  }
 }

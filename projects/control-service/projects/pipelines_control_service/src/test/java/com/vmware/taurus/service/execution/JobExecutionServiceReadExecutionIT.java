@@ -25,49 +25,49 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionServiceReadExecutionIT {
 
-    @Autowired
-    private JobExecutionRepository jobExecutionRepository;
+  @Autowired private JobExecutionRepository jobExecutionRepository;
 
-    @Autowired
-    private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-    @Autowired
-    private JobExecutionService jobExecutionService;
+  @Autowired private JobExecutionService jobExecutionService;
 
-    @BeforeEach
-    public void cleanDatabase() {
-        jobsRepository.deleteAll();
-    }
+  @BeforeEach
+  public void cleanDatabase() {
+    jobsRepository.deleteAll();
+  }
 
-    @Test
-    public void testReadJobExecution_existingDataJobExecution_shouldReturnExecution() {
-        DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-        com.vmware.taurus.service.model.DataJobExecution expectedDataJobExecution = RepositoryUtil.createDataJobExecution(
-              jobExecutionRepository,
-              "test-id",
-              actualDataJob,
-              ExecutionStatus.RUNNING);
+  @Test
+  public void testReadJobExecution_existingDataJobExecution_shouldReturnExecution() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+    com.vmware.taurus.service.model.DataJobExecution expectedDataJobExecution =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository, "test-id", actualDataJob, ExecutionStatus.RUNNING);
 
-        var actualDataJobExecution = jobExecutionService.readJobExecution(
-              actualDataJob.getJobConfig().getTeam(),
-              actualDataJob.getName(),
-              expectedDataJobExecution.getId());
+    var actualDataJobExecution =
+        jobExecutionService.readJobExecution(
+            actualDataJob.getJobConfig().getTeam(),
+            actualDataJob.getName(),
+            expectedDataJobExecution.getId());
 
-        JobExecutionServiceUtil.assertDataJobExecutionValid(expectedDataJobExecution, actualDataJobExecution);
-    }
+    JobExecutionServiceUtil.assertDataJobExecutionValid(
+        expectedDataJobExecution, actualDataJobExecution);
+  }
 
-    @Test
-    public void testReadJobExecution_nonExistingDataJob_shouldThrowException() {
-        Assertions.assertThrows(DataJobNotFoundException.class, () ->
-              jobExecutionService.readJobExecution("test-team","test-job", "test-execution-id"));
-    }
+  @Test
+  public void testReadJobExecution_nonExistingDataJob_shouldThrowException() {
+    Assertions.assertThrows(
+        DataJobNotFoundException.class,
+        () -> jobExecutionService.readJobExecution("test-team", "test-job", "test-execution-id"));
+  }
 
-    @Test
-    public void testReadJobExecution_nonExistingDataJobExecution_shouldThrowException() {
-        DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
+  @Test
+  public void testReadJobExecution_nonExistingDataJobExecution_shouldThrowException() {
+    DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-        Assertions.assertThrows(DataJobExecutionNotFoundException.class, () ->
-              jobExecutionService.readJobExecution(
-                    dataJob.getJobConfig().getTeam(), dataJob.getName(), "test-id"));
-    }
+    Assertions.assertThrows(
+        DataJobExecutionNotFoundException.class,
+        () ->
+            jobExecutionService.readJobExecution(
+                dataJob.getJobConfig().getTeam(), dataJob.getName(), "test-id"));
+  }
 }

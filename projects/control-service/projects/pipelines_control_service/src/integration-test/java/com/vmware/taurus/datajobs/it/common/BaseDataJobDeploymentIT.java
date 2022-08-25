@@ -10,7 +10,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,56 +27,62 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 
 /**
- * It combines all necessary annotations and constants
- * for tests that need an already deployed data job.
+ * It combines all necessary annotations and constants for tests that need an already deployed data
+ * job.
  *
- * The test just needs to extend this class,
- * and it will have access to the already deployed data job.
+ * <p>The test just needs to extend this class, and it will have access to the already deployed data
+ * job.
  */
 @Import({BaseDataJobDeploymentIT.TaskExecutorConfig.class})
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ControlplaneApplication.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 @ExtendWith(DataJobDeploymentExtension.class)
 public abstract class BaseDataJobDeploymentIT extends BaseIT {
 
-   @TestConfiguration
-   public static class TaskExecutorConfig {
-      @Bean
-      @Primary
-      public TaskExecutor taskExecutor() {
-         // Deployment methods are non-blocking (Async) which makes them harder to test.
-         // Making them sync for the purposes of this test.
-         return new SyncTaskExecutor();
-      }
-   }
+  @TestConfiguration
+  public static class TaskExecutorConfig {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      // Deployment methods are non-blocking (Async) which makes them harder to test.
+      // Making them sync for the purposes of this test.
+      return new SyncTaskExecutor();
+    }
+  }
 
-   protected MvcResult executeDataJob(String jobName, String teamName, String username, String opId) {
-      // Execute data job
-      if (opId == null) {
-         opId = jobName + UUID.randomUUID().toString().toLowerCase();
-      }
+  protected MvcResult executeDataJob(
+      String jobName, String teamName, String username, String opId) {
+    // Execute data job
+    if (opId == null) {
+      opId = jobName + UUID.randomUUID().toString().toLowerCase();
+    }
 
-      DataJobExecutionRequest dataJobExecutionRequest = new DataJobExecutionRequest()
-            .startedBy(username);
+    DataJobExecutionRequest dataJobExecutionRequest =
+        new DataJobExecutionRequest().startedBy(username);
 
-      String triggerDataJobExecutionUrl = String.format(
+    String triggerDataJobExecutionUrl =
+        String.format(
             "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName,
-            jobName,
-            "release");
+            teamName, jobName, "release");
 
-      // Wait for the job execution to complete, polling every 15 seconds
-      // See: https://github.com/awaitility/awaitility/wiki/Usage
-      String finalOpId = opId;
-      return await()
-            .atMost(5, TimeUnit.MINUTES)
-            .with()
-            .pollInterval(15, TimeUnit.SECONDS)
-            .until(() -> mockMvc.perform(post(triggerDataJobExecutionUrl)
-                              .with(user(username))
-                              .header(HEADER_X_OP_ID, finalOpId)
-                              .content(mapper.writeValueAsString(dataJobExecutionRequest))
-                              .contentType(MediaType.APPLICATION_JSON))
-                        .andReturn(),
-                  mvcResult -> mvcResult.getResponse().getStatus() == 202);
-   }
+    // Wait for the job execution to complete, polling every 15 seconds
+    // See: https://github.com/awaitility/awaitility/wiki/Usage
+    String finalOpId = opId;
+    return await()
+        .atMost(5, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+        .until(
+            () ->
+                mockMvc
+                    .perform(
+                        post(triggerDataJobExecutionUrl)
+                            .with(user(username))
+                            .header(HEADER_X_OP_ID, finalOpId)
+                            .content(mapper.writeValueAsString(dataJobExecutionRequest))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andReturn(),
+            mvcResult -> mvcResult.getResponse().getStatus() == 202);
+  }
 }
