@@ -23,34 +23,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 class JobFieldStrategyFactoryTest {
 
-   private final JobFieldStrategyByName jobFieldStrategyByName = new JobFieldStrategyByName();
-   private final JobFieldStrategyByDescription jobFieldStrategyByDescription = new JobFieldStrategyByDescription();
-   private final Set<FieldStrategy<V2DataJob>> strategies = new HashSet<>();
+  private final JobFieldStrategyByName jobFieldStrategyByName = new JobFieldStrategyByName();
+  private final JobFieldStrategyByDescription jobFieldStrategyByDescription =
+      new JobFieldStrategyByDescription();
+  private final Set<FieldStrategy<V2DataJob>> strategies = new HashSet<>();
 
-   @BeforeEach
-   public void beforeEach() {
-      strategies.add(jobFieldStrategyByName);
-      strategies.add(jobFieldStrategyByDescription);
-   }
+  @BeforeEach
+  public void beforeEach() {
+    strategies.add(jobFieldStrategyByName);
+    strategies.add(jobFieldStrategyByDescription);
+  }
 
-   @Test
-   void testStrategies_whenSearchingForValidStrategy_shouldReturnValidStrategy() {
-      JobFieldStrategyFactory factory = new JobFieldStrategyFactory(strategies);
+  @Test
+  void testStrategies_whenSearchingForValidStrategy_shouldReturnValidStrategy() {
+    JobFieldStrategyFactory factory = new JobFieldStrategyFactory(strategies);
 
-      FieldStrategy<V2DataJob> strategy = factory.findStrategy(jobFieldStrategyByDescription.getStrategyName());
+    FieldStrategy<V2DataJob> strategy =
+        factory.findStrategy(jobFieldStrategyByDescription.getStrategyName());
 
-      assertThat(strategy).isEqualTo(jobFieldStrategyByDescription);
-   }
+    assertThat(strategy).isEqualTo(jobFieldStrategyByDescription);
+  }
 
-   @Test
-   void testStrategies_whenGettingAllStrategies_shouldReturnStrategiesMap() {
-      JobFieldStrategyFactory factory = new JobFieldStrategyFactory(strategies);
+  @Test
+  void testStrategies_whenGettingAllStrategies_shouldReturnStrategiesMap() {
+    JobFieldStrategyFactory factory = new JobFieldStrategyFactory(strategies);
 
-      Map<JobFieldStrategyBy, FieldStrategy<V2DataJob>> strategyMap = factory.getStrategies();
+    Map<JobFieldStrategyBy, FieldStrategy<V2DataJob>> strategyMap = factory.getStrategies();
 
-      assertThat(strategyMap)
-            .hasSize(2)
-            .containsKey(jobFieldStrategyByName.getStrategyName())
-            .containsKey(jobFieldStrategyByDescription.getStrategyName());
-   }
+    assertThat(strategyMap)
+        .hasSize(2)
+        .containsKey(jobFieldStrategyByName.getStrategyName())
+        .containsKey(jobFieldStrategyByDescription.getStrategyName());
+  }
 }

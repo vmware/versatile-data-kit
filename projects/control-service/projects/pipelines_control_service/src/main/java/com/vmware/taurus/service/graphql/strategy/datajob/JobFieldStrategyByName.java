@@ -19,25 +19,29 @@ import java.util.function.Predicate;
 @Component
 public class JobFieldStrategyByName extends FieldStrategy<V2DataJob> {
 
-   private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(V2DataJob::getJobName);
+  private static final Comparator<V2DataJob> COMPARATOR_DEFAULT =
+      Comparator.comparing(V2DataJob::getJobName);
 
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.JOB_NAME;
-   }
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.JOB_NAME;
+  }
 
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
-      Predicate<V2DataJob> predicate = criteria.getPredicate();
-      if (filterProvided(filter)) {
-         predicate = predicate.and(dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), filter.getPattern()));
-      }
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(
+      @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
+    Predicate<V2DataJob> predicate = criteria.getPredicate();
+    if (filterProvided(filter)) {
+      predicate =
+          predicate.and(
+              dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), filter.getPattern()));
+    }
 
-      return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
-   }
+    return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
+  }
 
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), searchStr);
-   }
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
+    return dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), searchStr);
+  }
 }

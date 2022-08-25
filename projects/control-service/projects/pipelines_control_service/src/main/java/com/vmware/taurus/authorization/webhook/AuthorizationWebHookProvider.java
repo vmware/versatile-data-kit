@@ -19,42 +19,40 @@ import org.springframework.stereotype.Service;
 /**
  * AuthorizationWebhookProvider class which delegates authorization request to a third party webhook
  * authorization server.
- * <p>
- * Uses a single method {@link WebHookService#invokeWebHook(WebHookRequestBody)}
- * which triggers a webhook to the actual authorization server to determine whether a user is authorized
- * or not by creating {@link WebHookResult} which is then provided to {@link AuthorizationInterceptor}
- * </p>
+ *
+ * <p>Uses a single method {@link WebHookService#invokeWebHook(WebHookRequestBody)} which triggers a
+ * webhook to the actual authorization server to determine whether a user is authorized or not by
+ * creating {@link WebHookResult} which is then provided to {@link AuthorizationInterceptor}
  */
 @Service
 @Slf4j
-public class AuthorizationWebHookProvider extends WebHookService<AuthorizationBody>  {
+public class AuthorizationWebHookProvider extends WebHookService<AuthorizationBody> {
 
-    public AuthorizationWebHookProvider(@Value("${datajobs.authorization.webhook.endpoint}")
-                                                String webHookEndpoint,
-                                        @Value("${datajobs.authorization.webhook.internal.errors.retries:1}")
-                                                int retriesOn5xxErrors) {
-        super(webHookEndpoint, retriesOn5xxErrors, log);
-    }
+  public AuthorizationWebHookProvider(
+      @Value("${datajobs.authorization.webhook.endpoint}") String webHookEndpoint,
+      @Value("${datajobs.authorization.webhook.internal.errors.retries:1}")
+          int retriesOn5xxErrors) {
+    super(webHookEndpoint, retriesOn5xxErrors, log);
+  }
 
-    @Override
-    public void ensureConfigured() {
-        if (StringUtils.isBlank(getWebHookEndpoint())) {
-            throw new AuthorizationError(
-                    "Authorization webhook endpoint is not configured",
-                    "Cannot determine whether a user is authorized to do this request",
-                    "Configure the authorization webhook property or disable the feature altogether",
-                    null
-            );
-        }
+  @Override
+  public void ensureConfigured() {
+    if (StringUtils.isBlank(getWebHookEndpoint())) {
+      throw new AuthorizationError(
+          "Authorization webhook endpoint is not configured",
+          "Cannot determine whether a user is authorized to do this request",
+          "Configure the authorization webhook property or disable the feature altogether",
+          null);
     }
+  }
 
-    @Override
-    protected String getWebHookRequestURL(AuthorizationBody webHookRequestBody) {
-        return getWebHookEndpoint();
-    }
+  @Override
+  protected String getWebHookRequestURL(AuthorizationBody webHookRequestBody) {
+    return getWebHookEndpoint();
+  }
 
-    @Override
-    public ExternalSystemError.MainExternalSystem getExternalSystemType() {
-        return ExternalSystemError.MainExternalSystem.AUTHORIZATION_SERVER;
-    }
+  @Override
+  public ExternalSystemError.MainExternalSystem getExternalSystemType() {
+    return ExternalSystemError.MainExternalSystem.AUTHORIZATION_SERVER;
+  }
 }

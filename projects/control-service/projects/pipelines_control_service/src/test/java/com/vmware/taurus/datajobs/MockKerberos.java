@@ -25,34 +25,35 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * Registers a bean with a mock, but fairly functional, implementation of a {@link KerberosCredentialsRepository}
+ * Registers a bean with a mock, but fairly functional, implementation of a {@link
+ * KerberosCredentialsRepository}
  */
 @Profile("MockKerberos")
 @Configuration
 public class MockKerberos {
 
-   private final Set<String> principals = new HashSet<>();
-   private final Random rand = new Random();
+  private final Set<String> principals = new HashSet<>();
+  private final Random rand = new Random();
 
-   @Bean
-   @Primary
-   public KerberosCredentialsRepository mockCredentialsRepository() {
-      KerberosCredentialsRepository mock = mock(KerberosCredentialsRepository.class);
-      doAnswer(answerVoid(this::createPrincipalMock)).when(mock).createPrincipal(any(), any());
-      when(mock.principalExists(any())).thenAnswer(answer(principals::contains));
-      doAnswer(answer(principals::remove)).when(mock).deletePrincipal(any());
-      return mock;
-   }
+  @Bean
+  @Primary
+  public KerberosCredentialsRepository mockCredentialsRepository() {
+    KerberosCredentialsRepository mock = mock(KerberosCredentialsRepository.class);
+    doAnswer(answerVoid(this::createPrincipalMock)).when(mock).createPrincipal(any(), any());
+    when(mock.principalExists(any())).thenAnswer(answer(principals::contains));
+    doAnswer(answer(principals::remove)).when(mock).deletePrincipal(any());
+    return mock;
+  }
 
-   private void createPrincipalMock(String principal, Optional<File> localKeyTab) {
-      principals.add(principal);
-      byte[] keytab = new byte[100];
-      rand.nextBytes(keytab);
-      localKeyTab.ifPresent(file -> writeBytes(keytab, file));
-   }
+  private void createPrincipalMock(String principal, Optional<File> localKeyTab) {
+    principals.add(principal);
+    byte[] keytab = new byte[100];
+    rand.nextBytes(keytab);
+    localKeyTab.ifPresent(file -> writeBytes(keytab, file));
+  }
 
-   @SneakyThrows
-   private void writeBytes(byte[] keytab, File file) {
-      Files.write(keytab, file);
-   }
+  @SneakyThrows
+  private void writeBytes(byte[] keytab, File file) {
+    Files.write(keytab, file);
+  }
 }

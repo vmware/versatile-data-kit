@@ -15,18 +15,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
 
-    @Autowired
-    private RequestInterceptor requestInterceptor;
+  @Autowired private RequestInterceptor requestInterceptor;
 
-    @Autowired
-    private AuthorizationInterceptor authorizationInterceptor;
+  @Autowired private AuthorizationInterceptor authorizationInterceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(requestInterceptor)
-                .addPathPatterns("/**/");
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(requestInterceptor).addPathPatterns("/**/");
 
-        registry.addInterceptor(authorizationInterceptor)
-                .addPathPatterns("/**/");
-    }
+    registry.addInterceptor(authorizationInterceptor).addPathPatterns("/**/");
+  }
 }

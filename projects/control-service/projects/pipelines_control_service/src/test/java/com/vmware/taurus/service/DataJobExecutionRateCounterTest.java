@@ -27,79 +27,139 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 public class DataJobExecutionRateCounterTest {
 
-    @Autowired
-    private JobExecutionRepository jobExecutionRepository;
+  @Autowired private JobExecutionRepository jobExecutionRepository;
 
-    @Autowired
-    private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-    @Autowired
-    JobExecutionService jobExecutionService;
+  @Autowired JobExecutionService jobExecutionService;
 
-    private DataJob dataJob;
+  private DataJob dataJob;
 
-    @BeforeEach
-    public void setup() {
-        dataJob = RepositoryUtil.createDataJob(jobsRepository);
-    }
+  @BeforeEach
+  public void setup() {
+    dataJob = RepositoryUtil.createDataJob(jobsRepository);
+  }
 
-    @AfterEach
-    public void cleanup() {
-        jobsRepository.deleteAll();
-        jobExecutionRepository.deleteAll();
-    }
+  @AfterEach
+  public void cleanup() {
+    jobsRepository.deleteAll();
+    jobExecutionRepository.deleteAll();
+  }
 
-    @Test
-    public void testSuccessQuery_emptyExecutionsRepo_expectNoSuccess() {
-        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.PLATFORM_ERROR, ExecutionStatus.SUCCEEDED));
-        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
-                                                    .getOrDefault(ExecutionStatus.PLATFORM_ERROR, 0));
-        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
-                                                    .getOrDefault(ExecutionStatus.SUCCEEDED, 0));
-    }
+  @Test
+  public void testSuccessQuery_emptyExecutionsRepo_expectNoSuccess() {
+    var response =
+        jobExecutionService.countExecutionStatuses(
+            List.of("test-job"),
+            List.of(ExecutionStatus.PLATFORM_ERROR, ExecutionStatus.SUCCEEDED));
+    Assertions.assertEquals(
+        0,
+        response
+            .getOrDefault("test-job", new HashMap<>())
+            .getOrDefault(ExecutionStatus.PLATFORM_ERROR, 0));
+    Assertions.assertEquals(
+        0,
+        response
+            .getOrDefault("test-job", new HashMap<>())
+            .getOrDefault(ExecutionStatus.SUCCEEDED, 0));
+  }
 
-    @Test
-    public void testSuccessQuery_oneFailed_expectNoSuccess() {
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
-                ExecutionStatus.PLATFORM_ERROR, "test-msg", OffsetDateTime.now());
-        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.SUCCEEDED));
-        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
-                                                    .getOrDefault(ExecutionStatus.SUCCEEDED, 0));
-    }
+  @Test
+  public void testSuccessQuery_oneFailed_expectNoSuccess() {
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id",
+        dataJob,
+        ExecutionStatus.PLATFORM_ERROR,
+        "test-msg",
+        OffsetDateTime.now());
+    var response =
+        jobExecutionService.countExecutionStatuses(
+            List.of("test-job"), List.of(ExecutionStatus.SUCCEEDED));
+    Assertions.assertEquals(
+        0,
+        response
+            .getOrDefault("test-job", new HashMap<>())
+            .getOrDefault(ExecutionStatus.SUCCEEDED, 0));
+  }
 
-    @Test
-    public void testFailureQuery_oneSuccessful_expectNoFailure() {
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
-                ExecutionStatus.SUCCEEDED, "test-msg", OffsetDateTime.now());
+  @Test
+  public void testFailureQuery_oneSuccessful_expectNoFailure() {
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        "test-msg",
+        OffsetDateTime.now());
 
-        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.PLATFORM_ERROR));
-        Assertions.assertEquals(0, response.getOrDefault("test-job", new HashMap<>())
-                                                    .getOrDefault(ExecutionStatus.PLATFORM_ERROR, 0));
-    }
+    var response =
+        jobExecutionService.countExecutionStatuses(
+            List.of("test-job"), List.of(ExecutionStatus.PLATFORM_ERROR));
+    Assertions.assertEquals(
+        0,
+        response
+            .getOrDefault("test-job", new HashMap<>())
+            .getOrDefault(ExecutionStatus.PLATFORM_ERROR, 0));
+  }
 
-    @Test
-    public void testSuccessQuery_twoSuccessful_expectTwoSuccessful() {
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
-                ExecutionStatus.SUCCEEDED, "test-msg", OffsetDateTime.now());
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id2", dataJob,
-                ExecutionStatus.SUCCEEDED, "test-msg", OffsetDateTime.now());
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id3", dataJob,
-                ExecutionStatus.SUBMITTED, "test-msg", OffsetDateTime.now());
+  @Test
+  public void testSuccessQuery_twoSuccessful_expectTwoSuccessful() {
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        "test-msg",
+        OffsetDateTime.now());
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id2",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        "test-msg",
+        OffsetDateTime.now());
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id3",
+        dataJob,
+        ExecutionStatus.SUBMITTED,
+        "test-msg",
+        OffsetDateTime.now());
 
-        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.SUCCEEDED));
-        Assertions.assertEquals(2, response.get("test-job").get(ExecutionStatus.SUCCEEDED));
-    }
+    var response =
+        jobExecutionService.countExecutionStatuses(
+            List.of("test-job"), List.of(ExecutionStatus.SUCCEEDED));
+    Assertions.assertEquals(2, response.get("test-job").get(ExecutionStatus.SUCCEEDED));
+  }
 
-    @Test
-    public void testFailureQuery_twoFailed_expectTwoFailed() {
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id", dataJob,
-                ExecutionStatus.PLATFORM_ERROR, "test-msg", OffsetDateTime.now());
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id2", dataJob,
-                ExecutionStatus.PLATFORM_ERROR, "test-msg", OffsetDateTime.now());
-        RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-id3", dataJob,
-                ExecutionStatus.SUBMITTED, "test-msg", OffsetDateTime.now());
+  @Test
+  public void testFailureQuery_twoFailed_expectTwoFailed() {
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id",
+        dataJob,
+        ExecutionStatus.PLATFORM_ERROR,
+        "test-msg",
+        OffsetDateTime.now());
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id2",
+        dataJob,
+        ExecutionStatus.PLATFORM_ERROR,
+        "test-msg",
+        OffsetDateTime.now());
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-id3",
+        dataJob,
+        ExecutionStatus.SUBMITTED,
+        "test-msg",
+        OffsetDateTime.now());
 
-        var response = jobExecutionService.countExecutionStatuses(List.of("test-job"), List.of(ExecutionStatus.PLATFORM_ERROR));
-        Assertions.assertEquals(2, response.get("test-job").get(ExecutionStatus.PLATFORM_ERROR));
-    }
+    var response =
+        jobExecutionService.countExecutionStatuses(
+            List.of("test-job"), List.of(ExecutionStatus.PLATFORM_ERROR));
+    Assertions.assertEquals(2, response.get("test-job").get(ExecutionStatus.PLATFORM_ERROR));
+  }
 }

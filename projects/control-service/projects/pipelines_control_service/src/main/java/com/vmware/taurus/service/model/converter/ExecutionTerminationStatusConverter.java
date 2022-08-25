@@ -14,23 +14,24 @@ import com.google.common.primitives.Ints;
 import com.vmware.taurus.service.model.ExecutionStatus;
 
 @Converter
-public class ExecutionTerminationStatusConverter implements AttributeConverter<ExecutionStatus, String> {
+public class ExecutionTerminationStatusConverter
+    implements AttributeConverter<ExecutionStatus, String> {
 
-   @Override
-   public String convertToDatabaseColumn(ExecutionStatus executionStatus) {
-      return executionStatus != null ? String.valueOf(executionStatus.getAlertValue()) : null;
-   }
+  @Override
+  public String convertToDatabaseColumn(ExecutionStatus executionStatus) {
+    return executionStatus != null ? String.valueOf(executionStatus.getAlertValue()) : null;
+  }
 
-   @Override
-   public ExecutionStatus convertToEntityAttribute(String dbValueString) {
-      if (dbValueString == null) {
-         return null;
-      }
+  @Override
+  public ExecutionStatus convertToEntityAttribute(String dbValueString) {
+    if (dbValueString == null) {
+      return null;
+    }
 
-      Integer dbValueInteger = Ints.tryParse(dbValueString);
-      return Arrays.stream(ExecutionStatus.values())
-            .filter(terminationStatus -> terminationStatus.getAlertValue().equals(dbValueInteger))
-            .findAny()
-            .orElse(null);
-   }
+    Integer dbValueInteger = Ints.tryParse(dbValueString);
+    return Arrays.stream(ExecutionStatus.values())
+        .filter(terminationStatus -> terminationStatus.getAlertValue().equals(dbValueInteger))
+        .findAny()
+        .orElse(null);
+  }
 }

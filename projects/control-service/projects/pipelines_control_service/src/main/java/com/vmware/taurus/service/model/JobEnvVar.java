@@ -8,13 +8,10 @@ package com.vmware.taurus.service.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Used for setting of Kubernetes Job Container environment variables
- */
+/** Used for setting of Kubernetes Job Container environment variables */
 @AllArgsConstructor
 public enum JobEnvVar {
-   VDK_OP_ID("VDK_OP_ID");
+  VDK_OP_ID("VDK_OP_ID");
 
-   @Getter
-   private String value;
+  @Getter private String value;
 }

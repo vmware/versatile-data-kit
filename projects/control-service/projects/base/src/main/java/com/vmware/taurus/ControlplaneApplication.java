@@ -22,49 +22,64 @@ import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class ControlplaneApplication {
-    static Logger log = LoggerFactory.getLogger(ControlplaneApplication.class);
+  static Logger log = LoggerFactory.getLogger(ControlplaneApplication.class);
 
-    @Autowired
-    private Environment env;
+  @Autowired private Environment env;
 
-    @Bean
-    MeterRegistryCustomizer<PrometheusMeterRegistry> metricsCommonTag() {
-        String serviceName = env.getProperty(SpringAppPropNames.SVC_NAME);
-        return registry -> registry.config().commonTags("service", serviceName);
-    }
+  @Bean
+  MeterRegistryCustomizer<PrometheusMeterRegistry> metricsCommonTag() {
+    String serviceName = env.getProperty(SpringAppPropNames.SVC_NAME);
+    return registry -> registry.config().commonTags("service", serviceName);
+  }
 
-    public static void main(String[] args) {
-        log.info("Starting {} with args:\n{}", ControlplaneApplication.class.getSimpleName(), String.join(",\n", args));
-        log.debug("Environment variables:\n{}", prettyEntrySet(System.getenv().entrySet()));
-        log.debug("Java properties:\n{}", prettyEntrySet(System.getProperties().entrySet()));
-        SpringApplication app = new SpringApplication(ControlplaneApplication.class);
+  public static void main(String[] args) {
+    log.info(
+        "Starting {} with args:\n{}",
+        ControlplaneApplication.class.getSimpleName(),
+        String.join(",\n", args));
+    log.debug("Environment variables:\n{}", prettyEntrySet(System.getenv().entrySet()));
+    log.debug("Java properties:\n{}", prettyEntrySet(System.getProperties().entrySet()));
+    SpringApplication app = new SpringApplication(ControlplaneApplication.class);
 
-        // Base service has hardcoded all Spring properties in its main() method, so that other services can partially override them in their application*.properties files
-        // See Spring Boot PropertySource order at https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config
-        // Another reason for having those properties here is to have default values for local development. This allows developers to simply type
-        // gradlew run
-        // and have their service up and running (no need to set environment variables beforehand)
-        Map<String, Object> props = new TreeMap<>();
-        props.put(SpringAppPropNames.HTTPTRACE_INCLUDE,"USER_PRINCIPAL,errors,parameters,context_path,remote_address,path_info,path_translated,session_id");
-        props.put(SpringAppPropNames.MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE, "*"); //Spring Actuator config
-        props.put(SpringAppPropNames.MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS, "always"); //Spring Actuator config
+    // Base service has hardcoded all Spring properties in its main() method, so that other services
+    // can partially override them in their application*.properties files
+    // See Spring Boot PropertySource order at
+    // https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config
+    // Another reason for having those properties here is to have default values for local
+    // development. This allows developers to simply type
+    // gradlew run
+    // and have their service up and running (no need to set environment variables beforehand)
+    Map<String, Object> props = new TreeMap<>();
+    props.put(
+        SpringAppPropNames.HTTPTRACE_INCLUDE,
+        "USER_PRINCIPAL,errors,parameters,context_path,remote_address,path_info,path_translated,session_id");
+    props.put(
+        SpringAppPropNames.MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE,
+        "*"); // Spring Actuator config
+    props.put(
+        SpringAppPropNames.MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS,
+        "always"); // Spring Actuator config
 
-        ////////////////////////////////////////////////////////
-        // Properties below must be overridden in all services
-        // Properties above may be overridden in services
-        ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    // Properties below must be overridden in all services
+    // Properties above may be overridden in services
+    ////////////////////////////////////////////////////////
 
-        final String svcName = "base";
-        // Used for log file name
-        props.put(SpringAppPropNames.SVC_NAME, svcName); //mandatory for logback-spring.xml
-        props.put(SpringAppPropNames.MANAGEMENT_ENDPOINTS_WEB_BASE_PATH, "/" + svcName + "/debug"); //Spring Actuator. http://localhost:8080/${svc.url.prefix}/debug
+    final String svcName = "base";
+    // Used for log file name
+    props.put(SpringAppPropNames.SVC_NAME, svcName); // mandatory for logback-spring.xml
+    props.put(
+        SpringAppPropNames.MANAGEMENT_ENDPOINTS_WEB_BASE_PATH,
+        "/" + svcName + "/debug"); // Spring Actuator. http://localhost:8080/${svc.url.prefix}/debug
 
-        app.setDefaultProperties(props);
-        app.run(args);
-    }
+    app.setDefaultProperties(props);
+    app.run(args);
+  }
 
-    private static String prettyEntrySet(Set<? extends Map.Entry<?, ?>> entrySet) {
-        return entrySet.stream().map(e -> String.format("%s: %s", e.getKey(), e.getValue()))
-                .sorted().collect(Collectors.joining(",\n"));
-    }
+  private static String prettyEntrySet(Set<? extends Map.Entry<?, ?>> entrySet) {
+    return entrySet.stream()
+        .map(e -> String.format("%s: %s", e.getKey(), e.getValue()))
+        .sorted()
+        .collect(Collectors.joining(",\n"));
+  }
 }

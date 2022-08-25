@@ -36,45 +36,48 @@ import static org.mockito.Mockito.mock;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class JobsServiceTest {
 
-    @Mock
-    private JobsRepository jobsRepository;
+  @Mock private JobsRepository jobsRepository;
 
-    @Test
-    public void testCreateUpdateMissing() {
-        var testInst = createTestInstance();
-        assertThrows(NullPointerException.class, () -> testInst.createJob(null).isCompleted());
-        assertThrows(NullPointerException.class, () -> testInst.createJob(new DataJob("hello", null, null)).isCompleted());
+  @Test
+  public void testCreateUpdateMissing() {
+    var testInst = createTestInstance();
+    assertThrows(NullPointerException.class, () -> testInst.createJob(null).isCompleted());
+    assertThrows(
+        NullPointerException.class,
+        () -> testInst.createJob(new DataJob("hello", null, null)).isCompleted());
 
-        var job = new DataJob("hello", null, null);
-        doAnswer(method -> 1)
-                .when(jobsRepository).updateDataJobLatestJobDeploymentStatusByName(
-                eq(job.getName()), Mockito.any(DeploymentStatus.class));
-        assertFalse(testInst.updateJob(job));
-    }
+    var job = new DataJob("hello", null, null);
+    doAnswer(method -> 1)
+        .when(jobsRepository)
+        .updateDataJobLatestJobDeploymentStatusByName(
+            eq(job.getName()), Mockito.any(DeploymentStatus.class));
+    assertFalse(testInst.updateJob(job));
+  }
 
-    @Test
-    public void testCreateConflict() {
-        var testInst = createTestInstance();
-        var job = new DataJob("hello", new JobConfig(), null);
+  @Test
+  public void testCreateConflict() {
+    var testInst = createTestInstance();
+    var job = new DataJob("hello", new JobConfig(), null);
 
-        doAnswer(method -> job).when(jobsRepository)
-                .save(job);
-        doAnswer(method -> 1).when(jobsRepository)
-                .updateDataJobLatestJobDeploymentStatusByName(eq(job.getName()), Mockito.any(DeploymentStatus.class));
-        doAnswer(m -> Optional.of(job)).when(jobsRepository)
-                .findById(eq(job.getName()));
+    doAnswer(method -> job).when(jobsRepository).save(job);
+    doAnswer(method -> 1)
+        .when(jobsRepository)
+        .updateDataJobLatestJobDeploymentStatusByName(
+            eq(job.getName()), Mockito.any(DeploymentStatus.class));
+    doAnswer(m -> Optional.of(job)).when(jobsRepository).findById(eq(job.getName()));
 
-        assertTrue(testInst.createJob(job).isCompleted());
-        assertNotNull(testInst.getByName("hello").get().getJobConfig());
-    }
+    assertTrue(testInst.createJob(job).isCompleted());
+    assertNotNull(testInst.getByName("hello").get().getJobConfig());
+  }
 
-    private JobsService createTestInstance() {
-        return new JobsService(jobsRepository,
-                mock(DeploymentService.class),
-                mock(JobCredentialsService.class),
-                mock(WebHookRequestBodyProvider.class),
-                mock(PostCreateWebHookProvider.class),
-                mock(PostDeleteWebHookProvider.class),
-                mock(DataJobMetrics.class));
-    }
+  private JobsService createTestInstance() {
+    return new JobsService(
+        jobsRepository,
+        mock(DeploymentService.class),
+        mock(JobCredentialsService.class),
+        mock(WebHookRequestBodyProvider.class),
+        mock(PostCreateWebHookProvider.class),
+        mock(PostDeleteWebHookProvider.class),
+        mock(DataJobMetrics.class));
+  }
 }

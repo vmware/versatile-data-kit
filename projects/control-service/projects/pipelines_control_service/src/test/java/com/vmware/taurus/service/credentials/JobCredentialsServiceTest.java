@@ -27,43 +27,40 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class JobCredentialsServiceTest {
 
-    @Mock
-    private KerberosCredentialsRepository credentialsRepository;
+  @Mock private KerberosCredentialsRepository credentialsRepository;
 
-    @Mock
-    private DataJobsKubernetesService kubernetesService;
+  @Mock private DataJobsKubernetesService kubernetesService;
 
-    @InjectMocks
-    private JobCredentialsService credentialsService;
+  @InjectMocks private JobCredentialsService credentialsService;
 
-    @BeforeEach
-    public void setup() throws Exception {
-    }
+  @BeforeEach
+  public void setup() throws Exception {}
 
-    @Test
-    public void test_createJobCredentials() throws ApiException {
-        doAnswer(a -> {
-            Optional<File> f = (Optional<File>)a.getArgument(1);
-            Files.writeString(f.get().toPath(), "keytab-data");
-            return null;
-        }).when(credentialsRepository).createPrincipal(anyString(), any());
+  @Test
+  public void test_createJobCredentials() throws ApiException {
+    doAnswer(
+            a -> {
+              Optional<File> f = (Optional<File>) a.getArgument(1);
+              Files.writeString(f.get().toPath(), "keytab-data");
+              return null;
+            })
+        .when(credentialsRepository)
+        .createPrincipal(anyString(), any());
 
-        credentialsService.createJobCredentials("test");
+    credentialsService.createJobCredentials("test");
 
-        String secretName = JobCredentialsService.getJobKeytabKubernetesSecretName("test");
-        ArgumentCaptor<Map<String, byte[]>> argCaptor = ArgumentCaptor.forClass(Map.class);
+    String secretName = JobCredentialsService.getJobKeytabKubernetesSecretName("test");
+    ArgumentCaptor<Map<String, byte[]>> argCaptor = ArgumentCaptor.forClass(Map.class);
 
-        verify(kubernetesService, only()).saveSecretData(eq(secretName), argCaptor.capture());
-        Assertions.assertTrue(argCaptor.getValue().containsKey("keytab"));
-        Assertions.assertArrayEquals("keytab-data".getBytes(), argCaptor.getValue().get("keytab"));
-    }
+    verify(kubernetesService, only()).saveSecretData(eq(secretName), argCaptor.capture());
+    Assertions.assertTrue(argCaptor.getValue().containsKey("keytab"));
+    Assertions.assertArrayEquals("keytab-data".getBytes(), argCaptor.getValue().get("keytab"));
+  }
 
-    @Test
-    public void test_deleteJobCredentials() throws ApiException {
-        credentialsService.deleteJobCredentials("job");
-        verify(kubernetesService).removeSecretData(contains("job"));
-        verify(credentialsRepository).deletePrincipal(contains("job"));
-    }
-
-
+  @Test
+  public void test_deleteJobCredentials() throws ApiException {
+    credentialsService.deleteJobCredentials("job");
+    verify(kubernetesService).removeSecretData(contains("job"));
+    verify(credentialsRepository).deletePrincipal(contains("job"));
+  }
 }

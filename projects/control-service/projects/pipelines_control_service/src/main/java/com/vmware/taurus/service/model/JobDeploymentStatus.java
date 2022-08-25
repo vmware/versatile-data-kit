@@ -8,31 +8,29 @@ package com.vmware.taurus.service.model;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import lombok.Data;
 
-/**
- * Object used for providing users with information about data job deployments.
- */
+/** Object used for providing users with information about data job deployments. */
 @Data
 public class JobDeploymentStatus {
 
-    private String dataJobName;
+  private String dataJobName;
 
-    private String gitCommitSha;
+  private String gitCommitSha;
 
-    private String vdkImageName;
+  private String vdkImageName;
 
-    private String vdkVersion;
+  private String vdkVersion;
 
-    private String imageName;
+  private String imageName;
 
-    private String cronJobName;
+  private String cronJobName;
 
-    private Boolean enabled;
+  private Boolean enabled;
 
-    private String mode;
+  private String mode;
 
-    private DataJobResources resources;
+  private DataJobResources resources;
 
-    private String lastDeployedBy;
+  private String lastDeployedBy;
 
-    private String lastDeployedDate;
+  private String lastDeployedDate;
 }
