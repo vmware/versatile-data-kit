@@ -14,33 +14,35 @@ import java.net.InetAddress;
 @Service
 public class UserAgentService {
 
+  @Value("${datajobs.version:unknown-version}")
+  private String dataJobsVersion;
 
-    @Value("${datajobs.version:unknown-version}")
-    private String dataJobsVersion;
+  @Value("${datajobs.git_commit_hash:unknown-git-hash}")
+  private String dataJobsGitCommit;
 
-    @Value("${datajobs.git_commit_hash:unknown-git-hash}")
-    private String dataJobsGitCommit;
+  public String getUserAgent() {
+    return String.format("PipelinesControlService/%s", this.dataJobsVersion);
+  }
 
-    public String getUserAgent() {
-        return String.format("PipelinesControlService/%s", this.dataJobsVersion);
+  public String getUserAgentDetails() {
+    return String.format(
+        "PipelinesControlService/%s/%s (%s@%s %s)",
+        this.dataJobsVersion,
+        this.dataJobsGitCommit,
+        SystemUtils.USER_NAME,
+        getHostName(),
+        getOsDetails());
+  }
+
+  private static String getOsDetails() {
+    return String.format("%s/%s/%s", SystemUtils.OS_NAME, SystemUtils.OS_ARCH, SystemUtils.OS_ARCH);
+  }
+
+  private static String getHostName() {
+    try {
+      return InetAddress.getLocalHost().getHostName();
+    } catch (Exception e) {
+      return SystemUtils.getHostName();
     }
-
-    public String getUserAgentDetails() {
-        return String.format("PipelinesControlService/%s/%s (%s@%s %s)",
-                this.dataJobsVersion, this.dataJobsGitCommit, SystemUtils.USER_NAME, getHostName(), getOsDetails());
-    }
-
-    private static String getOsDetails() {
-        return String.format("%s/%s/%s",  SystemUtils.OS_NAME,  SystemUtils.OS_ARCH,  SystemUtils.OS_ARCH);
-    }
-
-    private static String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (Exception e) {
-            return SystemUtils.getHostName();
-        }
-
-    }
-
+  }
 }

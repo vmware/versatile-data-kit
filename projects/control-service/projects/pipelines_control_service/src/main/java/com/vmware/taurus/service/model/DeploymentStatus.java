@@ -10,12 +10,10 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public enum DeploymentStatus {
-   NONE(-1),
-   SUCCESS(0),
-   PLATFORM_ERROR(1),
-   USER_ERROR(3);
+  NONE(-1),
+  SUCCESS(0),
+  PLATFORM_ERROR(1),
+  USER_ERROR(3);
 
-   @Getter
-   private int value;
-
+  @Getter private int value;
 }

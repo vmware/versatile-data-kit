@@ -19,35 +19,38 @@ import java.util.Optional;
 /**
  * Spring Data / JPA Repository for DataJobExecution objects and their members
  *
- * <p>
- * Spring Data automatically creates an implementation of this interface at runtime, provided {@link DataJobExecution}
- * is a valid JPA entity.
+ * <p>Spring Data automatically creates an implementation of this interface at runtime, provided
+ * {@link DataJobExecution} is a valid JPA entity.
  *
- * <p>
- * Methods throw {@link org.springframework.dao.DataAccessException} in case of issues of writing to the database.
+ * <p>Methods throw {@link org.springframework.dao.DataAccessException} in case of issues of writing
+ * to the database.
  *
- * <p>
- * JobExecutionRepositoryIT validates some aspects of the behavior
+ * <p>JobExecutionRepositoryIT validates some aspects of the behavior
  */
-public interface JobExecutionRepository extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
+public interface JobExecutionRepository
+    extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
 
-   List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
+  List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
 
-   Optional<DataJobExecution> findFirstByDataJobNameOrderByStartTimeDesc(String jobName);
+  Optional<DataJobExecution> findFirstByDataJobNameOrderByStartTimeDesc(String jobName);
 
-   List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
+  List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
 
-   List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(String jobName, List<ExecutionStatus> statuses);
+  List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(
+      String jobName, List<ExecutionStatus> statuses);
 
-   List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(String jobName, List<ExecutionStatus> statuses);
+  List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(
+      String jobName, List<ExecutionStatus> statuses);
 
-   List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(List<ExecutionStatus> statuses, OffsetDateTime startTime);
+  List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(
+      List<ExecutionStatus> statuses, OffsetDateTime startTime);
 
-   @Query("SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount " +
-          "FROM DataJobExecution dje " +
-          "WHERE dje.status IN :statuses " +
-          "AND dje.dataJob.name IN :dataJobs " +
-          "GROUP BY dje.status, dje.dataJob")
-   List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(@Param("statuses") List<ExecutionStatus> statuses,
-                                                                   @Param("dataJobs") List<String> dataJobs);
+  @Query(
+      "SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount "
+          + "FROM DataJobExecution dje "
+          + "WHERE dje.status IN :statuses "
+          + "AND dje.dataJob.name IN :dataJobs "
+          + "GROUP BY dje.status, dje.dataJob")
+  List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(
+      @Param("statuses") List<ExecutionStatus> statuses, @Param("dataJobs") List<String> dataJobs);
 }

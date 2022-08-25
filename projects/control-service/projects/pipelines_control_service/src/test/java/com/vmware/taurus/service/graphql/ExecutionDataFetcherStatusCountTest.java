@@ -31,72 +31,90 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ExecutionDataFetcherStatusCountTest {
 
-   ExecutionDataFetcher executionDataFetcher;
+  ExecutionDataFetcher executionDataFetcher;
 
-   @Mock
-   DataFetchingEnvironment dataFetchingEnvironment;
+  @Mock DataFetchingEnvironment dataFetchingEnvironment;
 
-   @Mock
-   DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
+  @Mock DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
 
-   @Mock
-   JobExecutionService jobExecutionService;
+  @Mock JobExecutionService jobExecutionService;
 
-   @Mock
-   JobExecutionRepository jobExecutionRepository;
+  @Mock JobExecutionRepository jobExecutionRepository;
 
-   @Mock
-   JobExecutionLogsUrlBuilder jobExecutionLogsUrlBuilder;
+  @Mock JobExecutionLogsUrlBuilder jobExecutionLogsUrlBuilder;
 
-   @BeforeEach
-   public void init() {
-      executionDataFetcher = new ExecutionDataFetcher(jobExecutionRepository, jobExecutionService, jobExecutionLogsUrlBuilder);
-   }
+  @BeforeEach
+  public void init() {
+    executionDataFetcher =
+        new ExecutionDataFetcher(
+            jobExecutionRepository, jobExecutionService, jobExecutionLogsUrlBuilder);
+  }
 
-   @Test
-   void testDataFetcherStatusCount_emptyExecutions() {
-      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      lenient().when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())).thenReturn(true);
-      lenient().when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())).thenReturn(true);
-      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of());
-      var testJob = new V2DataJob();
-      var deployment = new V2DataJobDeployment();
+  @Test
+  void testDataFetcherStatusCount_emptyExecutions() {
+    when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+    lenient()
+        .when(
+            dataFetchingFieldSelectionSet.contains(
+                JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath()))
+        .thenReturn(true);
+    lenient()
+        .when(
+            dataFetchingFieldSelectionSet.contains(
+                JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath()))
+        .thenReturn(true);
+    when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of());
+    var testJob = new V2DataJob();
+    var deployment = new V2DataJobDeployment();
 
-      testJob.setJobName("test-job");
-      testJob.setDeployments(List.of(deployment));
+    testJob.setJobName("test-job");
+    testJob.setDeployments(List.of(deployment));
 
-      var result = executionDataFetcher.populateStatusCounts(List.of(testJob), dataFetchingEnvironment);
-      assertEquals(0, result.get(0).getDeployments().get(0).getSuccessfulExecutions());
-      assertEquals(0, result.get(0).getDeployments().get(0).getFailedExecutions());
-   }
+    var result =
+        executionDataFetcher.populateStatusCounts(List.of(testJob), dataFetchingEnvironment);
+    assertEquals(0, result.get(0).getDeployments().get(0).getSuccessfulExecutions());
+    assertEquals(0, result.get(0).getDeployments().get(0).getFailedExecutions());
+  }
 
-   @Test
-   void testDataFetcherStatusCount_twoFailedExecutions() {
-      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      lenient().when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath())).thenReturn(true);
-      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of("test-job", Map.of(ExecutionStatus.PLATFORM_ERROR, 2)));
-      var testJob = new V2DataJob();
-      var deployment = new V2DataJobDeployment();
+  @Test
+  void testDataFetcherStatusCount_twoFailedExecutions() {
+    when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+    lenient()
+        .when(
+            dataFetchingFieldSelectionSet.contains(
+                JobFieldStrategyBy.DEPLOYMENT_FAILED_EXECUTIONS.getPath()))
+        .thenReturn(true);
+    when(jobExecutionService.countExecutionStatuses(any(), any()))
+        .thenReturn(Map.of("test-job", Map.of(ExecutionStatus.PLATFORM_ERROR, 2)));
+    var testJob = new V2DataJob();
+    var deployment = new V2DataJobDeployment();
 
-      testJob.setJobName("test-job");
-      testJob.setDeployments(List.of(deployment));
+    testJob.setJobName("test-job");
+    testJob.setDeployments(List.of(deployment));
 
-      var result = executionDataFetcher.populateStatusCounts(List.of(testJob), dataFetchingEnvironment);
-      assertEquals(2, result.get(0).getDeployments().get(0).getFailedExecutions());
-   }
+    var result =
+        executionDataFetcher.populateStatusCounts(List.of(testJob), dataFetchingEnvironment);
+    assertEquals(2, result.get(0).getDeployments().get(0).getFailedExecutions());
+  }
 
-   @Test
-   void testDataFetcherStatusCount_twoSuccessfulExecutions() {
-      when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-      lenient().when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath())).thenReturn(true);
-      when(jobExecutionService.countExecutionStatuses(any(), any())).thenReturn(Map.of("test-job", Map.of(ExecutionStatus.SUCCEEDED, 2)));
-      var testJob = new V2DataJob();
-      var deployment = new V2DataJobDeployment();
+  @Test
+  void testDataFetcherStatusCount_twoSuccessfulExecutions() {
+    when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+    lenient()
+        .when(
+            dataFetchingFieldSelectionSet.contains(
+                JobFieldStrategyBy.DEPLOYMENT_SUCCESSFUL_EXECUTIONS.getPath()))
+        .thenReturn(true);
+    when(jobExecutionService.countExecutionStatuses(any(), any()))
+        .thenReturn(Map.of("test-job", Map.of(ExecutionStatus.SUCCEEDED, 2)));
+    var testJob = new V2DataJob();
+    var deployment = new V2DataJobDeployment();
 
-      testJob.setJobName("test-job");
-      testJob.setDeployments(List.of(deployment));
+    testJob.setJobName("test-job");
+    testJob.setDeployments(List.of(deployment));
 
-      var result = executionDataFetcher.populateStatusCounts(List.of(testJob), dataFetchingEnvironment);
-      assertEquals(2, result.get(0).getDeployments().get(0).getSuccessfulExecutions());
-   }
+    var result =
+        executionDataFetcher.populateStatusCounts(List.of(testJob), dataFetchingEnvironment);
+    assertEquals(2, result.get(0).getDeployments().get(0).getSuccessfulExecutions());
+  }
 }

@@ -23,109 +23,185 @@ import java.util.List;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionFilterSpecIT {
 
-   @Autowired
-   private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-   @Autowired
-   private JobExecutionRepository jobExecutionRepository;
+  @Autowired private JobExecutionRepository jobExecutionRepository;
 
-   @BeforeEach
-   public void setUp() throws Exception {
-      jobsRepository.deleteAll();
-   }
+  @BeforeEach
+  public void setUp() throws Exception {
+    jobsRepository.deleteAll();
+  }
 
-   @Test
-   public void testJobExecutionFilterSpec_filerByStatusIn_shouldReturnResult() {
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+  @Test
+  public void testJobExecutionFilterSpec_filerByStatusIn_shouldReturnResult() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED);
-      DataJobExecution expectedJobExecution1 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
-      DataJobExecution expectedJobExecution2 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED);
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR);
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED);
+    DataJobExecution expectedJobExecution1 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
+    DataJobExecution expectedJobExecution2 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-3",
+            actualDataJob,
+            ExecutionStatus.SUBMITTED);
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-4",
+        actualDataJob,
+        ExecutionStatus.PLATFORM_ERROR);
 
-      DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
+    DataJobExecutionFilter filter =
+        DataJobExecutionFilter.builder()
             .statusIn(List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
-      var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
+    JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+    var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
-      Assertions.assertNotNull(actualJobExecutions);
-      Assertions.assertEquals(2, actualJobExecutions.size());
-      Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
-      Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
-   }
+    Assertions.assertNotNull(actualJobExecutions);
+    Assertions.assertEquals(2, actualJobExecutions.size());
+    Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
+    Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
+  }
 
-   @Test
-   public void testJobExecutionFilterSpec_filerByStartTimeGte_shouldReturnResult() {
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-      OffsetDateTime now = OffsetDateTime.now();
+  @Test
+  public void testJobExecutionFilterSpec_filerByStartTimeGte_shouldReturnResult() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+    OffsetDateTime now = OffsetDateTime.now();
 
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2));
-      DataJobExecution expectedJobExecution1 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1));
-      DataJobExecution expectedJobExecution2 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-1",
+        actualDataJob,
+        ExecutionStatus.CANCELLED,
+        now.minusMinutes(2));
+    DataJobExecution expectedJobExecution1 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-2",
+            actualDataJob,
+            ExecutionStatus.RUNNING,
+            now.minusMinutes(1));
+    DataJobExecution expectedJobExecution2 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-3",
+            actualDataJob,
+            ExecutionStatus.SUBMITTED,
+            now.minusMinutes(1));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-4",
+        actualDataJob,
+        ExecutionStatus.PLATFORM_ERROR,
+        now.minusMinutes(2));
 
-      DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
-            .startTimeGte(now.minusMinutes(1))
-            .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
-      var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
+    DataJobExecutionFilter filter =
+        DataJobExecutionFilter.builder().startTimeGte(now.minusMinutes(1)).build();
+    JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+    var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
-      Assertions.assertNotNull(actualJobExecutions);
-      Assertions.assertEquals(2, actualJobExecutions.size());
-      Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
-      Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
-   }
+    Assertions.assertNotNull(actualJobExecutions);
+    Assertions.assertEquals(2, actualJobExecutions.size());
+    Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
+    Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
+  }
 
-   @Test
-   public void testJobExecutionFilterSpec_filerByEndTimeGte_shouldReturnResult() {
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-      OffsetDateTime now = OffsetDateTime.now();
+  @Test
+  public void testJobExecutionFilterSpec_filerByEndTimeGte_shouldReturnResult() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+    OffsetDateTime now = OffsetDateTime.now();
 
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
-      DataJobExecution expectedJobExecution1 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
-      DataJobExecution expectedJobExecution2 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2), now.minusMinutes(2));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-1",
+        actualDataJob,
+        ExecutionStatus.CANCELLED,
+        now.minusMinutes(2),
+        now.minusMinutes(2));
+    DataJobExecution expectedJobExecution1 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-2",
+            actualDataJob,
+            ExecutionStatus.RUNNING,
+            now.minusMinutes(1),
+            now.minusMinutes(1));
+    DataJobExecution expectedJobExecution2 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-3",
+            actualDataJob,
+            ExecutionStatus.SUBMITTED,
+            now.minusMinutes(1),
+            now.minusMinutes(1));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-4",
+        actualDataJob,
+        ExecutionStatus.PLATFORM_ERROR,
+        now.minusMinutes(2),
+        now.minusMinutes(2));
 
-      DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
-            .endTimeGte(now.minusMinutes(1))
-            .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
-      var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
+    DataJobExecutionFilter filter =
+        DataJobExecutionFilter.builder().endTimeGte(now.minusMinutes(1)).build();
+    JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+    var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
-      Assertions.assertNotNull(actualJobExecutions);
-      Assertions.assertEquals(2, actualJobExecutions.size());
-      Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
-      Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
-   }
+    Assertions.assertNotNull(actualJobExecutions);
+    Assertions.assertEquals(2, actualJobExecutions.size());
+    Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
+    Assertions.assertEquals(expectedJobExecution2, actualJobExecutions.get(1));
+  }
 
-   @Test
-   public void testJobExecutionFilterSpec_filerByAllFields_shouldReturnResult() {
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-      OffsetDateTime now = OffsetDateTime.now();
+  @Test
+  public void testJobExecutionFilterSpec_filerByAllFields_shouldReturnResult() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+    OffsetDateTime now = OffsetDateTime.now();
 
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED, now.minusMinutes(2), now.minusMinutes(2));
-      DataJobExecution expectedJobExecution1 =
-            RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-3", actualDataJob, ExecutionStatus.SUBMITTED, now.minusMinutes(1), now.minusMinutes(1));
-      RepositoryUtil.createDataJobExecution(jobExecutionRepository, "test-execution-id-4", actualDataJob, ExecutionStatus.PLATFORM_ERROR, now.minusMinutes(2), now.minusMinutes(2));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-1",
+        actualDataJob,
+        ExecutionStatus.CANCELLED,
+        now.minusMinutes(2),
+        now.minusMinutes(2));
+    DataJobExecution expectedJobExecution1 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-2",
+            actualDataJob,
+            ExecutionStatus.RUNNING,
+            now.minusMinutes(1),
+            now.minusMinutes(1));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-3",
+        actualDataJob,
+        ExecutionStatus.SUBMITTED,
+        now.minusMinutes(1),
+        now.minusMinutes(1));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "test-execution-id-4",
+        actualDataJob,
+        ExecutionStatus.PLATFORM_ERROR,
+        now.minusMinutes(2),
+        now.minusMinutes(2));
 
-      DataJobExecutionFilter filter = DataJobExecutionFilter.builder()
+    DataJobExecutionFilter filter =
+        DataJobExecutionFilter.builder()
             .startTimeGte(now.minusMinutes(1))
             .endTimeGte(now.minusMinutes(1))
             .statusIn(List.of(ExecutionStatus.RUNNING))
             .build();
-      JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
-      var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
+    JobExecutionFilterSpec jobExecutionFilterSpec = new JobExecutionFilterSpec(filter);
+    var actualJobExecutions = jobExecutionRepository.findAll(jobExecutionFilterSpec);
 
-      Assertions.assertNotNull(actualJobExecutions);
-      Assertions.assertEquals(1, actualJobExecutions.size());
-      Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
-   }
+    Assertions.assertNotNull(actualJobExecutions);
+    Assertions.assertEquals(1, actualJobExecutions.size());
+    Assertions.assertEquals(expectedJobExecution1, actualJobExecutions.get(0));
+  }
 }

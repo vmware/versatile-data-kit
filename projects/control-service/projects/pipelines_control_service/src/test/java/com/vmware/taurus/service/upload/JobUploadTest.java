@@ -44,236 +44,242 @@ import java.util.Optional;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobUploadTest {
 
-    File remoteRepositoryDir;
-    private Git remoteGit;
+  File remoteRepositoryDir;
+  private Git remoteGit;
 
-    @Mock
-    private GitCredentialsProvider gitCredentialsProvider;
+  @Mock private GitCredentialsProvider gitCredentialsProvider;
 
-    private GitWrapper gitWrapper;
+  private GitWrapper gitWrapper;
 
-    @Mock
-    private FeatureFlags featureFlags;
+  @Mock private FeatureFlags featureFlags;
 
-    @Mock
-    private AuthorizationProvider authorizationProvider;
+  @Mock private AuthorizationProvider authorizationProvider;
 
-    private JobUpload jobUpload;
+  private JobUpload jobUpload;
 
-    @Value("${datajobs.git.branch}")
-    public String gitDataJobsBranch;
+  @Value("${datajobs.git.branch}")
+  public String gitDataJobsBranch;
 
-    @Value("${datajobs.git.remote}")
-    public String gitDataJobsRemote;
+  @Value("${datajobs.git.remote}")
+  public String gitDataJobsRemote;
 
-    @BeforeEach
-    public void setup() throws GitAPIException, IOException {
-        remoteRepositoryDir = Files.createTempDirectory("remote_repo").toFile();
-        remoteGit = Git.init().setDirectory(remoteRepositoryDir).call();
-        gitWrapper = new GitWrapper("file://" + remoteRepositoryDir.getAbsolutePath(), gitDataJobsBranch, gitDataJobsRemote, true);
+  @BeforeEach
+  public void setup() throws GitAPIException, IOException {
+    remoteRepositoryDir = Files.createTempDirectory("remote_repo").toFile();
+    remoteGit = Git.init().setDirectory(remoteRepositoryDir).call();
+    gitWrapper =
+        new GitWrapper(
+            "file://" + remoteRepositoryDir.getAbsolutePath(),
+            gitDataJobsBranch,
+            gitDataJobsRemote,
+            true);
 
-        jobUpload = new JobUpload(gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
-    }
+    jobUpload =
+        new JobUpload(gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
+  }
 
-    @AfterEach
-    public void cleanup() {
-        remoteRepositoryDir.delete();
-    }
+  @AfterEach
+  public void cleanup() {
+    remoteRepositoryDir.delete();
+  }
 
-    @Test
-    public void testPushNoAuthentication() throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(false);
+  @Test
+  public void testPushNoAuthentication() throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(false);
 
-        Resource jobResource = new ClassPathResource("/file_test/test_job.zip");
+    Resource jobResource = new ClassPathResource("/file_test/test_job.zip");
 
-        jobUpload.publishDataJob("example", jobResource, "example-reason");
+    jobUpload.publishDataJob("example", jobResource, "example-reason");
 
-        refreshRemoteGitDirectoryWithLatestChanges();
-        Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").isDirectory());
-    }
+    refreshRemoteGitDirectoryWithLatestChanges();
+    Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").isDirectory());
+  }
 
-    @Test
-    public void testPushAuthentication() throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+  @Test
+  public void testPushAuthentication() throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-        Resource jobResource = new ClassPathResource("/file_test/test_job.zip");
+    Resource jobResource = new ClassPathResource("/file_test/test_job.zip");
 
-        jobUpload.publishDataJob("example", jobResource, "example-reason");
+    jobUpload.publishDataJob("example", jobResource, "example-reason");
 
-        refreshRemoteGitDirectoryWithLatestChanges();
-        Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").isDirectory());
+    refreshRemoteGitDirectoryWithLatestChanges();
+    Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").isDirectory());
 
-        var commits = Iterables.toArray(remoteGit.log().call(), RevCommit.class);
-        Assertions.assertEquals(1, commits.length);
-        Assertions.assertEquals("user", commits[0].getAuthorIdent().getName());
-    }
+    var commits = Iterables.toArray(remoteGit.log().call(), RevCommit.class);
+    Assertions.assertEquals(1, commits.length);
+    Assertions.assertEquals("user", commits[0].getAuthorIdent().getName());
+  }
 
-    private void refreshRemoteGitDirectoryWithLatestChanges() throws GitAPIException {
-        remoteGit.reset().setMode(ResetCommand.ResetType.HARD).call();
-    }
+  private void refreshRemoteGitDirectoryWithLatestChanges() throws GitAPIException {
+    remoteGit.reset().setMode(ResetCommand.ResetType.HARD).call();
+  }
 
-    @Test
-    public void testWithSecondUploadNoChanges(@TempDir Path tempDir) throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+  @Test
+  public void testWithSecondUploadNoChanges(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-        File jobDir = mkdir(tempDir.toFile(), "job_dir");
-        writeToFile(jobDir, "file.txt", "11");
+    File jobDir = mkdir(tempDir.toFile(), "job_dir");
+    writeToFile(jobDir, "file.txt", "11");
 
-        File zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "some.zip"));
-        String firstUploadVersion = jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
-        // put unrelated commit between the two updates to verify commit return is of original job
-        jobUpload.publishDataJob("other-unrelated-job", new FileSystemResource(zipFile), "commit unrelated");
-        String secondUploadVersion = jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 2");
-        // second version should be same as first as no changes are present in the job content
-        Assertions.assertEquals(firstUploadVersion, secondUploadVersion);
-    }
-
-    @Test
-    public void testWithEmptyJobDirectory(@TempDir Path tempDir) throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
-
-        File jobDir = mkdir(tempDir.toFile(), "job_dir");
-        File jobFile = writeToFile(jobDir, "file.txt", "11");
-
-        File zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "not_empty.zip"));
+    File zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "some.zip"));
+    String firstUploadVersion =
         jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
+    // put unrelated commit between the two updates to verify commit return is of original job
+    jobUpload.publishDataJob(
+        "other-unrelated-job", new FileSystemResource(zipFile), "commit unrelated");
+    String secondUploadVersion =
+        jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 2");
+    // second version should be same as first as no changes are present in the job content
+    Assertions.assertEquals(firstUploadVersion, secondUploadVersion);
+  }
 
-        jobFile.delete();
-        zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "empty.zip"));
-        jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
+  @Test
+  public void testWithEmptyJobDirectory(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-        Assertions.assertFalse(new File(remoteRepositoryDir, "job-name").exists());
-    }
+    File jobDir = mkdir(tempDir.toFile(), "job_dir");
+    File jobFile = writeToFile(jobDir, "file.txt", "11");
 
-    /**
-     * If zip is
-     * foo/job-name/file.txt
-     * foo/job-name/nested_dir/file2.txt
-     * then data job dir uploaded will look like
-     * job-name/job-name/file.txt
-     * job-name/job-name/nested_dir/file2.txt
-     */
-    @Test
-    public void testWithRootFolderNameInZip(@TempDir Path tempDir) throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+    File zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "not_empty.zip"));
+    jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
 
-        File parentDir = mkdir(tempDir.toFile(), "foo");
-        File jobDir = mkdir(parentDir, "job-name");
-        writeToFile(jobDir, "file.txt", "11");
+    jobFile.delete();
+    zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "empty.zip"));
+    jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
 
-        File zipFile = createZipFromDirWithRootFolderNameInZip(jobDir, new File(tempDir.toFile(), "whatever.zip"));
-        jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
+    Assertions.assertFalse(new File(remoteRepositoryDir, "job-name").exists());
+  }
 
-        refreshRemoteGitDirectoryWithLatestChanges();
-        TestIOUtils.compareDirectories(parentDir, new File(remoteRepositoryDir, "job-name"));
-    }
+  /**
+   * If zip is foo/job-name/file.txt foo/job-name/nested_dir/file2.txt then data job dir uploaded
+   * will look like job-name/job-name/file.txt job-name/job-name/nested_dir/file2.txt
+   */
+  @Test
+  public void testWithRootFolderNameInZip(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-    @Test
-    public void testPushMultipleCommits(@TempDir Path tempDir) throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+    File parentDir = mkdir(tempDir.toFile(), "foo");
+    File jobDir = mkdir(parentDir, "job-name");
+    writeToFile(jobDir, "file.txt", "11");
 
-        File jobDir = mkdir(tempDir.toFile(), "data-jobs-example");
-        File nestedDir = mkdir(jobDir, "nested_dir");
+    File zipFile =
+        createZipFromDirWithRootFolderNameInZip(jobDir, new File(tempDir.toFile(), "whatever.zip"));
+    jobUpload.publishDataJob("job-name", new FileSystemResource(zipFile), "commit 1");
 
-        File nestedDirFile = writeToFile(nestedDir, "file_nested_dir.txt", "11");
-        File nestedDirFileToDelete = writeToFile(nestedDir, "file_nested_dir_delete.txt", "11");
-        File fileToRemain = writeToFile(jobDir, "file_to_remain.txt", "11");
-        File fileToDelete = writeToFile(jobDir, "file_to_delete.txt", "11");
-        File fileToChange = writeToFile(jobDir, "file_to_change.txt", "11");
+    refreshRemoteGitDirectoryWithLatestChanges();
+    TestIOUtils.compareDirectories(parentDir, new File(remoteRepositoryDir, "job-name"));
+  }
 
-        File zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "example.zip"));
-        jobUpload.publishDataJob("example", new FileSystemResource(zipFile), "commit 1");
+  @Test
+  public void testPushMultipleCommits(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-        refreshRemoteGitDirectoryWithLatestChanges();
-        TestIOUtils.compareDirectories(jobDir, new File(remoteRepositoryDir, "example"));
+    File jobDir = mkdir(tempDir.toFile(), "data-jobs-example");
+    File nestedDir = mkdir(jobDir, "nested_dir");
 
-        nestedDirFileToDelete.delete();
-        fileToDelete.delete();
-        writeToFile(jobDir, fileToChange.getName(), "22");
+    File nestedDirFile = writeToFile(nestedDir, "file_nested_dir.txt", "11");
+    File nestedDirFileToDelete = writeToFile(nestedDir, "file_nested_dir_delete.txt", "11");
+    File fileToRemain = writeToFile(jobDir, "file_to_remain.txt", "11");
+    File fileToDelete = writeToFile(jobDir, "file_to_delete.txt", "11");
+    File fileToChange = writeToFile(jobDir, "file_to_change.txt", "11");
 
-        zipFile.delete();
-        zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "example.zip"));
-        String jobCommit = jobUpload.publishDataJob("example", new FileSystemResource(zipFile), "commit 2");
+    File zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "example.zip"));
+    jobUpload.publishDataJob("example", new FileSystemResource(zipFile), "commit 1");
 
-        refreshRemoteGitDirectoryWithLatestChanges();
-        Assertions.assertEquals(remoteGit.log().call().iterator().next().getName(), jobCommit);
-        TestIOUtils.compareDirectories(jobDir, new File(remoteRepositoryDir, "example"));
-    }
+    refreshRemoteGitDirectoryWithLatestChanges();
+    TestIOUtils.compareDirectories(jobDir, new File(remoteRepositoryDir, "example"));
 
-    @Test
-    public void testDeleteDataJob(@TempDir Path tempDir) throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    nestedDirFileToDelete.delete();
+    fileToDelete.delete();
+    writeToFile(jobDir, fileToChange.getName(), "22");
 
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+    zipFile.delete();
+    zipFile = createZipFromDir(jobDir, new File(tempDir.toFile(), "example.zip"));
+    String jobCommit =
+        jobUpload.publishDataJob("example", new FileSystemResource(zipFile), "commit 2");
 
-        Resource jobResource = new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
+    refreshRemoteGitDirectoryWithLatestChanges();
+    Assertions.assertEquals(remoteGit.log().call().iterator().next().getName(), jobCommit);
+    TestIOUtils.compareDirectories(jobDir, new File(remoteRepositoryDir, "example"));
+  }
 
-        jobUpload.publishDataJob("example", jobResource, "example-reason");
+  @Test
+  public void testDeleteDataJob(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 
-        refreshRemoteGitDirectoryWithLatestChanges();
-        Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").exists());
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-        jobUpload.deleteDataJob("example", "example-reason");
-        refreshRemoteGitDirectoryWithLatestChanges();
+    Resource jobResource =
+        new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
 
-        var commits = Iterables.toArray(remoteGit.log().call(), RevCommit.class);
-        Assertions.assertEquals(2, commits.length);
-        Assertions.assertEquals("user", commits[0].getAuthorIdent().getName());
-        Assertions.assertFalse(new File(this.remoteRepositoryDir, "example").exists());
-    }
+    jobUpload.publishDataJob("example", jobResource, "example-reason");
 
+    refreshRemoteGitDirectoryWithLatestChanges();
+    Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").exists());
 
-    @Test
-    public void testGetDataJob(@TempDir Path tempDir) throws Exception {
-        Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-        Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+    jobUpload.deleteDataJob("example", "example-reason");
+    refreshRemoteGitDirectoryWithLatestChanges();
 
-        Resource jobResource = new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
-        jobUpload.publishDataJob("example", jobResource, "example-reason");
-        refreshRemoteGitDirectoryWithLatestChanges();
+    var commits = Iterables.toArray(remoteGit.log().call(), RevCommit.class);
+    Assertions.assertEquals(2, commits.length);
+    Assertions.assertEquals("user", commits[0].getAuthorIdent().getName());
+    Assertions.assertFalse(new File(this.remoteRepositoryDir, "example").exists());
+  }
 
-        Optional<Resource> zippedDataJob = jobUpload.getDataJob("example");
+  @Test
+  public void testGetDataJob(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
-        Assertions.assertTrue(zippedDataJob.isPresent());
-        Assertions.assertTrue(zippedDataJob.get().exists());
+    Resource jobResource =
+        new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
+    jobUpload.publishDataJob("example", jobResource, "example-reason");
+    refreshRemoteGitDirectoryWithLatestChanges();
 
-        byte[] zippedDataJobBytes = zippedDataJob.get().getInputStream().readAllBytes();
-        Assertions.assertTrue(zippedDataJobBytes.length > 0);
-        // check that valid zip is expected - first 4 chars of every zip match those
-        byte[] zipSignature = {0x50, 0x4b, 0x03, 0x04};
-        Assertions.assertArrayEquals(zipSignature, Arrays.copyOfRange(zippedDataJobBytes, 0, 4));
-    }
+    Optional<Resource> zippedDataJob = jobUpload.getDataJob("example");
 
-    private File createZipFromDir(File directory, File zipFile) throws ZipException {
-        ZipFile zip = new ZipFile(zipFile);
-        zip.createSplitZipFileFromFolder(directory, new ZipParameters(), false, 0);
-        return zipFile;
-    }
+    Assertions.assertTrue(zippedDataJob.isPresent());
+    Assertions.assertTrue(zippedDataJob.get().exists());
 
+    byte[] zippedDataJobBytes = zippedDataJob.get().getInputStream().readAllBytes();
+    Assertions.assertTrue(zippedDataJobBytes.length > 0);
+    // check that valid zip is expected - first 4 chars of every zip match those
+    byte[] zipSignature = {0x50, 0x4b, 0x03, 0x04};
+    Assertions.assertArrayEquals(zipSignature, Arrays.copyOfRange(zippedDataJobBytes, 0, 4));
+  }
 
-    private File createZipFromDirWithRootFolderNameInZip(File directory, File zipFile) throws ZipException {
-        ZipFile zip = new ZipFile(zipFile);
-        ZipParameters params = new ZipParameters();
-        params.setRootFolderNameInZip("foo");
-        zip.createSplitZipFileFromFolder(directory, params, false, 0);
-        return zipFile;
-    }
+  private File createZipFromDir(File directory, File zipFile) throws ZipException {
+    ZipFile zip = new ZipFile(zipFile);
+    zip.createSplitZipFileFromFolder(directory, new ZipParameters(), false, 0);
+    return zipFile;
+  }
 
-    private static File writeToFile(File directory, String fileName, String content) throws IOException {
-        FileUtils.writeStringToFile(new File(directory, fileName), content, Charset.defaultCharset());
-        return new File(directory, fileName);
-    }
+  private File createZipFromDirWithRootFolderNameInZip(File directory, File zipFile)
+      throws ZipException {
+    ZipFile zip = new ZipFile(zipFile);
+    ZipParameters params = new ZipParameters();
+    params.setRootFolderNameInZip("foo");
+    zip.createSplitZipFileFromFolder(directory, params, false, 0);
+    return zipFile;
+  }
 
-    //@NotNull
-    private static File mkdir(File file, String dirName) {
-        File dir = new File(file, dirName);
-        dir.mkdir();
-        return dir;
-    }
+  private static File writeToFile(File directory, String fileName, String content)
+      throws IOException {
+    FileUtils.writeStringToFile(new File(directory, fileName), content, Charset.defaultCharset());
+    return new File(directory, fileName);
+  }
+
+  // @NotNull
+  private static File mkdir(File file, String dirName) {
+    File dir = new File(file, dirName);
+    dir.mkdir();
+    return dir;
+  }
 }

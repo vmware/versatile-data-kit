@@ -15,23 +15,22 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 public class DataJobExecutionFilter {
 
-   public static final String START_TIME_GTE_FIELD = "startTimeGte";
-   public static final String END_TIME_GTE_FIELD = "endTimeGte";
-   public static final String STATUS_IN_FIELD = "statusIn";
-   public static final String JOB_NAME_IN_FIELD = "jobNameIn";
-   public static final String START_TIME_LTE_FIELD = "startTimeLte";
-   public static final String END_TIME_LTE_FIELD = "endTimeLte";
-   public static final String TEAM_NAME_IN_FIELD = "teamNameIn";
+  public static final String START_TIME_GTE_FIELD = "startTimeGte";
+  public static final String END_TIME_GTE_FIELD = "endTimeGte";
+  public static final String STATUS_IN_FIELD = "statusIn";
+  public static final String JOB_NAME_IN_FIELD = "jobNameIn";
+  public static final String START_TIME_LTE_FIELD = "startTimeLte";
+  public static final String END_TIME_LTE_FIELD = "endTimeLte";
+  public static final String TEAM_NAME_IN_FIELD = "teamNameIn";
 
-   private OffsetDateTime startTimeGte;
-   private OffsetDateTime endTimeGte;
-   private List<ExecutionStatus> statusIn;
-   private List<String> jobNameIn;
-   private List<String> teamNameIn;
-   private OffsetDateTime startTimeLte;
-   private OffsetDateTime endTimeLte;
-
+  private OffsetDateTime startTimeGte;
+  private OffsetDateTime endTimeGte;
+  private List<ExecutionStatus> statusIn;
+  private List<String> jobNameIn;
+  private List<String> teamNameIn;
+  private OffsetDateTime startTimeLte;
+  private OffsetDateTime endTimeLte;
 }

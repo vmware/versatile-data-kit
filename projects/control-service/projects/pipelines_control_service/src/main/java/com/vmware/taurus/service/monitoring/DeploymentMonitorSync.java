@@ -22,44 +22,44 @@ import java.util.Iterator;
 @EnableAsync
 public class DeploymentMonitorSync {
 
-   static Logger log = LoggerFactory.getLogger(DeploymentMonitorSync.class);
+  static Logger log = LoggerFactory.getLogger(DeploymentMonitorSync.class);
 
-   @Autowired
-   private final DeploymentMonitor deploymentMonitor;
+  @Autowired private final DeploymentMonitor deploymentMonitor;
 
-   @Autowired
-   private final JobsRepository jobsRepository;
+  @Autowired private final JobsRepository jobsRepository;
 
-   @Autowired
-   public DeploymentMonitorSync(DeploymentMonitor deploymentMonitor, JobsRepository jobsRepository) {
-      this.deploymentMonitor = deploymentMonitor;
-      this.jobsRepository = jobsRepository;
-   }
+  @Autowired
+  public DeploymentMonitorSync(DeploymentMonitor deploymentMonitor, JobsRepository jobsRepository) {
+    this.deploymentMonitor = deploymentMonitor;
+    this.jobsRepository = jobsRepository;
+  }
 
-   @Async
-   @Scheduled(fixedDelayString = "${datajobs.monitoring.sync.interval}", initialDelayString = "${datajobs.monitoring.sync.initial.delay}")
-   public void updateJobDeploymentStatuses() {
-      // TODO: Potentially we can create custom query if this is not optimal.
-      Iterator<DataJob> dataJobs = jobsRepository.findAll().iterator();
+  @Async
+  @Scheduled(
+      fixedDelayString = "${datajobs.monitoring.sync.interval}",
+      initialDelayString = "${datajobs.monitoring.sync.initial.delay}")
+  public void updateJobDeploymentStatuses() {
+    // TODO: Potentially we can create custom query if this is not optimal.
+    Iterator<DataJob> dataJobs = jobsRepository.findAll().iterator();
 
-      if (!dataJobs.hasNext()) {
-         log.debug("There are no data jobs");
-      } else {
-         while (dataJobs.hasNext()) {
-            DataJob dataJob = dataJobs.next();
-            var status = dataJob.getLatestJobDeploymentStatus();
-            if (status != null) {
-               if (!status.equals(DeploymentStatus.NONE)) {
-                  String jobName = dataJob.getName();
-                  DeploymentStatus latestDeploymentStatus = dataJob.getLatestJobDeploymentStatus();
-                  deploymentMonitor.updateDataJobStatus(jobName, latestDeploymentStatus);
-               } else {
-                  log.trace("Data job: {} has no deployment process started yet", dataJob.getName());
-               }
-            } else {
-               log.debug("Data job: {} has no status", dataJob.getName());
-            }
-         }
+    if (!dataJobs.hasNext()) {
+      log.debug("There are no data jobs");
+    } else {
+      while (dataJobs.hasNext()) {
+        DataJob dataJob = dataJobs.next();
+        var status = dataJob.getLatestJobDeploymentStatus();
+        if (status != null) {
+          if (!status.equals(DeploymentStatus.NONE)) {
+            String jobName = dataJob.getName();
+            DeploymentStatus latestDeploymentStatus = dataJob.getLatestJobDeploymentStatus();
+            deploymentMonitor.updateDataJobStatus(jobName, latestDeploymentStatus);
+          } else {
+            log.trace("Data job: {} has no deployment process started yet", dataJob.getName());
+          }
+        } else {
+          log.debug("Data job: {} has no status", dataJob.getName());
+        }
       }
-   }
+    }
+  }
 }

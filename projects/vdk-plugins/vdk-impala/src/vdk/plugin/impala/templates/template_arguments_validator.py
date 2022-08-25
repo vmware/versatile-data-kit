@@ -46,9 +46,13 @@ class TemplateArgumentsValidator:
         )
         source_view_has_results = raw_source_view_has_results[0][0]
         if not source_view_has_results:
-            log.info("Source view returns no results. Will NOT execute template!")
-            raise Exception(
-                "Source view returns no results. Will NOT execute template!"
+            errors.log_and_throw(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                "Source view returned no results.",
+                "Likely the source table is empty or non existent.",
+                "Will not execute template.",
+                "Make sure the source view returns results and re-execute the template.",
             )
         return args
 

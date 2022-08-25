@@ -34,244 +34,250 @@ import static org.mockito.Mockito.mock;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class AuthorizationProviderTest {
 
-    @Mock
-    private JobsRepository repository;
+  @Mock private JobsRepository repository;
 
-    @InjectMocks
-    private AuthorizationProvider provider;
+  @InjectMocks private AuthorizationProvider provider;
 
-    @BeforeEach
-    public void setUp() {
-        ReflectionTestUtils.setField(provider, "usernameField", "username");
-        JobConfig config = new JobConfig();
-        config.setTeam("job-repo-example-team");
-        DataJob job = new DataJob("job-repo-example", config, DeploymentStatus.NONE);
-        Mockito.when(repository.findById(anyString())).thenReturn(java.util.Optional.of(job));
-        MockitoAnnotations.initMocks(this);
-    }
+  @BeforeEach
+  public void setUp() {
+    ReflectionTestUtils.setField(provider, "usernameField", "username");
+    JobConfig config = new JobConfig();
+    config.setTeam("job-repo-example-team");
+    DataJob job = new DataJob("job-repo-example", config, DeploymentStatus.NONE);
+    Mockito.when(repository.findById(anyString())).thenReturn(java.util.Optional.of(job));
+    MockitoAnnotations.initMocks(this);
+  }
 
-    @Test
-    public void testParsePropertyFromURI() {
-        var provider = new AuthorizationProvider(repository);
-        String createJob = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs", 5);
-        String createJobSlash = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/", 5);
-        String jobNameService = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/example", 5);
-        String jobNameDeploy = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/example/deployments", 5);
-        String jobNameServiceSlash = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/example/", 5);
+  @Test
+  public void testParsePropertyFromURI() {
+    var provider = new AuthorizationProvider(repository);
+    String createJob =
+        provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs", 5);
+    String createJobSlash =
+        provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs/", 5);
+    String jobNameService =
+        provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs/example", 5);
+    String jobNameDeploy =
+        provider.parsePropertyFromURI(
+            "", "/data-jobs/for-team/example-team/jobs/example/deployments", 5);
+    String jobNameServiceSlash =
+        provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs/example/", 5);
 
-        String newTeamName = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/example/team/new-example-team", 7);
-        String newTeamNameSlash = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/example/team/new-example-team/", 7);
-        String newTeamNameMissing = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs", 7);
+    String newTeamName =
+        provider.parsePropertyFromURI(
+            "", "/data-jobs/for-team/example-team/jobs/example/team/new-example-team", 7);
+    String newTeamNameSlash =
+        provider.parsePropertyFromURI(
+            "", "/data-jobs/for-team/example-team/jobs/example/team/new-example-team/", 7);
+    String newTeamNameMissing =
+        provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs", 7);
 
-        String teamName = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs", 3);
-        String teamNameSlash = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/example-team/jobs/", 3);
-        String teamNameMissing = provider.parsePropertyFromURI("",
-                "/data-jobs/for-team/", 3);
+    String teamName = provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs", 3);
+    String teamNameSlash =
+        provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs/", 3);
+    String teamNameMissing = provider.parsePropertyFromURI("", "/data-jobs/for-team/", 3);
 
-        Assertions.assertEquals("", createJob);
-        Assertions.assertEquals("", createJobSlash);
-        Assertions.assertEquals("example", jobNameService);
-        Assertions.assertEquals("example", jobNameDeploy);
-        Assertions.assertEquals("example", jobNameServiceSlash);
+    Assertions.assertEquals("", createJob);
+    Assertions.assertEquals("", createJobSlash);
+    Assertions.assertEquals("example", jobNameService);
+    Assertions.assertEquals("example", jobNameDeploy);
+    Assertions.assertEquals("example", jobNameServiceSlash);
 
-        Assertions.assertEquals("new-example-team", newTeamName);
-        Assertions.assertEquals("new-example-team", newTeamNameSlash);
-        Assertions.assertEquals("", newTeamNameMissing);
+    Assertions.assertEquals("new-example-team", newTeamName);
+    Assertions.assertEquals("new-example-team", newTeamNameSlash);
+    Assertions.assertEquals("", newTeamNameMissing);
 
-        Assertions.assertEquals("example-team",teamName);
-        Assertions.assertEquals("example-team",teamNameSlash);
-        Assertions.assertEquals("", teamNameMissing);
-    }
+    Assertions.assertEquals("example-team", teamName);
+    Assertions.assertEquals("example-team", teamNameSlash);
+    Assertions.assertEquals("", teamNameMissing);
+  }
 
-    @Test
-    public void testParseJobNameFromURIContext() {
-        var provider = new AuthorizationProvider(repository);
-        String createJob = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs", 5);
-        String createJobSlash = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/", 5);
-        String jobNameService = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/example", 5);
-        String jobNameDeploy = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/example/deployments", 5);
-        String jobNameServiceSlash = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/example/", 5);
+  @Test
+  public void testParseJobNameFromURIContext() {
+    var provider = new AuthorizationProvider(repository);
+    String createJob =
+        provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/example-team/jobs", 5);
+    String createJobSlash =
+        provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/example-team/jobs/", 5);
+    String jobNameService =
+        provider.parsePropertyFromURI(
+            "/api/v1", "/data-jobs/for-team/example-team/jobs/example", 5);
+    String jobNameDeploy =
+        provider.parsePropertyFromURI(
+            "/api/v1", "/data-jobs/for-team/example-team/jobs/example/deployments", 5);
+    String jobNameServiceSlash =
+        provider.parsePropertyFromURI(
+            "/api/v1", "/data-jobs/for-team/example-team/jobs/example/", 5);
 
-        String newTeamName = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/example/team/new-example-team", 7);
-        String newTeamNameSlash = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/example/team/new-example-team/", 7);
-        String newTeamNameMissing = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs", 7);
+    String newTeamName =
+        provider.parsePropertyFromURI(
+            "/api/v1", "/data-jobs/for-team/example-team/jobs/example/team/new-example-team", 7);
+    String newTeamNameSlash =
+        provider.parsePropertyFromURI(
+            "/api/v1", "/data-jobs/for-team/example-team/jobs/example/team/new-example-team/", 7);
+    String newTeamNameMissing =
+        provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/example-team/jobs", 7);
 
-        String teamName = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs", 3);
-        String teamNameSlash = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/example-team/jobs/", 3);
-        String teamNameMissing = provider.parsePropertyFromURI("/api/v1",
-                "/data-jobs/for-team/", 3);
+    String teamName =
+        provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/example-team/jobs", 3);
+    String teamNameSlash =
+        provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/example-team/jobs/", 3);
+    String teamNameMissing = provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/", 3);
 
-        Assertions.assertEquals("", createJob);
-        Assertions.assertEquals("", createJobSlash);
-        Assertions.assertEquals("example", jobNameService);
-        Assertions.assertEquals("example", jobNameDeploy);
-        Assertions.assertEquals("example", jobNameServiceSlash);
+    Assertions.assertEquals("", createJob);
+    Assertions.assertEquals("", createJobSlash);
+    Assertions.assertEquals("example", jobNameService);
+    Assertions.assertEquals("example", jobNameDeploy);
+    Assertions.assertEquals("example", jobNameServiceSlash);
 
-        Assertions.assertEquals("new-example-team", newTeamName);
-        Assertions.assertEquals("new-example-team", newTeamNameSlash);
-        Assertions.assertEquals("", newTeamNameMissing);
+    Assertions.assertEquals("new-example-team", newTeamName);
+    Assertions.assertEquals("new-example-team", newTeamNameSlash);
+    Assertions.assertEquals("", newTeamNameMissing);
 
-        Assertions.assertEquals("example-team",teamName);
-        Assertions.assertEquals("example-team",teamNameSlash);
-        Assertions.assertEquals("", teamNameMissing);
-    }
+    Assertions.assertEquals("example-team", teamName);
+    Assertions.assertEquals("example-team", teamNameSlash);
+    Assertions.assertEquals("", teamNameMissing);
+  }
 
-    @Test
-    public void testJobCreateWithParameters() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
-        Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
-        Mockito.when(request.getMethod()).thenReturn("post");
-        Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example-team/jobs");
-        Mockito.when(request.getParameter("name")).thenReturn("example");
+  @Test
+  public void testJobCreateWithParameters() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+    Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
+    Mockito.when(request.getMethod()).thenReturn("post");
+    Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example-team/jobs");
+    Mockito.when(request.getParameter("name")).thenReturn("example");
 
-        AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
-        AuthorizationBody expectedBody = new AuthorizationBody();
-        expectedBody.setRequestedResourceName("data-job");
-        expectedBody.setRequestedResourceTeam("example-team");
-        expectedBody.setRequesterUserId("auserov");
-        expectedBody.setRequestedResourceId("example");
-        expectedBody.setRequestedPermission("write");
-        expectedBody.setRequestedHttpPath("/data-jobs/for-team/example-team/jobs");
-        expectedBody.setRequestedHttpVerb("POST");
-        expectedBody.setRequestedResourceNewTeam("example-team");
+    AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
+    AuthorizationBody expectedBody = new AuthorizationBody();
+    expectedBody.setRequestedResourceName("data-job");
+    expectedBody.setRequestedResourceTeam("example-team");
+    expectedBody.setRequesterUserId("auserov");
+    expectedBody.setRequestedResourceId("example");
+    expectedBody.setRequestedPermission("write");
+    expectedBody.setRequestedHttpPath("/data-jobs/for-team/example-team/jobs");
+    expectedBody.setRequestedHttpVerb("POST");
+    expectedBody.setRequestedResourceNewTeam("example-team");
 
-        Assertions.assertEquals(actualBody, expectedBody);
-    }
+    Assertions.assertEquals(actualBody, expectedBody);
+  }
 
-    @Test
-    public void testJobCreateWithoutParameters() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
-        Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
-        Mockito.when(request.getMethod()).thenReturn("post");
-        Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example-team/jobs");
+  @Test
+  public void testJobCreateWithoutParameters() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+    Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
+    Mockito.when(request.getMethod()).thenReturn("post");
+    Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example-team/jobs");
 
-        AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
-        AuthorizationBody expectedBody = new AuthorizationBody();
-        expectedBody.setRequestedResourceName("data-job");
-        expectedBody.setRequestedResourceTeam("example-team");
-        expectedBody.setRequesterUserId("auserov");
-        expectedBody.setRequestedResourceId("");
-        expectedBody.setRequestedPermission("write");
-        expectedBody.setRequestedHttpPath("/data-jobs/for-team/example-team/jobs");
-        expectedBody.setRequestedHttpVerb("POST");
-        expectedBody.setRequestedResourceNewTeam("example-team");
+    AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
+    AuthorizationBody expectedBody = new AuthorizationBody();
+    expectedBody.setRequestedResourceName("data-job");
+    expectedBody.setRequestedResourceTeam("example-team");
+    expectedBody.setRequesterUserId("auserov");
+    expectedBody.setRequestedResourceId("");
+    expectedBody.setRequestedPermission("write");
+    expectedBody.setRequestedHttpPath("/data-jobs/for-team/example-team/jobs");
+    expectedBody.setRequestedHttpVerb("POST");
+    expectedBody.setRequestedResourceNewTeam("example-team");
 
-        Assertions.assertEquals(actualBody, expectedBody);
-    }
+    Assertions.assertEquals(actualBody, expectedBody);
+  }
 
-    @Test
-    public void testJobPut() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
-        Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
-        Mockito.when(request.getMethod()).thenReturn("put");
-        Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example-team/jobs/example/deployments");
+  @Test
+  public void testJobPut() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+    Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
+    Mockito.when(request.getMethod()).thenReturn("put");
+    Mockito.when(request.getRequestURI())
+        .thenReturn("/data-jobs/for-team/example-team/jobs/example/deployments");
 
-        AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
-        AuthorizationBody expectedBody = new AuthorizationBody();
-        expectedBody.setRequestedResourceName("data-job");
-        expectedBody.setRequestedResourceTeam("example-team");
-        expectedBody.setRequesterUserId("auserov");
-        expectedBody.setRequestedResourceId("example");
-        expectedBody.setRequestedPermission("write");
-        expectedBody.setRequestedHttpPath("/data-jobs/for-team/example-team/jobs/example/deployments");
-        expectedBody.setRequestedHttpVerb("PUT");
-        expectedBody.setRequestedResourceNewTeam("example-team");
+    AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
+    AuthorizationBody expectedBody = new AuthorizationBody();
+    expectedBody.setRequestedResourceName("data-job");
+    expectedBody.setRequestedResourceTeam("example-team");
+    expectedBody.setRequesterUserId("auserov");
+    expectedBody.setRequestedResourceId("example");
+    expectedBody.setRequestedPermission("write");
+    expectedBody.setRequestedHttpPath("/data-jobs/for-team/example-team/jobs/example/deployments");
+    expectedBody.setRequestedHttpVerb("PUT");
+    expectedBody.setRequestedResourceNewTeam("example-team");
 
-        Assertions.assertEquals(actualBody, expectedBody);
-    }
+    Assertions.assertEquals(actualBody, expectedBody);
+  }
 
-    @Test
-    public void testJobWithContextPath() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
-        Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
-        Mockito.when(request.getMethod()).thenReturn("put");
-        Mockito.when(request.getRequestURI())
-                .thenReturn("/api/v1/data-jobs/for-team/example-team/jobs/example/deployments");
-        Mockito.when(request.getContextPath()).thenReturn("/api/v1");
+  @Test
+  public void testJobWithContextPath() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+    Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
+    Mockito.when(request.getMethod()).thenReturn("put");
+    Mockito.when(request.getRequestURI())
+        .thenReturn("/api/v1/data-jobs/for-team/example-team/jobs/example/deployments");
+    Mockito.when(request.getContextPath()).thenReturn("/api/v1");
 
-        AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
-        AuthorizationBody expectedBody = new AuthorizationBody();
-        expectedBody.setRequestedResourceName("data-job");
-        expectedBody.setRequestedResourceTeam("example-team");
-        expectedBody.setRequesterUserId("auserov");
-        expectedBody.setRequestedResourceId("example");
-        expectedBody.setRequestedPermission("write");
-        expectedBody.setRequestedHttpPath("/api/v1/data-jobs/for-team/example-team/jobs/example/deployments");
-        expectedBody.setRequestedHttpVerb("PUT");
-        expectedBody.setRequestedResourceNewTeam("example-team");
+    AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
+    AuthorizationBody expectedBody = new AuthorizationBody();
+    expectedBody.setRequestedResourceName("data-job");
+    expectedBody.setRequestedResourceTeam("example-team");
+    expectedBody.setRequesterUserId("auserov");
+    expectedBody.setRequestedResourceId("example");
+    expectedBody.setRequestedPermission("write");
+    expectedBody.setRequestedHttpPath(
+        "/api/v1/data-jobs/for-team/example-team/jobs/example/deployments");
+    expectedBody.setRequestedHttpVerb("PUT");
+    expectedBody.setRequestedResourceNewTeam("example-team");
 
-        Assertions.assertEquals(actualBody, expectedBody);
-    }
+    Assertions.assertEquals(actualBody, expectedBody);
+  }
 
-    @Test
-    public void testJobTeamPutWithTeamWithSpaces() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
-        Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
-        Mockito.when(request.getMethod()).thenReturn("put");
-        // TODO: the job "example" has team "job-repo-example-team" in the db so we don't parse the job's team from the URI
-        Mockito.when(request.getRequestURI())
-                .thenReturn("/data-jobs/for-team/example+team/jobs/example/team/new+example+team");
+  @Test
+  public void testJobTeamPutWithTeamWithSpaces() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+    Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
+    Mockito.when(request.getMethod()).thenReturn("put");
+    // TODO: the job "example" has team "job-repo-example-team" in the db so we don't parse the
+    // job's team from the URI
+    Mockito.when(request.getRequestURI())
+        .thenReturn("/data-jobs/for-team/example+team/jobs/example/team/new+example+team");
 
-        AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
-        AuthorizationBody expectedBody = new AuthorizationBody();
-        expectedBody.setRequestedResourceName("data-job");
-        expectedBody.setRequestedResourceTeam("example team");
-        expectedBody.setRequesterUserId("auserov");
-        expectedBody.setRequestedResourceId("example");
-        expectedBody.setRequestedPermission("write");
-        expectedBody.setRequestedHttpPath("/data-jobs/for-team/example+team/jobs/example/team/new+example+team");
-        expectedBody.setRequestedHttpVerb("PUT");
-        expectedBody.setRequestedResourceNewTeam("new example team");
+    AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
+    AuthorizationBody expectedBody = new AuthorizationBody();
+    expectedBody.setRequestedResourceName("data-job");
+    expectedBody.setRequestedResourceTeam("example team");
+    expectedBody.setRequesterUserId("auserov");
+    expectedBody.setRequestedResourceId("example");
+    expectedBody.setRequestedPermission("write");
+    expectedBody.setRequestedHttpPath(
+        "/data-jobs/for-team/example+team/jobs/example/team/new+example+team");
+    expectedBody.setRequestedHttpVerb("PUT");
+    expectedBody.setRequestedResourceNewTeam("new example team");
 
-        Assertions.assertEquals(actualBody, expectedBody);
-    }
+    Assertions.assertEquals(actualBody, expectedBody);
+  }
 
-    @Test
-    @Deprecated
-    public void testJobGetWithTeamWithSpaces() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
-        Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
-        Mockito.when(request.getMethod()).thenReturn("get");
-        Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example%20team");
+  @Test
+  @Deprecated
+  public void testJobGetWithTeamWithSpaces() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+    Mockito.when(authentication.getTokenAttributes()).thenReturn(Map.of("username", "auserov"));
+    Mockito.when(request.getMethod()).thenReturn("get");
+    Mockito.when(request.getRequestURI()).thenReturn("/data-jobs/for-team/example%20team");
 
-        AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
-        AuthorizationBody expectedBody = new AuthorizationBody();
-        expectedBody.setRequestedResourceName("data-job");
-        expectedBody.setRequestedResourceTeam("example team");
-        expectedBody.setRequesterUserId("auserov");
-        expectedBody.setRequestedResourceId("");
-        expectedBody.setRequestedPermission("read");
-        expectedBody.setRequestedHttpPath("/data-jobs/for-team/example%20team");
-        expectedBody.setRequestedHttpVerb("GET");
-        expectedBody.setRequestedResourceNewTeam("example team");
+    AuthorizationBody actualBody = provider.createAuthorizationBody(request, authentication);
+    AuthorizationBody expectedBody = new AuthorizationBody();
+    expectedBody.setRequestedResourceName("data-job");
+    expectedBody.setRequestedResourceTeam("example team");
+    expectedBody.setRequesterUserId("auserov");
+    expectedBody.setRequestedResourceId("");
+    expectedBody.setRequestedPermission("read");
+    expectedBody.setRequestedHttpPath("/data-jobs/for-team/example%20team");
+    expectedBody.setRequestedHttpVerb("GET");
+    expectedBody.setRequestedResourceNewTeam("example team");
 
-        Assertions.assertEquals(actualBody, expectedBody);
-    }
-
+    Assertions.assertEquals(actualBody, expectedBody);
+  }
 }

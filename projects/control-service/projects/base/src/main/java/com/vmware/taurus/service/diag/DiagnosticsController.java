@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.diag;
 
-
 import com.vmware.taurus.SpringAppPropNames;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.diag.telemetry.ITelemetry;
@@ -25,39 +24,44 @@ import java.time.Instant;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = {"Data Jobs Diagnostics"}, hidden = true)
+@Api(
+    tags = {"Data Jobs Diagnostics"},
+    hidden = true)
 @ApiIgnore
 public class DiagnosticsController {
-    //${svc.url.prefix} is read from application.properties (overridden in other services, so e.g. Team service has /team/debug/servertime)
+  // ${svc.url.prefix} is read from application.properties (overridden in other services, so e.g.
+  // Team service has /team/debug/servertime)
 
-    private final ITelemetry telemetryClient;
+  private final ITelemetry telemetryClient;
 
-    @Measurable
-    @RequestMapping("/${" + SpringAppPropNames.SVC_NAME + "}/debug/servertime-millis")
-    public long timeMillis() {
-        return System.currentTimeMillis();
-    }
+  @Measurable
+  @RequestMapping("/${" + SpringAppPropNames.SVC_NAME + "}/debug/servertime-millis")
+  public long timeMillis() {
+    return System.currentTimeMillis();
+  }
 
-    @ApiOperation("Get system clock in UTC")
-    @RequestMapping(value = "/${" + SpringAppPropNames.SVC_NAME + "}/debug/servertime", method = RequestMethod.GET)
-    public Instant timeUTC() {
-        return Instant.now();
-    }
+  @ApiOperation("Get system clock in UTC")
+  @RequestMapping(
+      value = "/${" + SpringAppPropNames.SVC_NAME + "}/debug/servertime",
+      method = RequestMethod.GET)
+  public Instant timeUTC() {
+    return Instant.now();
+  }
 
-    @RequestMapping("/${" + SpringAppPropNames.SVC_NAME + "}/debug/throw")
-    public void throwException() {
-        throw new RuntimeException("Just throwing.");
-    }
+  @RequestMapping("/${" + SpringAppPropNames.SVC_NAME + "}/debug/throw")
+  public void throwException() {
+    throw new RuntimeException("Just throwing.");
+  }
 
-    @RequestMapping({"/${" + SpringAppPropNames.SVC_NAME + "}/debug/echo/{msg}"})
-    public ResponseEntity<String> echo(String msg) {
-        return new ResponseEntity<String>(msg, HttpStatus.OK);
-    }
+  @RequestMapping({"/${" + SpringAppPropNames.SVC_NAME + "}/debug/echo/{msg}"})
+  public ResponseEntity<String> echo(String msg) {
+    return new ResponseEntity<String>(msg, HttpStatus.OK);
+  }
 
-    @RequestMapping({"/${" + SpringAppPropNames.SVC_NAME + "}/debug/report/{message}"})
-    public ResponseEntity<Void> report(String msg) {
-        log.trace(msg);
-        telemetryClient.sendAsync(msg);
-        return ResponseEntity.accepted().build();
-    }
+  @RequestMapping({"/${" + SpringAppPropNames.SVC_NAME + "}/debug/report/{message}"})
+  public ResponseEntity<Void> report(String msg) {
+    log.trace(msg);
+    telemetryClient.sendAsync(msg);
+    return ResponseEntity.accepted().build();
+  }
 }

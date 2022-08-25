@@ -10,9 +10,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public enum ExecutionType {
-   MANUAL(0),
-   SCHEDULED(1);
+  MANUAL(0),
+  SCHEDULED(1);
 
-   @Getter
-   private final int value;
+  @Getter private final int value;
 }

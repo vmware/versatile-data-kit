@@ -16,7 +16,7 @@ import java.util.List;
 
 @Data
 public class ExecutionQueryVariables {
-   private int pageNumber;
-   private int pageSize;
-   private List<Filter> filters;
+  private int pageNumber;
+  private int pageSize;
+  private List<Filter> filters;
 }

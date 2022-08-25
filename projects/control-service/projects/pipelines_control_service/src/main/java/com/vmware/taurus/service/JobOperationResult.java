@@ -12,6 +12,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class JobOperationResult {
-   private boolean completed;
-   private WebHookResult webHookResult;
+  private boolean completed;
+  private WebHookResult webHookResult;
 }

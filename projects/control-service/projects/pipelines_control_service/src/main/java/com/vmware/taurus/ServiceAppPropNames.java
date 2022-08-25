@@ -6,5 +6,5 @@
 package com.vmware.taurus;
 
 public class ServiceAppPropNames {
-    public static final String CREDENTIALS_REPOSITORY_TYPE = "credentials.repository";
+  public static final String CREDENTIALS_REPOSITORY_TYPE = "credentials.repository";
 }

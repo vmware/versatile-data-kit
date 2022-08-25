@@ -21,44 +21,45 @@ import java.util.Map;
 @AllArgsConstructor
 public class GraphQLJobsQueryService {
 
-   public static final String DEFAULT_QUERY =
-         "{" +
-               "  jobs(pageNumber: 1, pageSize: 20, filter: []) {" +
-               "    content {" +
-               "      jobName" +
-               "      config {" +
-               "        team" +
-               "        description" +
-               "        schedule {" +
-               "          scheduleCron" +
-               "        }" +
-               "      }" +
-               "    }" +
-               "    totalPages" +
-               "    totalItems" +
-               "  }" +
-               "}";
+  public static final String DEFAULT_QUERY =
+      "{"
+          + "  jobs(pageNumber: 1, pageSize: 20, filter: []) {"
+          + "    content {"
+          + "      jobName"
+          + "      config {"
+          + "        team"
+          + "        description"
+          + "        schedule {"
+          + "          scheduleCron"
+          + "        }"
+          + "      }"
+          + "    }"
+          + "    totalPages"
+          + "    totalItems"
+          + "  }"
+          + "}";
 
-   private final GraphQL graphQL;
-   private final JsonSerializer jsonSerializer;
-   private final OperationContext operationContext;
+  private final GraphQL graphQL;
+  private final JsonSerializer jsonSerializer;
+  private final OperationContext operationContext;
 
-   @SuppressWarnings("unchecked")
-   public Map<String, Object> convertVariablesJson(String jsonMap) {
-      if (jsonMap == null) {
-         return Collections.emptyMap();
-      }
-      // find a better way instead of suppressing warnings
-      return jsonSerializer.deserialize(jsonMap, Map.class);
-   }
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> convertVariablesJson(String jsonMap) {
+    if (jsonMap == null) {
+      return Collections.emptyMap();
+    }
+    // find a better way instead of suppressing warnings
+    return jsonSerializer.deserialize(jsonMap, Map.class);
+  }
 
-   public ExecutionResult executeRequest(String query, String operationName, Map<String, Object> variables) {
-      return graphQL.execute(ExecutionInput.newExecutionInput()
+  public ExecutionResult executeRequest(
+      String query, String operationName, Map<String, Object> variables) {
+    return graphQL.execute(
+        ExecutionInput.newExecutionInput()
             .variables(variables)
             .query(query)
             .executionId(ExecutionId.from(operationContext.getOpId()))
             .operationName(operationName == null ? "" : operationName.trim().replace("\"", ""))
-            .build()
-      );
-   }
+            .build());
+  }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 public class V2DataJob {
-   private String jobName;
-   private V2DataJobConfig config;
-   private List<V2DataJobDeployment> deployments;
+  private String jobName;
+  private V2DataJobConfig config;
+  private List<V2DataJobDeployment> deployments;
 }

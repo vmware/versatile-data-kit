@@ -32,95 +32,114 @@ import java.util.Optional;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionServiceStartExecutionIT {
 
-   @Autowired
-   private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-   @Autowired
-   private JobExecutionRepository jobExecutionRepository;
+  @Autowired private JobExecutionRepository jobExecutionRepository;
 
-   @Autowired
-   private JobExecutionService jobExecutionService;
+  @Autowired private JobExecutionService jobExecutionService;
 
-   @MockBean
-   private DataJobsKubernetesService dataJobsKubernetesService;
+  @MockBean private DataJobsKubernetesService dataJobsKubernetesService;
 
-   @MockBean
-   private DeploymentService deploymentService;
+  @MockBean private DeploymentService deploymentService;
 
-   @MockBean
-   private OperationContext operationContext;
+  @MockBean private OperationContext operationContext;
 
-   @Test
-   public void testStartDataJobExecution_nonExistingDataJob_shouldThrowException() {
-      Assertions.assertThrows(DataJobNotFoundException.class, () ->
-            jobExecutionService.startDataJobExecution("test-team", "test-job", "", new DataJobExecutionRequest()));
-   }
-
-   @Test
-   public void testStartDataJobExecution_nonExistingDataJobDeployment_shouldThrowException() {
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-
-      Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName()))).thenReturn(Optional.empty());
-
-      Assertions.assertThrows(DataJobDeploymentNotFoundException.class, () ->
+  @Test
+  public void testStartDataJobExecution_nonExistingDataJob_shouldThrowException() {
+    Assertions.assertThrows(
+        DataJobNotFoundException.class,
+        () ->
             jobExecutionService.startDataJobExecution(
-                  actualDataJob.getJobConfig().getTeam(),
-                  actualDataJob.getName(),
-                  "",
-                  new DataJobExecutionRequest()));
-   }
+                "test-team", "test-job", "", new DataJobExecutionRequest()));
+  }
 
-   @Test
-   public void testStartDataJobExecution_alreadyRunningDataJob_shouldThrowException() throws ApiException {
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+  @Test
+  public void testStartDataJobExecution_nonExistingDataJobDeployment_shouldThrowException() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-      Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName()))).thenReturn(Optional.of(new JobDeploymentStatus()));
-      Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName()))).thenReturn(true);
+    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(Optional.empty());
 
-      Assertions.assertThrows(DataJobAlreadyRunningException.class, () ->
+    Assertions.assertThrows(
+        DataJobDeploymentNotFoundException.class,
+        () ->
             jobExecutionService.startDataJobExecution(
-                  actualDataJob.getJobConfig().getTeam(),
-                  actualDataJob.getName(),
-                  "",
-                  new DataJobExecutionRequest()));
-   }
+                actualDataJob.getJobConfig().getTeam(),
+                actualDataJob.getName(),
+                "",
+                new DataJobExecutionRequest()));
+  }
 
-   @Test
-   public void testStartDataJobExecution_correctDataJobDeployment_shouldStartDataJobExecution() throws ApiException {
-      String opId = "test-op-id";
-      String startedBy = "startedBy" + "/" + operationContext.getUser();
-      String cronJobName = "test-cron-job";
+  @Test
+  public void testStartDataJobExecution_alreadyRunningDataJob_shouldThrowException()
+      throws ApiException {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-      DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(Optional.of(new JobDeploymentStatus()));
+    Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(true);
 
-      JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
-      jobDeploymentStatus.setCronJobName(cronJobName);
-      Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName()))).thenReturn(Optional.of(jobDeploymentStatus));
-      Mockito.when(operationContext.getOpId()).thenReturn(opId);
-      Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName()))).thenReturn(false);
+    Assertions.assertThrows(
+        DataJobAlreadyRunningException.class,
+        () ->
+            jobExecutionService.startDataJobExecution(
+                actualDataJob.getJobConfig().getTeam(),
+                actualDataJob.getName(),
+                "",
+                new DataJobExecutionRequest()));
+  }
 
-      final Map<String, String> annotations = new LinkedHashMap<>();
-      annotations.put(JobAnnotation.OP_ID.getValue(), opId);
-      annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
-      annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), JobExecutionService.ExecutionType.MANUAL.getValue());
+  @Test
+  public void testStartDataJobExecution_correctDataJobDeployment_shouldStartDataJobExecution()
+      throws ApiException {
+    String opId = "test-op-id";
+    String startedBy = "startedBy" + "/" + operationContext.getUser();
+    String cronJobName = "test-cron-job";
 
-      Map<String, String> envs = Map.of(JobEnvVar.VDK_OP_ID.getValue(), opId);
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-      String executionId = jobExecutionService.startDataJobExecution(
+    JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
+    jobDeploymentStatus.setCronJobName(cronJobName);
+    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(Optional.of(jobDeploymentStatus));
+    Mockito.when(operationContext.getOpId()).thenReturn(opId);
+    Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(false);
+
+    final Map<String, String> annotations = new LinkedHashMap<>();
+    annotations.put(JobAnnotation.OP_ID.getValue(), opId);
+    annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
+    annotations.put(
+        JobAnnotation.EXECUTION_TYPE.getValue(),
+        JobExecutionService.ExecutionType.MANUAL.getValue());
+
+    Map<String, String> envs = Map.of(JobEnvVar.VDK_OP_ID.getValue(), opId);
+
+    String executionId =
+        jobExecutionService.startDataJobExecution(
             actualDataJob.getJobConfig().getTeam(),
             actualDataJob.getName(),
             "",
             new DataJobExecutionRequest().startedBy("startedBy"));
-      Mockito.verify(dataJobsKubernetesService).startNewCronJobExecution(Mockito.eq(cronJobName), Mockito.eq(executionId), Mockito.eq(annotations), Mockito.eq(envs), Mockito.any(), Mockito.any());
+    Mockito.verify(dataJobsKubernetesService)
+        .startNewCronJobExecution(
+            Mockito.eq(cronJobName),
+            Mockito.eq(executionId),
+            Mockito.eq(annotations),
+            Mockito.eq(envs),
+            Mockito.any(),
+            Mockito.any());
 
-      Optional<DataJobExecution> actualDataJobExecutionOptional = jobExecutionRepository.findById(executionId);
-      Assertions.assertTrue(actualDataJobExecutionOptional.isPresent());
-      DataJobExecution actualDataJobExecution = actualDataJobExecutionOptional.get();
-      Assertions.assertEquals(executionId, actualDataJobExecution.getId());
-      Assertions.assertEquals(actualDataJob, actualDataJobExecution.getDataJob());
-      Assertions.assertEquals(ExecutionStatus.SUBMITTED, actualDataJobExecution.getStatus());
-      Assertions.assertEquals(ExecutionType.MANUAL, actualDataJobExecution.getType());
-      Assertions.assertEquals(opId, actualDataJobExecution.getOpId());
-      Assertions.assertEquals(startedBy, actualDataJobExecution.getStartedBy());
-   }
+    Optional<DataJobExecution> actualDataJobExecutionOptional =
+        jobExecutionRepository.findById(executionId);
+    Assertions.assertTrue(actualDataJobExecutionOptional.isPresent());
+    DataJobExecution actualDataJobExecution = actualDataJobExecutionOptional.get();
+    Assertions.assertEquals(executionId, actualDataJobExecution.getId());
+    Assertions.assertEquals(actualDataJob, actualDataJobExecution.getDataJob());
+    Assertions.assertEquals(ExecutionStatus.SUBMITTED, actualDataJobExecution.getStatus());
+    Assertions.assertEquals(ExecutionType.MANUAL, actualDataJobExecution.getType());
+    Assertions.assertEquals(opId, actualDataJobExecution.getOpId());
+    Assertions.assertEquals(startedBy, actualDataJobExecution.getStartedBy());
+  }
 }
