@@ -26,7 +26,7 @@ class KerberosClient:
     def acquire_kerberos_auth_header(self) -> Optional[str]:
         """
         Return the Authorization Negotiate header value to be used by API requests to server supporting kerberos authentication.
-        You can see more details here http://python-notes.curiousefficiency.org/en/latest/python_kerberos.html 
+        You can see more details here http://python-notes.curiousefficiency.org/en/latest/python_kerberos.html
         """
         if self.__kerberos_service_name:
             from vdk.plugin.kerberos.kerberos_ticket import KerberosTicket
