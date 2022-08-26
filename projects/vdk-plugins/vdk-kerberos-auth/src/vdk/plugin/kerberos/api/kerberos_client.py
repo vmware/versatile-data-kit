@@ -8,7 +8,7 @@ class KerberosClient:
     Use this class to access prepared Kerberos Negotiate header that can be used in HTTP API requests.
     It's expected to be set as an "Authorization header"
     It's recommended to use request-kerberos or similar library.
-    Use this if the http library doesn't support natively Kerberos.
+    Use this if the http library doesn't support Kerberos natively.
     But note that it has less advanced features and generally is less reliable than request-kerberos
 
     Example usage
