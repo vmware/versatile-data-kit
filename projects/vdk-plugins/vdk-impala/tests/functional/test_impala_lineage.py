@@ -386,5 +386,5 @@ class ImpalaLineageTest(TestCase):
         )
         cli_assert_equal(0, result)
 
-        # create table and computing it's stats should not result in creating lineage event
+        # create table and computing its stats should not result in creating lineage event
         mock_lineage_logger.send.assert_not_called()
