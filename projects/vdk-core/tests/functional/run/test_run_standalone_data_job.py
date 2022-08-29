@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from functional.run import util
+from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.standalone_data_job import (
     StandaloneDataJobFactory,
 )
@@ -62,3 +63,21 @@ def test_standalone_data_job_does_calls_exception_hook_after_exception_thrown():
 
     assert "vdk_exception" in hook_tracker.calls
     assert str(exc_info.value) == "Test Error"
+
+
+def test_standalone_data_job_not_from_template():
+    data_job = StandaloneDataJobFactory.create(data_job_directory=Path(__file__))
+    assert not data_job._template_name
+    assert not data_job._core_context.state.get(ExecutionStateStoreKeys.TEMPLATE_NAME)
+
+
+def test_standalone_data_job_from_template():
+    template_name = "template_name"
+    data_job = StandaloneDataJobFactory.create(
+        data_job_directory=Path(__file__), template_name=template_name
+    )
+    assert data_job._template_name == template_name
+    assert (
+        data_job._core_context.state.get(ExecutionStateStoreKeys.TEMPLATE_NAME)
+        == template_name
+    )

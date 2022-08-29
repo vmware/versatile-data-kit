@@ -13,6 +13,7 @@ from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
+from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.file_based_step import JobFilesLocator
 from vdk.internal.builtin_plugins.run.file_based_step import StepFuncFactory
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
@@ -255,7 +256,9 @@ class DataJob:
         return self._name
 
     # TODO: this also can be a hook - e.g job run_cycle_algorithm
-    def run(self, args: dict = None) -> ExecutionResult:
+    def run(
+        self, args: dict = None, template_name: str | None = None
+    ) -> ExecutionResult:
         """
         This is basic implementation of Data Job run(execution) cycle algorithm.
         All stages are pluggable as hooks.
@@ -266,6 +269,10 @@ class DataJob:
         """
         if args is None:
             args = {}
+        if template_name:
+            self._core_context.state.set(
+                ExecutionStateStoreKeys.TEMPLATE_NAME, template_name
+            )
 
         if not self._core_context.plugin_registry.has_plugin(
             DataJobDefaultHookImplPlugin.__name__
@@ -282,7 +289,9 @@ class DataJob:
             core_context=self._core_context,
             job_args=JobArguments(args),
             templates=TemplatesImpl(
-                job_name=self.name, core_context=self._core_context
+                job_name=self.name,
+                core_context=self._core_context,
+                template_name=template_name,
             ),
         )
         self._plugin_hook.initialize_job(context=job_context)
