@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import kerberos
 
 
 class KerberosTicket:
@@ -8,8 +9,6 @@ class KerberosTicket:
     """
 
     def __init__(self, service):
-        import kerberos
-
         __, krb_context = kerberos.authGSSClientInit(service)
         kerberos.authGSSClientStep(krb_context, "")
         self._krb_context = krb_context
@@ -34,7 +33,6 @@ class KerberosTicket:
         if krb_context is None:
             raise RuntimeError("Ticket already used for verification")
         self._krb_context = None
-        import kerberos
 
         kerberos.authGSSClientStep(krb_context, auth_details)
         kerberos.authGSSClientClean(krb_context)
