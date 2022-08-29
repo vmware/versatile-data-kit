@@ -28,157 +28,169 @@ import java.util.UUID;
 @ExtendWith(SpringExtension.class)
 public class JobExecutionCleanupServiceIT {
 
-    @Autowired
-    private JobExecutionRepository jobExecutionRepository;
+  @Autowired private JobExecutionRepository jobExecutionRepository;
 
-    @Autowired
-    private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-    @Autowired
-    private JobExecutionCleanupService jobExecutionCleanupService;
+  @Autowired private JobExecutionCleanupService jobExecutionCleanupService;
 
-    @BeforeAll
-    public void populateJobsRepository() {
-        JobConfig config = new JobConfig();
-        config.setSchedule("schedule");
+  @BeforeAll
+  public void populateJobsRepository() {
+    JobConfig config = new JobConfig();
+    config.setSchedule("schedule");
 
-        var jobA = new DataJob("jobA", config);
-        var jobB = new DataJob("jobB", config);
+    var jobA = new DataJob("jobA", config);
+    var jobB = new DataJob("jobB", config);
 
-        jobsRepository.save(jobA);
-        jobsRepository.save(jobB);
+    jobsRepository.save(jobA);
+    jobsRepository.save(jobB);
+  }
+
+  @BeforeEach
+  public void cleanJobExecutions() {
+    jobExecutionRepository.deleteAll();
+  }
+
+  @Test
+  public void testOneJobExecutionDeleteNotExpected() {
+    addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
+    Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
+  }
+
+  @Test
+  public void testOneJobExecutionDeleteExpected() {
+    addJobExecution("jobA", OffsetDateTime.now().minusDays(14), ExecutionStatus.SUCCEEDED);
+    Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(0, jobExecutionRepository.findAll().size());
+  }
+
+  @Test
+  public void testManyJobExecutionsDeleteExpected() {
+    for (int i = 0; i < 101; i++) {
+      addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
     }
+    Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
+  }
 
-    @BeforeEach
-    public void cleanJobExecutions() {
-        jobExecutionRepository.deleteAll();
+  @Test
+  public void testManyJobExecutionsDeleteNotExpected() {
+    addExecutions(100, "jobA");
+    Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
+  }
+
+  @Test
+  public void testJobExecutionOrdering() {
+    Random random = new Random();
+
+    for (int i = 0; i < 20; i++) {
+      addJobExecution(
+          "jobA", OffsetDateTime.now().minusDays(random.nextInt(60)), ExecutionStatus.SUCCEEDED);
     }
+    var statuses = List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED);
+    var jobs =
+        jobExecutionRepository.findByDataJobNameAndStatusNotInOrderByEndTime("jobA", statuses);
 
-    @Test
-    public void testOneJobExecutionDeleteNotExpected() {
-        addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
-        Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
+    var previous = jobExecutionRepository.findById(jobs.get(0).getId()).get();
+    for (int i = 1; i < jobs.size(); i++) {
+      var current = jobExecutionRepository.findById(jobs.get(i).getId()).get();
+      Assertions.assertTrue(previous.getEndTime().isBefore(current.getEndTime()));
+      previous = current;
     }
+  }
 
-    @Test
-    public void testOneJobExecutionDeleteExpected() {
-        addJobExecution("jobA", OffsetDateTime.now().minusDays(14), ExecutionStatus.SUCCEEDED);
-        Assertions.assertEquals(1, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(0, jobExecutionRepository.findAll().size());
+  @Test
+  public void testTwoJobExecutionsDeleteNotExpected() {
+    addExecutions(100, "jobA");
+    addExecutions(100, "jobB");
+
+    Assertions.assertEquals(200, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(200, jobExecutionRepository.findAll().size());
+  }
+
+  @Test
+  public void testTwoJobExecutionsDeletesExpected() {
+    addExecutions(105, "jobA");
+    addExecutions(105, "jobB");
+
+    Assertions.assertEquals(210, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(200, jobExecutionRepository.findAll().size());
+  }
+
+  @Test
+  public void testMultipleDeletes() {
+    addJobExecution(
+        "jobA", OffsetDateTime.now().minusDays(14).minusMinutes(1), ExecutionStatus.SUCCEEDED);
+    addExecutions(101, "jobB");
+
+    Assertions.assertEquals(
+        101, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobB").size());
+    Assertions.assertEquals(
+        1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(
+        100, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobB").size());
+    Assertions.assertEquals(
+        0, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+  }
+
+  @Test
+  public void testCutOffDeleteNotExpected() {
+    addJobExecution(
+        "jobA",
+        OffsetDateTime.now().minusDays(13).minusHours(23).minusMinutes(59),
+        ExecutionStatus.SUCCEEDED);
+
+    Assertions.assertEquals(
+        1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(
+        1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+  }
+
+  @Test
+  public void testNullEndTimeDeleteNotExpected() {
+    addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
+
+    Assertions.assertEquals(
+        1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(
+        1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
+  }
+
+  @Test
+  public void testDeleteByNumbersAndJobsWithNullEndTimeDeleteExpected() {
+    addExecutions(99, "jobA");
+    addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
+    addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
+
+    Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
+    jobExecutionCleanupService.cleanupExecutions();
+    Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
+  }
+
+  private void addJobExecution(String jobName, OffsetDateTime time, ExecutionStatus status) {
+    var excId = UUID.randomUUID().toString();
+    var execution =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository, excId, jobsRepository.findById(jobName).get(), status);
+    execution.setStartTime(time);
+    execution.setEndTime(time);
+    jobExecutionRepository.save(execution);
+  }
+
+  private void addExecutions(int executionsNumber, String jobName) {
+    for (int i = 0; i < executionsNumber; i++) {
+      addJobExecution(jobName, OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
     }
-
-    @Test
-    public void testManyJobExecutionsDeleteExpected() {
-        for (int i = 0; i < 101; i++) {
-            addJobExecution("jobA", OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
-        }
-        Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
-    }
-
-    @Test
-    public void testManyJobExecutionsDeleteNotExpected() {
-        addExecutions(100, "jobA");
-        Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
-    }
-
-    @Test
-    public void testJobExecutionOrdering() {
-        Random random = new Random();
-
-        for (int i = 0; i < 20; i++) {
-            addJobExecution("jobA", OffsetDateTime.now().minusDays(random.nextInt(60)), ExecutionStatus.SUCCEEDED);
-        }
-        var statuses = List.of(ExecutionStatus.RUNNING, ExecutionStatus.SUBMITTED);
-        var jobs = jobExecutionRepository.findByDataJobNameAndStatusNotInOrderByEndTime("jobA", statuses);
-
-        var previous = jobExecutionRepository.findById(jobs.get(0).getId()).get();
-        for (int i = 1; i < jobs.size(); i++) {
-            var current = jobExecutionRepository.findById(jobs.get(i).getId()).get();
-            Assertions.assertTrue(previous.getEndTime().isBefore(current.getEndTime()));
-            previous = current;
-        }
-    }
-
-    @Test
-    public void testTwoJobExecutionsDeleteNotExpected() {
-        addExecutions(100, "jobA");
-        addExecutions(100, "jobB");
-
-        Assertions.assertEquals(200, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(200, jobExecutionRepository.findAll().size());
-    }
-
-    @Test
-    public void testTwoJobExecutionsDeletesExpected() {
-        addExecutions(105, "jobA");
-        addExecutions(105, "jobB");
-
-        Assertions.assertEquals(210, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(200, jobExecutionRepository.findAll().size());
-    }
-
-    @Test
-    public void testMultipleDeletes() {
-        addJobExecution("jobA", OffsetDateTime.now().minusDays(14).minusMinutes(1), ExecutionStatus.SUCCEEDED);
-        addExecutions(101, "jobB");
-
-        Assertions.assertEquals(101, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobB").size());
-        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(100, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobB").size());
-        Assertions.assertEquals(0, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
-    }
-
-    @Test
-    public void testCutOffDeleteNotExpected() {
-        addJobExecution("jobA", OffsetDateTime.now().minusDays(13).minusHours(23).minusMinutes(59), ExecutionStatus.SUCCEEDED);
-
-        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
-    }
-
-    @Test
-    public void testNullEndTimeDeleteNotExpected() {
-        addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
-
-        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(1, jobExecutionRepository.findDataJobExecutionsByDataJobName("jobA").size());
-    }
-
-    @Test
-    public void testDeleteByNumbersAndJobsWithNullEndTimeDeleteExpected() {
-        addExecutions(99, "jobA");
-        addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
-        addJobExecution("jobA", null, ExecutionStatus.SUCCEEDED);
-
-        Assertions.assertEquals(101, jobExecutionRepository.findAll().size());
-        jobExecutionCleanupService.cleanupExecutions();
-        Assertions.assertEquals(100, jobExecutionRepository.findAll().size());
-    }
-
-    private void addJobExecution(String jobName, OffsetDateTime time, ExecutionStatus status) {
-        var excId = UUID.randomUUID().toString();
-        var execution = RepositoryUtil.createDataJobExecution(jobExecutionRepository, excId, jobsRepository.findById(jobName).get(), status);
-        execution.setStartTime(time);
-        execution.setEndTime(time);
-        jobExecutionRepository.save(execution);
-    }
-
-    private void addExecutions(int executionsNumber, String jobName) {
-        for (int i = 0; i < executionsNumber; i++) {
-            addJobExecution(jobName, OffsetDateTime.now(), ExecutionStatus.SUCCEEDED);
-        }
-    }
-
+  }
 }

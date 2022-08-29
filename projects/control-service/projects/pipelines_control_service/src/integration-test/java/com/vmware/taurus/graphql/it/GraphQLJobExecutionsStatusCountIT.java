@@ -27,128 +27,148 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
 
-   @Autowired
-   JobExecutionRepository jobExecutionRepository;
+  @Autowired JobExecutionRepository jobExecutionRepository;
 
-   @Autowired
-   JobsRepository jobsRepository;
+  @Autowired JobsRepository jobsRepository;
 
-   @BeforeEach
-   public void cleanup() {
-      jobExecutionRepository.deleteAll();
-   }
+  @BeforeEach
+  public void cleanup() {
+    jobExecutionRepository.deleteAll();
+  }
 
-   private void addJobExecution(OffsetDateTime endTime, ExecutionStatus executionStatus, String jobName) {
-      var execution = createDataJobExecution(
+  private void addJobExecution(
+      OffsetDateTime endTime, ExecutionStatus executionStatus, String jobName) {
+    var execution =
+        createDataJobExecution(
             UUID.randomUUID().toString(),
             jobName,
             executionStatus,
             "message",
             OffsetDateTime.now());
-      execution.setEndTime(endTime);
-      jobExecutionRepository.save(execution);
-   }
+    execution.setEndTime(endTime);
+    jobExecutionRepository.save(execution);
+  }
 
-   private static String getQuery(String jobName) {
-      return "{\n" +
-              "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"jobName\", pattern: \"" + jobName + "\"}]) {\n" +
-              "    content {\n" +
-              "      jobName\n" +
-              "      deployments {\n" +
-              "        successfulExecutions\n " +
-              "        failedExecutions\n " +
-              "      }\n" +
-              "    }\n" +
-              "  }\n" +
-              "}";
-   }
+  private static String getQuery(String jobName) {
+    return "{\n"
+        + "  jobs(pageNumber: 1, pageSize: 100, filter: [{property: \"jobName\", pattern: \""
+        + jobName
+        + "\"}]) {\n"
+        + "    content {\n"
+        + "      jobName\n"
+        + "      deployments {\n"
+        + "        successfulExecutions\n "
+        + "        failedExecutions\n "
+        + "      }\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
+  }
 
-   @Test
-   public void testExecutionStatusCount_expectTwoSuccessful(String jobName, String username) throws Exception {
-      var expectedEndTimeLarger = OffsetDateTime.now();
-      var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
+  @Test
+  public void testExecutionStatusCount_expectTwoSuccessful(String jobName, String username)
+      throws Exception {
+    var expectedEndTimeLarger = OffsetDateTime.now();
+    var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
-      addJobExecution(expectedEndTimeSmaller, ExecutionStatus.SUCCEEDED, jobName);
+    addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
+    addJobExecution(expectedEndTimeSmaller, ExecutionStatus.SUCCEEDED, jobName);
 
-      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
-              .andExpect(status().is(200))
-              .andExpect(content().contentType("application/json"))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(0));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(JOBS_URI)
+                .queryParam("query", getQuery(jobName))
+                .with(user(username)))
+        .andExpect(status().is(200))
+        .andExpect(content().contentType("application/json"))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(0));
+  }
 
-   }
+  @Test
+  public void testExecutionStatusCount_expectNoCounts(String jobName, String username)
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(JOBS_URI)
+                .queryParam("query", getQuery(jobName))
+                .with(user(username)))
+        .andExpect(status().is(200))
+        .andExpect(content().contentType("application/json"))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(0))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(0));
+  }
 
-   @Test
-   public void testExecutionStatusCount_expectNoCounts(String jobName, String username) throws Exception {
-      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
-              .andExpect(status().is(200))
-              .andExpect(content().contentType("application/json"))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(0))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(0));
-   }
+  @Test
+  public void testExecutionStatusCount_expectTwoSuccessfulTwoFailed(String jobName, String username)
+      throws Exception {
+    var expectedEndTimeLarger = OffsetDateTime.now();
+    var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
-   @Test
-   public void testExecutionStatusCount_expectTwoSuccessfulTwoFailed(String jobName, String username) throws Exception {
-      var expectedEndTimeLarger = OffsetDateTime.now();
-      var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
+    addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
+    addJobExecution(expectedEndTimeSmaller, ExecutionStatus.SUCCEEDED, jobName);
+    addJobExecution(expectedEndTimeLarger, ExecutionStatus.PLATFORM_ERROR, jobName);
+    addJobExecution(expectedEndTimeSmaller, ExecutionStatus.PLATFORM_ERROR, jobName);
 
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
-      addJobExecution(expectedEndTimeSmaller, ExecutionStatus.SUCCEEDED, jobName);
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.PLATFORM_ERROR, jobName);
-      addJobExecution(expectedEndTimeSmaller, ExecutionStatus.PLATFORM_ERROR, jobName);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(JOBS_URI)
+                .queryParam("query", getQuery(jobName))
+                .with(user(username)))
+        .andExpect(status().is(200))
+        .andExpect(content().contentType("application/json"))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(2));
+  }
 
-      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
-              .andExpect(status().is(200))
-              .andExpect(content().contentType("application/json"))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(2))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(2));
+  @Test
+  public void testExecutionStatusCount_expectOneSuccessfulOneFailed(String jobName, String username)
+      throws Exception {
+    var expectedEndTimeLarger = OffsetDateTime.now();
 
-   }
+    addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
+    addJobExecution(expectedEndTimeLarger, ExecutionStatus.PLATFORM_ERROR, jobName);
 
-   @Test
-   public void testExecutionStatusCount_expectOneSuccessfulOneFailed(String jobName, String username) throws Exception {
-      var expectedEndTimeLarger = OffsetDateTime.now();
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(JOBS_URI)
+                .queryParam("query", getQuery(jobName))
+                .with(user(username)))
+        .andExpect(status().is(200))
+        .andExpect(content().contentType("application/json"))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(1))
+        .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(1));
+  }
 
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
-      addJobExecution(expectedEndTimeLarger, ExecutionStatus.PLATFORM_ERROR, jobName);
+  private DataJobExecution createDataJobExecution(
+      String executionId,
+      String jobName,
+      ExecutionStatus executionStatus,
+      String message,
+      OffsetDateTime startTime) {
 
-      mockMvc.perform(MockMvcRequestBuilders.get(JOBS_URI).queryParam("query", getQuery(jobName)).with(user(username)))
-              .andExpect(status().is(200))
-              .andExpect(content().contentType("application/json"))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].successfulExecutions").value(1))
-              .andExpect(jsonPath("$.data.content[0].deployments[0].failedExecutions").value(1));
+    DataJob dataJob = jobsRepository.findById(jobName).get();
 
-   }
+    var jobExecution =
+        DataJobExecution.builder()
+            .id(executionId)
+            .dataJob(dataJob)
+            .startTime(startTime)
+            .type(ExecutionType.MANUAL)
+            .status(executionStatus)
+            .resourcesCpuRequest(1F)
+            .resourcesCpuLimit(2F)
+            .resourcesMemoryRequest(500)
+            .resourcesMemoryLimit(1000)
+            .message(message)
+            .lastDeployedBy("test_user")
+            .lastDeployedDate(OffsetDateTime.now())
+            .jobVersion("test_version")
+            .jobSchedule("*/5 * * * *")
+            .opId("test_op_id")
+            .vdkVersion("test_vdk_version")
+            .build();
 
-   private DataJobExecution createDataJobExecution(
-           String executionId,
-           String jobName,
-           ExecutionStatus executionStatus,
-           String message,
-           OffsetDateTime startTime) {
-
-      DataJob dataJob = jobsRepository.findById(jobName).get();
-
-      var jobExecution = DataJobExecution.builder()
-              .id(executionId)
-              .dataJob(dataJob)
-              .startTime(startTime)
-              .type(ExecutionType.MANUAL)
-              .status(executionStatus)
-              .resourcesCpuRequest(1F)
-              .resourcesCpuLimit(2F)
-              .resourcesMemoryRequest(500)
-              .resourcesMemoryLimit(1000)
-              .message(message)
-              .lastDeployedBy("test_user")
-              .lastDeployedDate(OffsetDateTime.now())
-              .jobVersion("test_version")
-              .jobSchedule("*/5 * * * *")
-              .opId("test_op_id")
-              .vdkVersion("test_vdk_version")
-              .build();
-
-      return jobExecution;
-   }
+    return jobExecution;
+  }
 }

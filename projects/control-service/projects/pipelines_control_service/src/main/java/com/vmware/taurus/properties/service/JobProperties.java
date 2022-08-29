@@ -19,9 +19,10 @@ import javax.persistence.Id;
 @Entity
 public class JobProperties {
 
-    @Id
-    @Column(name = "job_name")
-    private String jobName;
-    @Column(name = "properties_json")
-    private String propertiesJson;
+  @Id
+  @Column(name = "job_name")
+  private String jobName;
+
+  @Column(name = "properties_json")
+  private String propertiesJson;
 }

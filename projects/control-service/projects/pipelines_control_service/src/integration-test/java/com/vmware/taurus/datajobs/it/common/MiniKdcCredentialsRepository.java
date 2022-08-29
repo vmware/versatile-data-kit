@@ -15,40 +15,39 @@ import java.io.File;
 import java.util.Optional;
 
 /**
- * This class can be used to replace {@link KerberosCredentialsRepository} for testing purposes.
- * It uses {@link MiniKdc} as a kerberos server.
+ * This class can be used to replace {@link KerberosCredentialsRepository} for testing purposes. It
+ * uses {@link MiniKdc} as a kerberos server.
  *
- * TODO: Figure out how to connect to a testing KDC server via kadmin
- ** For some reason I (tsvetkovt@vmware.com) was not able to connect to MiniKdc or to a
- ** dockerized KDC with kadmin.
+ * <p>TODO: Figure out how to connect to a testing KDC server via kadmin * For some reason I
+ * (tsvetkovt@vmware.com) was not able to connect to MiniKdc or to a * dockerized KDC with kadmin.
  * TODO we should think about moving away from MiniKDC as it's not maintained.
  */
 @Setter
 public class MiniKdcCredentialsRepository extends KerberosCredentialsRepository {
-   private static final Logger log = LoggerFactory.getLogger(MiniKdcCredentialsRepository.class);
+  private static final Logger log = LoggerFactory.getLogger(MiniKdcCredentialsRepository.class);
 
-   private MiniKdc miniKdc;
+  private MiniKdc miniKdc;
 
-   public MiniKdcCredentialsRepository() {
-      super("test", "test");
-   }
+  public MiniKdcCredentialsRepository() {
+    super("test", "test");
+  }
 
-   @Override
-   public void createPrincipal(String principal, Optional<File> keytabLocation) {
-      try {
-         miniKdc.createPrincipal(keytabLocation.get(), principal);
-      } catch (Exception e) {
-         log.error("Failed to create principal", e);
-      }
-   }
+  @Override
+  public void createPrincipal(String principal, Optional<File> keytabLocation) {
+    try {
+      miniKdc.createPrincipal(keytabLocation.get(), principal);
+    } catch (Exception e) {
+      log.error("Failed to create principal", e);
+    }
+  }
 
-   @Override
-   public boolean principalExists(String principal) {
-      return false;
-   }
+  @Override
+  public boolean principalExists(String principal) {
+    return false;
+  }
 
-   @Override
-   public void deletePrincipal(String principal) {
-      // Principals are deleted when MiniKdc is shut down.
-   }
+  @Override
+  public void deletePrincipal(String principal) {
+    // Principals are deleted when MiniKdc is shut down.
+  }
 }

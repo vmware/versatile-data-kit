@@ -9,31 +9,31 @@ import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import lombok.Data;
 
 /**
- * Store this in the database if the data job configuration could not or should not
- * be retrieved from the kubernetes manifest of the data job deployment like Airflow DAG locations.
+ * Store this in the database if the data job configuration could not or should not be retrieved
+ * from the kubernetes manifest of the data job deployment like Airflow DAG locations.
  */
 @Data
 public class JobDeployment {
 
-   private String dataJobTeam;
+  private String dataJobTeam;
 
-   private String dataJobName;
+  private String dataJobName;
 
-   private String gitCommitSha;
+  private String gitCommitSha;
 
-   private String vdkVersion;
+  private String vdkVersion;
 
-   private String imageName;
+  private String imageName;
 
-   private String cronJobName;
+  private String cronJobName;
 
-   /**
-    * When disabled, the DataJob will still be deployed but it will never be executed.
-    * When enabled, the DataJob will be executed according to its {@link JobConfig#getSchedule()}
-    */
-   private Boolean enabled;
+  /**
+   * When disabled, the DataJob will still be deployed but it will never be executed. When enabled,
+   * the DataJob will be executed according to its {@link JobConfig#getSchedule()}
+   */
+  private Boolean enabled;
 
-   private String mode;
+  private String mode;
 
-   private DataJobResources resources;
+  private DataJobResources resources;
 }

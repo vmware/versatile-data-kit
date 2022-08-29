@@ -20,37 +20,44 @@ import java.util.stream.Collectors;
 @Service
 public class PropertiesService {
 
-   private final PropertiesRepository propertiesRepository;
-   private final ObjectMapper objectMapper = new ObjectMapper();
+  private final PropertiesRepository propertiesRepository;
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-   @Autowired
-   public PropertiesService(PropertiesRepository propertiesRepository) {
-      this.propertiesRepository = propertiesRepository;
-   }
+  @Autowired
+  public PropertiesService(PropertiesRepository propertiesRepository) {
+    this.propertiesRepository = propertiesRepository;
+  }
 
-   public void updateJobProperties(String jobName, Map<String, Object> properties) {
-      var jobProperties = propertiesRepository.findByJobName(jobName)
-            .orElse(new JobProperties( jobName, null));
+  public void updateJobProperties(String jobName, Map<String, Object> properties) {
+    var jobProperties =
+        propertiesRepository.findByJobName(jobName).orElse(new JobProperties(jobName, null));
 
-      properties = properties.entrySet()
-            .stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, entry -> {
-               if (entry.getValue() == null) {
-                  entry.setValue(JSONObject.NULL);
-               }
-               return entry.getValue();
-            }));
+    properties =
+        properties.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> {
+                      if (entry.getValue() == null) {
+                        entry.setValue(JSONObject.NULL);
+                      }
+                      return entry.getValue();
+                    }));
 
-      jobProperties.setPropertiesJson(new JSONObject(properties).toString());
+    jobProperties.setPropertiesJson(new JSONObject(properties).toString());
 
-      propertiesRepository.save(jobProperties);
-   }
+    propertiesRepository.save(jobProperties);
+  }
 
-   public Map<String, Object> readJobProperties(String jobName) throws JsonProcessingException {
-      var jobPropertiesJson = propertiesRepository.findByJobName(jobName)
+  public Map<String, Object> readJobProperties(String jobName) throws JsonProcessingException {
+    var jobPropertiesJson =
+        propertiesRepository
+            .findByJobName(jobName)
             .map(JobProperties::getPropertiesJson)
             .orElse(null);
 
-      return jobPropertiesJson == null ? Collections.emptyMap() : objectMapper.readValue(jobPropertiesJson, Map.class);
-   }
+    return jobPropertiesJson == null
+        ? Collections.emptyMap()
+        : objectMapper.readValue(jobPropertiesJson, Map.class);
+  }
 }

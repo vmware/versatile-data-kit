@@ -18,23 +18,24 @@ import java.util.function.Predicate;
 @Component
 public class JobFieldStrategyByScheduleCron extends FieldStrategy<V2DataJob> {
 
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.SCHEDULE_CRON;
-   }
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.SCHEDULE_CRON;
+  }
 
-   /**
-    * Filtering and sorting by schedule is not meaningful
-    */
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria,@NonNull Filter filter) {
-      return criteria;
-   }
+  /** Filtering and sorting by schedule is not meaningful */
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(
+      @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
+    return criteria;
+  }
 
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return dataJob -> dataJob.getConfig() != null &&
-            dataJob.getConfig().getSchedule() != null &&
-            StringUtils.containsIgnoreCase(dataJob.getConfig().getSchedule().getScheduleCron(), searchStr);
-   }
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
+    return dataJob ->
+        dataJob.getConfig() != null
+            && dataJob.getConfig().getSchedule() != null
+            && StringUtils.containsIgnoreCase(
+                dataJob.getConfig().getSchedule().getScheduleCron(), searchStr);
+  }
 }

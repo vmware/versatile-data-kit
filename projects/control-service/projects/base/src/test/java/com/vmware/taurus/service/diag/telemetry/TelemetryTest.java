@@ -18,66 +18,82 @@ import static org.awaitility.Awaitility.await;
 
 public class TelemetryTest {
 
-    private WireMockServer wireMockServer;
+  private WireMockServer wireMockServer;
 
-    @BeforeEach
-    public void setup() {
-        wireMockServer = new WireMockServer(8080);
-        wireMockServer.start();
-    }
+  @BeforeEach
+  public void setup() {
+    wireMockServer = new WireMockServer(8080);
+    wireMockServer.start();
+  }
 
-    @AfterEach
-    public void teardown() {
-        wireMockServer.stop();
-    }
+  @AfterEach
+  public void teardown() {
+    wireMockServer.stop();
+  }
 
-    @Test
-    public void test_telemetry_being_send() {
-        stubFor(post(urlEqualTo("/test")).willReturn(aResponse().withBody("OK")));
+  @Test
+  public void test_telemetry_being_send() {
+    stubFor(post(urlEqualTo("/test")).willReturn(aResponse().withBody("OK")));
 
-        var telemetry = new Telemetry(wireMockServer.url("/test"));
-        telemetry.sendAsync("{'key': 'value'}");
+    var telemetry = new Telemetry(wireMockServer.url("/test"));
+    telemetry.sendAsync("{'key': 'value'}");
 
-        await().atMost(5, TimeUnit.SECONDS)
-                .with().pollInterval(1, TimeUnit.SECONDS)
-                .untilAsserted(() -> verify(postRequestedFor(urlEqualTo("/test"))
+    await()
+        .atMost(5, TimeUnit.SECONDS)
+        .with()
+        .pollInterval(1, TimeUnit.SECONDS)
+        .untilAsserted(
+            () ->
+                verify(
+                    postRequestedFor(urlEqualTo("/test"))
                         .withRequestBody(containing("{'key': 'value'}"))));
-    }
+  }
 
-    @Test
-    public void test_telemetry_being_send_single_retry() {
-        // http://wiremock.org/docs/stateful-behaviour/
-        stubFor(post(urlEqualTo("/test"))
-                .inScenario("retry")
-                .whenScenarioStateIs(STARTED)
-                .willReturn(aResponse().withStatus(500))
-                .willSetStateTo("request succeeds")
-        );
-        stubFor(post(urlEqualTo("/test"))
-                .inScenario("retry")
-                .whenScenarioStateIs("request succeeds")
-                .willReturn(aResponse().withStatus(500))
-        );
+  @Test
+  public void test_telemetry_being_send_single_retry() {
+    // http://wiremock.org/docs/stateful-behaviour/
+    stubFor(
+        post(urlEqualTo("/test"))
+            .inScenario("retry")
+            .whenScenarioStateIs(STARTED)
+            .willReturn(aResponse().withStatus(500))
+            .willSetStateTo("request succeeds"));
+    stubFor(
+        post(urlEqualTo("/test"))
+            .inScenario("retry")
+            .whenScenarioStateIs("request succeeds")
+            .willReturn(aResponse().withStatus(500)));
 
-        var telemetry = new Telemetry(wireMockServer.url("/test"));
-        telemetry.sendAsync("{'key': 'value'}");
+    var telemetry = new Telemetry(wireMockServer.url("/test"));
+    telemetry.sendAsync("{'key': 'value'}");
 
-        await().atMost(5, TimeUnit.SECONDS)
-                .with().pollInterval(1, TimeUnit.SECONDS)
-                .untilAsserted(() -> verify(exactly(2), postRequestedFor(urlEqualTo("/test"))
+    await()
+        .atMost(5, TimeUnit.SECONDS)
+        .with()
+        .pollInterval(1, TimeUnit.SECONDS)
+        .untilAsserted(
+            () ->
+                verify(
+                    exactly(2),
+                    postRequestedFor(urlEqualTo("/test"))
                         .withRequestBody(containing("{'key': 'value'}"))));
-    }
+  }
 
-    @Test
-    public void test_telemetry_being_send_failed_client_error() {
-        stubFor(post(urlEqualTo("/test")).willReturn(aResponse().withStatus(401)));
+  @Test
+  public void test_telemetry_being_send_failed_client_error() {
+    stubFor(post(urlEqualTo("/test")).willReturn(aResponse().withStatus(401)));
 
-        var telemetry = new Telemetry(wireMockServer.url("/test"));
-        telemetry.sendAsync("{'key': 'value'}");
+    var telemetry = new Telemetry(wireMockServer.url("/test"));
+    telemetry.sendAsync("{'key': 'value'}");
 
-        await().atMost(5, TimeUnit.SECONDS)
-                .with().pollInterval(1, TimeUnit.SECONDS)
-                .untilAsserted(() -> verify(postRequestedFor(urlEqualTo("/test"))
+    await()
+        .atMost(5, TimeUnit.SECONDS)
+        .with()
+        .pollInterval(1, TimeUnit.SECONDS)
+        .untilAsserted(
+            () ->
+                verify(
+                    postRequestedFor(urlEqualTo("/test"))
                         .withRequestBody(containing("{'key': 'value'}"))));
-    }
+  }
 }

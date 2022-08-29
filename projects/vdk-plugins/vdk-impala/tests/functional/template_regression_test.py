@@ -418,7 +418,8 @@ class TemplateRegressionTests(unittest.TestCase):
         )
         # Expecting data job not to finish due to empty source.
         assert res.exception
-        assert "Source view returns no results" in res.exception.args[0]
+        assert "Source view returned no results." in res.exception.args[0]
+        assert isinstance(res.exception, errors.UserCodeError)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -582,22 +583,23 @@ class TemplateRegressionTests(unittest.TestCase):
         def just_throw(*_, **kwargs):
             raise Exception(expected_why_it_happened_msg)
 
-        errors.log_and_throw = MagicMock(side_effect=just_throw)
-
-        res = self._run_job(template_name, template_args)
-        assert expected_why_it_happened_msg in res.output
-        errors.log_and_throw.assert_called_once_with(
-            to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-            log=ANY,
-            what_happened="Data loading has failed.",
-            why_it_happened=(
-                f"You are trying to load data into a table {table_name} with an unsupported format. "
-                f"Currently only Parquet table format is supported."
-            ),
-            consequences="Data load will be aborted.",
-            countermeasures=(
-                "Make sure that the destination table is stored as parquet: "
-                "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
-                "#parquet_ddl"
-            ),
-        )
+        with patch(
+            "vdk.internal.core.errors.log_and_throw", MagicMock(side_effect=just_throw)
+        ):
+            res = self._run_job(template_name, template_args)
+            assert expected_why_it_happened_msg in res.output
+            errors.log_and_throw.assert_called_once_with(
+                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                log=ANY,
+                what_happened="Data loading has failed.",
+                why_it_happened=(
+                    f"You are trying to load data into a table {table_name} with an unsupported format. "
+                    f"Currently only Parquet table format is supported."
+                ),
+                consequences="Data load will be aborted.",
+                countermeasures=(
+                    "Make sure that the destination table is stored as parquet: "
+                    "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
+                    "#parquet_ddl"
+                ),
+            )

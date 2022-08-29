@@ -16,8 +16,8 @@ import java.util.List;
 
 @Data
 public class DataJobQueryVariables {
-   private int pageSize;
-   private int pageNumber;
-   private String search;
-   private List<Filter> filters;
+  private int pageSize;
+  private int pageNumber;
+  private String search;
+  private List<Filter> filters;
 }

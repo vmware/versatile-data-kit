@@ -9,10 +9,8 @@ import lombok.Getter;
 import org.mockito.InjectMocks;
 
 @Getter
-/**
- * See {@link BaseWebHookProviderTest} for the details of the tests.
- */
+/** See {@link BaseWebHookProviderTest} for the details of the tests. */
 public class PostDeleteWebHookProviderTest extends BaseWebHookProviderTest {
-   @InjectMocks
-   private PostDeleteWebHookProvider webHookProvider = new PostDeleteWebHookProvider("", -1);
+  @InjectMocks
+  private PostDeleteWebHookProvider webHookProvider = new PostDeleteWebHookProvider("", -1);
 }

@@ -20,35 +20,38 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 @Configuration
 public class RepositoryRetryOperationsConfiguration {
 
-   @Bean
-   public RepositoryRetryOperationsInterceptor repositoryRetryOperationsInterceptor() {
-      return new RepositoryRetryOperationsInterceptor();
-   }
+  @Bean
+  public RepositoryRetryOperationsInterceptor repositoryRetryOperationsInterceptor() {
+    return new RepositoryRetryOperationsInterceptor();
+  }
 
-   class RepositoryRetryOperationsInterceptor implements BeanPostProcessor, Ordered {
+  class RepositoryRetryOperationsInterceptor implements BeanPostProcessor, Ordered {
 
-      @Override
-      public int getOrder() {
-         return Integer.MAX_VALUE;
+    @Override
+    public int getOrder() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    @Nullable
+    public Object postProcessAfterInitialization(Object bean, String beanName)
+        throws BeansException {
+      if (bean instanceof JobsRepository || bean instanceof JobExecutionRepository) {
+        Advised advised = (Advised) bean;
+        RetryOperationsInterceptor interceptor =
+            RetryInterceptorBuilder.stateless()
+                .maxAttempts(3)
+                .backOffOptions(1000, 2.0, 3000)
+                .recoverer(
+                    (args, cause) -> {
+                      log.error("The query retries has been exhausted: " + cause.getMessage());
+                      throw (RuntimeException) cause;
+                    })
+                .build();
+        advised.addAdvice(0, interceptor);
       }
 
-      @Override
-      @Nullable
-      public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-         if (bean instanceof JobsRepository || bean instanceof JobExecutionRepository) {
-            Advised advised = (Advised) bean;
-            RetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateless()
-                  .maxAttempts(3)
-                  .backOffOptions(1000, 2.0, 3000)
-                  .recoverer((args, cause) -> {
-                     log.error("The query retries has been exhausted: " + cause.getMessage());
-                     throw (RuntimeException) cause;
-                  })
-                  .build();
-            advised.addAdvice(0, interceptor);
-         }
-
-         return bean;
-      }
-   }
+      return bean;
+    }
+  }
 }

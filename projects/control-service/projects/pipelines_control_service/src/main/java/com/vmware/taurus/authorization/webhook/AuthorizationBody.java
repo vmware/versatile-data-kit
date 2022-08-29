@@ -12,22 +12,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 
-/**
- * AuthorizationBody class which defines the request body for the authorization webhook
- */
+/** AuthorizationBody class which defines the request body for the authorization webhook */
 @Data
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 public class AuthorizationBody extends WebHookRequestBody {
 
-    @JsonProperty(REQUESTED_PERMISSION)
-    private String requestedPermission;
+  @JsonProperty(REQUESTED_PERMISSION)
+  private String requestedPermission;
 
-    private static final String REQUESTED_PERMISSION = "requested_permission";
+  private static final String REQUESTED_PERMISSION = "requested_permission";
 
-    @SneakyThrows
-    public String toString(){
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonBody = mapper.writeValueAsString(this);
-        return jsonBody;
-    }
+  @SneakyThrows
+  public String toString() {
+    ObjectMapper mapper = new ObjectMapper();
+    String jsonBody = mapper.writeValueAsString(this);
+    return jsonBody;
+  }
 }

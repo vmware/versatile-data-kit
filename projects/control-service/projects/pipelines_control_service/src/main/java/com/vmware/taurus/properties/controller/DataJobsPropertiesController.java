@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.properties.controller;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.controlplane.model.api.DataJobsPropertiesApi;
 import com.vmware.taurus.properties.service.PropertiesService;
@@ -24,33 +23,35 @@ import java.util.Map;
 @ComponentScan(basePackages = "com.vmware.taurus.properties")
 @Api(tags = {"Data Jobs Properties"})
 public class DataJobsPropertiesController implements DataJobsPropertiesApi {
-   static Logger log = LoggerFactory.getLogger(DataJobsPropertiesController.class);
+  static Logger log = LoggerFactory.getLogger(DataJobsPropertiesController.class);
 
-   private final PropertiesService propertiesService;
+  private final PropertiesService propertiesService;
 
-   public DataJobsPropertiesController(PropertiesService propertiesService) {
-      this.propertiesService = propertiesService;
-   }
+  public DataJobsPropertiesController(PropertiesService propertiesService) {
+    this.propertiesService = propertiesService;
+  }
 
-   @Override
-   public ResponseEntity<Void> dataJobPropertiesUpdate(String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
-      log.debug("Updating properties for job: {}", jobName);
+  @Override
+  public ResponseEntity<Void> dataJobPropertiesUpdate(
+      String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
+    log.debug("Updating properties for job: {}", jobName);
 
-      propertiesService.updateJobProperties(jobName, requestBody);
-      return ResponseEntity.noContent().build();
-   }
+    propertiesService.updateJobProperties(jobName, requestBody);
+    return ResponseEntity.noContent().build();
+  }
 
-   @Override
-   public ResponseEntity<Map<String, Object>> dataJobPropertiesRead(String teamName, String jobName, String deploymentId) {
-      log.debug("Reading properties for job: {}", jobName);
+  @Override
+  public ResponseEntity<Map<String, Object>> dataJobPropertiesRead(
+      String teamName, String jobName, String deploymentId) {
+    log.debug("Reading properties for job: {}", jobName);
 
-      try {
-         return ResponseEntity.ok(propertiesService.readJobProperties(jobName));
-      } catch (JsonProcessingException e) {
-         log.error("Error while parsing properties for job: " + jobName, e);
+    try {
+      return ResponseEntity.ok(propertiesService.readJobProperties(jobName));
+    } catch (JsonProcessingException e) {
+      log.error("Error while parsing properties for job: " + jobName, e);
 
-         throw new ResponseStatusException(
-               HttpStatus.INTERNAL_SERVER_ERROR, "Error while parsing properties for job: " + jobName);
-      }
-   }
+      throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR, "Error while parsing properties for job: " + jobName);
+    }
+  }
 }

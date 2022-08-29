@@ -13,6 +13,5 @@ import java.util.Optional;
 @Repository
 public interface PropertiesRepository extends CrudRepository<JobProperties, String> {
 
-   Optional<JobProperties> findByJobName(String jobName);
-
+  Optional<JobProperties> findByJobName(String jobName);
 }

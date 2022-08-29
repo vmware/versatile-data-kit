@@ -20,37 +20,32 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestInterceptor extends HandlerInterceptorAdapter {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private OperationContext opCtx;
+  private OperationContext opCtx;
 
-    @Autowired
-    public RequestInterceptor(OperationContext opCtx) {
-        this.opCtx = opCtx;
+  @Autowired
+  public RequestInterceptor(OperationContext opCtx) {
+    this.opCtx = opCtx;
+  }
+
+  @Override
+  public boolean preHandle(
+      HttpServletRequest request, HttpServletResponse response, Object handler) {
+    String opId = request.getHeader("X-OPID");
+    if (null == opId) {
+      opId = "0" + System.currentTimeMillis();
     }
+    opCtx.setId(opId);
+    log.debug(">>>>>> Entering {}", request.getRequestURI());
+    opCtx.setHttpRequest(request);
+    opCtx.setHttpResponse(response);
+    return true;
+  }
 
-    @Override
-    public boolean preHandle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler) {
-        String opId = request.getHeader("X-OPID");
-        if (null == opId) {
-            opId = "0" + System.currentTimeMillis();
-        }
-        opCtx.setId(opId);
-        log.debug(">>>>>> Entering {}", request.getRequestURI());
-        opCtx.setHttpRequest(request);
-        opCtx.setHttpResponse(response);
-        return true;
-    }
-
-    @Override
-    public void afterCompletion(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler,
-            Exception ex) {
-        log.debug("<<<<<<< Exiting {}", request.getRequestURI());
-    }
+  @Override
+  public void afterCompletion(
+      HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+    log.debug("<<<<<<< Exiting {}", request.getRequestURI());
+  }
 }

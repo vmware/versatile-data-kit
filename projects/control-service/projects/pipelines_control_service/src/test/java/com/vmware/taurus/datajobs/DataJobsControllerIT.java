@@ -31,131 +31,185 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @ActiveProfiles({"MockKubernetes", "MockKerberos", "unittest", "MockGit", "MockTelemetry"})
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = ControlplaneApplication.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = ControlplaneApplication.class)
 @AutoConfigureMockMvc
 public class DataJobsControllerIT {
 
-    // team name can have spaces in it so we are purposefully using one with space
-    private static final String TEST_TEAM_NAME = "test team";
-    private static final String TEST_JOB_NAME = "test-job";
-    private static final String TEST_TEAM_WRONG_NAME = "test-example-team";
+  // team name can have spaces in it so we are purposefully using one with space
+  private static final String TEST_TEAM_NAME = "test team";
+  private static final String TEST_JOB_NAME = "test-job";
+  private static final String TEST_TEAM_WRONG_NAME = "test-example-team";
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
+  private Matcher<String> lambdaMatcher(Predicate<String> predicate) {
+    return new BaseMatcher<>() {
+      @Override
+      public boolean matches(Object actual) {
+        return predicate.test((String) actual);
+      }
 
-    private Matcher<String> lambdaMatcher(Predicate<String> predicate) {
-        return new BaseMatcher<>() {
-            @Override
-            public boolean matches(Object actual) {
-                return predicate.test((String) actual);
-            }
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("failed to match predicate");
+      }
+    };
+  }
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("failed to match predicate");
-            }
-        };
-    }
+  @Test
+  @WithMockUser
+  public void testDataJobCrud() throws Exception {
+    var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
 
-    @Test
-    @WithMockUser
-    public void testDataJobCrud() throws Exception {
-        var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
+    String body = mapper.writeValueAsString(job);
+    String expectedLocationPath =
+        String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME);
+    mockMvc
+        .perform(
+            post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(
+            header()
+                .string(
+                    HttpHeaders.LOCATION,
+                    lambdaMatcher(
+                        s ->
+                            URLDecoder.decode(s, Charset.defaultCharset())
+                                .endsWith(expectedLocationPath))));
+    // deprecated jobsList in favour of jobsQuery
+    mockMvc
+        .perform(get(String.format("/data-jobs/for-team/%s", TEST_TEAM_NAME)))
+        .andExpect(status().isOk())
+        .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_NAME))));
+    mockMvc
+        .perform(
+            get(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME)))
+        .andExpect(status().isOk())
+        .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_NAME))))
+        .andExpect(
+            content()
+                .string(
+                    lambdaMatcher(
+                        s -> s.contains(job.getConfig().getSchedule().getScheduleCron()))));
+    mockMvc
+        .perform(
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+  }
 
-        String body = mapper.writeValueAsString(job);
-        String expectedLocationPath = String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME);
-        mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                .content(body).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.LOCATION,
-                        lambdaMatcher(s -> URLDecoder.decode(s, Charset.defaultCharset()).endsWith(expectedLocationPath))));
-        // deprecated jobsList in favour of jobsQuery
-        mockMvc.perform(get(String.format("/data-jobs/for-team/%s", TEST_TEAM_NAME)))
-                .andExpect(status().isOk()).andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_NAME))));
-        mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME)))
-                .andExpect(status().isOk()).andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_NAME))))
-                .andExpect(content().string(lambdaMatcher(s -> s.contains(job.getConfig().getSchedule().getScheduleCron()))));
-        mockMvc.perform(delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-    }
+  @Test
+  @WithMockUser
+  public void testDataJobDeployTelemetry() throws Exception {
+    MockTelemetry.payloads.clear();
+    var job = TestUtils.getDataJob(TEST_TEAM_NAME, "deployment-job");
 
-    @Test
-    @WithMockUser
-    public void testDataJobDeployTelemetry() throws Exception {
-        MockTelemetry.payloads.clear();
-        var job = TestUtils.getDataJob(TEST_TEAM_NAME, "deployment-job");
+    String body = mapper.writeValueAsString(job);
+    mockMvc
+        .perform(
+            post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated());
 
-        String body = mapper.writeValueAsString(job);
-        mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                .content(body).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+    var jobDeployment = TestUtils.getDataJobDeployment("prod", "1");
 
-        var jobDeployment = TestUtils.getDataJobDeployment("prod", "1");
-
-        mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, "deployment-job"))
+    mockMvc
+        .perform(
+            post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, "deployment-job"))
                 .content(mapper.writeValueAsString(jobDeployment))
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isAccepted());
-        // checking if httptrace table is updated correctly with http trace info
-        var httpTraceTelemetry = MockTelemetry.payloads.stream()
-                .filter(p -> p.contains("taurus_httptrace") && p.contains("/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments")).findFirst();
-        // checking if taurus_api_call is updated with DeploymentProgress as specified by Measurable annotation
-        var deployProgressTelemetry = MockTelemetry.payloads.stream()
-                .filter(p -> p.contains("taurus_api_call") && p.contains("DeploymentProgress") && p.contains("completed")).findFirst();
+        .andExpect(status().isAccepted());
+    // checking if httptrace table is updated correctly with http trace info
+    var httpTraceTelemetry =
+        MockTelemetry.payloads.stream()
+            .filter(
+                p ->
+                    p.contains("taurus_httptrace")
+                        && p.contains(
+                            "/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments"))
+            .findFirst();
+    // checking if taurus_api_call is updated with DeploymentProgress as specified by Measurable
+    // annotation
+    var deployProgressTelemetry =
+        MockTelemetry.payloads.stream()
+            .filter(
+                p ->
+                    p.contains("taurus_api_call")
+                        && p.contains("DeploymentProgress")
+                        && p.contains("completed"))
+            .findFirst();
 
-        assertTrue(httpTraceTelemetry.isPresent(),
-                "Did not find expected http trace telemetry. See all payloads: " + MockTelemetry.payloads);
-        assertTrue(deployProgressTelemetry.isPresent(),
-                "Did not find expected deploy progress telemetry. See all payloads: " + MockTelemetry.payloads);
-    }
+    assertTrue(
+        httpTraceTelemetry.isPresent(),
+        "Did not find expected http trace telemetry. See all payloads: " + MockTelemetry.payloads);
+    assertTrue(
+        deployProgressTelemetry.isPresent(),
+        "Did not find expected deploy progress telemetry. See all payloads: "
+            + MockTelemetry.payloads);
+  }
 
-    /**
-     * Tests if parameter validation in {@link DataJobsController} works correctly integrated with
-     * {@link com.vmware.taurus.exception.ExceptionControllerAdvice}
-     *
-     * <p>
-     * The test doesn't aim to cover all types of parameter validation - that's for the unit tests. This test
-     * confirms that that validation works end-to-end and the user gets a 400 response in case of validation issue.
-     */
-    @Test
-    @WithMockUser
-    public void testParameterValidation() throws Exception {
-        // deprecated jobsList in favour of jobsQuery
-        mockMvc.perform(get(String.format("/data-jobs/for-team/%s?page_number=-1", TEST_TEAM_NAME)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(lambdaMatcher(s -> s.contains("page_number"))));
-    }
+  /**
+   * Tests if parameter validation in {@link DataJobsController} works correctly integrated with
+   * {@link com.vmware.taurus.exception.ExceptionControllerAdvice}
+   *
+   * <p>The test doesn't aim to cover all types of parameter validation - that's for the unit tests.
+   * This test confirms that that validation works end-to-end and the user gets a 400 response in
+   * case of validation issue.
+   */
+  @Test
+  @WithMockUser
+  public void testParameterValidation() throws Exception {
+    // deprecated jobsList in favour of jobsQuery
+    mockMvc
+        .perform(get(String.format("/data-jobs/for-team/%s?page_number=-1", TEST_TEAM_NAME)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(lambdaMatcher(s -> s.contains("page_number"))));
+  }
 
-    @Test
-    @WithMockUser
-    public void testDownloadKeytab() throws Exception {
-        DataJob job = TestUtils.getDataJob(TEST_TEAM_NAME, "job-" + UUID.randomUUID().toString().toLowerCase());
-        String downloadKeytabPath = String.format("/data-jobs/for-team/%s/jobs/%s/keytab",
-                TEST_TEAM_NAME,
-                job.getJobName());
-        mockMvc.perform(get(downloadKeytabPath)).andExpect(status().isNotFound());
+  @Test
+  @WithMockUser
+  public void testDownloadKeytab() throws Exception {
+    DataJob job =
+        TestUtils.getDataJob(TEST_TEAM_NAME, "job-" + UUID.randomUUID().toString().toLowerCase());
+    String downloadKeytabPath =
+        String.format("/data-jobs/for-team/%s/jobs/%s/keytab", TEST_TEAM_NAME, job.getJobName());
+    mockMvc.perform(get(downloadKeytabPath)).andExpect(status().isNotFound());
 
-        String body = mapper.writeValueAsString(job);
-        mockMvc.perform(post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON));
+    String body = mapper.writeValueAsString(job);
+    mockMvc.perform(
+        post(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+            .content(body)
+            .contentType(MediaType.APPLICATION_JSON));
 
-        mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs/%s/keytab",
-                TEST_TEAM_WRONG_NAME,
-                job.getJobName()))).andExpect(status().isNotFound());
+    mockMvc
+        .perform(
+            get(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/keytab",
+                    TEST_TEAM_WRONG_NAME, job.getJobName())))
+        .andExpect(status().isNotFound());
 
-        byte[] keytab = downloadPath(downloadKeytabPath);
-        byte[] keytabAgain = downloadPath(downloadKeytabPath);
+    byte[] keytab = downloadPath(downloadKeytabPath);
+    byte[] keytabAgain = downloadPath(downloadKeytabPath);
 
-        assertArrayEquals(keytab, keytabAgain);
-    }
+    assertArrayEquals(keytab, keytabAgain);
+  }
 
-    private byte[] downloadPath(String path) throws Exception {
-        return mockMvc.perform(get(path)).andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray();
-    }
+  private byte[] downloadPath(String path) throws Exception {
+    return mockMvc
+        .perform(get(path))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getResponse()
+        .getContentAsByteArray();
+  }
 }

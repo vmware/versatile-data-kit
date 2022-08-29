@@ -19,36 +19,38 @@ import java.util.function.Predicate;
 @Component
 public class JobFieldStrategyByLastExecutionDuration extends FieldStrategy<V2DataJob> {
 
-   private static final Comparator<V2DataJob> COMPARATOR_DEFAULT = Comparator.comparing(
-           JobFieldStrategyByLastExecutionDuration::getLastExecutionDuration,
-           Comparator.nullsFirst(Comparator.naturalOrder()));
+  private static final Comparator<V2DataJob> COMPARATOR_DEFAULT =
+      Comparator.comparing(
+          JobFieldStrategyByLastExecutionDuration::getLastExecutionDuration,
+          Comparator.nullsFirst(Comparator.naturalOrder()));
 
-   @Override
-   public JobFieldStrategyBy getStrategyName() {
-      return JobFieldStrategyBy.DEPLOYMENT_LAST_EXECUTION_DURATION;
-   }
+  @Override
+  public JobFieldStrategyBy getStrategyName() {
+    return JobFieldStrategyBy.DEPLOYMENT_LAST_EXECUTION_DURATION;
+  }
 
-   @Override
-   public Criteria<V2DataJob> computeFilterCriteria(@NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
-      Predicate<V2DataJob> predicate = criteria.getPredicate();
+  @Override
+  public Criteria<V2DataJob> computeFilterCriteria(
+      @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
+    Predicate<V2DataJob> predicate = criteria.getPredicate();
 
-      if (filterProvided(filter)) {
-         predicate = predicate.and(computeSearchCriteria(filter.getPattern()));
-      }
+    if (filterProvided(filter)) {
+      predicate = predicate.and(computeSearchCriteria(filter.getPattern()));
+    }
 
-      return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
-   }
+    return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
+  }
 
-   @Override
-   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-      return dataJob -> false;
-   }
+  @Override
+  public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
+    return dataJob -> false;
+  }
 
-   private static Integer getLastExecutionDuration(V2DataJob dataJob) {
-      if (CollectionUtils.isEmpty(dataJob.getDeployments())) {
-         return null;
-      }
-      // TODO support for multiple deployments
-      return dataJob.getDeployments().stream().findFirst().orElseThrow().getLastExecutionDuration();
-   }
+  private static Integer getLastExecutionDuration(V2DataJob dataJob) {
+    if (CollectionUtils.isEmpty(dataJob.getDeployments())) {
+      return null;
+    }
+    // TODO support for multiple deployments
+    return dataJob.getDeployments().stream().findFirst().orElseThrow().getLastExecutionDuration();
+  }
 }

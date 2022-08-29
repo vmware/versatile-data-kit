@@ -16,23 +16,23 @@ import java.util.Set;
 
 @Component
 public class JobFieldStrategyFactory {
-   private Map<JobFieldStrategyBy, FieldStrategy<V2DataJob>> strategies;
+  private Map<JobFieldStrategyBy, FieldStrategy<V2DataJob>> strategies;
 
-   @Autowired
-   public JobFieldStrategyFactory(Set<FieldStrategy<V2DataJob>> strategySet) {
-      createStrategy(strategySet);
-   }
+  @Autowired
+  public JobFieldStrategyFactory(Set<FieldStrategy<V2DataJob>> strategySet) {
+    createStrategy(strategySet);
+  }
 
-   public FieldStrategy<V2DataJob> findStrategy(JobFieldStrategyBy strategyName) {
-      return strategies.get(strategyName);
-   }
+  public FieldStrategy<V2DataJob> findStrategy(JobFieldStrategyBy strategyName) {
+    return strategies.get(strategyName);
+  }
 
-   private void createStrategy(Set<FieldStrategy<V2DataJob>> strategySet) {
-      strategies = new EnumMap<>(JobFieldStrategyBy.class);
-      strategySet.forEach(strategy ->strategies.put(strategy.getStrategyName(), strategy));
-   }
+  private void createStrategy(Set<FieldStrategy<V2DataJob>> strategySet) {
+    strategies = new EnumMap<>(JobFieldStrategyBy.class);
+    strategySet.forEach(strategy -> strategies.put(strategy.getStrategyName(), strategy));
+  }
 
-   public Map<JobFieldStrategyBy, FieldStrategy<V2DataJob>> getStrategies() {
-      return new EnumMap<>(strategies);
-   }
+  public Map<JobFieldStrategyBy, FieldStrategy<V2DataJob>> getStrategies() {
+    return new EnumMap<>(strategies);
+  }
 }

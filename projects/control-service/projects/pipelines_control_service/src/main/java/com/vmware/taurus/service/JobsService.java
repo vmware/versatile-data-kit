@@ -33,258 +33,265 @@ import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import com.vmware.taurus.service.webhook.WebHookResult;
 
 /**
- * CRUD and other management operations on Versatile Data Kit across all systems which the pipelines interact with:
- * configuration DB, credentials systems, Kubernetes etc
+ * CRUD and other management operations on Versatile Data Kit across all systems which the pipelines
+ * interact with: configuration DB, credentials systems, Kubernetes etc
  *
- * <p>
- * Methods throw {@link org.springframework.dao.DataAccessException} in case of issues of writing to the database.
- * Operations are synchronous unless otherwise specified in javadoc.
+ * <p>Methods throw {@link org.springframework.dao.DataAccessException} in case of issues of writing
+ * to the database. Operations are synchronous unless otherwise specified in javadoc.
  */
 @Service
 @AllArgsConstructor
 public class JobsService {
 
-   private static final Logger log = LoggerFactory.getLogger(JobsService.class);
+  private static final Logger log = LoggerFactory.getLogger(JobsService.class);
 
-   private final JobsRepository jobsRepository;
-   private final DeploymentService deploymentService;
-   private final JobCredentialsService credentialsService;
-   private final WebHookRequestBodyProvider webHookRequestBodyProvider;
-   private final PostCreateWebHookProvider postCreateWebHookProvider;
-   private final PostDeleteWebHookProvider postDeleteWebHookProvider;
-   private final DataJobMetrics dataJobMetrics;
+  private final JobsRepository jobsRepository;
+  private final DeploymentService deploymentService;
+  private final JobCredentialsService credentialsService;
+  private final WebHookRequestBodyProvider webHookRequestBodyProvider;
+  private final PostCreateWebHookProvider postCreateWebHookProvider;
+  private final PostDeleteWebHookProvider postDeleteWebHookProvider;
+  private final DataJobMetrics dataJobMetrics;
 
+  public JobOperationResult deleteJob(String name) {
+    if (!jobsRepository.existsById(name)) {
+      return JobOperationResult.builder().completed(false).build();
+    }
 
-   public JobOperationResult deleteJob(String name) {
-      if (!jobsRepository.existsById(name)) {
-         return JobOperationResult.builder()
-               .completed(false)
-               .build();
+    WebHookRequestBody requestBody =
+        webHookRequestBodyProvider.constructPostDeleteBody(jobsRepository.findById(name).get());
+    Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
+    if (isInvocationSuccessful(resultHolder)) {
+      credentialsService.deleteJobCredentials(name);
+      deploymentService.deleteDeployment(name);
+      jobsRepository.deleteById(name);
+      dataJobMetrics.clearGauges(name);
+
+      return JobOperationResult.builder().completed(true).build();
+    } else {
+      log.debug(
+          "Post Delete WebHook Provider returns unsuccessful result. Job: {} will not be persisted"
+              + " ...",
+          name);
+
+      // Propagate the webhook status code and message
+      return JobOperationResult.builder()
+          .completed(false)
+          .webHookResult(resultHolder.get())
+          .build();
+    }
+  }
+
+  /**
+   * Creates a data job if it doesn't exist
+   *
+   * @param jobInfo the job details, not null
+   * @return JobOperationResult with information whether the job was created and didn't exist before
+   *     the operation. In addition it will contain WebHookResult in case the WebHookRequest returns
+   *     4xx error.
+   */
+  public JobOperationResult createJob(DataJob jobInfo) {
+    Objects.requireNonNull(jobInfo);
+    Objects.requireNonNull(jobInfo.getJobConfig());
+    if (jobsRepository.existsById(jobInfo.getName())) {
+      return JobOperationResult.builder().completed(false).build();
+    }
+
+    WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostCreateBody(jobInfo);
+    Optional<WebHookResult> resultHolder = postCreateWebHookProvider.invokeWebHook(requestBody);
+    if (isInvocationSuccessful(resultHolder)) {
+      // Save the data job and update the job info metrics
+      if (jobInfo.getJobConfig().isGenerateKeytab()) {
+        credentialsService.createJobCredentials(jobInfo.getName());
       }
-
-      WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostDeleteBody(jobsRepository.findById(name).get());
-      Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
-      if (isInvocationSuccessful(resultHolder)) {
-         credentialsService.deleteJobCredentials(name);
-         deploymentService.deleteDeployment(name);
-         jobsRepository.deleteById(name);
-         dataJobMetrics.clearGauges(name);
-
-         return JobOperationResult.builder()
-               .completed(true)
-               .build();
-      } else {
-         log.debug("Post Delete WebHook Provider returns unsuccessful result. Job: {} will not be persisted ...", name);
-
-         //Propagate the webhook status code and message
-         return JobOperationResult.builder()
-               .completed(false)
-               .webHookResult(resultHolder.get())
-               .build();
-      }
-   }
-
-   /**
-    * Creates a data job if it doesn't exist
-    *
-    * @param jobInfo
-    *       the job details, not null
-    * @return JobOperationResult with information whether the job was created and didn't exist before the operation.
-    * In addition it will contain WebHookResult in case the WebHookRequest returns 4xx error.
-    */
-   public JobOperationResult createJob(DataJob jobInfo) {
-      Objects.requireNonNull(jobInfo);
-      Objects.requireNonNull(jobInfo.getJobConfig());
-      if (jobsRepository.existsById(jobInfo.getName())) {
-         return JobOperationResult.builder()
-               .completed(false)
-               .build();
-      }
-
-      WebHookRequestBody requestBody = webHookRequestBodyProvider.constructPostCreateBody(jobInfo);
-      Optional<WebHookResult> resultHolder = postCreateWebHookProvider.invokeWebHook(requestBody);
-      if (isInvocationSuccessful(resultHolder)) {
-         // Save the data job and update the job info metrics
-         if (jobInfo.getJobConfig().isGenerateKeytab()) {
-            credentialsService.createJobCredentials(jobInfo.getName());
-         }
-         var dataJob = jobsRepository.save(jobInfo);
-         dataJobMetrics.updateInfoGauges(dataJob);
-
-         return JobOperationResult.builder()
-               .completed(true)
-               .build();
-      } else {
-         log.debug("Post Create WebHook Provider returns unsuccessful result. Job: {} will not be persisted ...",
-               jobInfo.getName());
-
-         //Propagate the webhook status code and message
-         return JobOperationResult.builder()
-               .completed(false)
-               .webHookResult(resultHolder.get())
-               .build();
-      }
-   }
-
-   private boolean isInvocationSuccessful(Optional<WebHookResult> resultHolder) {
-      if (resultHolder.isPresent()) {
-         return resultHolder.get().isSuccess();
-      }
-      return true;
-   }
-
-   /**
-    * Updates a data job if exists
-    *
-    * <p>
-    * Updates are always full so null input fields will overwrite fields in the database.
-    *
-    * @param jobInfo
-    * @return if the job existed
-    */
-   public boolean updateJob(DataJob jobInfo) {
-      var dataJob = jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null;
+      var dataJob = jobsRepository.save(jobInfo);
       dataJobMetrics.updateInfoGauges(dataJob);
-      return dataJob != null;
-   }
 
-   /**
-    * Read a page of jobs
-    *
-    * @param pageNumber
-    *       The number of pages of items to skip before starting to collect the result set. Must be &gt;= 0
-    * @param pageSize
-    *       The number of items in page. Must be &gt; 0.
-    * @return a list of jobs, up to pageSize in size
-    */
-   public List<DataJob> getAllJobs(int pageNumber, int pageSize) {
-      // validates parameters
-      Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name"));
+      return JobOperationResult.builder().completed(true).build();
+    } else {
+      log.debug(
+          "Post Create WebHook Provider returns unsuccessful result. Job: {} will not be persisted"
+              + " ...",
+          jobInfo.getName());
 
-      log.info("Reading jobs at {} ...", pageable.getPageNumber(), pageable);
-      // Reading jobs populates their jobConfig objects too.
-      var dataJobs = Lists.newArrayList(jobsRepository.findAll(pageable));
-      log.info("Found {} jobs", dataJobs.size());
-      return dataJobs;
-   }
+      // Propagate the webhook status code and message
+      return JobOperationResult.builder()
+          .completed(false)
+          .webHookResult(resultHolder.get())
+          .build();
+    }
+  }
 
-   /**
-    * Read a page of jobs belonging to a team
-    *
-    * @param pageNumber
-    *       The number of pages of items to skip before starting to collect the result set. Must be &gt;= 0
-    * @param pageSize
-    *       The number of items in page. Must be &gt; 0.
-    * @param teamName
-    *       The name of the team to which the job belongs
-    * @return a list of jobs, up to pageSize in size
-    */
-   public List<DataJob> getTeamJobs(int pageNumber, int pageSize, String teamName) {
-      // validates parameters
-      Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name"));
+  private boolean isInvocationSuccessful(Optional<WebHookResult> resultHolder) {
+    if (resultHolder.isPresent()) {
+      return resultHolder.get().isSuccess();
+    }
+    return true;
+  }
 
-      log.info("Reading jobs for team {} at {} ...", teamName, pageable.getPageNumber(), pageable);
-      // Reading jobs populates their jobConfig objects too.
-      var dataJobs = Lists.newArrayList(jobsRepository.findAllByJobConfigTeam(teamName, pageable));
-      log.info("Found {} jobs of team {}", dataJobs.size(), teamName);
-      return dataJobs;
-   }
+  /**
+   * Updates a data job if exists
+   *
+   * <p>Updates are always full so null input fields will overwrite fields in the database.
+   *
+   * @param jobInfo
+   * @return if the job existed
+   */
+  public boolean updateJob(DataJob jobInfo) {
+    var dataJob =
+        jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null;
+    dataJobMetrics.updateInfoGauges(dataJob);
+    return dataJob != null;
+  }
 
-   public boolean jobWithTeamExists(String jobName, String teamName) {
-      return jobsRepository.existsDataJobByNameAndJobConfigTeam(jobName, teamName);
-   }
+  /**
+   * Read a page of jobs
+   *
+   * @param pageNumber The number of pages of items to skip before starting to collect the result
+   *     set. Must be &gt;= 0
+   * @param pageSize The number of items in page. Must be &gt; 0.
+   * @return a list of jobs, up to pageSize in size
+   */
+  public List<DataJob> getAllJobs(int pageNumber, int pageSize) {
+    // validates parameters
+    Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name"));
 
-   public Optional<DataJob> getByName(String name) {
-      return jobsRepository.findById(name);
-   }
+    log.info("Reading jobs at {} ...", pageable.getPageNumber(), pageable);
+    // Reading jobs populates their jobConfig objects too.
+    var dataJobs = Lists.newArrayList(jobsRepository.findAll(pageable));
+    log.info("Found {} jobs", dataJobs.size());
+    return dataJobs;
+  }
 
-   public Optional<DataJob> getByNameAndTeam(String jobName, String teamName) {
-      return jobsRepository.findDataJobByNameAndJobConfigTeam(jobName, teamName);
-   }
+  /**
+   * Read a page of jobs belonging to a team
+   *
+   * @param pageNumber The number of pages of items to skip before starting to collect the result
+   *     set. Must be &gt;= 0
+   * @param pageSize The number of items in page. Must be &gt; 0.
+   * @param teamName The name of the team to which the job belongs
+   * @return a list of jobs, up to pageSize in size
+   */
+  public List<DataJob> getTeamJobs(int pageNumber, int pageSize, String teamName) {
+    // validates parameters
+    Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name"));
 
-   /**
-    * Updates the last job execution in the database for the specified data job.
-    * The status is updated only if the execution has completed and
-    * is more recent than the currently persisted last execution.
-    */
-   public void updateLastExecution(
-         final DataJobExecution dataJobExecution) {
-      Objects.requireNonNull(dataJobExecution);
+    log.info("Reading jobs for team {} at {} ...", teamName, pageable.getPageNumber(), pageable);
+    // Reading jobs populates their jobConfig objects too.
+    var dataJobs = Lists.newArrayList(jobsRepository.findAllByJobConfigTeam(teamName, pageable));
+    log.info("Found {} jobs of team {}", dataJobs.size(), teamName);
+    return dataJobs;
+  }
 
-      if (StringUtils.isBlank(dataJobExecution.getId())) {
-         log.warn("Could not store data job execution due to the missing execution id: {}", dataJobExecution.getId());
-         return;
-      }
+  public boolean jobWithTeamExists(String jobName, String teamName) {
+    return jobsRepository.existsDataJobByNameAndJobConfigTeam(jobName, teamName);
+  }
 
-      // Check if the execution has completed
-      var finalStatuses = new HashSet<>(List.of(
-            ExecutionStatus.CANCELLED,
-            ExecutionStatus.USER_ERROR,
-            ExecutionStatus.PLATFORM_ERROR,
-            ExecutionStatus.SUCCEEDED,
-            ExecutionStatus.SKIPPED));
-      boolean hasExecutionCompleted = finalStatuses.contains(dataJobExecution.getStatus()) &&
-            dataJobExecution.getEndTime() != null;
-      if (!hasExecutionCompleted) {
-         log.debug("The last execution info for data job {} will NOT be updated. The execution {} has not completed yet.",
-               dataJobExecution.getDataJob().getName(), dataJobExecution.getId());
-         return;
-      }
+  public Optional<DataJob> getByName(String name) {
+    return jobsRepository.findById(name);
+  }
 
-      // Check if the execution is more recent than the one already recorded for this job
-      DataJob dataJob = dataJobExecution.getDataJob();
-      if (dataJob.getLastExecutionEndTime() != null &&
-            dataJobExecution.getEndTime().isBefore(dataJob.getLastExecutionEndTime())) {
-         log.debug("The last execution info for data job {} will NOT be updated. The execution {} was not recent.",
-               dataJobExecution.getDataJob().getName(), dataJobExecution.getId());
-         return;
-      }
+  public Optional<DataJob> getByNameAndTeam(String jobName, String teamName) {
+    return jobsRepository.findDataJobByNameAndJobConfigTeam(jobName, teamName);
+  }
 
-      log.debug("Updating last execution of data job {}: {}", dataJob.getName(), dataJobExecution);
+  /**
+   * Updates the last job execution in the database for the specified data job. The status is
+   * updated only if the execution has completed and is more recent than the currently persisted
+   * last execution.
+   */
+  public void updateLastExecution(final DataJobExecution dataJobExecution) {
+    Objects.requireNonNull(dataJobExecution);
 
-      jobsRepository.updateDataJobLastExecutionByName(
-            dataJob.getName(),
-            dataJobExecution.getStatus(),
-            dataJobExecution.getEndTime(),
-            (int)(dataJobExecution.getEndTime().toEpochSecond() - dataJobExecution.getStartTime().toEpochSecond())
-      );
-   }
+    if (StringUtils.isBlank(dataJobExecution.getId())) {
+      log.warn(
+          "Could not store data job execution due to the missing execution id: {}",
+          dataJobExecution.getId());
+      return;
+    }
 
-   /**
-    * Updates the latest termination status for the specified data job.
-    * The status is updated only if it has changes since the last.
-    */
-   public boolean updateTerminationStatus(
-         final DataJobExecution dataJobExecution) {
-      Objects.requireNonNull(dataJobExecution);
+    // Check if the execution has completed
+    var finalStatuses =
+        new HashSet<>(
+            List.of(
+                ExecutionStatus.CANCELLED,
+                ExecutionStatus.USER_ERROR,
+                ExecutionStatus.PLATFORM_ERROR,
+                ExecutionStatus.SUCCEEDED,
+                ExecutionStatus.SKIPPED));
+    boolean hasExecutionCompleted =
+        finalStatuses.contains(dataJobExecution.getStatus())
+            && dataJobExecution.getEndTime() != null;
+    if (!hasExecutionCompleted) {
+      log.debug(
+          "The last execution info for data job {} will NOT be updated. The execution {} has not"
+              + " completed yet.",
+          dataJobExecution.getDataJob().getName(),
+          dataJobExecution.getId());
+      return;
+    }
 
-      String executionId = dataJobExecution.getId();
-      ExecutionStatus executionStatus = dataJobExecution.getStatus();
+    // Check if the execution is more recent than the one already recorded for this job
+    DataJob dataJob = dataJobExecution.getDataJob();
+    if (dataJob.getLastExecutionEndTime() != null
+        && dataJobExecution.getEndTime().isBefore(dataJob.getLastExecutionEndTime())) {
+      log.debug(
+          "The last execution info for data job {} will NOT be updated. The execution {} was not"
+              + " recent.",
+          dataJobExecution.getDataJob().getName(),
+          dataJobExecution.getId());
+      return;
+    }
 
-      // Do not update the status when either:
-      //   * the status is SKIPPED
-      //   * the status and executionId have not changed
-      DataJob dataJob = dataJobExecution.getDataJob();
-      if (executionStatus == ExecutionStatus.SKIPPED ||
-            dataJob.getLatestJobTerminationStatus() == executionStatus &&
-                  StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
-         log.debug("The termination status of data job {} will NOT be updated. " +
-                     "Old status is: {}, New status is: {}; Old execution id: {}, New execution id: {}",
-               dataJob.getName(),
-               dataJob.getLatestJobTerminationStatus(), executionStatus,
-               dataJob.getLatestJobExecutionId(), executionId);
-         return false;
-      }
+    log.debug("Updating last execution of data job {}: {}", dataJob.getName(), dataJobExecution);
 
-      log.debug("Update termination status of data job {} with execution {} from {} to {}",
-            dataJob.getName(), executionId, dataJob.getLatestJobTerminationStatus(), executionStatus);
+    jobsRepository.updateDataJobLastExecutionByName(
+        dataJob.getName(),
+        dataJobExecution.getStatus(),
+        dataJobExecution.getEndTime(),
+        (int)
+            (dataJobExecution.getEndTime().toEpochSecond()
+                - dataJobExecution.getStartTime().toEpochSecond()));
+  }
 
-      jobsRepository.updateDataJobLatestTerminationStatusByName(
-            dataJob.getName(),
-            executionStatus,
-            executionId
-      );
+  /**
+   * Updates the latest termination status for the specified data job. The status is updated only if
+   * it has changes since the last.
+   */
+  public boolean updateTerminationStatus(final DataJobExecution dataJobExecution) {
+    Objects.requireNonNull(dataJobExecution);
 
-      return true;
-   }
+    String executionId = dataJobExecution.getId();
+    ExecutionStatus executionStatus = dataJobExecution.getStatus();
+
+    // Do not update the status when either:
+    //   * the status is SKIPPED
+    //   * the status and executionId have not changed
+    DataJob dataJob = dataJobExecution.getDataJob();
+    if (executionStatus == ExecutionStatus.SKIPPED
+        || dataJob.getLatestJobTerminationStatus() == executionStatus
+            && StringUtils.equals(dataJob.getLatestJobExecutionId(), executionId)) {
+      log.debug(
+          "The termination status of data job {} will NOT be updated. "
+              + "Old status is: {}, New status is: {}; Old execution id: {}, New execution id: {}",
+          dataJob.getName(),
+          dataJob.getLatestJobTerminationStatus(),
+          executionStatus,
+          dataJob.getLatestJobExecutionId(),
+          executionId);
+      return false;
+    }
+
+    log.debug(
+        "Update termination status of data job {} with execution {} from {} to {}",
+        dataJob.getName(),
+        executionId,
+        dataJob.getLatestJobTerminationStatus(),
+        executionStatus);
+
+    jobsRepository.updateDataJobLatestTerminationStatusByName(
+        dataJob.getName(), executionStatus, executionId);
+
+    return true;
+  }
 }

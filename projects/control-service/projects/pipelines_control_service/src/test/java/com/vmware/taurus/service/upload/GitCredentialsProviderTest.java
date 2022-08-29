@@ -12,22 +12,22 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class GitCredentialsProviderTest {
 
-    @Test
-    public void testProperCredentials() {
-        GitCredentialsProvider credentialsProvider = new GitCredentialsProvider();
-        ReflectionTestUtils.setField(credentialsProvider, "gitReadWriteUsername", "example_user");
-        ReflectionTestUtils.setField(credentialsProvider, "gitReadWritePassword", "z7d766asdv6019cz0a");
+  @Test
+  public void testProperCredentials() {
+    GitCredentialsProvider credentialsProvider = new GitCredentialsProvider();
+    ReflectionTestUtils.setField(credentialsProvider, "gitReadWriteUsername", "example_user");
+    ReflectionTestUtils.setField(credentialsProvider, "gitReadWritePassword", "z7d766asdv6019cz0a");
 
-        CredentialsProvider provider = credentialsProvider.getProvider();
-        Assertions.assertNotNull(provider);
-    }
+    CredentialsProvider provider = credentialsProvider.getProvider();
+    Assertions.assertNotNull(provider);
+  }
 
-    @Test
-    public void testEmptyCredentials() {
-        GitCredentialsProvider credentialsProvider = new GitCredentialsProvider();
-        ReflectionTestUtils.setField(credentialsProvider, "gitReadWriteUsername", "");
-        ReflectionTestUtils.setField(credentialsProvider, "gitReadWritePassword", "");
-        CredentialsProvider provider = credentialsProvider.getProvider();
-        Assertions.assertNotNull(provider);
-    }
+  @Test
+  public void testEmptyCredentials() {
+    GitCredentialsProvider credentialsProvider = new GitCredentialsProvider();
+    ReflectionTestUtils.setField(credentialsProvider, "gitReadWriteUsername", "");
+    ReflectionTestUtils.setField(credentialsProvider, "gitReadWritePassword", "");
+    CredentialsProvider provider = credentialsProvider.getProvider();
+    Assertions.assertNotNull(provider);
+  }
 }

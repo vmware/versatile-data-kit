@@ -16,31 +16,34 @@ import java.io.File;
 import java.util.Optional;
 
 /**
- * Creates dummy empty princpal that does not exists. Used to basically disable credentials generation functionality.
+ * Creates dummy empty princpal that does not exists. Used to basically disable credentials
+ * generation functionality.
  */
 @Profile("!MockKerberos")
 @Component
-@ConditionalOnProperty(value = ServiceAppPropNames.CREDENTIALS_REPOSITORY_TYPE, havingValue = "EMPTY", matchIfMissing = true)
+@ConditionalOnProperty(
+    value = ServiceAppPropNames.CREDENTIALS_REPOSITORY_TYPE,
+    havingValue = "EMPTY",
+    matchIfMissing = true)
 public class EmptyCredentialsRepository implements CredentialsRepository {
-    private static final Logger log = LoggerFactory.getLogger(EmptyCredentialsRepository.class);
+  private static final Logger log = LoggerFactory.getLogger(EmptyCredentialsRepository.class);
 
-    public EmptyCredentialsRepository() {
-        log.info("Credentials repository used will be empty - no credentials.");
-    }
+  public EmptyCredentialsRepository() {
+    log.info("Credentials repository used will be empty - no credentials.");
+  }
 
-    @Override
-    public void createPrincipal(String principal, Optional<File> keytabLocation) {
-        log.trace("Create empty principal " + principal);
-    }
+  @Override
+  public void createPrincipal(String principal, Optional<File> keytabLocation) {
+    log.trace("Create empty principal " + principal);
+  }
 
-    @Override
-    public boolean principalExists(String principal) {
-        return false;
-    }
+  @Override
+  public boolean principalExists(String principal) {
+    return false;
+  }
 
-    @Override
-    public void deletePrincipal(String principal) {
-        log.trace("Delete empty principal " + principal);
-    }
-
+  @Override
+  public void deletePrincipal(String principal) {
+    log.trace("Delete empty principal " + principal);
+  }
 }
