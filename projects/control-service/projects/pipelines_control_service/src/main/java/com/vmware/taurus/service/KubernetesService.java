@@ -724,8 +724,8 @@ public abstract class KubernetesService implements InitializingBean {
             "Execution: {} for data job: {} with team: {} not found! The data job has likely"
                 + " completed before it could be cancelled.",
             executionId,
-            teamName,
-            jobName);
+            jobName,
+            teamName);
         throw new DataJobExecutionCannotBeCancelledException(
             executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
       } else if (operationResponse.getStatus().equals("Failure")) {

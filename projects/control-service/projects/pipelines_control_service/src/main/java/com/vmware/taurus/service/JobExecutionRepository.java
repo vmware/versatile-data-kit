@@ -28,29 +28,37 @@ import java.util.Optional;
  * <p>JobExecutionRepositoryIT validates some aspects of the behavior
  */
 public interface JobExecutionRepository
-    extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
+      extends JpaRepository<DataJobExecution, String>, JpaSpecificationExecutor<DataJobExecution> {
 
-  List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
+   List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName);
 
-  Optional<DataJobExecution> findFirstByDataJobNameOrderByStartTimeDesc(String jobName);
+   Optional<DataJobExecution> findFirstByDataJobNameOrderByStartTimeDesc(String jobName);
 
-  List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
+   List<DataJobExecution> findDataJobExecutionsByDataJobName(String jobName, Pageable pageable);
 
-  List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(
-      String jobName, List<ExecutionStatus> statuses);
+   List<DataJobExecution> findDataJobExecutionsByDataJobNameAndStatusIn(
+         String jobName, List<ExecutionStatus> statuses);
 
-  List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(
-      String jobName, List<ExecutionStatus> statuses);
+   List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(
+         String jobName, List<ExecutionStatus> statuses);
 
-  List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(
-      List<ExecutionStatus> statuses, OffsetDateTime startTime);
+   List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(
+         List<ExecutionStatus> statuses, OffsetDateTime startTime);
 
-  @Query(
-      "SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount "
-          + "FROM DataJobExecution dje "
-          + "WHERE dje.status IN :statuses "
-          + "AND dje.dataJob.name IN :dataJobs "
-          + "GROUP BY dje.status, dje.dataJob")
-  List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(
-      @Param("statuses") List<ExecutionStatus> statuses, @Param("dataJobs") List<String> dataJobs);
+   @Query(
+         "SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount "
+               + "FROM DataJobExecution dje "
+               + "WHERE dje.status IN :statuses "
+               + "AND dje.dataJob.name IN :dataJobs "
+               + "GROUP BY dje.status, dje.dataJob")
+   List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(
+         @Param("statuses") List<ExecutionStatus> statuses, @Param("dataJobs") List<String> dataJobs);
+
+   @Query("SELECT dje from DataJobExecution dje " +
+          "LEFT JOIN DataJob dj ON dje.dataJob = dj.name " +
+          "WHERE dje.id = :jobExecutionId " +
+          "AND dj.name = :jobName " +
+          "AND dj.jobConfig.team = :jobTeam")
+   Optional<DataJobExecution> findDataJobExecutionByIdAndTeamAndName(String jobExecutionId, String jobName, String jobTeam);
+
 }
