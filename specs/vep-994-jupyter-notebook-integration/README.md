@@ -35,8 +35,7 @@ Versatile Data Kit provides utilities for developing SQL and Python data jobs an
 As a workload users install their own IDE (PyCharm, for example) locally and configure it with VDK. However, VDK is used by people who do not want to nor need to learn how to work with CLI and install and configure IDEs.
 Moreover, many of our users are data scientists who work with big data, and they prefer working with notebooks especially for visualizing and testing. After some interviews we did, and demos we watched, we saw that users switch from IDEs to notebooks in order to see how the data changes (it is easier for them to do it in notebooks since it provides better visualization) and they do some changes on the code there (they are testing small sections which can lead to changes in small sections) which leads to copy pasting the new code from the notebook to the IDE. The whole process of switching from one place to another is inconvenient and tedious. It would be much easier for the users to just open a familiar UI and enter their SQL queries or Python code, without using the CLI and without copy pasting code from one place to another.
 
-Furthermore, currently VDK users need to rerun the whole job again every time they do a small change on the code, or a step fails. This makes the whole process slow since rerunning jobs might take more time to run.
-
+Furthermore, currently VDK users need to rerun the whole Data job again every time they do a small change on the code, or a single unit fails. This could be rather time-consuming since the ELT process might be slow. For example, extracting and loading data again only for a small change in transformation.
 By integrating VDK with Jupyter we want to make VDK more accessible and  present those users better experience and with their natural choice and make their VDK onboarding process much easier
 
 Jupyter is chosen because it is  very well-known among the data community, it is de-facto the current standard – see:
@@ -44,19 +43,34 @@ Jupyter is chosen because it is  very well-known among the data community, it is
 2. https://businessoverbroadway.com/2020/07/14/most-popular-integrated-development-environments-ides-used-by-data-scientists/
 
 
-
-
 ## Requirements and goals
-<!--
-It tells **what** is it trying to achieve?
-List the specific goals (functional and nonfunctional requirements)? How will we
-know that this has succeeded?
+### Goals
 
-Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
-Non-goals are only features, which a contributor can reasonably assume were a goal.
-One example is features that were cut during scoping.
--->
+* Users can install new plugin vdk notebook and new command to start local jupyter notebook
+  For example user would install jupyter plugin with `pip install vdk-jupyter`
+  and then they will be able to start local jupyter instance with `vdk start-jupyter` which will run local instance
+  This is simply making it more integrated experience for new users. User can install vdk-jupyter in existing jupyter installation.
 
+* The plugin should be installable in server (centralized) instance of jupyterhub or jupyterlab
+
+Once installed they get following capabilities
+
+#### Development of jobs
+##### Option 1: Notebook as a job step
+* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example. There could be markers for ignoring some cells.
+```
+ %% non-vdk
+ ```
+##### Option 2: Cell as a job step
+* A cell can be marked as a step using a button. Everything can be done in one notebook or multiple. In this solution all the unmarked cells will be ignored.
+##### Option 3: Hybrid
+* One cell is one SQL step and one notebook is one python step - mix of option 1 and 2
+
+
+#### Deployment
+
+* Users can click deploy from within the notebook and the job would be deployed in VDK runtime ("cloud")
+* Users should see the status of the deployed jobs
 ## High-level design
 
 <!--
