@@ -108,7 +108,9 @@ class ImpalaLineagePlugin:
         if query_statement is None:
             return False
 
-        statement_lines = query_statement.split(os.linesep)  # TODO if further optimization is needed, consider sqlparse
+        statement_lines = query_statement.split(
+            os.linesep
+        )  # TODO if further optimization is needed, consider sqlparse
         for line in statement_lines:
             line = line.strip().lower()
             if line.startswith("--") or (line.startswith("/*") and line.endswith("*/")):
@@ -130,7 +132,7 @@ class ImpalaLineagePlugin:
                     "set",
                     "show",
                     "truncate",
-                    "use"
+                    "use",
                 )
             ):
                 # these commands are not providing lineage data in the profile at the moment

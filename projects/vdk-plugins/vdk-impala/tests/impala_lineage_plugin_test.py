@@ -47,9 +47,19 @@ class ImpalaLineagePluginTest(unittest.TestCase):
         )
 
         self.assertFalse(ImpalaLineagePlugin._is_query_have_lineage("USE database;"))
-        self.assertFalse(ImpalaLineagePlugin._is_query_have_lineage("DROP TABLE table;"))
-        self.assertFalse(ImpalaLineagePlugin._is_query_have_lineage("select 1 -- testing if connection is alive."))
-        self.assertFalse(ImpalaLineagePlugin._is_query_have_lineage("alter table d2.mobile rename to d3.mobile;"))
+        self.assertFalse(
+            ImpalaLineagePlugin._is_query_have_lineage("DROP TABLE table;")
+        )
+        self.assertFalse(
+            ImpalaLineagePlugin._is_query_have_lineage(
+                "select 1 -- testing if connection is alive."
+            )
+        )
+        self.assertFalse(
+            ImpalaLineagePlugin._is_query_have_lineage(
+                "alter table d2.mobile rename to d3.mobile;"
+            )
+        )
         self.assertFalse(
             ImpalaLineagePlugin._is_query_have_lineage(
                 "-- job_name: a-job\n"
