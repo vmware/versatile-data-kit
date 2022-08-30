@@ -33,16 +33,17 @@ Optional section which defines terms and abbreviations used in the rest of the d
 Versatile Data Kit provides utilities for developing SQL and Python data jobs and deploying them in the cloud. However, the only interface it has for development is the CLI.
 
 As a workload users install their own IDE (PyCharm, for example) locally and configure it with VDK. However, VDK is used by people who do not want to nor need to learn how to work with CLI and install and configure IDEs.
+Moreover, many of our users are data scientists who work with big data, and they prefer working with notebooks especially for visualizing and testing. After some interviews we did, and demos we watched, we saw that users switch from IDEs to notebooks in order to see how the data changes (it is easier for them to do it in notebooks since it provides better visualization) and they do some changes on the code there (they are testing small sections which can lead to changes in small sections) which leads to copy pasting the new code from the notebook to the IDE. The whole process of switching from one place to another is inconvenient and tedious. It would be much easier for the users to just open a familiar UI and enter their SQL queries or Python code, without using the CLI and without copy pasting code from one place to another.
 
-Moreover, many of our users are data scientists who work with big data, and they work with notebooks to visualize and test the data. In order to do that, they copy their data job code from the IDE and paste it to a notebook to see the visualization or test it then copy the changes on the notebook and paste it to the IDE.
+Furthermore, currently VDK users need to rerun the whole job again every time they do a small change on the code, or a step fails. This makes the whole process slow since rerunning jobs might take more time to run. 
 
-It would be much easier for the users to just open a familiar UI and enter their SQL queries or Python code, without using the CLI and without copy pasting code from one place to another.
+By integrating VDK with Jupyter we want to make VDK more accessible and  present those users better experience and with their natural choice and make their VDK onboarding process much easier
 
-Thus, integrating VDK with Jupyter would present those users with their natural choice and make their VDK onboarding process much easier.
+Jupyter is chosen because it is  very well-known among the data community, it is de-facto the current standard – see:
+1. https://towardsdatascience.com/top-4-python-and-data-science-ides-for-2021-and-beyond-3bbcb7b9bc44#:~:text=JupyterLab,hacks%20for%20more%20advanced%20use
+2. https://businessoverbroadway.com/2020/07/14/most-popular-integrated-development-environments-ides-used-by-data-scientists/
 
-Jupyter is chosen because it is  very well-known among the data community and it is de-facto the current standard – see:
- 1. https://towardsdatascience.com/top-4-python-and-data-science-ides-for-2021-and-beyond-3bbcb7b9bc44#:~:text=JupyterLab,hacks%20for%20more%20advanced%20use 
- 2. https://businessoverbroadway.com/2020/07/14/most-popular-integrated-development-environments-ides-used-by-data-scientists/
+
 
 
 ## Requirements and goals
