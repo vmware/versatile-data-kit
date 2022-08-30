@@ -39,6 +39,9 @@ Apache Airflow does not provide any out-of-the-box solution for ingesting data; 
 ## Summary
 
 To summarize, Versatile Data Kit and Apache Airflow’s differences arise out of the different abstraction levels they attempt to provide the user with. Airflow is much lower level, more generalized, offering a wider set of capabilities, whereas VDK offers more restricted functionality aimed specifically at providing data engineers with higher level abstractions tailored to their needs.
+
 They are comparable in terms of lineage collection, as they can both be OpenLineage-compliant with the correct extensions, and both offer query-level granularity - VDK offers it directly, and Airflow offers it at the level of DAG jobs, which can be invoked to run individual queries. VDK however also offers job-wide lineage collection, whereas Airflow does not offer any lineage collection on the actual DAG run.
+
 In terms of templating, Airflow offers a more complex templating engine - namely Jinja - for parameterizing job run, while VDK offers job arguments. VDK however offers job templates, which allow users to standardize processes within their organisation and reuse code. VDK also offers built-in templates for common data engineering practices, namely Kimball dimensional modelling.
+
 In terms of ingestion, Versatile Data Kit beats out Airflow with its Ingestion API allowing any Python iterable to be sent to any configured destination using one method invocation.
