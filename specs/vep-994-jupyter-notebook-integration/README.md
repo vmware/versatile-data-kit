@@ -35,7 +35,7 @@ Versatile Data Kit provides utilities for developing SQL and Python data jobs an
 As a workload users install their own IDE (PyCharm, for example) locally and configure it with VDK. However, VDK is used by people who do not want to nor need to learn how to work with CLI and install and configure IDEs.
 Moreover, many of our users are data scientists who work with big data, and they prefer working with notebooks especially for visualizing and testing. After some interviews we did, and demos we watched, we saw that users switch from IDEs to notebooks in order to see how the data changes (it is easier for them to do it in notebooks since it provides better visualization) and they do some changes on the code there (they are testing small sections which can lead to changes in small sections) which leads to copy pasting the new code from the notebook to the IDE. The whole process of switching from one place to another is inconvenient and tedious. It would be much easier for the users to just open a familiar UI and enter their SQL queries or Python code, without using the CLI and without copy pasting code from one place to another.
 
-Furthermore, currently VDK users need to rerun the whole job again every time they do a small change on the code, or a step fails. This makes the whole process slow since rerunning jobs might take more time to run. 
+Furthermore, currently VDK users need to rerun the whole job again every time they do a small change on the code, or a step fails. This makes the whole process slow since rerunning jobs might take more time to run.
 
 By integrating VDK with Jupyter we want to make VDK more accessible and  present those users better experience and with their natural choice and make their VDK onboarding process much easier
 
