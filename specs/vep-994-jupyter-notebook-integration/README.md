@@ -44,8 +44,34 @@ Jupyter is chosen because it is  very well-known among the data community, it is
 
 
 ## Requirements and goals
+### Requirements
+Legend (terms and table are based on Pragmatic Marketing recommendations):
+* Problem - a discrete pain or issue that has been observed within the target market segment. In the below table it's a short summary name of the problem.
+* Use Scenario - a description of a problem. Includes a detailed description of the typical situation that causes this problem to occur and possibly current results.
+* Evidence - the percentage of interviewed users who have mentioned the problem
+* Impact - how much impact does the problem have on their work (high/moderate/low)
+
+|    Persona    |                     Problem                     |                                                                                                                    Use case                                                                                                                    | Evidence |  Impact  |
+|:-------------:|:-----------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
+| Data Engineer |                Working with CLI                 |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
+| Data Engineer |      IDEs are not convenient for debugging      |                             As data engineers, we often use Jupyter as a debugging tool instead of using IDE debuggers because of the big data we work with. This leads to copy pasting code from IDE to Jupyter.                              |   70%    |   high   |
+| Data Engineer |        Jupyter – better option for tests        |                              As data engineers, we test code in Jupyter quite often because small changes are more visible in graphics, we run small code blocks in many cells and watch how the graphics change.                              |   70%    | moderate |
+| Data Engineer | Switching from Jupyter notebook to python files | As data engineers we  need to switch from notebooks to python files every time we are moving to production which is done either by copy pasting or using automated functions of Jupyter but might lead to syntax errors and bad coding habits. |   50%    |   low    |
+| Data Engineer |        Rerun whole job for small changes        |                                                              As data engineers,when we use VDK, we need to rerun the whole job again every time we do a small change on the code.                                                              |   40%    ||
+| Data Engineer |        Rerun whole job for failing step         |                                                                       As data engineers, when we use VDK, we need to rerun the whole job again every time a step fails.                                                                        |   40%    ||
+| Data Engineer |       Too many SQL files in one data job        |                   As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end op creating a lot of SQL files every time we want run a data job.                    |   30%    |   low    |
+
+
+
+
+
+
 ### Goals
 
+
+
+
+## High-level design
 * Users can install new plugin vdk notebook and new command to start local jupyter notebook
   For example user would install jupyter plugin with `pip install vdk-jupyter`
   and then they will be able to start local jupyter instance with `vdk start-jupyter` which will run local instance
@@ -54,7 +80,7 @@ Jupyter is chosen because it is  very well-known among the data community, it is
 * The plugin should be installable in server (centralized) instance of jupyterhub or jupyterlab
 
 Once installed they get following capabilities
-
+Once installed they get following capabilities
 #### Development of jobs
 ##### Option 1: Notebook as a job step
 * The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example. There could be markers for ignoring some cells.
@@ -71,8 +97,6 @@ Once installed they get following capabilities
 
 * Users can click deploy from within the notebook and the job would be deployed in VDK runtime ("cloud")
 * Users should see the status of the deployed jobs
-## High-level design
-
 <!--
 All the rest sections tell **how** are we solving it?
 
