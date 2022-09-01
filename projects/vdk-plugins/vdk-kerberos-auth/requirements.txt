@@ -1,5 +1,7 @@
 docker-compose
-minikerberos==0.2.20 # Pinned minikerberos because the plugin is not compatible with 0.3.0
+# Pinned minikerberos because the current implementation is not compatible with 0.3.0+
+# https://github.com/vmware/versatile-data-kit/issues/1169
+minikerberos==0.2.20
 pytest
 pytest-docker
 requests-kerberos
