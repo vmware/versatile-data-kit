@@ -32,6 +32,7 @@ then
   fi
 fi
 
+pip list
 pip install pytest-cov
 
 pytest --junitxml=tests.xml --cov vdk --cov-report term-missing --cov-report xml:coverage.xml
