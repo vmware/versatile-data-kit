@@ -24,9 +24,7 @@ useful for a wide audience.
 -->
 
 ## Glossary
-<!--
-Optional section which defines terms and abbreviations used in the rest of the document.
--->
+* VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
 
 ## Motivation
 
@@ -62,35 +60,62 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 | Data Engineer |       Too many SQL files in one data job        |                   As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end op creating a lot of SQL files every time we want run a data job.                    |   30%    |   low    |
 
 
-
-
-
-
 ### Goals
-
+* Provide UI for VDK which will decrease the use of CLI and solve the problems of switching from IDE to Notebook and from Notebook to IDE.
+* Users can install new plugin vdk notebook and new command to start local jupyter notebook.
+  For example user would install jupyter plugin with `pip install vdk-jupyter`
+  and then they will be able to start local jupyter instance with `vdk start-jupyter` which will run local instance.
+  This is simply making it more integrated experience for new users. User can install vdk-jupyter in existing jupyter installation.
+* The plugin should be installable in server (centralized) instance of jupyterhub or jupyterlab.
+* The plugin should provide a way to rerun only failing/changed steps and the steps after them.
+* With the new feature the number of files needed for job steps should be minimized.
 
 
 
 ## High-level design
-* Users can install new plugin vdk notebook and new command to start local jupyter notebook
-  For example user would install jupyter plugin with `pip install vdk-jupyter`
-  and then they will be able to start local jupyter instance with `vdk start-jupyter` which will run local instance
-  This is simply making it more integrated experience for new users. User can install vdk-jupyter in existing jupyter installation.
 
-* The plugin should be installable in server (centralized) instance of jupyterhub or jupyterlab
-
-Once installed they get following capabilities
 Once installed they get following capabilities
 #### Development of jobs
 ##### Option 1: Notebook as a job step
-* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example. There could be markers for ignoring some cells.
+* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example. 
+* There could be markers for ignoring some cells.
 ```
  %% non-vdk
  ```
+* Buttons or markers for defining the step type should be introduced.
+
+Python
+```python
+ %%vdk-py
+ job_input.ingest(xxx)
+ ```
+or SQL
+ ```python
+ %%vdk-sql
+ select * from x
+ ```
 ##### Option 2: Cell as a job step
-* A cell can be marked as a step using a button. Everything can be done in one notebook or multiple. In this solution all the unmarked cells will be ignored.
+* A cell can be marked as a step using a button.
+* There should be two different buttons - one for SQL steps and one for python steps. 
+* Once a cell is marked as step a pop-up should ask the name of the step, 10_jupyter for example.
+* Everything can be done in one notebook or multiple. 
+* In this solution all the unmarked cells will be ignored.
+* A section for showing all the steps should be introduced.
 ##### Option 3: Hybrid
-* One cell is one SQL step and one notebook is one python step - mix of option 1 and 2
+* One cell is one SQL step and one notebook is one python step. 
+* Notebooks and cells will be marked using two different buttons - one for SQL steps(cells) and one for python steps(notebooks)
+* There should not be SQL steps in a notebook defined as python step.
+* In notebooks that are python steps markers for ignoring code could be used.
+```
+ %% non-vdk
+ ```
+* All the notebooks that are not marked as python files and do not have SQL steps in them will be ignored.
+* In a notebook that is not marked as python step all the cells that are not marked as SQL steps should be ignored.
+* A section showing all the steps should be introduced.
+
+
+#### Comparing the options with requirements matrix
+
 
 
 #### Deployment
