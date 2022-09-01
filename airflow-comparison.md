@@ -1,11 +1,15 @@
-## Lineage
+## Data Lineage
 
-Data lineage is the process of monitoring, recording, and visualization of the flow of data through a particular data system. It also broadly refers to a collection of tools, practices and approaches which allow the tracking of the dataflow. Data lineage tools maintain a record of data within its lifecycle, including its source and any transformations applied to it. The main purpose of data lineage is to provide a platform for ensuring data quality, as well as a way of troubleshooting any errors which arise within the data.
+Before comparing VDK and Airflow, let's first briefly discuss what data lineage is. Data lineage is the process of monitoring, recording, and visualization of the flow of data through a particular data system. It also broadly refers to a collection of tools, practices and approaches which allow the tracking of the dataflow. Data lineage tools maintain a record of data within its lifecycle, including its source and any transformations applied to it. The main purpose of data lineage is to provide a platform for ensuring data quality, tracing the flow of data from source to destination while tracking any transformations made to it, as well as a way of troubleshooting any errors which arise within it.
 
 OpenLineage is ['an open platform for collection and analysis of data lineage’](https://openlineage.io/). It is the defacto industry standard for lineage collection, and it will be the basis for our comparison of lineage capabilities between Airflow and VDK.
 
+### Lineage in Apache Airflow
+
 Apache Airflow offers support for OpenLineage compliant lineage data collection through the `airflow-openlineage` package; however, out-of-the-box support is only offered for PostgreSQL, Snowflake, MySQL, BigQuery, and the Great Expectations data quality validation framework. Users are expected to create their own solution or borrow an existing one should they want to collect lineage for queries ran against a different database.
 The `airflow-openlineage` package allows the collection of lineage data for individual jobs within a DAG run. However, no DAG-wide lineage can be collected.
+
+### Lineage in Versatile Data Kit
 
 Versatile Data Kit offers a lineage collection plugin called `vdk-lineage`. Because of VDK’s extensible architecture, this plugin is endpoint-agnostic, meaning it can collect lineage about queries ran against any current or future SQL database. However, `vdk-lineage` might struggle to parse more obscure SQL dialects.
 VDK also offers dedicated lineage collection for Trino and Impala.
@@ -40,7 +44,7 @@ Apache Airflow does not provide any out-of-the-box solution for ingesting data; 
 
 ## Summary
 
-To summarize, Versatile Data Kit and Apache Airflow’s differences arise out of the different abstraction levels they attempt to provide the user with. Airflow is much lower level, more generalized, offering a wider set of capabilities, whereas VDK offers more restricted functionality aimed specifically at providing data engineers with higher level abstractions tailored to their needs.
+To summarize, Versatile Data Kit and Apache Airflow’s differences arise out of the different abstraction levels they attempt to provide the user with. Airflow is much lower level, more generalized, offering a wider set of capabilities, whereas VDK offers more opinionated functionality aimed specifically at providing data engineers with higher level abstractions tailored to their needs. Additionally, Versatile Data Kit is natively extensible, as most of its built-in functionality is implemented through its extensibility mechanism.
 
 They are comparable in terms of lineage collection, as they can both be OpenLineage-compliant with the correct extensions, and both offer query-level granularity - VDK offers it directly, and Airflow offers it at the level of DAG jobs, which can be invoked to run individual queries. VDK however also offers job-wide lineage collection, whereas Airflow does not offer any lineage collection on the actual DAG run.
 
