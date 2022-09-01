@@ -14,7 +14,12 @@ setuptools.setup(
     description="Versatile Data Kit SDK plugin adds Kerberos/GSSAPI support.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "minikerberos", "requests-kerberos", "pykerberos"],
+    install_requires=[
+        "vdk-core",
+        "minikerberos==0.2.18",
+        "requests-kerberos",
+        "pykerberos",
+    ],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={

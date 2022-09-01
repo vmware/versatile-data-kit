@@ -1,5 +1,5 @@
 docker-compose
-minikerberos==0.2.20
+minikerberos==0.2.18
 pytest
 pytest-docker
 requests-kerberos
