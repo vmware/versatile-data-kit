@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "vdk-core",
-        "minikerberos==0.3.0",
+        "minikerberos==0.2.20",
         "requests-kerberos",
         "pykerberos",
     ],
