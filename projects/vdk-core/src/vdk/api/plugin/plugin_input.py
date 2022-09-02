@@ -94,6 +94,8 @@ class ITemplateRegistry:
     For example common platform team can define common data jobs as templates and use them within other data jobs.
     This interface is used by plugin developers to register new templates.
 
+    During a template data job execution, a state store entry ExecutionStateStoreKeys.TEMPLATE_NAME
+    (with key "vdk.template_name") is available.
     """
 
     # TODO: add supported arguments so that they can be validated

@@ -7,7 +7,6 @@ from datetime import datetime
 from typing import Any
 from typing import cast
 from typing import Generic
-from typing import Optional
 from typing import TypeVar
 
 T = TypeVar("T")

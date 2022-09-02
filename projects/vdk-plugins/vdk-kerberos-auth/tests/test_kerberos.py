@@ -55,7 +55,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 ["run", jobs_path_from_caller_directory("test-job")]
             )
 
-            assert "VDK_KRB_AUTH has invalid value" in result.output
+            assert "VDK_KRB_AUTH has invalid value" in str(result.exception)
             cli_assert_equal(1, result)
 
     def test_kinit_authentication(self):
@@ -160,7 +160,7 @@ class TestKerberosAuthentication(unittest.TestCase):
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
 
-            assert "kinit returned exitcode 1" in result.output
+            assert "kinit returned exitcode 1" in str(result.exception)
             cli_assert_equal(1, result)
 
     def test_kinit_authentication_error_fail_fast_is_false(self):
@@ -197,7 +197,7 @@ class TestKerberosAuthentication(unittest.TestCase):
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
 
-            assert "Cannot locate keytab file" in result.output
+            assert "Cannot locate keytab file" in str(result.exception)
             cli_assert_equal(1, result)
 
     def test_minikerberos_authentication(self):
@@ -235,7 +235,7 @@ class TestKerberosAuthentication(unittest.TestCase):
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
 
-            assert "Client not found in Kerberos database" in result.output
+            assert "Client not found in Kerberos database" in str(result.exception)
             cli_assert_equal(1, result)
 
     def test_minikerberos_authentication_with_missing_keytab(self):
@@ -255,5 +255,5 @@ class TestKerberosAuthentication(unittest.TestCase):
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
 
-            assert "Cannot locate keytab file" in result.output
+            assert "Cannot locate keytab file" in str(result.exception)
             cli_assert_equal(1, result)
