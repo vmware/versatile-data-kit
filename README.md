@@ -73,8 +73,8 @@ If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CO
 # Contacts
 Feedback is very welcome via the [GitHub site as issues](https://github.com/vmware/versatile-data-kit/issues) or [pull requests](https://github.com/vmware/versatile-data-kit/pulls)
 
-* Join our dedicated Slack channel on the CNCF Slack workspace: 
-    * First [Join CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf) 
+* Join our dedicated Slack channel on the CNCF Slack workspace:
+    * First [Join CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf)
     * Then search for #versatile-data-kit or [click here to join the channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
 
 - [Follow us on twitter](https://twitter.com/intent/follow?screen_name=VDKProject).
