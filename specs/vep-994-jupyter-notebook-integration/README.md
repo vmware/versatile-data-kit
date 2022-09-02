@@ -48,33 +48,31 @@ Jupyter is chosen because it is  very well-known among the data community, it is
 Legend (terms and table are based on Pragmatic Marketing recommendations):
 * Problem - a discrete pain or issue that has been observed within the target market segment. In the below table it's a short summary name of the problem.
 * Use Scenario - a description of a problem. Includes a detailed description of the typical situation that causes this problem to occur and possibly current results.
-* Evidence - the percentage of interviewed users who have mentioned the problem
-* Impact - how much impact does the problem have on their work (high/moderate/low)
+* Evidence - the percentage of interviewed users who have mentioned the problem.
+* Impact - how much impact does the problem have on their work (high/moderate/low).
 
-|    Persona    |                     Problem                     |                                                                                                                    Use case                                                                                                                    | Evidence |  Impact  |
-|:-------------:|:-----------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
-| Data Engineer |                Working with CLI                 |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
-| Data Engineer |      IDEs are not convenient for debugging      |                             As data engineers, we often use Jupyter as a debugging tool instead of using IDE debuggers because of the big data we work with. This leads to copy pasting code from IDE to Jupyter.                              |   70%    |   high   |
-| Data Engineer |        Jupyter – better option for tests        |                              As data engineers, we test code in Jupyter quite often because small changes are more visible in graphics, we run small code blocks in many cells and watch how the graphics change.                              |   70%    | moderate |
-| Data Engineer | Switching from Jupyter notebook to python files | As data engineers we  need to switch from notebooks to python files every time we are moving to production which is done either by copy pasting or using automated functions of Jupyter but might lead to syntax errors and bad coding habits. |   50%    |   low    |
-| Data Engineer |        Rerun whole job for small changes        |                                                              As data engineers,when we use VDK, we need to rerun the whole job again every time we do a small change on the code.                                                              |   40%    ||
-| Data Engineer |        Rerun whole job for failing step         |                                                                       As data engineers, when we use VDK, we need to rerun the whole job again every time a step fails.                                                                        |   40%    ||
-| Data Engineer |       Too many SQL files in one data job        |                   As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end op creating a lot of SQL files every time we want run a data job.                    |   30%    |   low    |
+|    Persona    |                 Problem                  |                                                                                                                  Use Scenario                                                                                                                  | Evidence |  Impact  |
+|:-------------:|:----------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
+| Data Engineer |             Working with CLI             |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
+| Data Engineer |  IDEs are not convenient for debugging   |                             As data engineers, we often use Jupyter as a debugging tool instead of using IDE debuggers because of the big data we work with. This leads to copy pasting code from IDE to Jupyter.                              |   70%    |   high   |
+| Data Engineer |  IDEs are not convenient for for tests   |                              As data engineers, we test code in Jupyter quite often because small changes are more visible in graphics, we run small code blocks in many cells and watch how the graphics change.                              |   70%    | moderate |
+| Data Engineer | Moving to production from notebook files | As data engineers we  need to switch from notebooks to python files every time we are moving to production which is done either by copy pasting or using automated functions of Jupyter but might lead to syntax errors and bad coding habits. |   50%    |   low    |
+| Data Engineer |    Rerun whole job for small changes     |                                                              As data engineers,when we use VDK, we need to rerun the whole job again every time we do a small change on the code.                                                              |   40%    ||
+| Data Engineer |     Rerun whole job for failing step     |                                                                       As data engineers, when we use VDK, we need to rerun the whole job again every time a step fails.                                                                        |   40%    ||
+| Data Engineer |    Too many SQL files in one data job    |                 As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end up creating a lot of SQL files every time we need a complex data job.                  |   30%    |   low    |
 
 
 ### Goals
-* Provide UI for VDK which will decrease the use of CLI and solve the problems of switching from IDE to Notebook and from Notebook to IDE.
-* Users can install new plugin vdk notebook and new command to start local jupyter notebook.
-  For example user would install jupyter plugin with `pip install vdk-jupyter`
-  and then they will be able to start local jupyter instance with `vdk start-jupyter` which will run local instance.
-  This is simply making it more integrated experience for new users. User can install vdk-jupyter in existing jupyter installation.
-* The plugin should be installable in server (centralized) instance of jupyterhub or jupyterlab.
-* The plugin should provide a way to rerun only failing/changed steps and the steps after them.
-* With the new feature the number of files needed for job steps should be minimized.
+* The users should have easy access to Jupyter notebook that is integrated with the VDK.
+* Provide UI experience  for VDK which will decrease the use of CLI and solve the problems of switching from IDE to Notebook and from Notebook to IDE.
+* The solution should be installable in centralized instance of jupyterhub or jupyterlab.
+* The solution should provide a way to rerun only failing/changed steps and the steps after them.
+* The number of files needed for job steps should be minimized.
 
 
 
 ## High-level design
+The following section is still in progress.
 
 Once installed they get following capabilities
 #### Development of jobs
