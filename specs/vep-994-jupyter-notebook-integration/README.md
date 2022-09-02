@@ -79,7 +79,7 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 Once installed they get following capabilities
 #### Development of jobs
 ##### Option 1: Notebook as a job step
-* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example. 
+* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example.
 * There could be markers for ignoring some cells.
 ```
  %% non-vdk
@@ -98,13 +98,13 @@ or SQL
  ```
 ##### Option 2: Cell as a job step
 * A cell can be marked as a step using a button.
-* There should be two different buttons - one for SQL steps and one for python steps. 
+* There should be two different buttons - one for SQL steps and one for python steps.
 * Once a cell is marked as step a pop-up should ask the name of the step, 10_jupyter for example.
-* Everything can be done in one notebook or multiple. 
+* Everything can be done in one notebook or multiple.
 * In this solution all the unmarked cells will be ignored.
 * A section for showing all the steps should be introduced.
 ##### Option 3: Hybrid
-* One cell is one SQL step and one notebook is one python step. 
+* One cell is one SQL step and one notebook is one python step.
 * Notebooks and cells will be marked using two different buttons - one for SQL steps(cells) and one for python steps(notebooks)
 * There should not be SQL steps in a notebook defined as python step.
 * In notebooks that are python steps markers for ignoring code could be used.
