@@ -24,6 +24,7 @@ useful for a wide audience.
 -->
 
 ## Glossary
+
 * VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
 
 ## Motivation
@@ -42,6 +43,7 @@ Jupyter is chosen because it is  very well-known among the data community, it is
 
 
 ## Requirements and goals
+
 ### Requirements
 Legend (terms and table are based on Pragmatic Marketing recommendations):
 * Problem - a discrete pain or issue that has been observed within the target market segment. In the below table it's a short summary name of the problem.

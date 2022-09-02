@@ -3,6 +3,7 @@
 import logging
 import pathlib
 from typing import Dict
+from typing import Optional
 
 from vdk.api.job_input import ITemplate
 from vdk.api.plugin.plugin_input import ITemplateRegistry
@@ -20,6 +21,7 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         job_name: str,
         core_context: CoreContext,
         datajob_factory: DataJobFactory = None,
+        template_name: Optional[str] = None,
     ):
         self._job_name = job_name
         self._core_context = core_context
@@ -27,6 +29,7 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         self._datajob_factory = (
             DataJobFactory() if datajob_factory is None else datajob_factory
         )
+        self._template_name = template_name
 
     def add_template(self, name: str, template_directory: pathlib.Path):
         if (
@@ -39,13 +42,15 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
             )
         self._registered_templates[name] = template_directory
 
-    def execute_template(self, name: str, template_args: Dict) -> ExecutionResult:
+    def execute_template(
+        self, name: str, template_args: dict
+    ) -> ExecutionResult:  # input dict immutable?
         log.debug(f"Execute template {name} {template_args}")
         template_directory = self.get_template_directory(name)
         template_job = self._datajob_factory.new_datajob(
             template_directory, self._core_context, name=self._job_name
         )
-        result = template_job.run(template_args)
+        result = template_job.run(template_args, name)
         if result.is_failed():
             if result.get_exception_to_raise():
                 raise result.get_exception_to_raise()
