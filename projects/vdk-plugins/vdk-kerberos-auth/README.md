@@ -8,6 +8,19 @@ To install the plugin, run:
 pip install vdk-kerberos-auth
 ```
 
+After it's install what happens:
+
+1. Upon installation and if KEYTAB_FILENAME and KEYTAB_PRINCIPAL are configured, it will try to authenticate ("kinit") at the start of very VDK command.
+2. Then when a client needs to talk to kerberos provision server they would use KerberosClient class to generate header:
+With requests library, you'd use https://pypi.org/pypi/requests-kerberos.
+The following can be used if another http library does not support kerberos to generate Authorization header:
+```python
+auth = KebrerosClient("http@server.fqdn.com")
+headers['Authorization'] =  auth.read_kerberos_auth_header()
+```
+
+## Known issues
+
 The plugin dependency `requests-kerberos==0.12.0` may fail to install on Ubuntu with the following error:
 
 ```
@@ -22,16 +35,19 @@ If this is the case, install `libkrb5-dev` with the command below and try reinst
 sudo apt-get install -y libkrb5-dev
 ```
 
+## Configuration
+
 The following environment variables can be used to configure this plugin:
 
 | name                    | description                                                                                                                                                    |
 |-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `VDK_KRB_AUTH`          | Specifies the Kerberos authentication type to use. Possible values are 'minikerberos' and 'kinit'. If left empty, the authentication is disabled.              |
-| `VDK_KEYTAB_FILENAME`   | Specifies the name of the keytab file. If left empty, the name of the keytab file is assumed to be the same as the name of the data job with '.keytab' suffix. |
+| `KRB_AUTH`          | Specifies the Kerberos authentication type to use. Possible values are 'minikerberos' and 'kinit'. If left empty, the authentication is disabled.              |
+| `KEYTAB_FILENAME`   | Specifies the name of the keytab file. If left empty, the name of the keytab file is assumed to be the same as the name of the data job with '.keytab' suffix. |
 | `KEYTAB_FOLDER`         | Specifies the folder containing the keytab file. If left empty, the keytab file is expected to be located inside the data job folder.                          |
-| `VDK_KEYTAB_PRINCIPAL`  | Specifies the Kerberos principal. If left empty, the principal will be the job name prepended with 'pa__view_'.                                                |
-| `VDK_KEYTAB_REALM`      | Specifies the Kerberos realm. This value is used only with the 'minikerberos' authentication type. The default value is 'default_realm'.                       |
-| `VDK_KERBEROS_KDC_HOST` | Specifies the name of the Kerberos KDC (Key Distribution Center) host. This value is used only with the 'minikerberos' authentication type.                    |
+| `KEYTAB_PRINCIPAL`  | Specifies the Kerberos principal. If left empty, the principal will be the job name prepended with 'pa__view_'.                                                |
+| `KEYTAB_REALM`      | Specifies the Kerberos realm. This value is used only with the 'minikerberos' authentication type. The default value is 'default_realm'.                       |
+| `KERBEROS_KDC_HOST` | Specifies the name of the Kerberos KDC (Key Distribution Center) host. This value is used only with the 'minikerberos' authentication type.                    |
+
 
 # Testing
 
