@@ -108,7 +108,9 @@ class ImpalaLineagePlugin:
         if query_statement is None:
             return False
 
-        statement_lines = query_statement.split(os.linesep)  # TODO if further optimization is needed, consider sqlparse
+        statement_lines = query_statement.split(
+            os.linesep
+        )  # TODO if further optimization is needed, consider sqlparse
         for line in statement_lines:
             line = line.strip().lower()
             if line.startswith("--") or (line.startswith("/*") and line.endswith("*/")):
@@ -116,8 +118,23 @@ class ImpalaLineagePlugin:
             if line.startswith("select 1 -- testing if connection is alive."):
                 return False  # managed_connection has a way to open and check connections with keep alive query
             if line.startswith(
-                    ("alter", "compute", "create", "describe", "drop", "explain", "grant", "invalidate",
-                     "refresh", "revoke", "set", "show", "truncate", "use")):
+                (
+                    "alter",
+                    "compute",
+                    "create",
+                    "describe",
+                    "drop",
+                    "explain",
+                    "grant",
+                    "invalidate",
+                    "refresh",
+                    "revoke",
+                    "set",
+                    "show",
+                    "truncate",
+                    "use",
+                )
+            ):
                 # these commands are not providing lineage data in the profile at the moment
                 return False
 
