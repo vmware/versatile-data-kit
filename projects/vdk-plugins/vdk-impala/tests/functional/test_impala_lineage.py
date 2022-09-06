@@ -367,3 +367,24 @@ class ImpalaLineageTest(TestCase):
         mock_lineage_logger.send.assert_called_with(
             VersionedTemplateLineageDataMatcher(self)
         )
+
+    @patch.dict(
+        os.environ,
+        {
+            VDK_DB_DEFAULT_TYPE: "IMPALA",
+            VDK_IMPALA_HOST: "localhost",
+            VDK_IMPALA_PORT: "21050",
+        },
+    )
+    def test_lineage_for_non_lineage_queries(self):
+        mock_lineage_logger = mock.MagicMock(ILineageLogger)
+        runner = CliEntryBasedTestRunner(
+            TestConfigPlugin(mock_lineage_logger), impala_plugin
+        )
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("sql-job-non-lineage")]
+        )
+        cli_assert_equal(0, result)
+
+        # create table and computing its stats should not result in creating lineage event
+        mock_lineage_logger.send.assert_not_called()

@@ -1,0 +1,1 @@
+COMPUTE STATS stocks;

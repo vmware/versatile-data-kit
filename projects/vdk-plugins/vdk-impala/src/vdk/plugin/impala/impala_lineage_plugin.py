@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 import re
 import sys
 import time
@@ -67,8 +68,8 @@ class ImpalaLineagePlugin:
 
     def _get_lineage_data(self, cursor: HiveServer2Cursor) -> Optional[LineageData]:
         query_statement = cursor._cursor.query_string
-        if self._is_keepalive_statement(query_statement):
-            return None  # do not capture lineage for connection keepalive queries like "select 1"
+        if not self._is_query_have_lineage(query_statement):
+            return None  # do not capture lineage for queries that don't have lineage information
         start_time = time.time_ns()
         query_profile = cursor.get_profile(profile_format=TRuntimeProfileFormat.STRING)
         end_time = time.time_ns()
@@ -94,6 +95,35 @@ class ImpalaLineagePlugin:
         )
 
     @staticmethod
+    def _is_query_have_lineage(query_statement: str) -> bool:
+        """
+        This method checks the query type because not every query
+        has information that could be classified as lineage data
+        and making an extra query for the profile is unnecessary
+
+        This method does not provide absolute certainty for
+        containing lineage data, but it does skip a certain
+        queries which are known to be non-lineage
+        """
+        if query_statement is None:
+            return False
+
+        statement_lines = query_statement.split(os.linesep)  # TODO if further optimization is needed, consider sqlparse
+        for line in statement_lines:
+            line = line.strip().lower()
+            if line.startswith("--") or (line.startswith("/*") and line.endswith("*/")):
+                continue  # Comments are omitted
+            if line.startswith("select 1 -- testing if connection is alive."):
+                return False  # managed_connection has a way to open and check connections with keep alive query
+            if line.startswith(
+                    ("alter", "compute", "create", "describe", "drop", "explain", "grant", "invalidate",
+                     "refresh", "revoke", "set", "show", "truncate", "use")):
+                # these commands are not providing lineage data in the profile at the moment
+                return False
+
+        return True
+
+    @staticmethod
     def _parse_inputs_outputs(query_profile: str) -> Tuple[list, str]:
         inputs = []
         output = None
@@ -115,9 +145,3 @@ class ImpalaLineagePlugin:
             return None
         split_name = table_name.split(".")
         return LineageTable(schema=split_name[0], table=split_name[1], catalog=None)
-
-    @staticmethod
-    def _is_keepalive_statement(query_statement: str) -> bool:
-        return query_statement.endswith(
-            "\n select 1 -- Testing if connection is alive."
-        )
