@@ -48,7 +48,7 @@ def _parse_log_level_module(log_level_module):
                         )
                     if module_and_level[1].upper() not in valid_logging_levels:
                         raise ValueError(
-                            f"Invalid logging level: '{module_and_level[1]}'. Must be in {valid_logging_levels} "
+                            f"Invalid logging level: '{module_and_level[1]}'. Must be one of {valid_logging_levels}."
                         )
                     result[module_and_level[0]] = {"level": module_and_level[1].upper()}
             return result
