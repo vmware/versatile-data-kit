@@ -44,7 +44,7 @@ def _parse_log_level_module(log_level_module):
                     if not re.search("[a-zA-Z0-9_.-]+", module_and_level[0].lower()):
                         raise ValueError(
                             f"Invalid logging module name: '{module_and_level[0]}'. "
-                            f"Must be alphanumerical/underscore characters "
+                            f"Must be alphanumerical/underscore characters."
                         )
                     if module_and_level[1].upper() not in valid_logging_levels:
                         raise ValueError(
