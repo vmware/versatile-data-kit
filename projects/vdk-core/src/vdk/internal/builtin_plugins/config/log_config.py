@@ -61,7 +61,7 @@ def _parse_log_level_module(log_level_module):
             "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
             f"Error is: {e}. log_level_module was set to {log_level_module}.",
             "Logging will not be initialized and exception is raised",
-            "Set correctly configuration to log_level_debug configuration in format 'module=level,module2=level2'",
+            "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
         )
 
 
