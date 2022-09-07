@@ -116,3 +116,31 @@ def test_serialization_non_serializable():
 
     result_as_string = result.__repr__()
     assert json.loads(result_as_string) is not None
+
+
+def test_serialization_circular_referecen():
+    exception = ArithmeticError("foo")
+    exception.__cause__ = exception
+    step_result = StepResult(
+        "step",
+        "type",
+        datetime.fromisoformat("2012-10-12 00:00:00"),
+        datetime.fromisoformat("2012-10-12 01:00:00"),
+        ExecutionStatus.ERROR,
+        "details",
+        exception,
+        ResolvableBy.USER_ERROR,
+    )
+    result = ExecutionResult(
+        "job-name",
+        "exec-id",
+        datetime.fromisoformat("2012-10-12 00:00:00"),
+        datetime.fromisoformat("2012-10-12 01:00:00"),
+        ExecutionStatus.ERROR,
+        [step_result],
+        exception,
+        ResolvableBy.USER_ERROR,
+    )
+
+    result_as_string = result.__repr__()
+    assert result_as_string is not None
