@@ -46,6 +46,24 @@ def test_run_user_error(tmp_termination_msg_file):
     assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "User error"
 
 
+def test_run_user_error_fail_job_library(tmp_termination_msg_file):
+    errors.clear_intermediate_errors()
+    runner = CliEntryBasedTestRunner()
+
+    result: Result = runner.invoke(["run", util.job_path("fail-job-indirect-library")])
+    cli_assert_equal(1, result)
+    assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "User error"
+
+
+def test_run_user_error_fail_job_ingest_iterator(tmp_termination_msg_file):
+    errors.clear_intermediate_errors()
+    runner = CliEntryBasedTestRunner()
+
+    result: Result = runner.invoke(["run", util.job_path("fail-job-ingest-iterator")])
+    cli_assert_equal(1, result)
+    assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "User error"
+
+
 def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
     errors.clear_intermediate_errors()
 
