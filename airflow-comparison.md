@@ -4,6 +4,24 @@ What are the differences between these two workload automation engines - and how
 
 ## Functionality Comparison
 
+| Requirement            | Airflow                | Versatile Data Kit     |
+|------------------------|------------------------|------------------------|
+| Price                  | Free and Open Source   | Free and Open Source   |
+| License                | Apache License 2.0     | Apache License 2.0     |
+| Language               | Written entirely in Python | CLI written in Python, Control Service written in Java |
+| UI                     | Web UI and CLI         | Only a CLI             |
+| Workload API           | API which permits the creation of operators | JobInput API allows workloads to be positioned on the data path by offering methods for asynchronous ingestion, template execution, query execution and decoration |
+| Multitenancy           | Resource-based permissions | Support for separate teams, Properties API |
+| SSO Support            | No support by default but it can be patched in | Support for Oauth2 |
+| Trigger workload execution on new data received | Airflow sensor | No support |
+| Deployment API         | None; DAG files must be manually placed within the /dags folder of the Airflow server | Support for automatic deployment of jobs from local files through VDK CLI |
+| Workload versioning    | None | Automatic Data job versioning upon deployment |
+| Support for Kimball templates  | None | Built-in Kimball templates available through JobInput API |
+| Workload logs          | Available through UI | Available through CLI |
+| Monitoring             | Support for StatsD monitoring | Support for Prometheus, Wavefront monitoring |
+| Workload scheduling    | Cron scheduling or `datetime.timedelta` object | Cron scheduling |
+| Extensibility          | Support for custom operators, connections, sensors | Native extensibility allows custom extensions to insert themselves at any point of the execution |
+
 
 
 ## Use Case Comparison
@@ -61,3 +79,7 @@ They are comparable in terms of lineage collection, as they can both be OpenLine
 In terms of templating, Airflow offers a more complex templating engine - namely Jinja - for parameterizing job run, while VDK offers job arguments. VDK however offers job templates, which allow users to standardize processes within their organisation and reuse code. VDK also offers built-in templates for common data engineering practices, namely Kimball dimensional modelling.
 
 In terms of ingestion, Versatile Data Kit beats out Airflow with its Ingestion API allowing any Python iterable to be sent to any configured destination using one method invocation.
+
+As of the release of the Airflow provider for Versatile Data Kit, users are able to operate on Data jobs managed in a deployed instance of the VDK Control Service. This will benefit users who prefer Versatile Data Kit overall for the specific level of abstraction it operates on, but miss the capacity of Airflow to express interdependent workloads.
+
+Additionally, it will benefit users who already have a deployed instance of Airflow and prefer to use it as the main UI for their workload management, but still want to use Versatile Data Kit for its capacity to position workloads on the data path. Now users can develop and use DAGs, where each task triggers a Data job execution through a configured connection to a Control Service.
