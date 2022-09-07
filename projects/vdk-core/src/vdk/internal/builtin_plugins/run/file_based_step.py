@@ -99,7 +99,7 @@ class StepFuncFactory:
                 if func.__name__ == "run":
                     try:
                         log.info("Entering %s#run(...) ..." % filename)
-                        StepFuncFactory.invoke_run_function(func, job_input)
+                        StepFuncFactory.invoke_run_function(func, job_input, step.name)
                         success = True
                         return True
                     finally:
@@ -118,7 +118,7 @@ class StepFuncFactory:
             sys.path.remove(str(step.job_dir))
 
     @staticmethod
-    def invoke_run_function(func: Callable, job_input: IJobInput):
+    def invoke_run_function(func: Callable, job_input: IJobInput, step_name: str):
         # https://docs.python.org/3/library/inspect.html#inspect.getfullargspec
         full_arg_spec = inspect.getfullargspec(func)
         parameter_names = full_arg_spec[0]
@@ -133,7 +133,25 @@ class StepFuncFactory:
             if arg_name in parameter_names
         }
         if actual_arguments:
-            func(**actual_arguments)
+            try:
+                func(**actual_arguments)
+            except BaseException as e:
+                from vdk.internal.builtin_plugins.run.job_input_error_classifier import (
+                    whom_to_blame,
+                )
+
+                errors.log_and_rethrow(
+                    to_be_fixed_by=whom_to_blame(e, __file__, None),
+                    log=log,
+                    what_happened=f"Data Job step {step_name} completed with error.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    consequences="I will not process the remaining steps (if any), "
+                    "and this Data Job execution will be marked as failed.",
+                    countermeasures="See exception and fix the root cause, so that the exception does "
+                    "not appear anymore.",
+                    exception=e,
+                    wrap_in_vdk_error=True,
+                )
         else:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
