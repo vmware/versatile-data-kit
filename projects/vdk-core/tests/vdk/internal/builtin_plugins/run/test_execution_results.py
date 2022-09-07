@@ -118,7 +118,7 @@ def test_serialization_non_serializable():
     assert json.loads(result_as_string) is not None
 
 
-def test_serialization_circular_referecen():
+def test_serialization_circular_reference():
     exception = ArithmeticError("foo")
     exception.__cause__ = exception
     step_result = StepResult(
