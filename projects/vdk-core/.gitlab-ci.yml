@@ -41,8 +41,9 @@ vdk-core-build_with_py39:
   image: "python:3.9"
   extends: .vdk-core-build
 
+# There seem to be an issue with python 3.10.6 ...
 vdk-core-build_with_py310:
-  image: "python:3.10"
+  image: "python:3.10.5"
   extends: .vdk-core-build
 
 
