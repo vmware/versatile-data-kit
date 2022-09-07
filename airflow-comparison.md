@@ -1,15 +1,25 @@
-## Data Lineage
+## Intro
+
+What are the differences between these two workload automation engines - and how do they fare in typical data engineering cases? This blog post serves to answer these questions and help you decide which one you should use.
+
+## Functionality Comparison
+
+
+
+## Use Case Comparison
+
+### Data Lineage
 
 Before comparing VDK and Airflow, let's first briefly discuss what data lineage is. Data lineage is the process of monitoring, recording, and visualization of the flow of data through a particular data system. It also broadly refers to a collection of tools, practices and approaches which allow the tracking of the dataflow. Data lineage tools maintain a record of data within its lifecycle, including its source and any transformations applied to it. The main purpose of data lineage is to provide a platform for ensuring data quality, tracing the flow of data from source to destination while tracking any transformations made to it, as well as a way of troubleshooting any errors which arise within it.
 
 OpenLineage is ['an open platform for collection and analysis of data lineage’](https://openlineage.io/). It is the defacto industry standard for lineage collection, and it will be the basis for our comparison of lineage capabilities between Airflow and VDK.
 
-### Lineage in Apache Airflow
+#### Lineage in Apache Airflow
 
 Apache Airflow offers support for OpenLineage compliant lineage data collection through the `airflow-openlineage` package; however, out-of-the-box support is only offered for PostgreSQL, Snowflake, MySQL, BigQuery, and the Great Expectations data quality validation framework. Users are expected to create their own solution or borrow an existing one should they want to collect lineage for queries ran against a different database.
 The `airflow-openlineage` package allows the collection of lineage data for individual jobs within a DAG run. However, no DAG-wide lineage can be collected.
 
-### Lineage in Versatile Data Kit
+#### Lineage in Versatile Data Kit
 
 Versatile Data Kit offers a lineage collection plugin called `vdk-lineage`. Because of VDK’s extensible architecture, this plugin is endpoint-agnostic, meaning it can collect lineage about queries ran against any current or future SQL database. However, `vdk-lineage` might struggle to parse more obscure SQL dialects.
 VDK also offers dedicated lineage collection for Trino and Impala.
@@ -17,7 +27,7 @@ VDK can collect lineage about individual queries, as well as entire about Data J
 
 
 
-## Templates
+### Templates
 
 We will compare the two platforms based on two forms of templating: the first is the ability of parametrize job executions at runtime, and the second is the ability to build reusable Data Jobs/DAGs which can then be invoked from inside another job/DAG run.
 
@@ -32,7 +42,7 @@ Versatile Data Kit offers out-of-the-box Data Job templates for loading data int
 For more information on Versatile Data Kit’s templating capacities, refer to our Community Demo - https://www.youtube.com/watch?v=HIRt4bX4ddk
 
 
-## Ingestion
+### Ingestion
 
 Data ingestion refers to the ability to take some data and send it to a target location.
 
