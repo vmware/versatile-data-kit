@@ -50,7 +50,7 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 * Use Scenario - a description of a problem. Includes a detailed description of the typical situation that causes this problem to occur and possibly current results.
 * Evidence - the percentage of interviewed users who have mentioned the problem.
 * Impact - how much impact does the problem have on their work (high/moderate/low).
- 
+
 |                 Problem                  |                                                                                                                  Use Scenario                                                                                                                  | Evidence |  Impact  |
 |:----------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
  |             Working with CLI             |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
