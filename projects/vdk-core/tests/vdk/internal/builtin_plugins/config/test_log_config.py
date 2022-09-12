@@ -99,6 +99,6 @@ def test_configure_logger():
                 attempt_id="attempt-id",
                 log_level_module="a.b.c=INFO;foo.bar=ERROR",
             )
-            configured_loggers = mock_dict_config.mock_calls[0].args[0]["loggers"]
+            configured_loggers = mock_dict_config.call_args[0][0]["loggers"]
             assert configured_loggers["a.b.c"]["level"] == "INFO"
             assert configured_loggers["foo.bar"]["level"] == "ERROR"
