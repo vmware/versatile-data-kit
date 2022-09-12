@@ -24,9 +24,8 @@ useful for a wide audience.
 -->
 
 ## Glossary
-<!--
-Optional section which defines terms and abbreviations used in the rest of the document.
--->
+
+* VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
 
 ## Motivation
 
@@ -44,35 +43,85 @@ Jupyter is chosen because it is  very well-known among the data community, it is
 
 
 ## Requirements and goals
+
+### Requirements
+Legend (terms and table are based on Pragmatic Marketing recommendations):
+* Problem - a discrete pain or issue that has been observed within the target market segment. In the below table it's a short summary name of the problem.
+* Use Scenario - a description of a problem. Includes a detailed description of the typical situation that causes this problem to occur and possibly current results.
+* Evidence - the percentage of interviewed users who have mentioned the problem.
+* Impact - how much impact does the problem have on their work (high/moderate/low).
+
+|                 Problem                  |                                                                                                                  Use Scenario                                                                                                                  | Evidence |  Impact  |
+|:----------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
+ |             Working with CLI             |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
+ |  IDEs are not convenient for debugging   |                             As data engineers, we often use Jupyter as a debugging tool instead of using IDE debuggers because of the big data we work with. This leads to copy pasting code from IDE to Jupyter.                              |   70%    |   high   |
+ |  IDEs are not convenient for for tests   |                              As data engineers, we test code in Jupyter quite often because small changes are more visible in graphics, we run small code blocks in many cells and watch how the graphics change.                              |   70%    | moderate |
+ | Moving to production from notebook files | As data engineers we  need to switch from notebooks to python files every time we are moving to production which is done either by copy pasting or using automated functions of Jupyter but might lead to syntax errors and bad coding habits. |   50%    |   low    |
+ |    Rerun whole job for small changes     |                                                              As data engineers,when we use VDK, we need to rerun the whole job again every time we do a small change on the code.                                                              |   40%    ||     |     |
+|     Rerun whole job for failing step     |                                                                       As data engineers, when we use VDK, we need to rerun the whole job again every time a step fails.                                                                        |   40%    ||     |     |
+|    Too many SQL files in one data job    |                 As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end up creating a lot of SQL files every time we need a complex data job.                  |   30%    |   low    |
+
+
 ### Goals
+* The users should have easy access to Jupyter notebook that is integrated with the VDK.
+* Provide UI experience  for VDK which will decrease the use of CLI and solve the problems of switching from IDE to Notebook and from Notebook to IDE.
+* The solution should be installable in centralized instance of jupyterhub or jupyterlab.
+* The solution should provide a way to rerun only failing/changed steps and the steps after them.
+* The number of files needed for job steps should be minimized.
 
-* Users can install new plugin vdk notebook and new command to start local jupyter notebook
-  For example user would install jupyter plugin with `pip install vdk-jupyter`
-  and then they will be able to start local jupyter instance with `vdk start-jupyter` which will run local instance
-  This is simply making it more integrated experience for new users. User can install vdk-jupyter in existing jupyter installation.
 
-* The plugin should be installable in server (centralized) instance of jupyterhub or jupyterlab
+
+## High-level design
+The following section is still in progress.
 
 Once installed they get following capabilities
-
 #### Development of jobs
 ##### Option 1: Notebook as a job step
-* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example. There could be markers for ignoring some cells.
+* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example.
+* There could be markers for ignoring some cells.
 ```
  %% non-vdk
  ```
+* Buttons or markers for defining the step type should be introduced.
+
+Python
+```python
+ %%vdk-py
+ job_input.ingest(xxx)
+ ```
+or SQL
+ ```python
+ %%vdk-sql
+ select * from x
+ ```
 ##### Option 2: Cell as a job step
-* A cell can be marked as a step using a button. Everything can be done in one notebook or multiple. In this solution all the unmarked cells will be ignored.
+* A cell can be marked as a step using a button.
+* There should be two different buttons - one for SQL steps and one for python steps.
+* Once a cell is marked as step a pop-up should ask the name of the step, 10_jupyter for example.
+* Everything can be done in one notebook or multiple.
+* In this solution all the unmarked cells will be ignored.
+* A section for showing all the steps should be introduced.
 ##### Option 3: Hybrid
-* One cell is one SQL step and one notebook is one python step - mix of option 1 and 2
+* One cell is one SQL step and one notebook is one python step.
+* Notebooks and cells will be marked using two different buttons - one for SQL steps(cells) and one for python steps(notebooks)
+* There should not be SQL steps in a notebook defined as python step.
+* In notebooks that are python steps markers for ignoring code could be used.
+```
+ %% non-vdk
+ ```
+* All the notebooks that are not marked as python files and do not have SQL steps in them will be ignored.
+* In a notebook that is not marked as python step all the cells that are not marked as SQL steps should be ignored.
+* A section showing all the steps should be introduced.
+
+
+#### Comparing the options with requirements matrix
+
 
 
 #### Deployment
 
 * Users can click deploy from within the notebook and the job would be deployed in VDK runtime ("cloud")
 * Users should see the status of the deployed jobs
-## High-level design
-
 <!--
 All the rest sections tell **how** are we solving it?
 
