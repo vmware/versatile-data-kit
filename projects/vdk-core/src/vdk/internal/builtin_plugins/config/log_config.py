@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import re
 import socket
 import types
 from sys import modules
@@ -11,6 +12,7 @@ from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.statestore import CommonStoreKeys
 
 SYSLOG_URL = "SYSLOG_URL"
@@ -21,11 +23,54 @@ SYSLOG_ENABLED = "SYSLOG_ENABLED"
 SYSLOG_SOCK_TYPE_VALUES_DICT = {"UDP": socket.SOCK_DGRAM, "TCP": socket.SOCK_STREAM}
 
 
+def _parse_log_level_module(log_level_module):
+    valid_logging_levels = [
+        "NOTSET",
+        "DEBUG",
+        "INFO",
+        "WARN",
+        "WARNING",
+        "ERROR",
+        "FATAL",
+        "CRITICAL",
+    ]
+    try:
+        if log_level_module and log_level_module.strip():
+            modules = log_level_module.split(";")
+            result = {}
+            for module in modules:
+                if module:
+                    module_and_level = module.split("=")
+                    if not re.search("[a-zA-Z0-9_.-]+", module_and_level[0].lower()):
+                        raise ValueError(
+                            f"Invalid logging module name: '{module_and_level[0]}'. "
+                            f"Must be alphanumerical/underscore characters."
+                        )
+                    if module_and_level[1].upper() not in valid_logging_levels:
+                        raise ValueError(
+                            f"Invalid logging level: '{module_and_level[1]}'. Must be one of {valid_logging_levels}."
+                        )
+                    result[module_and_level[0]] = {"level": module_and_level[1].upper()}
+            return result
+        else:
+            return {}
+    except Exception as e:
+        errors.log_and_throw(
+            ResolvableBy.CONFIG_ERROR,
+            logging.getLogger(__name__),
+            "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
+            f"Error is: {e}. log_level_module was set to {log_level_module}.",
+            "Logging will not be initialized and exception is raised",
+            "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
+        )
+
+
 def configure_loggers(
     job_name: str = "",
     attempt_id: str = "no-id",
     log_config_type: str = None,
     vdk_logging_level: str = "DEBUG",
+    log_level_module: str = None,
     syslog_args: (str, int, str, bool) = ("localhost", 514, "UDP", False),
 ) -> None:
     """
@@ -35,6 +80,7 @@ def configure_loggers(
     :param attempt_id: the id of the current job run attempt
     :param log_config_type: where the job is executed: CLOUD or LOCAL
     :param vdk_logging_level: The level for vdk specific logs.
+    :param log_level_module: The level for modules specific logs
     :param syslog_args: Arguments necessary for SysLog logging.
     """
 
@@ -59,6 +105,7 @@ def configure_loggers(
         "urllib3": {"level": "INFO"},
         "vdk": {"level": vdk_logging_level},
     }
+    _LOGGERS.update(_parse_log_level_module(log_level_module))
 
     _FORMATTERS = {"detailedFormatter": {"format": DETAILED_FORMAT}}
 
@@ -202,6 +249,9 @@ class LoggingPlugin:
         vdk_log_level = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_VDK
         )
+        log_level_module = context.core_context.configuration.get_value(
+            vdk_config.LOG_LEVEL_MODULE
+        )
         syslog_url = context.core_context.configuration.get_value(SYSLOG_URL)
         syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT)
         syslog_sock_type = context.core_context.configuration.get_value(
@@ -214,6 +264,7 @@ class LoggingPlugin:
                 attempt_id,
                 log_config_type=log_config_type,
                 vdk_logging_level=vdk_log_level,
+                log_level_module=log_level_module,
                 syslog_args=(syslog_url, syslog_port, syslog_sock_type, syslog_enabled),
             )
             log = logging.getLogger(__name__)

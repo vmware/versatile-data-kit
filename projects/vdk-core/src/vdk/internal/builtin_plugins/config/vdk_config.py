@@ -18,6 +18,7 @@ DB_DEFAULT_TYPE = "DB_DEFAULT_TYPE"
 JOB_GITHASH = "JOB_GITHASH"
 LOG_CONFIG = "LOG_CONFIG"
 LOG_LEVEL_VDK = "LOG_LEVEL_VDK"
+LOG_LEVEL_MODULE = "LOG_LEVEL_MODULE"
 WORKING_DIR = "WORKING_DIR"
 ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
@@ -66,6 +67,16 @@ class CoreConfigDefinitionPlugin:
             None,
             True,
             "Logging verbosity of VDK code can be controlled from here. "
+            "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
+            "If not set python default or one set by vdk -v LEVEL is used. ",
+        )
+        config_builder.add(
+            LOG_LEVEL_MODULE,
+            None,
+            True,
+            "Logging verbosity of specific module can be controlled from here."
+            "Format is semi colon separated list of module and level."
+            " module=level,module2=level2 For example a.b.c=INFO;foo.bar=ERROR "
             "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
             "If not set python default or one set by vdk -v LEVEL is used. ",
         )
