@@ -1,6 +1,9 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
+import logging
+import pprint
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -12,6 +15,8 @@ from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import find_whom_to_blame_from_exception
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
+
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -146,4 +151,16 @@ class ExecutionResult:
         def default_serialization(o: Any) -> Any:
             return o.__dict__ if "__dict__" in dir(o) else str(o)
 
-        return json.dumps(data, default=default_serialization, indent=2)
+        try:
+            result = json.dumps(data, default=default_serialization, indent=2)
+        except Exception as e:
+            log.debug(f"Failed to json.dumps executionResult: {e}. Fallback to pprint.")
+            # sort_dicts is supported since 3.8
+            if sys.version_info[0] >= 3 and sys.version_info[1] >= 8:
+                result = pprint.pformat(
+                    data, indent=2, depth=5, compact=False, sort_dicts=False
+                )
+            else:
+                result = pprint.pformat(data, indent=2, depth=5, compact=False)
+
+        return result

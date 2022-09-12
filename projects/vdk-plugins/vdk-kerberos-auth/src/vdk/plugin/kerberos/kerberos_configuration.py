@@ -18,6 +18,8 @@ KEYTAB_REALM = "KEYTAB_REALM"
 KERBEROS_KDC_HOST = "KERBEROS_KDC_HOST"
 KRB_AUTH_FAIL_FAST = "KRB_AUTH_FAIL_FAST"
 
+API_SERVER_KERBEROS_SERVICE_NAME = "API_SERVER_KERBEROS_SERVICE_NAME"
+
 
 class KerberosPluginConfiguration:
     def __init__(
@@ -81,6 +83,9 @@ class KerberosPluginConfiguration:
     def auth_fail_fast(self) -> bool:
         return self.__config.get_value(KRB_AUTH_FAIL_FAST)
 
+    def api_server_kerberos_service_name(self) -> str:
+        return self.__config.get_value(API_SERVER_KERBEROS_SERVICE_NAME)
+
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
@@ -136,4 +141,13 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         "If set to false, only warning will be logged on authentication failure. "
         "Subsequent kerberos related requests may fail but that'd fail lazily (on demand) "
         "that makes it possible for non-kerberos related features to work.",
+    )
+    config_builder.add(
+        key=API_SERVER_KERBEROS_SERVICE_NAME,
+        default_value=None,
+        description="""
+    Kerberos service name of the API Server.
+    It's a string containing the service principal (for the API server) in the form 'type@fqdn'
+    (for example, 'http@server.vdk.com').
+    """,
     )
