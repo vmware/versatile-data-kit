@@ -18,7 +18,12 @@ from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
+<<<<<<< HEAD
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
+=======
+
+VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
+>>>>>>> 965e2107 (vdk-core: errors occurred and the state (handled or not) context missing)
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
