@@ -80,6 +80,8 @@ export VDK_CONTROL_SERVICE_REST_API_URL=http://localhost:8092/
 
 To see all possible configuration options, use the command `vdk config-help.`
 
+**Instead of using environment variables, the alternative option is to set these configuration parameters in the config.ini file of the data job under the [vdk] section.**
+
 Data Job
 --------
 
