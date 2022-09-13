@@ -13,6 +13,10 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
+from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
+
+VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +33,7 @@ def tmp_termination_msg_file(tmpdir) -> pathlib.Path:
 
 
 def test_initialize_step_user_error(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
     runner = CliEntryBasedTestRunner()
 
     result: Result = runner.invoke(["run", util.job_path("syntax-error-job")])
@@ -38,7 +42,7 @@ def test_initialize_step_user_error(tmp_termination_msg_file):
 
 
 def test_run_user_error(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
     runner = CliEntryBasedTestRunner()
 
     result: Result = runner.invoke(["run", util.job_path("fail-job")])
@@ -47,7 +51,7 @@ def test_run_user_error(tmp_termination_msg_file):
 
 
 def test_run_user_error_fail_job_library(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
     runner = CliEntryBasedTestRunner()
 
     result: Result = runner.invoke(["run", util.job_path("fail-job-indirect-library")])
@@ -56,7 +60,7 @@ def test_run_user_error_fail_job_library(tmp_termination_msg_file):
 
 
 def test_run_user_error_fail_job_ingest_iterator(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
     runner = CliEntryBasedTestRunner()
 
     result: Result = runner.invoke(["run", util.job_path("fail-job-ingest-iterator")])
@@ -65,7 +69,7 @@ def test_run_user_error_fail_job_ingest_iterator(tmp_termination_msg_file):
 
 
 def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
 
     class InitFailsPlugin:
         @staticmethod
@@ -83,7 +87,7 @@ def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
 
 
 def test_run_exception_handled(tmp_termination_msg_file: pathlib.Path):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
 
     class ExceptionHandler:
         @staticmethod
@@ -98,7 +102,7 @@ def test_run_exception_handled(tmp_termination_msg_file: pathlib.Path):
 
 
 def test_run_job_plugin_fails(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
 
     class RunJobFailsPlugin:
         @staticmethod
@@ -113,3 +117,16 @@ def test_run_job_plugin_fails(tmp_termination_msg_file):
     assert (
         json.loads(tmp_termination_msg_file.read_text())["status"] == "Platform error"
     )
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_user_error_handled(tmp_termination_msg_file):
+    errors.resolvable_context().clear()
+    db_plugin = SqLite3MemoryDbPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin)
+
+    result: Result = runner.invoke(
+        ["run", util.job_path("simple-query-failed-handled")]
+    )
+    cli_assert_equal(0, result)
+    assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "Success"
