@@ -22,9 +22,12 @@
 
 # Overview
 
-Versatile Data Kit (VDK) is an open source framework that enables anybody with basic SQL or Python knowledge to create their own data pipelines.
+Versatile Data Kit (VDK) is an open source framework that enables anyone with basic SQL or Python knowledge to build their own data pipelines.
 
 Versatile Data Kit enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is a data processing workload** and can be written in Python, SQL, or both at the same time. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
+
+![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-light.svg#gh-light-mode-only)
+![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-dark.svg#gh-dark-mode-only)
 
 Versatile Data Kit consists of two main components:
 
