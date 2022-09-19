@@ -121,8 +121,6 @@ def _skip_job_if_necessary(
             log.info(f"Skipping job {job_name}")
             writer_plugin = TerminationMessageWriterPlugin()
             writer_plugin.write_termination_message(
-                error_overall=None,
-                user_error=None,
                 configuration=configuration,
                 execution_skipped=True,
             )
