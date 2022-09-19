@@ -36,7 +36,11 @@ class TerminationMessageWriterPlugin:
         )
 
     def write_termination_message(
-        self, error_overall, user_error, configuration, execution_skipped=False
+        self,
+        error_overall=None,
+        user_error=None,
+        configuration=None,
+        execution_skipped=False,
     ):
         termination_message_writer_cfg = WriterConfiguration(configuration)
 
