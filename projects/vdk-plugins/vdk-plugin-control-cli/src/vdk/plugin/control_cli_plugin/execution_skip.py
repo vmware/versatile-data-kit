@@ -121,8 +121,7 @@ def _skip_job_if_necessary(
             log.info(f"Skipping job {job_name}")
             writer_plugin = TerminationMessageWriterPlugin()
             writer_plugin.write_termination_message(
-                configuration=configuration,
-                execution_skipped=True,
+                configuration=configuration, execution_skipped=True
             )
             _skip_job_run(job_name)  # calls os._exit(0)
             return 1  # All other branches return None
