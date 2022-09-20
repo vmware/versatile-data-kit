@@ -36,7 +36,6 @@ import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 import io.kubernetes.client.util.Watch;
 import io.kubernetes.client.util.Yaml;
-import io.kubernetes.client.util.generic.GenericKubernetesApi;
 import lombok.*;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.apache.commons.lang3.StringUtils;
@@ -736,7 +735,8 @@ public abstract class KubernetesService implements InitializingBean {
             operationResponse.getData().getDetails());
         throw new KubernetesException(
             operationResponse.getData().getMessage(),
-            new ApiException(operationResponse.getStatusCode(), operationResponse.getData().getMessage()));
+            new ApiException(
+                operationResponse.getStatusCode(), operationResponse.getData().getMessage()));
       }
     } catch (JsonSyntaxException e) {
       if (e.getCause() instanceof IllegalStateException) {
