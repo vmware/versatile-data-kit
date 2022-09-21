@@ -120,7 +120,7 @@ def test_run_job_plugin_fails(tmp_termination_msg_file):
 
 
 def test_run_platform_error_properties(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
 
     class FailingPropertiesServiceClient(IPropertiesServiceClient):
         def read_properties(self, job_name: str, team_name: str) -> Dict:
@@ -143,7 +143,7 @@ def test_run_platform_error_properties(tmp_termination_msg_file):
 
 
 def test_run_platform_error_sql(tmp_termination_msg_file):
-    errors.clear_intermediate_errors()
+    errors.resolvable_context().clear()
 
     class QueryFailingPlugin:
         @hookimpl
