@@ -12,7 +12,6 @@ import io.kubernetes.client.openapi.models.V1Status;
 import io.kubernetes.client.openapi.models.V1StatusDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -38,7 +37,8 @@ public class KubernetesServiceCancelRunningCronJobTest {
   public void
       testIsRunningJob_notNullResponseAndNullStatus_shouldThrowDataJobExecutionCannotBeCancelledException()
           throws ApiException {
-    KubernetesService kubernetesService = mockKubernetesService(new V1Status().status(null).code(404));
+    KubernetesService kubernetesService =
+        mockKubernetesService(new V1Status().status(null).code(404));
 
     Assertions.assertThrows(
         DataJobExecutionCannotBeCancelledException.class,
