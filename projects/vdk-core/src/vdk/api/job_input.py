@@ -361,3 +361,18 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
                 SELECT id, {pa__job_start_ts_expr} FROM mytable
         """
         pass
+
+    @abstractmethod
+    def cancel_job_execution(self) -> None:
+        """
+        :return:
+
+        Usage:
+            job_input.cancel_job_execution()
+
+            Raises an internal exception that signalises to the VDK runtime that all remaining steps should be skipped
+            and the current job execution should be terminated with status Success. This is to be used when users want
+            customizable behaviour of data jobs, where execution of data jobs could be skipped. E.g. if a data job
+            depends on processing data from a source which has indicated no new entries since last run, then we can skip
+            the execution.
+        """

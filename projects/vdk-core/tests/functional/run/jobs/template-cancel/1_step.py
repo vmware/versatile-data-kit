@@ -1,0 +1,10 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+import logging as log
+
+from vdk.api.job_input import IJobInput
+
+
+def run(job_input: IJobInput):
+    log.info("Template Step 1.")
+    job_input.cancel_job_execution()

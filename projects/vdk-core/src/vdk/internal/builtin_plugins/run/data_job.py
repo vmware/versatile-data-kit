@@ -24,6 +24,7 @@ from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import CancelJobExecutionException
 from vdk.internal.core.statestore import CommonStoreKeys
 
 log = logging.getLogger(__name__)
@@ -76,6 +77,9 @@ class DataJobDefaultHookImplPlugin:
                 if step_executed
                 else ExecutionStatus.NOT_RUNNABLE
             )
+        except CancelJobExecutionException as e:
+            # We need to re-raise this exception so it can be handled in the run_job level
+            raise e
         except Exception as e:
             status = ExecutionStatus.ERROR
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
@@ -133,6 +137,21 @@ class DataJobDefaultHookImplPlugin:
                 res = context.core_context.plugin_registry.hook().run_step(
                     context=context, step=current_step
                 )
+            except CancelJobExecutionException as e:
+                # We are cancelling job execution, and building exit message.
+                # Note exception was logged previously. We need to update step.
+                res = StepResult(
+                    name=current_step.name,
+                    type=current_step.type,
+                    start_time=step_start_time,
+                    end_time=datetime.utcnow(),
+                    status=ExecutionStatus.SUCCESS,
+                    details=errors.MSG_WHY_FROM_EXCEPTION(e),
+                    exception=e,
+                    blamee=None,
+                )
+                step_results.append(res)
+                break
             except BaseException as e:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e

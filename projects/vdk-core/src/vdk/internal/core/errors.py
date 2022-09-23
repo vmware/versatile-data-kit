@@ -107,6 +107,17 @@ class UserCodeError(DomainError):
     pass
 
 
+class CancelJobExecutionException(DomainError):
+    """
+    An exception used to skip the remaining steps of a Data Job.
+
+    When this exception is thrown from a data job python step, all the other steps will
+    be skipped and the data job execution will exit and be marked as success.
+    """
+
+    pass
+
+
 class ErrorMessage:
     """
     Standard format for Error messages in VDK. Use it when throwing exceptions or logging error level.
@@ -399,6 +410,8 @@ def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
         )  # TODO find out if this is a local or platform deployment and fix this line.
     if issubclass(type(exception), PlatformServiceError):
         return ResolvableBy.PLATFORM_ERROR
+    if issubclass(type(exception), CancelJobExecutionException):
+        return ResolvableBy.USER_ERROR
 
     return ResolvableBy.PLATFORM_ERROR
 

@@ -34,7 +34,6 @@ class TemplatePlugin:
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
 def test_run_job_with_template():
-
     db_plugin = SqLite3MemoryDbPlugin()
     runner = CliEntryBasedTestRunner(db_plugin, TemplatePlugin())
 
@@ -59,3 +58,38 @@ def test_run_job_with_template_error(tmpdir: py.path.local):
 
     cli_assert_equal(1, result)
     assert "no such table: no_such_table" in result.output
+
+
+def test_run_job_with_cancelled_template():
+    """
+    Test runs a data job with two steps which in turns runs a template with two steps.
+    Every step prints e.g Step 1,2 and Template Step 1,2 etc. After the first template
+    step is executed the cancel_job_execution() method is called. Test aims to check
+    correct template cancellation (when a template step is cancelled remaining data job
+    steps continue)
+
+    Test checks:
+    template execution is canceled and all job steps are executed.
+    template steps prior to the cancel_job_execution() call are executed.
+    proper exit code is set.
+    proper message is logged confirming template was cancelled from cancel_job_execution() method.
+    :return:
+    """
+    test_runner = CliEntryBasedTestRunner(
+        TemplatePlugin(
+            "template-cancel", pathlib.Path(util.job_path("template-cancel"))
+        )
+    )
+
+    result: Result = test_runner.invoke(["run", util.job_path("cancel-job-template")])
+
+    assert "Step 1." in result.output
+    assert "Step 2." in result.output
+    assert "Template Step 1." in result.output
+    assert "Template Step 2." not in result.output
+    assert (
+        "Job/template execution was cancelled from job/template step code."
+        in result.output
+    )
+
+    cli_assert_equal(0, result)

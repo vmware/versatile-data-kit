@@ -22,6 +22,8 @@ from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
 )
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import CancelJobExecutionException
+from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import CommonStoreKeys
 
@@ -168,3 +170,19 @@ class JobInput(IJobInput):
             "pa__job_start_ts_expr": f"cast ({start_time.timestamp()} as timestamp)",
             "pa__op_id": self.__statestore.get(CommonStoreKeys.OP_ID),
         }
+
+    def cancel_job_execution(self) -> None:
+        error_message = ErrorMessage(
+            summary="Job/template execution was cancelled.",
+            what="Job/template execution was cancelled from job/template step code.",
+            why="Job/template called the job_input.cancel_job_execution() method.",
+            consequences=(
+                "The remaining steps (if any) will not be executed and current job/template execution "
+                + "will finish. The job/template will terminate with a success status."
+            ),
+            countermeasures=(
+                "Revise job/template code and determine need for cancelling. "
+                + "If cancellation behaviour no longer desired, refactor the job/template code."
+            ),
+        )
+        raise CancelJobExecutionException(error_message)
