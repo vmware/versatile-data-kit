@@ -1,10 +1,11 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import json
 import os
 import shutil
 import tempfile
 import uuid
-from configparser import ConfigParser
+from typing import Dict
 from unittest.mock import patch
 
 from click.testing import Result
@@ -34,7 +35,7 @@ filename = str(uuid.uuid4())
 def test_multiple_properties_read_write_config_default():
     runner = CliEntryBasedTestRunner(fs_properties_plugin)
     # default file path expected
-    file_path = os.path.join(tempfile.gettempdir(), "vdk_data_jobs.properties")
+    file_path = os.path.join(tempfile.gettempdir(), "vdk_data_jobs.json")
 
     # run multiple data jobs that set matching keys and unique values
     result: Result = runner.invoke(
@@ -46,23 +47,24 @@ def test_multiple_properties_read_write_config_default():
     )
     cli_assert_equal(0, result)
 
-    config_parser = ConfigParser()
-    config_parser.read(file_path)
+    props: Dict
+    with open(file_path) as props_file:
+        props = json.load(props_file)
 
     # verify properties stored per job
-    job_section_0 = FileSystemPropertiesServiceClient._prefix(
+    job_prefix_0 = FileSystemPropertiesServiceClient._prefix(
         None, "write-read-properties-job"
     )
-    job_section_1 = FileSystemPropertiesServiceClient._prefix(
+    job_prefix_1 = FileSystemPropertiesServiceClient._prefix(
         None, "write-read-properties-job-1"
     )
-    assert config_parser.has_section(job_section_0)
-    assert dict(config_parser.items(job_section_0)) == {
+    assert props.keys().__contains__(job_prefix_0)
+    assert props.get(job_prefix_0) == {
         "key": "new_value0",
         "another_key": "value0",
     }
-    assert config_parser.has_section(job_section_1)
-    assert dict(config_parser.items(job_section_1)) == {
+    assert props.keys().__contains__(job_prefix_1)
+    assert props.get(job_prefix_1) == {
         "key": "new_value1",
         "another_key": "value1",
     }

@@ -21,12 +21,13 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
         key=FS_PROPERTIES_DIRECTORY,
         default_value=tempfile.gettempdir(),
-        description="FS directory path where the properties file is to be stored.",
+        description="FS directory path where the JSON file is to be stored.",
     )
     config_builder.add(
         key=FS_PROPERTIES_FILENAME,
-        default_value="vdk_data_jobs.properties",
-        description="Properties file name to be used. Placed within the FS_PROPERTIES_DIRECTORY.",
+        default_value="vdk_data_jobs.json",
+        description="JSON file name to be used. Placed within the FS_PROPERTIES_DIRECTORY. "
+        "Supports properties storage of multiple teams and data jobs.",
     )
 
 
