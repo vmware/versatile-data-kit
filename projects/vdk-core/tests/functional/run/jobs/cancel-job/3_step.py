@@ -6,4 +6,4 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    log.info("Step 3.")
+    log.info("Step Cancel 3.")

@@ -410,8 +410,6 @@ def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
         )  # TODO find out if this is a local or platform deployment and fix this line.
     if issubclass(type(exception), PlatformServiceError):
         return ResolvableBy.PLATFORM_ERROR
-    if issubclass(type(exception), CancelJobExecutionException):
-        return ResolvableBy.USER_ERROR
 
     return ResolvableBy.PLATFORM_ERROR
 

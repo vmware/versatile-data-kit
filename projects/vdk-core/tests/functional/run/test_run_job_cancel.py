@@ -21,11 +21,11 @@ def test_run():
 
     result: Result = test_runner.invoke(["run", util.job_path("cancel-job")])
 
-    assert "Step 1." in result.output
-    assert "Step 2." in result.output
-    assert "Step 3." not in result.output
+    assert "Step Cancel 1." in result.output
+    assert "Step Cancel 2." in result.output
+    assert "Step Cancel 3." not in result.output
     assert (
-        "Job/template execution was cancelled from job/template step code."
+        "Job/template execution was skipped from job/template step code."
         in result.output
     )
     cli_assert_equal(0, result)

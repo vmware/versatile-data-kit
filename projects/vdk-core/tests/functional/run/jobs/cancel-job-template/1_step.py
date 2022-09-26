@@ -7,4 +7,4 @@ from vdk.api.job_input import IJobInput
 
 def run(job_input: IJobInput):
     log.info("Step 1.")
-    job_input.execute_template("template-cancel", {})
+    job_input.execute_template("cancel-job", {})

@@ -171,17 +171,17 @@ class JobInput(IJobInput):
             "pa__op_id": self.__statestore.get(CommonStoreKeys.OP_ID),
         }
 
-    def cancel_job_execution(self) -> None:
+    def skip_remaining_steps(self) -> None:
         error_message = ErrorMessage(
-            summary="Job/template execution was cancelled.",
-            what="Job/template execution was cancelled from job/template step code.",
-            why="Job/template called the job_input.cancel_job_execution() method.",
+            summary="Job/template execution was skipped.",
+            what="Job/template execution was skipped from job/template step code.",
+            why="Job/template called the job_input.skip_remaining_steps() method.",
             consequences=(
                 "The remaining steps (if any) will not be executed and current job/template execution "
                 + "will finish. The job/template will terminate with a success status."
             ),
             countermeasures=(
-                "Revise job/template code and determine need for cancelling. "
+                "Revise job/template code and determine need for skipping. "
                 + "If cancellation behaviour no longer desired, refactor the job/template code."
             ),
         )

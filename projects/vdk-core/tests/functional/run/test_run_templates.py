@@ -76,19 +76,18 @@ def test_run_job_with_cancelled_template():
     :return:
     """
     test_runner = CliEntryBasedTestRunner(
-        TemplatePlugin(
-            "template-cancel", pathlib.Path(util.job_path("template-cancel"))
-        )
+        TemplatePlugin("cancel-job", pathlib.Path(util.job_path("cancel-job")))
     )
 
     result: Result = test_runner.invoke(["run", util.job_path("cancel-job-template")])
 
     assert "Step 1." in result.output
     assert "Step 2." in result.output
-    assert "Template Step 1." in result.output
-    assert "Template Step 2." not in result.output
+    assert "Step Cancel 1." in result.output
+    assert "Step Cancel 2." in result.output
+    assert "Step Cancel 3." not in result.output
     assert (
-        "Job/template execution was cancelled from job/template step code."
+        "Job/template execution was skipped from job/template step code."
         in result.output
     )
 

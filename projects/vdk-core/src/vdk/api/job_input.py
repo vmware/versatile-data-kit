@@ -363,16 +363,20 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
         pass
 
     @abstractmethod
-    def cancel_job_execution(self) -> None:
+    def skip_remaining_steps(self) -> None:
         """
         :return:
 
         Usage:
-            job_input.cancel_job_execution()
+            job_input.skip_remaining_steps()
 
             Raises an internal exception that signalises to the VDK runtime that all remaining steps should be skipped
-            and the current job execution should be terminated with status Success. This is to be used when users want
-            customizable behaviour of data jobs, where execution of data jobs could be skipped. E.g. if a data job
+            and the current job execution should be terminated with status Success. When this method is called from
+            within a template, the remaining steps of the template will be skipped, but the data job will that called
+            the template will continue executing normally.
+
+            This is to be used when users want
+            customizable behaviour of data jobs/templates, where execution could be skipped. E.g. if a data job
             depends on processing data from a source which has indicated no new entries since last run, then we can skip
             the execution.
         """

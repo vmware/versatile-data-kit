@@ -78,8 +78,8 @@ class DataJobDefaultHookImplPlugin:
                 else ExecutionStatus.NOT_RUNNABLE
             )
         except CancelJobExecutionException as e:
-            # We need to re-raise this exception so it can be handled in the run_job level
-            raise e
+            status = ExecutionStatus.SKIP_REQUESTED
+            details = errors.MSG_WHY_FROM_EXCEPTION(e)
         except Exception as e:
             status = ExecutionStatus.ERROR
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
@@ -137,21 +137,6 @@ class DataJobDefaultHookImplPlugin:
                 res = context.core_context.plugin_registry.hook().run_step(
                     context=context, step=current_step
                 )
-            except CancelJobExecutionException as e:
-                # We are cancelling job execution, and building exit message.
-                # Note exception was logged previously. We need to update step.
-                res = StepResult(
-                    name=current_step.name,
-                    type=current_step.type,
-                    start_time=step_start_time,
-                    end_time=datetime.utcnow(),
-                    status=ExecutionStatus.SUCCESS,
-                    details=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    exception=e,
-                    blamee=None,
-                )
-                step_results.append(res)
-                break
             except BaseException as e:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e
@@ -181,6 +166,9 @@ class DataJobDefaultHookImplPlugin:
             # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors
             if res.status == ExecutionStatus.ERROR:
                 execution_status = ExecutionStatus.ERROR
+                break
+            if res.status == ExecutionStatus.SKIP_REQUESTED:
+                # We keep the status as Success, but we skip all remaining steps
                 break
 
         execution_result = ExecutionResult(
