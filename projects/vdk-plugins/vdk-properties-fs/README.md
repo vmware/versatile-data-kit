@@ -1,6 +1,6 @@
 This plugin allows vdk-core to read/write properties on the local FS. Mainly for development purposes,
 to simplify a use-case with local Properties API usage, that would otherwise require a Control Service instance prerequisite.
-For example, to quick demo a data job that uses a secret, so that secret is quickly stored on the presenter local FS.
+For example, to quickly demo a data job that uses a secret, so that secret is quickly stored on the presenter's local FS.
 
 # Usage
 
