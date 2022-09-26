@@ -107,7 +107,7 @@ class UserCodeError(DomainError):
     pass
 
 
-class CancelJobExecutionException(DomainError):
+class SkipRemainingStepsException(DomainError):
     """
     An exception used to skip the remaining steps of a Data Job.
 

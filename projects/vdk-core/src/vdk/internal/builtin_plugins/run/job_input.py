@@ -22,8 +22,8 @@ from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
 )
 from vdk.internal.core.context import CoreContext
-from vdk.internal.core.errors import CancelJobExecutionException
 from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import CommonStoreKeys
 
@@ -185,4 +185,4 @@ class JobInput(IJobInput):
                 + "If cancellation behaviour no longer desired, refactor the job/template code."
             ),
         )
-        raise CancelJobExecutionException(error_message)
+        raise SkipRemainingStepsException(error_message)

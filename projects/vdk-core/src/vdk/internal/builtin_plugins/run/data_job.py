@@ -24,7 +24,7 @@ from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
-from vdk.internal.core.errors import CancelJobExecutionException
+from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.statestore import CommonStoreKeys
 
 log = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ class DataJobDefaultHookImplPlugin:
                 if step_executed
                 else ExecutionStatus.NOT_RUNNABLE
             )
-        except CancelJobExecutionException as e:
+        except SkipRemainingStepsException as e:
             status = ExecutionStatus.SKIP_REQUESTED
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
         except Exception as e:
