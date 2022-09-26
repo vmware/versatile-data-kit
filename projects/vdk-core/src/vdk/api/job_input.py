@@ -370,7 +370,7 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
         Usage:
             job_input.skip_remaining_steps()
 
-            Raises an internal exception that signalises to the VDK runtime that all remaining steps should be skipped
+            Signalizes to the VDK runtime that all remaining steps should be skipped
             and the current job execution should be terminated with status Success. When this method is called from
             within a template, the remaining steps of the template will be skipped, but the data job will that called
             the template will continue executing normally.

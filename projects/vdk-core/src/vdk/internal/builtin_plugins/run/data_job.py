@@ -80,6 +80,10 @@ class DataJobDefaultHookImplPlugin:
         except SkipRemainingStepsException as e:
             status = ExecutionStatus.SKIP_REQUESTED
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
+            log.debug(
+                f"Job execution skipped from step: {step.name}. Because skip_remaining_steps() method "
+                + "was invoked"
+            )
         except Exception as e:
             status = ExecutionStatus.ERROR
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
