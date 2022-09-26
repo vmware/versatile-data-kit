@@ -23,3 +23,4 @@ class ExecutionStatus(str, Enum):
     SUCCESS = "success"
     NOT_RUNNABLE = "not_runnable"
     ERROR = "error"
+    SKIP_REQUESTED = "skip_requested"

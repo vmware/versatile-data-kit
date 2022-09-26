@@ -24,6 +24,7 @@ from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.statestore import CommonStoreKeys
 
 log = logging.getLogger(__name__)
@@ -75,6 +76,13 @@ class DataJobDefaultHookImplPlugin:
                 ExecutionStatus.SUCCESS
                 if step_executed
                 else ExecutionStatus.NOT_RUNNABLE
+            )
+        except SkipRemainingStepsException as e:
+            status = ExecutionStatus.SKIP_REQUESTED
+            details = errors.MSG_WHY_FROM_EXCEPTION(e)
+            log.debug(
+                f"Job execution skipped from step: {step.name}. Because skip_remaining_steps() method "
+                + "was invoked"
             )
         except Exception as e:
             status = ExecutionStatus.ERROR
@@ -162,6 +170,9 @@ class DataJobDefaultHookImplPlugin:
             # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors
             if res.status == ExecutionStatus.ERROR:
                 execution_status = ExecutionStatus.ERROR
+                break
+            if res.status == ExecutionStatus.SKIP_REQUESTED:
+                # We keep the status as Success, but we skip all remaining steps
                 break
 
         execution_result = ExecutionResult(

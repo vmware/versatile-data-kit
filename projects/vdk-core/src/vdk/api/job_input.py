@@ -361,3 +361,22 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
                 SELECT id, {pa__job_start_ts_expr} FROM mytable
         """
         pass
+
+    @abstractmethod
+    def skip_remaining_steps(self) -> None:
+        """
+        :return:
+
+        Usage:
+            job_input.skip_remaining_steps()
+
+            Signalizes to the VDK runtime that all remaining steps should be skipped
+            and the current job execution should be terminated with status Success. When this method is called from
+            within a template, the remaining steps of the template will be skipped, but the data job will that called
+            the template will continue executing normally.
+
+            This is to be used when users want
+            customizable behaviour of data jobs/templates, where execution could be skipped. E.g. if a data job
+            depends on processing data from a source which has indicated no new entries since last run, then we can skip
+            the execution.
+        """
