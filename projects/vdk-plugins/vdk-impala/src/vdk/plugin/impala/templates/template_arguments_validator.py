@@ -46,14 +46,11 @@ class TemplateArgumentsValidator:
         )
         source_view_has_results = raw_source_view_has_results[0][0]
         if not source_view_has_results:
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "Source view returned no results.",
-                "Likely the source table is empty or non existent.",
-                "Will not execute template.",
-                "Make sure the source view returns results and re-execute the template.",
+            log.warning(
+                "Source view returned no results. Source table is likely empty or non existent."
+                + " Template will not be executed."
             )
+            job_input.skip_remaining_steps()
         return args
 
     def _validate_args(self, args: dict) -> dict:
