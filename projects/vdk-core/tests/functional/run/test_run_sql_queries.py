@@ -75,6 +75,8 @@ class SyntaxErrorRecoverySqLite3MemoryDbPlugin:
 
 @mock.patch.dict(os.environ, {})
 def test_run_dbapi_connection_no_such_db_type():
+    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger("vdk").setLevel(logging.INFO)
     runner = CliEntryBasedTestRunner()
 
     with mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY}):
