@@ -418,11 +418,7 @@ class TestTemplateRegression(unittest.TestCase):
         )
         # Expecting data job not to finish due to empty source.
         assert not res.exception
-        assert "Source view returned no results." in res.output
-        assert (
-            "Job/template execution was skipped from job/template step code."
-            in res.output
-        )
+        assert res.exit_code == 0
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
