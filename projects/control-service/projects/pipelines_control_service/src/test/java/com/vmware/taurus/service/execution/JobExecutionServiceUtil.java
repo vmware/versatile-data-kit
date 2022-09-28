@@ -28,8 +28,7 @@ public class JobExecutionServiceUtil {
   public static void assertDataJobExecutionValid(
       com.vmware.taurus.service.model.DataJobExecution expectedDataJobExecution,
       DataJobExecution actualDataJobExecution) {
-//test
-
+    // test
 
     Assertions.assertEquals(expectedDataJobExecution.getId(), actualDataJobExecution.getId());
     Assertions.assertEquals(
