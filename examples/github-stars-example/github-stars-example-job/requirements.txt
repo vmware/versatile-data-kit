@@ -1,0 +1,6 @@
+vdk-core
+pygithub
+streamlit
+sqlite3
+pandas
+plotly
