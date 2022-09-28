@@ -1,10 +1,10 @@
-# Overview 
+# Overview
 
-In this example we will use Versatile Data Kit to create Streamlit web app that displays GitHub Star History: 
+In this example we will use Versatile Data Kit to create Streamlit web app that displays GitHub Star History:
 
 [<img src="https://user-images.githubusercontent.com/11227374/192750161-dfca62f0-5ea3-4300-8887-4413c8dbbf05.png" width="500"/>](Github)
 
-The job will insert the data from GitHub API into local sqlite table and create a Streamlit app. It also edits the default streamlit color schema. 
+The job will insert the data from GitHub API into local sqlite table and create a Streamlit app. It also edits the default streamlit color schema.
 
 Before you continue, make sure you are familiar with the
 [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/Getting-Started) section of the wiki.
@@ -15,13 +15,13 @@ Code
 The relevant Data Job and Airflow DAG code is available
 [here](https://github.com/vmware/versatile-data-kit/tree/main/examples/github-stars-example).
 
-The code can be reused to track Hithub Star History for any GitHub repo. 
+The code can be reused to track Hithub Star History for any GitHub repo.
 
 Data
 --------
 
-We get the data from GitHub API using PyGithub library. 
-To display the history we need to get the date when user starred the repository and count of the stars. 
+We get the data from GitHub API using PyGithub library.
+To display the history we need to get the date when user starred the repository and count of the stars.
 
 Requirements
 ------------
@@ -82,7 +82,7 @@ log = logging.getLogger(__name__)
 
 def run(job_input: IJobInput):
     properties = job_input.get_all_properties()
-   
+
     # Insert your github token from https://github.com/settings/tokens
     # Repository path user/repo, for example 'vmware/versatile-data-kit'
     job_input.set_all_properties({
@@ -124,27 +124,27 @@ def run(job_input: IJobInput):
     # In order to use properties, install vdk server OR vdk-properties-fs plugin
     # [VDK server installation](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-versatile-data-kit-control-service)
     # [vdk-properties-fs plugin](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-properties-fs)
-    
-    # Properties are in the 00_properties.py file 
+
+    # Properties are in the 00_properties.py file
     properties = job_input.get_all_properties()
     token = properties['token']
     repo_path = properties['repo_path']
-    
+
     # Set token and path for PyGithub
     g = Github(token)
     repo = g.get_repo(repo_path)
 
-    # Get Stargazer data with starred date, put them into a list and get length 
+    # Get Stargazer data with starred date, put them into a list and get length
     users = repo.get_stargazers_with_dates()
     usr_list = list(users)
     count = len(usr_list)
 
     data_to_send = []
 
-    # Go through the list and add Starred Time and count of stars 
+    # Go through the list and add Starred Time and count of stars
     for i, u in enumerate(range(count)):
         data_to_send.append(
-            [str(usr_list[u].starred_at), i+1], 
+            [str(usr_list[u].starred_at), i+1],
         )
     # Ingest the data in to github_star_history table
     job_input.send_tabular_data_for_ingestion(
@@ -196,7 +196,7 @@ chart = px.line(data_frame=df, x = 'starred_date', y = 'count', color_discrete_s
 
 # Display the chart in streamlit
 # To run streamlit app use the command
-# streamlit run 40_build_streamlit_dashboard.py 
+# streamlit run 40_build_streamlit_dashboard.py
 st.plotly_chart(chart)
 ```
 </details>
