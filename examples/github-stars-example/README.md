@@ -11,13 +11,13 @@ Before you continue, make sure you are familiar with the
 
 How to run this job locally
 -----
-To run this job, follow the steps: 
+To run this job, follow the steps:
 
-1. Clone the repo 
+1. Clone the repo
 ```
 git clone https://github.com/vmware/versatile-data-kit.git
 ```
-2. Install vdk 
+2. Install vdk
 ```
 pip install -U pip setuptools wheel
 pip install quickstart-vdk
@@ -42,7 +42,7 @@ vim local-github-stars/00_properties.py
 ```
 NB! Repo Path is only the username and reponame not the full link "repo_path": "vmware/versatile-data-kit"
 
-6. Install requirements 
+6. Install requirements
 ```
 pip install -r local-github-stars/requirements.txt
 ```
@@ -50,17 +50,17 @@ pip install -r local-github-stars/requirements.txt
 ```
 vdk run local-github-stars
 ```
-8. Now you can see your data by running: 
+8. Now you can see your data by running:
 ```
 vdk sqlite-query -q "Select * from github_star_history"
 ```
-9. To create the dashboard, run: 
+9. To create the dashboard, run:
 ```
 streamlit run local-github-stars/40_build_streamlit_dashboard.py
 ```
 Your webapp should be up, here: http://localhost:8501 🥳
 
-To change the streamlit colors you can modify the file: 
+To change the streamlit colors you can modify the file:
 ```
 vim ~/.streamlit/config.toml
 ```
