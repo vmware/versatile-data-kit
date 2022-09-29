@@ -11,7 +11,6 @@ from typing import List
 from vdk.api.job_input import IJobInput
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
-from vdk.internal.core.errors import ResolvableByActual
 
 log = logging.getLogger(__name__)
 
@@ -106,15 +105,7 @@ class StepFuncFactory:
                     finally:
                         if success:
                             log.info("Exiting  %s#run(...) SUCCESS" % filename)
-                            user_errors_in_step_handled = [
-                                i
-                                for i in errors.resolvable_context().resolvables.get(
-                                    ResolvableByActual.USER, []
-                                )
-                                if str(step.file_path) == i.caused_by_step_file
-                            ]
-                            for e in user_errors_in_step_handled:
-                                e.resolved = True
+                            errors.resolvable_context().mark_all_resolved()
                         else:
                             log.error("Exiting  %s#run(...) FAILURE" % filename)
             log.warn(

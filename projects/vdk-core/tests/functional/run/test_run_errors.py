@@ -14,16 +14,12 @@ from vdk.api.plugin.plugin_input import IPropertiesServiceClient
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableByActual
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
-<<<<<<< HEAD
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
-=======
-
-VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
->>>>>>> 965e2107 (vdk-core: errors occurred and the state (handled or not) context missing)
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
@@ -58,6 +54,12 @@ def test_run_user_error(tmp_termination_msg_file):
     cli_assert_equal(1, result)
     assert _get_job_status(tmp_termination_msg_file) == "User error"
 
+    assert errors.get_blamee_overall() == ResolvableByActual.USER
+    actual_error = errors.resolvable_context().resolvables.get(ResolvableByActual.USER)[
+        0
+    ]
+    assert actual_error.resolved is False
+
 
 def test_run_user_error_fail_job_library(tmp_termination_msg_file):
     errors.resolvable_context().clear()
@@ -91,6 +93,12 @@ def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
     result: Result = runner.invoke(["run", util.job_path("simple-job")])
     cli_assert_equal(1, result)
     assert _get_job_status(tmp_termination_msg_file) == "Platform error"
+
+    assert errors.get_blamee_overall() == ResolvableByActual.PLATFORM
+    actual_error = errors.resolvable_context().resolvables.get(
+        ResolvableByActual.PLATFORM
+    )[0]
+    assert actual_error.resolved is False
 
 
 def test_run_exception_handled(tmp_termination_msg_file: pathlib.Path):

@@ -19,7 +19,6 @@ from collections import defaultdict
 from enum import Enum
 from logging import Logger
 from types import TracebackType
-from typing import Callable
 from typing import cast
 
 log = logging.getLogger(__name__)
@@ -79,6 +78,16 @@ CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableByActual.PLATFORM
 
 
 class Resolvable:
+    """
+    Contains context of a resolvable error
+     resolvable_by: Indicates the resolvable type.
+     resolvable_by_actual: Who is actually responsible for resolving it
+     error_message: the error message
+     exception: the exception related to the error
+     resolved: indicate if the error is resolved (for example error may be handled in user code and they are considred resolved).
+                It should be use for informative purposes. It may be None/empty (for example if error originates from a new thread spawned by a job step)
+    """
+
     def __init__(
         self,
         resolvable_by: ResolvableBy,
@@ -91,7 +100,6 @@ class Resolvable:
         self.resolvable_by_actual = resolvable_by_actual
         self.error_message = error_message
         self.exception = exception
-        self.caused_by_step_file = _parse_caused_by_step_file_from_stacktrace(exception)
         self.resolved = resolved
 
 
@@ -121,8 +129,6 @@ class ResolvableContext:
     def add(self, resolvable: Resolvable) -> None:
         """
         Register a resolvable entry in the context.
-        :param resolvable:
-        :return:
         """
         resolvable_by_actual = resolvable.resolvable_by_actual
         if resolvable_by_actual not in self.resolvables.keys():
@@ -135,6 +141,11 @@ class ResolvableContext:
         For example after successful completion of a step.
         """
         self.resolvables.clear()
+
+    def mark_all_resolved(self):
+        for resolvable_by_actual in self.resolvables.values():
+            for resolvable in resolvable_by_actual:
+                resolvable.resolved = True
 
 
 def resolvable_context():
@@ -249,9 +260,7 @@ class ErrorMessage:
         return self._to_string(self._get_template("<br />"))
 
 
-def get_blamee_overall(
-    predicate: Callable[[Resolvable], bool] = lambda x: True
-) -> ResolvableByActual | None:
+def get_blamee_overall() -> ResolvableByActual | None:
     """
     Finds who is responsible for fixing the error/s.
 
@@ -274,7 +283,7 @@ def get_blamee_overall(
         filtered = [
             i
             for i in resolvable_context().resolvables.get(resolvable_by_actual)
-            if predicate(i)
+            if not i.resolved
         ]
         return resolvable_by_actual if filtered else None
 
@@ -285,9 +294,7 @@ def get_blamee_overall(
         return filter(ResolvableByActual.PLATFORM)
 
 
-def get_blamee_overall_user_error(
-    predicate: Callable[[Resolvable], bool] = lambda x: True
-) -> str:
+def get_blamee_overall_user_error() -> str:
     """
     Finds the first encountered error where the blamee overall is the owner.
 
@@ -295,7 +302,7 @@ def get_blamee_overall_user_error(
        Empty string if the owner is not the overall blamee
        An ErrorMessage instance to string
     """
-    blamee = get_blamee_overall(predicate)
+    blamee = get_blamee_overall()
     if blamee is None or blamee != ResolvableByActual.USER:
         return ""
     blamee_user_errors = resolvable_context().resolvables.get(
@@ -581,27 +588,6 @@ def _get_caller_stacktrace(exception: BaseException = None) -> str:
     for line in lst:
         lines = lines + line
     return lines
-
-
-def _parse_caused_by_step_file_from_stacktrace(exception: BaseException):
-    from vdk.internal.builtin_plugins.run import file_based_step
-
-    stack_trace_lines = _get_caller_stacktrace(exception).split("\n  File ")
-    file_based_step_line = [
-        i
-        for i in stack_trace_lines
-        if f'"{file_based_step.__file__}"' in i
-        and f"in {file_based_step.StepFuncFactory.invoke_run_function.__name__}" in i
-    ]
-    if file_based_step_line:
-        # assert len(file_based_step_line) == 1
-        step_file_invoked_by_step_factory = re.findall(
-            r'"([^"]*)"',
-            stack_trace_lines[stack_trace_lines.index(file_based_step_line[0]) - 1],
-        )
-        if step_file_invoked_by_step_factory:
-            return step_file_invoked_by_step_factory[0]
-        return None
 
 
 def _error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableByActual:

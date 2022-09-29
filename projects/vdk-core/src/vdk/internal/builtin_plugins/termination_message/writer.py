@@ -29,10 +29,9 @@ class TerminationMessageWriterPlugin:
 
     @hookimpl
     def vdk_exit(self, context: CoreContext, exit_code: int):
-        not_resolved_predicate = lambda e: not e.resolved
         self.write_termination_message(
-            errors.get_blamee_overall(not_resolved_predicate),
-            errors.get_blamee_overall_user_error(not_resolved_predicate),
+            errors.get_blamee_overall(),
+            errors.get_blamee_overall_user_error(),
             context.configuration,
         )
 
