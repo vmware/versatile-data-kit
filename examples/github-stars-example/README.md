@@ -9,6 +9,62 @@ The job will insert the data from GitHub API into local sqlite table and create 
 Before you continue, make sure you are familiar with the
 [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/Getting-Started) section of the wiki.
 
+How to run this job locally
+-----
+To run this job, follow the steps: 
+
+1. clone the repo 
+```
+git clone https://github.com/vmware/versatile-data-kit.git
+```
+2. install vdk 
+```
+pip install -U pip setuptools wheel
+pip install quickstart-vdk
+```
+3. Now do vdk create, enter the job name, team and location
+```
+vdk create
+
+Job Name: local-github-stars
+Job Team: test
+Path to where sample data job will be created locally [/home/gita/vdk]:
+Data Job with name local-github-stars created locally in /home/gita/vdk/local-github-stars.
+```
+4. Clear the new directory and copy example files to it
+```
+rm local-github-stars/*
+cp versatile-data-kit/examples/github-stars-example/github-stars-example-job/* local-github-stars/
+```
+5. Add your GitHub token and repo name to the file 00_properties.py
+```
+vim local-github-stars/00_properties.py
+```
+NB! Repo Path is only the username and reponame not the full link "repo_path": "vmware/versatile-data-kit"
+
+6. Install requirements 
+```
+pip install -r local-github-stars/requirements.txt
+```
+7. Run the job
+```
+vdk run local-github-stars
+```
+8. Now you can see your data by running: 
+```
+vdk sqlite-query -q "Select * from github_star_history"
+```
+9. To create the dashboard, run: 
+```
+streamlit run local-github-stars/40_build_streamlit_dashboard.py
+```
+Your webapp should be up, here: http://localhost:8501 🥳
+
+To change the streamlit colors you can modify the file: 
+```
+vim ~/.streamlit/config.toml
+```
+
 Code
 ----
 
