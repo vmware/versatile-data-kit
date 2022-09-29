@@ -13,11 +13,11 @@ How to run this job locally
 -----
 To run this job, follow the steps: 
 
-1. clone the repo 
+1. Clone the repo 
 ```
 git clone https://github.com/vmware/versatile-data-kit.git
 ```
-2. install vdk 
+2. Install vdk 
 ```
 pip install -U pip setuptools wheel
 pip install quickstart-vdk
