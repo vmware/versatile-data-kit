@@ -9,7 +9,7 @@ works in combination with other dependant components (KDC, Kubernetes, DB, Git r
   in [integration-test/resources/application-test.properties](./resources/application-test.properties)
 * Git repo for storing the jobs
   * Create an empty personal repo with a branch called `main`. e.g https://github.com/murphp15/test/tree/main
-* Docker registry for pushing and pulling the containers too
+* Docker registry for pushing and pulling the containers to
   * It is recommended to use the private package manager provided Github located at https://ghcr.io.
 * Kubernetes needs to be configured with permissions to pull from the private github package manager
 ```bash 
