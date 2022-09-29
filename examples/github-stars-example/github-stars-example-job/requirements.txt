@@ -1,6 +1,6 @@
 pandas
 plotly
 pygithub
-sqlite3
 streamlit
 vdk-core
+vdk-properties-fs
