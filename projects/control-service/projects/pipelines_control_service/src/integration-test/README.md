@@ -12,7 +12,7 @@ works in combination with other dependant components (KDC, Kubernetes, DB, Git r
 * Docker registry for pushing and pulling the containers to
   * It is recommended to use the private package manager provided Github located at https://ghcr.io.
 * Kubernetes needs to be configured with permissions to pull from the private github package manager
-```bash 
+```bash
  kubectl create secret docker-registry regcred --docker-server=ghcr.io/<my_username> --docker-username=<my_username> --docker-password=<github_personal_access_token> --docker-email=<your-email>
 ```
 * Fill required values section in [integration-test/resources/application-test.properties](./resources/application-test.properties)
