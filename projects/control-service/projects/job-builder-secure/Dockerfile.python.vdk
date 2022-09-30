@@ -32,7 +32,7 @@ ARG job_githash
 ENV JOB_NAME $job_name
 ENV VDK_JOB_GITHASH $job_githash
 
-# Delete system commands
+# Delete system executables
 RUN rm /bin/chown
 RUN rm /bin/uname
 RUN python -m pip uninstall pip -y
