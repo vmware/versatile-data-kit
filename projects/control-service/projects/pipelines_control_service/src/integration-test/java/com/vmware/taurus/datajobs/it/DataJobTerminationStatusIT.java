@@ -33,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -55,8 +54,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
           .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @Autowired JobsRepository jobsRepository;
-  @Autowired
-  JobExecutionRepository jobExecutionRepository;
+  @Autowired JobExecutionRepository jobExecutionRepository;
 
   // TODO split this test into job termination status test and data job execution test
   /**

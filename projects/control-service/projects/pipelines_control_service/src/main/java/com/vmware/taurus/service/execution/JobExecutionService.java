@@ -383,7 +383,12 @@ public class JobExecutionService {
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
-      log.info("When you are saving at point 4 the value is " + Arrays.toString(dataJobExecutionsToBeUpdated.stream().map(com.vmware.taurus.service.model.DataJobExecution::getStartedBy).toArray()));
+      log.info(
+          "When you are saving at point 4 the value is "
+              + Arrays.toString(
+                  dataJobExecutionsToBeUpdated.stream()
+                      .map(com.vmware.taurus.service.model.DataJobExecution::getStartedBy)
+                      .toArray()));
       jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
       dataJobExecutionsToBeUpdated.forEach(
           dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
