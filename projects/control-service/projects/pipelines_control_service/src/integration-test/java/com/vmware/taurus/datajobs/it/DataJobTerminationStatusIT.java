@@ -27,11 +27,13 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vmware.taurus.service.JobExecutionRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -53,6 +55,8 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
           .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @Autowired JobsRepository jobsRepository;
+  @Autowired
+  JobExecutionRepository jobExecutionRepository;
 
   // TODO split this test into job termination status test and data job execution test
   /**
@@ -240,6 +244,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
 
     DataJobExecution[] dataJobExecution = new DataJobExecution[1];
 
+    log.info("The values in the database are " + jobExecutionRepository.findAll());
     await()
         .atMost(5, TimeUnit.MINUTES)
         .with()
