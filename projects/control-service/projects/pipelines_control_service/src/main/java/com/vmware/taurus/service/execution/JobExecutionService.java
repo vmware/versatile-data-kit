@@ -96,6 +96,7 @@ public class JobExecutionService {
           StringUtils.isNotBlank(jobExecutionRequest.getStartedBy())
               ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
               : operationContext.getUser();
+      log.info(" started by has a value " + startedBy);
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
       annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), ExecutionType.MANUAL.getValue());
 
