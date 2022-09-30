@@ -241,6 +241,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
 
     DataJobExecution[] dataJobExecution = new DataJobExecution[1];
 
+
     await()
         .atMost(5, TimeUnit.MINUTES)
         .with()
