@@ -30,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -269,6 +270,11 @@ public class JobExecutionService {
         dataJobExecutionPersistedOptional =
             jobExecutionRepository.findById(jobExecution.getExecutionId());
 
+      if(jobExecution.getDeployedDate().isAfter(OffsetDateTime.now().minusMinutes(1))){
+        return Optional.empty();
+      }
+
+
     // This set contains all the statuses that should not be changed to something else if present in
     // the DB.
     // All the elements in this list should therefore be a final status. Meaning non retryable
@@ -334,7 +340,7 @@ public class JobExecutionService {
     log.info("When you are saving at point 3 the value is " + dataJobExecution.getStartedBy());
     return Optional.of(jobExecutionRepository.save(dataJobExecution));
   }
-
+//DataJobExecution(id=integration-test-f610cac9-1664553208, type=MANUAL, status=SUBMITTED, message=null, opId=integration-test-f610cac9b2d7ef7c-6e88-45ea-aa4c-f817abe4081e, startTime=2022-09-30T16:53:34.229233+01:00, endTime=null, vdkVersion=null, jobVersion=null, jobSchedule=null, resourcesCpuRequest=null, resourcesCpuLimit=null, resourcesMemoryRequest=null, resourcesMemoryLimit=null, lastDeployedDate=null, lastDeployedBy=null, startedBy=user/user)
   /**
    * Returns the last execution of the data job with the specified name, or an empty optional if
    * there are no executions. The last execution is considered the one with the most recent start
