@@ -20,6 +20,9 @@ ENV HOME=/job
 ARG job_name
 COPY --chown=$UID:$GID $job_name $job_name/
 
+# Remove execute permissions for files within the Data job directory, but not for the directories themselves
+RUN chmod -R -x+X $job_name/*
+
 # TODO: this would trigger for any change in job even if requirements.txt does not change
 # but there's no COPY_IF_EXISTS command in docker to try copy it.
 ARG requirements_file=requirements.txt
