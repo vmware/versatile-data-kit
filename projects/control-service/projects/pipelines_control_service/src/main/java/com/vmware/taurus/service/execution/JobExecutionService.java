@@ -269,7 +269,7 @@ public class JobExecutionService {
         dataJobExecutionPersistedOptional =
             jobExecutionRepository.findById(jobExecution.getExecutionId());
 
-    if (jobExecution.getDeployedDate().isAfter(OffsetDateTime.now().minusMinutes(1))) {
+    if (jobExecution.getDeployedDate().isAfter(OffsetDateTime.now().minusSeconds(30))) {
       return Optional.empty();
     }
 
