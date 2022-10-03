@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -88,7 +89,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
   public void testDataJobTerminationStatus(String jobName, String teamName, String username)
       throws Exception {
     // Execute data job
-    String opId = jobName + UUID.randomUUID().toString().toLowerCase();
+    String opId = jobName + LocalDateTime.now();
     DataJobExecutionRequest dataJobExecutionRequest =
         new DataJobExecutionRequest().startedBy(username);
 
