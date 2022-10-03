@@ -105,29 +105,28 @@ public class JobExecutionService {
 
       // Save Data Job execution
       saveDataJobExecution(
-              dataJob,
-              executionId,
-              opId,
-              com.vmware.taurus.service.model.ExecutionType.MANUAL,
-              ExecutionStatus.SUBMITTED,
-              startedBy,
-              OffsetDateTime.now());
+          dataJob,
+          executionId,
+          opId,
+          com.vmware.taurus.service.model.ExecutionType.MANUAL,
+          ExecutionStatus.SUBMITTED,
+          startedBy,
+          OffsetDateTime.now());
       try {
         // Start K8S Job
         dataJobsKubernetesService.startNewCronJobExecution(
-                jobDeploymentStatus.getCronJobName(),
-                executionId,
-                annotations,
-                envs,
-                extraJobArguments,
-                jobName);
-      }catch(Exception e){
-          // rollback data job execution
-          jobExecutionRepository.deleteDataJobExecutionByIdAndDataJobAndStatus(executionId,
-                  dataJob, ExecutionStatus.SUBMITTED);
-          throw e;
+            jobDeploymentStatus.getCronJobName(),
+            executionId,
+            annotations,
+            envs,
+            extraJobArguments,
+            jobName);
+      } catch (Exception e) {
+        // rollback data job execution
+        jobExecutionRepository.deleteDataJobExecutionByIdAndDataJobAndStatus(
+            executionId, dataJob, ExecutionStatus.SUBMITTED);
+        throw e;
       }
-
 
       return executionId;
     } catch (ApiException e) {
