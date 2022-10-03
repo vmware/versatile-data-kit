@@ -77,7 +77,7 @@ public class DataJobDeploymentExtension
   public static final String JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   public static final String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
-  public static final String JOB_SCHEDULE = "*/2 * * * *";
+  public static final String JOB_SCHEDULE = "* * * 11 *";
   public static final String USER_NAME = "user";
   public static final String DEPLOYMENT_ID = "NOT_USED";
   public static final String TEAM_NAME = "test-team";
