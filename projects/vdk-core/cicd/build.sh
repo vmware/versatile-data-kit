@@ -44,6 +44,11 @@ pip install --use-deprecated="legacy-resolver" -e .
 echo "Install common vdk test utils library (in editable mode)"
 pip install --use-deprecated="legacy-resolver" -e ../vdk-plugins/vdk-test-utils
 
+# Print installed versions
+echo "Printing vdk version and python libraries"
+vdk version
+pip list
+
 # Below line uses --use-deprecated=legacy-resolver to temporary workaround a
 # dependency backtracking issue.
 # TODO: Remove the use of the legacy resolver once latest pip works as expected.

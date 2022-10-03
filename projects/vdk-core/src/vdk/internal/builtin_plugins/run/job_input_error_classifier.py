@@ -4,6 +4,7 @@
 decides who is to blame, between Platform (SRE) Team and VDK Users,
 when an exception occurs while executing a Data Job step.
 """
+import logging
 import os
 import traceback
 from pathlib import Path
@@ -11,11 +12,21 @@ from typing import Optional
 
 from vdk.internal.core import errors
 
+log = logging.getLogger(__name__)
 
-def whom_to_blame(exception, executor_module, data_job_path: Optional[Path] = None):
+
+def whom_to_blame(
+    exception,
+    executor_module: Optional[str] = None,
+    data_job_path: Optional[Path] = None,
+) -> errors.ResolvableBy:
     """
     :param exception: Exception object that has led to Data Job failure.
     :param executor_module: name of module that executes User Code.
+                It must be the exact module that starts the user code.
+                The next called module must be the user's modules/code.
+                Otherwise the logic below will not work.
+                 If the name of the module is not known, set to None
     :param data_job_path: path object of the data job directory.
     :return: ResolvableBy.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
              errors.ResolvableBy.USER_ERROR if exception was recognized as User Error.
@@ -35,6 +46,13 @@ def whom_to_blame(exception, executor_module, data_job_path: Optional[Path] = No
 
 
 def _is_exception_from_vdk_code(exception, executor_module):
+    if executor_module is None:
+        log.warning(
+            "Executor module is not set. "
+            "Cannot infer if exception is from user code. "
+            "This may lead to misclassification of the error resolvable by type."
+        )
+        return False
     executor_module = os.path.abspath(executor_module)
     vdk_code_directory = os.path.dirname(executor_module)
     call_list = traceback.format_tb(exception.__traceback__)

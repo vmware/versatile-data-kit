@@ -22,9 +22,12 @@
 
 # Overview
 
-Versatile Data Kit (VDK) is an open source framework that enables anybody with basic SQL or Python knowledge to create their own data pipelines.
+Versatile Data Kit (VDK) is an open source framework that enables anyone with basic SQL or Python knowledge to build their own data pipelines.
 
 Versatile Data Kit enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is a data processing workload** and can be written in Python, SQL, or both at the same time. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
+
+![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-light.svg#gh-light-mode-only)
+![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-dark.svg#gh-dark-mode-only)
 
 Versatile Data Kit consists of two main components:
 
@@ -73,9 +76,13 @@ If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CO
 # Contacts
 Feedback is very welcome via the [GitHub site as issues](https://github.com/vmware/versatile-data-kit/issues) or [pull requests](https://github.com/vmware/versatile-data-kit/pulls)
 
+* Join our dedicated Slack channel on the CNCF Slack workspace:
+    * First [Join CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf)
+    * Then search for #versatile-data-kit or [click here to join the channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
+
 - [Follow us on twitter](https://twitter.com/intent/follow?screen_name=VDKProject).
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
-- [Join our dedicated Slack channel on the CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf)  - simply search for #versatile-data-kit or [click here to join the channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
+
 - [Join our mailing list](mailto:join-versatiledatakit@groups.vmware.com?subject=Invite%20me%20to%20the%20VDK%20mailing%20list)
 
 # How to use Versatile Data Kit?

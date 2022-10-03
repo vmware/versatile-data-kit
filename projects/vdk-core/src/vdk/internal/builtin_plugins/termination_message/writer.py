@@ -30,13 +30,17 @@ class TerminationMessageWriterPlugin:
     @hookimpl
     def vdk_exit(self, context: CoreContext, exit_code: int):
         self.write_termination_message(
-            errors.get_blamee_overall(),  # TODO: get this from context
-            errors.get_blamee_overall_user_error(),  # TODO: get this from context
+            errors.get_blamee_overall(),
+            errors.get_blamee_overall_user_error(),
             context.configuration,
         )
 
     def write_termination_message(
-        self, error_overall, user_error, configuration, execution_skipped=False
+        self,
+        error_overall=None,
+        user_error=None,
+        configuration=None,
+        execution_skipped=False,
     ):
         termination_message_writer_cfg = WriterConfiguration(configuration)
 
