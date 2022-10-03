@@ -16,7 +16,7 @@ import java.io.File;
 /**
  * Kubernetes service used for serving data jobs deployments. All deployed data jobs are executed in
  * this environment and all other necessary resources that are used only during the execution of a
- * data job should be create in this kubernetes.
+ * data job should be created in this kubernetes.
  */
 @Service
 @Slf4j
