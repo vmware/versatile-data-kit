@@ -149,14 +149,16 @@ public class JobExecutionService {
             executionId, ExecutionCancellationFailureReason.DataJobNotFound);
       }
 
-      var jobExecutionOptional = jobExecutionRepository.findById(executionId);
+      var jobExecutionOptional =
+          jobExecutionRepository.findDataJobExecutionByIdAndTeamAndName(
+              executionId, jobName, teamName);
 
       if (jobExecutionOptional.isEmpty()) {
         log.info(
             "Execution: {} for data job: {} with team: {} not found!",
             executionId,
-            teamName,
-            jobName);
+            jobName,
+            teamName);
         throw new DataJobExecutionCannotBeCancelledException(
             executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
       }
@@ -169,8 +171,8 @@ public class JobExecutionService {
         log.info(
             "Trying to cancel execution: {} for data job: {} with team: {} but job has status {}!",
             executionId,
-            teamName,
             jobName,
+            teamName,
             jobStatus.toString());
         throw new DataJobExecutionCannotBeCancelledException(
             executionId, ExecutionCancellationFailureReason.ExecutionNotRunning);

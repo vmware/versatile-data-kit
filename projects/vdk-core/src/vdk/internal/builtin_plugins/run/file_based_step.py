@@ -105,6 +105,7 @@ class StepFuncFactory:
                     finally:
                         if success:
                             log.info("Exiting  %s#run(...) SUCCESS" % filename)
+                            errors.resolvable_context().mark_all_resolved()
                         else:
                             log.error("Exiting  %s#run(...) FAILURE" % filename)
             log.warn(
