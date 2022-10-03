@@ -239,7 +239,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
       String username) {
 
     DataJobExecution[] dataJobExecution = new DataJobExecution[1];
-
+    log.info("executionId that you should be looking for " + executionId);
     await()
         .atMost(5, TimeUnit.MINUTES)
         .with()
