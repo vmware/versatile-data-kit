@@ -76,12 +76,14 @@ class ImpalaLineagePluginTest(unittest.TestCase):
     def test_parsing_query_profile(self):
         result = (["database_a.table1", "database_b.table2"], "database_a.table3")
         self.assertEqual(
-            ImpalaLineagePlugin._parse_inputs_outputs("""
+            ImpalaLineagePlugin._parse_inputs_outputs(
+                """
             00:SCAN HDFS [database_a.table1, RANDOM]
             01:SCAN HDFS [database_b.table2 w, RANDOM]
             03: WRITE TO HDFS [database_a.table3, OVERWRITE=true]
-            """),
-            result
+            """
+            ),
+            result,
         )
 
 
