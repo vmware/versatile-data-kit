@@ -103,24 +103,31 @@ public class JobExecutionService {
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
-      // Start K8S Job
-      dataJobsKubernetesService.startNewCronJobExecution(
-          jobDeploymentStatus.getCronJobName(),
-          executionId,
-          annotations,
-          envs,
-          extraJobArguments,
-          jobName);
-
       // Save Data Job execution
       saveDataJobExecution(
-          dataJob,
-          executionId,
-          opId,
-          com.vmware.taurus.service.model.ExecutionType.MANUAL,
-          ExecutionStatus.SUBMITTED,
-          startedBy,
-          OffsetDateTime.now());
+              dataJob,
+              executionId,
+              opId,
+              com.vmware.taurus.service.model.ExecutionType.MANUAL,
+              ExecutionStatus.SUBMITTED,
+              startedBy,
+              OffsetDateTime.now());
+      try {
+        // Start K8S Job
+        dataJobsKubernetesService.startNewCronJobExecution(
+                jobDeploymentStatus.getCronJobName(),
+                executionId,
+                annotations,
+                envs,
+                extraJobArguments,
+                jobName);
+      }catch(Exception e){
+          // rollback data job execution
+          jobExecutionRepository.deleteDataJobExecutionByIdAndDataJobAndStatus(executionId,
+                  dataJob, ExecutionStatus.SUBMITTED);
+          throw e;
+      }
+
 
       return executionId;
     } catch (ApiException e) {
@@ -268,10 +275,6 @@ public class JobExecutionService {
     final Optional<com.vmware.taurus.service.model.DataJobExecution>
         dataJobExecutionPersistedOptional =
             jobExecutionRepository.findById(jobExecution.getExecutionId());
-
-    if (jobExecution.getDeployedDate().isAfter(OffsetDateTime.now().minusSeconds(30))) {
-      return Optional.empty();
-    }
 
     // This set contains all the statuses that should not be changed to something else if present in
     // the DB.
@@ -510,7 +513,6 @@ public class JobExecutionService {
             .startedBy(startedBy)
             .startTime(startTime)
             .build();
-    log.info("When you are saving at point 1 the value is " + dataJobExecution.getStartedBy());
     jobExecutionRepository.save(dataJobExecution);
   }
 
