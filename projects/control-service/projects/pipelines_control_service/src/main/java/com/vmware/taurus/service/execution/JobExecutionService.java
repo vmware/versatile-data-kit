@@ -182,6 +182,7 @@ public class JobExecutionService {
       jobExecution.setStatus(ExecutionStatus.CANCELLED);
       jobExecution.setMessage("Job execution cancelled by user.");
       log.info("Writing cancelled status in database.");
+      log.info("When you are saving at point 2 the value is " + jobExecution.getStartedBy());
       jobExecutionRepository.save(jobExecution);
       log.info("Cancelled data job execution {} successfully.", executionId);
 
@@ -336,6 +337,7 @@ public class JobExecutionService {
             .lastDeployedDate(jobExecution.getDeployedDate())
             .lastDeployedBy(jobExecution.getDeployedBy())
             .build();
+    log.info("When you are saving at point 3 the value is " + dataJobExecution.getStartedBy());
     return Optional.of(jobExecutionRepository.save(dataJobExecution));
   }
 
@@ -387,6 +389,12 @@ public class JobExecutionService {
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
+      log.info(
+          "When you are saving at point 4 the value is "
+              + Arrays.toString(
+                  dataJobExecutionsToBeUpdated.stream()
+                      .map(com.vmware.taurus.service.model.DataJobExecution::getStartedBy)
+                      .toArray()));
       jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
       dataJobExecutionsToBeUpdated.forEach(
           dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
