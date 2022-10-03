@@ -53,4 +53,13 @@ public interface JobExecutionRepository
           + "GROUP BY dje.status, dje.dataJob")
   List<DataJobExecutionStatusCount> countDataJobExecutionStatuses(
       @Param("statuses") List<ExecutionStatus> statuses, @Param("dataJobs") List<String> dataJobs);
+
+  @Query(
+      "SELECT dje from DataJobExecution dje "
+          + "LEFT JOIN DataJob dj ON dje.dataJob = dj.name "
+          + "WHERE dje.id = :jobExecutionId "
+          + "AND dj.name = :jobName "
+          + "AND dj.jobConfig.team = :jobTeam")
+  Optional<DataJobExecution> findDataJobExecutionByIdAndTeamAndName(
+      String jobExecutionId, String jobName, String jobTeam);
 }

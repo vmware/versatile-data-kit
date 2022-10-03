@@ -708,34 +708,35 @@ public abstract class KubernetesService implements InitializingBean {
   public void cancelRunningCronJob(String teamName, String jobName, String executionId)
       throws ApiException {
     log.info(
-        "K8S deleting job for team: {} data job name: {} execution: {}",
+        "K8S deleting job for team: {} data job name: {} execution: {} namespace: {}",
         teamName,
         jobName,
-        executionId);
+        executionId,
+        namespace);
     try {
       var operationResponse =
           initBatchV1Api()
-              .deleteNamespacedJob(
+              .deleteNamespacedJobWithHttpInfo(
                   executionId, namespace, null, null, null, null, "Foreground", null);
-
       // Status of the operation. One of: "Success" or "Failure"
-      if (operationResponse == null || operationResponse.getStatus() == null) {
+      if (operationResponse == null || operationResponse.getStatusCode() == 404) {
         log.info(
             "Execution: {} for data job: {} with team: {} not found! The data job has likely"
                 + " completed before it could be cancelled.",
             executionId,
-            teamName,
-            jobName);
+            jobName,
+            teamName);
         throw new DataJobExecutionCannotBeCancelledException(
             executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
-      } else if (operationResponse.getStatus().equals("Failure")) {
+      } else if (operationResponse.getStatusCode() != 200) {
         log.warn(
             "Failed to delete K8S job. Reason: {} Details: {}",
-            operationResponse.getReason(),
-            operationResponse.getDetails().toString());
+            operationResponse.getData().getReason(),
+            operationResponse.getData().getDetails());
         throw new KubernetesException(
-            operationResponse.getMessage(),
-            new ApiException(operationResponse.getCode(), operationResponse.getMessage()));
+            operationResponse.getData().getMessage(),
+            new ApiException(
+                operationResponse.getStatusCode(), operationResponse.getData().getMessage()));
       }
     } catch (JsonSyntaxException e) {
       if (e.getCause() instanceof IllegalStateException) {
