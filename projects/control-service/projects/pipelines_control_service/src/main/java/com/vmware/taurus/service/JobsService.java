@@ -64,6 +64,7 @@ public class JobsService {
     if (isInvocationSuccessful(resultHolder)) {
       credentialsService.deleteJobCredentials(name);
       deploymentService.deleteDeployment(name);
+      log.info("deleting " + name);
       jobsRepository.deleteById(name);
       dataJobMetrics.clearGauges(name);
 
