@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -86,28 +87,73 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
    */
   @Test
   public void testDataJobTerminationStatus(String jobName, String teamName, String username)
-      throws Exception {
+          throws Exception {
     // Execute data job
-    String opId = jobName + LocalDateTime.now();
+    String opId = jobName + "paul" + UUID.randomUUID().toString().toLowerCase();
     DataJobExecutionRequest dataJobExecutionRequest =
-        new DataJobExecutionRequest().startedBy(username);
+            new DataJobExecutionRequest().startedBy(username);
 
     String triggerDataJobExecutionUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName, jobName, "release");
+            String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
+                    teamName, jobName, "release");
     MvcResult dataJobExecutionResponse =
-        mockMvc
-            .perform(
-                post(triggerDataJobExecutionUrl)
-                    .with(user(username))
-                    .header(HEADER_X_OP_ID, opId)
-                    .content(mapper.writeValueAsString(dataJobExecutionRequest))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(202))
-            .andReturn();
+            mockMvc
+                    .perform(
+                            post(triggerDataJobExecutionUrl)
+                                    .with(user(username))
+                                    .header(HEADER_X_OP_ID, opId)
+                                    .content(mapper.writeValueAsString(dataJobExecutionRequest))
+                                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().is(202))
+                    .andReturn();
 
-    Thread.sleep(1000 * 60 * 10);
+    // Check the data job execution status
+    String location = dataJobExecutionResponse.getResponse().getHeader("location");
+    String executionId = location.substring(location.lastIndexOf("/") + 1);
+    checkDataJobExecutionStatus(
+            executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username);
+
+    // Wait for the job execution to complete, polling every 5 seconds
+    // See: https://github.com/awaitility/awaitility/wiki/Usage
+    await()
+            .atMost(10, TimeUnit.MINUTES)
+            .with()
+            .pollInterval(15, TimeUnit.SECONDS)
+            .until(terminationMetricsAreAvailable());
+
+    String scrape = scrapeMetrics();
+
+    // Validate that all metrics for the executed data job are correctly exposed
+    // First, validate that there is a taurus_datajob_info metrics for the data job
+    var match = findMetricsWithLabel(scrape, INFO_METRICS, "data_job", jobName);
+    assertTrue(
+            match.isPresent(),
+            String.format("Could not find %s metrics for the data job %s", INFO_METRICS, jobName));
+
+    // Validate the labels of the taurus_datajob_info metrics
+    String line = match.get();
+    assertLabelEquals(INFO_METRICS, teamName, "team", line);
+    assertLabelEquals(INFO_METRICS, "", "email_notified_on_success", line);
+    assertLabelEquals(INFO_METRICS, "", "email_notified_on_platform_error", line);
+    assertLabelEquals(INFO_METRICS, "", "email_notified_on_user_error", line);
+
+    // Validate that there is a taurus_datajob_info metrics for the data job
+    match = findMetricsWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName);
+    assertTrue(
+            match.isPresent(),
+            String.format(
+                    "Could not find %s metrics for the data job %s", TERMINATION_STATUS_METRICS, jobName));
+
+    // Validate that the metrics has a value of 0.0 (i.e. Success)
+    System.out.println(match.get().trim());
+    assertTrue(
+            match.get().trim().endsWith("0.0"),
+            "The value of the taurus_datajob_termination_status metrics does not match");
+
+    // Check the data job execution status
+    checkDataJobExecutionStatus(
+            executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username);
   }
 
   private String scrapeMetrics() throws Exception {
