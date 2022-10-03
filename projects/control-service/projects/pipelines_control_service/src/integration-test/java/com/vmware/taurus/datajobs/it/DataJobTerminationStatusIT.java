@@ -85,7 +85,27 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
   @Test
   public void testDataJobTerminationStatus(String jobName, String teamName, String username)
       throws Exception {
-    // Execute data jo
+    // Execute data job
+    String opId = jobName + UUID.randomUUID().toString().toLowerCase();
+    DataJobExecutionRequest dataJobExecutionRequest =
+        new DataJobExecutionRequest().startedBy(username);
+
+    String triggerDataJobExecutionUrl =
+        String.format(
+            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
+            teamName, jobName, "release");
+    MvcResult dataJobExecutionResponse =
+        mockMvc
+            .perform(
+                post(triggerDataJobExecutionUrl)
+                    .with(user(username))
+                    .header(HEADER_X_OP_ID, opId)
+                    .content(mapper.writeValueAsString(dataJobExecutionRequest))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is(202))
+            .andReturn();
+
+    Thread.sleep(1000*60*10);
   }
 
   private String scrapeMetrics() throws Exception {
