@@ -88,7 +88,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
   public void testDataJobTerminationStatus(String jobName, String teamName, String username)
       throws Exception {
     // Execute data job
-    String opId = jobName + "paul" + UUID.randomUUID().toString().toLowerCase();
+    String opId = jobName + UUID.randomUUID().toString().toLowerCase();
     DataJobExecutionRequest dataJobExecutionRequest =
         new DataJobExecutionRequest().startedBy(username);
 
