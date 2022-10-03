@@ -105,6 +105,7 @@ class StepFuncFactory:
                     finally:
                         if success:
                             log.info("Exiting  %s#run(...) SUCCESS" % filename)
+                            errors.resolvable_context().mark_all_resolved()
                         else:
                             log.error("Exiting  %s#run(...) FAILURE" % filename)
             log.warn(
@@ -146,7 +147,7 @@ class StepFuncFactory:
                     what_happened=f"Data Job step {step_name} completed with error.",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
+                    "and this Data Job execution will likely be marked as failed.",
                     countermeasures="See exception and fix the root cause, so that the exception does "
                     "not appear anymore.",
                     exception=e,

@@ -127,6 +127,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                 and swallow the exception in very narrow set of cases.
                 """
                 # TODO support for fetchmany
+                self._log.info("Fetching query result...")
                 res = cur.fetchall()
             except Exception as e:
                 res = None
