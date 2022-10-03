@@ -29,7 +29,7 @@ public class DataJobsKubernetesService extends KubernetesService {
     super(namespace, kubeconfig, k8sSupportsV1CronJob, log);
     if (StringUtils.isBlank(kubeconfig) && !new File(kubeconfig).isFile()) {
       log.warn(
-          "Data Jobs (Deployment) Kubernetes service may not have been correctly bootstrapped. {}"
+          "Data Jobs (Deployment) Kubernetes service may not have been correctly   bootstrapped. {}"
               + " file is missing Will try to use same cluster as control Plane. But this is not"
               + " recommended in production.",
           kubeconfig);
