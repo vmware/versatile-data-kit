@@ -105,7 +105,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
             .andExpect(status().is(202))
             .andReturn();
 
-    Thread.sleep(1000*60*10);
+    Thread.sleep(1000 * 60 * 10);
   }
 
   private String scrapeMetrics() throws Exception {
