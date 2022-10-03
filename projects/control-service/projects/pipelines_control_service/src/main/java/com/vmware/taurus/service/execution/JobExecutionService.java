@@ -182,7 +182,6 @@ public class JobExecutionService {
       jobExecution.setStatus(ExecutionStatus.CANCELLED);
       jobExecution.setMessage("Job execution cancelled by user.");
       log.info("Writing cancelled status in database.");
-      log.info("When you are saving at point 2 the value is " + jobExecution.getStartedBy());
       jobExecutionRepository.save(jobExecution);
       log.info("Cancelled data job execution {} successfully.", executionId);
 
@@ -337,15 +336,9 @@ public class JobExecutionService {
             .lastDeployedDate(jobExecution.getDeployedDate())
             .lastDeployedBy(jobExecution.getDeployedBy())
             .build();
-    log.info("When you are saving at point 3 the value is " + dataJobExecution.getStartedBy());
     return Optional.of(jobExecutionRepository.save(dataJobExecution));
   }
-  // DataJobExecution(id=integration-test-f610cac9-1664553208, type=MANUAL, status=SUBMITTED,
-  // message=null, opId=integration-test-f610cac9b2d7ef7c-6e88-45ea-aa4c-f817abe4081e,
-  // startTime=2022-09-30T16:53:34.229233+01:00, endTime=null, vdkVersion=null, jobVersion=null,
-  // jobSchedule=null, resourcesCpuRequest=null, resourcesCpuLimit=null,
-  // resourcesMemoryRequest=null, resourcesMemoryLimit=null, lastDeployedDate=null,
-  // lastDeployedBy=null, startedBy=user/user)
+
   /**
    * Returns the last execution of the data job with the specified name, or an empty optional if
    * there are no executions. The last execution is considered the one with the most recent start
@@ -394,12 +387,6 @@ public class JobExecutionService {
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
-      log.info(
-          "When you are saving at point 4 the value is "
-              + Arrays.toString(
-                  dataJobExecutionsToBeUpdated.stream()
-                      .map(com.vmware.taurus.service.model.DataJobExecution::getStartedBy)
-                      .toArray()));
       jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
       dataJobExecutionsToBeUpdated.forEach(
           dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
