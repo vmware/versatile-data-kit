@@ -12,12 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -37,7 +35,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
 import com.vmware.taurus.service.JobsRepository;
 
