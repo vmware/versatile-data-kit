@@ -1,0 +1,66 @@
+commit f4b47a75e1049f38bc03e4bd17a23e46e08f8070
+Author: bbaeva <bbaeva@vmware.com>
+Date:   Wed Sep 21 15:27:58 2022 +0300
+
+    Implement insert changes and adopt doc
+
+diff --git a/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/02-insert-into-target.sql b/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/02-insert-into-target.sql
+index af01c94..a0ddd1b 100644
+--- a/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/02-insert-into-target.sql
++++ b/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/02-insert-into-target.sql
+@@ -1,13 +1,4 @@
+ -- /* +SHUFFLE */ below is a query hint to Impala.
+ -- Do not remove! https://www.cloudera.com/documentation/enterprise/5-9-x/topics/impala_hints.html
+-INSERT OVERWRITE TABLE {target_schema}.{target_table} {_vdk_template_insert_partition_clause} /* +SHUFFLE */
+-(
+-  SELECT *
+-  FROM   {target_schema}.{target_table}
+-  WHERE  {last_arrival_ts} < (SELECT MIN({last_arrival_ts}) FROM {source_schema}.{source_view})
+-)
+-UNION ALL
+-(
+-  SELECT *
+-  FROM   {source_schema}.{source_view}
+-);
++INSERT INTO TABLE {target_schema}.{target_table} {_vdk_template_insert_partition_clause} /* +SHUFFLE */
++SELECT * FROM {source_schema}.{source_view};
+diff --git a/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/README.md b/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/README.md
+index df37dc4..d0a7aaa 100644
+--- a/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/README.md
++++ b/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert_snapshot/README.md
+@@ -1,8 +1,7 @@
+ ### Purpose:
+ 
+ This template can be used to load raw data from Data Lake to target 'Snapshot Periodic Fact Table' in Data Warehouse.
+-In summary, it appends a snapshot of records observed between time t1 and t2 from the source table to the target table,
+-truncating all present target table records observed after t1.
++In summary, it appends a snapshot of records observed between time t1 and t2 from the source table to the target table. After that inserts the rows from the source table.
+ 
+ ### Details:
+ 
+@@ -30,20 +29,20 @@ In order to use this template you need to ensure the following:
+ 
+ ### Sample Usage:
+ 
+-Say there is SDDC-related 'Snapshot Periodic Fact Table' called 'fact_sddc_daily' in 'history' schema.
+-Updating it with the latest raw data from a Data Lake (from source view called 'vw_fact_sddc_daily' in 'default' schema) is done in the following manner:
++Say there is SDDC-related 'Snapshot Periodic Fact Table' called 'fact_vmc_utilization_cpu_mem_every5min_daily' in 'history' schema.
++Updating it with the latest raw data from a Data Lake (from source view called 'vw_fact_vmc_utilization_cpu_mem_every5min_daily' in 'default' schema) is done in the following manner:
+ 
+ ```python
+ def run(job_input):
+     # . . .
+     template_args = {
+         'source_schema': 'default',
+-        'source_view': 'vw_fact_sddc_daily',
++        'source_view': 'vw_fact_vmc_utilization_cpu_mem_every5min_daily',
+         'target_schema': 'history',
+-        'target_table': 'fact_sddc_daily',
++        'target_table': 'fact_vmc_utilization_cpu_mem_every5min_daily',
+         'last_arrival_ts': 'updated_at',
+     }
+-    job_input.execute_template('load/fact/snapshot', template_args)
++    job_input.execute_template('load/fact/insert_snapshot', template_args)
+     # . . .
+ ```
+ 
