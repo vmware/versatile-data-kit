@@ -923,7 +923,8 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1beta1CronJob nsJob =
-        new BatchV1beta1Api(client).createNamespacedCronJob(namespace, cronJob, null,null, null, null);
+        new BatchV1beta1Api(client)
+            .createNamespacedCronJob(namespace, cronJob, null, null, null, null);
     log.debug("Created k8s cron job: {}", nsJob);
     log.debug(
         "Created k8s cron job name: {}, uid:{}, link:{}",
@@ -967,7 +968,7 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1CronJob nsJob =
-        new BatchV1Api(client).createNamespacedCronJob(namespace, cronJob, null,null, null, null);
+        new BatchV1Api(client).createNamespacedCronJob(namespace, cronJob, null, null, null, null);
     log.debug("Created k8s cron job: {}", nsJob);
     log.debug(
         "Created k8s cron job name: {}, uid:{}, link:{}",
@@ -1119,8 +1120,7 @@ public abstract class KubernetesService implements InitializingBean {
             imagePullSecrets);
     V1beta1CronJob nsJob =
         new BatchV1beta1Api(client)
-            .replaceNamespacedCronJob(name, namespace, cronJob, null,
-                    null,null, null);
+            .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
         "Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
@@ -1161,8 +1161,8 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1CronJob nsJob =
-        new BatchV1Api(client).replaceNamespacedCronJob(name, namespace, cronJob, null, null,
-                null, null);
+        new BatchV1Api(client)
+            .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
         "Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
