@@ -2317,8 +2317,6 @@ public abstract class KubernetesService implements InitializingBean {
     V1Secret secret = buildV1Secret(name, data);
     CoreV1Api api = new CoreV1Api(client);
 
-    log.info("!!!!!!!!!!!!!!!!!!!!!! " + System.getenv("AWS_ACCESS_KEY_ID"));
-
     log.info("api.getApiClient().getBasePath()   " + api.getApiClient().getBasePath());
     V1Secret nsSecret;
     try {
