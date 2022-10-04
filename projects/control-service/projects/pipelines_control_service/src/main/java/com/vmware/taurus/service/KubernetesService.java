@@ -1260,7 +1260,8 @@ public abstract class KubernetesService implements InitializingBean {
             .withSpec(spec)
             .build();
 
-    V1Job nsJob = new BatchV1Api(client).createNamespacedJob(namespace, job, null, null, null, null);
+    V1Job nsJob =
+        new BatchV1Api(client).createNamespacedJob(namespace, job, null, null, null, null);
     log.debug("Created k8s job: {}", nsJob);
     log.debug(
         "Created k8s job name: {}, uid:{}, link:{}",
