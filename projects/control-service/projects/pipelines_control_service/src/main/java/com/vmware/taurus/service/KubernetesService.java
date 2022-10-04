@@ -2317,12 +2317,12 @@ public abstract class KubernetesService implements InitializingBean {
 
     V1Secret nsSecret;
     try {
-      nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null,null);
+      nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null, null);
     } catch (ApiException e) {
       log.warn("Error while trying to save K8S secret", e);
       if (e.getCode() == 404) {
         log.debug("Secret {} does not exist. Creating ...", name);
-        nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null,null);
+        nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null, null);
       } else {
         log.error("Failed to save k8s secret: {}", name);
         throw e;
