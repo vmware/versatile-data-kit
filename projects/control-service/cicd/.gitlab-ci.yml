@@ -193,6 +193,7 @@ control_service_publish_image:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
   only:
     refs:
+      - external_pull_requests
       - main
     changes: *control_service_change_locations
   except:
