@@ -129,7 +129,6 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
     assertTrue(
         match.isPresent(),
         String.format("Could not find %s metrics for the data job %s", INFO_METRICS, jobName));
-    // integration-test-f78842b7
     // Validate the labels of the taurus_datajob_info metrics
     String line = match.get();
     assertLabelEquals(INFO_METRICS, teamName, "team", line);
@@ -238,7 +237,6 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
       String username) {
 
     DataJobExecution[] dataJobExecution = new DataJobExecution[1];
-    log.info("executionId that you should be looking for " + executionId);
     await()
         .atMost(5, TimeUnit.MINUTES)
         .with()
