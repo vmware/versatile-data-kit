@@ -122,7 +122,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
         .until(terminationMetricsAreAvailable());
 
     String scrape = scrapeMetrics();
-
+//    sdfs
     // Validate that all metrics for the executed data job are correctly exposed
     // First, validate that there is a taurus_datajob_info metrics for the data job
     var match = findMetricsWithLabel(scrape, INFO_METRICS, "data_job", jobName);
