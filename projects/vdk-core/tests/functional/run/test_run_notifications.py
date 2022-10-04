@@ -34,7 +34,7 @@ def __get_smtp_env(smtpd: SMTPDFix):
 
 
 def test_run_successfull(smtpd: SMTPDFix):
-    errors.resolvable_context().clear()
+    errors.clear_intermediate_errors()
     with mock.patch.dict(
         os.environ,
         {
@@ -54,7 +54,7 @@ def test_run_successfull(smtpd: SMTPDFix):
 
 
 def test_run_successfull_notify_multiple_users(smtpd: SMTPDFix):
-    errors.resolvable_context().clear()
+    errors.clear_intermediate_errors()
     with mock.patch.dict(
         os.environ,
         {
@@ -77,7 +77,7 @@ def test_run_successfull_notify_multiple_users(smtpd: SMTPDFix):
 
 @mock.patch.dict(os.environ, {"VDK_DB_DEFAULT_TYPE": DB_TYPE_SQLITE_MEMORY})
 def test_run_query_failed_user_error_notification_sent(smtpd: SMTPDFix):
-    errors.resolvable_context().clear()
+    errors.clear_intermediate_errors()
     db_plugin = DecoratedSqLite3MemoryDbPlugin()
     runner = CliEntryBasedTestRunner(db_plugin)
 
@@ -98,7 +98,7 @@ def test_run_query_failed_user_error_notification_sent(smtpd: SMTPDFix):
 
 @mock.patch.dict(os.environ, {"VDK_DB_DEFAULT_TYPE": DB_TYPE_SQLITE_MEMORY})
 def test_run_query_failed_user_error_no_notification_configured(smtpd: SMTPDFix):
-    errors.resolvable_context().clear()
+    errors.clear_intermediate_errors()
     db_plugin = DecoratedSqLite3MemoryDbPlugin()
     runner = CliEntryBasedTestRunner(db_plugin)
 
