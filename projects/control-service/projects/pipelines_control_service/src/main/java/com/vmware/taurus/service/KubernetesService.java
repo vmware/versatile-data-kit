@@ -2311,7 +2311,6 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Saving k8s secret:{}", name);
     V1Secret secret = buildV1Secret(name, data);
     CoreV1Api api = new CoreV1Api(client);
-
     V1Secret nsSecret;
     try {
       nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null);
