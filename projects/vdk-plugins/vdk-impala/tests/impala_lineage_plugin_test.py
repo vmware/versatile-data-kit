@@ -77,12 +77,12 @@ class ImpalaLineagePluginTest(unittest.TestCase):
         inputs = {"database_a.table1", "database_b.table2"}
         output = "database_a.table3"
         result = ImpalaLineagePlugin._parse_inputs_outputs(
-                """
+            """
             00:SCAN HDFS [database_a.table1, RANDOM]
             01:SCAN HDFS [database_b.table2 w, RANDOM]
             03: WRITE TO HDFS [database_a.table3, OVERWRITE=true]
             """
-            )
+        )
         self.assertEqual(set(result[0]), inputs)
         self.assertEqual(result[1], output)
 
