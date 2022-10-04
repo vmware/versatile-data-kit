@@ -219,7 +219,10 @@ public abstract class KubernetesService implements InitializingBean {
         this.namespace = kubeConfig.getNamespace();
       }
     } else {
-      log.info("Will use default client"  +  KubeConfig.loadKubeConfig(new FileReader(System.getenv(ENV_KUBECONFIG))).getUsers());
+      log.info(
+          "Will use default client"
+              + KubeConfig.loadKubeConfig(new FileReader(System.getenv(ENV_KUBECONFIG)))
+                  .getUsers());
       client = ClientBuilder.defaultClient();
       log.info("log.info(client.getBasePath())    " + client.getBasePath());
       if (StringUtils.isBlank(namespace)) {
