@@ -59,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.kubernetes.client.util.Config.ENV_KUBECONFIG;
 import static java.util.function.Predicate.not;
 
 /**
@@ -218,7 +219,7 @@ public abstract class KubernetesService implements InitializingBean {
         this.namespace = kubeConfig.getNamespace();
       }
     } else {
-      log.info("Will use default client");
+      log.info("Will use default client"  +  KubeConfig.loadKubeConfig(new FileReader(System.getenv(ENV_KUBECONFIG))).getUsers());
       client = ClientBuilder.defaultClient();
       log.info("log.info(client.getBasePath())    " + client.getBasePath());
       if (StringUtils.isBlank(namespace)) {
