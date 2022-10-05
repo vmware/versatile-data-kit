@@ -150,7 +150,9 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
     System.out.println(match.get().trim());
     assertTrue(
         match.get().trim().endsWith("0.0"),
-        "The value of the taurus_datajob_termination_status metrics does not match");
+        "The value of the taurus_datajob_termination_status metrics does not match. It was actually"
+            + " "
+            + match.get());
 
     // Check the data job execution status
     checkDataJobExecutionStatus(

@@ -145,11 +145,11 @@ class ImpalaLineagePlugin:
         inputs = []
         output = None
         for line in query_profile.splitlines():
-            match = re.search(r"(?<=SCAN HDFS \[)\S*(?=,)", line)
+            match = re.search(r"(?<=SCAN HDFS \[)[\w\.]*", line)
             if match:
                 inputs.append(match.group(0))
             else:
-                match = re.search(r"(?<=WRITE TO HDFS \[)\S*(?=,)", line)
+                match = re.search(r"(?<=WRITE TO HDFS \[)[\w\.]*", line)
                 if match:
                     output = match.group(0)
         return list(set(inputs)), output
