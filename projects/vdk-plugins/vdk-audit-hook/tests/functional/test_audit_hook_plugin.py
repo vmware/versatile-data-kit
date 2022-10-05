@@ -17,7 +17,7 @@ def test_audit_hook_enabled_and_not_permitted_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "NOT_PERMITTED_EVENTS_LIST": "exec;os.system",
+            "NOT_PERMITTED_EVENTS_LIST": "os.system",
         },
     ):
         os._exit = mock.MagicMock()
@@ -39,7 +39,7 @@ def test_audit_hook_enabled_and_permitted_action():
         result: Result = runner.invoke(
             ["run", jobs_path_from_caller_directory("os-listdir-command-job")]
         )
-
+        print(result.output)
         cli_assert_equal(0, result)
         assert not os._exit.called
 
