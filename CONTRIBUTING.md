@@ -35,7 +35,7 @@ We welcome many different types of contributions and not all of them need a Pull
 This is a rough outline of what a contributor's workflow looks like:
 
 * Make a fork of the repository within your GitHub account
-   * Currently we accept contribution from forks only for examples and documentation changes until PR 854 is fixed.
+   * Currently we accept contribution from forks only for examples and documentation changes until PR 854 is fixed. Until then please request write priveleges and create a branch in the main repo.
 * Create a topic branch from where you want to base your work - name your branch according to our naming convention - person/<github-username>/<feature-name>
 * Make commits of logical units
 * Make sure your commit messages are with the proper format, quality and descriptiveness (see below)
