@@ -3,11 +3,11 @@ This directory contains Integration tests for the Pipelines Control Service.
 The goal of the tests is to validate that the functionality of the service
 works in combination with other dependant components (KDC, Kubernetes, DB, Git repo, etc).
 
-# Prerequisites to run locally
+# Prerequisites
 * Kubernetes 1.15+ (E.g. minikube, kubernetes-in-docker, etc.)
 * Valid kubeconfig.yaml in ```${HOME}/.kube/config``` or set the ```datajobs.deployment.k8s.kubeconfig``` and ```datajobs.control.k8s.kubeconfig``` property
   in [integration-test/resources/application-test.properties](./resources/application-test.properties)
-* Git repo for storing the jobs
+* Git server and Git repo for storing the jobs, using public github as the git server is the most straight forward approach 
   * Create an empty personal repo with a branch called `main`. e.g https://github.com/murphp15/test/tree/main
 * Docker registry for pushing and pulling the containers to
   * It is recommended to use the private package manager provided Github located at https://ghcr.io.
