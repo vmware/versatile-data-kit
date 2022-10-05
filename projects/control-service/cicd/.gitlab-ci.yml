@@ -81,7 +81,7 @@ control_service_integration_test:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
-    - cp $KUBECONFIG_OLD ~/.kube/config
+    - cp $KUBECONFIG ~/.kube/config
     - ./gradlew -v
     - ./gradlew projects --info
     - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
