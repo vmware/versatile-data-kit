@@ -32,7 +32,7 @@ pip install -U cookiecutter
 Generate a VDK Plugin package project:
 
 ```
-cookiecutter https://github.com/tozkata/cookiecutter-vdk-plugin.git
+cookiecutter https://github.com/tozka/cookiecutter-vdk-plugin.git
 ```
 
 Then
