@@ -26,6 +26,12 @@ build-py310-vdk-ingest-http:
   extends: .build-vdk-ingest-http
   image: "python:3.10"
 
+build-vdk-ingest-http-on-vdk-core-release:
+  variables:
+    PLUGIN_NAME: vdk-ingest-http
+  extends: .build-plugin-on-vdk-core-release
+  image: "python:3.9"
+
 release-vdk-ingest-http:
   variables:
     PLUGIN_NAME: vdk-ingest-http
