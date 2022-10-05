@@ -15,83 +15,57 @@ log = logging.getLogger(__name__)
 
 
 class ErrorsTest(unittest.TestCase):
-    def tearDown(self):
-        errors.resolvable_context().clear()
+    def setUp(self):
+        errors.BLAMEES = defaultdict(list)
 
-    def test_resolvable_context_singleton(self):
-        assert (
-            errors.resolvable_context()
-            is errors.ResolvableContext()
-            is errors.resolvable_context()
-            is errors.ResolvableContext()
-        )
+    def tearDown(self):
+        errors.BLAMEES = defaultdict(list)
 
     def test_get_blamee_overall_none(self):
         blamee = errors.get_blamee_overall()
         self.assertEqual(blamee, None, "There are no errors")
 
     def test_get_blamee_overall_platform(self):
-        try:
-            raise Exception()
-        except Exception as e:
-            errors.log_exception(
-                errors.ResolvableBy.PLATFORM_ERROR,
-                log,
-                what_happened="something happened",
-                why_it_happened="...",
-                consequences="XYZ",
-                countermeasures="Think! SRE",
-                exception=e,
-            )
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.PLATFORM_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! SRE",
+        )
+        blamee = errors.get_blamee_overall()
         self.assertEqual(
-            errors.get_blamee_overall(), errors.ResolvableByActual.PLATFORM, "Platform"
+            blamee, errors.ResolvableBy.PLATFORM_ERROR, "Platform exception"
         )
 
     def test_get_blamee_overall_owner(self):
-        try:
-            raise Exception()
-        except Exception as e:
-            errors.log_exception(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                what_happened="something happened",
-                why_it_happened="...",
-                consequences="XYZ",
-                countermeasures="Think! Owner",
-                exception=e,
-            )
-        self.assertEqual(
-            errors.get_blamee_overall(), errors.ResolvableByActual.USER, "User"
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.USER_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! Owner",
         )
+        blamee = errors.get_blamee_overall()
+        self.assertEqual(blamee, errors.ResolvableBy.USER_ERROR, "Owner exception")
 
     def test_get_blamee_overall_both(self):
-        try:
-            raise Exception()
-        except Exception as e:
-            errors.log_exception(
-                errors.ResolvableBy.PLATFORM_ERROR,
-                log,
-                what_happened="something happened",
-                why_it_happened="...",
-                consequences="XYZ",
-                countermeasures="Think! SRE",
-                exception=e,
-            )
-        try:
-            raise Exception()
-        except Exception as e:
-            errors.log_exception(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                what_happened="something happened",
-                why_it_happened="...",
-                consequences="XYZ",
-                countermeasures="Think! Owner",
-                exception=e,
-            )
-        self.assertEqual(
-            errors.get_blamee_overall(), errors.ResolvableByActual.USER, "User"
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.PLATFORM_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! SRE",
         )
+        errors._build_message_for_end_user(
+            errors.ResolvableBy.USER_ERROR,
+            what_happened="something happened",
+            why_it_happened="...",
+            consequences="XYZ",
+            countermeasures="Think! Owner",
+        )
+        blamee = errors.get_blamee_overall()
+        self.assertEqual(blamee, errors.ResolvableBy.USER_ERROR, "Owner exception")
 
     def test_throws_correct_type(self):
         with self.assertRaises(errors.BaseVdkError) as context:

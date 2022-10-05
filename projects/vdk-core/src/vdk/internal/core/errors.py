@@ -10,7 +10,6 @@ It defines classes and methods for handling exceptions, and ensuring that there 
 """
 from __future__ import annotations
 
-import enum
 import logging
 import re
 import sys
@@ -19,31 +18,19 @@ from collections import defaultdict
 from enum import Enum
 from logging import Logger
 from types import TracebackType
+from typing import Any
 from typing import cast
 
-log = logging.getLogger(__name__)
-MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE = (
-    "I'm rethrowing this exception to my caller to process."
-    "Most likely this will result in failure of current Data Job."
-)
-MSG_CONSEQUENCE_TERMINATING_APP = (
-    "The provided Data Job will not be executed. Terminating application."
-)
-MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION = (
-    "See contents of the exception and fix the problem that causes it."
-)
 
-
-@enum.unique
 class ResolvableBy(str, Enum):
     """
-    Type of errors being thrown by VDK during execution of some command.
+    Type of errors being thrown by VDK during execution of some command based on who is responsible for resolving/fixing them
 
     Those are:
 
-    * PLATFORM_ERROR - infrastructure errors
-    * USER_ERROR - errors in user code/configuration
-    * CONFIG_ERROR - errors in the configuration provided to VDK
+    * PLATFORM_ERROR - for infrastructure errors that can and should be fixed by SRE Team, Platform team, operating the infrastructure and services.
+    * USER_ERROR - Errors in user code/configuration, that should be fixed by the end user (or job owner) for example: supplied bad arguments, bug in user code.
+    * CONFIG_ERROR - Errors in the configuration provided to VDK. Should be fixed by Platform if run in Platfrom infrastructure, or by end user, when run locally.
     """
 
     PLATFORM_ERROR = "Platform error"
@@ -51,105 +38,15 @@ class ResolvableBy(str, Enum):
     CONFIG_ERROR = "Configuration error"
 
 
-@enum.unique
-class ResolvableByActual(str, Enum):
-    """
-    Who is responsible for resolving/fixing the error.
+# TODO: instead of global variable set this in JobContext
+#  (one benefit this way we can run even multiple jobs/templates in the same process)
+# The key is 'blamee' (i.e. responsible for the error fixing) and the value is a list of corresponding ErrorMessages
+BLAMEES: dict[str, list[Any]] = defaultdict(list)
 
-    Each Resolvable error type, along with the corresponding accountable:
+# overide when running in kubernetes
+CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableBy.PLATFORM_ERROR
 
-    * PLATFORM_ERROR - should be fixed by the PLATFORM (SRE Team, Platform team, operating the infrastructure and services).
-    * USER_ERROR - should be fixed by the end USER (or data job owner), for example: supplied bad arguments, bug in user code.
-    * CONFIG_ERROR that occurred during:
-      - platform run (in case the data job runs on platfrom infrastructure), is handled by the PLATFORM;
-      - local run (in case the data job runs on local end user infrastructure), is handled by the USER.
-
-    Returns:
-    * PLATFORM - accountable for infrastructure errors, or configuration errors occurred during a platform run;
-    * USER - accountable for errors in user code/configuration, or configuration errors occurred during a local run.
-    """
-
-    PLATFORM = "Platform"
-    USER = "User"
-
-
-# overwrite when running in kubernetes
-CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableByActual.PLATFORM
-
-
-class Resolvable:
-    """
-    Contains context of a resolvable error
-     resolvable_by: Indicates the resolvable type.
-     resolvable_by_actual: Who is actually responsible for resolving it
-     error_message: the error message
-     exception: the exception related to the error
-     resolved: indicate if the error is resolved (for example error may be handled in user code and they are considred resolved).
-                It should be use for informative purposes. It may be None/empty (for example if error originates from a new thread spawned by a job step)
-    """
-
-    def __init__(
-        self,
-        resolvable_by: ResolvableBy,
-        resolvable_by_actual: ResolvableByActual,
-        error_message: ErrorMessage,
-        exception: BaseException,
-        resolved: bool = False,
-    ):
-        self.resolvable_by = resolvable_by
-        self.resolvable_by_actual = resolvable_by_actual
-        self.error_message = error_message
-        self.exception = exception
-        self.resolved = resolved
-
-
-class ResolvableContext:
-    """
-    A global registry for resolvable entries lookup, available immediately upon class loading.
-    Purposed for keeping track of any errors that may occur before, during or after CoreContext/JobContext initialization.
-    """
-
-    # The key is 'blamee' (i.e. responsible for the error fixing) and the value is a list of corresponding Resolvables
-    resolvables: dict[ResolvableByActual, list[Resolvable]]
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance.__init__()
-        return cls._instance
-
-    @classmethod
-    def instance(cls):
-        return cls.__new__(cls)
-
-    def __init__(self):
-        self.resolvables = defaultdict(list)
-
-    def add(self, resolvable: Resolvable) -> None:
-        """
-        Register a resolvable entry in the context.
-        """
-        resolvable_by_actual = resolvable.resolvable_by_actual
-        if resolvable_by_actual not in self.resolvables.keys():
-            self.resolvables[resolvable_by_actual] = []
-        self.resolvables[resolvable_by_actual].append(resolvable)
-
-    def clear(self) -> None:
-        """
-        Clear so far recorded records - those are considered intermediate and resolved.
-        For example after successful completion of a step.
-        """
-        self.resolvables.clear()
-
-    def mark_all_resolved(self):
-        for resolvable_by_actual in self.resolvables.values():
-            for resolvable in resolvable_by_actual:
-                resolvable.resolved = True
-
-
-def resolvable_context():
-    return ResolvableContext.instance()
+log = logging.getLogger(__name__)
 
 
 class BaseVdkError(Exception):
@@ -260,38 +157,30 @@ class ErrorMessage:
         return self._to_string(self._get_template("<br />"))
 
 
-def get_blamee_overall() -> ResolvableByActual | None:
+def get_blamee_overall() -> str | None:
     """
     Finds who is responsible for fixing the error/s.
 
     Returns:
 
     None - if there were no errors
-    ResolvableByActual.PLATFORM - if during the run there were only Platfrom exceptions
-    ResolvableByActual.USER - if during the run there was at least one job owner exceptions
+    ResolvableBy.PLATFORM_ERROR - if during the run there were only Platfrom exception
+    ResolvableBy.USER_ERROR - if during the run there was at least one job owner exceptions
 
-    The reason it is set to ResolvableByActual.USER if there is at least one job owner is:
+    The reason it is set to ResolvableBy.USER_ERROR if there is at least one job owner is:
     VDK defaults the error to be resolved by Platform team  until it can determine for certain that it's an issue in the job code.
     There might be multiple components logging error (for example in exception propagation), and if at least one component says error is in the job code,
     then we set to be resolved by data job owner.
 
     """
-    if len(resolvable_context().resolvables) == 0:
+    if len(BLAMEES) == 0:
         return None
-
-    def filter(resolvable_by_actual):
-        filtered = [
-            i
-            for i in resolvable_context().resolvables.get(resolvable_by_actual)
-            if not i.resolved
-        ]
-        return resolvable_by_actual if filtered else None
-
-    if ResolvableByActual.USER in resolvable_context().resolvables:
-        return filter(ResolvableByActual.USER)
-
-    if ResolvableByActual.PLATFORM in resolvable_context().resolvables:
-        return filter(ResolvableByActual.PLATFORM)
+    else:
+        return (
+            ResolvableBy.USER_ERROR
+            if ResolvableBy.USER_ERROR in BLAMEES
+            else ResolvableBy.PLATFORM_ERROR
+        )
 
 
 def get_blamee_overall_user_error() -> str:
@@ -300,15 +189,117 @@ def get_blamee_overall_user_error() -> str:
 
     :return:
        Empty string if the owner is not the overall blamee
-       An ErrorMessage instance to string
+       An ErrorMessage instance
     """
     blamee = get_blamee_overall()
-    if blamee is None or blamee != ResolvableByActual.USER:
+    if blamee is None or blamee == ResolvableBy.PLATFORM_ERROR:
         return ""
-    blamee_user_errors = resolvable_context().resolvables.get(
-        ResolvableByActual.USER, []
+    blamee_errors = BLAMEES.get(blamee, [])
+    return str(blamee_errors[0])
+
+
+def get_error_type() -> str | None:
+    """
+    :return: "User" or "Platform"
+    """
+    blamee = get_blamee_overall()
+    return (
+        "User" if blamee == ResolvableBy.USER_ERROR else "Platform" if blamee else None
     )
-    return str(blamee_user_errors[0].error_message) if blamee_user_errors else None
+
+
+def _build_message_for_end_user(
+    to_be_fixed_by: ResolvableBy,
+    what_happened: str,
+    why_it_happened: str,
+    consequences: str,
+    countermeasures: str,
+) -> ErrorMessage:
+    error = ""
+    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
+        error = " Platform service error "
+    elif ResolvableBy.USER_ERROR == to_be_fixed_by:
+        error = "n error in data job code "
+    elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
+        error = " configuration error "
+
+    current_error_responsible_for_resolution = _error_type_to_actual_resolver(
+        to_be_fixed_by
+    )
+    # statement to add the key in the dictionary (if not already there),
+    # for get_blamee_overall()' to be calculated correctly
+    BLAMEES[current_error_responsible_for_resolution]
+    responsible_for_resolution = get_blamee_overall()
+
+    msg = ErrorMessage(
+        "A{} occurred. The error should be resolved by {}. Here are the details:".format(
+            error, responsible_for_resolution
+        ),
+        what_happened.strip(),
+        why_it_happened.strip(),
+        consequences.strip(),
+        countermeasures.strip(),
+    )
+
+    BLAMEES[current_error_responsible_for_resolution].append(msg)
+    return msg
+
+
+def get_caller_stacktrace() -> str:
+    """
+    :return: stacktrace excluding this method (hence caller stacktrace)
+    """
+    info = sys.exc_info()
+    tb = cast(TracebackType, info[2])
+    f = tb.tb_frame.f_back
+    lst = ["Traceback (most recent call first):\n"]
+    fstack = traceback.extract_stack(f)
+    fstack.reverse()
+    lst = lst + traceback.format_list(fstack)
+    lines = ""
+    for line in lst:
+        lines = lines + line
+    return lines
+
+
+def _error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> str:
+    if ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
+        return CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY
+    else:
+        return to_be_fixed_by
+
+
+def log_and_throw(
+    to_be_fixed_by: ResolvableBy,
+    log: Logger,
+    what_happened: str,
+    why_it_happened: str,
+    consequences: str,
+    countermeasures: str,
+) -> None:
+    """
+    Log error message and then throw it to be handled up the stack.
+    """
+    msg = _build_message_for_end_user(
+        to_be_fixed_by, what_happened, why_it_happened, consequences, countermeasures
+    )
+
+    try:
+        if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
+            raise PlatformServiceError(msg)
+        elif ResolvableBy.USER_ERROR == to_be_fixed_by:
+            raise UserCodeError(msg)
+        elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
+            raise VdkConfigurationError(msg)
+        else:
+            raise Exception(
+                "BUG! Fix me!"
+            )  # What type is the error that caused this and whom to blame Platform or Data Jobs Developer?
+    except BaseVdkError as e:
+        lines = get_caller_stacktrace()
+        log.error(str(msg) + "\n" + lines)
+        __set_error_is_logged(e)
+        raise
 
 
 def log_exception(
@@ -326,68 +317,33 @@ def log_exception(
     """
     if __error_is_logged(exception):
         return
-
-    resolvable_by_actual = _error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = _build_message_for_end_user(
-        to_be_fixed_by,
-        resolvable_by_actual,
-        what_happened,
-        why_it_happened,
-        consequences,
-        countermeasures,
+    msg = _build_message_for_end_user(
+        to_be_fixed_by, what_happened, why_it_happened, consequences, countermeasures
     )
-    resolvable_context().add(
-        Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, exception)
-    )
-
     __set_error_is_logged(exception)
-    log.exception(error_message)
+    log.exception(msg)
 
 
-def log_and_throw(
-    to_be_fixed_by: ResolvableBy,
-    log: Logger,
-    what_happened: str,
-    why_it_happened: str,
-    consequences: str,
-    countermeasures: str,
-) -> None:
-    """
-    Log error message and then throw it to be handled up the stack.
-    """
+def wrap_exception_if_not_already(
+    to_be_fixed_by: ResolvableBy, msg: ErrorMessage, exception: BaseException
+):
+    if isinstance(exception, BaseVdkError):
+        # already wrapped
+        return exception
 
-    resolvable_by_actual = _error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = _build_message_for_end_user(
-        to_be_fixed_by,
-        resolvable_by_actual,
-        what_happened,
-        why_it_happened,
-        consequences,
-        countermeasures,
-    )
-
-    exception: BaseVdkError
+    # TODO: how to assign cause (new_ex from old_ex) ?
     if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        exception = PlatformServiceError(error_message)
+        return PlatformServiceError(msg)
     elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        exception = UserCodeError(error_message)
+        return UserCodeError(msg)
     elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        exception = VdkConfigurationError(error_message)
+        return VdkConfigurationError(msg)
     else:
-        raise Exception(
-            "BUG! Fix me!"
-        )  # What type is the error that caused this and whom to blame Platform or Data Jobs Developer?
-
-    try:
-        raise exception
-    except BaseVdkError as e:
-        resolvable_context().add(
-            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
+        log.warning(
+            "Unknown to_be_fixed_by type. "
+            "This seems like a bug. We cannot wrap exception and return original one "
         )
-        lines = _get_caller_stacktrace()
-        log.error(str(error_message) + "\n" + lines)
-        __set_error_is_logged(e)
-        raise
+        return exception
 
 
 def log_and_rethrow(
@@ -413,39 +369,39 @@ def log_and_rethrow(
             it will wrap it in corresponding BaseVdkError exception based on to_be_fixed_by parameter
     """
 
-    resolvable_by_actual = _error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = _build_message_for_end_user(
-        to_be_fixed_by,
-        resolvable_by_actual,
-        what_happened,
-        why_it_happened,
-        consequences,
-        countermeasures,
+    msg = _build_message_for_end_user(
+        to_be_fixed_by, what_happened, why_it_happened, consequences, countermeasures
     )
-
     to_be_raised_exception = exception
     if wrap_in_vdk_error:
-        to_be_raised_exception = _wrap_exception_if_not_already(
-            to_be_fixed_by, error_message, exception
+        to_be_raised_exception = wrap_exception_if_not_already(
+            to_be_fixed_by, msg, exception
         )
 
     if not __error_is_logged(exception):
-        log.exception(error_message)
+        log.exception(msg)
         __set_error_is_logged(exception)
 
-    try:
-        raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
-    except Exception as e:
-        resolvable_context().add(
-            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
-        )
-        raise
+    if wrap_in_vdk_error:
+        raise to_be_raised_exception from exception
+    else:
+        raise exception
+
+
+def __error_is_logged(exception: BaseException) -> bool:
+    """Check if exception has custom added attribute is_logged"""
+    return hasattr(exception, "is_logged")
+
+
+def __set_error_is_logged(exception: BaseException):
+    setattr(exception, "is_logged", True)
 
 
 def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
     """
     Tries to determine if it's user or platform error
     """
+
     if issubclass(type(exception), UserCodeError):
         return ResolvableBy.USER_ERROR
     if issubclass(type(exception), VdkConfigurationError):
@@ -454,15 +410,28 @@ def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
         )  # TODO find out if this is a local or platform deployment and fix this line.
     if issubclass(type(exception), PlatformServiceError):
         return ResolvableBy.PLATFORM_ERROR
+
     return ResolvableBy.PLATFORM_ERROR
 
 
-def _get_exception_message(exception: Exception) -> str:
+MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE = (
+    "I'm rethrowing this exception to my caller to process."
+    "Most likely this will result in failure of current Data Job."
+)
+MSG_CONSEQUENCE_TERMINATING_APP = (
+    "The provided Data Job will not be executed. Terminating application."
+)
+MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION = (
+    "See contents of the exception and fix the problem that causes it."
+)
+
+
+def get_exception_message(exception: Exception) -> str:
     """Returns the message part of an exception as string"""
     return str(exception).strip()
 
 
-class _CustomMessageExceptionDecorator:
+class CustomMessageExceptionDecorator:
     """
     Provides custom message for an exception.
 
@@ -504,14 +473,13 @@ def MSG_WHY_FROM_EXCEPTION(exception: Exception) -> str:
     """
     Try to figure what is the reason for the failure (why) from the exception and return as a reason.
     """
-    custom_message = _CustomMessageExceptionDecorator(exception).get_custom_message()
-    return (
-        custom_message
-        if custom_message
-        else "An exception occurred, exception message was: {}".format(
-            _get_exception_message(exception)
+    custom_message = CustomMessageExceptionDecorator(exception).get_custom_message()
+    if custom_message:
+        return custom_message
+    else:
+        return "An exception occurred, exception message was: {}".format(
+            get_exception_message(exception)
         )
-    )
 
 
 def exception_matches(
@@ -535,7 +503,7 @@ def exception_matches(
     if not (grp == classname):
         return False
 
-    msg = _get_exception_message(e)
+    msg = get_exception_message(e)
     match = msgMatcher.match(msg)
     if None is match:
         return False
@@ -543,91 +511,11 @@ def exception_matches(
     return grp == msg
 
 
-def _build_message_for_end_user(
-    to_be_fixed_by: ResolvableBy,
-    to_be_fixed_by_actual: ResolvableByActual,
-    what_happened: str,
-    why_it_happened: str,
-    consequences: str,
-    countermeasures: str,
-) -> ErrorMessage:
-    error = ""
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        error = " Platform service error "
-    elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        error = "n error in data job code "
-    elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        error = " configuration error "
-
-    return ErrorMessage(
-        "A{} occurred. The error should be resolved by {}. Here are the details:".format(
-            error, to_be_fixed_by_actual
-        ),
-        what_happened.strip(),
-        why_it_happened.strip(),
-        consequences.strip(),
-        countermeasures.strip(),
-    )
-
-
-def _get_caller_stacktrace(exception: BaseException = None) -> str:
+def clear_intermediate_errors() -> None:
     """
-    :return: stacktrace excluding this method (hence caller stacktrace)
+    Clear so far recorded records - those are considered intermediate and resolved.
+
+    For example after successful completion of a step.
+    # TODO: better keep errors in context and not globally!
     """
-    tb = (
-        exception.__traceback__
-        if exception and exception.__traceback__
-        else cast(TracebackType, sys.exc_info()[2])
-    )
-    f = tb.tb_frame.f_back
-    lst = ["Traceback (most recent call first):\n"]
-    fstack = traceback.extract_stack(f)
-    fstack.reverse()
-    lst = lst + traceback.format_list(fstack)
-    lines = ""
-    for line in lst:
-        lines = lines + line
-    return lines
-
-
-def _error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableByActual:
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        return ResolvableByActual.PLATFORM
-    if ResolvableBy.USER_ERROR == to_be_fixed_by:
-        return ResolvableByActual.USER
-    if ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        return CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY
-    raise Exception(
-        "BUG! Fix me!"
-    )  # What type is the error that caused this and whom to blame, Platform or Data Jobs Developer?
-
-
-def _wrap_exception_if_not_already(
-    to_be_fixed_by: ResolvableBy, msg: ErrorMessage, exception: BaseException
-):
-    if isinstance(exception, BaseVdkError):
-        # already wrapped
-        return exception
-
-    # TODO: how to assign cause (new_ex from old_ex) ?
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        return PlatformServiceError(msg)
-    elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        return UserCodeError(msg)
-    elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        return VdkConfigurationError(msg)
-    else:
-        log.warning(
-            "Unknown to_be_fixed_by type. "
-            "This seems like a bug. We cannot wrap exception and return original one "
-        )
-        return exception
-
-
-def __error_is_logged(exception: BaseException) -> bool:
-    """Check if exception has custom added attribute is_logged"""
-    return hasattr(exception, "is_logged")
-
-
-def __set_error_is_logged(exception: BaseException):
-    setattr(exception, "is_logged", True)
+    BLAMEES.clear()
