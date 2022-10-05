@@ -4,7 +4,6 @@ import unittest.mock
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-import vdk.internal.core.errors
 from click.testing import Result
 from functional.run import util
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
