@@ -58,7 +58,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     )
     config_builder.add(
         key="INGEST_OVER_HTTP_RETRY_BACKOFF_FACTOR",
-        default_value=0,
+        default_value=0.0,
         description="A backoff factor to apply between attempts after the second try "
         "(most errors are resolved immediately by a second try without a "
         "delay). urllib3 will sleep for:: "
