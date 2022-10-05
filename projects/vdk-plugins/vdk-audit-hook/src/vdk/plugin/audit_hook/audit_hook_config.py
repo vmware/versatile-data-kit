@@ -31,9 +31,12 @@ class AuditHookConfiguration:
 
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
+<<<<<<< HEAD
     """
     Here we define what configuration settings are needed for Impala with reasonable defaults
     """
+=======
+>>>>>>> 239d7165 (vdk-plugins: introduced vdk-audit-hook plugin)
     config_builder.add(
         key=AUDIT_HOOK_ENABLED,
         default_value=True,

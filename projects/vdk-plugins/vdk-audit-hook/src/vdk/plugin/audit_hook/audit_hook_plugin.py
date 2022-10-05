@@ -41,7 +41,11 @@ class AuditHookPlugin:
 
                 if self._config.exit_on_not_permitted_event():
                     logging.getLogger(__name__).error(
+<<<<<<< HEAD
                         f'[Audit Hook] Exiting the data job due to the NOT permitted operation "{event}" with arguments "{args}"'
+=======
+                        f'[Audit Hook] Terminating the data job due to the NOT permitted operation "{event}" with arguments "{args}"'
+>>>>>>> 239d7165 (vdk-plugins: introduced vdk-audit-hook plugin)
                     )
                     os._exit(0)
 
