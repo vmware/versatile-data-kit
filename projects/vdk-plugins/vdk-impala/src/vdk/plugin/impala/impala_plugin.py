@@ -99,12 +99,12 @@ class ImpalaPlugin:
         )
 
         context.templates.add_template(
-            "load/fact/insert_snapshot",
-            pathlib.Path(get_job_path("load/fact/insert_snapshot")),
+            "load/fact/insert",
+            pathlib.Path(get_job_path("load/fact/insert")),
         )
 
         context.templates.add_template(
-            "periodic_snapshot", pathlib.Path(get_job_path("load/fact/insert_snapshot"))
+            "insert", pathlib.Path(get_job_path("load/fact/insert"))
         )
 
         context.templates.add_template(
