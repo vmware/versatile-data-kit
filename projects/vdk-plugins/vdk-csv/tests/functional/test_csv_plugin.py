@@ -6,6 +6,7 @@ from sqlite3 import OperationalError
 from unittest import mock
 
 from click.testing import Result
+from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
@@ -170,7 +171,7 @@ def test_csv_export_with_nonexistent_table(tmpdir):
                 "result3.csv",
             ]
         )
-        assert isinstance(result.exception, OperationalError)
+        assert isinstance(result.exception, PlatformServiceError)
 
 
 def test_csv_export_with_no_data(tmpdir):
