@@ -33,9 +33,9 @@
   stage: pre_release_test
   variables:
     USE_VDKCORE_DEV_VERSION: "yes"
-  extends: .build-plugin
+  extends: .build-plugin-dind
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
        - "projects/vdk-core/*"
        - "projects/vdk-core/src/**/*"
