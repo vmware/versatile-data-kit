@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import unittest.mock
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -10,7 +9,6 @@ from functional.run import util
 from vdk.internal.core import errors
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.plugin.test_utils.util_funcs import TestingCliEntryPlugin
 
 
 class TestCancellation(unittest.TestCase):
