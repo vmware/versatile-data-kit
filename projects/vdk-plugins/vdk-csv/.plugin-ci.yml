@@ -26,6 +26,11 @@ build-py310-vdk-csv:
   extends: .build-vdk-csv
   image: "python:3.10"
 
+build-vdk-csv-on-vdk-core-release:
+  variables:
+    PLUGIN_NAME: vdk-csv
+  extends: .build-plugin-on-vdk-core-release
+  image: "python:3.9"
 
 release-vdk-csv:
   variables:
