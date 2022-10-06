@@ -21,6 +21,7 @@ datajobs.docker.repositoryUrl=${DOCKER_REGISTRY_URL} # the URL of the docker reg
 datajobs.git.url=${GIT_URL}  # the URL of the git repo created above. e.g github.com/murphp15/test
 datajobs.git.username=${GIT_USERNAME} # self explanatory
 datajobs.git.password=${GIT_PASSWORD} # a git personal access token
+datajobs.docker.registrySecret=${DOCKER_REGISTRY_SECRET:} # the secret in k8s regcred
 ```
 
 
