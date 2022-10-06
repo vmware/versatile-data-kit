@@ -137,7 +137,11 @@ class StepFuncFactory:
             try:
                 func(**actual_arguments)
             except SkipRemainingStepsException as e:
-                log.info(e)
+                # Catch and rethrow exception here since it is handled at
+                # the run_step() hook level. We also don't want to use the
+                # errors.log_and_rethrow() method since it will log a
+                # confusing message to the users.
+                log.debug(e)
                 raise e
             except BaseException as e:
                 from vdk.internal.builtin_plugins.run.job_input_error_classifier import (
