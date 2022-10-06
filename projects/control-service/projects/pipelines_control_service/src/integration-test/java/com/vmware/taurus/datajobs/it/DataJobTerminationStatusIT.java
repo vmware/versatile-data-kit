@@ -266,7 +266,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
                   objectMapper.readValue(
                       dataJobExecutionResult.getResponse().getContentAsString(),
                       DataJobExecution.class);
-              if (dataJobExecution.length < 1) {
+              if (dataJobExecution[0] == null) {
                 log.info("No response from server");
               } else {
                 log.info("Response from server  " + dataJobExecution[0].getStatus());
