@@ -41,4 +41,4 @@ def run(job_input):
 
 ### Example
 
-See full example of how to use the template in [our example documentation](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples#append-strategy-periodic-snapshot-fact).
+See all templates in [our example documentation](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples).
