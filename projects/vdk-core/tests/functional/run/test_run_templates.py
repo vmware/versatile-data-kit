@@ -86,9 +86,5 @@ def test_run_job_with_cancelled_template():
     assert "Step Cancel 1." in result.output
     assert "Step Cancel 2." in result.output
     assert "Step Cancel 3." not in result.output
-    assert (
-        "Job/template execution was skipped from job/template step code."
-        in result.output
-    )
 
     cli_assert_equal(0, result)

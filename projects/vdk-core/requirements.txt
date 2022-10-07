@@ -1,4 +1,4 @@
-# Python dependencies used during build and tests
+# Python dependencies used during build and tests.
 # For dependencies used during installation make sure to set them in setup.cfg (install_requires section)
 
 -e ../vdk-plugins/vdk-test-utils
