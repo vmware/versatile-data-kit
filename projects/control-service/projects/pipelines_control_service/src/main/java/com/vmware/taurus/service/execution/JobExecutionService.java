@@ -64,22 +64,22 @@ public class JobExecutionService {
   private OperationContext operationContext;
 
   public String startDataJobExecution(
-      String teamName,
-      String jobName,
-      String deploymentId,
-      DataJobExecutionRequest jobExecutionRequest) {
+          String teamName,
+          String jobName,
+          String deploymentId,
+          DataJobExecutionRequest jobExecutionRequest) {
     // TODO: deployment ID support
     // TODO: dataJobExecutionRequest args are ignored currently
     var extraJobArguments = jobExecutionRequest.getArgs();
     DataJob dataJob =
-        jobsService
-            .getByNameAndTeam(jobName, teamName)
-            .orElseThrow(() -> new DataJobNotFoundException(jobName));
+            jobsService
+                    .getByNameAndTeam(jobName, teamName)
+                    .orElseThrow(() -> new DataJobNotFoundException(jobName));
 
     JobDeploymentStatus jobDeploymentStatus =
-        deploymentService
-            .readDeployment(jobName.toLowerCase())
-            .orElseThrow(() -> new DataJobDeploymentNotFoundException(jobName));
+            deploymentService
+                    .readDeployment(jobName.toLowerCase())
+                    .orElseThrow(() -> new DataJobDeploymentNotFoundException(jobName));
 
     String executionId = getExecutionId(JobImageDeployer.getCronJobName(jobName));
 
@@ -93,41 +93,48 @@ public class JobExecutionService {
       annotations.put(JobAnnotation.OP_ID.getValue(), opId);
 
       String startedBy =
-          StringUtils.isNotBlank(jobExecutionRequest.getStartedBy())
-              ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
-              : operationContext.getUser();
+              StringUtils.isNotBlank(jobExecutionRequest.getStartedBy())
+                      ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
+                      : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
       annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), ExecutionType.MANUAL.getValue());
 
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
-      // Start K8S Job
-      dataJobsKubernetesService.startNewCronJobExecution(
-          jobDeploymentStatus.getCronJobName(),
-          executionId,
-          annotations,
-          envs,
-          extraJobArguments,
-          jobName);
-
       // Save Data Job execution
       saveDataJobExecution(
-          dataJob,
-          executionId,
-          opId,
-          com.vmware.taurus.service.model.ExecutionType.MANUAL,
-          ExecutionStatus.SUBMITTED,
-          startedBy,
-          OffsetDateTime.now());
+              dataJob,
+              executionId,
+              opId,
+              com.vmware.taurus.service.model.ExecutionType.MANUAL,
+              ExecutionStatus.SUBMITTED,
+              startedBy,
+              OffsetDateTime.now());
+      try {
+        // Start K8S Job
+        dataJobsKubernetesService.startNewCronJobExecution(
+                jobDeploymentStatus.getCronJobName(),
+                executionId,
+                annotations,
+                envs,
+                extraJobArguments,
+                jobName);
+      } catch (Exception e) {
+        // rollback data job execution
+        jobExecutionRepository.deleteDataJobExecutionByIdAndDataJobAndStatusAndType(
+                executionId, dataJob, ExecutionStatus.SUBMITTED,
+                com.vmware.taurus.service.model.ExecutionType.MANUAL);
+        throw e;
+      }
 
       return executionId;
     } catch (ApiException e) {
       throw new KubernetesException(
-          String.format(
-              "Cannot start a Data Job '%s' execution with execution id '%s'",
-              jobName, executionId),
-          e);
+              String.format(
+                      "Cannot start a Data Job '%s' execution with execution id '%s'",
+                      jobName, executionId),
+              e);
     }
   }
 
@@ -139,36 +146,36 @@ public class JobExecutionService {
       if (!jobsService.jobWithTeamExists(jobName, teamName)) {
         log.info("No such data job: {} found for team: {} .", jobName, teamName);
         throw new DataJobExecutionCannotBeCancelledException(
-            executionId, ExecutionCancellationFailureReason.DataJobNotFound);
+                executionId, ExecutionCancellationFailureReason.DataJobNotFound);
       }
 
       var jobExecutionOptional =
-          jobExecutionRepository.findDataJobExecutionByIdAndTeamAndName(
-              executionId, jobName, teamName);
+              jobExecutionRepository.findDataJobExecutionByIdAndTeamAndName(
+                      executionId, jobName, teamName);
 
       if (jobExecutionOptional.isEmpty()) {
         log.info(
-            "Execution: {} for data job: {} with team: {} not found!",
-            executionId,
-            jobName,
-            teamName);
+                "Execution: {} for data job: {} with team: {} not found!",
+                executionId,
+                jobName,
+                teamName);
         throw new DataJobExecutionCannotBeCancelledException(
-            executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
+                executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
       }
 
       var jobExecution = jobExecutionOptional.get();
       var jobStatus = jobExecution.getStatus();
       var acceptedStatusToCancelExecutionSet =
-          Set.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
+              Set.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
       if (!acceptedStatusToCancelExecutionSet.contains(jobStatus)) {
         log.info(
-            "Trying to cancel execution: {} for data job: {} with team: {} but job has status {}!",
-            executionId,
-            jobName,
-            teamName,
-            jobStatus.toString());
+                "Trying to cancel execution: {} for data job: {} with team: {} but job has status {}!",
+                executionId,
+                jobName,
+                teamName,
+                jobStatus.toString());
         throw new DataJobExecutionCannotBeCancelledException(
-            executionId, ExecutionCancellationFailureReason.ExecutionNotRunning);
+                executionId, ExecutionCancellationFailureReason.ExecutionNotRunning);
       }
 
       dataJobsKubernetesService.cancelRunningCronJob(teamName, jobName, executionId);
@@ -182,15 +189,15 @@ public class JobExecutionService {
 
     } catch (ApiException | JsonSyntaxException e) {
       throw new KubernetesException(
-          String.format(
-              "Cannot cancel a Data Job '%s' execution with execution id '%s'",
-              jobName, executionId),
-          e);
+              String.format(
+                      "Cannot cancel a Data Job '%s' execution with execution id '%s'",
+                      jobName, executionId),
+              e);
     }
   }
 
   public List<DataJobExecution> listJobExecutions(
-      String teamName, String jobName, List<String> apiExecutionStatuses) {
+          String teamName, String jobName, List<String> apiExecutionStatuses) {
     if (!jobsService.jobWithTeamExists(jobName, teamName)) {
       throw new DataJobNotFoundException(jobName);
     }
@@ -199,22 +206,22 @@ public class JobExecutionService {
 
     if (!CollectionUtils.isEmpty(apiExecutionStatuses)) {
       List<com.vmware.taurus.service.model.ExecutionStatus> modelExecutionStatuses =
-          apiExecutionStatuses.stream()
-              .map(
-                  apiExecutionStatus -> {
-                    try {
-                      DataJobExecution.StatusEnum statusEnum =
-                          DataJobExecution.StatusEnum.fromValue(apiExecutionStatus);
-                      return ToModelApiConverter.toExecutionStatus(statusEnum);
-                    } catch (Exception ex) {
-                      throw new DataJobExecutionStatusNotValidException(apiExecutionStatus);
-                    }
-                  })
-              .collect(Collectors.toList());
+              apiExecutionStatuses.stream()
+                      .map(
+                              apiExecutionStatus -> {
+                                try {
+                                  DataJobExecution.StatusEnum statusEnum =
+                                          DataJobExecution.StatusEnum.fromValue(apiExecutionStatus);
+                                  return ToModelApiConverter.toExecutionStatus(statusEnum);
+                                } catch (Exception ex) {
+                                  throw new DataJobExecutionStatusNotValidException(apiExecutionStatus);
+                                }
+                              })
+                      .collect(Collectors.toList());
 
       dataJobExecutions =
-          jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(
-              jobName, modelExecutionStatuses);
+              jobExecutionRepository.findDataJobExecutionsByDataJobNameAndStatusIn(
+                      jobName, modelExecutionStatuses);
 
       // The VDK Skip plugin relies heavily on running execution status.
       // In some cases, the execution status in the database may be outdated due to delay.
@@ -223,9 +230,9 @@ public class JobExecutionService {
       // the API.
       try {
         if (modelExecutionStatuses.contains(ExecutionStatus.RUNNING)
-            && !dataJobsKubernetesService.isRunningJob(jobName)) {
+                && !dataJobsKubernetesService.isRunningJob(jobName)) {
           dataJobExecutions.removeIf(
-              dataJobExecution -> ExecutionStatus.RUNNING.equals(dataJobExecution.getStatus()));
+                  dataJobExecution -> ExecutionStatus.RUNNING.equals(dataJobExecution.getStatus()));
         }
       } catch (ApiException e) {
         log.warn("Error while filtering RUNNING job executions.", e);
@@ -235,8 +242,8 @@ public class JobExecutionService {
     }
 
     return dataJobExecutions.stream()
-        .map(dataJobExecution -> convertToModel(dataJobExecution))
-        .collect(Collectors.toList());
+            .map(dataJobExecution -> convertToModel(dataJobExecution))
+            .collect(Collectors.toList());
   }
 
   public DataJobExecution readJobExecution(String teamName, String jobName, String executionId) {
@@ -245,9 +252,9 @@ public class JobExecutionService {
     }
 
     return jobExecutionRepository
-        .findById(executionId)
-        .map(dataJobExecution -> convertToModel(dataJobExecution))
-        .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
+            .findById(executionId)
+            .map(dataJobExecution -> convertToModel(dataJobExecution))
+            .orElseThrow(() -> new DataJobExecutionNotFoundException(executionId));
   }
 
   /**
@@ -255,18 +262,18 @@ public class JobExecutionService {
    * has not changed or if the status is not in the correct order (e.g. from FINISHED to RUNNING).
    */
   public Optional<com.vmware.taurus.service.model.DataJobExecution> updateJobExecution(
-      final DataJob dataJob,
-      final KubernetesService.JobExecution jobExecution,
-      ExecutionResult executionResult) {
+          final DataJob dataJob,
+          final KubernetesService.JobExecution jobExecution,
+          ExecutionResult executionResult) {
 
     if (StringUtils.isBlank(jobExecution.getExecutionId())) {
       log.warn(
-          "Could not store Data Job execution due to the missing execution id: {}", jobExecution);
+              "Could not store Data Job execution due to the missing execution id: {}", jobExecution);
       return Optional.empty();
     }
 
     final Optional<com.vmware.taurus.service.model.DataJobExecution>
-        dataJobExecutionPersistedOptional =
+            dataJobExecutionPersistedOptional =
             jobExecutionRepository.findById(jobExecution.getExecutionId());
 
     // This set contains all the statuses that should not be changed to something else if present in
@@ -276,8 +283,8 @@ public class JobExecutionService {
     // Using a hash set, because it allows null elements, no NullPointer when contains method called
     // with null.
     var finalStatusSet =
-        new HashSet<>(
-            List.of(ExecutionStatus.CANCELLED, ExecutionStatus.SUCCEEDED, ExecutionStatus.SKIPPED));
+            new HashSet<>(
+                    List.of(ExecutionStatus.CANCELLED, ExecutionStatus.SUCCEEDED, ExecutionStatus.SKIPPED));
     ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
     // Optimization:
@@ -286,51 +293,51 @@ public class JobExecutionService {
     // do not update the record. Does not update record if previous status is
     // in the list above.
     if (dataJobExecutionPersistedOptional.isPresent()
-        && (dataJobExecutionPersistedOptional.get().getStatus()
-                == executionResult.getExecutionStatus()
+            && (dataJobExecutionPersistedOptional.get().getStatus()
+            == executionResult.getExecutionStatus()
             || finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
       log.debug(
-          "The job execution will NOT be updated due to the incorrect status. "
-              + "Execution status to be updated {}. New execution status {}",
-          dataJobExecutionPersistedOptional.get().getStatus(),
-          executionResult.getExecutionStatus());
+              "The job execution will NOT be updated due to the incorrect status. "
+                      + "Execution status to be updated {}. New execution status {}",
+              dataJobExecutionPersistedOptional.get().getStatus(),
+              executionResult.getExecutionStatus());
       return Optional.empty();
     }
 
     final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder
-        dataJobExecutionBuilder =
+            dataJobExecutionBuilder =
             dataJobExecutionPersistedOptional.isPresent()
-                ? dataJobExecutionPersistedOptional.get().toBuilder()
-                : com.vmware.taurus.service.model.DataJobExecution.builder()
+                    ? dataJobExecutionPersistedOptional.get().toBuilder()
+                    : com.vmware.taurus.service.model.DataJobExecution.builder()
                     .id(jobExecution.getExecutionId())
                     .dataJob(dataJob)
                     .startTime(
-                        jobExecution.getStartTime() != null
-                            ? jobExecution.getStartTime()
-                            : OffsetDateTime.now())
+                            jobExecution.getStartTime() != null
+                                    ? jobExecution.getStartTime()
+                                    : OffsetDateTime.now())
                     .type(
-                        ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType())
-                            ? com.vmware.taurus.service.model.ExecutionType.MANUAL
-                            : com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
+                            ExecutionType.MANUAL.getValue().equals(jobExecution.getExecutionType())
+                                    ? com.vmware.taurus.service.model.ExecutionType.MANUAL
+                                    : com.vmware.taurus.service.model.ExecutionType.SCHEDULED);
 
     com.vmware.taurus.service.model.DataJobExecution dataJobExecution =
-        dataJobExecutionBuilder
-            .status(executionStatus)
-            .message(
-                getJobExecutionApiMessage(
-                    executionStatus, jobExecution.getContainerTerminationReason()))
-            .opId(jobExecution.getOpId())
-            .endTime(jobExecution.getEndTime())
-            .vdkVersion(executionResult.getVdkVersion())
-            .jobVersion(jobExecution.getJobVersion())
-            .jobSchedule(jobExecution.getJobSchedule())
-            .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
-            .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())
-            .resourcesMemoryRequest(jobExecution.getResourcesMemoryRequest())
-            .resourcesMemoryLimit(jobExecution.getResourcesMemoryLimit())
-            .lastDeployedDate(jobExecution.getDeployedDate())
-            .lastDeployedBy(jobExecution.getDeployedBy())
-            .build();
+            dataJobExecutionBuilder
+                    .status(executionStatus)
+                    .message(
+                            getJobExecutionApiMessage(
+                                    executionStatus, jobExecution.getContainerTerminationReason()))
+                    .opId(jobExecution.getOpId())
+                    .endTime(jobExecution.getEndTime())
+                    .vdkVersion(executionResult.getVdkVersion())
+                    .jobVersion(jobExecution.getJobVersion())
+                    .jobSchedule(jobExecution.getJobSchedule())
+                    .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
+                    .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())
+                    .resourcesMemoryRequest(jobExecution.getResourcesMemoryRequest())
+                    .resourcesMemoryLimit(jobExecution.getResourcesMemoryLimit())
+                    .lastDeployedDate(jobExecution.getDeployedDate())
+                    .lastDeployedBy(jobExecution.getDeployedBy())
+                    .build();
     return Optional.of(jobExecutionRepository.save(dataJobExecution));
   }
 
@@ -343,7 +350,7 @@ public class JobExecutionService {
    * @return The last execution of the data job if any, otherwise, {@link Optional#empty()}.
    */
   public Optional<com.vmware.taurus.service.model.DataJobExecution> getLastExecution(
-      String dataJobName) {
+          String dataJobName) {
     return jobExecutionRepository.findFirstByDataJobNameOrderByStartTimeDesc(dataJobName);
   }
 
@@ -366,30 +373,30 @@ public class JobExecutionService {
     }
 
     List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
-        jobExecutionRepository
-            .findDataJobExecutionsByStatusInAndStartTimeBefore(
-                List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
-                OffsetDateTime.now().minusMinutes(3))
-            .stream()
-            .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
-            .map(
-                dataJobExecution -> {
-                  dataJobExecution.setStatus(ExecutionStatus.SUCCEEDED);
-                  dataJobExecution.setMessage("Status is set by VDK Control Service");
-                  dataJobExecution.setEndTime(OffsetDateTime.now());
-                  return dataJobExecution;
-                })
-            .collect(Collectors.toList());
+            jobExecutionRepository
+                    .findDataJobExecutionsByStatusInAndStartTimeBefore(
+                            List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
+                            OffsetDateTime.now().minusMinutes(3))
+                    .stream()
+                    .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
+                    .map(
+                            dataJobExecution -> {
+                              dataJobExecution.setStatus(ExecutionStatus.SUCCEEDED);
+                              dataJobExecution.setMessage("Status is set by VDK Control Service");
+                              dataJobExecution.setEndTime(OffsetDateTime.now());
+                              return dataJobExecution;
+                            })
+                    .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
       jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
       dataJobExecutionsToBeUpdated.forEach(
-          dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
+              dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
     }
   }
 
   public DataJobExecutionLogs getJobExecutionLogs(
-      String teamName, String jobName, String executionId, Integer tailLines) {
+          String teamName, String jobName, String executionId, Integer tailLines) {
     // we use readJobExecution to check that execution exists
     var execution = readJobExecution(teamName, jobName, executionId);
 
@@ -415,9 +422,9 @@ public class JobExecutionService {
       return executionLogs;
     } catch (Exception e) {
       var msg =
-          String.format(
-              "Failed to get logs for job execution %s (job: %s, team: %s)",
-              executionId, jobName, teamName);
+              String.format(
+                      "Failed to get logs for job execution %s (job: %s, team: %s)",
+                      executionId, jobName, teamName);
       throw new KubernetesException(msg, e);
     }
   }
@@ -434,7 +441,7 @@ public class JobExecutionService {
    * @return Map which maps a data job name to a Map<ExecutionStatus, Integer>
    */
   public Map<String, Map<ExecutionStatus, Integer>> countExecutionStatuses(
-      List<String> dataJobs, List<ExecutionStatus> statuses) {
+          List<String> dataJobs, List<ExecutionStatus> statuses) {
 
     Map<String, Map<ExecutionStatus, Integer>> returnValue = new HashMap<>();
     var statusCount = jobExecutionRepository.countDataJobExecutionStatuses(statuses, dataJobs);
@@ -447,22 +454,22 @@ public class JobExecutionService {
       }
 
       returnValue
-          .get(statusesCount.getJobName())
-          .put(statusesCount.getStatus(), statusesCount.getStatusCount());
+              .get(statusesCount.getJobName())
+              .put(statusesCount.getStatus(), statusesCount.getStatusCount());
     }
 
     return returnValue;
   }
 
   private static String getJobExecutionApiMessage(
-      ExecutionStatus executionStatus, String containerTerminationMessage) {
+          ExecutionStatus executionStatus, String containerTerminationMessage) {
     switch (executionStatus) {
       case SKIPPED:
         return "Skipping job execution due to another parallel running execution.";
       case USER_ERROR:
         if (StringUtils.equalsIgnoreCase(
-            containerTerminationMessage,
-            JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)) {
+                containerTerminationMessage,
+                JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)) {
           return "Out of memory error on the K8S pod. Please optimize your data job.";
         }
         return executionStatus.getPodStatus();
@@ -476,31 +483,30 @@ public class JobExecutionService {
   }
 
   private void saveDataJobExecution(
-      DataJob dataJob,
-      String executionId,
-      String opId,
-      com.vmware.taurus.service.model.ExecutionType executionType,
-      ExecutionStatus executionStatus,
-      String startedBy,
-      OffsetDateTime startTime) {
+          DataJob dataJob,
+          String executionId,
+          String opId,
+          com.vmware.taurus.service.model.ExecutionType executionType,
+          ExecutionStatus executionStatus,
+          String startedBy,
+          OffsetDateTime startTime) {
 
     com.vmware.taurus.service.model.DataJobExecution dataJobExecution =
-        com.vmware.taurus.service.model.DataJobExecution.builder()
-            .id(executionId)
-            .dataJob(dataJob)
-            .opId(opId)
-            .type(executionType)
-            .status(executionStatus)
-            .startedBy(startedBy)
-            .startTime(startTime)
-            .build();
-
+            com.vmware.taurus.service.model.DataJobExecution.builder()
+                    .id(executionId)
+                    .dataJob(dataJob)
+                    .opId(opId)
+                    .type(executionType)
+                    .status(executionStatus)
+                    .startedBy(startedBy)
+                    .startTime(startTime)
+                    .build();
     jobExecutionRepository.save(dataJobExecution);
   }
 
   private DataJobExecution convertToModel(
-      com.vmware.taurus.service.model.DataJobExecution dataJobExecution) {
+          com.vmware.taurus.service.model.DataJobExecution dataJobExecution) {
     return ToApiModelConverter.jobExecutionToConvert(
-        dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution));
+            dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution));
   }
 }

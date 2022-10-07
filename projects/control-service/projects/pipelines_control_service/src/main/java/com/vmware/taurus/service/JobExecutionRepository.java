@@ -45,6 +45,9 @@ public interface JobExecutionRepository
   List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(
       List<ExecutionStatus> statuses, OffsetDateTime startTime);
 
+  void deleteDataJobExecutionByIdAndDataJobAndStatusAndType(
+      String id, DataJob dataJob, ExecutionStatus status, ExecutionType type);
+
   @Query(
       "SELECT dje.status AS status, dje.dataJob.name AS jobName, count(dje.status) AS statusCount "
           + "FROM DataJobExecution dje "
