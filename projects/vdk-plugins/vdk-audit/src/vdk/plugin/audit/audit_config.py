@@ -6,7 +6,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 
 AUDIT_HOOK_ENABLED = "AUDIT_HOOK_ENABLED"
 FORBIDDEN_EVENTS_LIST = "FORBIDDEN_EVENTS_LIST"
-EXIT_ON_NOT_PERMITTED_EVENT = "EXIT_ON_NOT_PERMITTED_EVENT"
+EXIT_ON_FORBIDDEN_EVENT = "EXIT_ON_FORBIDDEN_EVENT"
 FORBIDDEN_EVENTS_LIST_DEFAULT = (
     "os.system;os.chdir;os.chflags;os.chmod;os.chown;os.fork;"
     "os.forkpty;os.getxattr;os.kill;os.killpg;os.link;os.listxattr;"
@@ -26,8 +26,8 @@ class AuditConfiguration:
     def forbidden_events_list(self):
         return self.__config.get_value(FORBIDDEN_EVENTS_LIST)
 
-    def exit_on_not_permitted_event(self):
-        return self.__config.get_value(EXIT_ON_NOT_PERMITTED_EVENT)
+    def exit_on_forbidden_event(self):
+        return self.__config.get_value(EXIT_ON_FORBIDDEN_EVENT)
 
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
@@ -47,7 +47,7 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         "Example: 'os.removexattr;os.rename;os.rmdir;os.scandir'",
     )
     config_builder.add(
-        key=EXIT_ON_NOT_PERMITTED_EVENT,
+        key=EXIT_ON_FORBIDDEN_EVENT,
         default_value=True,
         description="If it is set to true the data job will be fully terminated on not "
         "permitted operation - no clean up, no per attempt notifications, etc. "

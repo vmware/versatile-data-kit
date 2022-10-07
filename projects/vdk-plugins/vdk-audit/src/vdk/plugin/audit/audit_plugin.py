@@ -30,19 +30,19 @@ class AuditPlugin:
         if not self._config.enabled():
             return
 
-        not_permitted_events_list = self._config.forbidden_events_list().split(";")
+        forbidden_events_list = self._config.forbidden_events_list().split(";")
 
         def _audit(event, args):
             if any(
                 event in not_permitted_event
-                for not_permitted_event in not_permitted_events_list
+                for not_permitted_event in forbidden_events_list
             ):
                 logging.getLogger(__name__).warning(
                     f'[Audit] Detected NOT permitted operation "{event}" with '
                     f'arguments "{args}" '
                 )
 
-                if self._config.exit_on_not_permitted_event():
+                if self._config.exit_on_forbidden_event():
                     logging.getLogger(__name__).error(
                         f"[Audit] Terminating the data job due to the NOT "
                         f'permitted operation "{event}" with arguments "{args}" '

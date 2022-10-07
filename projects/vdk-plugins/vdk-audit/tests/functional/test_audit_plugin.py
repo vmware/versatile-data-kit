@@ -3,7 +3,6 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
-import unittest
 from unittest import mock
 
 from click.testing import Result
@@ -13,12 +12,12 @@ from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
 
-def test_audit_multiple_events_disabled_and_not_permitted_action():
+def test_audit_multiple_events_disabled_and_forbidden_action():
     with mock.patch.dict(
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "False",
-            "NOT_PERMITTED_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
@@ -38,7 +37,7 @@ def test_audit_multiple_events_disabled_and_permitted_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "False",
-            "NOT_PERMITTED_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
@@ -53,12 +52,12 @@ def test_audit_multiple_events_disabled_and_permitted_action():
         assert not os._exit.called
 
 
-def test_audit_single_event_enabled_and_not_permitted_action():
+def test_audit_single_event_enabled_and_forbidden_action():
     with mock.patch.dict(
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "NOT_PERMITTED_EVENTS_LIST": "os.system",
+            "FORBIDDEN_EVENTS_LIST": "os.system",
         },
     ):
         os._exit = mock.MagicMock()
@@ -72,12 +71,12 @@ def test_audit_single_event_enabled_and_not_permitted_action():
         assert os._exit.called
 
 
-def test_audit_single_event_with_semicolon_enabled_and_not_permitted_action():
+def test_audit_single_event_with_semicolon_enabled_and_forbidden_action():
     with mock.patch.dict(
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "NOT_PERMITTED_EVENTS_LIST": "os.system;",
+            "FORBIDDEN_EVENTS_LIST": "os.system;",
         },
     ):
         os._exit = mock.MagicMock()
@@ -91,12 +90,12 @@ def test_audit_single_event_with_semicolon_enabled_and_not_permitted_action():
         assert os._exit.called
 
 
-def test_audit_multiple_events_enabled_and_not_permitted_action():
+def test_audit_multiple_events_enabled_and_forbidden_action():
     with mock.patch.dict(
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "NOT_PERMITTED_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
@@ -115,7 +114,7 @@ def test_audit_multiple_events_enabled_and_permitted_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "NOT_PERMITTED_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
