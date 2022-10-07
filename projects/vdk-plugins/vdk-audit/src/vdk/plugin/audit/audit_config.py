@@ -49,6 +49,8 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
         key=EXIT_ON_NOT_PERMITTED_EVENT,
         default_value=True,
-        description="Set to false if you want to disable termination of data job on "
-        "not permitted operation.",
+        description="If it is set to true the data job will be fully terminated on not "
+        "permitted operation - no clean up, no per attempt notifications, etc. "
+        "Set to false if you want to disable termination of data job on not "
+        "permitted operation.",
     )
