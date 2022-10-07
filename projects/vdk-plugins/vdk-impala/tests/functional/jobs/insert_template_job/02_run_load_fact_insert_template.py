@@ -10,6 +10,6 @@ __copyright__ = (
 
 def run(job_input: IJobInput) -> None:
     job_input.execute_template(
-        template_name="load/fact/insert",
+        template_name="insert",
         template_args=job_input.get_arguments(),
     )
