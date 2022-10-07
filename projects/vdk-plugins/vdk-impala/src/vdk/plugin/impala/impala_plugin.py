@@ -99,11 +99,6 @@ class ImpalaPlugin:
         )
 
         context.templates.add_template(
-            "load/fact/insert",
-            pathlib.Path(get_job_path("load/fact/insert")),
-        )
-
-        context.templates.add_template(
             "insert", pathlib.Path(get_job_path("load/fact/insert"))
         )
 

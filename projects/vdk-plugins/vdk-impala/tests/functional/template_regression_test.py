@@ -596,3 +596,63 @@ class TestTemplateRegression(unittest.TestCase):
                     "#parquet_ddl"
                 ),
             )
+
+    def test_insert(self) -> None:
+        test_schema = "vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily"
+
+        res = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table
+            },
+        )
+        assert not res.exception
+
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_insert_partition(self) -> None:
+        test_schema = "vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_partition"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_partition"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_partition"
+
+        res = self._run_job(
+            "insert_template_partition_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table
+            },
+        )
+        assert not res.exception
+
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
