@@ -73,6 +73,19 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             )
         )
 
+    def test_parsing_query_profile(self):
+        inputs = {"database_a.table1", "database_b.table2"}
+        output = "database_c.table1"
+        result = ImpalaLineagePlugin._parse_inputs_outputs(
+            """
+            00:SCAN HDFS [database_a.table1, RANDOM]
+            01:SCAN HDFS [database_b.table2 w, RANDOM]
+            03: WRITE TO HDFS [database_c.table1, OVERWRITE=true]
+            """
+        )
+        self.assertEqual(set(result[0]), inputs)
+        self.assertEqual(result[1], output)
+
 
 if __name__ == "__main__":
     unittest.main()

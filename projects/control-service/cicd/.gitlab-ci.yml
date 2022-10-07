@@ -225,7 +225,8 @@ control_service_deploy_testing_data_pipelines:
   stage: pre_release
   image: proum/aws-iam-authenticator
   script:
-    - apk --no-cache add bash openssl curl git gettext
+    - apk --no-cache add bash openssl curl git gettext zip python3 py3-pip
+    - pip3 install --upgrade pip && pip3 install awscli
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh

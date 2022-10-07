@@ -16,7 +16,7 @@ NOT_PERMITTED_EVENTS_LIST_DEFAULT = (
 )
 
 
-class AuditHookConfiguration:
+class AuditConfiguration:
     def __init__(self, config):
         self.__config = config
 
@@ -39,10 +39,16 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
         key=NOT_PERMITTED_EVENTS_LIST,
         default_value=NOT_PERMITTED_EVENTS_LIST_DEFAULT,
-        description="List of NOT permitted actions.",
+        description="List of NOT permitted user operations. These operations are "
+        "typically deep within the Python runtime or standard library, "
+        "such as dynamic code compilation, module imports or OS command "
+        "invocations. "
+        "The field accepts semi-colon separated values. "
+        "Example: 'os.removexattr;os.rename;os.rmdir;os.scandir'",
     )
     config_builder.add(
         key=EXIT_ON_NOT_PERMITTED_EVENT,
         default_value=True,
-        description="Set to false if you want to disable termination of data job on not permitted action.",
+        description="Set to false if you want to disable termination of data job on "
+        "not permitted operation.",
     )
