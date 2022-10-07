@@ -611,7 +611,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_schema": test_schema,
                 "target_table": target_table,
                 "expect_schema": test_schema,
-                "expect_table": expect_table
+                "expect_table": expect_table,
             },
         )
         assert not res.exception
@@ -641,7 +641,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_schema": test_schema,
                 "target_table": target_table,
                 "expect_schema": test_schema,
-                "expect_table": expect_table
+                "expect_table": expect_table,
             },
         )
         assert not res.exception

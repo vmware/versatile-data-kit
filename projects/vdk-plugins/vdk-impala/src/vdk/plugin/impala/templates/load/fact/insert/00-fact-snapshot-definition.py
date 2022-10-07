@@ -12,7 +12,7 @@ class FactDailySnapshotParams(BaseModel):
     target_table: str
     source_schema: str
     source_view: str
- 
+
 
 class FactDailySnapshot(TemplateArgumentsValidator):
     TemplateParams = FactDailySnapshotParams
