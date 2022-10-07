@@ -44,7 +44,7 @@ def test_audit_single_event_enabled_and_not_permitted_action():
         assert os._exit.called
 
 
-def test_audit_enabled_single_event_with_semicolon_and_not_permitted_action():
+def test_audit_single_event_with_semicolon_enabled_and_not_permitted_action():
     with mock.patch.dict(
         os.environ,
         {
