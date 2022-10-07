@@ -30,80 +30,72 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles({"MockKubernetes", "MockKerberos", "unittest", "MockTelemetry"})
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = ControlplaneApplication.class)
 @AutoConfigureMockMvc
 public class DataJobsExecutionControllerIT {
 
-    private static final String TEST_TEAM_NAME = "test-team";
-    private static final String TEST_JOB_NAME = "test-job";
+  private static final String TEST_TEAM_NAME = "test-team";
+  private static final String TEST_JOB_NAME = "test-job";
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private DataJobsKubernetesService dataJobsKubernetesService;
+  @Autowired private MockMvc mockMvc;
+  @Autowired private DataJobsKubernetesService dataJobsKubernetesService;
 
+  @Autowired private JobExecutionRepository jobExecutionRepository;
 
-    @Autowired
-    private JobExecutionRepository jobExecutionRepository;
+  @Test
+  @WithMockUser
+  @DirtiesContext
+  public void testDataJobExecutionStartNotFound() throws Exception {
+    ResultActions mockExecution =
+        TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    mockExecution.andExpect(status().isNotFound());
+  }
 
-    @Test
-    @WithMockUser
-    @DirtiesContext
-    public void testDataJobExecutionStartNotFound() throws Exception {
-        ResultActions mockExecution =
-                TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        mockExecution.andExpect(status().isNotFound());
-    }
+  // TODO: test all methods
+  @Test
+  @WithMockUser
+  @DirtiesContext
+  public void testWhenADeploymentFailsNoEntryIsSavedInTheDatabase() throws Exception {
+    // arrange
+    doThrow(new RuntimeException())
+        .when(dataJobsKubernetesService)
+        .startNewCronJobExecution(any(), any(), any(), any(), any(), any());
+    // act
+    TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    // assert
+    assertTrue(jobExecutionRepository.findAll().isEmpty());
+  }
 
+  @Test
+  @WithMockUser
+  @DirtiesContext
+  public void testDataJobExecutionLogs() throws Exception {
+    TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    ResultActions mockExecution =
+        TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    var location = mockExecution.andReturn().getResponse().getHeader("Location");
+    String id = location.substring(location.lastIndexOf('/') + 1);
 
+    String url =
+        String.format(
+            "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", TEST_TEAM_NAME, TEST_JOB_NAME, id);
+    mockMvc.perform(get(url)).andExpect(status().isOk());
+  }
 
+  @Test
+  @WithMockUser
+  @DirtiesContext
+  public void testDataJobExecutionLogsNoExecution() throws Exception {
+    TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
 
-    // TODO: test all methods
-    @Test
-    @WithMockUser
-    @DirtiesContext
-    public void testWhenADeploymentFailsNoEntryIsSavedInTheDatabase() throws Exception {
-        //arrange
-        doThrow(new RuntimeException()).when(dataJobsKubernetesService)
-                .startNewCronJobExecution(any(), any(), any(),
-                        any(), any(), any());
-        // act
-        TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        //assert
-        assertTrue(jobExecutionRepository.findAll().isEmpty());
-    }
-
-
-    @Test
-    @WithMockUser
-    @DirtiesContext
-    public void testDataJobExecutionLogs() throws Exception {
-        TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        ResultActions mockExecution =
-                TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        var location = mockExecution.andReturn().getResponse().getHeader("Location");
-        String id = location.substring(location.lastIndexOf('/') + 1);
-
-        String url =
-                String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", TEST_TEAM_NAME, TEST_JOB_NAME, id);
-        mockMvc.perform(get(url)).andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser
-    @DirtiesContext
-    public void testDataJobExecutionLogsNoExecution() throws Exception {
-        TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-
-        String url =
-                String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs",
-                        TEST_TEAM_NAME, TEST_JOB_NAME, "no-exec");
-        mockMvc.perform(get(url)).andExpect(status().isNotFound());
-    }
+    String url =
+        String.format(
+            "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs",
+            TEST_TEAM_NAME, TEST_JOB_NAME, "no-exec");
+    mockMvc.perform(get(url)).andExpect(status().isNotFound());
+  }
 }
