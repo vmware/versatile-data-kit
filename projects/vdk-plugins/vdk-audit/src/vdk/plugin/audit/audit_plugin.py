@@ -30,7 +30,7 @@ class AuditPlugin:
         if not self._config.enabled():
             return
 
-        not_permitted_events_list = self._config.not_permitted_events_list().split(";")
+        not_permitted_events_list = self._config.forbidden_events_list().split(";")
 
         def _audit(event, args):
             if any(
