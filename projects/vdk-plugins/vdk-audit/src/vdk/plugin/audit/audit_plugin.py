@@ -38,16 +38,16 @@ class AuditPlugin:
                 for not_permitted_event in forbidden_events_list
             ):
                 logging.getLogger(__name__).warning(
-                    f'[Audit] Detected NOT permitted operation "{event}" with '
+                    f'[Audit] Detected FORBIDDEN operation "{event}" with '
                     f'arguments "{args}" '
                 )
 
                 if self._config.exit_on_forbidden_event():
                     logging.getLogger(__name__).error(
-                        f"[Audit] Terminating the data job due to the NOT "
-                        f'permitted operation "{event}" with arguments "{args}" '
+                        f"[Audit] Terminating the data job due to the FORBIDDEN "
+                        f'operation "{event}" with arguments "{args}" '
                     )
-                    os._exit(0)
+                    os._exit(self._config.exit_code())
 
         sys.addaudithook(_audit)
 

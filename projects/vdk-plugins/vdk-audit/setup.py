@@ -13,7 +13,7 @@ setuptools.setup(
     name="vdk-audit",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description="Versatile Data Kit SDK Audit plugin restricts not permitted operations.",
+    description="Versatile Data Kit SDK Audit plugin restricts forbidden operations.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core"],

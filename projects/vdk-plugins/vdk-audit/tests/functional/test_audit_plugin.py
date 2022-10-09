@@ -58,6 +58,7 @@ def test_audit_single_event_enabled_and_forbidden_action():
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
             "FORBIDDEN_EVENTS_LIST": "os.system",
+            "EXIT_CODE": "0",
         },
     ):
         os._exit = mock.MagicMock()
@@ -68,7 +69,7 @@ def test_audit_single_event_enabled_and_forbidden_action():
         )
 
         print(result.output)
-        assert os._exit.called
+        os._exit.assert_called_with(0)
 
 
 def test_audit_single_event_with_semicolon_enabled_and_forbidden_action():
@@ -77,6 +78,7 @@ def test_audit_single_event_with_semicolon_enabled_and_forbidden_action():
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
             "FORBIDDEN_EVENTS_LIST": "os.system;",
+            "EXIT_CODE": "0",
         },
     ):
         os._exit = mock.MagicMock()
@@ -87,7 +89,7 @@ def test_audit_single_event_with_semicolon_enabled_and_forbidden_action():
         )
 
         print(result.output)
-        assert os._exit.called
+        os._exit.assert_called_with(0)
 
 
 def test_audit_multiple_events_enabled_and_forbidden_action():
@@ -96,6 +98,7 @@ def test_audit_multiple_events_enabled_and_forbidden_action():
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
             "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "EXIT_CODE": "0",
         },
     ):
         os._exit = mock.MagicMock()
@@ -106,7 +109,7 @@ def test_audit_multiple_events_enabled_and_forbidden_action():
         )
 
         print(result.output)
-        assert os._exit.called
+        os._exit.assert_called_with(0)
 
 
 def test_audit_multiple_events_enabled_and_permitted_action():
