@@ -17,7 +17,7 @@ def test_audit_multiple_events_disabled_and_forbidden_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "False",
-            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
@@ -37,7 +37,7 @@ def test_audit_multiple_events_disabled_and_permitted_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "False",
-            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
@@ -57,8 +57,8 @@ def test_audit_single_event_enabled_and_forbidden_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "FORBIDDEN_EVENTS_LIST": "os.system",
-            "EXIT_CODE": "0",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.system",
+            "VDK_AUDIT_HOOK_EXIT_CODE": "0",
         },
     ):
         os._exit = mock.MagicMock()
@@ -77,8 +77,8 @@ def test_audit_single_event_with_semicolon_enabled_and_forbidden_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "FORBIDDEN_EVENTS_LIST": "os.system;",
-            "EXIT_CODE": "0",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.system;",
+            "VDK_AUDIT_HOOK_EXIT_CODE": "0",
         },
     ):
         os._exit = mock.MagicMock()
@@ -97,8 +97,8 @@ def test_audit_multiple_events_enabled_and_forbidden_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
-            "EXIT_CODE": "0",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "VDK_AUDIT_HOOK_EXIT_CODE": "0",
         },
     ):
         os._exit = mock.MagicMock()
@@ -117,7 +117,7 @@ def test_audit_multiple_events_enabled_and_permitted_action():
         os.environ,
         {
             "VDK_AUDIT_HOOK_ENABLED": "True",
-            "FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.system;os.startfile;os.symlink",
         },
     ):
         os._exit = mock.MagicMock()
