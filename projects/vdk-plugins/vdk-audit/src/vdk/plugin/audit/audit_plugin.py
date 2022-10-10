@@ -15,6 +15,9 @@ from vdk.plugin.audit.audit_config import add_definitions
 from vdk.plugin.audit.audit_config import AuditConfiguration
 
 
+logger = logging.getLogger(__name__)
+
+
 class AuditPlugin:
     @staticmethod
     @hookimpl
@@ -25,8 +28,6 @@ class AuditPlugin:
     def initialize_job(self, context: JobContext) -> None:
         self._config = AuditConfiguration(context.core_context.configuration)
 
-        logging.getLogger(__name__).error("Start:")
-        logging.getLogger(__name__).error(not self._config.enabled())
         if not self._config.enabled():
             return
 
@@ -37,13 +38,13 @@ class AuditPlugin:
                 event in not_permitted_event
                 for not_permitted_event in forbidden_events_list
             ):
-                logging.getLogger(__name__).warning(
+                logger.warning(
                     f'[Audit] Detected FORBIDDEN operation "{event}" with '
                     f'arguments "{args}" '
                 )
 
                 if self._config.exit_on_forbidden_event():
-                    logging.getLogger(__name__).error(
+                    logger.error(
                         f"[Audit] Terminating the data job due to the FORBIDDEN "
                         f'operation "{event}" with arguments "{args}" '
                     )
