@@ -35,7 +35,7 @@ def run(job_input):
         'target_table': 'fact_vmc_utilization_cpu_mem_every5min_daily',
         'last_arrival_ts': 'updated_at',
     }
-    job_input.execute_template('load/fact/insert', template_args)
+    job_input.execute_template('insert', template_args)
     # . . .
 ```
 
