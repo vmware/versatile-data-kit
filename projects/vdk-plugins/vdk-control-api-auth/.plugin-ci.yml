@@ -26,6 +26,13 @@ build-py310-vdk-control-api-auth:
   extends: .build-vdk-control-api-auth
   image: "python:3.10"
 
+
+build-vdk-control-api-auth-on-vdk-core-release:
+  variables:
+    PLUGIN_NAME: vdk-control-api-auth
+  extends: .build-plugin-on-vdk-core-release
+  image: "python:3.9"
+
 release-vdk-control-api-auth:
   variables:
     PLUGIN_NAME: vdk-control-api-auth

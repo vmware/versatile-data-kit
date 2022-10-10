@@ -1,0 +1,4 @@
+vdk-core
+
+# testing
+vdk-test-utils
