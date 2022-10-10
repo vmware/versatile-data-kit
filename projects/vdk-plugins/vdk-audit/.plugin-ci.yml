@@ -1,0 +1,24 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.build-vdk-audit:
+  variables:
+    PLUGIN_NAME: vdk-audit
+  extends: .build-plugin
+
+build-py38-vdk-audit:
+  extends: .build-vdk-audit
+  image: "python:3.8"
+
+build-py39-vdk-audit:
+  extends: .build-vdk-audit
+  image: "python:3.9"
+
+build-py310-vdk-audit:
+  extends: .build-vdk-audit
+  image: "python:3.10"
+
+release-vdk-audit:
+  variables:
+    PLUGIN_NAME: vdk-audit
+  extends: .release-plugin
