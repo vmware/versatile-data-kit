@@ -54,7 +54,11 @@ def run(job_input: IJobInput) -> None:
     job_input.execute_query(
         """
         INSERT INTO TABLE `{source_schema}`.`{source_view}` VALUES (
+<<<<<<< HEAD
           ("sddc01-r01", 1, "2019-11-19", 5 , 1), 
+=======
+          ("sddc01-r01", 1, "2019-11-19", 5 , 1),
+>>>>>>> 1facbaee0ad94f2767c00404848ff0c88b0e2667
           ("sddc02-r01", 2, "2019-11-19", 4 , 1)
         )
     """
@@ -81,7 +85,11 @@ def run(job_input: IJobInput) -> None:
         INSERT INTO TABLE `{expect_schema}`.`{expect_table}` VALUES (
           ("sddc01-r01", 1, "2019-11-18", 5 , 1),
           ("sddc02-r01", 2, "2019-11-18", 4 , 1),
+<<<<<<< HEAD
           ("sddc01-r01", 1, "2019-11-19", 5 , 1), 
+=======
+          ("sddc01-r01", 1, "2019-11-19", 5 , 1),
+>>>>>>> 1facbaee0ad94f2767c00404848ff0c88b0e2667
           ("sddc02-r01", 2, "2019-11-19", 4 , 1)
         )
     """

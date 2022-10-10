@@ -12,7 +12,11 @@ class FactDailySnapshotParams(BaseModel):
     target_table: str
     source_schema: str
     source_view: str
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 1facbaee0ad94f2767c00404848ff0c88b0e2667
 
 class FactDailySnapshot(TemplateArgumentsValidator):
     TemplateParams = FactDailySnapshotParams
