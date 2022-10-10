@@ -72,46 +72,13 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 
 
 ## High-level design
-The following section is still in progress.
+![screenshot](/Users/hduygu/Desktop/Screenshot.png)
 
-Once installed they get following capabilities
-#### Development of jobs
-##### Option 1: Notebook as a job step
-* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example.
-* There could be markers for ignoring some cells.
-```
- %% non-vdk
- ```
-* Buttons or markers for defining the step type should be introduced.
+JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
+Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
-Python
-```python
- %%vdk-py
- job_input.ingest(xxx)
- ```
-or SQL
- ```python
- %%vdk-sql
- select * from x
- ```
-##### Option 2: Cell as a job step
-* A cell can be marked as a step using a button.
-* There should be two different buttons - one for SQL steps and one for python steps.
-* Once a cell is marked as step a pop-up should ask the name of the step, 10_jupyter for example.
-* Everything can be done in one notebook or multiple.
-* In this solution all the unmarked cells will be ignored.
-* A section for showing all the steps should be introduced.
-##### Option 3: Hybrid
-* One cell is one SQL step and one notebook is one python step.
-* Notebooks and cells will be marked using two different buttons - one for SQL steps(cells) and one for python steps(notebooks)
-* There should not be SQL steps in a notebook defined as python step.
-* In notebooks that are python steps markers for ignoring code could be used.
-```
- %% non-vdk
- ```
-* All the notebooks that are not marked as python files and do not have SQL steps in them will be ignored.
-* In a notebook that is not marked as python step all the cells that are not marked as SQL steps should be ignored.
-* A section showing all the steps should be introduced.
+The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands. An iPython package will also be implemented to export VDK variables. This package will be imported to JupyterLab, and they will be accessible from there.
+
 
 
 #### Comparing the options with requirements matrix
