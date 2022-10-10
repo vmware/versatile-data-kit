@@ -32,7 +32,12 @@ def run(job_input):
         'source_schema': 'default',
         'source_view': 'vw_fact_vmc_utilization_cpu_mem_every5min_daily',
         'target_schema': 'history',
+<<<<<<< HEAD
         'target_table': 'fact_vmc_utilization_cpu_mem_every5min_daily'
+=======
+        'target_table': 'fact_vmc_utilization_cpu_mem_every5min_daily',
+        'last_arrival_ts': 'updated_at',
+>>>>>>> 6fd75385... Added a new template for loading tables. The template works by adding only the new data to the existing target object.
     }
     job_input.execute_template('insert', template_args)
     # . . .
