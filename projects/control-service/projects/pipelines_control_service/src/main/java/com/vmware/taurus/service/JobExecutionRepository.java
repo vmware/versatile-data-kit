@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +46,7 @@ public interface JobExecutionRepository
   List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(
       List<ExecutionStatus> statuses, OffsetDateTime startTime);
 
+  @Transactional
   void deleteDataJobExecutionByIdAndDataJobAndStatusAndType(
       String id, DataJob dataJob, ExecutionStatus status, ExecutionType type);
 

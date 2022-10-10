@@ -20,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -52,21 +52,26 @@ public class DataJobsExecutionControllerIT {
     mockExecution.andExpect(status().isNotFound());
   }
 
-  // TODO: test all methods
-  @Test
-  @WithMockUser
-  @DirtiesContext
-  public void testWhenADeploymentFailsNoEntryIsSavedInTheDatabase() throws Exception {
-    // arrange
-    doThrow(new RuntimeException())
-        .when(dataJobsKubernetesService)
-        .startNewCronJobExecution(any(), any(), any(), any(), any(), any());
-    // act
-    TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-    TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-    // assert
-    assertTrue(jobExecutionRepository.findAll().isEmpty());
-  }
+
+
+    // TODO: test all methods
+    @Test
+    @WithMockUser
+    @DirtiesContext
+    public void testWhenADeploymentFailsNoEntryIsSavedInTheDatabase() throws Exception {
+        //arrange
+        doThrow(new RuntimeException("Expected failure")).when(dataJobsKubernetesService)
+                .startNewCronJobExecution(any(), any(), any(),
+                        any(), any(), any());
+        // act
+        TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+        TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+        assertEquals(TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME)
+                .andReturn().getResponse().getStatus(), 500);
+
+        //assert
+        assertTrue(jobExecutionRepository.findAll().isEmpty());
+    }
 
   @Test
   @WithMockUser
