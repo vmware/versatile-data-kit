@@ -596,9 +596,6 @@ class TestTemplateRegression(unittest.TestCase):
                     "#parquet_ddl"
                 ),
             )
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
     def test_insert(self) -> None:
         test_schema = "vdkprototypes"
@@ -659,6 +656,3 @@ class TestTemplateRegression(unittest.TestCase):
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
         )
->>>>>>> c45c2d74... [pre-commit.ci] auto fixes from pre-commit.com hooks
-=======
->>>>>>> c21c0eb9... Added a new template for loading tables. The template works by adding only the new data to the existing target object.
