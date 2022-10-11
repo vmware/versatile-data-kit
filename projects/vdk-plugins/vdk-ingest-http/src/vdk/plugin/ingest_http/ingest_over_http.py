@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import gzip
-import json
 import logging
 import sys
 from typing import Dict
@@ -10,6 +9,7 @@ from typing import NewType
 from typing import Optional
 
 import requests
+import simplejson as json
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
