@@ -2,7 +2,7 @@
 
 Here are scripts that preapre the backend enviornment to be used in AMLD workshop.
 They are installed in same kubernetes cluster as one used by CICD - See https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD#how-to-connect-to-cicd-kubernetes
-The kubernetes namespace is "vdk-amld"
+The kubernetes namespace is "vdk-demo"
 
 The entry point is the setup-env.sh script.
 It will
@@ -16,3 +16,5 @@ https://us-west-1.console.aws.amazon.com/apigateway/main/develop/auth/attach?api
 
 1. Go to API Gateway -> Click Create API -> Follow instructions
 2. Then make sure to set in routes configuration . "$default" so that all paths are proxied
+
+Or update it using  https://us-west-1.console.aws.amazon.com/apigateway/main/develop/integrations/edit?api=iaclqhm5xk&integration=qbji9io&region=us-west-1&routes=taal8qu&stage=$default

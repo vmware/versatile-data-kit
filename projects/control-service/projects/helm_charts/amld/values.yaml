@@ -4,29 +4,29 @@ resources:
     memory: 2G
 
 extraEnvVars:
-  DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT: "https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=amld-vdk"
+  DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT: "https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=${GIT_USER}"
   LOGGING_LEVEL_COM_VMWARE_TAURUS: DEBUG
 
 vdkOptions: |
   VDK_API_TOKEN_AUTHORIZATION_URL=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize
-  VDK_CONTROL_SERVICE_REST_API_URL=http://amld-vdk-svc:8092
+  VDK_CONTROL_SERVICE_REST_API_URL=http://vdk-control-service-svc:8092
   VDK_API_TOKEN=${VDK_API_TOKEN}
   VDK_TRINO_USE_SSL=False
   VDK_TRINO_PORT=1094
-  VDK_TRINO_HOST=a60c369ea7ece4c73b3ac15cb64a7d30-1152784645.us-west-1.elb.amazonaws.com
+  VDK_TRINO_HOST=test-trino-svc
 
-deploymentGitUrl: "github.com/amld-vdk/data-jobs.git"
-deploymentGitUsername: "amld-vdk"
+deploymentGitUrl: "github.com/${GIT_USER}/data-jobs.git"
+deploymentGitUsername: "${GIT_USER}"
 deploymentGitPassword: "${GIT_TOKEN}"
-uploadGitReadWriteUsername: "amld-vdk"
+uploadGitReadWriteUsername: "${GIT_USER}"
 uploadGitReadWritePassword: "${GIT_TOKEN}"
 deploymentDockerRegistryType: generic
-deploymentDockerRegistryUsernameReadOnly: "amld-vdk"
+deploymentDockerRegistryUsernameReadOnly: "${GIT_USER}"
 deploymentDockerRegistryPasswordReadOnly: "${GIT_TOKEN}"
-deploymentDockerRegistryUsername: "amld-vdk"
+deploymentDockerRegistryUsername: "${GIT_USER}"
 deploymentDockerRegistryPassword: "${GIT_TOKEN}"
-deploymentDockerRepository: "ghcr.io/amld-vdk/data-jobs/amld-vdk"
-proxyRepositoryURL: "ghcr.io/amld-vdk/data-jobs/amld-vdk"
+deploymentDockerRepository: "ghcr.io/${GIT_USER}/data-jobs"
+proxyRepositoryURL: "ghcr.io/${GIT_USER}/data-jobs"
 
 security:
   enabled: true

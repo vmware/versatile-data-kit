@@ -15,7 +15,7 @@ connectors:
   #   memory.max-data-per-node=512MB
   mysql.properties: |-
     connector.name=mysql
-    connection-url=jdbc:mysql://vdk-mysql.vdk-amld.svc.cluster.local:3306
+    connection-url=jdbc:mysql://vdk-mysql:3306
     connection-user=root
     connection-password=${MYSQL_ROOT_PASSWORD}
     allow-drop-table=true
