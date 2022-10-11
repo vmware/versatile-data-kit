@@ -34,7 +34,7 @@ def run(job_input):
         'target_schema': 'history',
         'target_table': 'fact_vmc_utilization_cpu_mem_every5min_daily'
     }
-    job_input.execute_template('load/fact/insert', template_args)
+    job_input.execute_template('insert', template_args)
     # . . .
 ```
 
