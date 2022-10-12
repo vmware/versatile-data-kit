@@ -1,7 +1,7 @@
 # Specifies a base image containing installed and ready to use VDK
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 
-FROM python:3.7-slim
+FROM python:3.9-slim
 
 WORKDIR /vdk
 
