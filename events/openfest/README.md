@@ -57,4 +57,4 @@ Give as a star if you've liked the [project](https://github.com/vmware/versatile
 
 
 ## Run workshop on local machine
-By default, the workshop runs in mybinder.org environment. If you want to run it locally, please follow [the instructions here](https://github.com/versatile-data-kit-amld/workshop/blob/main/backup/local_instructions.md).
+By default, the workshop runs in mybinder.org environment. If you want to run it locally, please follow [the instructions here](https://github.com/versatile-data-kit-demo/backup/blob/main/local_instructions.md).
