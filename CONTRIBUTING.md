@@ -55,7 +55,8 @@ We follow the GitHub workflow and you can find more details on the [GitHub flow 
 * support - helper scripts used by developers of the project during their workday;
 * cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder;
 * examples - list of example use-cases. Each example directory has its README with detailed explanations;
-* specs - specs for feature proposals and architecture documents.
+* specs - specs for feature proposals and architecture documents;
+* events - details about the conferences/workshops where VDK was presented.
 
 ## How to build, debug
 
