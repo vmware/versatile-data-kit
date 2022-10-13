@@ -72,6 +72,11 @@ class ImpalaLineagePluginTest(unittest.TestCase):
                 "-- job_name: a-job\n" "-- op_id: an-op\n" " DESCRIBE schema.table"
             )
         )
+        self.assertFalse(
+            ImpalaLineagePlugin._does_query_have_lineage(
+                "-- job_name: a-job\n" "-- op_id: an-op\n" " REFRESH schema.table"
+            )
+        )
         self.assertTrue(
             ImpalaLineagePlugin._does_query_have_lineage(
                 "CREATE TABLE database_one.table_for_prod "
