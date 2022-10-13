@@ -118,7 +118,7 @@ class ImpalaLineagePlugin:
             sql=query_statement,
             strip_comments=True,
             strip_whitespace=True,
-            keyword_case="lower"
+            keyword_case="lower",
         )
 
         if query_statement.startswith("create"):
@@ -129,7 +129,9 @@ class ImpalaLineagePlugin:
             # profile of impala will not return any lineage
             # info (scan/write hdfs) as our goal of this method is
             # to reduce non-lineage query with a non-complex way
-            return "select " in query_statement or "select"+os.linesep in query_statement
+            return (
+                "select " in query_statement or "select" + os.linesep in query_statement
+            )
         if query_statement.startswith(
             (
                 "alter",

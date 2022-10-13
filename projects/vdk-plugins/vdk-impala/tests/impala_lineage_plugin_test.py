@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import unittest
+
 from vdk.api.lineage.model.sql.model import LineageTable
 from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
 
@@ -50,7 +51,9 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             ImpalaLineagePlugin._does_query_have_lineage("DROP TABLE table;")
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage("select 1 -- testing if connection is alive.")
+            ImpalaLineagePlugin._does_query_have_lineage(
+                "select 1 -- testing if connection is alive."
+            )
         )
         self.assertFalse(
             ImpalaLineagePlugin._does_query_have_lineage(
@@ -96,8 +99,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
         )
         self.assertFalse(
             ImpalaLineagePlugin._does_query_have_lineage(
-                "CREATE TABLE database_one.table_for_prod "
-                "STORED AS PARQUET"
+                "CREATE TABLE database_one.table_for_prod " "STORED AS PARQUET"
             )
         )
         self.assertFalse(

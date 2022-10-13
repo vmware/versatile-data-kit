@@ -18,8 +18,7 @@ setuptools.setup(
         "vdk-core",
         "vdk-lineage-model",
         "impyla",
-        "sqlparse"
-        "tabulate",
+        "sqlparse" "tabulate",
         "pydantic",
         "pyarrow",
     ],
