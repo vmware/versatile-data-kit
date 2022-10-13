@@ -45,7 +45,7 @@ stored and here https://impala.apache.org/docs/build/impala-3.1.pdf for more inf
 If enabled, query plan is retrieved for every successfully executed query against Impala excluding keepalive queries
 like "Select 1".
 
-### Database Loading Templates 
+### Database Loading Templates
 
 #### Kimbal dimensional modeling templates
 
