@@ -36,7 +36,7 @@ public class KubernetesServiceTest {
         List.of(
             "/bin/bash",
             "-c",
-            "cp -r /usr/local/lib/python3.9/site-packages /vdk/. && cp /usr/local/bin/vdk /vdk/.");
+            "cp -r /usr/local/lib/python3.7/site-packages /vdk/. && cp /usr/local/bin/vdk /vdk/.");
 
     var volumeMount = KubernetesService.volumeMount("vdk-volume", "/vdk", false);
 
