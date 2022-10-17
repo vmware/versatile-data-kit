@@ -111,6 +111,7 @@ class CliEntry:
         Main method of the CLI. It call all configuration and initialization hooks and start CLI
         """
 
+        plugin_registry.load_plugins_from_setuptools_entrypoints()
         plugin_registry.add_hook_specs(CoreHookSpecs)
         plugin_registry.load_plugin_with_hooks_impl(builtin_hook_impl, "core-plugin")
 
@@ -162,7 +163,6 @@ def main() -> None:
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()
     plugin_registry.add_hook_specs(InternalHookSpecs)
-    plugin_registry.load_plugins_from_setuptools_entrypoints()
     plugin_registry.load_plugin_with_hooks_impl(CliEntry(), "cli-entry")
 
     exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_main(
