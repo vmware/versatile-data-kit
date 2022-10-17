@@ -52,26 +52,28 @@ public class DataJobsExecutionControllerIT {
     mockExecution.andExpect(status().isNotFound());
   }
 
+  // TODO: test all methods
+  @Test
+  @WithMockUser
+  @DirtiesContext
+  public void testWhenADeploymentFailsNoEntryIsSavedInTheDatabase() throws Exception {
+    // arrange
+    doThrow(new RuntimeException("Expected failure"))
+        .when(dataJobsKubernetesService)
+        .startNewCronJobExecution(any(), any(), any(), any(), any(), any());
+    // act
+    TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
+    assertEquals(
+        TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME)
+            .andReturn()
+            .getResponse()
+            .getStatus(),
+        500);
 
-
-    // TODO: test all methods
-    @Test
-    @WithMockUser
-    @DirtiesContext
-    public void testWhenADeploymentFailsNoEntryIsSavedInTheDatabase() throws Exception {
-        //arrange
-        doThrow(new RuntimeException("Expected failure")).when(dataJobsKubernetesService)
-                .startNewCronJobExecution(any(), any(), any(),
-                        any(), any(), any());
-        // act
-        TestUtils.createDataJob(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        TestUtils.createDeployment(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME);
-        assertEquals(TestUtils.startMockExecution(mockMvc, TEST_TEAM_NAME, TEST_JOB_NAME)
-                .andReturn().getResponse().getStatus(), 500);
-
-        //assert
-        assertTrue(jobExecutionRepository.findAll().isEmpty());
-    }
+    // assert
+    assertTrue(jobExecutionRepository.findAll().isEmpty());
+  }
 
   @Test
   @WithMockUser
