@@ -34,8 +34,9 @@ We welcome many different types of contributions and not all of them need a Pull
 
 This is a rough outline of what a contributor's workflow looks like:
 
-* Make a fork of the repository within your GitHub account
-* Create a topic branch in your fork from where you want to base your work - name your branch according to our naming convention - person/<github-username>/<feature-name>
+* Use forks to only contribute changes on examples and documentation.
+   * Currently we accept contribution from forks only for examples and documentation changes until PR 854 is fixed. Until then please request write priveleges and create a branch in the main repo as described below.
+* Create a topic branch from where you want to base your work - name your branch according to our naming convention - person/<github-username>/<feature-name>
 * Make commits of logical units
 * Make sure your commit messages are with the proper format, quality and descriptiveness (see below)
 * Push your changes to the topic branch in your fork
@@ -54,7 +55,8 @@ We follow the GitHub workflow and you can find more details on the [GitHub flow 
 * support - helper scripts used by developers of the project during their workday;
 * cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder;
 * examples - list of example use-cases. Each example directory has its README with detailed explanations;
-* specs - specs for feature proposals and architecture documents.
+* specs - specs for feature proposals and architecture documents;
+* events - details about the conferences/workshops where VDK was presented.
 
 ## How to build, debug
 
