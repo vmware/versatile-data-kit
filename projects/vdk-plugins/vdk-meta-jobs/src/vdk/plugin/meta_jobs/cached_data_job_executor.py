@@ -31,25 +31,20 @@ class TrackingDataJobExecutor:
 
     def start_job(self, job_name: str) -> None:
         """
-        :param job: the job to start and track
+        :param job_name: the job to start and track
         """
         job = self._get_job(job_name)
-        try:
-            execution_id = self._executor.start_job(job.job_name, job.team_name)
-            log.info(f"Starting new data job execution with id {execution_id}")
-            self._jobs_cache[job.job_name] = job
-            job.execution_id = execution_id
-            job.status = JobStatus.SUBMITTED.value
-            details = self._executor.details_job(
-                job.job_name, job.team_name, job.execution_id
-            )
-            job.details = details
-            log.info(
-                f"Started data job {job_name}:\n{self._get_printable_details(details)}"
-            )
-        except ApiException as e:
-            if e.status == 409:
-                log.info(f"Detected conflict with another runnig job: {e}")
+        job.start_attempt += 1
+        execution_id = self._executor.start_job(job.job_name, job.team_name)
+        log.info(f"Starting new data job execution with id {execution_id}")
+        job.execution_id = execution_id
+        job.status = JobStatus.SUBMITTED.value
+        job.details = self._executor.details_job(
+            job.job_name, job.team_name, job.execution_id
+        )
+        log.info(
+            f"Started data job {job_name}:\n{self._get_printable_details(job.details)}"
+        )
 
     def finalize_job(self, job_name):
         job = self._get_job(job_name)

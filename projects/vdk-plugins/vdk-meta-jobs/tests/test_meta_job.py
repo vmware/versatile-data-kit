@@ -8,34 +8,46 @@ from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
 from vdk.plugin.meta_jobs import plugin_entry
-from vdk.plugin.meta_jobs.remote_data_job import JobStatus
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
+from werkzeug import Request
 from werkzeug import Response
 
 
 def _prepare(httpserver: PluginHTTPServer, jobs=None):
+    """
+    :param httpserver: the pytest http server
+    :param jobs: list of jobs in format ('job-name', [list of http statuses to be returned], job result status)
+    :return:
+    """
     rest_api_url = httpserver.url_for("")
     team_name = "team-awesome"
     if jobs is None:
         jobs = [
-            ("job1", 200, "succeeded"),
-            ("job2", 200, "succeeded"),
-            ("job3", 200, "succeeded"),
-            ("job4", 200, "succeeded"),
+            ("job1", [200], "succeeded"),
+            ("job2", [200], "succeeded"),
+            ("job3", [200], "succeeded"),
+            ("job4", [200], "succeeded"),
         ]
 
-    for job_name, request_response, job_status in jobs:
+    for job_name, request_responses, job_status in jobs:
+        request_responses.reverse()
+
+        def handler(location, statuses):
+            def _handler_fn(r: Request):
+                status = statuses[0] if len(statuses) == 1 else statuses.pop()
+                return Response(status=status, headers=dict(Location=location))
+
+            return _handler_fn
+
         httpserver.expect_request(
             uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/production/executions",
             method="POST",
-        ).respond_with_response(
-            Response(
-                status=request_response,
-                headers=dict(
-                    Location=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{job_name}"
-                ),
+        ).respond_with_handler(
+            handler(
+                f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{job_name}",
+                request_responses,
             )
         )
 
@@ -75,10 +87,10 @@ def test_meta_job(httpserver: PluginHTTPServer):
 
 def test_meta_job_error(httpserver: PluginHTTPServer):
     jobs = [
-        ("job1", 200, "succeeded"),
-        ("job2", 200, "succeeded"),
-        ("job3", 200, "platform_error"),
-        ("job4", 200, "succeeded"),
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "platform_error"),
+        ("job4", [200], "succeeded"),
     ]
     api_url = _prepare(httpserver, jobs)
 
@@ -98,10 +110,10 @@ def test_meta_job_error(httpserver: PluginHTTPServer):
 
 def test_meta_job_fail_false(httpserver: PluginHTTPServer):
     jobs = [
-        ("job1", 200, "succeeded"),
-        ("job2", 200, "platform_error"),
-        ("job3", 200, "succeeded"),
-        ("job4", 200, "succeeded"),
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "platform_error"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
     ]
     api_url = _prepare(httpserver, jobs)
 
@@ -117,3 +129,55 @@ def test_meta_job_fail_false(httpserver: PluginHTTPServer):
             ["run", jobs_path_from_caller_directory("meta-job")]
         )
         cli_assert_equal(0, result)
+
+
+def test_meta_job_conflict(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [409, 200], "succeeded"),
+        ("job2", [500, 200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
+            "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "0",
+            "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "0",
+        },
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job")]
+        )
+        cli_assert_equal(0, result)
+
+
+def test_meta_job_cannot_start_job(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [401, 200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job")]
+        )
+        cli_assert_equal(1, result)
+        # no other request should be tried as the meta job fails
+        assert len(httpserver.log) == 1

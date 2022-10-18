@@ -2,12 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
-import sys
 import time
 import uuid
 from enum import Enum
-from typing import Any
-from typing import Dict
 from typing import Optional
 
 from taurus_datajob_api import ApiClient
@@ -19,6 +16,12 @@ from urllib3 import Retry
 from vdk.plugin.control_api_auth.authentication import Authentication
 
 log = logging.getLogger(__name__)
+
+
+# This is mostly copy pasted from
+# https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/airflow-provider-vdk/vdk_provider/hooks/vdk.py
+# with some small changes (removing airflow specific things)
+# Consider unifying behind 3th library
 
 
 class JobStatus(str, Enum):
@@ -57,7 +60,9 @@ class RemoteDataJob:
 
         # setting these manually to avoid using VDKConfig
         # TODO: set op ID from current job
-        self.op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
+        self.op_id = f"{uuid.uuid4().hex}"[:16]
+        self.op_id = os.environ.get("VDK_OP_ID", self.op_id)
+        self.op_id = os.environ.get("VDK_OP_ID_OVERRIDE", self.op_id)
         self.http_verify_ssl = os.getenv(
             "VDK_CONTROL_HTTP_VERIFY_SSL", "True"
         ).lower() in ("true", "1", "t")

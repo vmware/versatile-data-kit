@@ -45,3 +45,4 @@ class TrackableJob(meta_job.SingleJob):
     status: str = None
     execution_id: str = None
     details: dict = None
+    start_attempt = 0

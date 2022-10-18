@@ -1,14 +1,11 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from graphlib import TopologicalSorter
 from typing import List
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.core.context import CoreContext
 from vdk.plugin.meta_jobs import meta_job_runner
 
 """

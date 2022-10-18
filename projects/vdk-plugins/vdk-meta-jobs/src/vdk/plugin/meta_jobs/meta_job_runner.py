@@ -7,7 +7,6 @@ from typing import List
 from typing import Optional
 
 from vdk.plugin.meta_jobs.api.meta_job import IMetaJobInput
-from vdk.plugin.meta_jobs.api.meta_job import MetaJob
 from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 
 TEAM_NAME: Optional[str] = None
