@@ -102,15 +102,6 @@ public class JobExecutionService {
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
-      // Start K8S Job
-      dataJobsKubernetesService.startNewCronJobExecution(
-          jobDeploymentStatus.getCronJobName(),
-          executionId,
-          annotations,
-          envs,
-          extraJobArguments,
-          jobName);
-
       // Save Data Job execution
       saveDataJobExecution(
           dataJob,
@@ -120,6 +111,24 @@ public class JobExecutionService {
           ExecutionStatus.SUBMITTED,
           startedBy,
           OffsetDateTime.now());
+      try {
+        // Start K8S Job
+        dataJobsKubernetesService.startNewCronJobExecution(
+            jobDeploymentStatus.getCronJobName(),
+            executionId,
+            annotations,
+            envs,
+            extraJobArguments,
+            jobName);
+      } catch (Exception e) {
+        // rollback data job execution
+        jobExecutionRepository.deleteDataJobExecutionByIdAndDataJobAndStatusAndType(
+            executionId,
+            dataJob,
+            ExecutionStatus.SUBMITTED,
+            com.vmware.taurus.service.model.ExecutionType.MANUAL);
+        throw e;
+      }
 
       return executionId;
     } catch (ApiException e) {
@@ -494,7 +503,6 @@ public class JobExecutionService {
             .startedBy(startedBy)
             .startTime(startTime)
             .build();
-
     jobExecutionRepository.save(dataJobExecution);
   }
 

@@ -29,8 +29,8 @@
 - Provide tools to take responsibility of end-to-end process from data extraction to deploying scheduled predictive model in self-service manner​
 
 ## Agenda
-- 14:15 – 15:00 – Introduction to VDK
-- 15:15 – END – VDK in practice: workshop
+- Introduction to VDK - [vdk-for-open-fest-workshop.pdf](https://github.com/vmware/versatile-data-kit/files/9791829/vdk-for-open-fest-workshop.pdf)
+- VDK in practice: workshop
 
 ## Workshop: COVID vs Candle No Scent Complaints
 Ispired by a Twitter post, we will investigate whether there is a connection between COVID cases in the US and increased "no scent" complaints for Yankee candles on Amazon.
