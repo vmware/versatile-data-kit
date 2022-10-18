@@ -84,6 +84,20 @@ class TestingCliEntryPlugin:
         )
         return self.result.exit_code
 
+    @hookimpl(tryfirst=True)
+    def vdk_main(self, plugin_registry, root_command, command_line_args):
+        # Initialize empty result in case the test fails before the vdk_cli_execute
+        # method is called e.g one test scenario covers a failure before the vdk_cli_execute
+        # hook is called.
+        self.result = Result(
+            runner=self.runner,
+            stdout_bytes="",
+            stderr_bytes="",
+            return_value="",
+            exit_code=0,
+            exception=None,
+        )
+
 
 class CliEntryBasedTestRunner:
     """
