@@ -2,6 +2,8 @@
 
 This template can be used to load raw data from Data Lake to target Table in Data Warehouse. In summary, it appends all records from the source table to the target table.
 
+
+
 ### Template Name (template_name):
 
 - "insert"
