@@ -9,6 +9,7 @@ from typing import cast
 from typing import Optional
 from typing import Tuple
 
+import sqlparse
 from impala._thrift_gen.RuntimeProfile.ttypes import TRuntimeProfileFormat
 from impala.hiveserver2 import HiveServer2Cursor
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
@@ -68,7 +69,7 @@ class ImpalaLineagePlugin:
 
     def _get_lineage_data(self, cursor: HiveServer2Cursor) -> Optional[LineageData]:
         query_statement = cursor._cursor.query_string
-        if not self._is_query_have_lineage(query_statement):
+        if not self._does_query_have_lineage(query_statement):
             return None  # do not capture lineage for queries that don't have lineage information
         start_time = time.time_ns()
         query_profile = cursor.get_profile(profile_format=TRuntimeProfileFormat.STRING)
@@ -95,7 +96,7 @@ class ImpalaLineagePlugin:
         )
 
     @staticmethod
-    def _is_query_have_lineage(query_statement: str) -> bool:
+    def _does_query_have_lineage(query_statement: str) -> bool:
         """
         This method checks the query type because not every query
         has information that could be classified as lineage data
@@ -108,35 +109,48 @@ class ImpalaLineagePlugin:
         if query_statement is None:
             return False
 
-        statement_lines = query_statement.split(
-            os.linesep
-        )  # TODO if further optimization is needed, consider sqlparse
-        for line in statement_lines:
-            line = line.strip().lower()
-            if line.startswith("--") or (line.startswith("/*") and line.endswith("*/")):
-                continue  # Comments are omitted
-            if line.startswith("select 1 -- testing if connection is alive."):
-                return False  # managed_connection has a way to open and check connections with keep alive query
-            if line.startswith(
-                (
-                    "alter",
-                    "compute",
-                    "create",
-                    "describe",
-                    "drop",
-                    "explain",
-                    "grant",
-                    "invalidate",
-                    "refresh",
-                    "revoke",
-                    "set",
-                    "show",
-                    "truncate",
-                    "use",
-                )
-            ):
-                # these commands are not providing lineage data in the profile at the moment
-                return False
+        query_statement = query_statement.lower()
+        # managed_connection has a way to open and check connections with keep alive query
+        if "select 1 -- testing if connection is alive." in query_statement:
+            return False
+
+        query_statement = sqlparse.format(
+            sql=query_statement,
+            strip_comments=True,
+            strip_whitespace=True,
+            keyword_case="lower",
+        )
+
+        if query_statement.startswith("create"):
+            # some create statements might have lineage
+            # (create table .. as select ..) this way we check
+            # if select is present in some form. This might result
+            # in some corner cases of false positive, but the
+            # profile of impala will not return any lineage
+            # info (scan/write hdfs) as our goal of this method is
+            # to reduce non-lineage query with a non-complex way
+            return (
+                "select " in query_statement or "select" + os.linesep in query_statement
+            )
+        if query_statement.startswith(
+            (
+                "alter",
+                "compute",
+                "describe",
+                "drop",
+                "explain",
+                "grant",
+                "invalidate",
+                "refresh",
+                "revoke",
+                "set",
+                "show",
+                "truncate",
+                "use",
+            )
+        ):
+            # these commands are not providing lineage data in the profile at the moment
+            return False
 
         return True
 
