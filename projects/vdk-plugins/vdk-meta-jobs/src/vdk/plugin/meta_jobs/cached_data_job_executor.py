@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
+import os
+import time
 from typing import Dict
 
 from taurus_datajob_api import ApiException
@@ -20,6 +22,9 @@ class TrackingDataJobExecutor:
     def __init__(self, executor: IDataJobExecutor):
         self._executor = executor
         self._jobs_cache: Dict[str, TrackableJob] = dict()
+        self._time_between_status_check_seconds = int(
+            os.environ.get("VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS", "40")
+        )
 
     def register_job(self, job: TrackableJob):
         if job.job_name in self._jobs_cache:
@@ -33,7 +38,7 @@ class TrackingDataJobExecutor:
         """
         :param job_name: the job to start and track
         """
-        job = self._get_job(job_name)
+        job = self.__get_job(job_name)
         job.start_attempt += 1
         execution_id = self._executor.start_job(job.job_name, job.team_name)
         log.info(f"Starting new data job execution with id {execution_id}")
@@ -43,11 +48,11 @@ class TrackingDataJobExecutor:
             job.job_name, job.team_name, job.execution_id
         )
         log.info(
-            f"Started data job {job_name}:\n{self._get_printable_details(job.details)}"
+            f"Started data job {job_name}:\n{self.__get_printable_details(job.details)}"
         )
 
     def finalize_job(self, job_name):
-        job = self._get_job(job_name)
+        job = self.__get_job(job_name)
         details = self._executor.details_job(
             job.job_name, job.team_name, job.execution_id
         )
@@ -72,11 +77,11 @@ class TrackingDataJobExecutor:
             )
 
     @staticmethod
-    def _get_printable_details(details):
+    def __get_printable_details(details):
         del details["deployment"]
         return json.dumps(details, default=lambda o: str(o), indent=2)
 
-    def _get_job(self, job_name) -> TrackableJob:
+    def __get_job(self, job_name) -> TrackableJob:
         job: TrackableJob = self._jobs_cache.get(job_name)
         if job is None:
             raise IndexError(
@@ -84,8 +89,12 @@ class TrackingDataJobExecutor:
             )
         return job
 
+    @staticmethod
+    def __is_job_submitted(job: TrackableJob):
+        return job.status is not None
+
     def status(self, job_name: str) -> str:
-        job = self._get_job(job_name)
+        job = self.__get_job(job_name)
         if job.status in ACTIVE_JOB_STATUSES:
             job.status = self._executor.status_job(
                 job.job_name, job.team_name, job.execution_id
@@ -98,14 +107,24 @@ class TrackingDataJobExecutor:
         # TODO: optimize
         # Do not call the status every time (use TTL caching)
         # Do not call all status at the same time - stagger them in time
+        # Or use GraphQL API to get status at once (batch)
         for job in self._jobs_cache.values():
-            if job.status is not None and job.status in ACTIVE_JOB_STATUSES:
+            if (
+                self.__is_job_submitted(job)
+                and job.status in ACTIVE_JOB_STATUSES
+                and time.time() - job.last_status_time
+                > self._time_between_status_check_seconds
+            ):
+                job.last_status_time = time.time()
                 job.status = self.status(job.job_name)
 
         for job in self._jobs_cache.values():
-            if job.status is not None and job.status not in ACTIVE_JOB_STATUSES:
+            if self.__is_job_submitted(job) and job.status not in ACTIVE_JOB_STATUSES:
                 finalized_jobs.append(job.job_name)
         return finalized_jobs
 
     def get_all_jobs(self):
         return list(self._jobs_cache.values())
+
+    def get_currently_running_jobs(self):
+        return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
