@@ -66,7 +66,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
           capturedSpec.getTemplate().getSpec().getContainers().get(0).getCommand().get(2);
       // check if command arg starts correctly
       Assertions.assertEquals(
-          "export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && /vdk/vdk"
+          "export PYTHONPATH=$(python -c \"from distutils.sysconfig import get_python_lib; print(get_python_lib())\"):/vdk/site-packages/ && /vdk/vdk"
               + " run ./test-job --arguments '{\"argument1\":\"value1\"}'",
           capturedCommand);
 
@@ -92,8 +92,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
       // check if command arg starts correctly
       Assertions.assertTrue(
           capturedCommand.startsWith(
-              "export PYTHONPATH=/usr/local/lib/python3.7/si"
-                  + "te-packages:/vdk/site-packages/ && /vdk/vdk run ./test-job --arguments '{"),
+              "export PYTHONPATH=$(python -c \"from distutils.sysconfig import get_python_lib; print(get_python_lib())\"):/vdk/site-packages/ && /vdk/vdk run ./test-job --arguments '{"),
           "Vdk run command string invalid.");
       // extra arguments passed as a map, print order might be different.
       Assertions.assertTrue(
