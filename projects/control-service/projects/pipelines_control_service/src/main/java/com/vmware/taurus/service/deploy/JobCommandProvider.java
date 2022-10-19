@@ -26,8 +26,8 @@ public class JobCommandProvider {
         List.of(
             "/bin/bash",
             "-c",
-            "export PYTHONPATH=$(python -c \"from distutils.sysconfig import get_python_lib; print(get_python_lib())\"):/vdk/site-packages/ &&"
-                  + " /vdk/vdk run");
+            "export PYTHONPATH=$(python -c \"from distutils.sysconfig import get_python_lib;"
+                + " print(get_python_lib())\"):/vdk/site-packages/ && /vdk/vdk run");
   }
 
   private String getJobNameArgument(String jobName) {

@@ -234,7 +234,8 @@ public class JobImageDeployer {
         List.of(
             "/bin/bash",
             "-c",
-            "cp -r $(python -c \"from distutils.sysconfig import get_python_lib; print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
+            "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
+                + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
     var jobVdkImage = getJobVdkImage(jobDeployment);
     var jobInitContainer =
         KubernetesService.container(
