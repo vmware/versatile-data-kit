@@ -172,9 +172,9 @@ class IngestOverHttp(IIngesterPlugin):
                     obj["@table"] = destination_table
 
     def __send_data(self, data, http_url, headers) -> IngestionResult:
+        data = json.dumps(data, allow_nan=self._allow_nan)
         uncompressed_size_in_bytes = sys.getsizeof(data)
         compressed_size_in_bytes = None
-        data = json.dumps(data, allow_nan=self._allow_nan)
 
         if (
             self._compression_threshold_bytes

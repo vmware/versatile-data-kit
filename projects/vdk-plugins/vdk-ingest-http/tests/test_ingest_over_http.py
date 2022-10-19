@@ -119,7 +119,9 @@ def test_ingest_over_http_result(mock_post):
         target="http://example.com/data-source",
     )
 
-    assert ingestion_result["uncompressed_size_in_bytes"] == sys.getsizeof([payload])
+    assert ingestion_result["uncompressed_size_in_bytes"] == sys.getsizeof(
+        json.dumps([payload])
+    )
     assert ingestion_result["compressed_size_in_bytes"] == sys.getsizeof(
         gzip.compress(json.dumps([payload], allow_nan=False).encode(encoding))
     )
