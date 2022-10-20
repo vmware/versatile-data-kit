@@ -102,7 +102,7 @@ credentials:
    ## * KERBEROS - when set kerberos user and keytab file are created for each data job. kerberosXXX options below are required then.
    repository: "EMPTY"
 
-   ## Credentials principal pattern. It must have "%(data_job)" in the pattern which will be replaced by the name of the data job..
+   ## Credentials principal pattern. It must have "%(data_job)" in the pattern which will be replaced by the name of the data job.
    ## Different patterns can be given to different data-pipelines deployments that share the same authentication repository (for example same Kerberos KDC).
    ## This way they won't interfere with each other.
    ## Generally should be left as default. It should be used only if multiple deployments of Versatile Data Kit that use same authentication repository.
