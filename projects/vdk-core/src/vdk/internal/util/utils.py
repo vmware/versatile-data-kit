@@ -52,15 +52,16 @@ def parse_config_sequence(
     return sequence if sequence else []
 
 
-def exit_with_error(
-    error_overall: bool, user_error: bool, log: Logger, exception: Exception
-):
+def exit_with_error(user_error: bool, log: Logger, exception: Exception):
     """
-    Write a termination message and exit with specified error.
+    Write a termination message, log and exit with specified error.
     Intended for use in cases when hooks and configuration
     haven't been initialized yet but we want to write a specific
     termination message. This scenario occurs when the vdk_main
     hook hasn't completed yet.
+    :param user_error: If this is a platform error or no
+    :param log: The logger which will log the exception
+    :param exception: The exception
     :return:
     """
     log.error(exception)
@@ -71,5 +72,5 @@ def exit_with_error(
     configuration = configuration_builder.build()
 
     writer = TerminationMessageWriterPlugin()
-    writer.write_termination_message(error_overall, user_error, configuration, False)
+    writer.write_termination_message(True, user_error, configuration, False)
     os._exit(0)

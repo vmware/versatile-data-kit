@@ -53,7 +53,7 @@ class PluginRegistry(IPluginRegistry):
         try:
             self.__plugin_manager.load_setuptools_entrypoints(self.__group_name)
         except ImportError as e:
-            exit_with_error(True, True, log, e)
+            exit_with_error(True, log, e)
         except Exception as e:
             message = ErrorMessage(
                 summary=f"Plugin load failed",

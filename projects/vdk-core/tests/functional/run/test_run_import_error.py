@@ -42,7 +42,7 @@ class TestImportErrors(unittest.TestCase):
         file_util.assert_called_once()
         assert '"status": "User error"' in str(file_util.call_args)
         # Checking that the os._exit method was called.
-        patched_exit.assert_called_once()
+        patched_exit.assert_called_once_with(0)
         # Checking that the execution flow of the test was correct. The
         # original error is the side effect of load_setuptools_entrypoints.
         load_setuptools_entrypoints.assert_called_once()
