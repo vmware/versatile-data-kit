@@ -110,7 +110,6 @@ class CliEntry:
         """
         Main method of the CLI. It call all configuration and initialization hooks and start CLI
         """
-
         plugin_registry.add_hook_specs(CoreHookSpecs)
         plugin_registry.load_plugin_with_hooks_impl(builtin_hook_impl, "core-plugin")
 
@@ -127,7 +126,6 @@ class CliEntry:
 
         exit_code = 0
         try:
-            plugin_registry.load_plugins_from_setuptools_entrypoints()
             log.info(f"Start CLI {program_name} with args {command_line_args}")
             exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_cli_execute(
                 root_command=root_command,
@@ -163,6 +161,7 @@ def main() -> None:
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()
     plugin_registry.add_hook_specs(InternalHookSpecs)
+    plugin_registry.load_plugins_from_setuptools_entrypoints()
     plugin_registry.load_plugin_with_hooks_impl(CliEntry(), "cli-entry")
 
     exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_main(

@@ -1,11 +1,21 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import inspect
+import os
+from logging import Logger
 from typing import Any
 from typing import List
 from typing import Optional
 
+from vdk.internal.builtin_plugins.config.vdk_config import LOG_CONFIG
+from vdk.internal.builtin_plugins.termination_message.writer import (
+    TerminationMessageWriterPlugin,
+)
+from vdk.internal.builtin_plugins.termination_message.writer_configuration import (
+    add_definitions,
+)
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import ConfigurationBuilder
 
 
 def class_fqname(py_object: Any) -> str:
@@ -40,3 +50,26 @@ def parse_config_sequence(
     if sequence:
         sequence = [i.strip() for i in sequence.split(sep)]
     return sequence if sequence else []
+
+
+def exit_with_error(
+    error_overall: bool, user_error: bool, log: Logger, exception: Exception
+):
+    """
+    Write a termination message and exit with specified error.
+    Intended for use in cases when hooks and configuration
+    haven't been initialized yet but we want to write a specific
+    termination message. This scenario occurs when the vdk_main
+    hook hasn't completed yet.
+    :return:
+    """
+    log.error(exception)
+    configuration_builder = ConfigurationBuilder()
+    add_definitions(configuration_builder)
+    configuration_builder.add(key=LOG_CONFIG, default_value="LOCAL")
+
+    configuration = configuration_builder.build()
+
+    writer = TerminationMessageWriterPlugin()
+    writer.write_termination_message(error_overall, user_error, configuration, False)
+    os._exit(0)

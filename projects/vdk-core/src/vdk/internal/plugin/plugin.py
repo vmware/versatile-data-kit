@@ -11,6 +11,8 @@ from vdk.api.plugin.plugin_registry import PluginException
 from vdk.api.plugin.plugin_registry import PluginHookRelay
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.plugin.plugin_manager import VdkPluginManager
+from vdk.internal.util.utils import exit_with_error
+
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +52,8 @@ class PluginRegistry(IPluginRegistry):
 
         try:
             self.__plugin_manager.load_setuptools_entrypoints(self.__group_name)
+        except ImportError as e:
+            exit_with_error(True, True, log, e)
         except Exception as e:
             message = ErrorMessage(
                 summary=f"Plugin load failed",
