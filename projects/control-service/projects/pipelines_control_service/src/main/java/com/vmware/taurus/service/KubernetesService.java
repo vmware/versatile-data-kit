@@ -1234,8 +1234,11 @@ public abstract class KubernetesService implements InitializingBean {
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
     }
-
-    var template = new V1PodTemplateSpecBuilder().withSpec(podSpecBuilder.build()).build();
+    var annotations = new HashMap<String, String>();
+    annotations.put("container.apparmor.security.beta.kubernetes.io/buildkitd","unconfined");
+    annotations.put("container.seccomp.security.alpha.kubernetes.io/buildkitd","unconfined");
+    var template = new V1PodTemplateSpecBuilder().withSpec(podSpecBuilder.build())
+            .withMetadata(new V1ObjectMeta().annotations(annotations)).build();
     var spec =
         new V1JobSpecBuilder()
             .withBackoffLimit(3) // TODO configure

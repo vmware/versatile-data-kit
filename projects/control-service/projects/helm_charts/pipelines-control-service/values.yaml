@@ -24,8 +24,8 @@ image:
 # Generally those should be left as it is.
 deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
-  repository: job-builder
-  tag: "1.2.3"
+  repository: job-builder-rootless
+  tag: "1.3.1tp1"
 
 deploymentBuilder:
   securityContext:
