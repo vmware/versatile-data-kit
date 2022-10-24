@@ -67,10 +67,11 @@ def exit_with_error(
     :param user_error: If this is a platform error or no
     :param log: The logger which will log the exception
     :param exception: The exception
+    :param group_name
     :return:
     """
     message = ErrorMessage(
-        summary=f"Plugin load failed",
+        summary="Plugin load failed",
         what=f"Cannot load plugin from setuptools entrypoint for group {group_name}",
         why="See exception for possible reason",
         consequences="The CLI tool will likely abort.",
