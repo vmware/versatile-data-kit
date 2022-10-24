@@ -148,8 +148,8 @@ public class DeploymentService {
 
       String registrySecret = dockerRegistryService.getRegistrySecret();
 
-      if (jobImageBuilder.buildImage(imageName, dataJob, jobDeployment, sendNotification,
-              registrySecret)) {
+      if (jobImageBuilder.buildImage(
+          imageName, dataJob, jobDeployment, sendNotification, registrySecret)) {
         log.info(
             "Image {} has been built. Will now schedule job {} for execution",
             imageName,

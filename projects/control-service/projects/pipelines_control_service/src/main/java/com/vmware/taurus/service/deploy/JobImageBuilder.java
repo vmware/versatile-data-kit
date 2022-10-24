@@ -121,7 +121,10 @@ public class JobImageBuilder {
    * @throws InterruptedException
    */
   public boolean buildImage(
-      String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification,
+      String imageName,
+      DataJob dataJob,
+      JobDeployment jobDeployment,
+      Boolean sendNotification,
       String registrySecret)
       throws ApiException, IOException, InterruptedException {
 
@@ -188,7 +191,7 @@ public class JobImageBuilder {
         builderSecurityContextRunAsGroup,
         builderSecurityContextFsGroup,
         builderServiceAccountName,
-            registrySecret);
+        registrySecret);
 
     log.debug(
         "Waiting for builder job {} for data job version {}",
