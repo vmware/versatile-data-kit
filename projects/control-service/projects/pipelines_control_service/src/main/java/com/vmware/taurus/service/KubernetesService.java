@@ -1205,7 +1205,8 @@ public abstract class KubernetesService implements InitializingBean {
       long runAsUser,
       long runAsGroup,
       long fsGroup,
-      String serviceAccountName)
+      String serviceAccountName,
+      String registrySecret)
       throws ApiException {
 
     log.debug("Creating k8s job name:{}, image:{}", name, image);
@@ -1231,6 +1232,9 @@ public abstract class KubernetesService implements InitializingBean {
                     .runAsGroup(runAsGroup)
                     .fsGroup(fsGroup));
 
+    if (StringUtils.isNotEmpty(registrySecret)) {
+      podSpecBuilder.addNewImagePullSecretLike(new V1LocalObjectReference().name(registrySecret));
+    }
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
     }
