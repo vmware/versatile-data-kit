@@ -1234,6 +1234,7 @@ public abstract class KubernetesService implements InitializingBean {
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
     }
+    podSpecBuilder.withAutomountServiceAccountToken(false);
 
     var template = new V1PodTemplateSpecBuilder().withSpec(podSpecBuilder.build()).build();
     var spec =
