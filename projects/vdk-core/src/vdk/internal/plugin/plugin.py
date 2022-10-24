@@ -10,6 +10,7 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.api.plugin.plugin_registry import PluginException
 from vdk.api.plugin.plugin_registry import PluginHookRelay
 from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.plugin.plugin_manager import VdkPluginManager
 from vdk.internal.util.utils import exit_with_error
 
@@ -53,22 +54,9 @@ class PluginRegistry(IPluginRegistry):
         try:
             self.__plugin_manager.load_setuptools_entrypoints(self.__group_name)
         except ImportError as e:
-            exit_with_error(True, log, e)
+            exit_with_error(ResolvableBy.USER_ERROR, log, e, self.__group_name)
         except Exception as e:
-            message = ErrorMessage(
-                summary=f"Plugin load failed",
-                what=f"Cannot load plugin from setuptools entrypoint for group {self.__group_name}",
-                why="See exception for possible reason",
-                consequences="The CLI tool will likely abort.",
-                countermeasures="Re-try again. Check exception mesage and possibly uninstall a bad "
-                "plugin (pip uninstall) "
-                "Or see what plugins are installed (use `pip list` command) and if "
-                "there are not issues. "
-                "Or try to reinstall the app in a new clean environment."
-                "Try to revert to previous version of hte CLI tool."
-                "If nothing works open a SRE ticket ",
-            )
-            raise PluginException(message) from e
+            exit_with_error(ResolvableBy.PLATFORM_ERROR, log, e, self.__group_name)
 
         plugins = self.__plugin_manager.list_name_plugin()
         log.info(

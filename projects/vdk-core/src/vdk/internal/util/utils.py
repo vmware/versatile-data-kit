@@ -7,6 +7,7 @@ from typing import Any
 from typing import List
 from typing import Optional
 
+from vdk.api.plugin.plugin_registry import PluginException
 from vdk.internal.builtin_plugins.config.vdk_config import LOG_CONFIG
 from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
@@ -16,6 +17,8 @@ from vdk.internal.builtin_plugins.termination_message.writer_configuration impor
 )
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import ResolvableBy
 
 
 def class_fqname(py_object: Any) -> str:
@@ -52,7 +55,9 @@ def parse_config_sequence(
     return sequence if sequence else []
 
 
-def exit_with_error(user_error: bool, log: Logger, exception: Exception):
+def exit_with_error(
+    user_error: ResolvableBy, log: Logger, exception: Exception, group_name
+):
     """
     Write a termination message, log and exit with specified error.
     Intended for use in cases when hooks and configuration
@@ -64,7 +69,20 @@ def exit_with_error(user_error: bool, log: Logger, exception: Exception):
     :param exception: The exception
     :return:
     """
-    log.error(exception)
+    message = ErrorMessage(
+        summary=f"Plugin load failed",
+        what=f"Cannot load plugin from setuptools entrypoint for group {group_name}",
+        why="See exception for possible reason",
+        consequences="The CLI tool will likely abort.",
+        countermeasures="Re-try again. Check exception message and possibly uninstall a bad "
+        "plugin (pip uninstall) "
+        "Or see what plugins are installed (use `pip list` command) and if "
+        "there aren't issues. "
+        "Or try to reinstall the app in a new clean environment."
+        "Try to revert to previous version of the CLI tool."
+        "If nothing works open a SRE ticket ",
+    )
+    log.error(PluginException(message), exc_info=exception)
     configuration_builder = ConfigurationBuilder()
     add_definitions(configuration_builder)
     configuration_builder.add(key=LOG_CONFIG, default_value="LOCAL")
@@ -72,5 +90,8 @@ def exit_with_error(user_error: bool, log: Logger, exception: Exception):
     configuration = configuration_builder.build()
 
     writer = TerminationMessageWriterPlugin()
-    writer.write_termination_message(True, user_error, configuration, False)
+    user_error_overall = user_error == ResolvableBy.USER_ERROR
+    writer.write_termination_message(
+        error_overall=True, user_error=user_error_overall, configuration=configuration
+    )
     os._exit(0)
