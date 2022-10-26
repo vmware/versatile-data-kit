@@ -39,7 +39,10 @@ public class FileUtilsTest {
       var parameters = new ZipParameters();
       parameters.setFileNameInZip(fileNameInZip);
 
-      this.zipFile.addStream(new ByteArrayInputStream("0".repeat(uncompressedSizeInKB * 1024).getBytes(StandardCharsets.UTF_8)), parameters);
+      this.zipFile.addStream(
+          new ByteArrayInputStream(
+              "0".repeat(uncompressedSizeInKB * 1024).getBytes(StandardCharsets.UTF_8)),
+          parameters);
     }
 
     @Override
@@ -125,9 +128,10 @@ public class FileUtilsTest {
     builder.addFile("../../../forbidden", 10);
     builder.close();
 
-    Assertions.assertThrows(ZipException.class,
-            () -> FileUtils.unzipDataJob(new FileSystemResource(zipFile.toFile()), tempDir.toFile(), "name"));
-
+    Assertions.assertThrows(
+        ZipException.class,
+        () ->
+            FileUtils.unzipDataJob(
+                new FileSystemResource(zipFile.toFile()), tempDir.toFile(), "name"));
   }
-
 }
