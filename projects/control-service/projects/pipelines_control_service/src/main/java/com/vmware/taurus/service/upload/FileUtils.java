@@ -16,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Class responsible to handle file operations of primarily for {@link JobUpload} but is generic
@@ -78,12 +80,18 @@ public class FileUtils {
     Files.move(Paths.get(jobFolder), Paths.get(jobNewLocation));
   }
 
+
+
+
   /**
    * The method unzips zip file received as binary in this format: - job.zip - job_folder - x.py -
    * y.sql
    *
    * <p>in case the job_folder name is different than the job name the method will rename it to be
    * the same as the job name.
+   *
+   * The function has a protection against zip slip exploit but it doesn't have against zip bomb (which is type of DOS attack).
+   * If someone tries to upload zipbomb then the pod may restart so it's not that big of an issue.
    *
    * @param resource binary containing the zip file sent to the service
    * @param tempDir temporary directory containing all the files for the upload process
