@@ -184,7 +184,9 @@ class IIngesterPlugin:
 
     pre_ingest_process() - plugins implementing this method do not aim at
                         ingesting the payload, rather to do some processing
-                        of the payload before it is ingested.
+                        of the payload or the dynamic parameters like target
+                        or destination_table before the actual ingestion
+                        happens.
 
     post_ingest_process() - plugins implementing this method aim at doing
                             some metadata processing after the payload is
@@ -234,6 +236,11 @@ class IIngesterPlugin:
     """
 
     IngestionMetadata = NewType("IngestionMetadata", Dict)
+
+    UPDATED_DYNAMIC_PARAMS = "updated_dynamic_params"
+    TARGET_KEY = "target"
+    DESTINATION_TABLE_KEY = "destination_table"
+    COLLECTION_ID_KEY = "collection_id"
 
     def ingest_payload(
         self,
@@ -293,8 +300,10 @@ class IIngesterPlugin:
             ) -> Optional[IngestionMetadata]:
                 result = None
                 metadata: IngestionMetadata = dict()
-                metadata["destination_table"] = destination_table
-                metadata["target"] = target
+                metadata[IIngesterPlugin.DESTINATION_TABLE_KEY] = (
+                            destination_table
+                )
+                metadata[IIngesterPlugin.TARGET_KEY] = target
 
                 try:
                     result = requests.post('example.com', data=payload)
@@ -376,6 +385,28 @@ class IIngesterPlugin:
             containing metadata produced by the pre-ingest plugin,
             and possibly used by other pre-ingest, ingest, or post-ingest
             plugins.
+            NOTE: It is possible to do modifications to dynamic parameters like
+            target or destination_table. However, when such modifications are
+            done, they need to be added to an `updated_dynamic_params`
+            dictionary. For example:
+                .. code-block:: python
+                    def pre_ingest_process(self,
+                        payload: List[dict],
+                        destination_table: Optional[str],
+                        target: Optional[str],
+                        collection_id: Optional[str],
+                        metadata: Optional[IngestionMetadata],
+                    ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
+                        if metadata:
+                            metadata[IIngesterPlugin.UPDATED_DYNAMIC_PARAMS] = {
+                                IIngesterPlugin.TARGET_KEY: "modified_target"
+                            }
+                        else:
+                            metadata = IIngesterPlugin.IngestionMetadata({})
+                            metadata[IIngesterPlugin.UPDATED_DYNAMIC_PARAMS] = {
+                                IIngesterPlugin.TARGET_KEY: "modified_target"
+                            }
+                        return payload, metadata
             NOTE: A read-only parameter. Whatever modifications are done to
             this object, once returned, it is treated as a new object.
         :return: Tuple[List[Dict], Optional[IngestionMetadata]], a tuple
