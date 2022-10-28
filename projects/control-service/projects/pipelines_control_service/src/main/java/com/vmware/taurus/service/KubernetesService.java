@@ -1492,7 +1492,10 @@ public abstract class KubernetesService implements InitializingBean {
     try {
       jobPods = listJobPods(job);
     } catch (ApiException ex) {
-      log.info("Could not list pods for job {}", job.getMetadata().getName(), new KubernetesException("", ex));
+      log.info(
+          "Could not list pods for job {}",
+          job.getMetadata().getName(),
+          new KubernetesException("", ex));
       return Optional.empty();
     }
 
