@@ -377,15 +377,14 @@ public class JobExecutionService {
     List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
         jobExecutionRepository
             .findDataJobExecutionsByStatusInAndStartTimeBefore(
-                runningJobStatus,
-                OffsetDateTime.now().minusMinutes(3))
+                runningJobStatus, OffsetDateTime.now().minusMinutes(3))
             .stream()
             .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
-      var jobsToUpdate = dataJobExecutionsToBeUpdated.stream().map(e -> e.getId())
-          .collect(Collectors.toList());
+      var jobsToUpdate =
+          dataJobExecutionsToBeUpdated.stream().map(e -> e.getId()).collect(Collectors.toList());
       jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
           ExecutionStatus.SUCCEEDED,
           OffsetDateTime.now(),

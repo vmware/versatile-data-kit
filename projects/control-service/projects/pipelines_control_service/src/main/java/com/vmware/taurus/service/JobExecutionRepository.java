@@ -52,12 +52,11 @@ public interface JobExecutionRepository
       String id, DataJob dataJob, ExecutionStatus status, ExecutionType type);
 
   /**
-   * Query method used to update execution status, end time and message of
-   * executions with specified id's and statuses.
-   * This method is necessary because we had a race condition between methods
-   * updating executions. The intention is to call this method only for executions
-   * in Running or Submitted state, therefore not updating executions that have a
-   * finalized state eliminating the possibility of race conditions.
+   * Query method used to update execution status, end time and message of executions with specified
+   * id's and statuses. This method is necessary because we had a race condition between methods
+   * updating executions. The intention is to call this method only for executions in Running or
+   * Submitted state, therefore not updating executions that have a finalized state eliminating the
+   * possibility of race conditions.
    *
    * @param newStatus the new status to apply
    * @param endTime the end time to set
@@ -71,8 +70,7 @@ public interface JobExecutionRepository
       "UPDATE DataJobExecution dje SET dje.status = :newStatus,"
           + " dje.endTime = :endTime,"
           + " dje.message = :message"
-          + " WHERE dje.status in :statuses AND dje.id in :executionsToUpdate"
-  )
+          + " WHERE dje.status in :statuses AND dje.id in :executionsToUpdate")
   void updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
       @Param("newStatus") ExecutionStatus newStatus,
       @Param("endTime") OffsetDateTime endTime,
