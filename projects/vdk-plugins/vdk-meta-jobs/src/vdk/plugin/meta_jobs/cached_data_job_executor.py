@@ -6,7 +6,6 @@ import os
 import time
 from typing import Dict
 
-from taurus_datajob_api import ApiException
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.meta import IDataJobExecutor

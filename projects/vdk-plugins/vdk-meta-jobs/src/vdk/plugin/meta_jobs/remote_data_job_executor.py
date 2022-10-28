@@ -1,8 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from abc import ABC
-from typing import Dict
-
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.plugin.meta_jobs.meta import IDataJobExecutor
 from vdk.plugin.meta_jobs.remote_data_job import RemoteDataJob

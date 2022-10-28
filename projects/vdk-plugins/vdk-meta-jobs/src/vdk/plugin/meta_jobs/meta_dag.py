@@ -5,6 +5,7 @@ import logging
 import os
 import pprint
 import sys
+import time
 from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
@@ -34,6 +35,9 @@ class MetaJobsDag:
             ),
         )
         self._finished_jobs = []
+        self._dag_execution_check_time_period_seconds = int(
+            os.environ.get("VDK_META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS", 10)
+        )
         self._job_executor = TrackingDataJobExecutor(RemoteDataJobExecutor())
 
     def build_dag(self, jobs: List[Dict]):
@@ -53,12 +57,26 @@ class MetaJobsDag:
                 self._start_job(node)
             self._start_delayed_jobs()
 
-            for node in self._get_finalized_jobs():
-                if node not in self._finished_jobs:
-                    log.info(f"Data Job {node} has finished.")
-                    self._topological_sorter.done(node)
-                    self._job_executor.finalize_job(node)
-                    self._finished_jobs.append(node)
+            finished_jobs = self._get_finished_jobs()
+            self._finalize_jobs(finished_jobs)
+            if not finished_jobs:
+                # No jobs are finished at this iteration so let's wait a bit to let them
+                # finish
+                time.sleep(self._dag_execution_check_time_period_seconds)
+
+    def _get_finished_jobs(self):
+        return [
+            job
+            for job in self._job_executor.get_finished_job_names()
+            if job not in self._finished_jobs
+        ]
+
+    def _finalize_jobs(self, finalized_jobs):
+        for node in finalized_jobs:
+            log.info(f"Data Job {node} has finished.")
+            self._topological_sorter.done(node)
+            self._job_executor.finalize_job(node)
+            self._finished_jobs.append(node)
 
     def _start_delayed_jobs(self):
         while True:
@@ -104,6 +122,3 @@ class MetaJobsDag:
                 self._delayed_starting_jobs.enqueue(node)
             else:
                 raise
-
-    def _get_finalized_jobs(self) -> List:
-        return self._job_executor.get_finished_job_names()

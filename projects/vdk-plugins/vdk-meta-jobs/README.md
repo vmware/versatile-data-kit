@@ -1,10 +1,17 @@
 # Meta Jobs
 
-Express dependecies between data jobs.
+Express dependencies between data jobs.
 
-A plugin for Versatile Data Kit which extends its Job API with an additional feature which allows users to trigger so called Meta Jobs.
-Meta Jobs are data jobs which trigger one or more other jobs, wait for their completion, and then trigger another set of jobs until either the entire job pipeline has succeeded.
+A plugin for Versatile Data Kit extends its Job API with an additional feature that allows users to trigger so-called Meta Jobs.
 
+A meta job is a regular Data Job that invokes other Data Jobs using Control Service Execution API.
+In this way, there's nothing different from other data jobs except for its purpose. See [Data Job types](https://github.com/vmware/versatile-data-kit/wiki/User-Guide#data-job-types) for more info.
+
+It's meant to be a much more lightweight alternative to complex and comprehensive workflows solution (like Airflow)
+as it doesn't require to provision any new infrastructure or to need to learn new tool.
+You install a new python library (this plugin itself) and you are ready to go.
+
+Using this plugin you can specify dependencies between data jobs as a direct acyclic graph (DAG). See usage for more information.
 
 ## Usage
 
@@ -41,6 +48,12 @@ The following example dependency graph can be implemented with below code.
 
 
 ![img_2.png](img_2.png)
+
+In this example what happens is
+* Job 1 will execute.
+* After Job 1 is completed, jobs 2,3,4 will start executing in parallel.
+* Jobs 5 and 6 will start executing after job 3 completes, but will not wait for the completion of jobs 2 and 4.
+
 
 ```python
 
@@ -97,7 +110,8 @@ def run(job_input: IJobInput) - > None:
 
 
 **Q: Will the metajob retry on Platform Error?**<br>
-A: Yes, up to N (configurable by the Control Service) attempts for each job it is orchestrating.
+A: Yes, as any other job, up to N (configurable by the Control Service) attempts for each job it is orchestrating.
+   See Control Service documentation for more information
 
 **Q: If an orchestrated job fails, will the meta job fail?**<br>
 Only if fail_meta_job_on_error flag is set to True (which is teh default setting if omited)

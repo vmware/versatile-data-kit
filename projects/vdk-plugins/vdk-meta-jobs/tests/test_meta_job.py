@@ -9,6 +9,7 @@ from click.testing import Result
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs import plugin_entry
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -221,6 +222,7 @@ def test_meta_job_long_running(httpserver: PluginHTTPServer):
             "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
             # we set 5 seconds more than execution duration of 3 set above
             "VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "5",
+            "VDK_META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS": "0",
         },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
@@ -247,3 +249,29 @@ def test_meta_job_long_running(httpserver: PluginHTTPServer):
         # If the new count is not that big we can edit it here to pass the test,
         # if the new count is too big, we have an issue that need to be investigated.
         assert len(httpserver.log) == 17
+
+
+def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-circular-dep")]
+        )
+        cli_assert_equal(1, result)
+        # no other request should be tried as the meta job fails
+        assert isinstance(result.exception, UserCodeError)
+        assert len(httpserver.log) == 0
