@@ -41,7 +41,8 @@ public class JobExecutionServiceSyncExecutionIT {
   }
 
   @Test
-  public void testSyncJobExecutionStatuses_oneCancelledExecutionWithStartTimeBefore5min_shouldNotSyncAny() {
+  public void
+      testSyncJobExecutionStatuses_oneCancelledExecutionWithStartTimeBefore5min_shouldNotSyncAny() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
     com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
@@ -61,8 +62,7 @@ public class JobExecutionServiceSyncExecutionIT {
     expectedJobExecution1.setStatus(ExecutionStatus.CANCELLED);
     jobExecutionRepository.save(expectedJobExecution1);
     // Sync method is invoked with execution
-    jobExecutionService.syncJobExecutionStatuses(
-        List.of(expectedJobExecution1.getId()));
+    jobExecutionService.syncJobExecutionStatuses(List.of(expectedJobExecution1.getId()));
 
     List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
         findRunningDataJobExecutions(actualDataJob.getName());
@@ -70,7 +70,6 @@ public class JobExecutionServiceSyncExecutionIT {
     Assert.assertEquals(0, dataJobExecutionsAfterSync.size());
     var execution = jobExecutionRepository.findById(expectedJobExecution1.getId()).get();
     Assert.assertEquals(ExecutionStatus.CANCELLED, execution.getStatus());
-
   }
 
   @Test
