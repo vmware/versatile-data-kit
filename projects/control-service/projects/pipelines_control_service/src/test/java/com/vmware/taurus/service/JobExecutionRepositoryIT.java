@@ -224,24 +224,22 @@ public class JobExecutionRepositoryIT {
   void testUpdateExecutionStatusWhereOldStatusInAndExecutionIdIn_withExecutions_shouldUpdateBoth() {
     DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    var execution1 =
-        RepositoryUtil.createDataJobExecution(
-            jobExecutionRepository,
-            "execution1",
-            dataJob,
-            ExecutionStatus.SUCCEEDED,
-            "Success",
-            OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-            OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
-    var execution2 =
-        RepositoryUtil.createDataJobExecution(
-            jobExecutionRepository,
-            "execution2",
-            dataJob,
-            ExecutionStatus.RUNNING,
-            null,
-            OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
-            null);
+    var execution1 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution1",
+        dataJob,
+        ExecutionStatus.SUBMITTED,
+        "Success",
+        OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+        OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
+    var execution2 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution2",
+        dataJob,
+        ExecutionStatus.RUNNING,
+        null,
+        OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
+        null);
 
     jobExecutionRepository.save(execution1);
     jobExecutionRepository.save(execution2);
@@ -249,10 +247,8 @@ public class JobExecutionRepositoryIT {
     var executionEndTime = OffsetDateTime.now();
     var message = "Changed by test";
     jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
-        ExecutionStatus.CANCELLED,
-        executionEndTime,
-        message,
-        List.of(ExecutionStatus.SUCCEEDED, ExecutionStatus.RUNNING),
+        ExecutionStatus.CANCELLED, executionEndTime, message,
+        List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
         List.of(execution1.getId(), execution2.getId()));
 
     var expectedExecution1 = jobExecutionRepository.findById(execution1.getId()).get();
@@ -271,24 +267,22 @@ public class JobExecutionRepositoryIT {
   void testUpdateExecutionStatusWhereOldStatusInAndExecutionIdIn_withExecutions_shouldUpdateOne() {
     DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    var execution1 =
-        RepositoryUtil.createDataJobExecution(
-            jobExecutionRepository,
-            "execution1",
-            dataJob,
-            ExecutionStatus.SUCCEEDED,
-            "Success",
-            OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-            OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
-    var execution2 =
-        RepositoryUtil.createDataJobExecution(
-            jobExecutionRepository,
-            "execution2",
-            dataJob,
-            ExecutionStatus.SUCCEEDED,
-            null,
-            OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
-            null);
+    var execution1 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution1",
+        dataJob,
+        ExecutionStatus.SUBMITTED,
+        "Success",
+        OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+        OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
+    var execution2 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution2",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        null,
+        OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
+        null);
 
     jobExecutionRepository.save(execution1);
     jobExecutionRepository.save(execution2);
@@ -296,10 +290,8 @@ public class JobExecutionRepositoryIT {
     var executionEndTime = OffsetDateTime.now();
     var message = "Changed by test";
     jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
-        ExecutionStatus.CANCELLED,
-        executionEndTime,
-        message,
-        List.of(ExecutionStatus.SUCCEEDED, ExecutionStatus.RUNNING),
+        ExecutionStatus.CANCELLED, executionEndTime, message,
+        List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
         List.of(execution1.getId(), execution2.getId()));
 
     var expectedExecution1 = jobExecutionRepository.findById(execution1.getId()).get();
