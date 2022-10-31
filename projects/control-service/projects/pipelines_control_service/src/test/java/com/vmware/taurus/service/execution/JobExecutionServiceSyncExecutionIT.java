@@ -41,6 +41,39 @@ public class JobExecutionServiceSyncExecutionIT {
   }
 
   @Test
+  public void testSyncJobExecutionStatuses_oneCancelledExecutionWithStartTimeBefore5min_shouldNotSyncAny() {
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
+        RepositoryUtil.createDataJobExecution(
+            jobExecutionRepository,
+            "test-execution-id-1",
+            actualDataJob,
+            ExecutionStatus.RUNNING,
+            OffsetDateTime.now().minusMinutes(5));
+
+    List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsBeforeSync =
+        findRunningDataJobExecutions(actualDataJob.getName());
+
+    Assert.assertEquals(1, dataJobExecutionsBeforeSync.size());
+
+    // Execution status changes in DB
+    expectedJobExecution1.setStatus(ExecutionStatus.CANCELLED);
+    jobExecutionRepository.save(expectedJobExecution1);
+    // Sync method is invoked with execution
+    jobExecutionService.syncJobExecutionStatuses(
+        List.of(expectedJobExecution1.getId()));
+
+    List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsAfterSync =
+        findRunningDataJobExecutions(actualDataJob.getName());
+
+    Assert.assertEquals(0, dataJobExecutionsAfterSync.size());
+    var execution = jobExecutionRepository.findById(expectedJobExecution1.getId()).get();
+    Assert.assertEquals(ExecutionStatus.CANCELLED, execution.getStatus());
+
+  }
+
+  @Test
   public void
       testSyncJobExecutionStatuses_fourRunningExecutionsWithStartTimeBefore5min_shouldSyncTwoExecutions() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);

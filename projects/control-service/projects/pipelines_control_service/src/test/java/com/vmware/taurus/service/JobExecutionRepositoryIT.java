@@ -219,4 +219,93 @@ public class JobExecutionRepositoryIT {
     Assertions.assertTrue(lastExecution.isPresent());
     Assertions.assertEquals("execution2", lastExecution.get().getId());
   }
+
+  @Test
+  void testUpdateExecutionStatusWhereOldStatusInAndExecutionIdIn_withExecutions_shouldUpdateBoth() {
+    DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+    var execution1 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution1",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        "Success",
+        OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+        OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
+    var execution2 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution2",
+        dataJob,
+        ExecutionStatus.RUNNING,
+        null,
+        OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
+        null);
+
+    jobExecutionRepository.save(execution1);
+    jobExecutionRepository.save(execution2);
+
+    var executionEndTime = OffsetDateTime.now();
+    var message = "Changed by test";
+    jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
+        ExecutionStatus.CANCELLED, executionEndTime, message,
+        List.of(ExecutionStatus.SUCCEEDED, ExecutionStatus.RUNNING),
+        List.of(execution1.getId(), execution2.getId()));
+
+    var expectedExecution1 = jobExecutionRepository.findById(execution1.getId()).get();
+    var expectedExecution2 = jobExecutionRepository.findById(execution2.getId()).get();
+
+    Assertions.assertEquals(expectedExecution1.getStatus(), ExecutionStatus.CANCELLED);
+    Assertions.assertEquals(expectedExecution1.getMessage(), message);
+    Assertions.assertEquals(expectedExecution1.getEndTime(), executionEndTime);
+
+    Assertions.assertEquals(expectedExecution2.getStatus(), ExecutionStatus.CANCELLED);
+    Assertions.assertEquals(expectedExecution2.getMessage(), message);
+    Assertions.assertEquals(expectedExecution2.getEndTime(), executionEndTime);
+
+  }
+
+  @Test
+  void testUpdateExecutionStatusWhereOldStatusInAndExecutionIdIn_withExecutions_shouldUpdateOne() {
+    DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+    var execution1 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution1",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        "Success",
+        OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+        OffsetDateTime.of(2000, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC));
+    var execution2 = RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution2",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        null,
+        OffsetDateTime.of(2000, 1, 1, 4, 0, 0, 0, ZoneOffset.UTC),
+        null);
+
+    jobExecutionRepository.save(execution1);
+    jobExecutionRepository.save(execution2);
+
+    var executionEndTime = OffsetDateTime.now();
+    var message = "Changed by test";
+    jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
+        ExecutionStatus.CANCELLED, executionEndTime, message,
+        List.of(ExecutionStatus.SUCCEEDED, ExecutionStatus.RUNNING),
+        List.of(execution1.getId(), execution2.getId()));
+
+    var expectedExecution1 = jobExecutionRepository.findById(execution1.getId()).get();
+    var expectedExecution2 = jobExecutionRepository.findById(execution2.getId()).get();
+
+    Assertions.assertEquals(expectedExecution1.getStatus(), ExecutionStatus.CANCELLED);
+    Assertions.assertEquals(expectedExecution1.getMessage(), message);
+    Assertions.assertEquals(expectedExecution1.getEndTime(), executionEndTime);
+
+    Assertions.assertEquals(expectedExecution2.getStatus(), execution2.getStatus());
+    Assertions.assertEquals(expectedExecution2.getMessage(), execution2.getMessage());
+    Assertions.assertEquals(expectedExecution2.getEndTime(), execution2.getEndTime());
+
+  }
+
 }
