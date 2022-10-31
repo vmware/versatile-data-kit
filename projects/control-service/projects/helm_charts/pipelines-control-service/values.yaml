@@ -432,11 +432,19 @@ resources:
 ## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
   enabled: true
-  storage:
-    persistentVolume:
+  architecture: standalone  # replication
+#  readReplicas:
+#    replicaCount: 2
+#    resources:
+#      limits:
+#        cpu: 500m
+#        memory: 500Mi
+#      requests:
+#        cpu: 500m
+#        memory: 500Mi
+  primary:
+    persistence:
       size: 1Gi
-  statefulset:
-    replicas: 3
     resources:
       limits:
         cpu: 500m
@@ -444,16 +452,7 @@ postgresql:
       requests:
         cpu: 500m
         memory: 500Mi
-  init:
-    resources:
-      limits:
-        cpu: 500m
-        memory: 500Mi
-      requests:
-        cpu: 500m
-        memory: 500Mi
-  service:
-    public:
+    service:
       type: ClusterIP
 
 ## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
