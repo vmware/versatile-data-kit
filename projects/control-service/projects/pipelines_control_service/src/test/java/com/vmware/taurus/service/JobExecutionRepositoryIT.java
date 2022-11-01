@@ -315,7 +315,7 @@ public class JobExecutionRepositoryIT {
   }
 
   @Test
-  void testFindDataJobExecutionsByStatusInAndStartTimeBefore_shouldReturnOne(){
+  void testFindDataJobExecutionsByStatusInAndStartTimeBefore_shouldReturnOne() {
     DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
 
     var execution =
@@ -328,26 +328,26 @@ public class JobExecutionRepositoryIT {
             OffsetDateTime.now().minusMinutes(30),
             OffsetDateTime.now().minusMinutes(15));
 
-        RepositoryUtil.createDataJobExecution(
-            jobExecutionRepository,
-            "execution2",
-            dataJob,
-            ExecutionStatus.SUCCEEDED,
-            null,
-            OffsetDateTime.now().minusMinutes(20),
-            OffsetDateTime.now().minusMinutes(15));
+    RepositoryUtil.createDataJobExecution(
+        jobExecutionRepository,
+        "execution2",
+        dataJob,
+        ExecutionStatus.SUCCEEDED,
+        null,
+        OffsetDateTime.now().minusMinutes(20),
+        OffsetDateTime.now().minusMinutes(15));
 
-    var returnedExecutions = jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
-        List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.SUCCEEDED),
-        OffsetDateTime.now().minusMinutes(25));
+    var returnedExecutions =
+        jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
+            List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.SUCCEEDED),
+            OffsetDateTime.now().minusMinutes(25));
 
     Assertions.assertTrue(returnedExecutions.size() == 1);
     Assertions.assertEquals(execution.getId(), returnedExecutions.get(0).getId());
-
   }
 
   @Test
-  void testFindDataJobExecutionsByStatusInAndStartTimeBefore_shouldReturnTwo(){
+  void testFindDataJobExecutionsByStatusInAndStartTimeBefore_shouldReturnTwo() {
     DataJob dataJob = RepositoryUtil.createDataJob(jobsRepository);
 
     var execution =
@@ -388,17 +388,17 @@ public class JobExecutionRepositoryIT {
         OffsetDateTime.now().minusMinutes(20),
         OffsetDateTime.now().minusMinutes(15));
 
-    var returnedExecutions = jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
-        List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
-        OffsetDateTime.now().minusMinutes(25));
+    var returnedExecutions =
+        jobExecutionRepository.findDataJobExecutionsByStatusInAndStartTimeBefore(
+            List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
+            OffsetDateTime.now().minusMinutes(25));
 
     Assertions.assertTrue(returnedExecutions.size() == 2);
-    Assertions.assertEquals(2,
+    Assertions.assertEquals(
+        2,
         returnedExecutions.stream()
             .filter(
                 e -> e.getId().equals(execution.getId()) || e.getId().equals(execution2.getId()))
             .count());
-
   }
-
 }
