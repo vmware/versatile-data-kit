@@ -12,7 +12,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 
-import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
