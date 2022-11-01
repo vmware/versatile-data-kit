@@ -11,7 +11,14 @@ import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.exception.*;
+import com.vmware.taurus.exception.DataJobAlreadyRunningException;
+import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
+import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
+import com.vmware.taurus.exception.DataJobExecutionNotFoundException;
+import com.vmware.taurus.exception.DataJobExecutionStatusNotValidException;
+import com.vmware.taurus.exception.DataJobNotFoundException;
+import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
+import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.KubernetesService;
@@ -19,19 +26,29 @@ import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.ExecutionResult;
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.JobAnnotation;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
+import com.vmware.taurus.service.model.JobEnvVar;
 import io.kubernetes.client.openapi.ApiException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Job Execution service.
@@ -374,23 +391,22 @@ public class JobExecutionService {
       return;
     }
     var runningJobStatus = List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
-    List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
+    List<String> dataJobExecutionsToBeUpdated =
         jobExecutionRepository
             .findDataJobExecutionsByStatusInAndStartTimeBefore(
                 runningJobStatus, OffsetDateTime.now().minusMinutes(3))
             .stream()
             .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
+            .map(execution -> execution.getId())
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
-      var jobsToUpdate =
-          dataJobExecutionsToBeUpdated.stream().map(e -> e.getId()).collect(Collectors.toList());
       jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
           ExecutionStatus.SUCCEEDED,
           OffsetDateTime.now(),
           "Status is set by VDK Control Service",
           runningJobStatus,
-          jobsToUpdate);
+          dataJobExecutionsToBeUpdated);
       dataJobExecutionsToBeUpdated.forEach(
           dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
     }

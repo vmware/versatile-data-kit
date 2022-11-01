@@ -44,7 +44,7 @@ public interface JobExecutionRepository
   List<DataJobExecutionIdAndEndTime> findByDataJobNameAndStatusNotInOrderByEndTime(
       String jobName, List<ExecutionStatus> statuses);
 
-  List<DataJobExecution> findDataJobExecutionsByStatusInAndStartTimeBefore(
+  List<DataJobExecutionId> findDataJobExecutionsByStatusInAndStartTimeBefore(
       List<ExecutionStatus> statuses, OffsetDateTime startTime);
 
   @Transactional
