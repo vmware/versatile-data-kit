@@ -19,8 +19,7 @@ import java.util.Map;
 
 class FileFormatDetector {
 
-  private static final Map<String, MediaType> CACHE_MEDIA_TYPES = new HashMap<>();
-
+  private final Map<String, MediaType> cachedMediaTypes = new HashMap<>();
   private final Detector detector;
 
   public FileFormatDetector() {
@@ -45,13 +44,13 @@ class FileFormatDetector {
    * @return true or false
    */
   public boolean matchTypes(String detectedType, String targetType) {
-    var detectedMediaType = CACHE_MEDIA_TYPES.computeIfAbsent(detectedType, MediaType::parse);
+    var detectedMediaType = cachedMediaTypes.computeIfAbsent(detectedType, MediaType::parse);
     if (detectedMediaType == null) {
       throw new IllegalArgumentException(
           "detectedType must in format 'type/subtype' but it was: " + detectedType);
     }
     if (targetType.contains("/")) { // compare by both type and subtype (text/plain)
-      var targetMediaType = CACHE_MEDIA_TYPES.computeIfAbsent(targetType, MediaType::parse);
+      var targetMediaType = cachedMediaTypes.computeIfAbsent(targetType, MediaType::parse);
       return detectedMediaType.equals(targetMediaType);
     } else { // we compare only by type (text)
       return detectedMediaType.getType().equals(targetType);
