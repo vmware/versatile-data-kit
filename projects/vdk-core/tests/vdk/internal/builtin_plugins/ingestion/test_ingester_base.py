@@ -218,6 +218,10 @@ def test_ingest_payload_multiple_destinations():
 def test_pre_ingestion_operation():
     pre_ingest_plugin = MagicMock(spec=IIngesterPlugin)
     ingester_base = create_ingester_base({"pre_processors": [pre_ingest_plugin]})
+    ingester_base._pre_processors[0].pre_ingest_process.return_value = (
+        shared_test_values.get("test_expected_payload1"),
+        None,
+    )
 
     ingester_base.send_object_for_ingestion(
         payload=shared_test_values.get("test_payload1"),
@@ -233,6 +237,44 @@ def test_pre_ingestion_operation():
         target=shared_test_values.get("target"),
         collection_id=shared_test_values.get("collection_id"),
         metadata=None,
+    )
+    ingester_base._ingester.ingest_payload.assert_called_once()
+
+
+def test_pre_ingestion_updated_dynamic_params():
+    metadata = IIngesterPlugin.IngestionMetadata({})
+    metadata[IIngesterPlugin.UPDATED_DYNAMIC_PARAMS] = {
+        IIngesterPlugin.TARGET_KEY: "updated_target",
+        IIngesterPlugin.DESTINATION_TABLE_KEY: "updated_dest_table",
+    }
+    pre_ingest_plugin = MagicMock(spec=IIngesterPlugin)
+    ingester_base = create_ingester_base({"pre_processors": [pre_ingest_plugin]})
+    ingester_base._pre_processors[0].pre_ingest_process.return_value = (
+        shared_test_values.get("test_expected_payload1"),
+        metadata,
+    )
+
+    ingester_base.send_object_for_ingestion(
+        payload=shared_test_values.get("test_payload1"),
+        destination_table=shared_test_values.get("destination_table"),
+        method=shared_test_values.get("method"),
+        target=shared_test_values.get("target"),
+    )
+    ingester_base.close()
+
+    ingester_base._pre_processors[0].pre_ingest_process.assert_called_with(
+        payload=shared_test_values.get("test_expected_payload1"),
+        destination_table=shared_test_values.get("destination_table"),
+        target=shared_test_values.get("target"),
+        collection_id=shared_test_values.get("collection_id"),
+        metadata=None,
+    )
+    ingester_base._ingester.ingest_payload.assert_called_with(
+        collection_id=shared_test_values.get("collection_id"),
+        target="updated_target",
+        destination_table="updated_dest_table",
+        payload=shared_test_values.get("test_expected_payload1"),
+        metadata=metadata,
     )
 
 

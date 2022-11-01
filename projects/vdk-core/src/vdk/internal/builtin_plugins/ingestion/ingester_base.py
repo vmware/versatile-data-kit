@@ -439,6 +439,28 @@ class IngesterBase(IIngester):
                     for payload_dict in payload_obj:
                         self.__verify_payload_format(payload_dict=payload_dict)
 
+                    if ingestion_metadata:
+                        updated_dynamic_params: Optional[dict] = ingestion_metadata.pop(
+                            IIngesterPlugin.UPDATED_DYNAMIC_PARAMS, None
+                        )
+                        if updated_dynamic_params:
+                            destination_table = (
+                                updated_dynamic_params.get(
+                                    IIngesterPlugin.DESTINATION_TABLE_KEY
+                                )
+                                or destination_table
+                            )
+                            target = (
+                                updated_dynamic_params.get(IIngesterPlugin.TARGET_KEY)
+                                or target
+                            )
+                            collection_id = (
+                                updated_dynamic_params.get(
+                                    IIngesterPlugin.COLLECTION_ID_KEY
+                                )
+                                or collection_id
+                            )
+
                     try:
                         ingestion_metadata = self._ingester.ingest_payload(
                             payload=payload_obj,
