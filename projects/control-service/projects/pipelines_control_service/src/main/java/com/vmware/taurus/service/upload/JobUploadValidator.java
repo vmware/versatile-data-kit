@@ -36,14 +36,15 @@ class JobUploadValidator {
     log.debug("Job sources upload validator allowlist: {}", Arrays.toString(allowList));
   }
 
-
   /**
-   * Validate all files of a data job that are being upto standard and are not containing anything forbidden.
-   * The validation done is by detecting the file type and checking if that file type is allowed against preconfigurd list
-   * controlled by "upload.validation.fileTypes.allowlist". If the allowList is empty then all files are allowed.
+   * Validate all files of a data job that are being upto standard and are not containing anything
+   * forbidden. The validation done is by detecting the file type and checking if that file type is
+   * allowed against preconfigurd list controlled by "upload.validation.fileTypes.allowlist". If the
+   * allowList is empty then all files are allowed.
    *
    * @param jobName the name of the data job whose files are validated
-   * @param jobDirectory path to the data job directory where unarchived content of the data job being uploaded can be seen.
+   * @param jobDirectory path to the data job directory where unarchived content of the data job
+   *     being uploaded can be seen.
    * @throws InvalidJobUpload
    */
   public void validateJob(String jobName, Path jobDirectory) throws InvalidJobUpload {
