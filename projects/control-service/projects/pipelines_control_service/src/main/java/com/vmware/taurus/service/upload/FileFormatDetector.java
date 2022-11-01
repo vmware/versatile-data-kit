@@ -60,7 +60,7 @@ class FileFormatDetector {
 
   /**
    * Return the detected file type Full list of file types are documented in
-   * https://tika.apache.org/1.10/formats.html#Full_list_of_Supported_Formats
+   * https://tika.apache.org/2.5.0/formats.html#Full_list_of_Supported_Formats
    */
   public String detectFileType(Path filePath) throws IOException {
     Metadata metadata = new Metadata();
