@@ -12,10 +12,23 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 
+import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 class FileFormatDetector {
+
+  private static final Map<String, MediaType> CACHE_MEDIA_TYPES = new HashMap<>();
+
+  private final Detector detector;
+
+  public FileFormatDetector() {
+    // https://tika.apache.org/2.5.0/detection.html
+    TikaConfig config = TikaConfig.getDefaultConfig();
+    this.detector = config.getDetector();
+  }
 
   /**
    * Match detectedType with target type: If targetType is base type (e.g text and not text/plain).
@@ -33,13 +46,13 @@ class FileFormatDetector {
    * @return true or false
    */
   public boolean matchTypes(String detectedType, String targetType) {
-    var detectedMediaType = MediaType.parse(detectedType);
+    var detectedMediaType = CACHE_MEDIA_TYPES.computeIfAbsent(detectedType, MediaType::parse);
     if (detectedMediaType == null) {
       throw new IllegalArgumentException(
-          "detectedType must in format 'type/subtyp' but it was: " + detectedType);
+          "detectedType must in format 'type/subtype' but it was: " + detectedType);
     }
     if (targetType.contains("/")) { // compare by both type and subtype (text/plain)
-      var targetMediaType = MediaType.parse(targetType);
+      var targetMediaType = CACHE_MEDIA_TYPES.computeIfAbsent(targetType, MediaType::parse);
       return detectedMediaType.equals(targetMediaType);
     } else { // we compare only by type (text)
       return detectedMediaType.getType().equals(targetType);
@@ -51,9 +64,6 @@ class FileFormatDetector {
    * https://tika.apache.org/1.10/formats.html#Full_list_of_Supported_Formats
    */
   public String detectFileType(Path filePath) throws IOException {
-    // https://tika.apache.org/2.5.0/detection.html
-    TikaConfig config = TikaConfig.getDefaultConfig();
-    Detector detector = config.getDetector();
     Metadata metadata = new Metadata();
     metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, filePath.toFile().getName());
     TikaInputStream stream = TikaInputStream.get(filePath, metadata);
