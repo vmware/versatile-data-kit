@@ -151,7 +151,7 @@ deploymentGitPassword: ""
 # Credentials with read and write access to the Git repository.
 uploadGitReadWriteUsername: ""
 uploadGitReadWritePassword: ""
-
+uploadValidationFileTypesAllowList: ""
 
 ## [Required] The repository where the data job images will be stored (so write permission must be granted)
 ## Automatically a repository will be created for each data job in ${deploymentDockerRepository}/data-job-name
