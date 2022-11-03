@@ -12,10 +12,6 @@ image:
   registry: registry.hub.docker.com/versatiledatakit
   repository: pipelines-control-service
   tag: "1f57f0e"
-  ## Image registry types. Your account need to have pull permissions over the registry. The supported values are:
-  ## - "generic" : Dockerhub or Harbor type registries
-  ## TODO Support will be added for more later
-  registryType: generic
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
