@@ -205,7 +205,7 @@ VDK distribution docker repository secret name
 {{- end -}}
 
 {{- define "shouldCreateVdkSdkDockerRepoSecret" }}
-  {{- if and (eq .Values.deploymentVdkDistributionImage.registryType "generic") .Values.deploymentVdkDistributionImage.registryUsernameReadOnly .Values.deploymentVdkDistributionImage.registryPasswordReadOnly }}
+  {{- if and (.Values.deploymentVdkDistributionImage.registryUsernameReadOnly) (.Values.deploymentVdkDistributionImage.registryPasswordReadOnly) }}
     true
   {{- end }}
 {{- end }}

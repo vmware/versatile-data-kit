@@ -30,7 +30,7 @@ spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ template "pipelines-control-service.serviceAccountName" . }}
       {{- end }}
-      {{- if and (eq .Values.image.registryType "generic") .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly }}
+      {{- if and (.Values.image.registryUsernameReadOnly) (.Values.image.registryPasswordReadOnly) }}
       imagePullSecrets:
         - name: {{ template "pipelines-control-service.fullname" . }}-pipelines-control-service-repo-creds
       {{- end }}
