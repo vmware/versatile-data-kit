@@ -5,6 +5,9 @@
 
 package com.vmware.taurus.service.upload;
 
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -12,15 +15,41 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class FileUtilsTest {
+
+  static class JobZipBuilder implements AutoCloseable {
+
+    private final ZipFile zipFile;
+
+    JobZipBuilder(Path zipFilePath) {
+      this.zipFile = new ZipFile(zipFilePath.toFile());
+    }
+
+    public void addFile(String fileNameInZip, int uncompressedSizeInKB) throws ZipException {
+      var parameters = new ZipParameters();
+      parameters.setFileNameInZip(fileNameInZip);
+
+      this.zipFile.addStream(
+          new ByteArrayInputStream(
+              "0".repeat(uncompressedSizeInKB * 1024).getBytes(StandardCharsets.UTF_8)),
+          parameters);
+    }
+
+    @Override
+    public void close() throws Exception {
+      this.zipFile.close();
+    }
+  }
 
   @Test
   public void endToEndFileTest() throws IOException, URISyntaxException {
@@ -89,5 +118,20 @@ public class FileUtilsTest {
     Assertions.assertTrue(new File(unzipped, "config.ini").isFile());
     Assertions.assertTrue(new File(unzipped, "subdir").isDirectory());
     Assertions.assertTrue(new File(new File(unzipped, "subdir"), "x.py").isFile());
+  }
+
+  @Test
+  public void testUnZip_zipSlipExploit(@TempDir Path tempDir) throws Exception {
+    Path zipFile = Paths.get(tempDir.toString(), "zip-file.zip");
+    JobZipBuilder builder = new JobZipBuilder(zipFile);
+    builder.addFile("job/../../../forbidden", 10);
+    builder.addFile("../../../forbidden", 10);
+    builder.close();
+
+    Assertions.assertThrows(
+        ZipException.class,
+        () ->
+            FileUtils.unzipDataJob(
+                new FileSystemResource(zipFile.toFile()), tempDir.toFile(), "name"));
   }
 }
