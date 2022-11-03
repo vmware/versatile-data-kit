@@ -14,6 +14,7 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins import builtin_hook_impl
 from vdk.internal.builtin_plugins.internal_hookspecs import InternalHookSpecs
+from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
@@ -66,10 +67,11 @@ def setup_cli_commands(plugin_registry: IPluginRegistry, root_command: click.Gro
     """
     Call hooks to customize CLI Commands
     """
-    log.debug("Setup commands and options ...")
-    cast(CoreHookSpecs, plugin_registry.hook()).vdk_command_line(
-        root_command=root_command
-    )
+    if root_command is not None:
+        log.debug("Setup commands and options ...")
+        cast(CoreHookSpecs, plugin_registry.hook()).vdk_command_line(
+            root_command=root_command
+        )
 
 
 def build_core_context_and_initialize(
@@ -127,12 +129,15 @@ class CliEntry:
         exit_code = 0
         try:
             log.info(f"Start CLI {program_name} with args {command_line_args}")
-            exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_cli_execute(
-                root_command=root_command,
-                command_line_args=command_line_args,
-                core_context=core_context,
-                program_name=program_name,
-            )
+            if root_command is not None:
+                exit_code = cast(
+                    InternalHookSpecs, plugin_registry.hook()
+                ).vdk_cli_execute(
+                    root_command=root_command,
+                    command_line_args=command_line_args,
+                    core_context=core_context,
+                    program_name=program_name,
+                )
             return exit_code
         except Exception as e:
             handled = cast(CoreHookSpecs, plugin_registry.hook()).vdk_exception(
@@ -157,16 +162,20 @@ def main() -> None:
     """
     # configure basic logging , it's expected that a plugin would override and set it up properly
     click_log.basic_config(logging.getLogger())
+    plugin_load_success = True
 
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()
     plugin_registry.add_hook_specs(InternalHookSpecs)
-    plugin_registry.load_plugins_from_setuptools_entrypoints()
+    try:
+        plugin_registry.load_plugins_from_setuptools_entrypoints()
+    except Exception:
+        plugin_load_success = False
     plugin_registry.load_plugin_with_hooks_impl(CliEntry(), "cli-entry")
 
     exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_main(
         plugin_registry=plugin_registry,
-        root_command=cli,
+        root_command=cli if plugin_load_success else None,
         command_line_args=sys.argv[1:],
     )
     sys.exit(exit_code)
