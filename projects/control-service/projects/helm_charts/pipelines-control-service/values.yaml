@@ -1,24 +1,28 @@
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
-## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+## Current available global Docker image parameter(s): imageRegistry
 ## Set global.imageRegistry if you use docker proxy to the proxy prefix for versatiledatakit.
 ##
 global: {}
 #   imageRegistry: myRegistryName
-#   imagePullSecrets: # TODO enable setting imagePullSecrets so that clients can use any docker repos easier (clients can still set it up manually)
 #     - myRegistryKeySecretName
 
 # Image configuration of the Control service image. Generally those should be left as it is.
 image:
-   registry: registry.hub.docker.com/versatiledatakit
-   repository: pipelines-control-service
-   tag: "1f57f0e"
-
-   ## Specify a imagePullPolicy
-   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-   ##
-   pullPolicy: IfNotPresent
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: pipelines-control-service
+  tag: "1f57f0e"
+  ## Image registry types. Your account need to have pull permissions over the registry. The supported values are:
+  ## - "generic" : Dockerhub or Harbor type registries
+  ## TODO Support will be added for more later
+  registryType: generic
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  registryUsernameReadOnly:
+  registryPasswordReadOnly:
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.
@@ -191,6 +195,7 @@ deploymentDockerRegistryPassword: ""
 ## The account with those credentials needs to have pull permissions over the registry.
 deploymentDockerRegistryUsernameReadOnly: ""
 deploymentDockerRegistryPasswordReadOnly: ""
+
 
 ## Image name of VDK which will be used to run the data jobs.
 ## It is recommended to use image with same tag (e.g release or latest)
