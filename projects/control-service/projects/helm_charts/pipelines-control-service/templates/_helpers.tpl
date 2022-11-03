@@ -210,6 +210,12 @@ VDK distribution docker repository secret name
   {{- end }}
 {{- end }}
 
+{{- define "shouldCreatePipelinesControlServiceDockerRepoSecret" }}
+  {{- if and (eq .Values.image.registryType "generic") .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly }}
+    true
+  {{- end }}
+{{- end }}
+
 {{/*
 Image Pull Secret in json format
 */}}
@@ -226,4 +232,8 @@ Image Pull Secret in json format
 
 {{- define "vdkSdkImagePullSecretJson" }}
     {{ include "buildImagePullSecretJson" (list (include "pipelines-control-service.deploymentVdkDistributionImageRepository" .) .Values.deploymentVdkDistributionImage.registryUsernameReadOnly .Values.deploymentVdkDistributionImage.registryPasswordReadOnly) }}
+{{- end }}
+
+{{- define "pipelinesControlServicePullSecretJson" }}
+    {{ include "buildImagePullSecretJson" (list (include "pipelines-control-service.image" .) .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly) }}
 {{- end }}
