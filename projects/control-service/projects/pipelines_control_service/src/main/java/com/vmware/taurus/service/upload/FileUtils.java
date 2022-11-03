@@ -85,6 +85,10 @@ public class FileUtils {
    * <p>in case the job_folder name is different than the job name the method will rename it to be
    * the same as the job name.
    *
+   * <p>The function has a protection against zip slip exploit but it doesn't have against zip bomb
+   * (which is type of DOS attack). If someone tries to upload zipbomb then the pod may restart so
+   * it's not that big of an issue.
+   *
    * @param resource binary containing the zip file sent to the service
    * @param tempDir temporary directory containing all the files for the upload process
    * @param jobName name of the data job so we can unzip the job contents in folder with that name
