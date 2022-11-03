@@ -2,6 +2,7 @@
 # testing requirements
 click
 docker-compose
+pandas
 psycopg2-binary
 pytest-docker
 tabulate

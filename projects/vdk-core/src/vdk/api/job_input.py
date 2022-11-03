@@ -7,6 +7,8 @@ from typing import Any
 from typing import List
 from typing import Optional
 
+from pandas import DataFrame
+
 
 class IProperties:
     """
@@ -61,6 +63,29 @@ class IManagedConnection:
         """
         Executes the provided query and returns results from PEP 249 Cursor.fetchall() method, see:
             https://www.python.org/dev/peps/pep-0249/#fetchall
+
+        Query can contain parameters in format -> {query_parameter}. Parameters in the query will
+        be automatically substituted if they exist in Data Job properties and arguments as keys.
+        If parameter with same key is used both as arguments and properties,
+        arguments (get_arguments()) will take precedence over properties (get_property()).
+
+        Note:
+            Parameters are case sensitive.
+            If a query parameter is not present in Data Job properties or arguments it will not be replaced in the query
+            and most likely result in query failure.
+
+        Example usage:
+            job_input.set_all_properties({'target_table': 'history.people','etl_run_date_column': 'pa__arrival_ts'})
+            query_result = job_input.execute_query("SELECT * FROM {target_table} WHERE {etl_run_date_column} > now() - interval 2 hours")
+
+        """
+        pass
+
+    @abstractmethod
+    def read_sql_as_dataframe(self, query_as_utf8_string) -> DataFrame:
+        """
+        Executes the provided query and returns results from PEP 249 pandas.read_sql() method, see:
+            https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html
 
         Query can contain parameters in format -> {query_parameter}. Parameters in the query will
         be automatically substituted if they exist in Data Job properties and arguments as keys.

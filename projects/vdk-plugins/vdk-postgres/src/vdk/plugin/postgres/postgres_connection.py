@@ -5,6 +5,7 @@ from typing import Any
 from typing import List
 from typing import Optional
 
+from pandas import DataFrame
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
@@ -110,5 +111,11 @@ class PostgresConnection(ManagedConnectionBase):
     def execute_query(self, query: str) -> List[List[Any]]:
         try:
             return super().execute_query(query)
+        finally:
+            self.commit()
+
+    def read_sql_as_dataframe(self, query: str) -> List[List[Any]]:
+        try:
+            return super().read_sql_as_dataframe(query)
         finally:
             self.commit()

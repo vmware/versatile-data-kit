@@ -10,6 +10,7 @@ from typing import List
 from typing import Optional
 from typing import Type
 
+import pandas as pd
 from tenacity import before_sleep_log
 from tenacity import retry
 from tenacity import retry_if_exception_type
@@ -156,6 +157,31 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
             return cast(
                 List[List[Any]], res
             )  # we return None in case of DML. This is not PEP249 compliant, but is more convenient
+
+    def read_sql_as_dataframe(self, query: str) -> pd.DataFrame:
+        """Read SQL statement and returns the result as pandas DataFrame"""
+        with self.connect() as db:
+            try:
+                res = pd.read_sql(query, con=db)
+            except Exception as error:
+                res = None
+
+                if job_input_error_classifier.is_user_error(error):
+                    blamee = errors.ResolvableBy.USER_ERROR
+                else:
+                    blamee = errors.ResolvableBy.PLATFORM_ERROR
+
+                errors.log_and_rethrow(
+                    blamee,
+                    self._log,
+                    what_happened="Fetching all results as DataFrame from query FAILED.",
+                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(error),
+                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    exception=error,
+                )
+
+        return res
 
     def cursor(self, *args, **kwargs):
         if hasattr(self._db_con, "cursor"):

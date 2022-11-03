@@ -112,6 +112,15 @@ class JobInput(IJobInput):
         connection = self.get_managed_connection()
         return connection.execute_query(query)
 
+    def read_sql_as_dataframe(self, sql: str):
+        if not sql or not sql.strip():
+            raise UserCodeError("Trying to execute an empty SQL query.")
+
+        query = self._substitute_query_params(sql)
+
+        connection = self.get_managed_connection()
+        return connection.read_sql_as_dataframe(query)
+
     def send_object_for_ingestion(
         self,
         payload: dict,

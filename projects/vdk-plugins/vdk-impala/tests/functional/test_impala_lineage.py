@@ -41,6 +41,11 @@ def execute_query(runner, query: str):
     cli_assert_equal(0, result)
 
 
+def read_sql_as_dataframe(runner, query: str):
+    result: Result = runner.invoke(["impala-query", "--query", query])
+    cli_assert_equal(0, result)
+
+
 @pytest.mark.skipif(
     sys.version_info >= (3, 10),
     reason="Lineage collection is not supported in python 3.10."
