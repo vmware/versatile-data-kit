@@ -12,8 +12,8 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 /**
- * Responsible for abstracting a file into an AutoClosable file.
- * If one of these are created at the start of a try with resources block then the file will be deleted at the end of the try block.
+ * Responsible for abstracting a file into an AutoClosable file. If one of these are created at the
+ * start of a try with resources block then the file will be deleted at the end of the try block.
  */
 public class EphemeralFile implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(EphemeralFile.class);
