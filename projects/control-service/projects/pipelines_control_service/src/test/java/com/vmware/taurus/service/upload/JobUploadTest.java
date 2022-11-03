@@ -77,7 +77,8 @@ public class JobUploadTest {
             true);
 
     jobUpload =
-        new JobUpload(null,gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
+        new JobUpload(
+            null, gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
   }
 
   @AfterEach
@@ -236,15 +237,22 @@ public class JobUploadTest {
   }
 
   @Test
-  public void testICanOverrideTheDefaultTempDirectoryAndUploadAndDeleteStillWork() throws IOException, GitAPIException {
-    jobUpload =  new JobUpload(createTempDir("DIFFERENT_DIRECTORY_TEST").toFile().toString(),gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
+  public void testICanOverrideTheDefaultTempDirectoryAndUploadAndDeleteStillWork()
+      throws IOException, GitAPIException {
+    jobUpload =
+        new JobUpload(
+            createTempDir("DIFFERENT_DIRECTORY_TEST").toFile().toString(),
+            gitCredentialsProvider,
+            gitWrapper,
+            featureFlags,
+            authorizationProvider);
 
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 
     Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
 
     Resource jobResource =
-            new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
+        new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
 
     jobUpload.publishDataJob("example", jobResource, "example-reason");
 
@@ -259,7 +267,6 @@ public class JobUploadTest {
     Assertions.assertEquals("user", commits[0].getAuthorIdent().getName());
     Assertions.assertFalse(new File(this.remoteRepositoryDir, "example").exists());
   }
-
 
   @Test
   public void testGetDataJob(@TempDir Path tempDir) throws Exception {
