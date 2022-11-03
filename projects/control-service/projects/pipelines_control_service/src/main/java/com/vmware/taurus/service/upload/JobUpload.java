@@ -47,6 +47,8 @@ public class JobUpload {
 
   @Autowired private final AuthorizationProvider authorizationProvider;
 
+  @Autowired private final JobUploadValidator jobUploadValidator;
+
   /**
    * Get data job source as a zip file.
    *
@@ -131,6 +133,7 @@ public class JobUpload {
 
       File jobFolder =
           FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
+      jobUploadValidator.validateJob(jobName, jobFolder.toPath());
 
       Git git =
           gitWrapper.cloneJobRepository(

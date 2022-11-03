@@ -373,25 +373,24 @@ public class JobExecutionService {
     if (runningJobExecutionIds == null) {
       return;
     }
-
+    var runningJobStatus = List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
     List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
         jobExecutionRepository
             .findDataJobExecutionsByStatusInAndStartTimeBefore(
-                List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
-                OffsetDateTime.now().minusMinutes(3))
+                runningJobStatus, OffsetDateTime.now().minusMinutes(3))
             .stream()
             .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
-            .map(
-                dataJobExecution -> {
-                  dataJobExecution.setStatus(ExecutionStatus.SUCCEEDED);
-                  dataJobExecution.setMessage("Status is set by VDK Control Service");
-                  dataJobExecution.setEndTime(OffsetDateTime.now());
-                  return dataJobExecution;
-                })
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
-      jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
+      var jobsToUpdate =
+          dataJobExecutionsToBeUpdated.stream().map(e -> e.getId()).collect(Collectors.toList());
+      jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
+          ExecutionStatus.SUCCEEDED,
+          OffsetDateTime.now(),
+          "Status is set by VDK Control Service",
+          runningJobStatus,
+          jobsToUpdate);
       dataJobExecutionsToBeUpdated.forEach(
           dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
     }

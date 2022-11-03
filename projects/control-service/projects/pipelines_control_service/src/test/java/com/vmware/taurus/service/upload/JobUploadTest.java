@@ -55,6 +55,8 @@ public class JobUploadTest {
 
   @Mock private AuthorizationProvider authorizationProvider;
 
+  @Mock private JobUploadValidator jobUploadValidator;
+
   private JobUpload jobUpload;
 
   @Value("${datajobs.git.branch}")
@@ -75,7 +77,12 @@ public class JobUploadTest {
             true);
 
     jobUpload =
-        new JobUpload(gitCredentialsProvider, gitWrapper, featureFlags, authorizationProvider);
+        new JobUpload(
+            gitCredentialsProvider,
+            gitWrapper,
+            featureFlags,
+            authorizationProvider,
+            jobUploadValidator);
   }
 
   @AfterEach
