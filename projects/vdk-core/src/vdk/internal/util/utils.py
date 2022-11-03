@@ -64,6 +64,10 @@ def log_plugin_load_fail(
         f"Cannot load plugin from setuptools entrypoint for group {group_name}",
         "See exception for possible reason",
         "The CLI tool will likely abort.",
-        "Re-try again. Check exception message and possibly uninstall a bad plugin (pip uninstall) Or see what plugins are installed (use `pip list` command) and if there aren't issues. Or try to reinstall the app in a new clean environment. Try to revert to previous version of the CLI tool. If nothing works open a SRE ticket.",
+        "Re-try again. Check exception message and possibly uninstall a bad"
+        " plugin (pip uninstall) Or see what plugins are installed (use `pip"
+        " list` command) and if there aren't issues. Or try to reinstall the"
+        " app in a new clean environment. Try to revert to previous version of"
+        " the CLI tool. If nothing works open a SRE ticket.",
         exception,
     )
