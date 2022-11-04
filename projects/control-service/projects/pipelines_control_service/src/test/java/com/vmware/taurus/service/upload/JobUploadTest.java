@@ -79,9 +79,7 @@ public class JobUploadTest {
             true);
 
     jobUpload =
-        new JobUpload(
-            null, gitCredentialsProvider, gitWrapper, featureFlags,
-            jobUploadValidator);
+        new JobUpload(null, gitCredentialsProvider, gitWrapper, featureFlags, jobUploadValidator);
   }
 
   @AfterEach
