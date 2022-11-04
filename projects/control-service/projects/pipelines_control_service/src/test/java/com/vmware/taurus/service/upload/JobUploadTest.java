@@ -39,6 +39,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static com.vmware.taurus.service.upload.FileUtils.createTempDir;
+
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = ControlplaneApplication.class)
@@ -78,6 +80,7 @@ public class JobUploadTest {
 
     jobUpload =
         new JobUpload(
+            null,
             gitCredentialsProvider,
             gitWrapper,
             featureFlags,
@@ -219,6 +222,39 @@ public class JobUploadTest {
 
   @Test
   public void testDeleteDataJob(@TempDir Path tempDir) throws Exception {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+
+    Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
+
+    Resource jobResource =
+        new ClassPathResource("/file_test/test_job.zip", this.getClass().getClassLoader());
+
+    jobUpload.publishDataJob("example", jobResource, "example-reason");
+
+    refreshRemoteGitDirectoryWithLatestChanges();
+    Assertions.assertTrue(new File(this.remoteRepositoryDir, "example").exists());
+
+    jobUpload.deleteDataJob("example", "example-reason");
+    refreshRemoteGitDirectoryWithLatestChanges();
+
+    var commits = Iterables.toArray(remoteGit.log().call(), RevCommit.class);
+    Assertions.assertEquals(2, commits.length);
+    Assertions.assertEquals("user", commits[0].getAuthorIdent().getName());
+    Assertions.assertFalse(new File(this.remoteRepositoryDir, "example").exists());
+  }
+
+  @Test
+  public void testICanOverrideTheDefaultTempDirectoryAndUploadAndDeleteStillWork()
+      throws IOException, GitAPIException {
+    jobUpload =
+        new JobUpload(
+            createTempDir("DIFFERENT_DIRECTORY_TEST").toFile().toString(),
+            gitCredentialsProvider,
+            gitWrapper,
+            featureFlags,
+            authorizationProvider,
+            jobUploadValidator);
+
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 
     Mockito.when(authorizationProvider.getUserId(Mockito.any())).thenReturn("user");
