@@ -30,6 +30,14 @@ spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ template "pipelines-control-service.serviceAccountName" . }}
       {{- end }}
+      volumes:
+        - name: DATAJOBS_TEMP_STORAGE_FOLDER_VOLUME
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                resources:
+                  requests:
+                    storage: 1Gi
       containers:
         - name: pipelines-control-service
           image: {{ template "pipelines-control-service.image" . }}
@@ -184,6 +192,8 @@ spec:
               value: "{{ .Values.monitoringSync.initialDelayMillis }}"
             - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
               value: "{{ .Values.uploadValidationFileTypesAllowList }}"
+            - name: DATAJOBS_TEMP_STORAGE_FOLDER
+              value: DATAJOBS_TEMP_STORAGE_FOLDER
             {{- if .Values.datajobTemplate.enabled }}
             - name: K8S_DATA_JOB_TEMPLATE_FILE
               value: "/etc/datajobs/k8s_data_job_template.yaml"
@@ -242,10 +252,13 @@ spec:
             - name: {{ $key }}
               value: "{{ $value }}"
             {{- end }}
+
           volumeMounts:
             - name: secrets
               mountPath: "/etc/secrets"
               readOnly: true
+            - mountPath: "/DATAJOBS_TEMP_STORAGE_FOLDER"
+              name: DATAJOBS_TEMP_STORAGE_FOLDER_VOLUME
             {{- if .Values.datajobTemplate.enabled }}
             - name: datajob-template-volume
               mountPath: "/etc/datajobs"
