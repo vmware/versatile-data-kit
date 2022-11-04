@@ -39,22 +39,24 @@ public class JobUpload {
   private final GitWrapper gitWrapper;
   private final FeatureFlags featureFlags;
   private final AuthorizationProvider authorizationProvider;
-
+  private final JobUploadValidator jobUploadValidator;
   @Autowired
   public JobUpload(
       @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
       GitCredentialsProvider gitCredentialsProvider,
       GitWrapper gitWrapper,
       FeatureFlags featureFlags,
-      AuthorizationProvider authorizationProvider) {
+      AuthorizationProvider authorizationProvider,
+      JobUploadValidator jobUploadValidator) {
     this.datajobsTempStorageFolder = datajobsTempStorageFolder;
     this.gitCredentialsProvider = gitCredentialsProvider;
     this.gitWrapper = gitWrapper;
     this.featureFlags = featureFlags;
     this.authorizationProvider = authorizationProvider;
+    this.jobUploadValidator = jobUploadValidator;
   }
 
-  @Autowired private final JobUploadValidator jobUploadValidator;
+
 
   /**
    * Get data job source as a zip file.
