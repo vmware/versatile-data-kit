@@ -54,6 +54,8 @@ public class JobUpload {
     this.authorizationProvider = authorizationProvider;
   }
 
+  @Autowired private final JobUploadValidator jobUploadValidator;
+
   /**
    * Get data job source as a zip file.
    *
@@ -113,6 +115,7 @@ public class JobUpload {
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "deploy")) {
       File jobFolder =
           FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
+      jobUploadValidator.validateJob(jobName, jobFolder.toPath());
 
       Git git =
           gitWrapper.cloneJobRepository(

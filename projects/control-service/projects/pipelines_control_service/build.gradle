@@ -71,6 +71,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'
 
     implementation versions.'com.graphql-java:graphql-java-extended-scalars'
+    implementation versions.'org.apache.tika:tika-core'
 
     compileOnly versions.'org.hibernate:hibernate-jpamodelgen'
     annotationProcessor versions.'org.hibernate:hibernate-jpamodelgen'
