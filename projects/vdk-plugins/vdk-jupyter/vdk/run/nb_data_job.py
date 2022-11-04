@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import logging
 
-from vdk.api.plugin.hook_markers import hookimpl
-from vdk.internal.builtin_plugins.run.job_context import JobContext
 from notebook_based_step import JobNotebookLocator
 from notebook_reader import NotebookReader
 from notebook_step import NotebookStepBuilder
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 
 log = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
 @hookimpl
 def run_job(self, context: JobContext):
     # just for testing
-    value = context.configuration.get_required_option('my_config')
+    value = context.configuration.get_required_option("my_config")
     log.info("\nbar\n")
 
 
@@ -45,4 +45,3 @@ def initialize_job(context: JobContext):
 
     for file_path in notebook_files:
         notebook_reader.read_notebook_and_save_steps(file_path, context)
-

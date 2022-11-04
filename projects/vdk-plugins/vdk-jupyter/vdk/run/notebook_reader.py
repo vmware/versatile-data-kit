@@ -1,15 +1,17 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 from pathlib import Path
 
-from vdk.internal.builtin_plugins.run.job_context import JobContext
-from notebook_step import NotebookStep
 from notebook_based_step import NotebookStepFuncFactory
+from notebook_step import NotebookStep
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 
 
 class NotebookReader:
-
     @staticmethod
     def read_notebook_and_save_steps(file_path: Path, context: JobContext):
         content = json.loads(file_path.read_text())
@@ -27,7 +29,7 @@ class NotebookReader:
                     runner_func=NotebookStepFuncFactory.run_sql_step,
                     file_path=file_path,
                     job_dir=context.job_directory,
-                    code=cell["source"].replace('%sql', '')
+                    code=cell["source"].replace("%sql", ""),
                 )
                 context.step_builder.add_step(step)
             else:
@@ -39,6 +41,6 @@ class NotebookReader:
                         runner_func=NotebookStepFuncFactory.run_python_step,
                         file_path=file_path,
                         job_dir=context.job_directory,
-                        code=python_cells
+                        code=python_cells,
                     )
                     context.step_builder.add_step(step)

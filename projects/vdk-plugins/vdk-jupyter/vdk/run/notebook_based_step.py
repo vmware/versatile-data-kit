@@ -8,10 +8,10 @@ import types
 from typing import Callable
 from typing import List
 
+from notebook_step import NotebookStep
 from vdk.api.job_input import IJobInput
 from vdk.internal.core import errors
 from vdk.internal.core.errors import SkipRemainingStepsException
-from notebook_step import NotebookStep
 
 log = logging.getLogger(__name__)
 
@@ -29,9 +29,7 @@ class JobNotebookLocator:
         :rtype: :class:`.list`
         """
         script_files = [
-            x
-            for x in directory.iterdir()
-            if (x.name.lower().endswith(".ipynb"))
+            x for x in directory.iterdir() if (x.name.lower().endswith(".ipynb"))
         ]
         script_files.sort(key=lambda x: x.name)
         log.debug(f"Script files of {directory} are {script_files}")
@@ -78,7 +76,9 @@ class NotebookStepFuncFactory:
                 if func.__name__ == "run":
                     try:
                         log.info("Entering %s#run(...) ..." % filename)
-                        NotebookStepFuncFactory.invoke_run_function(func, job_input, step.name)
+                        NotebookStepFuncFactory.invoke_run_function(
+                            func, job_input, step.name
+                        )
                         success = True
                         return True
                     finally:

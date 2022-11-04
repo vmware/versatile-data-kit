@@ -7,10 +7,11 @@ import pathlib
 from abc import ABC
 from dataclasses import dataclass
 from typing import Callable
-from vdk.internal.builtin_plugins.run.step import StepBuilder
-from vdk.internal.builtin_plugins.run.step import Step
 
 from vdk.api.job_input import IJobInput
+from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.builtin_plugins.run.step import StepBuilder
+
 log = logging.getLogger(__name__)
 
 
@@ -25,9 +26,11 @@ class NotebookStep(Step):
     """
     A step that will be executed when running a data job.
     """
+
     """
      A step that will be executed when running a data job.
      """
+
     def __init__(self, name, type, runner_func, file_path, job_dir, parent, code):
         super().__init__(name, type, runner_func, file_path, job_dir, parent)
         self.runner_func = runner_func
