@@ -80,7 +80,11 @@ public class JobUploadTest {
 
     jobUpload =
         new JobUpload(
-            null, gitCredentialsProvider, gitWrapper, featureFlags,authorizationProvider,
+            null,
+            gitCredentialsProvider,
+            gitWrapper,
+            featureFlags,
+            authorizationProvider,
             jobUploadValidator);
   }
 
@@ -248,7 +252,8 @@ public class JobUploadTest {
             gitCredentialsProvider,
             gitWrapper,
             featureFlags,
-            authorizationProvider, jobUploadValidator);
+            authorizationProvider,
+            jobUploadValidator);
 
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 

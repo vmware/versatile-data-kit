@@ -40,6 +40,7 @@ public class JobUpload {
   private final FeatureFlags featureFlags;
   private final AuthorizationProvider authorizationProvider;
   private final JobUploadValidator jobUploadValidator;
+
   @Autowired
   public JobUpload(
       @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
@@ -55,8 +56,6 @@ public class JobUpload {
     this.authorizationProvider = authorizationProvider;
     this.jobUploadValidator = jobUploadValidator;
   }
-
-
 
   /**
    * Get data job source as a zip file.
