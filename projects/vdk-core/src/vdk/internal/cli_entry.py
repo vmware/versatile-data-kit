@@ -14,7 +14,6 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins import builtin_hook_impl
 from vdk.internal.builtin_plugins.internal_hookspecs import InternalHookSpecs
-from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext

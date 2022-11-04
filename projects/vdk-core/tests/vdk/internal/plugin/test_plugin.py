@@ -66,10 +66,8 @@ def test_cannot_load_entrypoints_plugins():
         "vdk.internal.plugin.plugin_manager.VdkPluginManager", spec=PluginManager
     ) as mock_plugin_manager:
         mock_plugin_manager.hook = None
-        mock_plugin_manager.load_setuptools_entrypoints.side_effect = ArithmeticError(
-            "foo"
-        )
-        with pytest.raises(ArithmeticError):
+        mock_plugin_manager.load_setuptools_entrypoints.side_effect = Exception("foo")
+        with pytest.raises(PluginException):
             plugin_registry = PluginRegistry("vdk.group.foo", mock_plugin_manager)
             plugin_registry.load_plugins_from_setuptools_entrypoints()
 

@@ -55,10 +55,10 @@ class PluginRegistry(IPluginRegistry):
             self.__plugin_manager.load_setuptools_entrypoints(self.__group_name)
         except ImportError as e:
             log_plugin_load_fail(ResolvableBy.USER_ERROR, log, e, self.__group_name)
-            raise e
+            raise PluginException from e
         except Exception as e:
             log_plugin_load_fail(ResolvableBy.PLATFORM_ERROR, log, e, self.__group_name)
-            raise e
+            raise PluginException from e
 
         plugins = self.__plugin_manager.list_name_plugin()
         log.info(
