@@ -45,11 +45,15 @@ stored and here https://impala.apache.org/docs/build/impala-3.1.pdf for more inf
 If enabled, query plan is retrieved for every successfully executed query against Impala excluding keepalive queries
 like "Select 1".
 
-### Kimbal dimensional modeling templates
+### Database Loading Templates
+
+#### Kimbal dimensional modeling templates
 
 * [SCD1](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/dimension/scd1)
 * [SCD2](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/versioned) dimension tables
 * [Periodic Snapshot Fact Table](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/snapshot)
+
+* [Insert](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-impala/src/vdk/plugin/impala/templates/load/fact/insert)
 
 See the following [tutorial](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples) for more details. It is based on Trino but the process is equivalent for Impala (only the database configuration requires change).
 

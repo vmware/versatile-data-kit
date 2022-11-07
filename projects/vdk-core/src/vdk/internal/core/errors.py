@@ -152,6 +152,11 @@ def resolvable_context():
     return ResolvableContext.instance()
 
 
+def clear_intermediate_errors():
+    # kept for backwards compatible reasons.
+    resolvable_context().clear()
+
+
 class BaseVdkError(Exception):
     """For all errors risen from our "code" (vdk)
 
@@ -327,8 +332,8 @@ def log_exception(
     if __error_is_logged(exception):
         return
 
-    resolvable_by_actual = _error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = _build_message_for_end_user(
+    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
+    error_message = __build_message_for_end_user(
         to_be_fixed_by,
         resolvable_by_actual,
         what_happened,
@@ -356,8 +361,8 @@ def log_and_throw(
     Log error message and then throw it to be handled up the stack.
     """
 
-    resolvable_by_actual = _error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = _build_message_for_end_user(
+    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
+    error_message = __build_message_for_end_user(
         to_be_fixed_by,
         resolvable_by_actual,
         what_happened,
@@ -384,7 +389,7 @@ def log_and_throw(
         resolvable_context().add(
             Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
         )
-        lines = _get_caller_stacktrace()
+        lines = __get_caller_stacktrace()
         log.error(str(error_message) + "\n" + lines)
         __set_error_is_logged(e)
         raise
@@ -413,8 +418,8 @@ def log_and_rethrow(
             it will wrap it in corresponding BaseVdkError exception based on to_be_fixed_by parameter
     """
 
-    resolvable_by_actual = _error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = _build_message_for_end_user(
+    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
+    error_message = __build_message_for_end_user(
         to_be_fixed_by,
         resolvable_by_actual,
         what_happened,
@@ -425,7 +430,7 @@ def log_and_rethrow(
 
     to_be_raised_exception = exception
     if wrap_in_vdk_error:
-        to_be_raised_exception = _wrap_exception_if_not_already(
+        to_be_raised_exception = __wrap_exception_if_not_already(
             to_be_fixed_by, error_message, exception
         )
 
@@ -462,7 +467,7 @@ def _get_exception_message(exception: Exception) -> str:
     return str(exception).strip()
 
 
-class _CustomMessageExceptionDecorator:
+class __CustomMessageExceptionDecorator:
     """
     Provides custom message for an exception.
 
@@ -504,7 +509,7 @@ def MSG_WHY_FROM_EXCEPTION(exception: Exception) -> str:
     """
     Try to figure what is the reason for the failure (why) from the exception and return as a reason.
     """
-    custom_message = _CustomMessageExceptionDecorator(exception).get_custom_message()
+    custom_message = __CustomMessageExceptionDecorator(exception).get_custom_message()
     return (
         custom_message
         if custom_message
@@ -543,7 +548,7 @@ def exception_matches(
     return grp == msg
 
 
-def _build_message_for_end_user(
+def __build_message_for_end_user(
     to_be_fixed_by: ResolvableBy,
     to_be_fixed_by_actual: ResolvableByActual,
     what_happened: str,
@@ -570,7 +575,7 @@ def _build_message_for_end_user(
     )
 
 
-def _get_caller_stacktrace(exception: BaseException = None) -> str:
+def __get_caller_stacktrace(exception: BaseException = None) -> str:
     """
     :return: stacktrace excluding this method (hence caller stacktrace)
     """
@@ -590,7 +595,7 @@ def _get_caller_stacktrace(exception: BaseException = None) -> str:
     return lines
 
 
-def _error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableByActual:
+def __error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableByActual:
     if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
         return ResolvableByActual.PLATFORM
     if ResolvableBy.USER_ERROR == to_be_fixed_by:
@@ -602,7 +607,7 @@ def _error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableBy
     )  # What type is the error that caused this and whom to blame, Platform or Data Jobs Developer?
 
 
-def _wrap_exception_if_not_already(
+def __wrap_exception_if_not_already(
     to_be_fixed_by: ResolvableBy, msg: ErrorMessage, exception: BaseException
 ):
     if isinstance(exception, BaseVdkError):

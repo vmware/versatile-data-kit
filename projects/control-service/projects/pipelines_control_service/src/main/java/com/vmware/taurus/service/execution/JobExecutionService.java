@@ -102,15 +102,6 @@ public class JobExecutionService {
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
 
-      // Start K8S Job
-      dataJobsKubernetesService.startNewCronJobExecution(
-          jobDeploymentStatus.getCronJobName(),
-          executionId,
-          annotations,
-          envs,
-          extraJobArguments,
-          jobName);
-
       // Save Data Job execution
       saveDataJobExecution(
           dataJob,
@@ -120,6 +111,24 @@ public class JobExecutionService {
           ExecutionStatus.SUBMITTED,
           startedBy,
           OffsetDateTime.now());
+      try {
+        // Start K8S Job
+        dataJobsKubernetesService.startNewCronJobExecution(
+            jobDeploymentStatus.getCronJobName(),
+            executionId,
+            annotations,
+            envs,
+            extraJobArguments,
+            jobName);
+      } catch (Exception e) {
+        // rollback data job execution
+        jobExecutionRepository.deleteDataJobExecutionByIdAndDataJobAndStatusAndType(
+            executionId,
+            dataJob,
+            ExecutionStatus.SUBMITTED,
+            com.vmware.taurus.service.model.ExecutionType.MANUAL);
+        throw e;
+      }
 
       return executionId;
     } catch (ApiException e) {
@@ -142,14 +151,16 @@ public class JobExecutionService {
             executionId, ExecutionCancellationFailureReason.DataJobNotFound);
       }
 
-      var jobExecutionOptional = jobExecutionRepository.findById(executionId);
+      var jobExecutionOptional =
+          jobExecutionRepository.findDataJobExecutionByIdAndTeamAndName(
+              executionId, jobName, teamName);
 
       if (jobExecutionOptional.isEmpty()) {
         log.info(
             "Execution: {} for data job: {} with team: {} not found!",
             executionId,
-            teamName,
-            jobName);
+            jobName,
+            teamName);
         throw new DataJobExecutionCannotBeCancelledException(
             executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
       }
@@ -162,8 +173,8 @@ public class JobExecutionService {
         log.info(
             "Trying to cancel execution: {} for data job: {} with team: {} but job has status {}!",
             executionId,
-            teamName,
             jobName,
+            teamName,
             jobStatus.toString());
         throw new DataJobExecutionCannotBeCancelledException(
             executionId, ExecutionCancellationFailureReason.ExecutionNotRunning);
@@ -362,25 +373,24 @@ public class JobExecutionService {
     if (runningJobExecutionIds == null) {
       return;
     }
-
+    var runningJobStatus = List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING);
     List<com.vmware.taurus.service.model.DataJobExecution> dataJobExecutionsToBeUpdated =
         jobExecutionRepository
             .findDataJobExecutionsByStatusInAndStartTimeBefore(
-                List.of(ExecutionStatus.SUBMITTED, ExecutionStatus.RUNNING),
-                OffsetDateTime.now().minusMinutes(3))
+                runningJobStatus, OffsetDateTime.now().minusMinutes(3))
             .stream()
             .filter(dataJobExecution -> !runningJobExecutionIds.contains(dataJobExecution.getId()))
-            .map(
-                dataJobExecution -> {
-                  dataJobExecution.setStatus(ExecutionStatus.SUCCEEDED);
-                  dataJobExecution.setMessage("Status is set by VDK Control Service");
-                  dataJobExecution.setEndTime(OffsetDateTime.now());
-                  return dataJobExecution;
-                })
             .collect(Collectors.toList());
 
     if (!dataJobExecutionsToBeUpdated.isEmpty()) {
-      jobExecutionRepository.saveAll(dataJobExecutionsToBeUpdated);
+      var jobsToUpdate =
+          dataJobExecutionsToBeUpdated.stream().map(e -> e.getId()).collect(Collectors.toList());
+      jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
+          ExecutionStatus.SUCCEEDED,
+          OffsetDateTime.now(),
+          "Status is set by VDK Control Service",
+          runningJobStatus,
+          jobsToUpdate);
       dataJobExecutionsToBeUpdated.forEach(
           dataJobExecution -> log.info("Sync Data Job Execution status: {}", dataJobExecution));
     }
@@ -492,7 +502,6 @@ public class JobExecutionService {
             .startedBy(startedBy)
             .startTime(startTime)
             .build();
-
     jobExecutionRepository.save(dataJobExecution);
   }
 

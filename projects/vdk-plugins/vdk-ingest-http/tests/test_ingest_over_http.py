@@ -1,12 +1,13 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import gzip
-import json
 import sys
+from decimal import Decimal
 from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
+import simplejson as json
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
@@ -118,7 +119,9 @@ def test_ingest_over_http_result(mock_post):
         target="http://example.com/data-source",
     )
 
-    assert ingestion_result["uncompressed_size_in_bytes"] == sys.getsizeof([payload])
+    assert ingestion_result["uncompressed_size_in_bytes"] == sys.getsizeof(
+        json.dumps([payload])
+    )
     assert ingestion_result["compressed_size_in_bytes"] == sys.getsizeof(
         gzip.compress(json.dumps([payload], allow_nan=False).encode(encoding))
     )
@@ -231,7 +234,31 @@ def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
     )
 
 
-@mock.patch("json.dumps")
+@mock.patch("requests.Session.post", side_effect=mocked_requests_post)
+def test_ingest_over_http_special_type(mock_post):
+    http_ingester: IngestOverHttp = IngestOverHttp(job_context)
+    payload["decimal"] = Decimal(15.5)
+    http_ingester.ingest_payload(
+        payload=[payload],
+        destination_table="test_table",
+        target="http://example.com/data-source",
+    )
+
+    assert mock_post.call_count == 1
+
+    payload["@table"] = "test_table"
+
+    mock_post.assert_called_with(
+        url="http://example.com/data-source",
+        data=json.dumps([payload]),
+        headers={"Content-Type": "application/octet-stream"},
+        timeout=(None, None),
+        cert=None,
+        verify=None,
+    )
+
+
+@mock.patch("simplejson.dumps")
 def test_ingest_over_http_json_dumps_parameters_propagation(mock_jsondumps):
     allow_nan = True
 

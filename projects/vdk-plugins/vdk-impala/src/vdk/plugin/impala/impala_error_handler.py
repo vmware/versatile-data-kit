@@ -76,10 +76,7 @@ class ImpalaErrorHandler:
                 is_handled = self._handle_exception(current_exception, recovery_cursor)
                 break
             except Exception as new_exception:
-                self._log.warning(
-                    "Failed to handle exception due to: "
-                    + errors.get_exception_message(new_exception)
-                )
+                self._log.warning(f"Failed to handle exception due to: {new_exception}")
                 current_exception = new_exception
         # Throw the latest exception only if different from the initial exception.
         if not is_handled and (
@@ -137,7 +134,7 @@ class ImpalaErrorHandler:
         ):
             regex = ".*/user/hive/warehouse/([^/]*).db/([^/]*)"
             matcher = re.compile(pattern=regex, flags=re.DOTALL)
-            results = matcher.search(errors.get_exception_message(exception))
+            results = matcher.search(str(exception).strip())
             self._log.info(
                 "Detected query failing with Failed to find file error. WIll try to autorecover."
             )
@@ -168,7 +165,7 @@ class ImpalaErrorHandler:
                 return True
             else:
                 self._log.info(
-                    f"Cannot auto-recover as it cannot detect table name in error: {errors.get_exception_message(exception)}"
+                    f"Cannot auto-recover as it cannot detect table name in error: {exception}"
                 )
         return False
 
@@ -297,7 +294,7 @@ class ImpalaErrorHandler:
 
             # Get the fully qualified table name from the exception message.
             matcher = re.compile(pattern=pattern_for_the_table_name)
-            results = matcher.search(errors.get_exception_message(exception))
+            results = matcher.search(str(exception).strip())
             if results and len(results.groups()) == 1:
                 fully_qualified_table_name = results.group(1)
                 # invalidate the metadata for the missing table
@@ -348,9 +345,7 @@ class ImpalaErrorHandler:
             if pattern_for_the_table_name:
                 # Get the fully qualified table name from the exception message.
                 matcher = re.compile(pattern=pattern_for_the_table_name)
-                results = matcher.search(
-                    errors.get_exception_message(exception_to_match)
-                )
+                results = matcher.search(str(exception_to_match).strip())
                 if results and len(results.groups()) == 1:
                     fully_qualified_table_name = results.group(1)
 

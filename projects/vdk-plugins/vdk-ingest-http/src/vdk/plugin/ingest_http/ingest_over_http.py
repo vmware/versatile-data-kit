@@ -1,7 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import gzip
-import json
 import logging
 import sys
 from typing import Dict
@@ -10,6 +9,7 @@ from typing import NewType
 from typing import Optional
 
 import requests
+import simplejson as json
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
@@ -172,9 +172,9 @@ class IngestOverHttp(IIngesterPlugin):
                     obj["@table"] = destination_table
 
     def __send_data(self, data, http_url, headers) -> IngestionResult:
+        data = json.dumps(data, allow_nan=self._allow_nan)
         uncompressed_size_in_bytes = sys.getsizeof(data)
         compressed_size_in_bytes = None
-        data = json.dumps(data, allow_nan=self._allow_nan)
 
         if (
             self._compression_threshold_bytes

@@ -51,15 +51,15 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 * Evidence - the percentage of interviewed users who have mentioned the problem.
 * Impact - how much impact does the problem have on their work (high/moderate/low).
 
-|                 Problem                  |                                                                                                                  Use Scenario                                                                                                                  | Evidence |  Impact  |
-|:----------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
- |             Working with CLI             |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
- |  IDEs are not convenient for debugging   |                             As data engineers, we often use Jupyter as a debugging tool instead of using IDE debuggers because of the big data we work with. This leads to copy pasting code from IDE to Jupyter.                              |   70%    |   high   |
- |  IDEs are not convenient for for tests   |                              As data engineers, we test code in Jupyter quite often because small changes are more visible in graphics, we run small code blocks in many cells and watch how the graphics change.                              |   70%    | moderate |
- | Moving to production from notebook files | As data engineers we  need to switch from notebooks to python files every time we are moving to production which is done either by copy pasting or using automated functions of Jupyter but might lead to syntax errors and bad coding habits. |   50%    |   low    |
- |    Rerun whole job for small changes     |                                                              As data engineers,when we use VDK, we need to rerun the whole job again every time we do a small change on the code.                                                              |   40%    ||     |     |
-|     Rerun whole job for failing step     |                                                                       As data engineers, when we use VDK, we need to rerun the whole job again every time a step fails.                                                                        |   40%    ||     |     |
-|    Too many SQL files in one data job    |                 As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end up creating a lot of SQL files every time we need a complex data job.                  |   30%    |   low    |
+|                   Problem                   |                                                                                                                  Use Scenario                                                                                                                  | Evidence |  Impact  |
+|:-------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------:|
+ |             1. Working with CLI             |                                                                As data engineers we do not have much experience with CLI, we need to learn how to use CLI in order to use VDK.                                                                 |   70%    |   high   |
+ |   2.IDEs are not convenient for debugging   |                             As data engineers, we often use Jupyter as a debugging tool instead of using IDE debuggers because of the big data we work with. This leads to copy pasting code from IDE to Jupyter.                              |   70%    |   high   |
+ |  3. IDEs are not convenient for for tests   |                              As data engineers, we test code in Jupyter quite often because small changes are more visible in graphics, we run small code blocks in many cells and watch how the graphics change.                              |   70%    | moderate |
+ | 4. Moving to production from notebook files | As data engineers we  need to switch from notebooks to python files every time we are moving to production which is done either by copy pasting or using automated functions of Jupyter but might lead to syntax errors and bad coding habits. |   50%    |   low    |
+ |    5. Rerun whole job for small changes     |                                                              As data engineers,when we use VDK, we need to rerun the whole job again every time we do a small change on the code.                                                              |   40%    ||     |     |
+|     6. Rerun whole job for failing step     |                                                                       As data engineers, when we use VDK, we need to rerun the whole job again every time a step fails.                                                                        |   40%    ||     |     |
+|    7. Too many SQL files in one data job    |                 As data engineers,we need to write one SQL statement per file which leads to creating files for simple delete/create queries and we end up creating a lot of SQL files every time we need a complex data job.                  |   30%    |   low    |
 
 
 ### Goals
@@ -72,72 +72,29 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 
 
 ## High-level design
-The following section is still in progress.
+![high-level-design.png](high-level-design.png)
+JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
+Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
-Once installed they get following capabilities
-#### Development of jobs
-##### Option 1: Notebook as a job step
-* The Jupyter notebook can be a step in VDK e.g 10_jupyter.ipynb for example.
-* There could be markers for ignoring some cells.
-```
- %% non-vdk
- ```
-* Buttons or markers for defining the step type should be introduced.
+The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands. An iPython package will also be implemented to export VDK variables. This package will be imported to JupyterLab, and they will be accessible from there.
 
-Python
-```python
- %%vdk-py
- job_input.ingest(xxx)
- ```
-or SQL
- ```python
- %%vdk-sql
- select * from x
- ```
-##### Option 2: Cell as a job step
-* A cell can be marked as a step using a button.
-* There should be two different buttons - one for SQL steps and one for python steps.
-* Once a cell is marked as step a pop-up should ask the name of the step, 10_jupyter for example.
-* Everything can be done in one notebook or multiple.
-* In this solution all the unmarked cells will be ignored.
-* A section for showing all the steps should be introduced.
-##### Option 3: Hybrid
-* One cell is one SQL step and one notebook is one python step.
-* Notebooks and cells will be marked using two different buttons - one for SQL steps(cells) and one for python steps(notebooks)
-* There should not be SQL steps in a notebook defined as python step.
-* In notebooks that are python steps markers for ignoring code could be used.
-```
- %% non-vdk
- ```
-* All the notebooks that are not marked as python files and do not have SQL steps in them will be ignored.
-* In a notebook that is not marked as python step all the cells that are not marked as SQL steps should be ignored.
-* A section showing all the steps should be introduced.
+|       Operation        |                                                                                                                                                                                                                          Flow                                                                                                                                                                                                                          | Covered  use cases | Priority |
+|:----------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
+|    Run VDK Jupyter     |                                                                                                                                                                        The user runs a single CLI command which opens the web version of JupyterLab. Examples: vdk jupyter lab                                                                                                                                                                         |         1          |   high   |
+|          Help          |                                                                                                After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Help" option. There he will be able to check for more information about how to use the VDK extension and where to find specific buttons and other UI elements                                                                                                |         1          |   mid    |
+|         Log in         |                                                                                                          After the user enters Jupyter lab he/she will see the VDK drop down menu where he can find the "Log in" option. It is for authentication against Control service. A pop out with the corresponding login options will be introduced.                                                                                                          |         1          |   mid    |
+|        Log out         |                                                                                                                                After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Log out" option. By clicking the option the user will be logged out from the Control Service.                                                                                                                                |         1          |   mid    |
+|       Create job       | After the user enters JupyterLab he/she will see the VDK drop down menu where he can find the "Create job" option. After clicking that option the user get's a pop up where he should enter the needed information for the job that will be created: name, team, directory and whether it will only be created locally or in the cloud as well. After filling all the needed information for the job by clicking a "Create" button it will be created. |         1          |   high   |
+|       Delete job       |                                                                                                                                                                                                "Delete job" will be introduced just like "Create job".                                                                                                                                                                                                 |         1          |   mid    |
+|  Work with SQL steps   |                                                                  One SQL step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk", "vdk-sql") that shows that the cell should be included in the job. All the cells that does not have that tag will not be included in he job as a step. One notebook file can have as several SQL steps.                                                                  |      2,3,4,7       |   high   |
+| Work with Python steps |                                   One notebook file will be introduced as one Python step. There should be marker for which cells are representing the run method. There will be tags as well ("vdk", "vdk-py"). All the cells which do not include that tag will be omitted during the execution. The VDK variable will be introduced directly. The users can use VDK variable without the need to import packages.                                   |       2,3,4        |   high   |
+|         Deploy         |                                        It will be added as an option in the vdk drop down menu mentioned in the first column of the table (where "create", "download" will be). A pop up will be introduced asking for what the user wants to do whether he wants to latest deployed version of specific job, to disable a data job, etc. Afterwards, he will be asked about the needed information to do that.                                        |         1          |   high   |
+|     Download a job     |                                                                                                                                                                                                         Similar tp "Create job", "Delete job".                                                                                                                                                                                                         |         1          |   high   |
+|      Execute job       |                                                                                                                                                                                                                  Similar to "Deploy"                                                                                                                                                                                                                   |         1          |   mid    |
+|   Properties command   |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
+|      List command      |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
+|      Show command      |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
 
-
-#### Comparing the options with requirements matrix
-
-
-
-#### Deployment
-
-* Users can click deploy from within the notebook and the job would be deployed in VDK runtime ("cloud")
-* Users should see the status of the deployed jobs
-<!--
-All the rest sections tell **how** are we solving it?
-
-This is where we get down to the specifics of what the proposal actually is.
-This should have enough detail that reviewers can understand exactly what
-you're proposing, but should not include things like API designs or
-implementation. What is the desired outcome and how do we measure success?
-
-Provide a valid UML Component diagram that focuses on the architecture changes
-implementing the feature. For more details on how to write UML Component Spec -
-see https://en.wikipedia.org/wiki/Component_diagram#External_links.
-
-For every new component on the diagram, explain which goals does it solve.
-In this context, a component is any separate software process.
-
--->
 
 
 ## API design

@@ -150,7 +150,9 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
     System.out.println(match.get().trim());
     assertTrue(
         match.get().trim().endsWith("0.0"),
-        "The value of the taurus_datajob_termination_status metrics does not match");
+        "The value of the taurus_datajob_termination_status metrics does not match. It was actually"
+            + " "
+            + match.get());
 
     // Check the data job execution status
     checkDataJobExecutionStatus(
@@ -264,7 +266,11 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
                   objectMapper.readValue(
                       dataJobExecutionResult.getResponse().getContentAsString(),
                       DataJobExecution.class);
-
+              if (dataJobExecution[0] == null) {
+                log.info("No response from server");
+              } else {
+                log.info("Response from server  " + dataJobExecution[0].getStatus());
+              }
               return dataJobExecution[0] != null
                   && executionStatus.equals(dataJobExecution[0].getStatus());
             });
@@ -374,7 +380,7 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
     assertEquals(jobName, dataJobExecution.getJobName());
     assertEquals(executionStatus, dataJobExecution.getStatus());
     assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
-    // assertEquals(username + "/" + "user", dataJobExecution.getStartedBy());
+    assertEquals(username + "/" + "user", dataJobExecution.getStartedBy());
     assertEquals(opId, dataJobExecution.getOpId());
   }
 }

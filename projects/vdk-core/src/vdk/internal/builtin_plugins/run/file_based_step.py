@@ -11,6 +11,7 @@ from typing import List
 from vdk.api.job_input import IJobInput
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
+from vdk.internal.core.errors import SkipRemainingStepsException
 
 log = logging.getLogger(__name__)
 
@@ -136,6 +137,13 @@ class StepFuncFactory:
         if actual_arguments:
             try:
                 func(**actual_arguments)
+            except SkipRemainingStepsException as e:
+                # Catch and rethrow exception here since it is handled at
+                # the run_step() hook level. We also don't want to use the
+                # errors.log_and_rethrow() method since it will log a
+                # confusing message to the users.
+                log.debug(e)
+                raise e
             except BaseException as e:
                 from vdk.internal.builtin_plugins.run.job_input_error_classifier import (
                     whom_to_blame,
@@ -147,7 +155,7 @@ class StepFuncFactory:
                     what_happened=f"Data Job step {step_name} completed with error.",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will likely be marked as failed.",
+                    "and this Data Job execution will be marked as failed.",
                     countermeasures="See exception and fix the root cause, so that the exception does "
                     "not appear anymore.",
                     exception=e,

@@ -27,6 +27,12 @@ build-py310-vdk-plugin-control-cli:
   image: "python:3.10"
 
 
+build-vdk-plugin-control-cli-on-vdk-core-release:
+  variables:
+    PLUGIN_NAME: vdk-plugin-control-cli
+  extends: .build-plugin-on-vdk-core-release
+  image: "python:3.9"
+
 release-vdk-plugin-control-cli:
   variables:
     PLUGIN_NAME: vdk-plugin-control-cli
