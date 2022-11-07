@@ -19,42 +19,6 @@ export VDK_OPTIONS=${VDK_OPTIONS:-"$SCRIPT_DIR/vdk-options.ini"}
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
 
-RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
-
-if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
-  helm repo add valeriano-manassero https://valeriano-manassero.github.io/helm-charts
-  helm repo add bitnami https://charts.bitnami.com/bitnami
-  helm repo update
-
-  helm upgrade --install test-trino valeriano-manassero/trino --version 1.1.7 -f "$SCRIPT_DIR/trino-values.yaml"
-
-  # Prometheus is used for testing and monitoring our cicd (dev) environment
-  # But as it is not pre-requisite for any of the tests it's commented out
-  # install manually if necesary
-  # helm upgrade --install test-prom bitnami/kube-prometheus
-
-  # we are housing data jobs deployment container images in private repo used only for CICD purposes
-  # So we need to set credentials of the service account used to pull images when starting jobs
-  secret_name=docker-registry
-  kubectl create secret docker-registry $secret_name \
-                     --docker-server="$CICD_CONTAINER_REGISTRY_URI" \
-                     --docker-username="$CICD_CONTAINER_REGISTRY_USER_NAME" \
-                     --docker-password="$CICD_CONTAINER_REGISTRY_USER_PASSWORD" \
-                     --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
-  kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"}]}'
-
-  if [ -n "$DOCKERHUB_READONLY_USERNAME" ]; then
-    dockerhub_secretname='secret-dockerhub-docker'
-    kubectl create secret docker-registry "$dockerhub_secretname" \
-                         --docker-server="https://index.docker.io/v1/" \
-                         --docker-username="$DOCKERHUB_READONLY_USERNAME" \
-                         --docker-password="$DOCKERHUB_READONLY_PASSWORD" \
-                         --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
-
-    kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
-  fi
-
-fi
 
 # this is the internal hostname of the Control Service.
 # Since all tests (gitlab runners) are installed inside it's easier if we use it.
