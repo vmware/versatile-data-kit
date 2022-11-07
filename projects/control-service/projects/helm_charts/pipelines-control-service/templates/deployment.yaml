@@ -185,7 +185,7 @@ spec:
             - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
               value: "{{ .Values.uploadValidationFileTypesAllowList }}"
             - name: DATAJOBS_TEMP_STORAGE_FOLDER
-              value: /DATAJOBS_TEMP_STORAGE_FOLDER
+              value: /datajobs_temp_storage
             {{- if .Values.datajobTemplate.enabled }}
             - name: K8S_DATA_JOB_TEMPLATE_FILE
               value: "/etc/datajobs/k8s_data_job_template.yaml"
@@ -249,7 +249,7 @@ spec:
             - name: secrets
               mountPath: "/etc/secrets"
               readOnly: true
-            - mountPath: "/DATAJOBS_TEMP_STORAGE_FOLDER"
+            - mountPath: "/datajobs_temp_storage"
               name: DATAJOBS_TEMP_STORAGE_FOLDER_VOLUME
             {{- if .Values.datajobTemplate.enabled }}
             - name: datajob-template-volume
