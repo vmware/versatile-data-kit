@@ -182,6 +182,8 @@ spec:
               value: "{{ .Values.monitoringSync.delayMillis }}"
             - name: DEFAULT_MONITORING_INITIAL_DELAY_SYNC_INTERVAL
               value: "{{ .Values.monitoringSync.initialDelayMillis }}"
+            - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
+              value: "{{ .Values.uploadValidationFileTypesAllowList }}"
             {{- if .Values.datajobTemplate.enabled }}
             - name: K8S_DATA_JOB_TEMPLATE_FILE
               value: "/etc/datajobs/k8s_data_job_template.yaml"
@@ -232,6 +234,7 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_BUILDER_SERVICE_ACCOUNT_NAME
               value: "{{ .Values.deploymentBuilder.serviceAccountName }}"
             {{- end }}
+
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}
