@@ -509,7 +509,7 @@ public abstract class KubernetesService implements InitializingBean {
               .listNamespacedCronJob(
                   namespace, null, null, null, null, null, null, null, null, null, null);
     } catch (ApiException e) {
-      log.warn("Failed to read k8s cron jobs: ", e);
+      log.warn("Failed to read k8s cron jobs: ", new KubernetesException("", e));
     }
 
     return cronJobs == null
@@ -529,7 +529,7 @@ public abstract class KubernetesService implements InitializingBean {
               .listNamespacedCronJob(
                   namespace, null, null, null, null, null, null, null, null, null, null);
     } catch (ApiException e) {
-      log.warn("Failed to read k8s cron jobs: ", e);
+      log.warn("Failed to read k8s cron jobs: ", new KubernetesException("", e));
     }
 
     return cronJobs == null
@@ -1496,7 +1496,10 @@ public abstract class KubernetesService implements InitializingBean {
     try {
       jobPods = listJobPods(job);
     } catch (ApiException ex) {
-      log.info("Could not list pods for job {}", job.getMetadata().getName(), ex);
+      log.info(
+          "Could not list pods for job {}",
+          job.getMetadata().getName(),
+          new KubernetesException("", ex));
       return Optional.empty();
     }
 
@@ -2323,7 +2326,6 @@ public abstract class KubernetesService implements InitializingBean {
     try {
       nsSecret = api.replaceNamespacedSecret(name, this.namespace, secret, null, null, null, null);
     } catch (ApiException e) {
-      log.warn("Error while trying to save K8S secret", e);
       if (e.getCode() == 404) {
         log.debug("Secret {} does not exist. Creating ...", name);
         nsSecret = api.createNamespacedSecret(this.namespace, secret, null, null, null, null);
