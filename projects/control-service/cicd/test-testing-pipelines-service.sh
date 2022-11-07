@@ -37,11 +37,11 @@ helm dependency update --kubeconfig=$KUBECONFIG
 #
 # image.tag is fixed during release. It is set here to deploy using latest change in source code.
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
-helm template $RELEASE_NAME . \
+helm template "$RELEASE_NAME" . \
       --set image.tag="$TAG" \
       --set resources.limits.memory=2G \
       --set credentials.repository="EMPTY" \
-      --set-file vdkOptions=$VDK_OPTIONS_SUBSTITUTED \
+      --set-file vdkOptions="$VDK_OPTIONS_SUBSTITUTED" \
       --set deploymentGitUrl="$CICD_GIT_URI" \
       --set deploymentGitUsername="$CICD_GIT_USER" \
       --set deploymentGitPassword="$CICD_GIT_PASSWORD" \
