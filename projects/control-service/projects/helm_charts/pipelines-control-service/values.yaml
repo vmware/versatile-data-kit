@@ -192,7 +192,6 @@ deploymentDockerRegistryPassword: ""
 deploymentDockerRegistryUsernameReadOnly: ""
 deploymentDockerRegistryPasswordReadOnly: ""
 
-
 ## Image name of VDK which will be used to run the data jobs.
 ## It is recommended to use image with same tag (e.g release or latest)
 ## As it will be pulled before any execution thus making sure all jobs use the same and latest version of VDK.
