@@ -102,6 +102,23 @@ control_service_integration_test:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
+control_service_test_helm_chart:
+  stage: build
+  image: proum/aws-iam-authenticator
+  script:
+    - apk --no-cache add bash openssl curl git gettext zip python3 py3-pip
+    - pip3 install --upgrade pip && pip3 install awscli
+    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - bash -ex ./projects/control-service/cicd/test-testing-pipelines-service.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - external_pull_requests
+    changes: *control_service_deploy_testing_changes
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_publish_job_base_image:
   image: docker:19.03.15
