@@ -28,10 +28,10 @@ export TRINO_HOST=${TRINO_HOST:-"test-trino"}
 
 # Update vdk-options with substituted variables like sensitive configuration (passwords)
 export VDK_OPTIONS_SUBSTITUTED="${VDK_OPTIONS}.temp"
-envsubst < $VDK_OPTIONS > $VDK_OPTIONS_SUBSTITUTED
+envsubst < "$VDK_OPTIONS" > "$VDK_OPTIONS_SUBSTITUTED"
 
 cd $TPCS_CHART || exit
-helm dependency update --kubeconfig=$KUBECONFIG
+helm dependency update --kubeconfig="$KUBECONFIG"
 
 # TODO :change container images with official ones when they are being deployed (I've currently uploaded them once in ghcr.io/tozka)
 #
