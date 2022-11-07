@@ -254,7 +254,7 @@ spec:
               mountPath: "/etc/secrets"
               readOnly: true
             - mountPath: "/datajobs_temp_storage"
-              name: DATAJOBS_TEMP_STORAGE_FOLDER_VOLUME
+              name: datajobs-temp-storage-volume
             {{- if .Values.datajobTemplate.enabled }}
             - name: datajob-template-volume
               mountPath: "/etc/datajobs"
@@ -306,7 +306,7 @@ spec:
           startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customStartupProbe "context" $) | nindent 12 }}
           {{- end }}
       volumes:
-        - name: DATAJOBS_TEMP_STORAGE_FOLDER_VOLUME
+        - name: datajobs-temp-storage-volume
           emptyDir: {}
         - name: secrets
           secret:
