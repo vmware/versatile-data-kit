@@ -1,6 +1,6 @@
 # jupyter
 
-Plugin for runnig Jupyter notebooks as vdk steps
+Prototype of a plugin for running Jupyter notebooks as vdk steps
 
 TODO: what the project is about, what is its purpose
 
@@ -12,12 +12,7 @@ pip install vdk-jupyter
 ```
 
 ### Configuration
-
-(`vdk config-help` is useful command to browse all config options of your installation of vdk)
-
-| Name | Description | (example)  Value |
-|---|---|---|
-| dummy_config_key | Dummy configuration | "Dummy" |
+ TODO
 
 ### Example
 

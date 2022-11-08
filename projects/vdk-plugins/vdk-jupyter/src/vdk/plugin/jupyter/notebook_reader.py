@@ -9,6 +9,7 @@ from vdk.plugin.jupyter.notebook_based_step import NotebookStepFuncFactory
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 
+# TODO abstract data type for notebook
 
 class NotebookReader:
     """

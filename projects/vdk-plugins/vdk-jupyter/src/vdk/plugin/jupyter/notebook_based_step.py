@@ -17,6 +17,8 @@ from vdk.internal.core.errors import SkipRemainingStepsException
 
 log = logging.getLogger(__name__)
 
+# consists may duplicates of
+# https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/file_based_step.py
 
 class JobNotebookLocator:
     """

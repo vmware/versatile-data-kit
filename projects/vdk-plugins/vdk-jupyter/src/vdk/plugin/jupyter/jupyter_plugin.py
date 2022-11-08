@@ -15,14 +15,6 @@ from vdk.internal.core.config import ConfigurationBuilder
 log = logging.getLogger(__name__)
 
 
-@hookimpl(tryfirst=True)
-def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-    config_builder.add(
-        key="my_config",
-        default_value="default-value-to-use-if-not-set-later",
-        description="Description of my config.",
-    )
-
 
 @hookimpl()
 def initialize_job(context: JobContext):
