@@ -25,10 +25,6 @@ import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TE
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_INTERNAL_ERROR_RETRIED_JOB_NAME;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_INTERNAL_ERROR_RETRIED_TEAM;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_INTERNAL_ERROR_TEAM;
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_1;
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_2;
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_3;
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_4;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_JOB_NAME;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
@@ -139,27 +135,35 @@ public class DataJobCrudIT extends BaseIT {
 
     // Execute list jobs
     // deprecated jobsList in favour of jobsQuery
-    mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                    .with(user("user"))
-                    .param("query", "query($filter: [Predicate], $pageNumber: Int) {" +
-                            "  jobs(pageNumber: $pageNumber, filter: $filter) {" +
-                            "    content {" +
-                            "      jobName" +
-                            "    }" +
-                            "  }" +
-                            "}")
-                    .param("variables", "{" +
-                            "\"filter\": [" +
-                            "    {" +
-                            "      \"property\": \"config.team\"," +
-                            "      \"pattern\": \"" + TEST_TEAM_NAME + "\"" +
-                            "    }" +
-                            "  ]," +
-                            "\"pageNumber\": 1" +
-                            "}")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_NAME)))));
+    mockMvc
+        .perform(
+            get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                .with(user("user"))
+                .param(
+                    "query",
+                    "query($filter: [Predicate], $pageNumber: Int) {"
+                        + "  jobs(pageNumber: $pageNumber, filter: $filter) {"
+                        + "    content {"
+                        + "      jobName"
+                        + "    }"
+                        + "  }"
+                        + "}")
+                .param(
+                    "variables",
+                    "{"
+                        + "\"filter\": ["
+                        + "    {"
+                        + "      \"property\": \"config.team\","
+                        + "      \"pattern\": \""
+                        + TEST_TEAM_NAME
+                        + "\""
+                        + "    }"
+                        + "  ],"
+                        + "\"pageNumber\": 1"
+                        + "}")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_NAME)))));
 
     // Execute list jobs with no user
     // deprecated jobsList in favour of jobsQuery

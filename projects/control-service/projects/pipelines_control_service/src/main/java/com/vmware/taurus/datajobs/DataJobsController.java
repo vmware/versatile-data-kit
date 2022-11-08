@@ -8,7 +8,6 @@ package com.vmware.taurus.datajobs;
 import com.vmware.taurus.controlplane.model.api.DataJobsApi;
 import com.vmware.taurus.controlplane.model.data.DataJob;
 import com.vmware.taurus.controlplane.model.data.DataJobQueryResponse;
-import com.vmware.taurus.controlplane.model.data.DataJobSummary;
 import com.vmware.taurus.exception.ApiConstraintError;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.WebHookRequestError;
@@ -34,10 +33,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for operations on data jobs

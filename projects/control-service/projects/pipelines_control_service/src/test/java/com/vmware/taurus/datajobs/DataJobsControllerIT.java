@@ -84,26 +84,34 @@ public class DataJobsControllerIT {
                             URLDecoder.decode(s, Charset.defaultCharset())
                                 .endsWith(expectedLocationPath))));
     // deprecated jobsList in favour of jobsQuery
-    mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                    .param("query", "query($filter: [Predicate], $pageNumber: Int) {" +
-                            "  jobs(pageNumber: $pageNumber, filter: $filter) {" +
-                            "    content {" +
-                            "      jobName" +
-                            "    }" +
-                            "  }" +
-                            "}")
-                    .param("variables", "{" +
-                            "\"filter\": [" +
-                            "    {" +
-                            "      \"property\": \"config.team\"," +
-                            "      \"pattern\": \"" + TEST_TEAM_NAME + "\"" +
-                            "    }" +
-                            "  ]," +
-                            "\"pageNumber\": 1" +
-                            "}")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_NAME)))));
+    mockMvc
+        .perform(
+            get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                .param(
+                    "query",
+                    "query($filter: [Predicate], $pageNumber: Int) {"
+                        + "  jobs(pageNumber: $pageNumber, filter: $filter) {"
+                        + "    content {"
+                        + "      jobName"
+                        + "    }"
+                        + "  }"
+                        + "}")
+                .param(
+                    "variables",
+                    "{"
+                        + "\"filter\": ["
+                        + "    {"
+                        + "      \"property\": \"config.team\","
+                        + "      \"pattern\": \""
+                        + TEST_TEAM_NAME
+                        + "\""
+                        + "    }"
+                        + "  ],"
+                        + "\"pageNumber\": 1"
+                        + "}")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_NAME)))));
     mockMvc
         .perform(
             get(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME)))
