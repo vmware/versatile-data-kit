@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # Copyright
 # 2022
 # VMware, Inc.
@@ -12,13 +15,14 @@ from typing import List
 
 from vdk.api.job_input import IJobInput
 from vdk.internal.core import errors
-from vdk.plugin.jupyter.notebook_step import NotebookStep
 from vdk.internal.core.errors import SkipRemainingStepsException
+from vdk.plugin.jupyter.notebook_step import NotebookStep
 
 log = logging.getLogger(__name__)
 
 # consists may duplicates of
 # https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/file_based_step.py
+
 
 class JobNotebookLocator:
     """
@@ -33,9 +37,7 @@ class JobNotebookLocator:
         :rtype: :class:`.list`
         """
         script_files = [
-            x
-            for x in directory.iterdir()
-            if (x.name.lower().endswith(".ipynb"))
+            x for x in directory.iterdir() if (x.name.lower().endswith(".ipynb"))
         ]
         script_files.sort(key=lambda x: x.name)
         log.debug(f"Script files of {directory} are {script_files}")
@@ -72,8 +74,8 @@ class NotebookStepFuncFactory:
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
                     countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                                    + " Most likely importing a dependency or data job step failed, see"
-                                    + " logs for details and fix the failed step (details in stacktrace).",
+                    + " Most likely importing a dependency or data job step failed, see"
+                    + " logs for details and fix the failed step (details in stacktrace).",
                     exception=e,
                     wrap_in_vdk_error=True,
                 )
@@ -82,7 +84,9 @@ class NotebookStepFuncFactory:
                 if func.__name__ == "run":
                     try:
                         log.info("Entering %s#run(...) ..." % filename)
-                        NotebookStepFuncFactory.invoke_run_function(func, job_input, step.name)
+                        NotebookStepFuncFactory.invoke_run_function(
+                            func, job_input, step.name
+                        )
                         success = True
                         return True
                     finally:
@@ -130,9 +134,9 @@ class NotebookStepFuncFactory:
                     what_happened=f"Data Job step {step_name} completed with error.",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences="I will not process the remaining steps (if any), "
-                                 "and this Data Job execution will be marked as failed.",
+                    "and this Data Job execution will be marked as failed.",
                     countermeasures="See exception and fix the root cause, so that the exception does "
-                                    "not appear anymore.",
+                    "not appear anymore.",
                     exception=e,
                     wrap_in_vdk_error=True,
                 )
@@ -144,6 +148,6 @@ class NotebookStepFuncFactory:
                 why_it_happened=f"Method is missing at least one job input parameter to be passed",
                 consequences="Current Step (notebook file) will fail, and as a result the whole Data Job will fail. ",
                 countermeasures="Make sure that you have specified a job input parameter in the signature of the "
-                                "run method. "
-                                f"Possible parameters of run function are: {list(possible_arguments.keys())}.",
+                "run method. "
+                f"Possible parameters of run function are: {list(possible_arguments.keys())}.",
             )

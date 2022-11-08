@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # Copyright
 # 2022
 # VMware, Inc.
@@ -8,12 +11,11 @@ import logging
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.jupyter.notebook_based_step import JobNotebookLocator
 from vdk.plugin.jupyter.notebook_reader import NotebookReader
-from vdk.internal.core.config import ConfigurationBuilder
 
 log = logging.getLogger(__name__)
-
 
 
 @hookimpl()

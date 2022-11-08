@@ -14,7 +14,7 @@ setuptools.setup(
     name="vdk-jupyter",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description='Plugin for runnig Jupyter notebooks as vdk steps',
+    description="Plugin for runnig Jupyter notebooks as vdk steps",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core"],
@@ -22,11 +22,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specifc part
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
-    entry_points={
-        "vdk.plugin.run": [
-            "jupyter = vdk.plugin.jupyter.jupyter_plugin"
-        ]
-    },
+    entry_points={"vdk.plugin.run": ["jupyter = vdk.plugin.jupyter.jupyter_plugin"]},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: Apache Software License",
