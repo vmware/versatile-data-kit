@@ -113,6 +113,7 @@ control_service_test_helm_chart:
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - cd projects/control-service/projects/helm_charts/pipelines-control-service
+    - helm dependency update
     - helm lint
   only:
     refs:
