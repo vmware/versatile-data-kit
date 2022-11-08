@@ -18,12 +18,13 @@
   - projects/control-service/projects/model/**/*
   - projects/control-service/projects/pipelines_control_service/**/*
   - projects/control-service/projects/settings.gradle
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
   - projects/control-service/projects/job-builder/**/*
   - projects/control-service/projects/helm_charts/pipelines-control-service/**
+  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 
 .control_service_helm_testing_changes: &control_service_helm_testing_changes
+  - projects/control-service/projects/helm_charts/pipelines-control-service/**
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
