@@ -211,7 +211,7 @@ VDK distribution docker repository secret name
 {{- end }}
 
 {{- define "shouldCreatePipelinesControlServiceDockerRepoSecret" }}
-  {{- if and  (.Values.image.registryUsernameReadOnly) (.Values.image.registryPasswordReadOnly) }}
+  {{- if and (.Values.image.registryUsernameReadOnly) (.Values.image.registryPasswordReadOnly) }}
     true
   {{- end }}
 {{- end }}
