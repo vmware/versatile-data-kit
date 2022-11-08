@@ -111,6 +111,8 @@ control_service_test_helm_chart:
   script:
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - ls
+    - cd /Users/paulm2/IdeaProjects/versatile-data-kit/projects/control-service/versatile-data-kit/projects/control-service/projects/helm_charts/pipelines-control-service
     - helm lint
   only:
     refs:
