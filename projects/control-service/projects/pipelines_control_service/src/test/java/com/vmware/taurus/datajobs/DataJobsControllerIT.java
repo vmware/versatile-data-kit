@@ -84,10 +84,26 @@ public class DataJobsControllerIT {
                             URLDecoder.decode(s, Charset.defaultCharset())
                                 .endsWith(expectedLocationPath))));
     // deprecated jobsList in favour of jobsQuery
-    mockMvc
-        .perform(get(String.format("/data-jobs/for-team/%s", TEST_TEAM_NAME)))
-        .andExpect(status().isOk())
-        .andExpect(content().string(lambdaMatcher(s -> s.contains(TEST_JOB_NAME))));
+    mockMvc.perform(get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                    .param("query", "query($filter: [Predicate], $pageNumber: Int) {" +
+                            "  jobs(pageNumber: $pageNumber, filter: $filter) {" +
+                            "    content {" +
+                            "      jobName" +
+                            "    }" +
+                            "  }" +
+                            "}")
+                    .param("variables", "{" +
+                            "\"filter\": [" +
+                            "    {" +
+                            "      \"property\": \"config.team\"," +
+                            "      \"pattern\": \"" + TEST_TEAM_NAME + "\"" +
+                            "    }" +
+                            "  ]," +
+                            "\"pageNumber\": 1" +
+                            "}")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(lambdaMatcher(s -> (s.contains(TEST_JOB_NAME)))));
     mockMvc
         .perform(
             get(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME)))
@@ -155,24 +171,6 @@ public class DataJobsControllerIT {
         deployProgressTelemetry.isPresent(),
         "Did not find expected deploy progress telemetry. See all payloads: "
             + MockTelemetry.payloads);
-  }
-
-  /**
-   * Tests if parameter validation in {@link DataJobsController} works correctly integrated with
-   * {@link com.vmware.taurus.exception.ExceptionControllerAdvice}
-   *
-   * <p>The test doesn't aim to cover all types of parameter validation - that's for the unit tests.
-   * This test confirms that that validation works end-to-end and the user gets a 400 response in
-   * case of validation issue.
-   */
-  @Test
-  @WithMockUser
-  public void testParameterValidation() throws Exception {
-    // deprecated jobsList in favour of jobsQuery
-    mockMvc
-        .perform(get(String.format("/data-jobs/for-team/%s?page_number=-1", TEST_TEAM_NAME)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string(lambdaMatcher(s -> s.contains("page_number"))));
   }
 
   @Test
