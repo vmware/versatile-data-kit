@@ -439,7 +439,7 @@ resources:
 ## Configuration for a PostgreSQL embedded database, set postgresql.enabled to false if you want to use external database
 ## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
-  enabled: true
+  enabled: false
   architecture: standalone  # replication
 #  readReplicas:
 #    replicaCount: 2
@@ -466,7 +466,7 @@ postgresql:
 ## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
-   enabled: false
+   enabled: true
    storage:
       persistentVolume:
          size: 1Gi
