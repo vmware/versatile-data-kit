@@ -137,6 +137,10 @@ class CliEntry:
                     core_context=core_context,
                     program_name=program_name,
                 )
+            else:
+                # If root command is None, this means there was en error
+                # when running configuration in the main() method.
+                exit_code = 1
             return exit_code
         except Exception as e:
             handled = cast(CoreHookSpecs, plugin_registry.hook()).vdk_exception(
