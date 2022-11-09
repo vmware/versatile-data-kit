@@ -5,11 +5,11 @@ pluginManagement {
       id 'com.palantir.docker' version '0.34.0'
       // https://projectlombok.org/setup/gradle
       id 'io.freefair.lombok' version '6.1.0-m3'
-      id 'com.palantir.git-version' version '0.11.0'
+      id 'com.palantir.git-version' version '0.15.0'
       id 'org.unbroken-dome.test-sets' version '4.0.0'
       // https://gitlab.com/barfuin/gradle-jacoco-log/-/blob/master/README.md
       id 'org.barfuin.gradle.jacocolog' version '2.0.0'
-      id 'com.github.jk1.dependency-license-report' version '1.17'
+      id 'com.github.jk1.dependency-license-report' version '2.1'
    }
 
    repositories {
