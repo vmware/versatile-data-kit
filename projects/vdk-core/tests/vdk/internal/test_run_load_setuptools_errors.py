@@ -5,9 +5,14 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from vdk.internal.cli_entry import main
+from vdk.internal.core.errors import clear_intermediate_errors
 
 
 class TestImportErrors(unittest.TestCase):
+    def setUp(self) -> None:
+        # Clear logged and recorded error state before every test.
+        clear_intermediate_errors()
+
     @patch(
         "pluggy._manager.PluginManager.load_setuptools_entrypoints",
         side_effect=ImportError("Test import error."),
