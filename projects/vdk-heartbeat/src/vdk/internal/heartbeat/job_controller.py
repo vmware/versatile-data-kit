@@ -339,7 +339,6 @@ class JobController:
     @LogDecorator(log)
     def wait_job_execution_started(self):
         log.info("Checking if data job execution is still running.")
-        execution_list = []
         start = time.time()
 
         while time.time() - start < self.config.RUN_TEST_TIMEOUT_SECONDS:
@@ -360,7 +359,7 @@ class JobController:
             if execution_list:
                 return
             time.sleep(10)
-        raise "Job never started"
+        raise Exception("Job never started")
 
     @LogDecorator(log)
     def check_job_execution_finished(self) -> Optional[str]:
