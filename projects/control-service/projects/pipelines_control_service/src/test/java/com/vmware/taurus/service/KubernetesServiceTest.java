@@ -63,6 +63,7 @@ public class KubernetesServiceTest {
             "vdk",
             "vdk:latest",
             false,
+            false,
             Map.of(),
             List.of(),
             List.of(volumeMount),
