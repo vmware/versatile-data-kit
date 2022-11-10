@@ -44,8 +44,8 @@ public class JobImageDeployer {
   @Value("${datajobs.vdk.docker.registrySecret:}")
   private String vdkSdkDockerRegistrySecret = "";
 
-  @Value("${readOnlyRootFileSystem:false}")
-  private boolean readOnlyRootFileSystem;
+  @Value("${readOnlyRootFilesystem:false}")
+  private boolean readOnlyRootFilesystem;
 
   private static final String VOLUME_NAME = "vdk";
   private static final String VOLUME_MOUNT_PATH = "/vdk";
@@ -232,7 +232,7 @@ public class JobImageDeployer {
             jobName,
             jobDeployment.getImageName(),
             false,
-            readOnlyRootFileSystem,
+            readOnlyRootFilesystem,
             jobContainerEnvVars,
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
@@ -253,7 +253,7 @@ public class JobImageDeployer {
             "vdk",
             jobVdkImage,
             false,
-            readOnlyRootFileSystem,
+            readOnlyRootFilesystem,
             Map.of(),
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),

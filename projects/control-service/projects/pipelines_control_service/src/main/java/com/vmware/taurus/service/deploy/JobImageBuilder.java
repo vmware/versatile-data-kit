@@ -89,6 +89,9 @@ public class JobImageBuilder {
   @Value("${datajobs.deployment.builder.serviceAccountName}")
   private String builderServiceAccountName;
 
+  @Value("${readOnlyRootFileSystem:false}")
+  private boolean readOnlyRootFilesystem;
+
   private final ControlKubernetesService controlKubernetesService;
   private final DockerRegistryService dockerRegistryService;
   private final DeploymentNotificationHelper notificationHelper;
@@ -176,6 +179,7 @@ public class JobImageBuilder {
         builderJobName,
         dockerRegistryService.builderImage(),
         false,
+        readOnlyRootFilesystem,
         envs,
         args,
         null,

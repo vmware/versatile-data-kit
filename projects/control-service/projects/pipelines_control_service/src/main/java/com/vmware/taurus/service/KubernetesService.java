@@ -1195,6 +1195,7 @@ public abstract class KubernetesService implements InitializingBean {
       String name,
       String image,
       boolean privileged,
+      boolean readOnlyRootFilesystem,
       Map<String, String> envs,
       List<String> args,
       List<V1Volume> volumes,
@@ -1217,6 +1218,7 @@ public abstract class KubernetesService implements InitializingBean {
                     name,
                     image,
                     privileged,
+                    readOnlyRootFilesystem,
                     envs,
                     args,
                     volumeMounts,
@@ -2180,7 +2182,7 @@ public abstract class KubernetesService implements InitializingBean {
       String name,
       String image,
       boolean privileged,
-      boolean readOnlyRootFileSystem,
+      boolean readOnlyRootFilesystem,
       Map<String, String> envs,
       List<String> args,
       List<V1VolumeMount> volumeMounts,
@@ -2195,7 +2197,7 @@ public abstract class KubernetesService implements InitializingBean {
             .withImage(image)
             .withVolumeMounts(volumeMounts)
             .withImagePullPolicy(imagePullPolicy)
-            .withSecurityContext(new V1SecurityContextBuilder().withPrivileged(privileged).withReadOnlyRootFilesystem(readOnlyRootFileSystem).build())
+            .withSecurityContext(new V1SecurityContextBuilder().withPrivileged(privileged).withReadOnlyRootFilesystem(readOnlyRootFilesystem).build())
             .withResources(
                 new V1ResourceRequirementsBuilder()
                     .withRequests(resources(request))
