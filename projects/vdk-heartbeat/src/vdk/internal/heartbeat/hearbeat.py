@@ -43,8 +43,8 @@ class Heartbeat:
             run_test.setup()
 
             job_controller.enable_deployment()
+            job_controller.wait_job_execution_started()
             job_controller.show_job_details()
-
             run_test.execute_test()
             job_controller.show_last_job_execution_logs()
 
@@ -57,7 +57,7 @@ class Heartbeat:
 
             self.clean(run_test, job_controller)
             log.info("Heartbeat has finished successfully.")
-        except:
+        except Exception as e:
             log.info("Heartbeat has failed.")
             job_controller.show_job_details()
             job_controller.show_last_job_execution_logs()

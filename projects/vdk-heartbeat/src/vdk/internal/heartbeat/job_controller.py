@@ -337,6 +337,32 @@ class JobController:
         log.info("Execution started successfully.")
 
     @LogDecorator(log)
+    def wait_job_execution_started(self):
+        log.info("Checking if data job execution is still running.")
+        execution_list = []
+        start = time.time()
+
+        while time.time() - start < self.config.RUN_TEST_TIMEOUT_SECONDS:
+            response = self._execute(
+                [
+                    "execute",
+                    "--list",
+                    "-t",
+                    self.config.job_team,
+                    "-n",
+                    self.config.job_name,
+                    "-o" "json",
+                ]
+                + self.__get_rest_api_url_arg()
+            )
+            execution_list = json.loads(response)
+
+            if execution_list:
+                return
+            time.sleep(10)
+        raise "Job never started"
+
+    @LogDecorator(log)
     def check_job_execution_finished(self) -> Optional[str]:
         log.info("Checking if data job execution is still running.")
         job_execution_running = True
