@@ -12,10 +12,10 @@ class VDKAuthException(Exception):
         banner = "¯\\_(ツ)_/¯"
         self.message = (
             f"{banner}\n"
-            f"\nwhat: {what}\n"
-            f"why: {why}\n"
-            f"consequences: {consequence}\n"
-            f"countermeasures: {countermeasure}\n"
+            f"\nWhat: {what}\n"
+            f"Why: {why}\n"
+            f"Consequences: {consequence}\n"
+            f"Countermeasures: {countermeasure}\n"
         )
         super().__init__(self.message)
 
