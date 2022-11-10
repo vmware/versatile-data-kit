@@ -2197,7 +2197,11 @@ public abstract class KubernetesService implements InitializingBean {
             .withImage(image)
             .withVolumeMounts(volumeMounts)
             .withImagePullPolicy(imagePullPolicy)
-            .withSecurityContext(new V1SecurityContextBuilder().withPrivileged(privileged).withReadOnlyRootFilesystem(readOnlyRootFilesystem).build())
+            .withSecurityContext(
+                new V1SecurityContextBuilder()
+                    .withPrivileged(privileged)
+                    .withReadOnlyRootFilesystem(readOnlyRootFilesystem)
+                    .build())
             .withResources(
                 new V1ResourceRequirementsBuilder()
                     .withRequests(resources(request))
@@ -2241,7 +2245,8 @@ public abstract class KubernetesService implements InitializingBean {
     return container(
         name,
         image,
-        privileged, readOnlyRootFilesystem,
+        privileged,
+        readOnlyRootFilesystem,
         envs,
         args,
         volumeMounts,
