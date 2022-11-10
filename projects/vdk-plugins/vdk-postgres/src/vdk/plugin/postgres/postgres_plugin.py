@@ -6,6 +6,7 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.plugin.postgres.ingest_to_postgres import IngestToPostgres
 from vdk.plugin.postgres.postgres_connection import PostgresConnection
 
 
@@ -56,6 +57,9 @@ def initialize_job(context: JobContext) -> None:
     context.connections.add_open_connection_factory_method(
         "POSTGRES",
         lambda: _connection_by_configuration(context.core_context.configuration),
+    )
+    context.ingester.add_ingester_factory_method(
+        "POSTGRES", lambda: IngestToPostgres(context)
     )
 
 
