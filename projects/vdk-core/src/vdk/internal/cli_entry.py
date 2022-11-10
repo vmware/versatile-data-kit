@@ -125,7 +125,7 @@ class CliEntry:
         configuration = build_configuration(plugin_registry)
         core_context = build_core_context_and_initialize(configuration, plugin_registry)
 
-        exit_code = 0
+        exit_code = 1
         try:
             log.info(f"Start CLI {program_name} with args {command_line_args}")
             if root_command is not None:
@@ -137,10 +137,6 @@ class CliEntry:
                     core_context=core_context,
                     program_name=program_name,
                 )
-            else:
-                # If root command is None, this means there was en error
-                # when running configuration in the main() method.
-                exit_code = 1
             return exit_code
         except Exception as e:
             handled = cast(CoreHookSpecs, plugin_registry.hook()).vdk_exception(

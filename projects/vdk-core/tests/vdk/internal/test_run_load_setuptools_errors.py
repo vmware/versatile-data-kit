@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from vdk.internal.cli_entry import CliEntry
 from vdk.internal.cli_entry import main
 from vdk.internal.core.errors import clear_intermediate_errors
 
@@ -18,7 +19,8 @@ class TestImportErrors(unittest.TestCase):
         side_effect=ImportError("Test import error."),
     )
     @patch(
-        "vdk.internal.builtin_plugins.termination_message.file_util.WriteToFileAction.write_to_file"
+        "vdk.internal.builtin_plugins.termination_message.file_util.WriteToFile"
+        "Action.write_to_file"
     )
     def test_import_error(
         self,
@@ -45,7 +47,8 @@ class TestImportErrors(unittest.TestCase):
         side_effect=Exception("Test general error."),
     )
     @patch(
-        "vdk.internal.builtin_plugins.termination_message.file_util.WriteToFileAction.write_to_file"
+        "vdk.internal.builtin_plugins.termination_message.file_util.WriteToFile"
+        "Action.write_to_file"
     )
     def test_general_error(
         self,
@@ -68,4 +71,40 @@ class TestImportErrors(unittest.TestCase):
             # original error is the side effect of load_setuptools_entrypoints.
             load_setuptools_entrypoints.assert_called_once()
             # Testing exit status code.
+            patched_exit.assert_called_once_with(1)
+
+    @patch(
+        "pluggy._manager.PluginManager.load_setuptools_entrypoints",
+        side_effect=Exception("Test general error."),
+    )
+    @patch(f"vdk.internal.cli_entry.build_configuration")
+    @patch(
+        "vdk.internal.builtin_plugins.termination_message.file_util.WriteToFile"
+        "Action.write_to_file"
+    )
+    @patch(f"vdk.internal.cli_entry.build_core_context_and_initialize")
+    def test_hooks_called(
+        self,
+        build_core_context_and_initialize: MagicMock,
+        termination_message_writer: MagicMock,
+        build_configuration: MagicMock,
+        setuptools_entrypoints: MagicMock,
+    ):
+        """
+        This test checks if core initialization methods are called when
+        the load_setuptools_entrypoints fails with an exception in the
+        cli_entry.main() method.
+        :param build_core_context_and_initialize: mocked real method
+        :param termination_message_writer: mocked real method
+        :param build_configuration: mocked real method
+        :param setuptools_entrypoints: mocked real method with Exception side
+        effect
+        """
+        with patch("sys.exit") as patched_exit:
+            main()
+
+            build_core_context_and_initialize.assert_called_once()
+            termination_message_writer.assert_called_once()
+            build_configuration.assert_called_once()
+            setuptools_entrypoints.assert_called_once()
             patched_exit.assert_called_once_with(1)
