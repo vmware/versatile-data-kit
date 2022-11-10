@@ -199,7 +199,8 @@ public class JobImageDeployer {
     var volumeMount = KubernetesService.volumeMount(VOLUME_NAME, VOLUME_MOUNT_PATH, false);
 
     var ephemeralVolume = KubernetesService.volume(EPHEMERAL_VOLUME_NAME);
-    var ephemeralVolumeMount = KubernetesService.volumeMount(EPHEMERAL_VOLUME_NAME, EPHEMERAL_VOLUME_MOUNT_PATH, false);
+    var ephemeralVolumeMount =
+        KubernetesService.volumeMount(EPHEMERAL_VOLUME_NAME, EPHEMERAL_VOLUME_MOUNT_PATH, false);
 
     var principalName = jobCredentialsService.getJobPrincipalName(jobName);
     var vdkEnvs = vdkOptionsReader.readVdkOptions(jobName);
