@@ -45,6 +45,7 @@ class Heartbeat:
             job_controller.enable_deployment()
             job_controller.wait_job_execution_started()
             job_controller.show_job_details()
+
             run_test.execute_test()
             job_controller.show_last_job_execution_logs()
 
