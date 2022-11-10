@@ -57,7 +57,7 @@ class Heartbeat:
 
             self.clean(run_test, job_controller)
             log.info("Heartbeat has finished successfully.")
-        except Exception as e:
+        except:
             log.info("Heartbeat has failed.")
             job_controller.show_job_details()
             job_controller.show_last_job_execution_logs()
