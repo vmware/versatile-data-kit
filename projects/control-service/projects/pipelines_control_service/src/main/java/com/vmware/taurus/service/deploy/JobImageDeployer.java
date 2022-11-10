@@ -218,7 +218,7 @@ public class JobImageDeployer {
     jobContainerEnvVars.put(KEYTAB_FOLDER_ENV, keytabFolder);
     jobContainerEnvVars.put(KEYTAB_FILENAME_ENV, JobCredentialsService.K8S_KEYTAB_KEY_IN_SECRET);
     jobContainerEnvVars.put(ATTEMPT_ID, "$metadata.name");
-    jobContainerEnvVars.put(BASE_CONFIG_FOLDER, )
+    jobContainerEnvVars.put(BASE_CONFIG_FOLDER, EPHEMERAL_VOLUME_MOUNT_PATH);
     jobContainerEnvVars.putAll(getSystemDefaults());
     jobContainerEnvVars.putAll(vdkEnvs);
     jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
@@ -235,7 +235,7 @@ public class JobImageDeployer {
             readOnlyRootFileSystem,
             jobContainerEnvVars,
             List.of(),
-            List.of(volumeMount, secretVolumeMount),
+            List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
             "Always",
             defaultConfigurations.dataJobRequests(),
             defaultConfigurations.dataJobLimits(),
@@ -256,7 +256,7 @@ public class JobImageDeployer {
             readOnlyRootFileSystem,
             Map.of(),
             List.of(),
-            List.of(volumeMount, secretVolumeMount),
+            List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
             "Always",
             kubernetesResources.dataJobInitContainerRequests(),
             kubernetesResources.dataJobInitContainerLimits(),
@@ -285,7 +285,7 @@ public class JobImageDeployer {
           defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
-          Arrays.asList(volume, secretVolume),
+          Arrays.asList(volume, secretVolume, ephemeralVolume),
           jobDeploymentAnnotations,
           Collections.emptyMap(),
           jobAnnotations,
@@ -303,7 +303,7 @@ public class JobImageDeployer {
           defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
-          Arrays.asList(volume, secretVolume),
+          Arrays.asList(volume, secretVolume, ephemeralVolume),
           jobDeploymentAnnotations,
           Collections.emptyMap(),
           jobAnnotations,
