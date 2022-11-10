@@ -359,7 +359,7 @@ class JobController:
             if execution_list:
                 return
             time.sleep(10)
-        raise Exception("Job never started")
+        raise Exception(f"Job {self.config.job_name} never started")
 
     @LogDecorator(log)
     def check_job_execution_finished(self) -> Optional[str]:
