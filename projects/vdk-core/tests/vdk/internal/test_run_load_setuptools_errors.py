@@ -4,7 +4,6 @@ import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from vdk.internal.cli_entry import CliEntry
 from vdk.internal.cli_entry import main
 from vdk.internal.core.errors import clear_intermediate_errors
 
