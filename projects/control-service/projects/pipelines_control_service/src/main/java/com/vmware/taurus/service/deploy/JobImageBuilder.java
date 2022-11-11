@@ -89,7 +89,7 @@ public class JobImageBuilder {
   @Value("${datajobs.deployment.builder.serviceAccountName}")
   private String builderServiceAccountName;
 
-  @Value("${readOnlyRootFileSystem:false}")
+  @Value("${dataJob.readOnlyRootFileSystem:false}")
   private boolean readOnlyRootFilesystem;
 
   private final ControlKubernetesService controlKubernetesService;
