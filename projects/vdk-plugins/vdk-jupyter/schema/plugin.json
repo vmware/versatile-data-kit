@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "vdk-jupyter",
+  "description": "vdk-jupyter settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
