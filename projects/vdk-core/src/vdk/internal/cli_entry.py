@@ -66,10 +66,11 @@ def setup_cli_commands(plugin_registry: IPluginRegistry, root_command: click.Gro
     """
     Call hooks to customize CLI Commands
     """
-    log.debug("Setup commands and options ...")
-    cast(CoreHookSpecs, plugin_registry.hook()).vdk_command_line(
-        root_command=root_command
-    )
+    if root_command is not None:
+        log.debug("Setup commands and options ...")
+        cast(CoreHookSpecs, plugin_registry.hook()).vdk_command_line(
+            root_command=root_command
+        )
 
 
 def build_core_context_and_initialize(
@@ -110,7 +111,6 @@ class CliEntry:
         """
         Main method of the CLI. It call all configuration and initialization hooks and start CLI
         """
-
         plugin_registry.add_hook_specs(CoreHookSpecs)
         plugin_registry.load_plugin_with_hooks_impl(builtin_hook_impl, "core-plugin")
 
@@ -125,21 +125,33 @@ class CliEntry:
         configuration = build_configuration(plugin_registry)
         core_context = build_core_context_and_initialize(configuration, plugin_registry)
 
-        exit_code = 0
+        # Setting exit code to 1 since if root command is None we want to
+        # exit with a non 0 status.
+        exit_code = 1
         try:
             log.info(f"Start CLI {program_name} with args {command_line_args}")
-            exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_cli_execute(
-                root_command=root_command,
-                command_line_args=command_line_args,
-                core_context=core_context,
-                program_name=program_name,
-            )
+            if root_command:
+                exit_code = cast(
+                    InternalHookSpecs, plugin_registry.hook()
+                ).vdk_cli_execute(
+                    root_command=root_command,
+                    command_line_args=command_line_args,
+                    core_context=core_context,
+                    program_name=program_name,
+                )
+            else:
+                log.debug(
+                    "Root command not initialized. There was likely an "
+                    "error when running configuration in the main() "
+                    "method."
+                )
             return exit_code
         except Exception as e:
             handled = cast(CoreHookSpecs, plugin_registry.hook()).vdk_exception(
                 exception=e
             )
-            # if at least one hook implementation returned handled, means we do not need to log the exception
+            # if at least one hook implementation returned handled, means we do
+            # not need to log the exception
             if not (True in handled):
                 log.exception("Exiting with exception.")
                 exit_code = 1
@@ -162,12 +174,15 @@ def main() -> None:
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()
     plugin_registry.add_hook_specs(InternalHookSpecs)
-    plugin_registry.load_plugins_from_setuptools_entrypoints()
+    try:
+        plugin_registry.load_plugins_from_setuptools_entrypoints()
+    except Exception as e:
+        log.warning(f"Plugin load failed{e}")
     plugin_registry.load_plugin_with_hooks_impl(CliEntry(), "cli-entry")
 
     exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_main(
         plugin_registry=plugin_registry,
-        root_command=cli,
+        root_command=cli if plugin_registry.is_plugin_load_success() else None,
         command_line_args=sys.argv[1:],
     )
     sys.exit(exit_code)
