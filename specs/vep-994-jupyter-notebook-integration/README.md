@@ -128,6 +128,7 @@ From the diagram below you can see what the extension will consist of:
 ![jupyterlab-extension](jlab-extension.png)
 
 Example use case:
+
 ![example-use-case](example.png)
 
 
