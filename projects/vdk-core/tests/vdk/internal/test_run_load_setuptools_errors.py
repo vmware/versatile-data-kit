@@ -76,12 +76,12 @@ class TestImportErrors(unittest.TestCase):
         "pluggy._manager.PluginManager.load_setuptools_entrypoints",
         side_effect=Exception("Test general error."),
     )
-    @patch(f"vdk.internal.cli_entry.build_configuration")
+    @patch("vdk.internal.cli_entry.build_configuration")
     @patch(
         "vdk.internal.builtin_plugins.termination_message.file_util.WriteToFile"
         "Action.write_to_file"
     )
-    @patch(f"vdk.internal.cli_entry.build_core_context_and_initialize")
+    @patch("vdk.internal.cli_entry.build_core_context_and_initialize")
     def test_hooks_called(
         self,
         build_core_context_and_initialize: MagicMock,

@@ -142,7 +142,8 @@ class CliEntry:
             handled = cast(CoreHookSpecs, plugin_registry.hook()).vdk_exception(
                 exception=e
             )
-            # if at least one hook implementation returned handled, means we do not need to log the exception
+            # if at least one hook implementation returned handled, means we do
+            # not need to log the exception
             if not (True in handled):
                 log.exception("Exiting with exception.")
                 exit_code = 1
