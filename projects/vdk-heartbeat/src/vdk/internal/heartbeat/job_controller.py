@@ -338,7 +338,7 @@ class JobController:
 
     @LogDecorator(log)
     def wait_job_execution_started(self):
-        log.debug("Waiting for job to create")
+        log.debug("Waiting for job {self.config.job_name} to start.")
         start = time.time()
 
         while time.time() - start < self.config.RUN_TEST_TIMEOUT_SECONDS:
