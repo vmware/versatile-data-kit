@@ -2,13 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
+import os
 from typing import List
 
 from ecs_logging import StdlibFormatter
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.statestore import CommonStoreKeys
+
+LOGGING_FORMAT = "LOGGING_FORMAT"
 
 
 class EcsJsonFormatter(StdlibFormatter):
@@ -46,25 +50,38 @@ class EcsJsonFormatter(StdlibFormatter):
         return json.dumps(result)
 
 
+@hookimpl
+def vdk_configure(config_builder: ConfigurationBuilder):
+    config_builder.add(
+        key=LOGGING_FORMAT,
+        default_value="TEXT",
+        description="The format in which to structure VDK logs.",
+    )
+
+
 @hookimpl(tryfirst=True)
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    for handler in logging.getLogger().handlers:
-        handler.setFormatter(
-            EcsJsonFormatter(
-                job_name="",
-                attempt_id="",
-                op_id="",
+    if (
+        os.getenv("VDK_LOGGING_FORMAT") == "JSON"
+    ):  # workaround: config isn't initialized yet but logs are being printed
+        for handler in logging.getLogger().handlers:
+            handler.setFormatter(
+                EcsJsonFormatter(
+                    job_name="",
+                    attempt_id="",
+                    op_id="",
+                )
             )
-        )
 
 
 @hookimpl(trylast=True)
 def initialize_job(context: JobContext) -> None:
-    attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
-    op_id = context.core_context.state.get(CommonStoreKeys.OP_ID)
-    job_name = context.name
+    if context.core_context.configuration.get_value(LOGGING_FORMAT) == "JSON":
+        attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
+        op_id = context.core_context.state.get(CommonStoreKeys.OP_ID)
+        job_name = context.name
 
-    for handler in logging.getLogger().handlers:
-        handler.setFormatter(
-            EcsJsonFormatter(job_name=job_name, attempt_id=attempt_id, op_id=op_id)
-        )
+        for handler in logging.getLogger().handlers:
+            handler.setFormatter(
+                EcsJsonFormatter(job_name=job_name, attempt_id=attempt_id, op_id=op_id)
+            )
