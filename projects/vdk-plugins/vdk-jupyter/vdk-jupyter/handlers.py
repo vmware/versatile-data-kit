@@ -1,8 +1,12 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 
+import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
-import tornado
+
 
 class RouteHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post,
@@ -10,9 +14,7 @@ class RouteHandler(APIHandler):
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        self.finish(json.dumps({
-            "data": "This is /vdk-jupyter/get_example endpoint!"
-        }))
+        self.finish(json.dumps({"data": "This is /vdk-jupyter/get_example endpoint!"}))
 
 
 def setup_handlers(web_app):

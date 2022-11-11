@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 
 
@@ -8,6 +11,4 @@ async def test_get_example(jp_fetch):
     # Then
     assert response.code == 200
     payload = json.loads(response.body)
-    assert payload == {
-        "data": "This is /vdk-jupyter/get_example endpoint!"
-    }
+    assert payload == {"data": "This is /vdk-jupyter/get_example endpoint!"}

@@ -9,8 +9,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  
-  
+
+
   update-snapshots:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'please update playwright snapshots') }}
     runs-on: ubuntu-latest
@@ -41,4 +41,4 @@ jobs:
           # Playwright knows how to start JupyterLab server
           start_server_script: 'null'
           test_folder: ui-tests
-      
+

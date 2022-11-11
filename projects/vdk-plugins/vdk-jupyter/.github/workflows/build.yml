@@ -25,7 +25,7 @@ jobs:
         set -eux
         jlpm
         jlpm run lint:check
-    
+
     - name: Test the extension
       run: |
         set -eux
@@ -110,7 +110,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: extension-artifacts
-        
+
     - name: Install the extension
       run: |
         set -eux

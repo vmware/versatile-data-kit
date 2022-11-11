@@ -1,6 +1,9 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import pytest
 
-pytest_plugins = ("jupyter_server.pytest_plugin", )
+pytest_plugins = ("jupyter_server.pytest_plugin",)
 
 
 @pytest.fixture
