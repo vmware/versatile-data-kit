@@ -126,6 +126,7 @@ requests sent by the front-end side. Only the server extension will have direct 
 
 From the diagram below you can see what the extension will consist of:
 ![jupyterlab-extension](jlab-extension.png)
+
 Example use case:
 ![example-use-case](example.png)
 
