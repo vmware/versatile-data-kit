@@ -1,5 +1,16 @@
 This plugins allows for the configuration of the format of VDK logs.
 
+# TEXT
+
+This is the default log format, and is the one which VDK would use if vdk-logging-format is not installed.
+It is intended to be human-readable; it is not structured in an easy-to-parse way for a machine.
+
+Logs appear in the following format:
+```
+2022-11-11 15:22:43,863 [VDK] example-job [INFO ] root                              execution_skip.py:111  _skip_job_if_nec[id:baf3c02e-eef0-4b6f-9abe-438177967621-1668172963-1d1fe]- Local execution, skipping parallel execution check.
+2022-11-11 15:22:43,864 [VDK] example-job [INFO ] vdk.internal.builtin_plugins.r   file_based_step.py:102  run_python_step [id:baf3c02e-eef0-4b6f-9abe-438177967621-1668172963-1d1fe]- Entering 10.py#run(...) ...
+```
+
 # LTSV
 
 This is a POC level implementation of a plugin which changes the logging format of vdk-core to LTSV for the purposes of structured data visualization.
