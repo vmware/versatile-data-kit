@@ -30,6 +30,10 @@ spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ template "pipelines-control-service.serviceAccountName" . }}
       {{- end }}
+      {{- if and (.Values.image.registryUsernameReadOnly) (.Values.image.registryPasswordReadOnly) }}
+      imagePullSecrets:
+        - name: {{ template "pipelines-control-service.fullname" . }}-pipelines-control-service-repo-creds
+      {{- end }}
       containers:
         - name: pipelines-control-service
           image: {{ template "pipelines-control-service.image" . }}
@@ -182,6 +186,10 @@ spec:
               value: "{{ .Values.monitoringSync.delayMillis }}"
             - name: DEFAULT_MONITORING_INITIAL_DELAY_SYNC_INTERVAL
               value: "{{ .Values.monitoringSync.initialDelayMillis }}"
+            - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
+              value: "{{ .Values.uploadValidationFileTypesAllowList }}"
+            - name: DATAJOBS_TEMP_STORAGE_FOLDER
+              value: /datajobs_temp_storage
             {{- if .Values.datajobTemplate.enabled }}
             - name: K8S_DATA_JOB_TEMPLATE_FILE
               value: "/etc/datajobs/k8s_data_job_template.yaml"
@@ -232,6 +240,7 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_BUILDER_SERVICE_ACCOUNT_NAME
               value: "{{ .Values.deploymentBuilder.serviceAccountName }}"
             {{- end }}
+
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
 {{- end }}
@@ -239,10 +248,13 @@ spec:
             - name: {{ $key }}
               value: "{{ $value }}"
             {{- end }}
+
           volumeMounts:
             - name: secrets
               mountPath: "/etc/secrets"
               readOnly: true
+            - mountPath: "/datajobs_temp_storage"
+              name: datajobs-temp-storage-volume
             {{- if .Values.datajobTemplate.enabled }}
             - name: datajob-template-volume
               mountPath: "/etc/datajobs"
@@ -294,6 +306,8 @@ spec:
           startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customStartupProbe "context" $) | nindent 12 }}
           {{- end }}
       volumes:
+        - name: datajobs-temp-storage-volume
+          emptyDir: {}
         - name: secrets
           secret:
             secretName: {{ template "pipelines-control-service.fullname" . }}-secrets
