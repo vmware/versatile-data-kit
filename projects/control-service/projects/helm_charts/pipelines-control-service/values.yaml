@@ -1,24 +1,24 @@
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
-## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+## Current available global Docker image parameter(s): imageRegistry
 ## Set global.imageRegistry if you use docker proxy to the proxy prefix for versatiledatakit.
 ##
 global: {}
 #   imageRegistry: myRegistryName
-#   imagePullSecrets: # TODO enable setting imagePullSecrets so that clients can use any docker repos easier (clients can still set it up manually)
 #     - myRegistryKeySecretName
 
 # Image configuration of the Control service image. Generally those should be left as it is.
 image:
-   registry: registry.hub.docker.com/versatiledatakit
-   repository: pipelines-control-service
-   tag: "1f57f0e"
-
-   ## Specify a imagePullPolicy
-   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-   ##
-   pullPolicy: IfNotPresent
+  registry: registry.hub.docker.com/versatiledatakit
+  repository: pipelines-control-service
+  tag: "1f57f0e"
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  registryUsernameReadOnly:
+  registryPasswordReadOnly:
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.
@@ -436,7 +436,34 @@ resources:
 ## and some deploy specific configuration like execution schedule
 ## Database schema is internal implementation detail and should not be queried directly.
 
-## Configuration for the embedded database, set cockroachdb.enabled to false if you want to use external database
+## Configuration for a PostgreSQL embedded database, set postgresql.enabled to false if you want to use external database
+## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+postgresql:
+  enabled: false
+  architecture: standalone  # replication
+#  readReplicas:
+#    replicaCount: 2
+#    resources:
+#      limits:
+#        cpu: 500m
+#        memory: 500Mi
+#      requests:
+#        cpu: 500m
+#        memory: 500Mi
+  primary:
+    persistence:
+      size: 1Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 500Mi
+      requests:
+        cpu: 500m
+        memory: 500Mi
+    service:
+      type: ClusterIP
+
+## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
    enabled: true
