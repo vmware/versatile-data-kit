@@ -76,7 +76,7 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
 Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
-The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands. 
+The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands.
 
 Since JupyterLab works with notebook files the proposed design should support getting the job steps from them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
 
