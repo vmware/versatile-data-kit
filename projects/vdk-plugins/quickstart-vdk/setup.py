@@ -23,7 +23,6 @@ setuptools.setup(
         "vdk-ingest-http",
         "vdk-ingest-file",
         "vdk-server",
-        "vdk-logging-json",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
