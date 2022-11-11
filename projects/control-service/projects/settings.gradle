@@ -2,7 +2,7 @@ pluginManagement {
    plugins {
       id 'org.springframework.boot' version '2.5.3'
       id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-      id 'com.palantir.docker' version '0.22.1'
+      id 'com.palantir.docker' version '0.34.0'
       // https://projectlombok.org/setup/gradle
       id 'io.freefair.lombok' version '6.1.0-m3'
       id 'com.palantir.git-version' version '0.15.0'
