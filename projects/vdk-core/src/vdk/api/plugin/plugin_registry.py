@@ -89,8 +89,9 @@ class IPluginRegistry(metaclass=ABCMeta):
     @abstractmethod
     def is_plugin_load_success(self) -> bool:
         """
-
-        :return:
+        Whether plugin loading suceeded. load_plugin_with_hooks_impl method
+        finished successfully
+        :return: True if plugin load was successful
         """
         pass
 
