@@ -125,10 +125,12 @@ class CliEntry:
         configuration = build_configuration(plugin_registry)
         core_context = build_core_context_and_initialize(configuration, plugin_registry)
 
+        # Setting exit code to 1 since if root command is None we want to
+        # exit with a non 0 status.
         exit_code = 1
         try:
             log.info(f"Start CLI {program_name} with args {command_line_args}")
-            if root_command is not None:
+            if root_command:
                 exit_code = cast(
                     InternalHookSpecs, plugin_registry.hook()
                 ).vdk_cli_execute(
@@ -136,6 +138,12 @@ class CliEntry:
                     command_line_args=command_line_args,
                     core_context=core_context,
                     program_name=program_name,
+                )
+            else:
+                log.debug(
+                    "Root command not initialized. There was likely an "
+                    "error when running configuration in the main() "
+                    "method."
                 )
             return exit_code
         except Exception as e:
@@ -162,20 +170,19 @@ def main() -> None:
     """
     # configure basic logging , it's expected that a plugin would override and set it up properly
     click_log.basic_config(logging.getLogger())
-    plugin_load_success = True
 
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()
     plugin_registry.add_hook_specs(InternalHookSpecs)
     try:
         plugin_registry.load_plugins_from_setuptools_entrypoints()
-    except Exception:
-        plugin_load_success = False
+    except Exception as e:
+        log.warning(f"Plugin load failed{e}")
     plugin_registry.load_plugin_with_hooks_impl(CliEntry(), "cli-entry")
 
     exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_main(
         plugin_registry=plugin_registry,
-        root_command=cli if plugin_load_success else None,
+        root_command=cli if plugin_registry.is_plugin_load_success() else None,
         command_line_args=sys.argv[1:],
     )
     sys.exit(exit_code)

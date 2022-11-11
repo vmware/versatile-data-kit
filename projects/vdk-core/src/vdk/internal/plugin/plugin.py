@@ -37,6 +37,7 @@ class PluginRegistry(IPluginRegistry):
         )
         self.__hook_relay = PluginHookRelay(self.__plugin_manager.hook)
         self.__group_name = group_name
+        self.__plugin_load_success = False
 
     def __str__(self):
         s = (
@@ -64,6 +65,10 @@ class PluginRegistry(IPluginRegistry):
         log.info(
             f"Following plugins from setup entrypoints have been discovered and registered: {plugins}"
         )
+        self.__plugin_load_success = True
+
+    def is_plugin_load_success(self):
+        return self.__plugin_load_success
 
     def list_plugins(self) -> List[Tuple[str, str]]:
         return self.__plugin_manager.list_name_plugin()

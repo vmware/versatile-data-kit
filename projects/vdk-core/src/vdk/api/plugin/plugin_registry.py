@@ -87,6 +87,14 @@ class IPluginRegistry(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def is_plugin_load_success(self) -> bool:
+        """
+
+        :return:
+        """
+        pass
+
+    @abstractmethod
     def load_plugin_with_hooks_impl(
         self, module_or_class_with_hook_impls: object, name: str
     ) -> None:
