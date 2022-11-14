@@ -76,7 +76,9 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
 Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
-The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands. An iPython package will also be implemented to export VDK variables. This package will be imported to JupyterLab, and they will be accessible from there.
+The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands.
+
+Since JupyterLab works with notebook files the proposed design should support getting the job steps from them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
 
 |       Operation        |                                                                                                                                                                                                                          Flow                                                                                                                                                                                                                          | Covered  use cases | Priority |
 |:----------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
@@ -95,8 +97,6 @@ The proposed design describes the solution for creating a Jupyter UI for VDK. Fo
 |      List command      |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
 |      Show command      |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
 
-
-
 ## API design
 
 <!--
@@ -112,6 +112,24 @@ Explain how does the system handle API violations.
 
 
 ## Detailed design
+### VDK Notebook plugin
+ This VDK plugin will provide the functionality to run Jobs which will retrieve Job steps from notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
+
+### VDK JupyterLab extension
+ This extension will be both front-end and server side extension for JupyterLab.
+ The front-end side will be introducing the graphical elements such as menus, buttons, etc. and will be responsible with sending
+requests to the server side extension. The server side extension will be responsible with executing the vdk commands and functions according to the
+requests sent by the front-end side. Only the server extension will have direct connection to VDK and will send the needed response according to the results from VDK to the front-end extension. The extension will be using VDK Notebook plugin to run VDK Jobs and steps
+,since the standard file based step run is not working with notebook files. For the remaining operations such as deploy, log in, log out, etc. it will be using the corresponding VDK plugin/project.
+
+From the diagram below you can see what the extension will consist of:
+![jupyterlab-extension](jlab-extension.png)
+
+Example use case:
+
+![example-use-case](example.png)
+
+
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.

@@ -436,7 +436,34 @@ resources:
 ## and some deploy specific configuration like execution schedule
 ## Database schema is internal implementation detail and should not be queried directly.
 
-## Configuration for the embedded database, set cockroachdb.enabled to false if you want to use external database
+## Configuration for a PostgreSQL embedded database, set postgresql.enabled to false if you want to use external database
+## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+postgresql:
+  enabled: false
+  architecture: standalone  # replication
+#  readReplicas:
+#    replicaCount: 2
+#    resources:
+#      limits:
+#        cpu: 500m
+#        memory: 500Mi
+#      requests:
+#        cpu: 500m
+#        memory: 500Mi
+  primary:
+    persistence:
+      size: 1Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 500Mi
+      requests:
+        cpu: 500m
+        memory: 500Mi
+    service:
+      type: ClusterIP
+
+## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
    enabled: true
