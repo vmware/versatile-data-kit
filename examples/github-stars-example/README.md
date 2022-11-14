@@ -42,6 +42,7 @@ vdk properties --set-secret 'token' -n github-stars-example-job -t yourteam
 vdk properties --set 'repo_path' -n github-stars-example-job -t yourteam
 ```
 NB! Repo Path is only the username and reponame not the full link "repo_path": "vmware/versatile-data-kit"
+See vdk properties --help for more info.
 
 6. Install requirements
 ```
