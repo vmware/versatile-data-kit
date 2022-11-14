@@ -14,10 +14,12 @@ def run(job_input: IJobInput):
     # [VDK server installation](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-versatile-data-kit-control-service)
     # [vdk-properties-fs plugin](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-properties-fs)
 
-    # Properties are in the 00_properties.py file
+    # Set job properties using following commands:
+    # vdk properties --set-secret 'token' -n github-stars-example-job -t yourteam
+    # vdk properties --set 'repo_path' -n github-stars-example-job -t yourteam
     properties = job_input.get_all_properties()
-    token = properties["token"]
-    repo_path = properties["repo_path"]
+    token = job_input.get_property('token')
+    repo_path = job_input.get_property('repo_path')
 
     # Set token and path for PyGithub
     g = Github(token)
