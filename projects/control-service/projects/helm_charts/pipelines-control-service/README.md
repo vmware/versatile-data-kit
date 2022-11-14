@@ -23,7 +23,9 @@ Note: integration with bitnami is being planned which will replace above repo.
 ## Introduction
 This chart bootstraps a Versatile Data Kit deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
-It also packages the [Cockroach chart](https://github.com/helm/charts/tree/master/stable/cockroachdb) which is required for bootstrapping a Cockroach deployment for the database requirements of the Versatile Data Kit
+It also packages a requirement for bootstrapping a database deployment for Versatile Data Kit's metadata:
+- [Bitnami PostgreSQL chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql)
+- [Cockroach chart](https://github.com/helm/charts/tree/master/stable/cockroachdb)
 
 ## Installing the Chart
 To install the chart with the release name `my-release`:
@@ -51,6 +53,7 @@ The command removes all the Kubernetes components associated with the chart and 
 For a full list of configuration parameters of the Versatile Data Kit chart, and their documentation see [values.yaml](values.yaml) file.
 Look through it and make sure to have set all [Required] Parameters as per instruction in the property doc.
 
+For PostgreSQL database parameters see https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 For Cockroach database parameters see https://github.com/helm/charts/tree/master/stable/cockroachdb
 
 Specify each parameter using the `--set key=value` or `--set-file key=filePath` argument to `helm install`. For example,

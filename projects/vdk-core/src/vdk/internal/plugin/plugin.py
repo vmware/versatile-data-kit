@@ -10,7 +10,10 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.api.plugin.plugin_registry import PluginException
 from vdk.api.plugin.plugin_registry import PluginHookRelay
 from vdk.internal.core.errors import ErrorMessage
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.plugin.plugin_manager import VdkPluginManager
+from vdk.internal.util.utils import log_plugin_load_fail
+
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +37,7 @@ class PluginRegistry(IPluginRegistry):
         )
         self.__hook_relay = PluginHookRelay(self.__plugin_manager.hook)
         self.__group_name = group_name
+        self.__plugin_load_success = False
 
     def __str__(self):
         s = (
@@ -50,26 +54,21 @@ class PluginRegistry(IPluginRegistry):
 
         try:
             self.__plugin_manager.load_setuptools_entrypoints(self.__group_name)
+        except ImportError as e:
+            log_plugin_load_fail(ResolvableBy.USER_ERROR, log, e, self.__group_name)
+            raise PluginException from e
         except Exception as e:
-            message = ErrorMessage(
-                summary=f"Plugin load failed",
-                what=f"Cannot load plugin from setuptools entrypoint for group {self.__group_name}",
-                why="See exception for possible reason",
-                consequences="The CLI tool will likely abort.",
-                countermeasures="Re-try again. Check exception mesage and possibly uninstall a bad "
-                "plugin (pip uninstall) "
-                "Or see what plugins are installed (use `pip list` command) and if "
-                "there are not issues. "
-                "Or try to reinstall the app in a new clean environment."
-                "Try to revert to previous version of hte CLI tool."
-                "If nothing works open a SRE ticket ",
-            )
-            raise PluginException(message) from e
+            log_plugin_load_fail(ResolvableBy.PLATFORM_ERROR, log, e, self.__group_name)
+            raise PluginException from e
 
         plugins = self.__plugin_manager.list_name_plugin()
         log.info(
             f"Following plugins from setup entrypoints have been discovered and registered: {plugins}"
         )
+        self.__plugin_load_success = True
+
+    def is_plugin_load_success(self):
+        return self.__plugin_load_success
 
     def list_plugins(self) -> List[Tuple[str, str]]:
         return self.__plugin_manager.list_name_plugin()

@@ -182,12 +182,18 @@ Create the name of the deployment Kubernetes namespace used by System and builde
 {{- end -}}
 
 {{/*
-Generate default JDBC credentials for local CockroachDB instance.
+Generate default JDBC credentials for local embedded database instance (CockroachDB or PostgreSQL).
 */}}
 {{- define "pipelines-control-service.jdbcSecret" -}}
+{{- if and (not .Values.cockroachdb.enabled) .Values.postgresql.enabled -}}
+USERNAME: {{ default "postgres" .Values.database.username | b64enc | quote }}
+PASSWORD: {{ default "" .Values.database.password | b64enc | quote }}
+JDBC: {{ default (printf "jdbc:postgresql://%s-postgresql-public:5432/postgres?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
+{{- else -}}
 USERNAME: {{ default "root" .Values.database.username | b64enc | quote }}
 PASSWORD: {{ default "" .Values.database.password | b64enc | quote }}
 JDBC: {{ default (printf "jdbc:postgresql://%s-cockroachdb-public:26257/defaultdb?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -205,7 +211,13 @@ VDK distribution docker repository secret name
 {{- end -}}
 
 {{- define "shouldCreateVdkSdkDockerRepoSecret" }}
-  {{- if and (eq .Values.deploymentVdkDistributionImage.registryType "generic") .Values.deploymentVdkDistributionImage.registryUsernameReadOnly .Values.deploymentVdkDistributionImage.registryPasswordReadOnly }}
+  {{- if and (.Values.deploymentVdkDistributionImage.registryUsernameReadOnly) (.Values.deploymentVdkDistributionImage.registryPasswordReadOnly) }}
+    true
+  {{- end }}
+{{- end }}
+
+{{- define "shouldCreatePipelinesControlServiceDockerRepoSecret" }}
+  {{- if and (.Values.image.registryUsernameReadOnly) (.Values.image.registryPasswordReadOnly) }}
     true
   {{- end }}
 {{- end }}
@@ -226,4 +238,8 @@ Image Pull Secret in json format
 
 {{- define "vdkSdkImagePullSecretJson" }}
     {{ include "buildImagePullSecretJson" (list (include "pipelines-control-service.deploymentVdkDistributionImageRepository" .) .Values.deploymentVdkDistributionImage.registryUsernameReadOnly .Values.deploymentVdkDistributionImage.registryPasswordReadOnly) }}
+{{- end }}
+
+{{- define "pipelinesControlServicePullSecretJson" }}
+    {{ include "buildImagePullSecretJson" (list (include "pipelines-control-service.image" .) .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly) }}
 {{- end }}
