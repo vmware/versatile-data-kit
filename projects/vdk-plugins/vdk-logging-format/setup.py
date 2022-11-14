@@ -12,7 +12,7 @@ setuptools.setup(
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
     description="Versatile Data Kit SDK plugin that configures logging output format.",
-    long_description=pathlib.Path("../vdk-logging-format/README.md").read_text(),
+    long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core", "ecs-logging"],
     package_dir={"": "src"},
