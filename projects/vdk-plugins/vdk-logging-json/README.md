@@ -1,3 +1,6 @@
+# This plugin is deprecated, please use vdk-logging-format instead.
+
+
 This is a POC level implementation of a plugin which changes the logging format of vdk-core to JSON for the purposes of structured data visualization in a log aggregator.
 
 The new format has the following fields:
