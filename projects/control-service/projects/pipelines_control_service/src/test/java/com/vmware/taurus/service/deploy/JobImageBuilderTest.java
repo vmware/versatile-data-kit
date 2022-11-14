@@ -78,7 +78,7 @@ public class JobImageBuilderTest {
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
 
-    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
+    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true, null);
 
     verify(kubernetesService)
         .createJob(
@@ -95,7 +95,7 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
-            any());
+            any(),any());
 
     verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
     Assertions.assertTrue(result);
@@ -117,7 +117,7 @@ public class JobImageBuilderTest {
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
 
-    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true);
+    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true,null);
 
     verify(kubernetesService, times(2)).deleteJob(TEST_BUILDER_IMAGE_NAME);
     verify(kubernetesService)
@@ -135,7 +135,7 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
-            any());
+            any(), any());
     Assertions.assertTrue(result);
   }
 
@@ -149,7 +149,7 @@ public class JobImageBuilderTest {
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
 
-    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true);
+    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true, null);
 
     verify(kubernetesService, never())
         .createJob(
@@ -166,7 +166,8 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
-            anyString());
+            anyString(),
+                anyString());
     verify(notificationHelper, never())
         .verifyBuilderResult(anyString(), any(), any(), any(), anyString(), anyBoolean());
     Assertions.assertTrue(result);
@@ -187,7 +188,7 @@ public class JobImageBuilderTest {
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
 
-    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
+    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true, null);
 
     verify(kubernetesService)
         .createJob(
@@ -204,7 +205,8 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
-            any());
+            any(),
+                any());
 
     // verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME); // not called in case of an error
     verify(notificationHelper)

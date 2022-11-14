@@ -8,6 +8,7 @@ package com.vmware.taurus.datajobs;
 import com.vmware.taurus.controlplane.model.api.DataJobsApi;
 import com.vmware.taurus.controlplane.model.data.DataJob;
 import com.vmware.taurus.controlplane.model.data.DataJobQueryResponse;
+import com.vmware.taurus.controlplane.model.data.DataJobSummary;
 import com.vmware.taurus.exception.ApiConstraintError;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.WebHookRequestError;
@@ -202,6 +203,11 @@ public class DataJobsController implements DataJobsApi {
       }
     }
     return ResponseEntity.notFound().build();
+  }
+
+  @Override
+  public ResponseEntity<List<DataJobSummary>> jobsList(String s, Boolean aBoolean, Integer integer, Integer integer1) {
+    return null;
   }
 
   @Override
