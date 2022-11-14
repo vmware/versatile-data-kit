@@ -18,8 +18,8 @@ def run(job_input: IJobInput):
     # vdk properties --set-secret 'token' -n github-stars-example-job -t yourteam
     # vdk properties --set 'repo_path' -n github-stars-example-job -t yourteam
     properties = job_input.get_all_properties()
-    token = job_input.get_property('token')
-    repo_path = job_input.get_property('repo_path')
+    token = job_input.get_property("token")
+    repo_path = job_input.get_property("repo_path")
 
     # Set token and path for PyGithub
     g = Github(token)
