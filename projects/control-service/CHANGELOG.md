@@ -14,6 +14,11 @@ MAJOR.MINOR - dd.MM.yyyy
 1.3 - 09.03.2022
 ----
 * **Improvement**
+  * Security improvement. Use empty dir storage for storing jobs during upload/deployment/etc instead of using the root file system
+
+1.3 - 09.03.2022
+----
+* **Improvement**
   * Adopted kubernetes-client 13.0
 
 * **Bug Fixes**

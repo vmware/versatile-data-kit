@@ -7,15 +7,14 @@ package com.vmware.taurus.service.upload;
 
 import com.vmware.taurus.authorization.provider.AuthorizationProvider;
 import com.vmware.taurus.base.FeatureFlags;
-import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.ExternalSystemError;
-import lombok.AllArgsConstructor;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -32,22 +30,32 @@ import java.util.Optional;
  * FileUtils} and push the data job to the data jobs repository using {@link GitWrapper}.
  */
 @Service
-@AllArgsConstructor
 public class JobUpload {
 
   private static final Logger log = LoggerFactory.getLogger(JobUpload.class);
 
-  private static final String TEMPORARY_DIRECTORY_PREFIX = "job_";
+  private final String datajobsTempStorageFolder;
+  private final GitCredentialsProvider gitCredentialsProvider;
+  private final GitWrapper gitWrapper;
+  private final FeatureFlags featureFlags;
+  private final AuthorizationProvider authorizationProvider;
+  private final JobUploadValidator jobUploadValidator;
 
-  @Autowired private final GitCredentialsProvider gitCredentialsProvider;
-
-  @Autowired private final GitWrapper gitWrapper;
-
-  @Autowired private final FeatureFlags featureFlags;
-
-  @Autowired private final AuthorizationProvider authorizationProvider;
-
-  @Autowired private final JobUploadValidator jobUploadValidator;
+  @Autowired
+  public JobUpload(
+      @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
+      GitCredentialsProvider gitCredentialsProvider,
+      GitWrapper gitWrapper,
+      FeatureFlags featureFlags,
+      AuthorizationProvider authorizationProvider,
+      JobUploadValidator jobUploadValidator) {
+    this.datajobsTempStorageFolder = datajobsTempStorageFolder;
+    this.gitCredentialsProvider = gitCredentialsProvider;
+    this.gitWrapper = gitWrapper;
+    this.featureFlags = featureFlags;
+    this.authorizationProvider = authorizationProvider;
+    this.jobUploadValidator = jobUploadValidator;
+  }
 
   /**
    * Get data job source as a zip file.
@@ -56,11 +64,9 @@ public class JobUpload {
    * @return resource containing data job content in a zip format.
    */
   public Optional<Resource> getDataJob(String jobName) {
-    Path tempDirPath = null;
     CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
-    try {
-      tempDirPath = FileUtils.createTempDir(TEMPORARY_DIRECTORY_PREFIX);
-
+    try (var tempDirPath =
+        new EphemeralFile(datajobsTempStorageFolder, jobName, "get data job source")) {
       Git git =
           gitWrapper.cloneJobRepository(
               new File(tempDirPath.toFile(), "repo"), credentialsProvider);
@@ -91,26 +97,6 @@ public class JobUpload {
               "Operations on the file system failed while trying to get data job source: %s",
               jobName),
           e);
-    } finally {
-      if (tempDirPath != null) {
-        try {
-          FileUtils.removeDir(tempDirPath);
-        } catch (IOException e) {
-          log.warn(
-              new ErrorMessage(
-                      String.format(
-                          "Unable to clean up temporary files while tyring to get data job source:"
-                              + " %s",
-                          jobName),
-                      String.format("Error: %s", e.getMessage()),
-                      "Operation may be successful, but temporary files are left on the file"
-                          + " system.",
-                      "Contact the provider to resolve the issue or clean up the temporary files"
-                          + " manually.")
-                  .toString(),
-              e);
-        }
-      }
     }
   }
 
@@ -125,12 +111,9 @@ public class JobUpload {
    */
   public String publishDataJob(String jobName, Resource resource, String reason) {
     log.debug("Publish datajob to git {}", jobName);
-    Path tempDirPath = null;
     String jobVersion;
     CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
-    try {
-      tempDirPath = FileUtils.createTempDir(TEMPORARY_DIRECTORY_PREFIX);
-
+    try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "deploy")) {
       File jobFolder =
           FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
       jobUploadValidator.validateJob(jobName, jobFolder.toPath());
@@ -157,27 +140,6 @@ public class JobUpload {
               "Operations on the file system failed while trying to handle deployment of job: %s",
               jobName),
           e);
-    } finally {
-      if (tempDirPath != null) {
-        try {
-          // TODO: go with try with resources:
-          //
-          // https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html#:~:text=Note%3A%20A%20try%20%2Dwith%2D,resources%20declared%20have%20been%20closed.
-          FileUtils.removeDir(tempDirPath);
-        } catch (IOException e) {
-          log.warn(
-              new ErrorMessage(
-                      String.format(
-                          "Unable to clean up temporary files while tyring to deploy: %s", jobName),
-                      String.format("Error: %s", e.getMessage()),
-                      "Job is successfully deployed, but temporary files are left on the file"
-                          + " system.",
-                      "Contact the provider to resolve the issue or clean up the temporary files"
-                          + " manually.")
-                  .toString(),
-              e);
-        }
-      }
     }
     return jobVersion;
   }
@@ -189,11 +151,8 @@ public class JobUpload {
    * @param reason reason specified by user for deleting the data job
    */
   public void deleteDataJob(String jobName, String reason) {
-    Path tempDirPath = null;
     CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
-    try {
-      tempDirPath = FileUtils.createTempDir(TEMPORARY_DIRECTORY_PREFIX);
-
+    try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "delete")) {
       Git git =
           gitWrapper.cloneJobRepository(
               new File(tempDirPath.toFile(), "repo"), credentialsProvider);
@@ -216,27 +175,6 @@ public class JobUpload {
               "Operations on the file system failed while trying to handle deletion of job: %s",
               jobName),
           e);
-    } finally {
-      if (tempDirPath != null) {
-        try {
-          // TODO: go with try with resources:
-          //
-          // https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html#:~:text=Note%3A%20A%20try%20%2Dwith%2D,resources%20declared%20have%20been%20closed.
-          FileUtils.removeDir(tempDirPath);
-        } catch (IOException e) {
-          log.warn(
-              new ErrorMessage(
-                      String.format(
-                          "Unable to clean up temporary files while tyring to delete: %s", jobName),
-                      String.format("Error: %s", e.getMessage()),
-                      "Job is successfully deleted, but temporary files are left on the file"
-                          + " system.",
-                      "Contact the provider to resolve the issue or clean up the temporary files"
-                          + " manually.")
-                  .toString(),
-              e);
-        }
-      }
     }
   }
 
