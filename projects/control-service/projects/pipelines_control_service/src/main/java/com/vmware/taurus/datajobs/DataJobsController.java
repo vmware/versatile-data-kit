@@ -206,7 +206,8 @@ public class DataJobsController implements DataJobsApi {
   }
 
   @Override
-  public ResponseEntity<List<DataJobSummary>> jobsList(String s, Boolean aBoolean, Integer integer, Integer integer1) {
+  public ResponseEntity<List<DataJobSummary>> jobsList(
+      String s, Boolean aBoolean, Integer integer, Integer integer1) {
     return null;
   }
 
