@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from vdk.plugin.logging_json.logging_json import EcsJsonFormatter
+from vdk.plugin.logging_format.logging_format import EcsJsonFormatter
 
 
 def test_formatter():
