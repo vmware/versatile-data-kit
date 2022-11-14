@@ -179,7 +179,7 @@ public class JobImageBuilder {
         builderJobName,
         dockerRegistryService.builderImage(),
         false,
-        readOnlyRootFilesystem,
+        false,
         envs,
         args,
         null,
