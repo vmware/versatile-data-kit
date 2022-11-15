@@ -26,6 +26,7 @@ variables:
   - "projects/vdk-plugins/vdk-ingest-http/**/*"
   - "projects/vdk-plugins/vdk-ingest-file/**/*"
   - "projects/vdk-plugins/vdk-server/**/*"
+  - "projects/vdk-plugins/vdk-logging-format/**/*"
 
 
 .build-quickstart-vdk:
