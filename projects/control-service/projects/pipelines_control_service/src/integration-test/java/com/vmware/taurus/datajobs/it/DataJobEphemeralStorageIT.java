@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -263,7 +262,7 @@ public class DataJobEphemeralStorageIT extends BaseIT {
             });
 
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
+        executionId, executionStatus, opId, dataJobExecution[0], jobName);
   }
 
   private void testDataJobExecutionList(
@@ -289,14 +288,14 @@ public class DataJobEphemeralStorageIT extends BaseIT {
     List<DataJobExecution> dataJobExecutions =
         objectMapper.readValue(
             dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
-    assertNotNull(dataJobExecutions);
+    Assertions.assertNotNull(dataJobExecutions);
     dataJobExecutions =
         dataJobExecutions.stream()
             .filter(e -> e.getId().equals(executionId))
             .collect(Collectors.toList());
-    assertEquals(1, dataJobExecutions.size());
+    Assertions.assertEquals(1, dataJobExecutions.size());
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
+        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName);
   }
 
   private void testDataJobDeploymentExecutionList(
@@ -324,20 +323,20 @@ public class DataJobEphemeralStorageIT extends BaseIT {
     List<DataJobExecution> dataJobExecutions =
         objectMapper.readValue(
             dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
-    assertNotNull(dataJobExecutions);
+    Assertions.assertNotNull(dataJobExecutions);
     dataJobExecutions =
         dataJobExecutions.stream()
             .filter(e -> e.getId().equals(executionId))
             .collect(Collectors.toList());
-    assertEquals(1, dataJobExecutions.size());
+    Assertions.assertEquals(1, dataJobExecutions.size());
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
+        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName);
   }
 
   private void testDataJobExecutionLogs(
       String executionId, String jobName, String teamName, String username) throws Exception {
     MvcResult dataJobExecutionLogsResult = getExecuteLogs(executionId, jobName, teamName, username);
-    assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
+    Assertions.assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
   }
 
   @NotNull
@@ -359,14 +358,13 @@ public class DataJobEphemeralStorageIT extends BaseIT {
       DataJobExecution.StatusEnum executionStatus,
       String opId,
       DataJobExecution dataJobExecution,
-      String jobName,
-      String username) {
+      String jobName) {
 
-    assertNotNull(dataJobExecution);
-    assertEquals(executionId, dataJobExecution.getId());
-    assertEquals(jobName, dataJobExecution.getJobName());
-    assertEquals(executionStatus, dataJobExecution.getStatus());
-    assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
-    assertEquals(opId, dataJobExecution.getOpId());
+    Assertions.assertNotNull(dataJobExecution);
+    Assertions.assertEquals(executionId, dataJobExecution.getId());
+    Assertions.assertEquals(jobName, dataJobExecution.getJobName());
+    Assertions.assertEquals(executionStatus, dataJobExecution.getStatus());
+    Assertions.assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
+    Assertions.assertEquals(opId, dataJobExecution.getOpId());
   }
 }
