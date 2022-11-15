@@ -1,6 +1,6 @@
 # Practical Kimball Data Patterns
 
-https://datasciconference.com 
+https://datasciconference.com
 
 ## Table of Contents
 - [Pre-requisites](#Pre-requisites)
@@ -16,13 +16,13 @@ https://datasciconference.com
 - Check that you can open the MyBinder tied to the Workshop
 
 ## Goals
-- Learned about (Kimball) dimensional modelling 
+- Learned about (Kimball) dimensional modelling
 - Empower Data Scientists and Data Engineers to create production-ready models & analysis​
 - Provide tools to take responsibility of end-to-end process from data extraction to deploying scheduled predictive model in self-service manner​
 
 ## Agenda
 - Presenation about Dimensional Modeling.
-- Practical part with excercise. 
+- Practical part with excercise.
 
 ## Workshop
 
@@ -33,7 +33,7 @@ https://datasciconference.com
 Please share your feedback :
 
  https://bit.ly/vdk-dsc
- 
+
  <img src="https://user-images.githubusercontent.com/2536458/201960651-1089db2e-02db-45b3-accd-f6dce94f2695.png" alt="bit ly_vdk-dsc" width="100"/>
 
 
@@ -48,4 +48,4 @@ Give as a star if you've liked the [project](https://github.com/vmware/versatile
     - [An Overview of Versatile Data Kit](https://towardsdatascience.com/an-overview-of-versatile-data-kit-a812cfb26de7)
     - [From Raw Data to a Cleaned Database: A Deep Dive into Versatile Data Kit](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e)
 
- 
+
