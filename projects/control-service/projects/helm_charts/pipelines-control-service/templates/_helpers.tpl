@@ -241,5 +241,5 @@ Image Pull Secret in json format
 {{- end }}
 
 {{- define "pipelinesControlServicePullSecretJson" }}
-    {{ include "buildImagePullSecretJson" (list (include "pipelines-control-service.image" .) .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly) }}
+    {{ include "buildImagePullSecretJson" (list .Values.image.registry .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly) }}
 {{- end }}

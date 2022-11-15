@@ -8,7 +8,6 @@ package com.vmware.taurus.datajobs;
 import com.vmware.taurus.controlplane.model.api.DataJobsApi;
 import com.vmware.taurus.controlplane.model.data.DataJob;
 import com.vmware.taurus.controlplane.model.data.DataJobQueryResponse;
-import com.vmware.taurus.controlplane.model.data.DataJobSummary;
 import com.vmware.taurus.exception.ApiConstraintError;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.WebHookRequestError;
@@ -34,10 +33,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for operations on data jobs
@@ -205,31 +202,6 @@ public class DataJobsController implements DataJobsApi {
       }
     }
     return ResponseEntity.notFound().build();
-  }
-
-  @Override
-  @Deprecated
-  public ResponseEntity<List<DataJobSummary>> jobsList(
-      String teamName, Boolean includeAllTeams, Integer pageNumber, Integer pageSize) {
-    if (pageSize < 1 || pageSize > 100) {
-      throw new ApiConstraintError("page_size", "between 0 and 100 inclusive", pageSize);
-    }
-
-    if (pageNumber < 0) {
-      throw new ApiConstraintError("page_number", "0 or larger", pageNumber);
-    }
-
-    List<DataJobSummary> result = new ArrayList<>();
-
-    if (Boolean.TRUE.equals(includeAllTeams)) {
-      var jobStream = jobsService.getAllJobs(pageNumber, pageSize).stream();
-      result = jobStream.map(ToApiModelConverter::toDataJobSummary).collect(Collectors.toList());
-    } else if (StringUtils.isNotBlank(teamName)) {
-      var jobStream = jobsService.getTeamJobs(pageNumber, pageSize, teamName).stream();
-      result = jobStream.map(ToApiModelConverter::toDataJobSummary).collect(Collectors.toList());
-    }
-
-    return ResponseEntity.ok(result);
   }
 
   @Override
