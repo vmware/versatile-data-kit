@@ -240,6 +240,10 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_BUILDER_SERVICE_ACCOUNT_NAME
               value: "{{ .Values.deploymentBuilder.serviceAccountName }}"
             {{- end }}
+            {{- if .Values.controlServiceLoggingFormat }}
+            - name: CONTROL_SERVICE_LOGGING_FORMAT
+              value: "{{ .Values.controlServiceLoggingFormat }}"
+            {{- end }}
 
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
