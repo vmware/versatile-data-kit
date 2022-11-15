@@ -111,7 +111,7 @@ Here is the proposed UI and its user flows:
 -->
 
 As you can see there are two variations of working with Python cells:
-1) Solution 1 - with def run(): 
+1) Solution 1 - with def run():
 
 ![python-steps-solution1](python-steps-solution1.gif)
 
