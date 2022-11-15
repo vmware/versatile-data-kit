@@ -33,8 +33,9 @@ https://datasciconference.com
 Please share your feedback :
 
  https://bit.ly/vdk-dsc
+ 
+ <img src="https://user-images.githubusercontent.com/2536458/201960651-1089db2e-02db-45b3-accd-f6dce94f2695.png" alt="bit ly_vdk-dsc" width="100"/>
 
-![bit ly_vdk-dsc](https://user-images.githubusercontent.com/2536458/201960651-1089db2e-02db-45b3-accd-f6dce94f2695.png)
 
 
 Give as a star if you've liked the [project](https://github.com/vmware/versatile-data-kit).
