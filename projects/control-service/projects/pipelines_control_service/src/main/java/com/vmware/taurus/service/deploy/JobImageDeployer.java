@@ -44,7 +44,7 @@ public class JobImageDeployer {
   @Value("${datajobs.vdk.docker.registrySecret:}")
   private String vdkSdkDockerRegistrySecret = "";
 
-  @Value("${dataJob.readOnlyRootFilesystem:false}")
+  @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
   private boolean readOnlyRootFilesystem;
 
   private static final String VOLUME_NAME = "vdk";
