@@ -21,8 +21,8 @@ https://datasciconference.com
 - Provide tools to take responsibility of end-to-end process from data extraction to deploying scheduled predictive model in self-service manner​
 
 ## Agenda
-- Introduction to VDK - [vdk-for-open-fest-workshop.pdf](https://github.com/vmware/versatile-data-kit/files/9791829/vdk-for-open-fest-workshop.pdf)
-- VDK in practice: workshop
+- Presenation about Dimensional Modeling.
+- Practical part with excercise. 
 
 ## Workshop
 
