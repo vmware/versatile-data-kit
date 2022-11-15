@@ -47,5 +47,3 @@ Give as a star if you've liked the [project](https://github.com/vmware/versatile
 - Relevant Articles
     - [An Overview of Versatile Data Kit](https://towardsdatascience.com/an-overview-of-versatile-data-kit-a812cfb26de7)
     - [From Raw Data to a Cleaned Database: A Deep Dive into Versatile Data Kit](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e)
-
-
