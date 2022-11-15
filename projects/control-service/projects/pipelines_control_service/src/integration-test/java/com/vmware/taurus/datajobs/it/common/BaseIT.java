@@ -6,10 +6,12 @@
 package com.vmware.taurus.datajobs.it.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.vmware.taurus.controlplane.model.data.*;
+import com.vmware.taurus.controlplane.model.data.DataJobConfig;
+import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
+import com.vmware.taurus.controlplane.model.data.DataJobMode;
+import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
@@ -19,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,30 +33,18 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.lang.Error;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
@@ -74,9 +63,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   protected static final String HEADER_X_OP_ID = "X-OPID";
 
   protected static final ObjectMapper mapper = new ObjectMapper();
-  private final ObjectMapper objectMapper =
-          new ObjectMapper()
-                  .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @TestConfiguration
   static class KerberosConfig {
@@ -232,186 +218,5 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
     var deployment = new DataJobDeployment();
     deployment.setVdkVersion(vdkVersion);
     return mapper.writeValueAsString(deployment);
-  }
-
-  protected void checkDataJobExecutionStatus(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String opId,
-          String jobName,
-          String teamName,
-          String username)
-          throws Exception {
-
-    try {
-      testDataJobExecutionRead(executionId, executionStatus, opId, jobName, teamName, username);
-      testDataJobExecutionList(executionId, executionStatus, opId, jobName, teamName, username);
-      testDataJobDeploymentExecutionList(
-              executionId, executionStatus, opId, jobName, teamName, username);
-      testDataJobExecutionLogs(executionId, jobName, teamName, username);
-    } catch (Error e) {
-      try {
-        // print logs in case execution has failed
-        MvcResult dataJobExecutionLogsResult =
-                getExecuteLogs(executionId, jobName, teamName, username);
-        log.info(
-                "Job Execution {} logs:\n{}",
-                executionId,
-                dataJobExecutionLogsResult.getResponse().getContentAsString());
-      } catch (Error ignore) {
-      }
-      throw e;
-    }
-  }
-
-  private void testDataJobExecutionRead(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String opId,
-          String jobName,
-          String teamName,
-          String username) {
-
-    DataJobExecution[] dataJobExecution = new DataJobExecution[1];
-
-    await()
-            .atMost(5, TimeUnit.MINUTES)
-            .with()
-            .pollInterval(15, TimeUnit.SECONDS)
-            .until(
-                    () -> {
-                      String dataJobExecutionReadUrl =
-                              String.format(
-                                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
-                                      teamName, jobName, executionId);
-                      MvcResult dataJobExecutionResult =
-                              mockMvc
-                                      .perform(
-                                              get(dataJobExecutionReadUrl)
-                                                      .with(user(username))
-                                                      .contentType(MediaType.APPLICATION_JSON))
-                                      .andExpect(status().isOk())
-                                      .andReturn();
-
-                      dataJobExecution[0] =
-                              objectMapper.readValue(
-                                      dataJobExecutionResult.getResponse().getContentAsString(),
-                                      DataJobExecution.class);
-                      if (dataJobExecution[0] == null) {
-                        log.info("No response from server");
-                      } else {
-                        log.info("Response from server  " + dataJobExecution[0].getStatus());
-                      }
-                      return dataJobExecution[0] != null
-                              && executionStatus.equals(dataJobExecution[0].getStatus());
-                    });
-
-    assertDataJobExecutionValid(
-            executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
-  }
-
-  private void testDataJobExecutionList(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String opId,
-          String jobName,
-          String teamName,
-          String username)
-          throws Exception {
-
-    String dataJobExecutionListUrl =
-            String.format("/data-jobs/for-team/%s/jobs/%s/executions", teamName, jobName);
-    MvcResult dataJobExecutionResult =
-            mockMvc
-                    .perform(
-                            get(dataJobExecutionListUrl)
-                                    .with(user(username))
-                                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andReturn();
-
-    List<DataJobExecution> dataJobExecutions =
-            objectMapper.readValue(
-                    dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
-    assertNotNull(dataJobExecutions);
-    dataJobExecutions =
-            dataJobExecutions.stream()
-                    .filter(e -> e.getId().equals(executionId))
-                    .collect(Collectors.toList());
-    assertEquals(1, dataJobExecutions.size());
-    assertDataJobExecutionValid(
-            executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
-  }
-
-  private void testDataJobDeploymentExecutionList(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String opId,
-          String jobName,
-          String teamName,
-          String username)
-          throws Exception {
-
-    String dataJobDeploymentExecutionListUrl =
-            String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-                    teamName, jobName, "release");
-    MvcResult dataJobExecutionResult =
-            mockMvc
-                    .perform(
-                            get(dataJobDeploymentExecutionListUrl)
-                                    .with(user(username))
-                                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andReturn();
-
-    List<DataJobExecution> dataJobExecutions =
-            objectMapper.readValue(
-                    dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
-    assertNotNull(dataJobExecutions);
-    dataJobExecutions =
-            dataJobExecutions.stream()
-                    .filter(e -> e.getId().equals(executionId))
-                    .collect(Collectors.toList());
-    assertEquals(1, dataJobExecutions.size());
-    assertDataJobExecutionValid(
-            executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
-  }
-
-  private void testDataJobExecutionLogs(
-          String executionId, String jobName, String teamName, String username) throws Exception {
-    MvcResult dataJobExecutionLogsResult = getExecuteLogs(executionId, jobName, teamName, username);
-    assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
-  }
-
-  @NotNull
-  private MvcResult getExecuteLogs(
-          String executionId, String jobName, String teamName, String username) throws Exception {
-    String dataJobExecutionListUrl =
-            String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
-    MvcResult dataJobExecutionLogsResult =
-            mockMvc
-                    .perform(get(dataJobExecutionListUrl).with(user(username)))
-                    .andExpect(status().isOk())
-                    .andReturn();
-    return dataJobExecutionLogsResult;
-  }
-
-  private void assertDataJobExecutionValid(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String opId,
-          DataJobExecution dataJobExecution,
-          String jobName,
-          String username) {
-
-    assertNotNull(dataJobExecution);
-    assertEquals(executionId, dataJobExecution.getId());
-    assertEquals(jobName, dataJobExecution.getJobName());
-    assertEquals(executionStatus, dataJobExecution.getStatus());
-    assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
-    assertEquals(username + "/" + "user", dataJobExecution.getStartedBy());
-    assertEquals(opId, dataJobExecution.getOpId());
   }
 }
