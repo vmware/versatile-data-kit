@@ -54,7 +54,7 @@ while ! vdk deploy --show -o json -n example-job -t job-team | grep $new_version
 # Deploy multiple Data Jobs in a single command. Data jobs must be created and
 reside in their own folders with the same name as the data-job's names e.g. job1
 these folders should be within a <PARENT_DIR_TO_JOBS> folder:
-echo "job1\n job2\n job3" | xargs -I "#" vdk deploy -t job-team -n "#" -p "<PARENT_DIR_TO_JOBS>/#" -r "Deploy reason."
+echo "job1\n job2\n job3" | xargs -I "#" vdk deploy -t job-team -n "#" -p "<PARENT_DIR_TO_JOBS>/#" -r "<deployment-reason>"
 \b
 # Experimental. Update job version (for example rollback quickly to latest stable version)
 vdk deploy --update --job-version <job-version-here> -n example-job -t job-team
