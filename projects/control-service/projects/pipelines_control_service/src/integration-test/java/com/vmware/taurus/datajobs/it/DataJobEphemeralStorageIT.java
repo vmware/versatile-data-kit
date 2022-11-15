@@ -261,8 +261,7 @@ public class DataJobEphemeralStorageIT extends BaseIT {
                   && executionStatus.equals(dataJobExecution[0].getStatus());
             });
 
-    assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecution[0], jobName);
+    assertDataJobExecutionValid(executionId, executionStatus, opId, dataJobExecution[0], jobName);
   }
 
   private void testDataJobExecutionList(
