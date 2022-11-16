@@ -11,7 +11,7 @@ https://datasciconference.com
 - [Feedback](#Feedback)
 - [Where to Find Us](#Where-to-Find-Us)
 
-## Presentation slides 
+## Presentation slides
 
 Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-kit/files/10025900/vdk-dim-model-dsc-serbia.pdf)
 
