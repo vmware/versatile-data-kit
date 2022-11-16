@@ -240,9 +240,9 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_BUILDER_SERVICE_ACCOUNT_NAME
               value: "{{ .Values.deploymentBuilder.serviceAccountName }}"
             {{- end }}
-            {{- if .Values.pipelinesControlServiceLoggingFormat }}
-            - name: CONTROL_SERVICE_LOGGING_FORMAT
-              value: "{{ .Values.pipelinesControlServiceLoggingFormat }}"
+            {{- if .Values.loggingFormat }}
+            - name: LOGGING_FORMAT
+              value: "{{ .Values.loggingFormat }}"
             {{- end }}
 
 {{- if .Values.extraVars }}
