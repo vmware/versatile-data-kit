@@ -243,9 +243,11 @@ spec:
             {{- if .Values.loggingFormat }}
             - name: LOGGING_FORMAT
               value: "{{ .Values.loggingFormat }}"
+            {{- end }}
             {{- if .Values.dataJob.readOnlyRootFilesystem }}
             - name: DATAJOBS_READ_ONLY_ROOT_FILESYSTEM
               value: "{{ .Values.dataJob.readOnlyRootFilesystem }}"
+            {{- end }}
 
 {{- if .Values.extraVars }}
 {{ toYaml .Values.extraVars | indent 12 }}
