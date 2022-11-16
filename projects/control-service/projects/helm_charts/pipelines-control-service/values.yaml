@@ -875,6 +875,7 @@ fluentd:
 #    </system>
 
 dataJob:
+  readOnlyRootFileSystem: false
   executions:
     ## These values expose configuration properties for the execution api
     ## The execution API helps you collect information about previous
