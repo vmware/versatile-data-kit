@@ -176,6 +176,7 @@ public class JobImageBuilder {
         builderJobName,
         dockerRegistryService.builderImage(),
         false,
+        false,
         envs,
         args,
         null,
