@@ -85,6 +85,7 @@ public class JobImageBuilderTest {
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
             eq(false),
+            eq(false),
             any(),
             any(),
             any(),
@@ -127,6 +128,7 @@ public class JobImageBuilderTest {
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
             eq(false),
+            eq(false),
             any(),
             any(),
             any(),
@@ -159,6 +161,7 @@ public class JobImageBuilderTest {
         .createJob(
             anyString(),
             anyString(),
+            anyBoolean(),
             anyBoolean(),
             any(),
             any(),
@@ -198,6 +201,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
             eq(false),
             any(),
             any(),

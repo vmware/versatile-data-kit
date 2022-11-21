@@ -156,6 +156,7 @@ public class MockKubernetes {
             anyString(),
             anyString(),
             anyBoolean(),
+            anyBoolean(),
             any(),
             any(),
             any(),
