@@ -206,12 +206,6 @@ public class DataJobsController implements DataJobsApi {
   }
 
   @Override
-  public ResponseEntity<List<DataJobSummary>> jobsList(
-      String s, Boolean aBoolean, Integer integer, Integer integer1) {
-    return null;
-  }
-
-  @Override
   public ResponseEntity<DataJobQueryResponse> jobsQuery(
       String teamName, String query, String operationName, String variables) {
     if (query == null) {
