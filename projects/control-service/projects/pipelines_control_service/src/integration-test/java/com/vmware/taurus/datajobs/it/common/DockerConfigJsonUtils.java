@@ -10,7 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
-/** Responsible for creating k8s json secret format given a secret and also a repo. */
+/** Responsible for creating k8s formatted docker secret. Parameters are secret and the repo. */
+
 public class DockerConfigJsonUtils {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
