@@ -63,7 +63,7 @@ public class TestKerberosServerHelper {
     Files.delete(KEYTAB.toPath());
     try {
       Files.delete(KDC_WORK_DIR.toPath());
-    }catch(Exception e){
+    } catch (Exception e) {
       log.error("Failed to delete test directory.", e);
     }
   }
