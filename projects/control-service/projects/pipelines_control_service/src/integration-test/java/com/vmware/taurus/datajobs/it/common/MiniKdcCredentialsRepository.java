@@ -26,7 +26,6 @@ import java.util.Optional;
 public class MiniKdcCredentialsRepository extends KerberosCredentialsRepository {
   private static final Logger log = LoggerFactory.getLogger(MiniKdcCredentialsRepository.class);
 
-
   private MiniKdc miniKdc;
 
   public MiniKdcCredentialsRepository() {
