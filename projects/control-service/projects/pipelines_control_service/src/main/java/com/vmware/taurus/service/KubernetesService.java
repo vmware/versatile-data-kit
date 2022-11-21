@@ -1235,7 +1235,7 @@ public abstract class KubernetesService implements InitializingBean {
                     .fsGroup(fsGroup));
 
     if (StringUtils.isNotEmpty(registrySecret)) {
-      podSpecBuilder.addNewImagePullSecretLike(new V1LocalObjectReference().name(registrySecret));
+      podSpecBuilder.addNewImagePullSecret().withName(registrySecret).endImagePullSecret();
     }
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
@@ -1249,7 +1249,7 @@ public abstract class KubernetesService implements InitializingBean {
             .withTemplate(template)
             .build();
     createNewJob(name, spec, Collections.emptyMap(), Collections.emptyMap());
-  }
+    }
 
   // Default for testing purposes
   void createNewJob(
@@ -2503,5 +2503,10 @@ public abstract class KubernetesService implements InitializingBean {
       divider = BigInteger.valueOf(1000);
     }
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
+  }
+
+
+  public ApiClient getClient() {
+    return client;
   }
 }
