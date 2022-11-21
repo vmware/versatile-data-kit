@@ -1249,7 +1249,7 @@ public abstract class KubernetesService implements InitializingBean {
             .withTemplate(template)
             .build();
     createNewJob(name, spec, Collections.emptyMap(), Collections.emptyMap());
-    }
+  }
 
   // Default for testing purposes
   void createNewJob(
@@ -2504,7 +2504,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
   }
-
 
   public ApiClient getClient() {
     return client;
