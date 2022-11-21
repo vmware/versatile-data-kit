@@ -5,16 +5,13 @@
 
 package com.vmware.taurus.datajobs.it;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DockerConfigJsonUtils;
-import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +31,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -55,7 +51,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     classes = ControlplaneApplication.class)
 public class PrivateBuilderDockerRepoIT extends BaseIT {
 
-
   private static final String TEST_JOB_NAME =
       "private-docker-builder-test-" + UUID.randomUUID().toString().substring(0, 8);
   private static final Object DEPLOYMENT_ID = "private-docker-builder";
@@ -63,8 +58,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   @Value("${datajobs.builder.registrySecret.content.testOnly:}")
   private String dataJobsBuilderRegistrySecretContent;
 
-  public void createBuilderImagePullSecret(String namespaceName)
-      throws Exception {
+  public void createBuilderImagePullSecret(String namespaceName) throws Exception {
     new CoreV1Api(controlKubernetesService.getClient())
         .createNamespacedSecret(
             namespaceName,
@@ -74,8 +68,9 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                 .withNamespace(namespaceName)
                 .endMetadata()
                 .withStringData(
-                        DockerConfigJsonUtils.create("vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
-                                dataJobsBuilderRegistrySecretContent))
+                    DockerConfigJsonUtils.create(
+                        "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
+                        dataJobsBuilderRegistrySecretContent))
                 .withType("kubernetes.io/dockerconfigjson")
                 .build(),
             null,
