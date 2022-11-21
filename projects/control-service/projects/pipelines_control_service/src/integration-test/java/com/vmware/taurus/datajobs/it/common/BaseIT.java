@@ -44,7 +44,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -98,19 +97,35 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   private boolean ownsControlNamespace = false;
 
-
-  public void createBuilderImagePullSecret(String namespaceName) throws ApiException, JsonProcessingException {
-    new CoreV1Api(controlKubernetesService.getClient()).createNamespacedSecret(namespaceName, new V1SecretBuilder()
-            .withNewMetadata()
-            .withName("integration-test-docker-pull-secret")
-            .withNamespace(namespaceName)
-            .endMetadata()
-            .withStringData(Map.of(".dockerconfigjson", new ObjectMapper().writeValueAsString(Map.of("auths", Map.of("vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
-                    Map.of("auth", "c3ZjLnRhdXItamZyb2ctcnc6QUtDcDhrcU1UTDF6ckRQY044OGVNeG5WdHBreXVRR0pXNVNjMXZkc0prUVFKQ29xUEcyZVpzOVJpNmozczVNNzNRR3Bjb01tdQ=="))))))
-            .withType("kubernetes.io/dockerconfigjson")
-            .build(), null ,null ,null ,null);
+  public void createBuilderImagePullSecret(String namespaceName)
+      throws ApiException, JsonProcessingException {
+    new CoreV1Api(controlKubernetesService.getClient())
+        .createNamespacedSecret(
+            namespaceName,
+            new V1SecretBuilder()
+                .withNewMetadata()
+                .withName("integration-test-docker-pull-secret")
+                .withNamespace(namespaceName)
+                .endMetadata()
+                .withStringData(
+                    Map.of(
+                        ".dockerconfigjson",
+                        new ObjectMapper()
+                            .writeValueAsString(
+                                Map.of(
+                                    "auths",
+                                    Map.of(
+                                        "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
+                                        Map.of(
+                                            "auth",
+                                            "c3ZjLnRhdXItamZyb2ctcnc6QUtDcDhrcU1UTDF6ckRQY044OGVNeG5WdHBreXVRR0pXNVNjMXZkc0prUVFKQ29xUEcyZVpzOVJpNmozczVNNzNRR3Bjb01tdQ=="))))))
+                .withType("kubernetes.io/dockerconfigjson")
+                .build(),
+            null,
+            null,
+            null,
+            null);
   }
-
 
   @BeforeEach
   public void before() throws Exception {
