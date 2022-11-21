@@ -118,7 +118,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
                                         "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
                                         Map.of(
                                             "auth",
-                                            "c3ZjLnRhdXItamZyb2ctcnc6QUtDcDhrcU1UTDF6ckRQY044OGVNeG5WdHBreXVRR0pXNVNjMXZkc0prUVFKQ29xUEcyZVpzOVJpNmozczVNNzNRR3Bjb01tdQ=="))))))
+                                            ""))))))
                 .withType("kubernetes.io/dockerconfigjson")
                 .build(),
             null,
