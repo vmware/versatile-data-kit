@@ -6,23 +6,19 @@
 package com.vmware.taurus.datajobs.it;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
-import graphql.Assert;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,14 +33,11 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
-import static org.awaitility.Awaitility.await;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -201,24 +194,28 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
 
     // wait for pod to initialize
     Thread.sleep(4000);
-    Awaitility.await().atMost(10 , TimeUnit.SECONDS)
-            .until(() -> {
+    Awaitility.await()
+        .atMost(10, TimeUnit.SECONDS)
+        .until(
+            () -> {
               try {
                 // retrieve running job execution id.
                 var exc =
-                        mockMvc.perform(
-                                        get(String.format(
-                                                "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-                                                TEST_TEAM_NAME, TEST_JOB_NAME, TEST_JOB_DEPLOYMENT_ID))
-                                                .with(user("user"))
-                                                .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isOk())
-                                .andReturn();
+                    mockMvc
+                        .perform(
+                            get(String.format(
+                                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
+                                    TEST_TEAM_NAME, TEST_JOB_NAME, TEST_JOB_DEPLOYMENT_ID))
+                                .with(user("user"))
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
                 var gson = new Gson();
-                ArrayList<LinkedTreeMap> parsed = gson.fromJson(exc.getResponse().getContentAsString(), ArrayList.class);
+                ArrayList<LinkedTreeMap> parsed =
+                    gson.fromJson(exc.getResponse().getContentAsString(), ArrayList.class);
                 return StringUtils.isNotBlank((String) parsed.get(0).get("id"));
-              }catch(Exception e){
+              } catch (Exception e) {
                 return false;
               }
             });
