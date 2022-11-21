@@ -62,25 +62,25 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   public void createBuilderImagePullSecret(String namespaceName) throws Exception {
     try {
       new CoreV1Api(controlKubernetesService.getClient())
-              .createNamespacedSecret(
-                      namespaceName,
-                      new V1SecretBuilder()
-                              .withNewMetadata()
-                              .withName("integration-test-docker-pull-secret")
-                              .withNamespace(namespaceName)
-                              .endMetadata()
-                              .withStringData(
-                                      DockerConfigJsonUtils.create(
-                                              "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
-                                              dataJobsBuilderRegistrySecretContent))
-                              .withType("kubernetes.io/dockerconfigjson")
-                              .build(),
-                      null,
-                      null,
-                      null,
-                      null);
-    }catch(ApiException e){
-      if(e.getCode() == 409){
+          .createNamespacedSecret(
+              namespaceName,
+              new V1SecretBuilder()
+                  .withNewMetadata()
+                  .withName("integration-test-docker-pull-secret")
+                  .withNamespace(namespaceName)
+                  .endMetadata()
+                  .withStringData(
+                      DockerConfigJsonUtils.create(
+                          "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
+                          dataJobsBuilderRegistrySecretContent))
+                  .withType("kubernetes.io/dockerconfigjson")
+                  .build(),
+              null,
+              null,
+              null,
+              null);
+    } catch (ApiException e) {
+      if (e.getCode() == 409) {
         return;
       }
       throw e;
