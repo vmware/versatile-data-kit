@@ -94,35 +94,10 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   @Value("${integrationTest.controlNamespace:}")
   private String controlNamespace;
-
   private boolean ownsControlNamespace = false;
 
-  public void createBuilderImagePullSecret(String namespaceName)
-      throws ApiException, JsonProcessingException {
-    new CoreV1Api(controlKubernetesService.getClient())
-        .createNamespacedSecret(
-            namespaceName,
-            new V1SecretBuilder()
-                .withNewMetadata()
-                .withName("integration-test-docker-pull-secret")
-                .withNamespace(namespaceName)
-                .endMetadata()
-                .withStringData(
-                    Map.of(
-                        ".dockerconfigjson",
-                        new ObjectMapper()
-                            .writeValueAsString(
-                                Map.of(
-                                    "auths",
-                                    Map.of(
-                                        "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
-                                        Map.of("auth", ""))))))
-                .withType("kubernetes.io/dockerconfigjson")
-                .build(),
-            null,
-            null,
-            null,
-            null);
+  public String getControlNamespace() {
+    return controlNamespace;
   }
 
   @BeforeEach
@@ -147,7 +122,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
       ;
       log.info("Create namespace {}", controlNamespace);
       controlKubernetesService.createNamespace(controlNamespace);
-      createBuilderImagePullSecret(controlNamespace);
       this.ownsControlNamespace = true;
     } else {
       log.info("Using predefined control namespace {}", controlNamespace);
