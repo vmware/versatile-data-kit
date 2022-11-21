@@ -12,6 +12,7 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DockerConfigJsonUtils;
+import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -59,24 +60,31 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   private String dataJobsBuilderRegistrySecretContent;
 
   public void createBuilderImagePullSecret(String namespaceName) throws Exception {
-    new CoreV1Api(controlKubernetesService.getClient())
-        .createNamespacedSecret(
-            namespaceName,
-            new V1SecretBuilder()
-                .withNewMetadata()
-                .withName("integration-test-docker-pull-secret")
-                .withNamespace(namespaceName)
-                .endMetadata()
-                .withStringData(
-                    DockerConfigJsonUtils.create(
-                        "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
-                        dataJobsBuilderRegistrySecretContent))
-                .withType("kubernetes.io/dockerconfigjson")
-                .build(),
-            null,
-            null,
-            null,
-            null);
+    try {
+      new CoreV1Api(controlKubernetesService.getClient())
+              .createNamespacedSecret(
+                      namespaceName,
+                      new V1SecretBuilder()
+                              .withNewMetadata()
+                              .withName("integration-test-docker-pull-secret")
+                              .withNamespace(namespaceName)
+                              .endMetadata()
+                              .withStringData(
+                                      DockerConfigJsonUtils.create(
+                                              "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
+                                              dataJobsBuilderRegistrySecretContent))
+                              .withType("kubernetes.io/dockerconfigjson")
+                              .build(),
+                      null,
+                      null,
+                      null,
+                      null);
+    }catch(ApiException e){
+      if(e.getCode() == 409){
+        return;
+      }
+      throw e;
+    }
   }
 
   @AfterEach
