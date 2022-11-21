@@ -64,6 +64,8 @@ control_service_build_image:
       - main
     changes: *control_service_change_locations
 
+
+
 control_service_integration_test:
   extends: .control_service_base_build
   stage: build
