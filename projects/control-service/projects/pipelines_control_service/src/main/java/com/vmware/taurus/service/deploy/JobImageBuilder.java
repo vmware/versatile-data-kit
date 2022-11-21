@@ -106,16 +106,11 @@ public class JobImageBuilder {
     this.kubernetesResources = kubernetesResources;
   }
 
-  /**
-   * see {@link JobImageBuilder#buildImage(String, DataJob, JobDeployment, Boolean, String)}}
-   */
+  /** see {@link JobImageBuilder#buildImage(String, DataJob, JobDeployment, Boolean, String)}} */
   public boolean buildImage(
-          String imageName,
-          DataJob dataJob,
-          JobDeployment jobDeployment,
-          Boolean sendNotification)
-          throws ApiException, IOException, InterruptedException {
-    return buildImage(imageName,dataJob , jobDeployment, sendNotification, null);
+      String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
+      throws ApiException, IOException, InterruptedException {
+    return buildImage(imageName, dataJob, jobDeployment, sendNotification, null);
   }
   /**
    * Builds and pushes a docker image for a data job. Runs a job on k8s which is responsible for
@@ -126,7 +121,8 @@ public class JobImageBuilder {
    * @param dataJob Information about the data job.
    * @param jobDeployment Information about the data job deployment.
    * @param sendNotification
-   * @param registrySecret should be the name of the secret that exists in the kubernetes cluster/namespace already.
+   * @param registrySecret should be the name of the secret that exists in the kubernetes
+   *     cluster/namespace already.
    * @return True if build and push was successful. False otherwise.
    * @throws ApiException
    * @throws IOException

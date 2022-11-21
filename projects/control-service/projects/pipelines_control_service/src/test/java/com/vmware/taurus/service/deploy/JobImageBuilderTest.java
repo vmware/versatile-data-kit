@@ -119,8 +119,7 @@ public class JobImageBuilderTest {
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
 
-    var result =
-        jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true);
+    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true);
 
     verify(kubernetesService, times(2)).deleteJob(TEST_BUILDER_IMAGE_NAME);
     verify(kubernetesService)
@@ -154,8 +153,7 @@ public class JobImageBuilderTest {
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
 
-    var result =
-        jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true);
+    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, true);
 
     verify(kubernetesService, never())
         .createJob(
