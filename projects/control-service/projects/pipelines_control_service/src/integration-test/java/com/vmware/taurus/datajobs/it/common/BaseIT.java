@@ -52,7 +52,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT extends KerberosSecurityTestcaseJunit5 {
-
   private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
   public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
