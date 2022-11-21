@@ -57,9 +57,6 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   private static final String TEST_JOB_NAME =
       "private-docker-builder-test-" + UUID.randomUUID().toString().substring(0, 8);
   private static final Object DEPLOYMENT_ID = "private-docker-builder";
-  private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @Value("${datajobs.builder.registrySecret.content.testOnly:}")
   private String dataJobsBuilderRegistrySecretContent;
