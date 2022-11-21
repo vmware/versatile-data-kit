@@ -17,8 +17,6 @@ import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -44,7 +42,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -94,6 +91,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   @Value("${integrationTest.controlNamespace:}")
   private String controlNamespace;
+
   private boolean ownsControlNamespace = false;
 
   public String getControlNamespace() {
