@@ -50,7 +50,6 @@ control_service_build_image:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
     - ./gradlew build jacocoTestReport -x integrationTest
-  retry: !reference [.control_service_retry]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
   artifacts:
     when: always
