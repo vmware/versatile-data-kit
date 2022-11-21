@@ -48,10 +48,9 @@ control_service_build_image:
     - apk --no-cache add git openjdk11-jdk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
-    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
-    - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
-    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
-  retry: !reference [.control_service_retry, retry_options]
+    - ./gradlew -p ./model build publishToMavenLocal
+    - ./gradlew build jacocoTestReport -x integrationTest
+  retry: !reference [.control_service_retry]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
   artifacts:
     when: always
