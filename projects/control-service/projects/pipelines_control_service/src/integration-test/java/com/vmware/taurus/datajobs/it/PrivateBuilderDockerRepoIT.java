@@ -73,7 +73,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                   .endMetadata()
                   .withStringData(
                       DockerConfigJsonUtils.create(
-                              builderImage.substring(0, builderImage.lastIndexOf("/")),
+                          builderImage.substring(0, builderImage.lastIndexOf("/")),
                           dataJobsBuilderRegistrySecretContent))
                   .withType("kubernetes.io/dockerconfigjson")
                   .build(),
