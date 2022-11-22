@@ -58,6 +58,9 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   @Value("${datajobs.builder.registrySecret.content.testOnly:}")
   private String dataJobsBuilderRegistrySecretContent;
 
+  @Value("${datajobs.builder.image}")
+  private String builderImage;
+
   private void createBuilderImagePullSecret(String namespaceName) throws Exception {
     try {
       new CoreV1Api(controlKubernetesService.getClient())
@@ -70,7 +73,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                   .endMetadata()
                   .withStringData(
                       DockerConfigJsonUtils.create(
-                          "vmwaresaas.jfrog.io/taurus-dev/versatiledatakit",
+                              builderImage.substring(0, builderImage.lastIndexOf("/")),
                           dataJobsBuilderRegistrySecretContent))
                   .withType("kubernetes.io/dockerconfigjson")
                   .build(),
