@@ -24,7 +24,7 @@ public class DockerRegistryService {
     return String.format("%s/%s:%s", proxyRepositoryURL, dataJobName, gitCommitSha);
   }
 
-  public String getRegistrySecret() {
+  public String registrySecret() {
     return registrySecret;
   }
 

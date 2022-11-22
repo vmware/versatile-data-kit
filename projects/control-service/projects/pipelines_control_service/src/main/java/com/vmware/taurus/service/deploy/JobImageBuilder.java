@@ -106,12 +106,6 @@ public class JobImageBuilder {
     this.kubernetesResources = kubernetesResources;
   }
 
-  /** see {@link JobImageBuilder#buildImage(String, DataJob, JobDeployment, Boolean, String)}} */
-  public boolean buildImage(
-      String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
-      throws ApiException, IOException, InterruptedException {
-    return buildImage(imageName, dataJob, jobDeployment, sendNotification, null);
-  }
   /**
    * Builds and pushes a docker image for a data job. Runs a job on k8s which is responsible for
    * building and pushing the data job image. This call will block until the builder job has
@@ -121,8 +115,6 @@ public class JobImageBuilder {
    * @param dataJob Information about the data job.
    * @param jobDeployment Information about the data job deployment.
    * @param sendNotification
-   * @param registrySecret should be the name of the secret that exists in the kubernetes
-   *     cluster/namespace already.
    * @return True if build and push was successful. False otherwise.
    * @throws ApiException
    * @throws IOException
@@ -132,8 +124,7 @@ public class JobImageBuilder {
       String imageName,
       DataJob dataJob,
       JobDeployment jobDeployment,
-      Boolean sendNotification,
-      String registrySecret)
+      Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
@@ -199,8 +190,7 @@ public class JobImageBuilder {
         builderSecurityContextRunAsUser,
         builderSecurityContextRunAsGroup,
         builderSecurityContextFsGroup,
-        builderServiceAccountName,
-        registrySecret);
+        builderServiceAccountName, dockerRegistryService.registrySecret());
 
     log.debug(
         "Waiting for builder job {} for data job version {}",
