@@ -123,14 +123,13 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
         .andExpect(status().isCreated());
   }
 
-
   /**
-   *  This test exists to make sure that the builder image can be pulled from a private repo.
-   *  We create, build, deploy a data job and manually start execution to test this.
-   *  We don't wait for the job to complete because that is irrelevant.
+   * This test exists to make sure that the builder image can be pulled from a private repo. We
+   * create, build, deploy a data job and manually start execution to test this. We don't wait for
+   * the job to complete because that is irrelevant.
    *
-   *  Within this test we assert only that the data job execution is started and has an execution id.
-   *  We don't wait for the job to be completed as successful as that takes too long
+   * <p>Within this test we assert only that the data job execution is started and has an execution
+   * id. We don't wait for the job to be completed as successful as that takes too long
    */
   @Test
   public void testPrivateDockerBuildJob() throws Exception {
@@ -216,7 +215,13 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                 var gson = new Gson();
                 ArrayList<LinkedTreeMap> parsed =
                     gson.fromJson(exc.getResponse().getContentAsString(), ArrayList.class);
-                return StringUtils.isNotBlank((String) parsed.get(0).get("id")); // simply check there is an exeution id. We don't care the status of the job
+                return StringUtils.isNotBlank(
+                    (String)
+                        parsed
+                            .get(0)
+                            .get(
+                                "id")); // simply check there is an exeution id. We don't care the
+                                        // status of the job
               } catch (Exception e) {
                 return false;
               }
