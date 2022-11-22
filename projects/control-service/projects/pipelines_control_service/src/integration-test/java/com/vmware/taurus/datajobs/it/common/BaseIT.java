@@ -63,16 +63,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   protected static final ObjectMapper mapper = new ObjectMapper();
 
-  @TestConfiguration
-  static class KerberosConfig {
-
-    @Bean
-    @Primary
-    public KerberosCredentialsRepository credentialsRepository() {
-      return new MiniKdcCredentialsRepository();
-    }
-  }
-
   @Autowired private MiniKdcCredentialsRepository kerberosCredentialsRepository;
 
   @Autowired protected DataJobsKubernetesService dataJobsKubernetesService;
@@ -92,6 +82,17 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   protected String controlNamespace;
 
   private boolean ownsControlNamespace = false;
+
+
+  @TestConfiguration
+  static class KerberosConfig {
+
+    @Bean
+    @Primary
+    public KerberosCredentialsRepository credentialsRepository() {
+      return new MiniKdcCredentialsRepository();
+    }
+  }
 
   @BeforeEach
   public void before() throws Exception {
