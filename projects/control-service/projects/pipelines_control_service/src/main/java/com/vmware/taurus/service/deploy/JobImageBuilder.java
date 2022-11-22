@@ -5,6 +5,8 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Map;
 
 import static java.util.Map.entry;
@@ -29,6 +32,7 @@ import static java.util.Map.entry;
  */
 @Component
 public class JobImageBuilder {
+  private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final Logger log = LoggerFactory.getLogger(JobImageBuilder.class);
 
   private static final int BUILDER_TIMEOUT_SECONDS = 1800;
@@ -67,6 +71,25 @@ public class JobImageBuilder {
 
   @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
   private String deploymentDataJobBaseImage;
+
+  @Value("${datajobs.deployment.dataJobBaseImage.registry.username:}")
+  private String dataJobBaseImageRegistryUsername;
+
+  @Value("${datajobs.deployment.dataJobBaseImage.registry.password:}")
+  private String dataJobBaseImageRegistryPassword;
+
+
+  public String getAuth() throws JsonProcessingException {
+    if(org.springframework.util.StringUtils.hasLength(dataJobBaseImageRegistryPassword)) {
+      if(!deploymentDataJobBaseImage.contains("/")){
+        throw new IllegalArgumentException("Base image registry secret is set but the base image is not being pulled from a private registry.");
+      }
+      return objectMapper.writeValueAsString(Map.of(deploymentDataJobBaseImage.substring(0, deploymentDataJobBaseImage.lastIndexOf('/')),
+              Map.of("auth", Base64.getEncoder().encodeToString((dataJobBaseImageRegistryUsername + ":" + dataJobBaseImageRegistryPassword).getBytes()))));
+    }else{
+      return null;
+    }
+  }
 
   @Value("${datajobs.deployment.builder.extraArgs:}")
   private String builderJobExtraArgs;
@@ -164,7 +187,8 @@ public class JobImageBuilder {
             gitRepo,
             registryType,
             registryUsername,
-            registryPassword);
+            registryPassword,
+                getAuth());
 
     var envs = getBuildParameters(dataJob, jobDeployment);
 

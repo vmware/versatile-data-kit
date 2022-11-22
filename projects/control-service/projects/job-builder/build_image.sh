@@ -14,6 +14,7 @@ git_repository=$7
 registry_type=$8
 registry_username=$9
 registry_password=${10}
+extra_auth=${11}
 
 # Echo selected data to be logged
 echo "AWS_REGION=$aws_region"
@@ -51,7 +52,7 @@ cat > /kaniko/.docker/config.json <<- EOM
       "username":"$registry_username",
       "password":"$registry_password",
       "auth": "$auth"
-    }
+    }, $extra_auth
   }
 }
 EOM
