@@ -18,10 +18,6 @@ public class DockerConfigJsonUtils {
       throws JsonProcessingException {
     return Map.of(
         ".dockerconfigjson",
-        objectMapper.writeValueAsString(Map.of("auths", getAuth(repo, secret))));
-  }
-
-  public static Map<String, Map<String, String>> getAuth(String repo, String secret) {
-    return Map.of(repo, Map.of("auth", secret));
+        objectMapper.writeValueAsString(Map.of("auths", Map.of(repo, Map.of("auth", secret)))));
   }
 }
