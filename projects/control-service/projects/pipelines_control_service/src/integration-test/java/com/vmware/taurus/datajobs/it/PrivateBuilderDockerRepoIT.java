@@ -79,7 +79,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
               null,
               null);
     } catch (ApiException e) {
-      if (e.getCode() == 409) {
+      if (e.getCode() == 409) { // Value already exists in k8s.
         return;
       }
       throw e;
