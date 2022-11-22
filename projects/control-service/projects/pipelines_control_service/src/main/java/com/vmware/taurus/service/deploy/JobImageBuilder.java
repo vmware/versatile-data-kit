@@ -78,15 +78,25 @@ public class JobImageBuilder {
   @Value("${datajobs.deployment.dataJobBaseImage.registry.password:}")
   private String dataJobBaseImageRegistryPassword;
 
-
   public String getAuth() throws JsonProcessingException {
-    if(org.springframework.util.StringUtils.hasLength(dataJobBaseImageRegistryPassword)) {
-      if(!deploymentDataJobBaseImage.contains("/")){
-        throw new IllegalArgumentException("Base image registry secret is set but the base image is not being pulled from a private registry.");
+    if (org.springframework.util.StringUtils.hasLength(dataJobBaseImageRegistryPassword)) {
+      if (!deploymentDataJobBaseImage.contains("/")) {
+        throw new IllegalArgumentException(
+            "Base image registry secret is set but the base image is not being pulled from a"
+                + " private registry.");
       }
-      return objectMapper.writeValueAsString(Map.of(deploymentDataJobBaseImage.substring(0, deploymentDataJobBaseImage.lastIndexOf('/')),
-              Map.of("auth", Base64.getEncoder().encodeToString((dataJobBaseImageRegistryUsername + ":" + dataJobBaseImageRegistryPassword).getBytes()))));
-    }else{
+      return objectMapper.writeValueAsString(
+          Map.of(
+              deploymentDataJobBaseImage.substring(0, deploymentDataJobBaseImage.lastIndexOf('/')),
+              Map.of(
+                  "auth",
+                  Base64.getEncoder()
+                      .encodeToString(
+                          (dataJobBaseImageRegistryUsername
+                                  + ":"
+                                  + dataJobBaseImageRegistryPassword)
+                              .getBytes()))));
+    } else {
       return null;
     }
   }
@@ -188,7 +198,7 @@ public class JobImageBuilder {
             registryType,
             registryUsername,
             registryPassword,
-                getAuth());
+            getAuth());
 
     var envs = getBuildParameters(dataJob, jobDeployment);
 
