@@ -1235,13 +1235,12 @@ public abstract class KubernetesService implements InitializingBean {
                     .runAsGroup(runAsGroup)
                     .fsGroup(fsGroup));
 
-    if (StringUtils.isNotEmpty(registrySecret)) {
-      podSpecBuilder.addNewImagePullSecret().withName(registrySecret).endImagePullSecret();
-    }
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
     }
-
+    if (StringUtils.isNotEmpty(registrySecret)) {
+      podSpecBuilder.addNewImagePullSecret().withName(registrySecret).endImagePullSecret();
+    }
     var template = new V1PodTemplateSpecBuilder().withSpec(podSpecBuilder.build()).build();
     var spec =
         new V1JobSpecBuilder()
