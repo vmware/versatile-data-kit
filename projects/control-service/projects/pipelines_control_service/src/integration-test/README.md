@@ -32,7 +32,7 @@ datajobs.builder.registrySecret.content.testOnly=${BUILDER_TEST_REGISTRY_SECRET}
 docker login --username ${GIT_USERNAME} --password ${GIT_PASSWORD} ${DOCKER_REGISTRY_URL}
 docker pull registry.hub.docker.com/versatiledatakit/job-builder:1.2.3
 docker tag registry.hub.docker.com/versatiledatakit/job-builder:1.2.3 ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3
-docker push ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3 
+docker push ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3
 ```
 
 # Run
