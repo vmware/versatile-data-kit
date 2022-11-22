@@ -121,10 +121,7 @@ public class JobImageBuilder {
    * @throws InterruptedException
    */
   public boolean buildImage(
-      String imageName,
-      DataJob dataJob,
-      JobDeployment jobDeployment,
-      Boolean sendNotification)
+      String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
@@ -190,7 +187,8 @@ public class JobImageBuilder {
         builderSecurityContextRunAsUser,
         builderSecurityContextRunAsGroup,
         builderSecurityContextFsGroup,
-        builderServiceAccountName, dockerRegistryService.registrySecret());
+        builderServiceAccountName,
+        dockerRegistryService.registrySecret());
 
     log.debug(
         "Waiting for builder job {} for data job version {}",

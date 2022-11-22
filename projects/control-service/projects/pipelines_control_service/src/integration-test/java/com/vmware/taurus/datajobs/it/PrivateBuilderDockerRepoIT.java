@@ -219,9 +219,8 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                     (String)
                         parsed
                             .get(0)
-                            .get(
-                                "id")); // simply check there is an exeution id. We don't care the
-                                        // status of the job
+                            .get("id")); // simply check there is an exeution id. We don't care the
+                // status of the job
               } catch (Exception e) {
                 return false;
               }

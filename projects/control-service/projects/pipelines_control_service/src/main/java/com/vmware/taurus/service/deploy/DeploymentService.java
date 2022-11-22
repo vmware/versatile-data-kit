@@ -146,10 +146,7 @@ public class DeploymentService {
           dockerRegistryService.dataJobImage(
               jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
 
-
-
-      if (jobImageBuilder.buildImage(
-          imageName, dataJob, jobDeployment, sendNotification)) {
+      if (jobImageBuilder.buildImage(imageName, dataJob, jobDeployment, sendNotification)) {
         log.info(
             "Image {} has been built. Will now schedule job {} for execution",
             imageName,
