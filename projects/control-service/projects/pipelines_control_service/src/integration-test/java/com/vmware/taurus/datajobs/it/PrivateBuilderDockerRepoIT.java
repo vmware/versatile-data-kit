@@ -125,6 +125,10 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
 
 
   /**
+   *  This test exists to make sure that the builder image can be pulled from a private repo.
+   *  We create, build, deploy a data job and manually start execution to test this.
+   *  We don't wait for the job to complete because that is irrelevant.
+   *
    *  Within this test we assert only that the data job execution is started and has an execution id.
    *  We don't wait for the job to be completed as successful as that takes too long
    */
