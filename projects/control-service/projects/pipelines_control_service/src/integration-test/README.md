@@ -23,7 +23,17 @@ datajobs.git.username=${GIT_USERNAME} # self explanatory
 datajobs.git.password=${GIT_PASSWORD} # a git personal access token
 datajobs.docker.registrySecret=${DOCKER_REGISTRY_SECRET:} # the secret in k8s regcred
 ```
-
+* Fill required values section in [integration-test/resources/application-private-builder.properties](./resources/application-private-builder.properties)
+```properties
+datajobs.builder.registrySecret.content.testOnly=${BUILDER_TEST_REGISTRY_SECRET}  # this should be username:password b64 encoded
+```
+* the private package manager must contain the job builder image
+```bash
+docker login --username ${GIT_USERNAME} --password ${GIT_PASSWORD} ${DOCKER_REGISTRY_URL}
+docker pull registry.hub.docker.com/versatiledatakit/job-builder:1.2.3
+docker tag registry.hub.docker.com/versatiledatakit/job-builder:1.2.3 ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3
+docker push ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3
+```
 
 # Run
 ## IntelliJ
