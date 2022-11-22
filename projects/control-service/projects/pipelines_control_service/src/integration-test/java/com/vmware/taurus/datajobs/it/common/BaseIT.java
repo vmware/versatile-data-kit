@@ -83,7 +83,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   private boolean ownsControlNamespace = false;
 
-
   @TestConfiguration
   static class KerberosConfig {
 
