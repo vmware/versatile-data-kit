@@ -58,7 +58,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   @Value("${datajobs.builder.registrySecret.content.testOnly:}")
   private String dataJobsBuilderRegistrySecretContent;
 
-  public void createBuilderImagePullSecret(String namespaceName) throws Exception {
+  private void createBuilderImagePullSecret(String namespaceName) throws Exception {
     try {
       new CoreV1Api(controlKubernetesService.getClient())
           .createNamespacedSecret(
@@ -123,6 +123,11 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
         .andExpect(status().isCreated());
   }
 
+
+  /**
+   *  Within this test we assert only that the data job execution is started and has an execution id.
+   *  We don't wait for the job to be completed as successful as that takes too long
+   */
   @Test
   public void testPrivateDockerBuildJob() throws Exception {
     createBuilderImagePullSecret(controlNamespace);
@@ -187,9 +192,6 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
         .andReturn();
 
     // wait for pod to initialize
-    Thread.sleep(
-        4000); // We just don't check when we know the pod is defo not up.  It keeps the logs a lot
-               // cleaner.
     Awaitility.await()
         .atMost(10, TimeUnit.SECONDS)
         .until(
@@ -210,7 +212,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                 var gson = new Gson();
                 ArrayList<LinkedTreeMap> parsed =
                     gson.fromJson(exc.getResponse().getContentAsString(), ArrayList.class);
-                return StringUtils.isNotBlank((String) parsed.get(0).get("id"));
+                return StringUtils.isNotBlank((String) parsed.get(0).get("id")); // simply check there is an exeution id. We don't care the status of the job
               } catch (Exception e) {
                 return false;
               }
