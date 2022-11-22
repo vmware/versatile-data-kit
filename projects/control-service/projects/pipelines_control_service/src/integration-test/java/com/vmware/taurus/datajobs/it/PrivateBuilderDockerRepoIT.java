@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.datajobs.it;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vmware.taurus.ControlplaneApplication;
@@ -145,8 +144,8 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
             .andReturn();
 
     DataJobVersion testDataJobVersion =
-        BaseIT.mapper
-            .readValue(jobUploadResult.getResponse().getContentAsString(), DataJobVersion.class);
+        BaseIT.mapper.readValue(
+            jobUploadResult.getResponse().getContentAsString(), DataJobVersion.class);
     Assertions.assertNotNull(testDataJobVersion);
 
     String testJobVersionSha = testDataJobVersion.getVersionSha();
@@ -188,7 +187,9 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
         .andReturn();
 
     // wait for pod to initialize
-    Thread.sleep(4000); // We just don't check when we know the pod is defo not up.  It keeps the logs a lot cleaner.
+    Thread.sleep(
+        4000); // We just don't check when we know the pod is defo not up.  It keeps the logs a lot
+               // cleaner.
     Awaitility.await()
         .atMost(10, TimeUnit.SECONDS)
         .until(
