@@ -126,7 +126,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
 
   @Test
   public void testPrivateDockerBuildJob() throws Exception {
-    createBuilderImagePullSecret(getControlNamespace());
+    createBuilderImagePullSecret(controlNamespace);
     // Take the job zip as byte array
     byte[] jobZipBinary =
         IOUtils.toByteArray(

@@ -89,13 +89,10 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   private boolean ownsDataJobsNamespace = false;
 
   @Value("${integrationTest.controlNamespace:}")
-  private String controlNamespace;
+  protected String controlNamespace;
 
   private boolean ownsControlNamespace = false;
 
-  public String getControlNamespace() {
-    return controlNamespace;
-  }
 
   @BeforeEach
   public void before() throws Exception {
