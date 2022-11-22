@@ -6,6 +6,7 @@
 package com.vmware.taurus.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
@@ -2505,6 +2506,7 @@ public abstract class KubernetesService implements InitializingBean {
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
   }
 
+  @VisibleForTesting
   public ApiClient getClient() {
     return client;
   }
