@@ -135,7 +135,9 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   public void testPrivateDockerBuildJob() throws Exception {
     createBuilderImagePullSecret(controlNamespace);
     // Take the job zip as byte array
-    byte[] jobZipBinary = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("job_ephemeral_storage.zip"));
+    byte[] jobZipBinary =
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("job_ephemeral_storage.zip"));
 
     // Execute job upload with user
     MvcResult jobUploadResult =
