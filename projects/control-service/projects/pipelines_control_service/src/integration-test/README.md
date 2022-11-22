@@ -35,7 +35,6 @@ docker tag registry.hub.docker.com/versatiledatakit/job-builder:1.2.3 ${DOCKER_R
 docker push ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3 
 ```
 
-
 # Run
 ## IntelliJ
 For the ```org.unbroken-dome.test-sets``` plugin to work well with IntelliJ you need Intellij Version ```2019.3 +```
