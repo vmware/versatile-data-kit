@@ -93,7 +93,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   private boolean ownsControlNamespace = false;
 
-
   @BeforeEach
   public void before() throws Exception {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
