@@ -85,7 +85,7 @@ public class JobImageBuilder {
             "Base image registry secret is set but the base image is not being pulled from a"
                 + " private registry.");
       }
-      return objectMapper.writeValueAsString(
+      return "," + objectMapper.writeValueAsString(
           Map.of(
               deploymentDataJobBaseImage.substring(0, deploymentDataJobBaseImage.lastIndexOf('/')),
               Map.of(
@@ -97,7 +97,7 @@ public class JobImageBuilder {
                                   + dataJobBaseImageRegistryPassword)
                               .getBytes()))));
     } else {
-      return null;
+      return "";
     }
   }
 
