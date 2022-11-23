@@ -1,20 +1,16 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 from ._version import __version__
 from .handlers import setup_handlers
 
 
-
 def _jupyter_labextension_paths():
-    return [{
-        "src": "labextension",
-        "dest": "vdk-jupyterlab-extension"
-    }]
-
+    return [{"src": "labextension", "dest": "vdk-jupyterlab-extension"}]
 
 
 def _jupyter_server_extension_points():
-    return [{
-        "module": "vdk-jupyterlab-extension"
-    }]
+    return [{"module": "vdk-jupyterlab-extension"}]
 
 
 def _load_jupyter_server_extension(server_app):
@@ -32,4 +28,3 @@ def _load_jupyter_server_extension(server_app):
 
 # For backward compatibility with notebook server - useful for Binder/JupyterHub
 load_jupyter_server_extension = _load_jupyter_server_extension
-

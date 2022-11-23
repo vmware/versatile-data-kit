@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 """Server configuration for integration tests.
 
 !! Never use this configuration in production because it
@@ -10,7 +13,7 @@ c.ServerApp.port = 8888
 c.ServerApp.port_retries = 0
 c.ServerApp.open_browser = False
 
-c.ServerApp.root_dir = mkdtemp(prefix='galata-test-')
+c.ServerApp.root_dir = mkdtemp(prefix="galata-test-")
 c.ServerApp.token = ""
 c.ServerApp.password = ""
 c.ServerApp.disable_check_xsrf = True
