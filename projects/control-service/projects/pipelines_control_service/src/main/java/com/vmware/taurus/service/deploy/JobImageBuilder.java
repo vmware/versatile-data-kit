@@ -85,17 +85,19 @@ public class JobImageBuilder {
             "Base image registry secret is set but the base image is not being pulled from a"
                 + " private registry.");
       }
-      return "," + objectMapper.writeValueAsString(
-          Map.of(
-              deploymentDataJobBaseImage.substring(0, deploymentDataJobBaseImage.lastIndexOf('/')),
+      return ","
+          + objectMapper.writeValueAsString(
               Map.of(
-                  "auth",
-                  Base64.getEncoder()
-                      .encodeToString(
-                          (dataJobBaseImageRegistryUsername
-                                  + ":"
-                                  + dataJobBaseImageRegistryPassword)
-                              .getBytes()))));
+                  deploymentDataJobBaseImage.substring(
+                      0, deploymentDataJobBaseImage.lastIndexOf('/')),
+                  Map.of(
+                      "auth",
+                      Base64.getEncoder()
+                          .encodeToString(
+                              (dataJobBaseImageRegistryUsername
+                                      + ":"
+                                      + dataJobBaseImageRegistryPassword)
+                                  .getBytes()))));
     } else {
       return "";
     }
