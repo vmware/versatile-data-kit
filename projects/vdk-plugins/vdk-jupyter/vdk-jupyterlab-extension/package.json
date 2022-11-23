@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/vmware/versatile-data-kit/issues"
   },
-  "license": "BSD-3-Clause",
+  "license": "Apache License 2.0",
   "author": {
     "name": "Versatile Data Kit Development Team",
     "email": "versatile-data-kit@vmware.com"
