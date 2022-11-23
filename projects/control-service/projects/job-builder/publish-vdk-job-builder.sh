@@ -15,7 +15,7 @@ function build_and_push_image() {
     image_repo="$VDK_DOCKER_REGISTRY_URL/$name"
     image_tag="$image_repo:$VERSION_TAG"
 
-    docker build -t $image_tag -t $image_repo:latest -f "$SCRIPT_DIR/$docker_file" $arguments "$SCRIPT_DIR"
+    docker buildx build --platform linux/amd64 -t $image_tag -t $image_repo:latest -f "$SCRIPT_DIR/$docker_file" $arguments "$SCRIPT_DIR"
     docker push $image_tag
     docker push $image_repo:latest
 }
