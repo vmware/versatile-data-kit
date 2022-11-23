@@ -243,3 +243,7 @@ Image Pull Secret in json format
 {{- define "pipelinesControlServicePullSecretJson" }}
     {{ include "buildImagePullSecretJson" (list .Values.image.registry .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly) }}
 {{- end }}
+
+{{- define "builderPullSecretJson" }}
+    {{ include "buildImagePullSecretJson" (list .Values.deploymentBuilderImage.registry .Values.deploymentBuilderImage.username .Values.deploymentBuilderImage.password) }}
+{{- end }}
