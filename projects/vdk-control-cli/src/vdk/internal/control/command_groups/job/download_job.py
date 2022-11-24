@@ -83,6 +83,20 @@ class JobDownloadSource:
 @click.command(
     name="download-job",
     help="Download a Data Job's source directory. It's a directory with the data job content inside.",
+    """
+    
+Examples:
+
+\b
+# Download the source directory of a Data job 'example-job' which belongs to  'example-team'
+# the source directory will be downloaded to the current working directory
+vdk download-job --name example-job --team example-team
+
+\b
+# Download the source directory of a Data job 'example-job' which belongs to 'example-team'
+#  /Documents/example-jobs is the parent directory where the source directory will be downloaded
+vdk download-job --name example-job --team example-team --path /Documents/example-teams
+    """
 )
 @click.option(
     "-n",
