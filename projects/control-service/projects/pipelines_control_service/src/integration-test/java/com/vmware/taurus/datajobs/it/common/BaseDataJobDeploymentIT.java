@@ -5,12 +5,7 @@
 
 package com.vmware.taurus.datajobs.it.common;
 
-import static org.awaitility.Awaitility.await;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,11 +15,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
 
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 
 /**
  * It combines all necessary annotations and constants for tests that need an already deployed data
@@ -50,5 +42,4 @@ public abstract class BaseDataJobDeploymentIT extends BaseIT {
       return new SyncTaskExecutor();
     }
   }
-
 }
