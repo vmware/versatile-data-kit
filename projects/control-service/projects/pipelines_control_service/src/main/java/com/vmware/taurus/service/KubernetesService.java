@@ -6,6 +6,7 @@
 package com.vmware.taurus.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
@@ -1206,7 +1207,8 @@ public abstract class KubernetesService implements InitializingBean {
       long runAsUser,
       long runAsGroup,
       long fsGroup,
-      String serviceAccountName)
+      String serviceAccountName,
+      String registrySecret)
       throws ApiException {
 
     log.debug("Creating k8s job name:{}, image:{}", name, image);
@@ -1236,7 +1238,9 @@ public abstract class KubernetesService implements InitializingBean {
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
     }
-
+    if (StringUtils.isNotEmpty(registrySecret)) {
+      podSpecBuilder.addNewImagePullSecret().withName(registrySecret).endImagePullSecret();
+    }
     var template = new V1PodTemplateSpecBuilder().withSpec(podSpecBuilder.build()).build();
     var spec =
         new V1JobSpecBuilder()
@@ -2499,5 +2503,10 @@ public abstract class KubernetesService implements InitializingBean {
       divider = BigInteger.valueOf(1000);
     }
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
+  }
+
+  @VisibleForTesting
+  public ApiClient getClient() {
+    return client;
   }
 }

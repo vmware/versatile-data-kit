@@ -96,6 +96,7 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
+            any(),
             any());
 
     verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
@@ -137,6 +138,7 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
+            any(),
             any());
     Assertions.assertTrue(result);
   }
@@ -169,6 +171,7 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
+            anyString(),
             anyString());
     verify(notificationHelper, never())
         .verifyBuilderResult(anyString(), any(), any(), any(), anyString(), anyBoolean());
@@ -208,6 +211,7 @@ public class JobImageBuilderTest {
             anyLong(),
             anyLong(),
             anyLong(),
+            any(),
             any());
 
     // verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME); // not called in case of an error
