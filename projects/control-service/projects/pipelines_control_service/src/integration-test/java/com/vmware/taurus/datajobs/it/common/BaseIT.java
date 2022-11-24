@@ -52,7 +52,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT extends KerberosSecurityTestcaseJunit5 {
-
   private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
   public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
@@ -63,16 +62,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   protected static final String HEADER_X_OP_ID = "X-OPID";
 
   protected static final ObjectMapper mapper = new ObjectMapper();
-
-  @TestConfiguration
-  static class KerberosConfig {
-
-    @Bean
-    @Primary
-    public KerberosCredentialsRepository credentialsRepository() {
-      return new MiniKdcCredentialsRepository();
-    }
-  }
 
   @Autowired private MiniKdcCredentialsRepository kerberosCredentialsRepository;
 
@@ -90,9 +79,19 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   private boolean ownsDataJobsNamespace = false;
 
   @Value("${integrationTest.controlNamespace:}")
-  private String controlNamespace;
+  protected String controlNamespace;
 
   private boolean ownsControlNamespace = false;
+
+  @TestConfiguration
+  static class KerberosConfig {
+
+    @Bean
+    @Primary
+    public KerberosCredentialsRepository credentialsRepository() {
+      return new MiniKdcCredentialsRepository();
+    }
+  }
 
   @BeforeEach
   public void before() throws Exception {

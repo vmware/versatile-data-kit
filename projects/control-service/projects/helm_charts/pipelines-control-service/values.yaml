@@ -26,6 +26,8 @@ deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
   tag: "1.2.3"
+  username:
+  password:
 
 deploymentBuilder:
   securityContext:
@@ -436,7 +438,34 @@ resources:
 ## and some deploy specific configuration like execution schedule
 ## Database schema is internal implementation detail and should not be queried directly.
 
-## Configuration for the embedded database, set cockroachdb.enabled to false if you want to use external database
+## Configuration for a PostgreSQL embedded database, set postgresql.enabled to false if you want to use external database
+## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+postgresql:
+  enabled: false
+  architecture: standalone  # replication
+#  readReplicas:
+#    replicaCount: 2
+#    resources:
+#      limits:
+#        cpu: 500m
+#        memory: 500Mi
+#      requests:
+#        cpu: 500m
+#        memory: 500Mi
+  primary:
+    persistence:
+      size: 1Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 500Mi
+      requests:
+        cpu: 500m
+        memory: 500Mi
+    service:
+      type: ClusterIP
+
+## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
    enabled: true
@@ -848,6 +877,7 @@ fluentd:
 #    </system>
 
 dataJob:
+  readOnlyRootFileSystem: false
   executions:
     ## These values expose configuration properties for the execution api
     ## The execution API helps you collect information about previous
@@ -907,3 +937,7 @@ dataJob:
       </parse>
     match: |-
       @type elastic
+
+# Configures the format of logs output by the control service; if set to `JSON`, logs are formatted to JSON;
+# else logs are formatted to their default user-readable format
+# loggingFormat: TEXT
