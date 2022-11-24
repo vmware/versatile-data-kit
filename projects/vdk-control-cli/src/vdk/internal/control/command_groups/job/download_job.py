@@ -82,8 +82,7 @@ class JobDownloadSource:
 
 @click.command(
     name="download-job",
-    help="Download a Data Job's source directory. It's a directory with the data job content inside.",
-    """
+    help="""Download a Data Job's source directory. It's a directory with the data job content inside.
 
 Examples:
 
