@@ -94,32 +94,10 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   }
 
   @BeforeEach
-  public void before() throws Exception {
+  public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-
     kerberosCredentialsRepository.setMiniKdc(getKdc());
-
-    if (StringUtils.isBlank(dataJobsNamespace)) {
-      dataJobsNamespace = "test-ns-" + Instant.now().toEpochMilli();
-      log.info("Create namespace {}", dataJobsNamespace);
-      dataJobsKubernetesService.createNamespace(dataJobsNamespace);
-      this.ownsDataJobsNamespace = true;
-    } else {
-      log.info("Using predefined data jobs namespace {}", dataJobsNamespace);
-    }
-    ReflectionTestUtils.setField(dataJobsKubernetesService, "namespace", dataJobsNamespace);
-
-    if (StringUtils.isBlank(controlNamespace)) {
-      controlNamespace = "test-ns-" + Instant.now().toEpochMilli();
-      ;
-      log.info("Create namespace {}", controlNamespace);
-      controlKubernetesService.createNamespace(controlNamespace);
-      this.ownsControlNamespace = true;
-    } else {
-      log.info("Using predefined control namespace {}", controlNamespace);
-    }
-    ReflectionTestUtils.setField(controlKubernetesService, "namespace", controlNamespace);
   }
 
   @AfterEach

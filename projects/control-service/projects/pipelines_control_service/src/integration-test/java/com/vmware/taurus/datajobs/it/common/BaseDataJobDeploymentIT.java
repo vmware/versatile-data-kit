@@ -51,38 +51,4 @@ public abstract class BaseDataJobDeploymentIT extends BaseIT {
     }
   }
 
-  protected MvcResult executeDataJob(
-      String jobName, String teamName, String username, String opId) {
-    // Execute data job
-    if (opId == null) {
-      opId = jobName + UUID.randomUUID().toString().toLowerCase();
-    }
-
-    DataJobExecutionRequest dataJobExecutionRequest =
-        new DataJobExecutionRequest().startedBy(username);
-
-    String triggerDataJobExecutionUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName, jobName, "release");
-
-    // Wait for the job execution to complete, polling every 15 seconds
-    // See: https://github.com/awaitility/awaitility/wiki/Usage
-    String finalOpId = opId;
-    return await()
-        .atMost(5, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .until(
-            () ->
-                mockMvc
-                    .perform(
-                        post(triggerDataJobExecutionUrl)
-                            .with(user(username))
-                            .header(HEADER_X_OP_ID, finalOpId)
-                            .content(mapper.writeValueAsString(dataJobExecutionRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andReturn(),
-            mvcResult -> mvcResult.getResponse().getStatus() == 202);
-  }
 }

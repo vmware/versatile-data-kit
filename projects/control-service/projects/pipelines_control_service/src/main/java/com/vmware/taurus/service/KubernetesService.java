@@ -22,6 +22,7 @@ import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
+import graphql.Assert;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
@@ -198,9 +199,9 @@ public abstract class KubernetesService implements InitializingBean {
    */
   protected KubernetesService(
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
-    this.namespace = namespace;
-    this.kubeconfig = kubeconfig;
-    this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
+    this.namespace = Assert.assertNotNull(namespace);
+    this.kubeconfig = Assert.assertNotNull(kubeconfig);
+    this.k8sSupportsV1CronJob = true;
     this.log = log;
   }
 
@@ -422,7 +423,7 @@ public abstract class KubernetesService implements InitializingBean {
         new V1NamespaceBuilder()
             .withMetadata(new V1ObjectMetaBuilder().withName(namespaceName).build())
             .build();
-
+    this.namespace = namespaceName;
     new CoreV1Api(client).createNamespace(namespaceBody, null, null, null, null);
   }
 
