@@ -5,7 +5,7 @@ This plugin allows vdk-core to interface with and execute queries against a Trin
 
 Run
 ```bash
-pip install vdk-tino
+pip install vdk-trino
 ```
 
 After this data jobs will have access to Trino database connection managed by Versatile Data Kit SDK.
