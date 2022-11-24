@@ -17,8 +17,15 @@ public class DockerRegistryService {
   @Value("${datajobs.builder.image}")
   private String builderImage;
 
+  @Value("${datajobs.builder.registrySecret:}")
+  private String registrySecret;
+
   public String dataJobImage(String dataJobName, String gitCommitSha) {
     return String.format("%s/%s:%s", proxyRepositoryURL, dataJobName, gitCommitSha);
+  }
+
+  public String registrySecret() {
+    return registrySecret;
   }
 
   public String builderImage() {
