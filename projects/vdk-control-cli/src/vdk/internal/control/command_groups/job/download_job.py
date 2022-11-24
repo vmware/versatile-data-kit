@@ -95,7 +95,7 @@ vdk download-job --name example-job --team example-team
 # Download the source directory of a Data job 'example-job' which belongs to 'example-team'
 #  /Documents/example-jobs is the parent directory where the source directory will be downloaded
 vdk download-job --name example-job --team example-team --path /Documents/example-teams
-    """
+    """,
 )
 @click.option(
     "-n",
