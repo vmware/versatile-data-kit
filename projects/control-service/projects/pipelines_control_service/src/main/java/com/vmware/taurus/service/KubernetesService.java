@@ -199,7 +199,7 @@ public abstract class KubernetesService implements InitializingBean {
    */
   protected KubernetesService(
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
-    assertTrue(StringUtils.isNotBlank(namespace),  () -> "Namespace must be set to an actual value");
+    assertTrue(StringUtils.isNotBlank(namespace), () -> "Namespace must be set to an actual value");
     this.namespace = namespace;
     this.kubeconfig = kubeconfig;
     this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
