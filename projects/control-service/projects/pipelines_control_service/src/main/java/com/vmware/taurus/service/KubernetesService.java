@@ -199,9 +199,10 @@ public abstract class KubernetesService implements InitializingBean {
    */
   protected KubernetesService(
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
-    this.namespace = Assert.assertNotNull(namespace);
+    StringUtils.isNotBlank(namespace);
+    this.namespace = namespace;
     this.kubeconfig = Assert.assertNotNull(kubeconfig);
-    this.k8sSupportsV1CronJob = true;
+    this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
     this.log = log;
   }
 
@@ -416,15 +417,6 @@ public abstract class KubernetesService implements InitializingBean {
     } catch (Exception e) {
       return Pair.of(false, e.getMessage());
     }
-  }
-
-  public void createNamespace(String namespaceName) throws ApiException {
-    var namespaceBody =
-        new V1NamespaceBuilder()
-            .withMetadata(new V1ObjectMetaBuilder().withName(namespaceName).build())
-            .build();
-    this.namespace = namespaceName;
-    new CoreV1Api(client).createNamespace(namespaceBody, null, null, null, null);
   }
 
   public void deleteNamespace(String namespaceName) throws ApiException {
