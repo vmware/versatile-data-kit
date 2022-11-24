@@ -201,7 +201,7 @@ public abstract class KubernetesService implements InitializingBean {
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
     StringUtils.isNotBlank(namespace);
     this.namespace = namespace;
-    this.kubeconfig = Assert.assertNotNull(kubeconfig);
+    this.kubeconfig = kubeconfig;
     this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
     this.log = log;
   }
