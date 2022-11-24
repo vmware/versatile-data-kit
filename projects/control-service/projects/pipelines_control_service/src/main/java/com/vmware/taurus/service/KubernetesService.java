@@ -60,6 +60,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static graphql.Assert.assertTrue;
 import static java.util.function.Predicate.not;
 
 /**
@@ -198,7 +199,7 @@ public abstract class KubernetesService implements InitializingBean {
    */
   protected KubernetesService(
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
-    StringUtils.isNotBlank(namespace);
+    assertTrue(StringUtils.isNotBlank(namespace));
     this.namespace = namespace;
     this.kubeconfig = kubeconfig;
     this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
