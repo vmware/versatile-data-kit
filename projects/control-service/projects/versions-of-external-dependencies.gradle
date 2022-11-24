@@ -35,7 +35,7 @@ project.ext {
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.9.0',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:4.25.0',
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.25.0',
-            'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.16.0',
+            'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
             'org.springframework.security.kerberos:spring-security-kerberos-test': 'org.springframework.security.kerberos:spring-security-kerberos-test:1.0.1.RELEASE',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.1.1', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.1.0',
