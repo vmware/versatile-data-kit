@@ -60,6 +60,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static graphql.Assert.assertTrue;
 import static java.util.function.Predicate.not;
 
 /**
@@ -198,6 +199,7 @@ public abstract class KubernetesService implements InitializingBean {
    */
   protected KubernetesService(
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
+    assertTrue(StringUtils.isNotBlank(namespace), () -> "Namespace must be set to an actual value");
     this.namespace = namespace;
     this.kubeconfig = kubeconfig;
     this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
@@ -415,15 +417,6 @@ public abstract class KubernetesService implements InitializingBean {
     } catch (Exception e) {
       return Pair.of(false, e.getMessage());
     }
-  }
-
-  public void createNamespace(String namespaceName) throws ApiException {
-    var namespaceBody =
-        new V1NamespaceBuilder()
-            .withMetadata(new V1ObjectMetaBuilder().withName(namespaceName).build())
-            .build();
-
-    new CoreV1Api(client).createNamespace(namespaceBody, null, null, null, null);
   }
 
   public void deleteNamespace(String namespaceName) throws ApiException {
