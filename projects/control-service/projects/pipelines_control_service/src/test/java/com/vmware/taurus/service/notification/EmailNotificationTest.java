@@ -16,7 +16,6 @@ import com.vmware.taurus.ControlplaneApplication;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-@ActiveProfiles({"unittest"})
 public class EmailNotificationTest {
 
   @Autowired private EmailNotification emailNotification;

@@ -22,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-@ActiveProfiles({"unittest"})
 public class JobExecutionFilterSpecIT {
 
   @Autowired private JobsRepository jobsRepository;

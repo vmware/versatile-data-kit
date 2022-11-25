@@ -26,7 +26,6 @@ import java.util.List;
 
 @SpringBootTest(classes = ServiceApp.class)
 @ExtendWith(SpringExtension.class)
-@ActiveProfiles({"unittest"})
 public class DataJobExecutionRateCounterTest {
 
   @Autowired private JobExecutionRepository jobExecutionRepository;

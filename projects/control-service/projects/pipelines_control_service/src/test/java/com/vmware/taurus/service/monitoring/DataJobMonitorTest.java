@@ -44,7 +44,6 @@ import static org.mockito.Mockito.doThrow;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-@ActiveProfiles({"unittest"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DataJobMonitorTest {
 

@@ -22,7 +22,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-@ActiveProfiles({"unittest"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DeploymentMonitorIT {
 
