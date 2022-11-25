@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vmware.taurus.ControlplaneApplication;
@@ -23,7 +22,6 @@ import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.JobConfig;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-@ActiveProfiles({"unittest"})
 public class JobExecutionLogsUrlBuilderIT {
 
   private static final String TEST_EXECUTION_ID = "test-job-name-1634127142";

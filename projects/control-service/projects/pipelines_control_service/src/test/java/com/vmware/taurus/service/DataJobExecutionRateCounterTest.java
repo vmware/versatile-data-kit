@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
@@ -26,7 +25,6 @@ import java.util.List;
 
 @SpringBootTest(classes = ServiceApp.class)
 @ExtendWith(SpringExtension.class)
-@ActiveProfiles({"unittest"})
 public class DataJobExecutionRateCounterTest {
 
   @Autowired private JobExecutionRepository jobExecutionRepository;
