@@ -73,7 +73,7 @@ helm dependency update --kubeconfig=$KUBECONFIG
 #
 # image.tag is fixed during release. It is set here to deploy using latest change in source code.
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
-helm upgrade --install --wait --timeout 10m0s $RELEASE_NAME . \
+helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       --set image.tag="$TAG" \
       --set resources.limits.memory=2G \
       --set credentials.repository="EMPTY" \
