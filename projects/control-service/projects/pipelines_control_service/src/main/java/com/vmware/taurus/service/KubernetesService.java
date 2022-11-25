@@ -60,7 +60,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertTrue;
 import static java.util.function.Predicate.not;
 
 /**
