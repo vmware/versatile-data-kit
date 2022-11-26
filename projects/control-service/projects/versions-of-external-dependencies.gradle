@@ -2,7 +2,7 @@ project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
             'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
-            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.11.3',
+            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.25.6',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.7.2',
             'io.springfox:springfox-swagger2'                                    : 'io.springfox:springfox-swagger2:2.9.2', //3.0.0, //latest.release also works for swagger
@@ -18,7 +18,7 @@ project.ext {
             'org.junit.jupiter:junit-jupiter-engine'                             : 'org.junit.jupiter:junit-jupiter-engine:5.7.2',
             'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.8.1',
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
-            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:3.11.2',
+            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:4.9.0',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.12.4',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4',
             'org.json:json'                                                      : 'org.json:json:20210307',
