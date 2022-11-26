@@ -15,7 +15,7 @@ https://datasciconference.com
 
 Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-kit/files/10025900/vdk-dim-model-dsc-serbia.pdf)
 
-## Presenter 
+## Presenter
 
 [Antoni Ivanov](https://github.com/tozka) <a href='https://www.linkedin.com/in/antoni-ivanov-919b772b'><img src="https://img.shields.io/badge/LinkedIn-0077B5"></a>
 
