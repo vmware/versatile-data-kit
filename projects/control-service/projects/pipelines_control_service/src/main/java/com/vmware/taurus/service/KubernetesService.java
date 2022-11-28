@@ -417,15 +417,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
   }
 
-  public void createNamespace(String namespaceName) throws ApiException {
-    var namespaceBody =
-        new V1NamespaceBuilder()
-            .withMetadata(new V1ObjectMetaBuilder().withName(namespaceName).build())
-            .build();
-
-    new CoreV1Api(client).createNamespace(namespaceBody, null, null, null, null);
-  }
-
   public void deleteNamespace(String namespaceName) throws ApiException {
     try {
       new CoreV1Api(client).deleteNamespace(namespaceName, null, null, null, null, null, null);
