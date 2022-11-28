@@ -52,6 +52,7 @@ cat > /kaniko/.docker/config.json <<- EOM
       "password":"$registry_password",
       "auth": "$auth"
     }
+  $extra_auth
   }
 }
 EOM
