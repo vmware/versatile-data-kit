@@ -147,18 +147,18 @@ No direct changes to the public API.
 
 ## Detailed design
 ### VDK Notebook plugin
- This VDK plugin will provide the functionality to run Jobs which will retrieve Job steps from notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension. 
+ This VDK plugin will provide the functionality to run Jobs which will retrieve Job steps from notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
 As it can be seen from the below diagram the plugin will consist of a new hook and a few new classes.
- 
+
 ![vdk-notebook-plugin](vdk-notebook-plugin.png)
 
 #### VDK Hook
 The VDK Hook will encapsulate the logic for the initialization of a job that will get the code from Notebook files. When initialized like that jobs that work with Notebooks will be run as a standard data job which works with .py and .sql files.
-It will be using the NotebookReader and the NotebookLocator classes. 
+It will be using the NotebookReader and the NotebookLocator classes.
 #### NotebookLocator
 It is a simple class which has a method which returns the notebook files found in a given directory.
 #### NotebookReader
-This class contains the method read_notebook_and_save_steps which creates the job steps that will be run from a given job directory. The context of the job is passed to it by the VDKHook. 
+This class contains the method read_notebook_and_save_steps which creates the job steps that will be run from a given job directory. The context of the job is passed to it by the VDKHook.
 The steps that are created are NotebookSteps which is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) with one additional attribute that is used for saving the code from the .ipynb file. The method adds a step runner function from NotebookStepFuncFactory to those steps, so when a step is going to be run that function is being called.
 
 
