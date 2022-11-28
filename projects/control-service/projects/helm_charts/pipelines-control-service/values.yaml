@@ -26,6 +26,8 @@ deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
   tag: "1.2.3"
+  username:
+  password:
 
 deploymentBuilder:
   securityContext:
@@ -875,6 +877,7 @@ fluentd:
 #    </system>
 
 dataJob:
+  readOnlyRootFileSystem: false
   executions:
     ## These values expose configuration properties for the execution api
     ## The execution API helps you collect information about previous
@@ -934,3 +937,7 @@ dataJob:
       </parse>
     match: |-
       @type elastic
+
+# Configures the format of logs output by the control service; if set to `JSON`, logs are formatted to JSON;
+# else logs are formatted to their default user-readable format
+# loggingFormat: TEXT

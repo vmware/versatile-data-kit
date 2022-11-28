@@ -44,12 +44,18 @@ public class JobImageDeployer {
   @Value("${datajobs.vdk.docker.registrySecret:}")
   private String vdkSdkDockerRegistrySecret = "";
 
+  @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
+  private boolean readOnlyRootFilesystem;
+
   private static final String VOLUME_NAME = "vdk";
   private static final String VOLUME_MOUNT_PATH = "/vdk";
+  private static final String EPHEMERAL_VOLUME_NAME = "tmpfs";
+  private static final String EPHEMERAL_VOLUME_MOUNT_PATH = "/var/tmp";
   private static final String KEYTAB_PRINCIPAL_ENV = "VDK_KEYTAB_PRINCIPAL";
   private static final String KEYTAB_FOLDER_ENV = "VDK_KEYTAB_FOLDER";
   private static final String KEYTAB_FILENAME_ENV = "VDK_KEYTAB_FILENAME";
   private static final String ATTEMPT_ID = "VDK_ATTEMPT_ID";
+  private static final String BASE_CONFIG_FOLDER = "VDK_BASE_CONFIG_FOLDER";
 
   private final JobCredentialsService jobCredentialsService;
   private final DataJobsKubernetesService dataJobsKubernetesService;
@@ -192,6 +198,10 @@ public class JobImageDeployer {
     var volume = KubernetesService.volume(VOLUME_NAME);
     var volumeMount = KubernetesService.volumeMount(VOLUME_NAME, VOLUME_MOUNT_PATH, false);
 
+    var ephemeralVolume = KubernetesService.volume(EPHEMERAL_VOLUME_NAME);
+    var ephemeralVolumeMount =
+        KubernetesService.volumeMount(EPHEMERAL_VOLUME_NAME, EPHEMERAL_VOLUME_MOUNT_PATH, false);
+
     var principalName = jobCredentialsService.getJobPrincipalName(jobName);
     var vdkEnvs = vdkOptionsReader.readVdkOptions(jobName);
 
@@ -209,6 +219,7 @@ public class JobImageDeployer {
     jobContainerEnvVars.put(KEYTAB_FOLDER_ENV, keytabFolder);
     jobContainerEnvVars.put(KEYTAB_FILENAME_ENV, JobCredentialsService.K8S_KEYTAB_KEY_IN_SECRET);
     jobContainerEnvVars.put(ATTEMPT_ID, "$metadata.name");
+    jobContainerEnvVars.put(BASE_CONFIG_FOLDER, EPHEMERAL_VOLUME_MOUNT_PATH);
     jobContainerEnvVars.putAll(getSystemDefaults());
     jobContainerEnvVars.putAll(vdkEnvs);
     jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
@@ -222,9 +233,10 @@ public class JobImageDeployer {
             jobName,
             jobDeployment.getImageName(),
             false,
+            readOnlyRootFilesystem,
             jobContainerEnvVars,
             List.of(),
-            List.of(volumeMount, secretVolumeMount),
+            List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
             "Always",
             defaultConfigurations.dataJobRequests(),
             defaultConfigurations.dataJobLimits(),
@@ -242,9 +254,10 @@ public class JobImageDeployer {
             "vdk",
             jobVdkImage,
             false,
+            readOnlyRootFilesystem,
             Map.of(),
             List.of(),
-            List.of(volumeMount, secretVolumeMount),
+            List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
             "Always",
             kubernetesResources.dataJobInitContainerRequests(),
             kubernetesResources.dataJobInitContainerLimits(),
@@ -273,7 +286,7 @@ public class JobImageDeployer {
           defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
-          Arrays.asList(volume, secretVolume),
+          Arrays.asList(volume, secretVolume, ephemeralVolume),
           jobDeploymentAnnotations,
           Collections.emptyMap(),
           jobAnnotations,
@@ -291,7 +304,7 @@ public class JobImageDeployer {
           defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
-          Arrays.asList(volume, secretVolume),
+          Arrays.asList(volume, secretVolume, ephemeralVolume),
           jobDeploymentAnnotations,
           Collections.emptyMap(),
           jobAnnotations,

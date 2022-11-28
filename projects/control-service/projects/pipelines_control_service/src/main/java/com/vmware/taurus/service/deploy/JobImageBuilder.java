@@ -176,6 +176,7 @@ public class JobImageBuilder {
         builderJobName,
         dockerRegistryService.builderImage(),
         false,
+        false,
         envs,
         args,
         null,
@@ -186,7 +187,8 @@ public class JobImageBuilder {
         builderSecurityContextRunAsUser,
         builderSecurityContextRunAsGroup,
         builderSecurityContextFsGroup,
-        builderServiceAccountName);
+        builderServiceAccountName,
+        dockerRegistryService.registrySecret());
 
     log.debug(
         "Waiting for builder job {} for data job version {}",

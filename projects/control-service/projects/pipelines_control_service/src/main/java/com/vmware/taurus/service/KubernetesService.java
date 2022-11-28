@@ -6,6 +6,7 @@
 package com.vmware.taurus.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
@@ -414,15 +415,6 @@ public abstract class KubernetesService implements InitializingBean {
     } catch (Exception e) {
       return Pair.of(false, e.getMessage());
     }
-  }
-
-  public void createNamespace(String namespaceName) throws ApiException {
-    var namespaceBody =
-        new V1NamespaceBuilder()
-            .withMetadata(new V1ObjectMetaBuilder().withName(namespaceName).build())
-            .build();
-
-    new CoreV1Api(client).createNamespace(namespaceBody, null, null, null, null);
   }
 
   public void deleteNamespace(String namespaceName) throws ApiException {
@@ -1195,6 +1187,7 @@ public abstract class KubernetesService implements InitializingBean {
       String name,
       String image,
       boolean privileged,
+      boolean readOnlyRootFilesystem,
       Map<String, String> envs,
       List<String> args,
       List<V1Volume> volumes,
@@ -1205,7 +1198,8 @@ public abstract class KubernetesService implements InitializingBean {
       long runAsUser,
       long runAsGroup,
       long fsGroup,
-      String serviceAccountName)
+      String serviceAccountName,
+      String registrySecret)
       throws ApiException {
 
     log.debug("Creating k8s job name:{}, image:{}", name, image);
@@ -1217,6 +1211,7 @@ public abstract class KubernetesService implements InitializingBean {
                     name,
                     image,
                     privileged,
+                    readOnlyRootFilesystem,
                     envs,
                     args,
                     volumeMounts,
@@ -1234,7 +1229,9 @@ public abstract class KubernetesService implements InitializingBean {
     if (StringUtils.isNotEmpty(serviceAccountName)) {
       podSpecBuilder.withServiceAccountName(serviceAccountName);
     }
-
+    if (StringUtils.isNotEmpty(registrySecret)) {
+      podSpecBuilder.addNewImagePullSecret().withName(registrySecret).endImagePullSecret();
+    }
     var template = new V1PodTemplateSpecBuilder().withSpec(podSpecBuilder.build()).build();
     var spec =
         new V1JobSpecBuilder()
@@ -2180,6 +2177,7 @@ public abstract class KubernetesService implements InitializingBean {
       String name,
       String image,
       boolean privileged,
+      boolean readOnlyRootFilesystem,
       Map<String, String> envs,
       List<String> args,
       List<V1VolumeMount> volumeMounts,
@@ -2194,7 +2192,11 @@ public abstract class KubernetesService implements InitializingBean {
             .withImage(image)
             .withVolumeMounts(volumeMounts)
             .withImagePullPolicy(imagePullPolicy)
-            .withSecurityContext(new V1SecurityContextBuilder().withPrivileged(privileged).build())
+            .withSecurityContext(
+                new V1SecurityContextBuilder()
+                    .withPrivileged(privileged)
+                    .withReadOnlyRootFilesystem(readOnlyRootFilesystem)
+                    .build())
             .withResources(
                 new V1ResourceRequirementsBuilder()
                     .withRequests(resources(request))
@@ -2227,6 +2229,7 @@ public abstract class KubernetesService implements InitializingBean {
       String name,
       String image,
       boolean privileged,
+      boolean readOnlyRootFilesystem,
       Map<String, String> envs,
       List<String> args,
       List<V1VolumeMount> volumeMounts,
@@ -2238,6 +2241,7 @@ public abstract class KubernetesService implements InitializingBean {
         name,
         image,
         privileged,
+        readOnlyRootFilesystem,
         envs,
         args,
         volumeMounts,
@@ -2490,5 +2494,10 @@ public abstract class KubernetesService implements InitializingBean {
       divider = BigInteger.valueOf(1000);
     }
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
+  }
+
+  @VisibleForTesting
+  public ApiClient getClient() {
+    return client;
   }
 }

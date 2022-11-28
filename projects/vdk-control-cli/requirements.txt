@@ -6,6 +6,7 @@ click-spinner
 # Dependencies license report:
 pip-licenses
 pluggy~=0.13
+py
 
 # TESTING dependencies:
 
