@@ -38,6 +38,10 @@ def run(job_input):
     # . . .
 ```
 
+The diagram below shows how the data from the source view is inserted into the target table, without checking for duplicate data.
+![Insert_template_diagram](https://user-images.githubusercontent.com/21333266/204575441-eafb10dc-d514-4f9d-9b74-763695c3afba.png)
+So you should be careful for ensuring no duplicate rows are introduced in the source view you are using.
+
 ### Example
 
 See all templates in [our example documentation](https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples).
