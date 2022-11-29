@@ -78,6 +78,7 @@ dependencies {
    testImplementation versions.'org.awaitility:awaitility'
    testImplementation versions.'com.github.tomakehurst:wiremock'
    testImplementation versions.'org.mockito:mockito-core'
+   testImplementation versions.'net.bytebuddy:byte-buddy'
    testImplementation 'org.junit.jupiter:junit-jupiter-api'
    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
