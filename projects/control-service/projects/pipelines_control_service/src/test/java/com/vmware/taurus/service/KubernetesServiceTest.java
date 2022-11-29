@@ -47,9 +47,16 @@ public class KubernetesServiceTest {
             .withVolumeMounts(
                 new V1VolumeMount().name("vdk-volume").mountPath("/vdk").readOnly(false))
             .withImagePullPolicy("Always")
-            .withSecurityContext(new V1SecurityContextBuilder().withPrivileged(false).build())
+            .withSecurityContext(
+                new V1SecurityContextBuilder()
+                    .withPrivileged(false)
+                    .withReadOnlyRootFilesystem(false)
+                    .build())
             .withCommand(vdkCommand)
             .withArgs(List.of())
+            .withEnvFrom(
+                new V1EnvFromSource()
+                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)))
             .withEnv(List.of())
             .withResources(
                 new V1ResourceRequirementsBuilder()
@@ -62,6 +69,7 @@ public class KubernetesServiceTest {
         KubernetesService.container(
             "vdk",
             "vdk:latest",
+            false,
             false,
             Map.of(),
             List.of(),
