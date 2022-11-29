@@ -38,7 +38,7 @@ project.ext {
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.25.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
             'org.springframework.security.kerberos:spring-security-kerberos-test': 'org.springframework.security.kerberos:spring-security-kerberos-test:1.0.1.RELEASE',
-            'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.1.1', //5.11.2
+            'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.14.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.tuckey:urlrewritefilter'                                        : 'org.tuckey:urlrewritefilter:4.0.4',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
