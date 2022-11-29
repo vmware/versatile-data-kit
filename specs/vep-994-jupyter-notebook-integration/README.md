@@ -85,8 +85,14 @@ Since JupyterLab works with notebook files the proposed design should support ge
 Please, before reading this section make sure you read the user [guide](https://github.com/vmware/versatile-data-kit/wiki/User-Guide). You need to understand how VDK currently works to understand the UI changes will be done.
 
 Here is the proposed UI and its user flows:
- Pay attention: the job directory which will be mentioned bellow is the standard VDK job directory (but instead of .py and .sql files we will have ipynb files)
 
+![ux1](ux1.gif)
+
+![ux2](ux2.gif)
+
+You can see the full video in the parent directory of this file.
+
+ Pay attention: the job directory which will be mentioned bellow is the standard VDK job directory (but instead of .py and .sql files we will have ipynb files)
 
 |       Operation        |                                                                                                                                                                                                                           Flow                                                                                                                                                                                                                            | Covered  use cases | Priority |
 |:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
@@ -187,7 +193,10 @@ The availability of the extension will be managed by JupyterLab since it is goin
 
 ### Security and Permissions
 In terms of security, Jupyter uses tornado to ensure only authorized user can request the Jupyter server
-You can read more [here](https://jupyterlab-server.readthedocs.io/en/stable/api/index.html).
+You can read more [here](https://jupyter-notebook.readthedocs.io/en/stable/security.html#).
+
+VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as Authorization/Bearer Header.
+The testing installation uses (Staging) CSP Authentication provider. To get access token you need refresh or access token To get refresh token go to https://console-stg.cloud.vmware.com/csp/gateway/portal/#/user/tokens
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
