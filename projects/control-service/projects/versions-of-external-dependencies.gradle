@@ -1,7 +1,7 @@
 project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
-            'com.google.guava:guava'                                             : 'com.google.guava:guava:30.1.1-jre',
+            'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
             'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.25.6',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.7.2',
@@ -10,7 +10,7 @@ project.ext {
             'io.swagger:swagger-annotations'                                     : 'io.swagger:swagger-annotations:1.5.22', //1.6.2
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.1',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
-            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.2.23',
+            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.1',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.24',
             'com.h2database:h2'                                                  : 'com.h2database:h2:1.4.200',
             'org.apache.httpcomponents:httpclient'                               : 'org.apache.httpcomponents:httpclient:4.5.13',
