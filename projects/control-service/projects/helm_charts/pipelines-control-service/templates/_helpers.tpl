@@ -247,3 +247,7 @@ Image Pull Secret in json format
 {{- define "builderPullSecretJson" }}
     {{ include "buildImagePullSecretJson" (list .Values.deploymentBuilderImage.registry .Values.deploymentBuilderImage.username .Values.deploymentBuilderImage.password) }}
 {{- end }}
+
+{{- define "basePullSecretJson" }}
+    {{ include "buildImagePullSecretJson" (list .Values.deploymentDataJobBaseImage.registry .Values.deploymentDataJobBaseImage.username .Values.deploymentDataJobBaseImage.password) }}
+{{- end }}

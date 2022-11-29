@@ -54,6 +54,9 @@ public class KubernetesServiceTest {
                     .build())
             .withCommand(vdkCommand)
             .withArgs(List.of())
+            .withEnvFrom(
+                new V1EnvFromSource()
+                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)))
             .withEnv(List.of())
             .withResources(
                 new V1ResourceRequirementsBuilder()
