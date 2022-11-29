@@ -38,7 +38,7 @@ def run(job_input):
     # . . .
 ```
 
-The diagram below is inspired by [this blog](https://www.datacoral.com/blog/data-connectors-101/) shows how the data from the source view is inserted into the target table, without checking for duplicate data.
+The diagram below is inspired by [this blog](https://www.datacoral.com/blog/data-connectors-101/) and shows how the data from the source view is inserted into the target table, without checking for duplicate data.
 ![Insert_template_diagram](https://user-images.githubusercontent.com/21333266/204575441-eafb10dc-d514-4f9d-9b74-763695c3afba.png)
 So you should be careful for ensuring no duplicate rows are introduced in the source view you are using.
 
