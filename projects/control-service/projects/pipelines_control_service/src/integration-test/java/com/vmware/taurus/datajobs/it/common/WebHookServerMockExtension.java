@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import io.netty.handler.codec.http.HttpMethod;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.mockserver.client.server.MockServerClient;
+import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
 import org.mockserver.model.HttpResponse;
