@@ -22,6 +22,10 @@ In order to use this template you need to ensure the following:
 
 ### Sample Usage:
 
+The diagram below shows how the data from the source view is inserted into the target table, without checking for duplicate data.
+<img width="836" alt="insert_template_2" src="https://user-images.githubusercontent.com/21333266/204796027-0e77631d-dc12-497d-b0c6-df09bbc51a0e.png">
+So you should be careful for ensuring no duplicate rows are introduced in the source view you are using.
+
 Say there is SDDC-related 'Snapshot Periodic Fact Table' called 'fact_vmc_utilization_cpu_mem_every5min_daily' in 'history' schema.
 Updating it with the latest raw data from a Data Lake (from source view called 'vw_fact_vmc_utilization_cpu_mem_every5min_daily' in 'default' schema) is done in the following manner:
 
@@ -37,10 +41,6 @@ def run(job_input):
     job_input.execute_template('insert', template_args)
     # . . .
 ```
-
-The diagram below is inspired by [this blog](https://www.datacoral.com/blog/data-connectors-101/) and shows how the data from the source view is inserted into the target table, without checking for duplicate data.
-![Insert_template_diagram](https://user-images.githubusercontent.com/21333266/204575441-eafb10dc-d514-4f9d-9b74-763695c3afba.png)
-So you should be careful for ensuring no duplicate rows are introduced in the source view you are using.
 
 ### Example
 
