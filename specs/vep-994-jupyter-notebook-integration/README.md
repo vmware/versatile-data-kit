@@ -73,6 +73,7 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 
 ## High-level design
 ![high-level-design.png](high-level-design.png)
+
 JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
 Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
@@ -80,45 +81,97 @@ The proposed design describes the solution for creating a Jupyter UI for VDK. Fo
 
 Since JupyterLab works with notebook files the proposed design should support getting the job steps from them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
 
-|       Operation        |                                                                                                                                                                                                                          Flow                                                                                                                                                                                                                          | Covered  use cases | Priority |
-|:----------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
-|    Run VDK Jupyter     |                                                                                                                                                                        The user runs a single CLI command which opens the web version of JupyterLab. Examples: vdk jupyter lab                                                                                                                                                                         |         1          |   high   |
-|          Help          |                                                                                                After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Help" option. There he will be able to check for more information about how to use the VDK extension and where to find specific buttons and other UI elements                                                                                                |         1          |   mid    |
-|         Log in         |                                                                                                          After the user enters Jupyter lab he/she will see the VDK drop down menu where he can find the "Log in" option. It is for authentication against Control service. A pop out with the corresponding login options will be introduced.                                                                                                          |         1          |   mid    |
-|        Log out         |                                                                                                                                After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Log out" option. By clicking the option the user will be logged out from the Control Service.                                                                                                                                |         1          |   mid    |
-|       Create job       | After the user enters JupyterLab he/she will see the VDK drop down menu where he can find the "Create job" option. After clicking that option the user get's a pop up where he should enter the needed information for the job that will be created: name, team, directory and whether it will only be created locally or in the cloud as well. After filling all the needed information for the job by clicking a "Create" button it will be created. |         1          |   high   |
-|       Delete job       |                                                                                                                                                                                                "Delete job" will be introduced just like "Create job".                                                                                                                                                                                                 |         1          |   mid    |
-|  Work with SQL steps   |                                                                  One SQL step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk", "vdk-sql") that shows that the cell should be included in the job. All the cells that does not have that tag will not be included in he job as a step. One notebook file can have as several SQL steps.                                                                  |      2,3,4,7       |   high   |
-| Work with Python steps |                                   One notebook file will be introduced as one Python step. There should be marker for which cells are representing the run method. There will be tags as well ("vdk", "vdk-py"). All the cells which do not include that tag will be omitted during the execution. The VDK variable will be introduced directly. The users can use VDK variable without the need to import packages.                                   |       2,3,4        |   high   |
-|         Deploy         |                                        It will be added as an option in the vdk drop down menu mentioned in the first column of the table (where "create", "download" will be). A pop up will be introduced asking for what the user wants to do whether he wants to latest deployed version of specific job, to disable a data job, etc. Afterwards, he will be asked about the needed information to do that.                                        |         1          |   high   |
-|     Download a job     |                                                                                                                                                                                                         Similar tp "Create job", "Delete job".                                                                                                                                                                                                         |         1          |   high   |
-|      Execute job       |                                                                                                                                                                                                                  Similar to "Deploy"                                                                                                                                                                                                                   |         1          |   mid    |
-|   Properties command   |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
-|      List command      |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
-|      Show command      |                                                                                                                                        Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                         |         1          |   low    |
+### Ux flows
+Please, before reading this section make sure you read the user [guide](https://github.com/vmware/versatile-data-kit/wiki/User-Guide). You need to understand how VDK currently works to understand the UI changes will be done.
 
-## API design
+Here is the proposed UI and its user flows:
+
+![ux1](ux1.gif)
+
+![ux2](ux2.gif)
+
+You can see the full video in the parent directory of this file.
+
+ Pay attention: the job directory which will be mentioned bellow is the standard VDK job directory (but instead of .py and .sql files we will have ipynb files)
+
+|       Operation        |                                                                                                                                                                                                                           Flow                                                                                                                                                                                                                            | Covered  use cases | Priority |
+|:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
+|    Run VDK Jupyter     |                                                                                                                                                                          The user runs a single CLI command which opens the web version of JupyterLab. Examples: vdk jupyter lab                                                                                                                                                                          |         1          |   high   |
+|          Help          |                                                                                                 After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Help" option. There he will be able to check for more information about how to use the VDK extension and where to find specific buttons and other UI elements                                                                                                  |         1          |   mid    |
+|         Log in         |                                                                                                           After the user enters Jupyter lab he/she will see the VDK drop down menu where he can find the "Log in" option. It is for authentication against Control service. A pop out with the corresponding login options will be introduced.                                                                                                            |         1          |   mid    |
+|        Log out         |                                                                                                                                 After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Log out" option. By clicking the option the user will be logged out from the Control Service.                                                                                                                                  |         1          |   mid    |
+|       Create job       |    After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Create job" option. After clicking that option the user get's a pop up where he should enter the needed information for the job that will be created: name, team, directory and whether it will only be created locally or in the cloud as well. After filling all the needed information for the job by clicking a "Create" button it will be created.     |         1          |   high   |
+|       Delete job       |                                                                                                                                                                                                  "Delete job" will be introduced just like "Create job".                                                                                                                                                                                                  |         1          |   mid    |
+|  Work with SQL steps   |                                                                    One SQL step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk", "vdk-sql") that shows that the cell should be included in the job. All the cells that do not have that tag will not be included in the job as a step. One notebook file can have as several SQL steps.                                                                    |      2,3,4,7       |   high   |
+| Work with Python steps | Multiple cells will be introduced as one Python step. There will be tags as well ("vdk", "vdk-py"). All the cells which do not include that tag will be omitted during the execution. There are two ways of introducing the run method: standard def run() or by marking with magic commands the start and the end of the def run method (all the cells that are marked with vdk tag that are in between these  commands will be added in the run method) |       2,3,4        |   high   |
+|         Deploy         |                                         It will be added as an option in the vdk drop down menu mentioned in the first column of the table (where "create", "download" will be). A pop up will be introduced asking for what the user wants to do whether he wants to latest deployed version of specific job, to disable a data job, etc. Afterwards, he will be asked about the needed information to do that.                                          |         1          |   high   |
+|     Download a job     |                                                                                                                                                                                                          Similar to "Create job", "Delete job".                                                                                                                                                                                                           |         1          |   high   |
+|      Execute job       |                                                                                                                                                                                                                    Similar to "Deploy"                                                                                                                                                                                                                    |         1          |   mid    |
+|   Properties command   |                                                                                                                                          Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                          |         1          |   low    |
+|      List command      |                                                                                                                                          Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                          |         1          |   low    |
+|      Show command      |                                                                                                                                          Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                          |         1          |   low    |
+|        Run job         |                                                                                             After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Run job" option. After clicking that option the user gets a pop up where he should enter the needed information for the job that will be ran: the location/name/team.                                                                                              |         1          |   high   |
 
 <!--
-
-Describe the changes and additions to the public API (if there are any).
-
-For all API changes:
-
-Include Swagger URL for HTTP APIs, no matter if the API is RESTful or RPC-like.
-PyDoc/Javadoc (or similar) for Python/Java changes.
-Explain how does the system handle API violations.
+ TODO: add mockup videos/gifs/photos for the other operations
 -->
 
+As you can see there are two variations of working with Python cells:
+1) Solution 1 - with def run():
+
+![python-steps-solution1](python-steps-solution1.gif)
+
+2) Solution 2 - with %vdk-run-start and %vdk-run-end
+
+![python-steps-solution2](python-steps-solution2.gif)
+
+Since they both cover the same requirements we selected which one is more appropriate according to user opinions.
+
+Here is a table which gives an idea of how much the Solutions cover the use cases according to user opinion (the scale if from 1 to 3):
+
+| Use cases                                                                                                 | Solution 2                                                                                                                           | Solution 1                                                                                                                                          |
+|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| Readability                                                                                               | 1 <br /> random prints and other code can be in the between %vdk-run-start and %vdk-run-end                                          | 3 <br />  run() mainly consist of other functions; just requires then to be found by name (ctrl + f works well)                                     |
+| Easy to search through the document                                                                       | 1 <br /> The same as above                                                                                                           | 3 <br /> The same as above                                                                                                                          |
+| Easier to check what takes part in the run()                                                              | 1 <br /> The same as above                                                                                                           | 3 <br /> The same as above                                                                                                                          |
+| Adaptability (how easy is it to make minor, common changes)                                               | 3 <br /> users just need to find the cells and change them                                                                           | 3 <br /> users just need to find the cells and change them                                                                                          |
+| Error prone                                                                                               | 1 <br /> this solution might have many more cells → they can be omitted or added with no intention                                   | 2 <br /> will have less cells and the prints will not be in the run() → it will be less likely to add something that is not intended to be in run() |
+| File structure (the user decides what the sections will be and where they will be located)                | 2                                                                                                                                    | 2                                                                                                                                                   |
+| Resembles the current run function                                                                        | 1                                                                                                                                    | 2                                                                                                                                                   |
+| Easy for testing(direct prints)                                                                           | 3 <br /> requires just a new cell to be created and printed; which can be between the magic commands; they will not have the vdk tag | 2 <br /> requires the functions to be called in a different section → not in run(); still does not require that much effort                         |
+| Usability: is the site easy to use by core users                                                          | 3 <br /> it really resembles the standard way of working with Jupyter                                                                | 1 <br /> it requires more programming knowledge to separate the run() into many other functions and to use the run as a caller                      |
+| Error preventions                                                                                         | 1                                                                                                                                    | 1                                                                                                                                                   |
+| Ease of learning: how fast a user who has never seen the user interface before can accomplish basic tasks | 1 <br /> it is harder since the magic commands and writing a function to multiple cells is Jupyter specific                          | 2 <br />  calling functions from one function is a thing we do generally in coding                                                                  |
+
+    Solution 2 total score: 18       Solution 1 total score: 23
+
+Both solutions are not Mutually Exclusive. At some point they can be implemented both. But for the first iteration/version based on above analysis we will go with Solution 1.
+Final decision: Solution 1
+
+## API design
+No direct changes to the public API.
 
 ## Detailed design
 ### VDK Notebook plugin
  This VDK plugin will provide the functionality to run Jobs which will retrieve Job steps from notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
+As it can be seen from the below diagram the plugin will consist of a new hook and a few new classes.
+
+![vdk-notebook-plugin](vdk-notebook-plugin.png)
+
+#### VDK Hook
+The VDK Hook will encapsulate the logic for the initialization of a job that will get the code from Notebook files. When initialized like that jobs that work with Notebooks will be run as a standard data job which works with .py and .sql files.
+It will be using the NotebookReader and the NotebookLocator classes.
+#### NotebookLocator
+It is a simple class which has a method which returns the notebook files found in a given directory.
+#### NotebookReader
+This class contains the method read_notebook_and_save_steps which creates the job steps that will be run from a given job directory. The context of the job is passed to it by the VDKHook.
+The steps that are created are NotebookSteps which is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) with one additional attribute that is used for saving the code from the .ipynb file. The method adds a step runner function from NotebookStepFuncFactory to those steps, so when a step is going to be run that function is being called.
+
 
 ### VDK JupyterLab extension
  This extension will be both front-end and server side extension for JupyterLab.
  The front-end side will be introducing the graphical elements such as menus, buttons, etc. and will be responsible with sending
-requests to the server side extension. The server side extension will be responsible with executing the vdk commands and functions according to the
+requests to the server side extension. The server extension is a  package that extends to JupyterLab Server’s REST API/endpoints—i.e. adds extra request handlers to Server’s Tornado Web Application. It will be responsible with executing the vdk commands and functions according to the
 requests sent by the front-end side. Only the server extension will have direct connection to VDK and will send the needed response according to the results from VDK to the front-end extension. The extension will be using VDK Notebook plugin to run VDK Jobs and steps
 ,since the standard file based step run is not working with notebook files. For the remaining operations such as deploy, log in, log out, etc. it will be using the corresponding VDK plugin/project.
 
@@ -129,7 +182,21 @@ Example use case:
 
 ![example-use-case](example.png)
 
+### Availability
+The availability of the extension will be managed by JupyterLab since it is going to be run as part of the JupyterLab ecosystem.
 
+### Test Plan
+* The front-end extension is using Jest for JavaScript code testing.
+* This extension uses Playwright for the integration tests (aka user level tests). More precisely, the JupyterLab helper Galata is used to handle testing the extension in JupyterLab.
+* The server extension is using Pytest for Python code testing.
+* The VDK notebook plugin will be using Pytest for Python code testing.
+
+### Security and Permissions
+In terms of security, Jupyter uses tornado to ensure only authorized user can request the Jupyter server
+You can read more [here](https://jupyter-notebook.readthedocs.io/en/stable/security.html#).
+
+VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as Authorization/Bearer Header.
+The testing installation uses (Staging) CSP Authentication provider. To get access token you need refresh or access token To get refresh token go to https://console-stg.cloud.vmware.com/csp/gateway/portal/#/user/tokens
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
@@ -137,8 +204,6 @@ Consider at least the below topics but you do not need to cover those that are n
 ### Capacity Estimation and Constraints
     * Cost of data path: CPU cost per-IO, memory footprint, network footprint.
     * Cost of control plane including cost of APIs, expected timeliness from layers above.
-### Availability.
-    * For example - is it tolerant to failures, What happens when the service stops working
 ### Performance.
     * Consider performance of data operations for different types of workloads.
        Consider performance of control operations
@@ -162,19 +227,8 @@ Consider at least the below topics but you do not need to cover those that are n
 ### Operability
   * What are the SLIs (Service Level Indicators) an operator can use to determine the health of the system.
   * What are the expected SLOs (Service Level Objectives).
-### Test Plan
-  * Unit tests are expected. But are end to end test necessary. Do we need to extend vdk-heartbeat ?
-  * Are there changes in CICD necessary
 ### Dependencies
   * On what services the feature depends on ? Are there new (external) dependencies added?
-### Security and Permissions
-  How is access control handled?
-  * Is encryption in transport supported and how is it implemented?
-  * What data is sensitive within these components? How is this data secured?
-      * In-transit?
-      * At rest?
-      * Is it logged?
-  * What secrets are needed by the components? How are these secrets secured and attained?
 -->
 
 
