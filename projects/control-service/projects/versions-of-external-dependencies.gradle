@@ -30,7 +30,7 @@ project.ext {
             'javax.mail:mail'                                                    : 'javax.mail:mail:1.4.7',
             'org.ini4j:ini4j'                                                    : 'org.ini4j:ini4j:0.5.4',
             'io.kubernetes:client-java'                                          : 'io.kubernetes:client-java:16.0.0',
-            'io.kubernetes:client-java-api-fluent'                               : 'io.kubernetes:client-java-api-fluent:16.0.0',
+            'io.kubernetes:client-java-api-fluent'                               : 'io.kubernetes:client-java-api-fluent:16.0.2',
             'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.1.5',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.2',
@@ -38,7 +38,7 @@ project.ext {
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.42.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
             'org.springframework.security.kerberos:spring-security-kerberos-test': 'org.springframework.security.kerberos:spring-security-kerberos-test:1.0.1.RELEASE',
-            'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.1.1', //5.11.2
+            'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.14.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.tuckey:urlrewritefilter'                                        : 'org.tuckey:urlrewritefilter:4.0.4',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
