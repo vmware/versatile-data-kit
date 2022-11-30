@@ -110,7 +110,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s",
@@ -121,7 +121,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s",
@@ -133,7 +133,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s",
@@ -146,7 +146,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s",
@@ -160,7 +160,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME)))
         .respond(getOkResponse());
@@ -169,7 +169,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_1)))
         .respond(getOkResponse());
@@ -178,7 +178,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_2)))
         .respond(getOkResponse());
@@ -187,7 +187,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s", NEW_TEST_TEAM_NAME, TEST_JOB_3)))
@@ -197,7 +197,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s", NEW_TEST_TEAM_NAME, TEST_JOB_4)))
@@ -207,7 +207,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s", NEW_TEST_TEAM_NAME, TEST_JOB_5)))
@@ -217,7 +217,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_6)))
         .respond(getOkResponse());
@@ -228,7 +228,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(String.format("/data-jobs/for-team/%s/jobs", TEST_CLIENT_ERROR_TEAM)))
         .respond(getClientErrorResponse());
 
@@ -236,7 +236,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(String.format("/data-jobs/for-team/%s/jobs", TEST_INTERNAL_ERROR_TEAM)))
         .respond(getInternalServerErrorResponse());
 
@@ -245,7 +245,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs", TEST_INTERNAL_ERROR_RETRIED_TEAM)),
             exactly(TEST_INTERNAL_ERROR_RETRIES))
@@ -256,7 +256,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs", TEST_INTERNAL_ERROR_RETRIED_TEAM)),
             exactly(TEST_INTERNAL_ERROR_RETRIES + 1))
@@ -268,7 +268,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME)))
         .respond(getOkResponse());
 
@@ -276,7 +276,7 @@ public class WebHookServerMockExtension
         .when(
             request()
                 .withMethod(HttpMethod.POST.name())
-                .withHeader("'Content-type', 'application/json'")
+                .withHeader("Content-type", "application/json")
                 .withPath(String.format("/data-jobs/for-team/%s/jobs", NEW_TEST_TEAM_NAME)))
         .respond(getOkResponse());
   }
