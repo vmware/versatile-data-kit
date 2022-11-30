@@ -228,7 +228,7 @@ control_service_publish_image:
   only:
     refs:
       - main
-    changes: *control_service_code_change_locations
+    changes: *control_service_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
