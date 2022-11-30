@@ -6,7 +6,7 @@ project.ext {
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.7.2',
             'io.springfox:springfox-swagger2'                                    : 'io.springfox:springfox-swagger2:2.9.2', //3.0.0, //latest.release also works for swagger
-            'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:3.0.0', //3.0.0
+            'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:2.9.2', //3.0.0
             'io.swagger:swagger-annotations'                                     : 'io.swagger:swagger-annotations:1.5.22', //1.6.2
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.1',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
