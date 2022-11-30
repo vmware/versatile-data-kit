@@ -18,7 +18,7 @@
   - projects/control-service/projects/versions-of-external-dependencies.gradle
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
-# This is a subset of the &control_service_change_locations which listens on changes to all code.before_script:
+# This is a subset of the &control_service_change_locations which listens on changes to all code
 # Changes to this group should trigger runs of runs of unit and integration tests.
 .control_service_code_changes: &control_service_code_change_locations
   - projects/control-service/cicd/**/*
