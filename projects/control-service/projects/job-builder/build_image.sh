@@ -15,6 +15,10 @@ registry_type=$8
 registry_username=$9
 registry_password=${10}
 
+# Within this property docker config should be included to connect to the registry used to pull the image from.
+# it should be prefixed with a comma
+# example: ,"ghcr.io/versatile-data-kit-dev/dp/versatiledatakit":{"auth":"dmVyc2F0aWxlLWRhdGEta2l0LWRldjo8bXlUb2tlbj4="}}
+extra_auth=${extra_auth:-""}
 # Echo selected data to be logged
 echo "AWS_REGION=$aws_region"
 echo "DOCKER_REGISTRY=$docker_registry"
@@ -52,6 +56,7 @@ cat > /kaniko/.docker/config.json <<- EOM
       "password":"$registry_password",
       "auth": "$auth"
     }
+  $extra_auth
   }
 }
 EOM

@@ -17,7 +17,6 @@ import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.openapi.ApiException;
-import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -35,12 +34,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.function.Predicate;
 
@@ -52,7 +49,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT extends KerberosSecurityTestcaseJunit5 {
-
   private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
   public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
@@ -63,16 +59,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   protected static final String HEADER_X_OP_ID = "X-OPID";
 
   protected static final ObjectMapper mapper = new ObjectMapper();
-
-  @TestConfiguration
-  static class KerberosConfig {
-
-    @Bean
-    @Primary
-    public KerberosCredentialsRepository credentialsRepository() {
-      return new MiniKdcCredentialsRepository();
-    }
-  }
 
   @Autowired private MiniKdcCredentialsRepository kerberosCredentialsRepository;
 
@@ -90,37 +76,25 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   private boolean ownsDataJobsNamespace = false;
 
   @Value("${integrationTest.controlNamespace:}")
-  private String controlNamespace;
+  protected String controlNamespace;
 
   private boolean ownsControlNamespace = false;
 
+  @TestConfiguration
+  static class KerberosConfig {
+
+    @Bean
+    @Primary
+    public KerberosCredentialsRepository credentialsRepository() {
+      return new MiniKdcCredentialsRepository();
+    }
+  }
+
   @BeforeEach
-  public void before() throws Exception {
+  public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-
     kerberosCredentialsRepository.setMiniKdc(getKdc());
-
-    if (StringUtils.isBlank(dataJobsNamespace)) {
-      dataJobsNamespace = "test-ns-" + Instant.now().toEpochMilli();
-      log.info("Create namespace {}", dataJobsNamespace);
-      dataJobsKubernetesService.createNamespace(dataJobsNamespace);
-      this.ownsDataJobsNamespace = true;
-    } else {
-      log.info("Using predefined data jobs namespace {}", dataJobsNamespace);
-    }
-    ReflectionTestUtils.setField(dataJobsKubernetesService, "namespace", dataJobsNamespace);
-
-    if (StringUtils.isBlank(controlNamespace)) {
-      controlNamespace = "test-ns-" + Instant.now().toEpochMilli();
-      ;
-      log.info("Create namespace {}", controlNamespace);
-      controlKubernetesService.createNamespace(controlNamespace);
-      this.ownsControlNamespace = true;
-    } else {
-      log.info("Using predefined control namespace {}", controlNamespace);
-    }
-    ReflectionTestUtils.setField(controlKubernetesService, "namespace", controlNamespace);
   }
 
   @AfterEach

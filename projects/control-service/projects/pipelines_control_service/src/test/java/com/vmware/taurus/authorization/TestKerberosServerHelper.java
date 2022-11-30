@@ -61,6 +61,12 @@ public class TestKerberosServerHelper {
   public static void shutdownServer() throws KrbException, IOException {
     simpleKdcServer.stop();
     Files.delete(KEYTAB.toPath());
-    Files.delete(KDC_WORK_DIR.toPath());
+    try {
+      Files.delete(KDC_WORK_DIR.toPath());
+    } catch (Exception e) {
+      // This error happens occasionally when running tests locally. It is no real concern that the
+      // dir is not cleaned up.
+      log.error("Failed to delete test directory.", e);
+    }
   }
 }

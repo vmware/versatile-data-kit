@@ -46,7 +46,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation 'org.codehaus.janino:janino'
 
     // Logstash is used for encoding logs to JSON
-    implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
 
     implementation versions.'org.zeroturnaround:zt-exec' // for kerberos shell kadmin command
 
@@ -82,6 +82,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'org.mock-server:mockserver-netty'
     testImplementation 'org.springframework.security:spring-security-oauth2-jose'
     testImplementation versions.'org.mockito:mockito-core'
+    testImplementation versions.'net.bytebuddy:byte-buddy'
     testImplementation versions.'org.testcontainers:testcontainers'
     testImplementation versions.'org.springframework.security.kerberos:spring-security-kerberos-test'
     testImplementation versions.'org.awaitility:awaitility'
