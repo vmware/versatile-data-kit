@@ -15,6 +15,10 @@ https://datasciconference.com
 
 Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-kit/files/10025900/vdk-dim-model-dsc-serbia.pdf)
 
+## Presenter
+
+[Antoni Ivanov](https://github.com/tozka) <a href='https://www.linkedin.com/in/antoni-ivanov-919b772b'><img src="https://img.shields.io/badge/LinkedIn-0077B5"></a>
+
 ## Pre-requisites
 - Bring your own laptop
 - Make sure you connect to the Wi-Fi
@@ -40,7 +44,6 @@ Please share your feedback :
  https://bit.ly/vdk-dsc
 
  <img src="https://user-images.githubusercontent.com/2536458/201960651-1089db2e-02db-45b3-accd-f6dce94f2695.png" alt="bit ly_vdk-dsc" width="100"/>
-
 
 
 Give as a star if you've liked the [project](https://github.com/vmware/versatile-data-kit).

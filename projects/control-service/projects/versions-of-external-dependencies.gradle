@@ -1,16 +1,16 @@
 project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
-            'com.google.guava:guava'                                             : 'com.google.guava:guava:30.1.1-jre',
-            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.11.3',
+            'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
+            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.25.6',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.7.2',
             'io.springfox:springfox-swagger2'                                    : 'io.springfox:springfox-swagger2:2.9.2', //3.0.0, //latest.release also works for swagger
-            'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:2.9.2', //3.0.0
+            'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:3.0.0', //3.0.0
             'io.swagger:swagger-annotations'                                     : 'io.swagger:swagger-annotations:1.5.22', //1.6.2
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.1',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
-            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.2.23',
+            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.1',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.24',
             'com.h2database:h2'                                                  : 'com.h2database:h2:1.4.200',
             'org.apache.httpcomponents:httpclient'                               : 'org.apache.httpcomponents:httpclient:4.5.13',
@@ -18,9 +18,10 @@ project.ext {
             'org.junit.jupiter:junit-jupiter-engine'                             : 'org.junit.jupiter:junit-jupiter-engine:5.7.2',
             'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.8.1',
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
-            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:3.11.2',
+            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:4.9.0',
+            'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.12.19',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.12.4',
-            'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4',
+            'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1',
             'org.json:json'                                                      : 'org.json:json:20210307',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.11.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.29',
@@ -29,15 +30,15 @@ project.ext {
             'javax.mail:mail'                                                    : 'javax.mail:mail:1.4.7',
             'org.ini4j:ini4j'                                                    : 'org.ini4j:ini4j:0.5.4',
             'io.kubernetes:client-java'                                          : 'io.kubernetes:client-java:16.0.0',
-            'io.kubernetes:client-java-api-fluent'                               : 'io.kubernetes:client-java-api-fluent:16.0.0',
+            'io.kubernetes:client-java-api-fluent'                               : 'io.kubernetes:client-java-api-fluent:16.0.2',
             'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.1.5',
-            'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.9.0',
+            'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.2',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:4.25.0',
-            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.25.0',
+            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.42.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
             'org.springframework.security.kerberos:spring-security-kerberos-test': 'org.springframework.security.kerberos:spring-security-kerberos-test:1.0.1.RELEASE',
-            'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.1.1', //5.11.2
+            'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.14.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.tuckey:urlrewritefilter'                                        : 'org.tuckey:urlrewritefilter:4.0.4',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',

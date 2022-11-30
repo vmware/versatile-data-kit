@@ -60,7 +60,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static graphql.Assert.assertTrue;
 import static java.util.function.Predicate.not;
 
 /**
@@ -199,7 +198,6 @@ public abstract class KubernetesService implements InitializingBean {
    */
   protected KubernetesService(
       String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
-    assertTrue(StringUtils.isNotBlank(namespace), () -> "Namespace must be set to an actual value");
     this.namespace = namespace;
     this.kubeconfig = kubeconfig;
     this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
@@ -2204,6 +2202,9 @@ public abstract class KubernetesService implements InitializingBean {
                     .withRequests(resources(request))
                     .withLimits(resources(limit))
                     .build())
+            .withEnvFrom(
+                new V1EnvFromSource()
+                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)))
             .withEnv(
                 envs.entrySet().stream()
                     .map(KubernetesService::envVar)
