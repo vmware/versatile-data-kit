@@ -27,10 +27,6 @@ useful for a wide audience.
 
 * VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
 * Notebook: A .ipynb file.
-* Notebook Step:  A single unit of work for a Data Job that includes notebook files. A SQL step is a SQL statement. A python step is the 
-module of run(job_input) method. Notebook Steps in a notebook file are executed from top to the bottom - the step 
-located on the top of the file will be run first, and the one in the bottom will be run last.
-Notebooks are executed in an alphanumerical order of their file names.
 
 ## Motivation
 
@@ -172,7 +168,12 @@ It is a simple class which has a method which returns the notebook files found i
 This class contains the method read_notebook_and_save_steps which creates the job steps that will be run from a given job directory. The context of the job is passed to it by the VDKHook.
 The steps that are created are NotebookSteps which is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) with one additional attribute that is used for saving the code from the .ipynb file. The method adds a step runner function from NotebookStepFuncFactory to those steps, so when a step is going to be run that function is being called.
 #### NotebookStep
-NotebookStep is the dataclass that represents the Notebook step from [Glossary](#glossary).
+Notebook Step:  A single unit of work for a Data Job that includes notebook files. A SQL step is a SQL statement. A python step is the
+module of run(job_input) method. Notebook Steps in a notebook file are executed from top to the bottom - the step
+located on the top of the file will be run first, and the one in the bottom will be run last.
+
+NotebookStep is the dataclass that represents the Notebook step.
+
 
 ### VDK JupyterLab extension
  This extension will be both front-end and server side extension for JupyterLab.
