@@ -81,7 +81,8 @@ public class ExecutionDataFetcher {
         dataFetchingEnvironment
             .getSelectionSet()
             .getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())
-            .get(0).getArguments();
+            .get(0)
+            .getArguments();
     final DataJobExecutionQueryVariables dataJobExecutionQueryVariables =
         fetchDataJobExecutionQueryVariables(arguments);
     allDataJob.forEach(

@@ -67,7 +67,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenInvalidExecutionPageNumberIsProvided_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+    when(dataFetchingFieldSelectionSet.getFields(
+            JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
         .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 0);
@@ -83,7 +84,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenInvalidExecutionPageSizeIsProvided_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+    when(dataFetchingFieldSelectionSet.getFields(
+            JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
         .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
@@ -99,7 +101,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenRequestIncludesExecutions_shouldInvokeExecutions() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+    when(dataFetchingFieldSelectionSet.getFields(
+            JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
         .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
@@ -119,7 +122,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenUnsupportedOrderInExecutionOperation_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+    when(dataFetchingFieldSelectionSet.getFields(
+            JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
         .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
@@ -143,7 +147,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenJobNameInIsSpecified_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+    when(dataFetchingFieldSelectionSet.getFields(
+            JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
         .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
