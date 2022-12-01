@@ -6,7 +6,7 @@ project.ext {
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.7.2',
             'io.springfox:springfox-swagger2'                                    : 'io.springfox:springfox-swagger2:2.9.2', //3.0.0, //latest.release also works for swagger
-            'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:3.0.0', //3.0.0
+            'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:2.9.2', //3.0.0
             'io.swagger:swagger-annotations'                                     : 'io.swagger:swagger-annotations:1.5.22', //1.6.2
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.1',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
@@ -16,13 +16,13 @@ project.ext {
             'org.apache.httpcomponents:httpclient'                               : 'org.apache.httpcomponents:httpclient:4.5.13',
             'org.junit.jupiter:junit-jupiter-api'                                : 'org.junit.jupiter:junit-jupiter-api:5.7.2',
             'org.junit.jupiter:junit-jupiter-engine'                             : 'org.junit.jupiter:junit-jupiter-engine:5.7.2',
-            'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.8.1',
+            'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.9.1',
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
             'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:4.9.0',
             'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.12.19',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.12.4',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1',
-            'org.json:json'                                                      : 'org.json:json:20210307',
+            'org.json:json'                                                      : 'org.json:json:20220924',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.11.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.29',
             'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r',
@@ -31,7 +31,7 @@ project.ext {
             'org.ini4j:ini4j'                                                    : 'org.ini4j:ini4j:0.5.4',
             'io.kubernetes:client-java'                                          : 'io.kubernetes:client-java:16.0.0',
             'io.kubernetes:client-java-api-fluent'                               : 'io.kubernetes:client-java-api-fluent:16.0.2',
-            'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2.0',
+            'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2021-10-25T04-50-54-fbc162f',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.1.5',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.2',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:4.25.0',
@@ -44,16 +44,16 @@ project.ext {
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
             'org.apache.commons:commons-text'                                    : 'org.apache.commons:commons-text:1.10.0',
             'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
-            'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:15.0.0',
-            'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:1.3.1',
+            'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:19.1',
+            'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.0',
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.5.0',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
             'io.swagger:swagger-models'                                          : 'io.swagger:swagger-models:1.5.22', //1.6.2
-            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.7.2',
+            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.10.2',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:2.10.0',
-            'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.21',
+            'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.22',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.1.Final'
     ]
 }
