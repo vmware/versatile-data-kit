@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.graphql;
 
+import com.google.common.collect.Lists;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.execution.JobExecutionLogsUrlBuilder;
@@ -66,8 +67,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenInvalidExecutionPageNumberIsProvided_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
-        .thenReturn(selectedField);
+    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+        .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 0);
     executionArgs.put("pageSize", 25);
@@ -82,8 +83,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenInvalidExecutionPageSizeIsProvided_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
-        .thenReturn(selectedField);
+    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+        .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
     executionArgs.put("pageSize", 0);
@@ -98,8 +99,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenRequestIncludesExecutions_shouldInvokeExecutions() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
-        .thenReturn(selectedField);
+    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+        .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
     executionArgs.put("pageSize", 25);
@@ -118,8 +119,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenUnsupportedOrderInExecutionOperation_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
-        .thenReturn(selectedField);
+    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+        .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
     executionArgs.put("pageSize", 25);
@@ -142,8 +143,8 @@ class ExecutionDataFetcherTest {
   @Test
   void testDataFetcherOfJobs_whenJobNameInIsSpecified_shouldThrowException() {
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
-    when(dataFetchingFieldSelectionSet.getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
-        .thenReturn(selectedField);
+    when(dataFetchingFieldSelectionSet.getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath()))
+        .thenReturn(Lists.newArrayList(selectedField));
     Map<String, Object> executionArgs = new HashMap<>();
     executionArgs.put("pageNumber", 1);
     executionArgs.put("pageSize", 25);
