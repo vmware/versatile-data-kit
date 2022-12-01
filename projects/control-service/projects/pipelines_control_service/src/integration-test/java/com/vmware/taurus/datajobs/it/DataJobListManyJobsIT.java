@@ -38,6 +38,8 @@ public class DataJobListManyJobsIT extends BaseIT {
           + " schedule {          scheduleCron        }      }    }    totalPages    totalItems  }"
           + "}";
 
+  private static final int JOB_COUNT = 50;
+
   @Test
   public void testListManyJobs() throws Exception {
     create100DummyJobs();
@@ -64,7 +66,7 @@ public class DataJobListManyJobsIT extends BaseIT {
   }
 
   private void create100DummyJobs() throws Exception {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < JOB_COUNT; i++) {
       String dataJobTestBody = getDataJobRequestBody(TEST_TEAM_NAME, "test-job" + (i + 1));
       createJob(dataJobTestBody, TEST_TEAM_NAME);
     }
@@ -72,7 +74,7 @@ public class DataJobListManyJobsIT extends BaseIT {
 
   private void delete100DummyJobs() throws Exception {
     // Clean up
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < JOB_COUNT; i++) {
       deleteJob("test-job" + (i + 1), TEST_TEAM_NAME);
       String dataJobTestBody = getDataJobRequestBody(TEST_TEAM_NAME, "test-job" + (i + 1));
       createJob(dataJobTestBody, TEST_TEAM_NAME);
@@ -99,7 +101,7 @@ public class DataJobListManyJobsIT extends BaseIT {
   }
 
   private boolean checkContentContainsJobNames(String content) {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < JOB_COUNT; i++) {
       if (!content.contains("test-job" + (i + 1))) {
         return false;
       }
