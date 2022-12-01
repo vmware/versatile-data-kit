@@ -301,7 +301,6 @@ control_service_release:
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
-    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"

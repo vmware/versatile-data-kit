@@ -2,6 +2,10 @@
 
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+
+git rev-parse --short HEAD
+
+IMAGE_TAG=$(git rev-parse --short HEAD)
 echo "image tag is $IMAGE_TAG"
 export HELM_REPO=versatile-data-kit-helm-registry
 # TODO: sign chart
