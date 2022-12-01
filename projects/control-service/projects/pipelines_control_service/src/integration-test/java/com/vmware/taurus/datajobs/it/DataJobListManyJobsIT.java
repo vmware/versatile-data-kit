@@ -27,88 +27,83 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "datajobs.proxy.repositoryUrl=registry.gitlab.com/dev.dp.taurus/data-jobs",
         })
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 public class DataJobListManyJobsIT extends BaseIT {
 
-    private static final String DEFAULT_QUERY_WITH_VARS =
-            "query($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) { "
-                    + " jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search)"
-                    + " {    content {      jobName      config {        team        description       "
-                    + " schedule {          scheduleCron        }      }    }    totalPages    totalItems  }"
-                    + "}";
+  private static final String DEFAULT_QUERY_WITH_VARS =
+      "query($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int) { "
+          + " jobs(pageNumber: $pageNumber, pageSize: $pageSize, filter: $filter, search: $search)"
+          + " {    content {      jobName      config {        team        description       "
+          + " schedule {          scheduleCron        }      }    }    totalPages    totalItems  }"
+          + "}";
 
-    @Test
-    public void testListManyJobs() throws Exception {
-        create100DummyJobs();
+  @Test
+  public void testListManyJobs() throws Exception {
+    create100DummyJobs();
 
-        mockMvc
-                .perform(
-                        get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                                .with(user("user"))
-                                .param("query", DEFAULT_QUERY_WITH_VARS)
-                                .param(
-                                        "variables",
-                                        "{"
-                                                + "\"search\": \""
-                                                + NEW_TEST_TEAM_NAME
-                                                + "\","
-                                                + "\"pageNumber\": 1,"
-                                                + "\"pageSize\": 10"
-                                                + "}")
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(
-                        content()
-                                .string(
-                                        lambdaMatcher(
-                                                s -> checkContentContainsJobNames(s)
-                                        )));
+    mockMvc
+        .perform(
+            get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+                .with(user("user"))
+                .param("query", DEFAULT_QUERY_WITH_VARS)
+                .param(
+                    "variables",
+                    "{"
+                        + "\"search\": \""
+                        + NEW_TEST_TEAM_NAME
+                        + "\","
+                        + "\"pageNumber\": 1,"
+                        + "\"pageSize\": 10"
+                        + "}")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().string(lambdaMatcher(s -> checkContentContainsJobNames(s))));
 
-        delete100DummyJobs();
+    delete100DummyJobs();
+  }
+
+  private void create100DummyJobs() throws Exception {
+    for (int i = 0; i < 100; i++) {
+      String dataJobTestBody = getDataJobRequestBody(TEST_TEAM_NAME, "test-job" + (i + 1));
+      createJob(dataJobTestBody, TEST_TEAM_NAME);
     }
+  }
 
-    private void create100DummyJobs() throws Exception {
-        for(int i=0;i<100;i++) {
-            String dataJobTestBody = getDataJobRequestBody(TEST_TEAM_NAME, "test-job"+(i+1));
-            createJob(dataJobTestBody, TEST_TEAM_NAME);
-        }
+  private void delete100DummyJobs() throws Exception {
+    // Clean up
+    for (int i = 0; i < 100; i++) {
+      deleteJob("test-job" + (i + 1), TEST_TEAM_NAME);
+      String dataJobTestBody = getDataJobRequestBody(TEST_TEAM_NAME, "test-job" + (i + 1));
+      createJob(dataJobTestBody, TEST_TEAM_NAME);
     }
+  }
 
-    private void delete100DummyJobs() throws Exception {
-        // Clean up
-        for(int i=0;i<100;i++) {
-            deleteJob("test-job"+(i+1), TEST_TEAM_NAME);
-            String dataJobTestBody = getDataJobRequestBody(TEST_TEAM_NAME, "test-job"+(i+1));
-            createJob(dataJobTestBody, TEST_TEAM_NAME);
-        }
-    }
+  private void createJob(String body, String teamName) throws Exception {
+    mockMvc
+        .perform(
+            post(String.format("/data-jobs/for-team/%s/jobs", teamName))
+                .with(user("user"))
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated());
+  }
 
-    private void createJob(String body, String teamName) throws Exception {
-        mockMvc
-                .perform(
-                        post(String.format("/data-jobs/for-team/%s/jobs", teamName))
-                                .with(user("user"))
-                                .content(body)
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-    }
+  private void deleteJob(String jobName, String teamName) throws Exception {
+    mockMvc
+        .perform(
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
+                .with(user("user"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+  }
 
-    private void deleteJob(String jobName, String teamName) throws Exception {
-        mockMvc
-                .perform(
-                        delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
-                                .with(user("user"))
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+  private boolean checkContentContainsJobNames(String content) {
+    for (int i = 0; i < 100; i++) {
+      if (!content.contains("test-job" + (i + 1))) {
+        return false;
+      }
     }
-
-    private boolean checkContentContainsJobNames(String content) {
-        for(int i=0;i<100;i++) {
-            if(!content.contains("test-job"+(i+1))) {
-                return false;
-            }
-        }
-        return true;
-    }
+    return true;
+  }
 }
