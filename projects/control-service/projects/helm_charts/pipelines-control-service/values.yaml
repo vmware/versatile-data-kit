@@ -26,6 +26,8 @@ deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
   tag: "1.2.3"
+  username:
+  password:
 
 deploymentBuilder:
   securityContext:
@@ -234,6 +236,8 @@ deploymentDataJobBaseImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: data-job-base-python-3.7
   tag: "latest"
+  username:
+  password:
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.
