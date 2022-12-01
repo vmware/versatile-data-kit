@@ -65,7 +65,7 @@ control_service_build_image:
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
-    - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
+    - ./gradlew build test --fail-fast jacocoTestReport -x integrationTest --info --stacktrace
     - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
@@ -105,7 +105,7 @@ control_service_integration_test:
     - cp $KUBECONFIG ~/.kube/config
     - ./gradlew -v
     - ./gradlew projects --info
-    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
+    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --fail-fast --info --stacktrace
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
