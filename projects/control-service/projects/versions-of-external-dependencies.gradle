@@ -22,7 +22,7 @@ project.ext {
             'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.12.19',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.12.4',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1',
-            'org.json:json'                                                      : 'org.json:json:20210307',
+            'org.json:json'                                                      : 'org.json:json:20220924',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.11.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.29',
             'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r',
