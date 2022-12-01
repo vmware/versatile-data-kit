@@ -80,7 +80,8 @@ public class ExecutionDataFetcher {
     final Map<String, Object> arguments =
         dataFetchingEnvironment
             .getSelectionSet()
-            .getField(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())
+            .getFields(JobFieldStrategyBy.DEPLOYMENT_EXECUTIONS.getPath())
+            .get(0)
             .getArguments();
     final DataJobExecutionQueryVariables dataJobExecutionQueryVariables =
         fetchDataJobExecutionQueryVariables(arguments);
