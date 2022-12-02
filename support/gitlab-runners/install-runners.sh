@@ -55,4 +55,4 @@ helm repo add gitlab https://charts.gitlab.io
 helm upgrade --install \
   --set runnerRegistrationToken=$RUNNER_REGISTRATION_TOKEN \
   --set runners.namespace=$NAMESPACE \
-  --kubeconfig $KUBECONFIG --namespace $NAMESPACE --version "0.22.0" $RUNNER_NAME -f $VALUES gitlab/gitlab-runner
+  --kubeconfig $KUBECONFIG --namespace $NAMESPACE --version "0.45.0" $RUNNER_NAME -f $VALUES gitlab/gitlab-runner
