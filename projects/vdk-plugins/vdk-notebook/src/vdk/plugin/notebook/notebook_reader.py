@@ -53,7 +53,7 @@ class NotebookReader:
                 code = "".join(cell["source"])
                 code.replace(";", "")
                 step = NotebookStep(
-                    name="".join([notebook.file_path.name.replace(".ipynb", ''), '_', str(step_index)]),
+                    name="".join([notebook.file_path.name.replace(".ipynb", '_'), str(step_index)]),
                     type=TYPE_SQL,
                     runner_func=NotebookStepFuncFactory.run_sql_step,
                     file_path=notebook.file_path,
@@ -64,9 +64,9 @@ class NotebookReader:
                 context.step_builder.add_step(step)
             else:
                 python_cells += "\n" + "".join(cell["source"])
-                if cell["source"][0].startswith("def run"):
+                if "def run" in cell["source"][0]:
                     step = NotebookStep(
-                        name="".join([notebook.file_path.name.replace(".ipynb", ''), '_', str(step_index)]),
+                        name="".join([notebook.file_path.name.replace(".ipynb", '_'), str(step_index)]),
                         type=TYPE_PYTHON,
                         runner_func=NotebookStepFuncFactory.run_python_step,
                         file_path=notebook.file_path,

@@ -1,29 +1,46 @@
 import os
 import pathlib
+import unittest
 from unittest import mock
 
 from click.testing import Result
-from vdk.plugin.notebook import plugin_entry
+from vdk.plugin.notebook import notebook_plugin
+from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
-"""
-This is a sample test file showing a recommended way to test new plugins.
-A good way to test a new plugin is how it would be used in the command that it extends.
-"""
 
+class JupyterTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.__runner = CliEntryBasedTestRunner(notebook_plugin, sqlite_plugin)
 
-def test_dummy():
-    with mock.patch.dict(
-        os.environ,
-        {
-            # mock the vdk configuration needed for our test
-        },
-    ):
-        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
-        # and mock large parts of it - e.g passed our own plugins
-        runner = CliEntryBasedTestRunner(plugin_entry)
+    def test_notebook_plugin(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SQLITE",
+                "VDK_INGEST_METHOD_DEFAULT": "sqlite",
+            },
+        ):
+            result: Result = self.__runner.invoke(
+                ["run", jobs_path_from_caller_directory("rest-api-test")]
+            )
+            cli_assert_equal(0, result)
+            actual_rs: Result = self.__runner.invoke(
+                ["sqlite-query", "--query", f"SELECT * FROM rest_target_table"]
+            )
+            cli_assert_equal(0, actual_rs)
 
-        result: Result = runner.invoke(["run", jobs_path_from_caller_directory("job-using-a-plugin")])
-        cli_assert_equal(0, result)
+    def test_failing_job(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SQLITE",
+                "VDK_INGEST_METHOD_DEFAULT": "sqlite",
+            },
+        ):
+            result: Result = self.__runner.invoke(
+                ["run", jobs_path_from_caller_directory("rest-api-test-fail")]
+            )
+            cli_assert_equal(1, result)
