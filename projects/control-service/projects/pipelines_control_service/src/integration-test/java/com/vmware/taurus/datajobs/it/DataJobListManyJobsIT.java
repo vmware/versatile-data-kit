@@ -55,7 +55,7 @@ public class DataJobListManyJobsIT extends BaseIT {
                         + "}")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().string(lambdaMatcher(s -> checkContentContainsJobNames(s))));
+        .andExpect(content().string(lambdaMatcher(s -> s.contains("test-job1"))));
 
     delete100DummyJobs();
   }

@@ -1,7 +1,7 @@
 {{- if .Values.alerting.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
-metadata:
+metadata
   name: {{ .Release.Name }}-rules
   {{- if .Values.alerting.prometheusRule.namespace }}
   namespace: {{ .Values.alerting.prometheusRule.namespace }}
