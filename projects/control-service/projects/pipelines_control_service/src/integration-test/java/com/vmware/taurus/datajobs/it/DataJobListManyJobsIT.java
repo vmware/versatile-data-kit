@@ -21,11 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// registry.gitlab.com/dev.dp.taurus/data-jobs
-@TestPropertySource(
-    properties = {
-      "datajobs.proxy.repositoryUrl=registry.gitlab.com/dev.dp.taurus/data-jobs",
-    })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
