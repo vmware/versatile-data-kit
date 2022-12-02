@@ -171,7 +171,7 @@ The steps that are created are NotebookSteps which is a descendant of the [Step 
 #### NotebookStep
 * Notebook Step:  A single unit of work for a Data Job that includes notebook files.
 * A SQL step is a SQL statement.
-To be more specific a notebook cell which includes the "vdk" tag and the [magic](#glossary) %sql. 
+To be more specific a notebook cell which includes the "vdk" tag and the [magic](#glossary) %sql.
 * A python step is the run(job_input) method.  The run method should be in a cell that is tagged with "vdk".
 The cells that do not include a run method but are still tagged with "vdk" are added to the same namespace as the run method.
 So, if the run method is calling another method from another cell from the namespace, the other cell becomes a part of the step.
