@@ -8,7 +8,7 @@ project.ext {
             'io.springfox:springfox-swagger2'                                    : 'io.springfox:springfox-swagger2:2.9.2', //3.0.0, //latest.release also works for swagger
             'io.springfox:springfox-swagger-ui'                                  : 'io.springfox:springfox-swagger-ui:2.9.2', //3.0.0
             'io.swagger:swagger-annotations'                                     : 'io.swagger:swagger-annotations:1.5.22', //1.6.2
-            'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.1',
+            'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.4',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
             'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.1',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.24',
