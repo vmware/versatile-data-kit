@@ -24,7 +24,7 @@ runnerRegistrationToken: ""
 ##
 # At the time of writing, we have 50 CPU core and 100 GiB RAM quota.
 #
-concurrent: 5
+concurrent: 15
 
 ## Defines in seconds how often to check GitLab for a new builds
 ## ref: https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-global-section
