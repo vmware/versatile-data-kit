@@ -5,7 +5,7 @@
       - always
 
 
-# This grouping listens on changes to all code of control service 
+# This grouping listens on changes to all code of control service
 # Changes to this group should trigger runs of runs of unit and integration tests.
 .control_service_code_changes: &control_service_code_change_locations
   - projects/control-service/cicd/**/*
