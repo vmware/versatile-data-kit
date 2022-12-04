@@ -15,21 +15,10 @@
   - projects/control-service/projects/settings.gradle
   - projects/control-service/projects/versions-of-external-dependencies.gradle
 
-# This grouping represents ALL files related to the control plane.
-# This will trigger actions like publishing images, new releases etc. but don't trigger unit or integration tests.
-# because it also includes the helm chart folders and we don't want to run unit and integration tests if
-# only the helm chart changes
-.control_service_changes: &control_service_change_locations
-  - *control_service_code_change_locations
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
-
-# This grouping will trigger CICD deployment of Control service and vdk-heartbeat release acceptance test.
-.control_service_deploy_testing_changes: &control_service_deploy_testing_changes
-  - *control_service_change_locations
-
-
-.control_service_helm_testing_changes: &control_service_helm_testing_changes
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**
+# This grouping represents tracks changes in the helm chart
+# Changes here should trigger actions like publishing images, new releases etc.
+# but don't trigger unit or integration tests (without code changes)
+.control_service_helm_changes: &control_service_helm_change_locations
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
@@ -123,7 +112,8 @@ control_service_test_helm_chart:
   only:
     refs:
       - external_pull_requests
-    changes: *control_service_helm_testing_changes
+    changes: *control_service_code_change_locations
+    changes: *control_service_helm_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -217,7 +207,8 @@ control_service_publish_image:
   only:
     refs:
       - main
-    changes: *control_service_change_locations
+    changes: *control_service_code_change_locations
+    changes: *control_service_helm_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -259,7 +250,8 @@ control_service_deploy_testing_data_pipelines:
   only:
     refs:
       - main
-    changes: *control_service_deploy_testing_changes
+    changes: *control_service_code_change_locations
+    changes: *control_service_helm_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -280,7 +272,8 @@ control_service_post_deployment_test:
   only:
     refs:
       - main
-    changes: *control_service_deploy_testing_changes
+    changes: *control_service_code_change_locations
+    changes: *control_service_helm_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -303,7 +296,8 @@ control_service_release:
   only:
     refs:
       - main
-    changes: *control_service_change_locations
+    changes: *control_service_code_change_locations
+    changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
 control_service_vdk_heartbeat_release:
@@ -328,4 +322,5 @@ control_service_vdk_heartbeat_release:
   only:
     refs:
       - main
-    changes: *control_service_change_locations
+    changes: *control_service_code_change_locations
+    changes: *control_service_helm_change_locations
