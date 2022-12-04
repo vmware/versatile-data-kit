@@ -13,7 +13,7 @@ https://datasciconference.com
 
 ## Presentation slides
 
-Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-kit/files/10025900/vdk-dim-model-dsc-serbia.pdf)
+Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-kit/files/10149505/vdk-dim-model-dsc-serbia.pdf)
 
 ## Presenter
 
@@ -28,6 +28,9 @@ Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-ki
 - Learned about (Kimball) dimensional modelling
 - Empower Data Scientists and Data Engineers to create production-ready models & analysis​
 - Provide tools to take responsibility of end-to-end process from data extraction to deploying scheduled predictive model in self-service manner​
+
+![data-ml-modeling](https://user-images.githubusercontent.com/2536458/205516534-5f7e0565-dc79-476d-a184-7862c68644e3.jpg)
+
 
 ## Agenda
 - Presenation about Dimensional Modeling.
