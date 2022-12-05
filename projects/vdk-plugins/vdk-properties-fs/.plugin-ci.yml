@@ -32,6 +32,9 @@ build-py310-vdk-properties-fs:
   extends: .build-vdk-properties-fs
   image: "python:3.10"
 
+build-py311-vdk-properties-fs:
+  extends: .build-vdk-properties-fs
+  image: "python:3.11"
 
 release-vdk-properties-fs:
   variables:
