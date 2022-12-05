@@ -24,5 +24,5 @@ Run
 ```
 pip install -r requirements.txt
 ```
-## Architecture 
+## Architecture
 See the [vdk enhancement proposal spec here](https://github.com/vmware/versatile-data-kit/blob/main/specs/vep-994-jupyter-notebook-integration/README.md)

@@ -1,3 +1,5 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -5,10 +7,10 @@ import logging
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-
 from vdk.plugin.notebook.notebook_based_step import JobNotebookLocator
-from vdk.plugin.notebook.notebook_reader import NotebookReader
 from vdk.plugin.notebook.notebook_reader import Notebook
+from vdk.plugin.notebook.notebook_reader import NotebookReader
+
 log = logging.getLogger(__name__)
 
 

@@ -11,17 +11,13 @@ setuptools.setup(
     name="vdk-notebook",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description='A VDK plugin for working with notebooks',
+    description="A VDK plugin for working with notebooks",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={
-        "vdk.plugin.run": [
-            "notebook = vdk.plugin.notebook.notebook_plugin"
-        ]
-    },
+    entry_points={"vdk.plugin.run": ["notebook = vdk.plugin.notebook.notebook_plugin"]},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: Apache Software License",

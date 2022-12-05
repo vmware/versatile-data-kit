@@ -1,9 +1,9 @@
 # this file is used to provide testing requirements
 # for requirements (dependencies) needed during and after installation of the plugin see (and update) setup.py install_requires section
 
-vdk-core
-vdk-sqlite
+click
 
 pytest
+vdk-core
+vdk-sqlite
 vdk-test-utils
-click

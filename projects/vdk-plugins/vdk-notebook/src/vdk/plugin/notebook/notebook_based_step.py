@@ -1,9 +1,12 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+import importlib.util
 import inspect
 import logging
 import pathlib
 import sys
 import traceback
-import importlib.util
 from typing import Callable
 from typing import List
 
@@ -57,7 +60,7 @@ class NotebookStepFuncFactory:
             success = False
             try:
                 log.debug("Loading %s ..." % step.name)
-                spec = importlib.util.spec_from_loader('nb', loader=None)
+                spec = importlib.util.spec_from_loader("nb", loader=None)
                 module = importlib.util.module_from_spec(spec)
                 exec(step.code, module.__dict__)
                 log.debug("Loading %s SUCCESS" % step.name)
@@ -90,9 +93,9 @@ class NotebookStepFuncFactory:
                     log=log,
                     what_happened=f"Failed loading job sources of {step.name} from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
-                                    f": {e.args[0]}",
+                    f": {e.args[0]}",
                     consequences=f"Current Step {step.name} from {step.file_path}"
-                                 f"will fail, and as a result the whole Data Job will fail. ",
+                    f"will fail, and as a result the whole Data Job will fail. ",
                     countermeasures=f"Please, check the {step.file_path.name} file again for syntax errors",
                     exception=e,
                     wrap_in_vdk_error=True,
@@ -105,9 +108,9 @@ class NotebookStepFuncFactory:
                     log=log,
                     what_happened=f"Failed loading job sources of {step.name} from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {line_number} of {step.name}"
-                                    f": {e.args[0]}",
+                    f": {e.args[0]}",
                     consequences=f"Current Step {step.name} from {step.file_path}"
-                                 f"will fail, and as a result the whole Data Job will fail. ",
+                    f"will fail, and as a result the whole Data Job will fail. ",
                     countermeasures=f"Please, check the {step.file_path.name} file again for errors",
                     exception=e,
                     wrap_in_vdk_error=True,
@@ -145,9 +148,9 @@ class NotebookStepFuncFactory:
                     what_happened=f"Data Job step {step.name} from  {step.file_path} completed with error.",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences="I will not process the remaining steps (if any), "
-                                 "and this Data Job execution will be marked as failed.",
+                    "and this Data Job execution will be marked as failed.",
                     countermeasures="See exception and fix the root cause, so that the exception does "
-                                    "not appear anymore.",
+                    "not appear anymore.",
                     exception=e,
                     wrap_in_vdk_error=True,
                 )
@@ -158,8 +161,8 @@ class NotebookStepFuncFactory:
                 what_happened=f"I'm trying to call method 'run' and failed.",
                 why_it_happened=f"Method is missing at least one job input parameter to be passed",
                 consequences=f"Current Step {step.name} from {step.file_path}"
-                             f"will fail, and as a result the whole Data Job will fail. ",
+                f"will fail, and as a result the whole Data Job will fail. ",
                 countermeasures="Make sure that you have specified a job input parameter in the signature of the "
-                                "run method. "
-                                f"Possible parameters of run function are: {list(possible_arguments.keys())}.",
+                "run method. "
+                f"Possible parameters of run function are: {list(possible_arguments.keys())}.",
             )
