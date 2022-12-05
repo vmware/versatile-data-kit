@@ -7,6 +7,7 @@ import sys
 from configparser import ConfigParser
 from pathlib import Path
 
+from vdk.internal.control.command_groups.version_group import version
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.utils.control_utils import read_config_ini_file
 
@@ -19,8 +20,11 @@ class VDKConfig:
 
     _op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
 
-    _user_agent = os.environ.get("VDK_CONTROL_SERVICE_USER_AGENT", f"vdk-control-cli/1.2 ({os.name}; {sys.platform})" +
-                                 sys.version.split(" ")[0])
+    _user_agent = os.environ.get(
+        "VDK_CONTROL_SERVICE_USER_AGENT",
+        f"vdk-control-cli/{version.__version__} ({os.name}; {sys.platform})"
+        + sys.version.split(" ")[0],
+    )
 
     @property
     def op_id(self) -> str:
