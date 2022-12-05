@@ -26,8 +26,11 @@ image: "python:3.9"
     changes: *vdk_core_locations
   artifacts:
     when: always
+    paths:
+      - ./projects/vdk-core/tests.xml
+    expire_in: 1 week
     reports:
-      junit: tests.xml
+      junit: ./projects/vdk-core/tests.xml
 
 vdk-core-build_with_py37:
   image: "python:3.7"
@@ -41,11 +44,14 @@ vdk-core-build_with_py39:
   image: "python:3.9"
   extends: .vdk-core-build
 
-# There seem to be an issue with python 3.10.6 ...
+# There seem to be an issue with python 3.10.6 ... TODO: add github issue
 vdk-core-build_with_py310:
   image: "python:3.10.5"
   extends: .vdk-core-build
 
+vdk-core-build_with_py311:
+    image: "python:3.11"
+    extends: .vdk-core-build
 
 .vdk-core-simple_func_test:
   services:
@@ -65,8 +71,11 @@ vdk-core-build_with_py310:
       - "projects/vdk-core/**/*"
   artifacts:
     when: always
+    paths:
+      - ./projects/vdk-core/tests.xml
+    expire_in: 1 week
     reports:
-      junit: tests.xml
+      junit: ./projects/vdk-core/tests.xml
 
 vdk-core-simple_func_test_with_py37:
   image: "python:3.7"
@@ -82,6 +91,10 @@ vdk-core-simple_func_test_with_py39:
 
 vdk-core-simple_func_test_with_py310:
   image: "python:3.10"
+  extends: .vdk-core-simple_func_test
+
+vdk-core-simple_func_test_with_py311:
+  image: "python:3.11"
   extends: .vdk-core-simple_func_test
 
 

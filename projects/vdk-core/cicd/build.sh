@@ -23,13 +23,8 @@ export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
 echo "Update pip to newest version"
 pip install -U pip
 
-# Below line uses --use-deprecated=legacy-resolver to temporary workaround a
-# dependency backtracking issue.
-# TODO: Remove the use of the legacy resolver once latest pip works as expected.
-echo "install dependencies from requirements.txt (used for development and testing)"
-pip install --use-deprecated="legacy-resolver" --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
-
 echo "Setup git hook scripts with pre-commit install"
+pip install pre-commit
 pre-commit install --hook-type commit-msg --hook-type pre-commit
 
 # Below line uses --use-deprecated=legacy-resolver to temporary workaround a
@@ -41,8 +36,8 @@ pip install --use-deprecated="legacy-resolver" -e .
 # Below line uses --use-deprecated=legacy-resolver to temporary workaround a
 # dependency backtracking issue.
 # TODO: Remove the use of the legacy resolver once latest pip works as expected.
-echo "Install common vdk test utils library (in editable mode)"
-pip install --use-deprecated="legacy-resolver" -e ../vdk-plugins/vdk-test-utils
+echo "install dependencies from requirements.txt (used for development and testing)"
+pip install --use-deprecated="legacy-resolver" --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 
 # Print installed versions
 echo "Printing vdk version and python libraries"
