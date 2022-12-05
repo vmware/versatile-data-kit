@@ -50,7 +50,6 @@ class VDKConfig:
     def user_agent(self) -> str:
         """
         user agent that is used to make easier troubleshooting.
-
         This value won't appear in trace logs but will be included in events set to supercollider
         """
         return VDKConfig._user_agent
