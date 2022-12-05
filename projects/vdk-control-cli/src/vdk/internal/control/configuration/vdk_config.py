@@ -3,6 +3,7 @@
 import logging
 import os
 import pathlib
+import platform
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -22,8 +23,7 @@ class VDKConfig:
 
     _user_agent = os.environ.get(
         "VDK_CONTROL_SERVICE_USER_AGENT",
-        f"vdk-control-cli/{version.__version__} ({os.name}; {sys.platform})"
-        + sys.version.split(" ")[0],
+        f"vdk-control-cli/{version.__version__} ({sys.platform}; {platform.platform()}; ) Python {platform.python_version()}",
     )
 
     @property
