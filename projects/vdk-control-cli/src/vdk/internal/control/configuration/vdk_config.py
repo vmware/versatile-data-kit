@@ -49,7 +49,6 @@ class VDKConfig:
         """
         return VDKConfig._user_agent
 
-
     @property
     def local_config_folder(self) -> str:
         """
