@@ -64,7 +64,7 @@ class NotebookReader:
                 context.step_builder.add_step(step)
             else:
                 python_cells += "\n" + "".join(cell["source"])
-                if "def run" in cell["source"][0]:
+                if "def run(job_input" in cell["source"][0]:
                     step = NotebookStep(
                         name="".join([notebook.file_path.name.replace(".ipynb", '_'), str(step_index)]),
                         type=TYPE_PYTHON,
