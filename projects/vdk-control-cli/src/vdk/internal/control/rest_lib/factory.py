@@ -49,7 +49,7 @@ class ApiClientFactory:
         # We are setting X-OPID - this is send in telemetry and printed in logs on server side - make it easier
         # to troubleshoot and trace requests across different services
         api_client.set_default_header("X-OPID", self.vdk_config.op_id)
-        api_client.set_default_header("User-Agent", self.vdk_config.op_id)
+        api_client.set_default_header("User-Agent", self.vdk_config.user_agent)
         return api_client
 
     def get_jobs_api(self) -> DataJobsApi:
