@@ -18,6 +18,10 @@ build-py310-vdk-audit:
   extends: .build-vdk-audit
   image: "python:3.10"
 
+build-py311-vdk-audit:
+  extends: .build-vdk-audit
+  image: "python:3.11"
+
 release-vdk-audit:
   variables:
     PLUGIN_NAME: vdk-audit
