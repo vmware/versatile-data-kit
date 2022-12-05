@@ -19,8 +19,10 @@ class VDKConfig:
 
     _op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
 
-    _user_agent = os.environ.get("VDK_CONTROL_SERVICE_USER_AGENT", f"vdk-control-cli/1.2 ({os.name}; {sys.platform})" +
-                                 sys.version.split(" ")[0])
+    _user_agent = os.environ.get(
+        "VDK_CONTROL_SERVICE_USER_AGENT",
+        f"vdk-control-cli/1.2 ({os.name}; {sys.platform})" + sys.version.split(" ")[0],
+    )
 
     @property
     def op_id(self) -> str:
