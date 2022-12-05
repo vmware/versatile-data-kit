@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import pathlib
 
 import setuptools
@@ -29,4 +28,3 @@ setuptools.setup(
     ],
     python_requires="~=3.7",
 )
-
