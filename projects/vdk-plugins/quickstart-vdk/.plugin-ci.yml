@@ -50,6 +50,9 @@ build-py310-quickstart-vdk:
   extends: .build-quickstart-vdk
   image: "python:3.10"
 
+build-py311-quickstart-vdk:
+  extends: .build-quickstart-vdk
+  image: "python:3.11"
 
 quickstart-vdk-release-candidate:
   stage: pre_release
