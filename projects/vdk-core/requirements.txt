@@ -4,6 +4,7 @@
 -e ../vdk-plugins/vdk-test-utils
 black
 mypy
+pandas
 
 # Dependencies license report:
 pip-licenses
