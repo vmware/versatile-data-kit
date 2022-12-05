@@ -81,7 +81,7 @@ public class DeploymentService {
       saveDeployment(dataJob, mergedDeployment);
 
       if (!mergedDeployment.getEnabled()) {
-        dataJobMetrics.clearGaugesAtJobDisable(mergedDeployment.getDataJobName());
+        dataJobMetrics.clearTerminationStatusAndDelayNotifGauges(mergedDeployment.getDataJobName());
       }
 
       deploymentProgress.configuration_updated(dataJob.getJobConfig(), jobDeployment);

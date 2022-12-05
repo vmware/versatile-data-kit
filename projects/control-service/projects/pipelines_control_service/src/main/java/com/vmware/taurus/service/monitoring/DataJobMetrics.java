@@ -207,13 +207,12 @@ public class DataJobMetrics {
   }
 
   /**
-   * Removes the delay notification and termination status gauges
-   * associated with the specific data job. This is done when a data job is
-   * being disabled.
+   * Removes the delay notification and termination status gauges associated with the specific data
+   * job. This is done when a data job is being disabled.
    *
    * @param dataJobName The name of the data job for which to clear the gauges.
-   * */
-  public void clearGaugesAtJobDisable(final String dataJobName) {
+   */
+  public void clearTerminationStatusAndDelayNotifGauges(final String dataJobName) {
     removeNotificationDelayGauge(dataJobName);
     removeTerminationStatusGauge(dataJobName);
   }
