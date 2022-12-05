@@ -5,20 +5,7 @@
       - always
 
 
-# This grouping represents ALL files related to the control plane.
-# This grouping triggers actions like new releases etc. but don't trigger unit or integration tests.before_script
-# because it also includes the helm chart folders and we don't want to run unit and integration tests anytime
-# the helm chart changes
-.control_service_changes: &control_service_change_locations
-  - projects/control-service/cicd/**/*
-  - projects/control-service/projects/base/**/*
-  - projects/control-service/projects/model/**/*
-  - projects/control-service/projects/pipelines_control_service/**/*
-  - projects/control-service/projects/settings.gradle
-  - projects/control-service/projects/versions-of-external-dependencies.gradle
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
-
-# This is a subset of the &control_service_change_locations which listens on changes to all code
+# This grouping listens on changes to all code of control service
 # Changes to this group should trigger runs of runs of unit and integration tests.
 .control_service_code_changes: &control_service_code_change_locations
   - projects/control-service/cicd/**/*
@@ -28,19 +15,10 @@
   - projects/control-service/projects/settings.gradle
   - projects/control-service/projects/versions-of-external-dependencies.gradle
 
-.control_service_deploy_testing_changes: &control_service_deploy_testing_changes
-  - projects/control-service/cicd/**/*
-  - projects/control-service/projects/base/**/*
-  - projects/control-service/projects/model/**/*
-  - projects/control-service/projects/pipelines_control_service/**/*
-  - projects/control-service/projects/settings.gradle
-  - projects/control-service/projects/job-builder/**/*
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
-
-
-.control_service_helm_testing_changes: &control_service_helm_testing_changes
-  - projects/control-service/projects/helm_charts/pipelines-control-service/**
+# This grouping represents tracks changes in the helm chart
+# Changes here should trigger actions like publishing images, new releases etc.
+# but don't trigger unit or integration tests (without code changes)
+.control_service_helm_changes: &control_service_helm_change_locations
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
@@ -134,7 +112,7 @@ control_service_test_helm_chart:
   only:
     refs:
       - external_pull_requests
-    changes: *control_service_helm_testing_changes
+    changes: *control_service_helm_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -225,13 +203,14 @@ control_service_publish_image:
     when: always
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
-  only:
-    refs:
-      - main
-    changes: *control_service_change_locations
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 control_service_publish_api_client:
   image: docker:19.03.15
@@ -267,13 +246,14 @@ control_service_deploy_testing_data_pipelines:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes: *control_service_deploy_testing_changes
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
@@ -288,13 +268,14 @@ control_service_post_deployment_test:
     - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
     - vdk-heartbeat -f projects/control-service/cicd/post_deploy_test_heartbeat_config.ini
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes: *control_service_deploy_testing_changes
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 control_service_release:
   image: docker:19.03.15
@@ -311,10 +292,11 @@ control_service_release:
     - cd projects/control-service/projects/helm_charts
     - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes: *control_service_change_locations
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
 control_service_vdk_heartbeat_release:
@@ -336,7 +318,8 @@ control_service_vdk_heartbeat_release:
     - docker build --tag $VDK_HEARTBEAT_IMAGE_NAME -f Dockerfile.vdk.heartbeat .
     - docker push $VDK_HEARTBEAT_IMAGE_NAME
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes: *control_service_change_locations
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
