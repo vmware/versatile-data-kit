@@ -33,7 +33,7 @@ public class DeploymentModelConverter {
   }
 
   /**
-   * Merge to deployments with preference of fields from newDeployment over oldDeployment.
+   * Merge two deployments with preference of fields from newDeployment over oldDeployment.
    *
    * @param oldDeployment the old deployment
    * @param newDeployment the new deployment if a field is not null it is set other oldDeployment

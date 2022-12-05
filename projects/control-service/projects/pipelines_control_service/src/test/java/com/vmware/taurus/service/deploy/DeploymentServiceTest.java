@@ -13,6 +13,7 @@ import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.monitoring.DeploymentMonitor;
+import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.notification.DataJobNotification;
 import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,8 @@ public class DeploymentServiceTest {
   @Mock private DataJobsKubernetesService kubernetesService;
 
   @Mock private DockerRegistryService dockerRegistryService;
+
+  @Mock private DataJobMetrics dataJobMetrics;
 
   @Mock private DataJobNotification dataJobNotification;
 
@@ -110,7 +113,8 @@ public class DeploymentServiceTest {
             jobImageBuilder,
             jobImageDeployer,
             operationContext,
-            jobsRepository);
+            jobsRepository,
+                dataJobMetrics);
 
     Mockito.when(vdkOptionsReader.readVdkOptions(TEST_JOB_NAME)).thenReturn(TEST_VDK_OPTS);
     Mockito.when(jobCredentialsService.getJobPrincipalName(TEST_JOB_NAME))
