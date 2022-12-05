@@ -6,3 +6,4 @@ vdk-sqlite
 
 pytest
 vdk-test-utils
+click
