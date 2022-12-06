@@ -359,7 +359,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void patchDeployment_enabled() throws ApiException {
+  public void patchDeployment_deploymentEnabled_shouldNotClearTerminationStatus() throws ApiException {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
@@ -367,11 +367,12 @@ public class DeploymentServiceTest {
 
     deploymentService.patchDeployment(testDataJob, jobDeployment);
 
-    verify(dataJobMetrics, times(0)).clearTerminationStatusAndDelayNotifGauges(testDataJob.getName());
+    verify(dataJobMetrics, times(0))
+        .clearTerminationStatusAndDelayNotifGauges(testDataJob.getName());
   }
 
   @Test
-  public void patchDeployment_disabled() throws ApiException {
+  public void patchDeployment_deploymentDisabled_shouldClearTerminationStatus() throws ApiException {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
@@ -379,7 +380,8 @@ public class DeploymentServiceTest {
 
     deploymentService.patchDeployment(testDataJob, jobDeployment);
 
-    verify(dataJobMetrics, times(1)).clearTerminationStatusAndDelayNotifGauges(testDataJob.getName());
+    verify(dataJobMetrics, times(1))
+        .clearTerminationStatusAndDelayNotifGauges(testDataJob.getName());
   }
 
   @Test
