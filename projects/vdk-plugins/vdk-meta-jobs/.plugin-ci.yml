@@ -25,6 +25,10 @@ build-py310-vdk-meta-jobs:
   extends: .build-vdk-meta-jobs
   image: "python:3.10"
 
+build-py311-vdk-meta-jobs:
+  extends: .build-vdk-meta-jobs
+  image: "python:3.11"
+
 release-vdk-meta-jobs:
   variables:
     PLUGIN_NAME: vdk-meta-jobs
