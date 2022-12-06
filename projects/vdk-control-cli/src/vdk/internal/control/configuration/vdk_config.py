@@ -3,6 +3,7 @@
 import logging
 import os
 import pathlib
+import sys
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -17,6 +18,11 @@ class VDKConfig:
     import uuid
 
     _op_id = os.environ.get("VDK_OP_ID_OVERRIDE", f"{uuid.uuid4().hex}"[:16])
+
+    _user_agent = os.environ.get(
+        "VDK_CONTROL_SERVICE_USER_AGENT",
+        f"vdk-control-cli/1.2 ({os.name}; {sys.platform})" + sys.version.split(" ")[0],
+    )
 
     @property
     def op_id(self) -> str:
@@ -37,6 +43,15 @@ class VDKConfig:
 
         """
         return VDKConfig._op_id
+
+    @property
+    def user_agent(self) -> str:
+        """
+        user agent that is used to make easier troubleshooting.
+
+        This value won't appear in trace logs but will be included in events set to supercollider
+        """
+        return VDKConfig._user_agent
 
     @property
     def local_config_folder(self) -> str:
