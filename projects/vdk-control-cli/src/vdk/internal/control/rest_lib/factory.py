@@ -20,7 +20,6 @@ class ApiClientFactory:
     def __init__(self, rest_api_url):
         log.debug(f"Rest API URL: {rest_api_url}")
         self.vdk_config = VDKConfig()
-        self.op_id = self.vdk_config.op_id
         self.timeouts = (
             self.vdk_config.http_connect_timeout_seconds,
             self.vdk_config.http_read_timeout_seconds,
@@ -49,7 +48,8 @@ class ApiClientFactory:
         api_client = ApiClient(self.config)
         # We are setting X-OPID - this is send in telemetry and printed in logs on server side - make it easier
         # to troubleshoot and trace requests across different services
-        api_client.set_default_header("X-OPID", self.op_id)
+        api_client.set_default_header("X-OPID", self.vdk_config.op_id)
+        api_client.set_default_header("User-Agent", self.vdk_config.user_agent)
         return api_client
 
     def get_jobs_api(self) -> DataJobsApi:
