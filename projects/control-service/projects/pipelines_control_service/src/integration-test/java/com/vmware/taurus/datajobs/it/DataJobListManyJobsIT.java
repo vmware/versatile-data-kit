@@ -37,38 +37,37 @@ public class DataJobListManyJobsIT extends BaseIT {
   public void testListManyJobs() throws Exception {
     createDummyJobs();
 
-    mockMvc
-            .perform(
-                    get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
-                            .with(user("user"))
-                            .param("query", DEFAULT_QUERY_WITH_VARS)
-                            .param(
-                                    "variables",
-                                    "{"
-                                            + "\"filter\": ["
-                                            + "    {"
-                                            + "      \"property\": \"config.team\","
-                                            + "      \"pattern\": \""
-                                            + TEST_TEAM_NAME
-                                            + "\""
-                                            + "    }"
-                                            + "  ],"
-                                            + "\"pageNumber\": 1,"
-                                            + "\"pageSize\": 10"
-                                            + "}")
-                            .contentType(MediaType.APPLICATION_JSON));
-            //.andExpect(status().isNotFound());
-//            .andExpect(
-//                    content()
-//                            .string(
-//                                    lambdaMatcher(
-//                                            s ->
-//                                                    (s.contains(TEST_JOB_1))
-//                                                            && (s.contains(TEST_JOB_2))
-//                                                            && (s.contains(TEST_JOB_6))
-//                                                            && (!s.contains(TEST_JOB_3))
-//                                                            && (!s.contains(TEST_JOB_4))
-//                                                            && (!s.contains(TEST_JOB_5)))));
+    mockMvc.perform(
+        get(String.format("/data-jobs/for-team/%s/jobs", TEST_TEAM_NAME))
+            .with(user("user"))
+            .param("query", DEFAULT_QUERY_WITH_VARS)
+            .param(
+                "variables",
+                "{"
+                    + "\"filter\": ["
+                    + "    {"
+                    + "      \"property\": \"config.team\","
+                    + "      \"pattern\": \""
+                    + TEST_TEAM_NAME
+                    + "\""
+                    + "    }"
+                    + "  ],"
+                    + "\"pageNumber\": 1,"
+                    + "\"pageSize\": 10"
+                    + "}")
+            .contentType(MediaType.APPLICATION_JSON));
+    // .andExpect(status().isNotFound());
+    //            .andExpect(
+    //                    content()
+    //                            .string(
+    //                                    lambdaMatcher(
+    //                                            s ->
+    //                                                    (s.contains(TEST_JOB_1))
+    //                                                            && (s.contains(TEST_JOB_2))
+    //                                                            && (s.contains(TEST_JOB_6))
+    //                                                            && (!s.contains(TEST_JOB_3))
+    //                                                            && (!s.contains(TEST_JOB_4))
+    //                                                            && (!s.contains(TEST_JOB_5)))));
 
     deleteDummyJobs();
   }
