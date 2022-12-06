@@ -26,6 +26,10 @@ build-py310-vdk-lineage-model:
   extends: .build-vdk-lineage-model
   image: "python:3.10"
 
+build-py311-vdk-lineage-model:
+  extends: .build-vdk-lineage-model
+  image: "python:3.11"
+
 release-vdk-lineage-model:
   variables:
     PLUGIN_NAME: vdk-lineage-model
