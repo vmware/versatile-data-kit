@@ -15,7 +15,7 @@ export AWS_DEFAULT_REGION=us-west-1
 export AWS_SECRET_ACCESS_KEY=<get-from-gitlab-ci-variables>
 export AWS_ACCESS_KEY_ID=<get-from-gitlab-ci-variables>
 
-export RUNNER_REGISTRATION_TOKEN= # Get the Gitlab token from
+export RUNNER_REGISTRATION_TOKEN= # Get the Gitlab token from https://gitlab.com/vmware-analytics/versatile-data-kit/-/settings/ci_cd
 ```
 The only prerequisite in order to run the scripts and deploy the runners is installed [helm 3](https://helm.sh/docs/).
 

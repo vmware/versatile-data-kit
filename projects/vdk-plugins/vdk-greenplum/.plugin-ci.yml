@@ -32,6 +32,9 @@ build-py310-vdk-greenplum:
   extends: .build-vdk-greenplum
   image: "python:3.10"
 
+build-py311-vdk-greenplum:
+  extends: .build-vdk-greenplum
+  image: "python:3.11"
 
 release-vdk-greenplum:
   variables:

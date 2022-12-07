@@ -13,6 +13,7 @@ import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.monitoring.DeploymentMonitor;
+import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.notification.DataJobNotification;
 import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,8 @@ public class DeploymentServiceTest {
   @Mock private DataJobsKubernetesService kubernetesService;
 
   @Mock private DockerRegistryService dockerRegistryService;
+
+  @Mock private DataJobMetrics dataJobMetrics;
 
   @Mock private DataJobNotification dataJobNotification;
 
@@ -110,7 +113,8 @@ public class DeploymentServiceTest {
             jobImageBuilder,
             jobImageDeployer,
             operationContext,
-            jobsRepository);
+            jobsRepository,
+            dataJobMetrics);
 
     Mockito.when(vdkOptionsReader.readVdkOptions(TEST_JOB_NAME)).thenReturn(TEST_VDK_OPTS);
     Mockito.when(jobCredentialsService.getJobPrincipalName(TEST_JOB_NAME))
@@ -352,6 +356,34 @@ public class DeploymentServiceTest {
     var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
     verify(jobsRepository).save(dataJobCaptor.capture());
     assertEquals(true, dataJobCaptor.getValue().getEnabled());
+  }
+
+  @Test
+  public void patchDeployment_deploymentEnabled_shouldNotClearTerminationStatus()
+      throws ApiException {
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
+    jobDeployment.setDataJobName(testDataJob.getName());
+    jobDeployment.setEnabled(true);
+
+    deploymentService.patchDeployment(testDataJob, jobDeployment);
+
+    verify(dataJobMetrics, times(0))
+        .clearTerminationStatusAndDelayNotifGauges(testDataJob.getName());
+  }
+
+  @Test
+  public void patchDeployment_deploymentDisabled_shouldClearTerminationStatus()
+      throws ApiException {
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
+    jobDeployment.setDataJobName(testDataJob.getName());
+    jobDeployment.setEnabled(false);
+
+    deploymentService.patchDeployment(testDataJob, jobDeployment);
+
+    verify(dataJobMetrics, times(1))
+        .clearTerminationStatusAndDelayNotifGauges(testDataJob.getName());
   }
 
   @Test
