@@ -359,7 +359,8 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void patchDeployment_deploymentEnabled_shouldNotClearTerminationStatus() throws ApiException {
+  public void patchDeployment_deploymentEnabled_shouldNotClearTerminationStatus()
+      throws ApiException {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
@@ -372,7 +373,8 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void patchDeployment_deploymentDisabled_shouldClearTerminationStatus() throws ApiException {
+  public void patchDeployment_deploymentDisabled_shouldClearTerminationStatus()
+      throws ApiException {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
