@@ -32,6 +32,10 @@ build-py310-vdk-postgres:
   extends: .build-vdk-postgres
   image: "python:3.10"
 
+build-py311-vdk-postgres:
+  extends: .build-vdk-postgres
+  image: "python:3.11"
+
 release-vdk-postgres:
   variables:
     PLUGIN_NAME: vdk-postgres
