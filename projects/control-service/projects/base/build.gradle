@@ -54,8 +54,8 @@ dependencies {
    implementation versions.'org.influxdb:influxdb-java'
    implementation versions.'com.google.guava:guava'
    implementation versions.'io.micrometer:micrometer-registry-prometheus'
-   implementation versions.'io.springfox:springfox-swagger2'
-   implementation versions.'io.springfox:springfox-swagger-ui'
+   implementation 'io.springfox:springfox-swagger2:3.0.0'
+   implementation 'io.springfox:springfox-swagger-ui:3.0.0'
    implementation versions.'org.tuckey:urlrewritefilter' //to move Swagger under /teams/
    implementation versions.'org.apache.commons:commons-lang3'
 

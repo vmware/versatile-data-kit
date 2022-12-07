@@ -5,8 +5,8 @@
 
 package com.vmware.taurus.service.doc;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.openapitools.configuration.OpenAPIDocumentationConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -20,13 +20,13 @@ import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.SecurityReference;
 import springfox.documentation.service.Tag;
+import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import javax.servlet.ServletContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,13 +46,12 @@ public class SwaggerConfig implements WebMvcConfigurer {
 
   @Bean
   @Order(1)
-  public Docket swaggerSpringMvcPlugin(ServletContext context) {
-    return new OpenAPIDocumentationConfig()
-        .customImplementation(context, "")
+  public Docket swaggerSpringMvcPlugin() {
+    return new Docket(DocumentationType.SWAGGER_2)
         .securitySchemes(Arrays.asList(apiKey()))
         .securityContexts(Collections.singletonList(securityContext()))
         .select()
-        .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+        .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
         .build()
         .tags(
             new Tag("Data Jobs Execution", "(Experimental)"),
