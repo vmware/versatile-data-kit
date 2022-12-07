@@ -6,6 +6,7 @@ from unittest import mock
 
 from click.testing import Result
 from vdk.plugin.notebook import notebook_plugin
+
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -48,3 +49,17 @@ class JupyterTests(unittest.TestCase):
             ["run", jobs_path_from_caller_directory("rest-api-job-fail-code-error")]
         )
         cli_assert_equal(2, result)
+
+    def test_notebook_plugin_with_multiple_run_methods(self) -> None:
+        result: Result = self.__runner.invoke(
+            ["run", jobs_path_from_caller_directory("rest-api-multiple-run-methods")]
+        )
+        cli_assert_equal(0, result)
+        actual_rs: Result = self.__runner.invoke(
+            ["sqlite-query", "--query", f"SELECT * FROM rest_target_table_copy"]
+        )
+        assert actual_rs.stdout == (
+            "  userId    id  title                 completed\n"
+            "--------  ----  ------------------  -----------\n"
+            "       1     1  delectus aut autem            0\n"
+        )
