@@ -3,16 +3,15 @@
 import importlib.util
 import inspect
 import logging
-import pathlib
 import sys
 import traceback
+from dataclasses import dataclass
 from typing import Callable
-from typing import List
 
 from vdk.api.job_input import IJobInput
+from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.errors import SkipRemainingStepsException
-from vdk.plugin.notebook.notebook_step import NotebookStep
 
 log = logging.getLogger(__name__)
 
@@ -20,26 +19,22 @@ log = logging.getLogger(__name__)
 # consists may duplicates of
 # https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/file_based_step.py
 
+# The function accept NotebookStep (below class) and IJobInput and
+# return true if the step has been executed and false if it is not (valid) executable step.
+# On error it's expected to raise an exception.
+NotebookStepFunction = Callable[["NotebookStep", IJobInput], bool]
 
-class JobNotebookLocator:
+
+@dataclass
+class NotebookStep(Step):
     """
-    Locate the data job files that would be executed by us.
+    A notebook step that will be executed when running a data job.
     """
 
-    @staticmethod
-    def get_notebook_files(directory: pathlib.Path) -> List[pathlib.Path]:
-        """Locates the files in a directory, that are supported for execution.
-        Files supported for execution are: .ipynb
-        Other files in the directory are ignored.
-        :return: List of files from the directory that supported for execution, sorted alphabetically by name.
-        :rtype: :class:`.list`
-        """
-        script_files = [
-            x for x in directory.iterdir() if (x.name.lower().endswith(".ipynb"))
-        ]
-        script_files.sort(key=lambda x: x.name)
-        log.debug(f"Script files of {directory} are {script_files}")
-        return script_files
+    def __init__(self, name, type, runner_func, file_path, job_dir, code, parent=None):
+        super().__init__(name, type, runner_func, file_path, job_dir, parent)
+        self.runner_func = runner_func
+        self.code = code
 
 
 class NotebookStepFuncFactory:
