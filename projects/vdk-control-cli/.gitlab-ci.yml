@@ -41,6 +41,10 @@ vdk-control-cli-build-with-py310:
   image: "python:3.10"
   extends: .vdk-control-cli-build
 
+vdk-control-cli-build-with-py311:
+    image: "python:3.11"
+    extends: .vdk-control-cli-build
+
 vdk-control-cli-release-acceptance-test:
   stage: pre_release
   before_script:

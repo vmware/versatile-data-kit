@@ -26,6 +26,10 @@ build-py310-vdk-server:
   extends: .build-vdk-server
   image: "python:3.10"
 
+build-py311-vdk-server:
+  extends: .build-vdk-server
+  image: "python:3.11"
+
 release-vdk-server:
   variables:
     PLUGIN_NAME: vdk-server
