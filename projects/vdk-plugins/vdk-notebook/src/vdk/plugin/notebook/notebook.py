@@ -2,18 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
+import pathlib
 from dataclasses import dataclass
 from pathlib import Path
-
-import pathlib
 from typing import List
 
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
-from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
 from vdk.plugin.notebook.notebook_based_step import NotebookStep
+from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +55,8 @@ class Notebook:
             cells = [
                 cell
                 for cell in content["cells"]
-                if cell["cell_type"] == "code" and "vdk" in cell["metadata"].get("tags", {})
+                if cell["cell_type"] == "code"
+                and "vdk" in cell["metadata"].get("tags", {})
             ]
             for cell in cells:
                 code = "".join(cell["source"])
@@ -64,9 +64,13 @@ class Notebook:
                     if code.startswith("%sql"):
                         code = "".join(cell["source"])
                         code.replace(";", "")
-                        self.sql_and_run_cells.append([code.replace("%sql", ""), TYPE_SQL])
+                        self.sql_and_run_cells.append(
+                            [code.replace("%sql", ""), TYPE_SQL]
+                        )
                     else:
-                        self.sql_and_run_cells.append(["".join(cell["source"]), TYPE_PYTHON])
+                        self.sql_and_run_cells.append(
+                            ["".join(cell["source"]), TYPE_PYTHON]
+                        )
                 else:
                     self.python_helper_cells.append("".join(cell["source"]))
 
@@ -76,7 +80,7 @@ class Notebook:
                 log=log,
                 what_happened=f"Failed to read the {file_path.name} file.",
                 why_it_happened=f"The provided {file_path.name} cannot be loaded into json format and "
-                                f"cannot be read as a Jupyter notebook",
+                f"cannot be read as a Jupyter notebook",
                 consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
                 countermeasures=f"Check the {file_path.name} format again",
                 exception=e,
@@ -111,6 +115,6 @@ class Notebook:
                     runner_func=NotebookStepFuncFactory.run_python_step,
                     file_path=self.file_path,
                     job_dir=context.job_directory,
-                    code="\n".join(self.python_helper_cells) + "\n" + cell[0]
+                    code="\n".join(self.python_helper_cells) + "\n" + cell[0],
                 )
             context.step_builder.add_step(step)

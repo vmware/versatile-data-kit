@@ -6,8 +6,8 @@ import logging
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.plugin.notebook.notebook import Notebook
 from vdk.plugin.notebook.notebook import JobNotebookLocator
+from vdk.plugin.notebook.notebook import Notebook
 
 log = logging.getLogger(__name__)
 
@@ -20,4 +20,3 @@ def initialize_job(context: JobContext):
         for file_path in notebook_files:
             nb: Notebook = Notebook(file_path)
             nb.extract_notebook_steps(context)
-

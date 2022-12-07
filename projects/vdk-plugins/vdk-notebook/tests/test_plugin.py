@@ -6,7 +6,6 @@ from unittest import mock
 
 from click.testing import Result
 from vdk.plugin.notebook import notebook_plugin
-
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
