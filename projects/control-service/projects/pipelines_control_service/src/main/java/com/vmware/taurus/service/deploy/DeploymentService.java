@@ -15,6 +15,7 @@ import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
+import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import io.kubernetes.client.openapi.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class DeploymentService {
   private final JobImageDeployer jobImageDeployer;
   private final OperationContext operationContext;
   private final JobsRepository jobsRepository;
+  private final DataJobMetrics dataJobMetrics;
 
   public Optional<JobDeploymentStatus> readDeployment(String jobName) {
     return jobImageDeployer.readScheduledJob(jobName);
@@ -77,6 +79,11 @@ public class DeploymentService {
       jobImageDeployer.scheduleJob(dataJob, mergedDeployment, false, operationContext.getUser());
 
       saveDeployment(dataJob, mergedDeployment);
+
+      if (!mergedDeployment.getEnabled()) {
+        dataJobMetrics.clearTerminationStatusAndDelayNotifGauges(mergedDeployment.getDataJobName());
+      }
+
       deploymentProgress.configuration_updated(dataJob.getJobConfig(), jobDeployment);
     } else {
       throw new DataJobDeploymentNotFoundException(dataJob.getName());

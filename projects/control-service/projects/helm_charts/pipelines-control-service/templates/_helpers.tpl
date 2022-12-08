@@ -237,7 +237,7 @@ Image Pull Secret in json format
 {{- end }}
 
 {{- define "vdkSdkImagePullSecretJson" }}
-    {{ include "buildImagePullSecretJson" (list (include "pipelines-control-service.deploymentVdkDistributionImageRepository" .) .Values.deploymentVdkDistributionImage.registryUsernameReadOnly .Values.deploymentVdkDistributionImage.registryPasswordReadOnly) }}
+    {{ include "buildImagePullSecretJson" (list .Values.deploymentVdkDistributionImage.registry .Values.deploymentVdkDistributionImage.registryUsernameReadOnly .Values.deploymentVdkDistributionImage.registryPasswordReadOnly) }}
 {{- end }}
 
 {{- define "pipelinesControlServicePullSecretJson" }}
