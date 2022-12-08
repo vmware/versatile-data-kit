@@ -29,7 +29,7 @@ class JupyterTests(unittest.TestCase):
         )
         cli_assert_equal(0, result)
         actual_rs: Result = self.__runner.invoke(
-            ["sqlite-query", "--query", f"SELECT * FROM rest_target_table"]
+            ["sqlite-query", "--query", "SELECT * FROM rest_target_table"]
         )
         assert actual_rs.stdout == (
             "  userId    id  title                 completed\n"
@@ -55,7 +55,7 @@ class JupyterTests(unittest.TestCase):
         )
         cli_assert_equal(0, result)
         actual_rs: Result = self.__runner.invoke(
-            ["sqlite-query", "--query", f"SELECT * FROM rest_target_table_copy"]
+            ["sqlite-query", "--query", "SELECT * FROM rest_target_table_copy"]
         )
         assert actual_rs.stdout == (
             "  userId    id  title                 completed\n"

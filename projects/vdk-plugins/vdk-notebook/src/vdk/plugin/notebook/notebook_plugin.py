@@ -21,7 +21,7 @@ class NotebookPlugin:
         if len(notebook_files) >= 1:
             for file_path in notebook_files:
                 nb: Notebook = Notebook(file_path)
-                nb.extract_notebook_steps(context)
+                nb.register_notebook_steps(context)
 
 
 @hookimpl

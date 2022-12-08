@@ -152,8 +152,8 @@ class NotebookStepFuncFactory:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=log,
-                what_happened=f"I'm trying to call method 'run' and failed.",
-                why_it_happened=f"Method is missing at least one job input parameter to be passed",
+                what_happened="I'm trying to call method 'run' and failed.",
+                why_it_happened="Method is missing at least one job input parameter to be passed",
                 consequences=f"Current Step {step.name} from {step.file_path}"
                 f"will fail, and as a result the whole Data Job will fail. ",
                 countermeasures="Make sure that you have specified a job input parameter in the signature of the "
