@@ -41,4 +41,3 @@ subprojects {
 }
 
 compileJava.dependsOn 'datajob-api:cleanUpUnwantedGeneratedFiles'
-
