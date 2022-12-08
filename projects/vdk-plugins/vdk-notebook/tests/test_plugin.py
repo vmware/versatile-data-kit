@@ -23,7 +23,7 @@ class JupyterTests(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(notebook_plugin, sqlite_plugin)
 
-    def test_notebook_plugin(self) -> None:
+    def test_successful_job(self) -> None:
         result: Result = self.__runner.invoke(
             ["run", jobs_path_from_caller_directory("rest-api-job")]
         )
@@ -49,7 +49,7 @@ class JupyterTests(unittest.TestCase):
         )
         cli_assert_equal(2, result)
 
-    def test_notebook_plugin_with_multiple_run_methods(self) -> None:
+    def test_successful_job_with_multiple_run_methods(self) -> None:
         result: Result = self.__runner.invoke(
             ["run", jobs_path_from_caller_directory("rest-api-multiple-run-methods")]
         )
