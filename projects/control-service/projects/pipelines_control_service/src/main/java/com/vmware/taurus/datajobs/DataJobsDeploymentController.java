@@ -14,7 +14,7 @@ import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ import java.util.Optional;
 @RestController
 @AllArgsConstructor
 @NoArgsConstructor
-@Api(tags = {"Data Jobs Deployment"})
+@Tag(name = "Data Jobs Deployment")
 public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   static Logger log = LoggerFactory.getLogger(DataJobsDeploymentController.class);
 

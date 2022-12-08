@@ -54,8 +54,8 @@ dependencies {
    implementation versions.'org.influxdb:influxdb-java'
    implementation versions.'com.google.guava:guava'
    implementation versions.'io.micrometer:micrometer-registry-prometheus'
-   implementation 'io.springfox:springfox-swagger2:3.0.0'
-   implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+
+
    implementation versions.'org.tuckey:urlrewritefilter' //to move Swagger under /teams/
    implementation versions.'org.apache.commons:commons-lang3'
 
@@ -72,8 +72,8 @@ dependencies {
    implementation versions.'commons-io:commons-io'
    implementation versions.'org.json:json'
    implementation versions.'org.yaml:snakeyaml'
-   implementation versions.'io.swagger:swagger-annotations'
-   implementation versions.'io.swagger:swagger-models'
+   implementation 'io.swagger.core.v3:swagger-annotations:2.2.7'
+   implementation 'io.swagger.core.v3:swagger-models:2.2.7'
    implementation versions.'io.micrometer:micrometer-core'
    testImplementation versions.'org.awaitility:awaitility'
    testImplementation versions.'com.github.tomakehurst:wiremock'

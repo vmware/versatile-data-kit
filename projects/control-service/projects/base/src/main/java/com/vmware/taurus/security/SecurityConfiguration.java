@@ -97,8 +97,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
       @Value("${datajobs.authorization.authorized-custom-claim-values:}")
           String authorizedCustomClaimValues,
       @Value("${datajobs.authorization.authorized-roles:}") String authorizedRoles,
-      @Value("${datajobs.security.kerberos.kerberosPrincipal}") String kerberosPrincipal,
-      @Value("${datajobs.security.kerberos.keytabFileLocation}") String keytabFileLocation) {
+      @Value("${datajobs.security.kerberos.kerberosPrincipal:}") String kerberosPrincipal,
+      @Value("${datajobs.security.kerberos.keytabFileLocation:}") String keytabFileLocation) {
     this.featureFlags = featureFlags;
     this.jwksUri = jwksUri;
     this.issuer = issuer;
