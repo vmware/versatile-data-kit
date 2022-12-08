@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -36,6 +37,7 @@ import java.util.List;
  * generate both API interfaces (APIOperation annotaiton) And OpenAPIDocumentationConfig which
  * contains info part of swagger doc
  */
+@EnableWebMvc
 @Configuration
 @EnableSwagger2
 @Controller

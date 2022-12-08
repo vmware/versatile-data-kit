@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -25,6 +26,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * become http://localhost:8080/svcname/swagger-ui.html and this is not supported by Swagger, so
  * probably some URL rewriting need be in place (redirects don't work in k8s environment)
  */
+@EnableWebMvc
 @Configuration
 @EnableSwagger2
 @Controller
