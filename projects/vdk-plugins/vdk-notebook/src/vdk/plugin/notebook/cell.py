@@ -1,9 +1,13 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 class Cell:
     """
-       Helper class that retrieves data from Jupyter cells
-       Only the data essential for running a VDK data job is saved
-       Other data is ignored
-       """
+    Helper class that retrieves data from Jupyter cells
+    Only the data essential for running a VDK data job is saved
+    Other data is ignored
+    """
+
     def __init__(self, jupyter_cell):
         self.tags = jupyter_cell["metadata"].get("tags", {})
         self.source = "".join(jupyter_cell["source"])
@@ -26,5 +30,5 @@ class Cell:
     def get_code(self):
         if self.source.startswith("%sql"):
             code = self.source.replace("%sql", "")
-            return code.replace(';', '')
+            return code.replace(";", "")
         return self.source

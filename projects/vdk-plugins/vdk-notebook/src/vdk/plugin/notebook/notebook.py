@@ -10,9 +10,9 @@ from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
+from vdk.plugin.notebook.cell import Cell
 from vdk.plugin.notebook.notebook_based_step import NotebookStep
 from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
-from vdk.plugin.notebook.cell import Cell
 
 log = logging.getLogger(__name__)
 
@@ -61,15 +61,17 @@ class Notebook:
                             self.sql_and_run_cells.append(cell)
                         else:
                             self.python_helper_cells.append(cell)
-            log.debug(f"{len(self.sql_and_run_cells) + len(self.python_helper_cells)} "
-                      f"cells with vdk tag were detected!")
+            log.debug(
+                f"{len(self.sql_and_run_cells) + len(self.python_helper_cells)} "
+                f"cells with vdk tag were detected!"
+            )
         except json.JSONDecodeError as e:
             errors.log_and_rethrow(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=log,
                 what_happened=f"Failed to read the {file_path.name} file.",
                 why_it_happened=f"The provided {file_path.name} cannot be loaded into json format and "
-                                f"cannot be read as a Jupyter notebook",
+                f"cannot be read as a Jupyter notebook",
                 consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
                 countermeasures=f"Check the {file_path.name} format again",
                 exception=e,
@@ -81,8 +83,11 @@ class Notebook:
             log.debug(f"Neither VDK run methods nor SQL statements were detected!")
         for index, cell in enumerate(self.sql_and_run_cells):
             cell_type = TYPE_PYTHON if cell.is_vdk_run_cell() else TYPE_SQL
-            runner_func = NotebookStepFuncFactory.run_python_step if cell.is_vdk_run_cell() \
+            runner_func = (
+                NotebookStepFuncFactory.run_python_step
+                if cell.is_vdk_run_cell()
                 else NotebookStepFuncFactory.run_sql_step
+            )
             if cell.is_vdk_run_cell():
                 cell.add_code(self.python_helper_cells)
             step = NotebookStep(
