@@ -26,6 +26,8 @@ useful for a wide audience.
 ## Glossary
 
 * VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
+* Notebook: A .ipynb file.
+* Magic: Magic functions are pre-defined functions(“magics”) in Jupyter kernel that executes supplied commands.
 
 ## Motivation
 
@@ -166,6 +168,17 @@ It is a simple class which has a method which returns the notebook files found i
 #### NotebookReader
 This class contains the method read_notebook_and_save_steps which creates the job steps that will be run from a given job directory. The context of the job is passed to it by the VDKHook.
 The steps that are created are NotebookSteps which is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) with one additional attribute that is used for saving the code from the .ipynb file. The method adds a step runner function from NotebookStepFuncFactory to those steps, so when a step is going to be run that function is being called.
+#### NotebookStep
+* Notebook Step:  A single unit of work for a Data Job that includes notebook files.
+* A SQL step is a SQL statement.
+To be more specific a notebook cell which includes the "vdk" tag and the [magic](#glossary) %sql.
+* A python step is the run(job_input) method.  The run method should be in a cell that is tagged with "vdk".
+The cells that do not include a run method but are still tagged with "vdk" are added to the same namespace as the run method.
+So, if the run method is calling another method from another cell from the namespace, the other cell becomes a part of the step.
+* Notebook Steps in a notebook file are executed from top to the bottom - the step
+located on the top of the file will be run first, and the one in the bottom will be run last.
+
+* NotebookStep from the diagram above is the dataclass that represents the Notebook step.
 
 
 ### VDK JupyterLab extension

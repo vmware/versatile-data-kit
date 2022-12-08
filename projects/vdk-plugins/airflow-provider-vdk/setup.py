@@ -35,5 +35,5 @@ setup(
     author="Versatile Data Kit Development Team",
     author_email="versatile-data-kit@vmware.com",
     url="https://github.com/vmware/versatile-data-kit",
-    python_requires="~=3.7",
+    python_requires=">=3.7",
 )

@@ -26,6 +26,10 @@ build-py310-vdk-ingest-file:
   extends: .build-vdk-ingest-file
   image: "python:3.10"
 
+build-py311-vdk-ingest-file:
+  extends: .build-vdk-ingest-file
+  image: "python:3.11"
+
 release-vdk-ingest-file:
   variables:
     PLUGIN_NAME: vdk-ingest-file

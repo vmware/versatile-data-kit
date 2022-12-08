@@ -26,6 +26,10 @@ build-py310-vdk-test-utils:
   extends: .build-vdk-test-utils
   image: "python:3.10"
 
+build-py311-vdk-test-utils:
+  extends: .build-vdk-test-utils
+  image: "python:3.11"
+
 release-vdk-test-utils:
   variables:
     PLUGIN_NAME: vdk-test-utils
