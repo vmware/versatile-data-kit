@@ -21,6 +21,8 @@ subprojects {
         configFile = "$rootDir/openapi-code-generator/config-spring.json"
     }
 
+//    At the moment there doesn't seem to be a way to get open api generator to create the openApi config object but not generate main and all the controllers.
+//    So we create main and all the controllers but then delete them immediately after.
     task cleanUpUnwantedGeneratedFiles(type: Delete) {
         print(rootDir)
         delete files("$rootDir/src/test", "$rootDir/src/main/java/org/openapitools/OpenApiGeneratorApplication.java")
