@@ -24,8 +24,7 @@ import java.time.Instant;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Tag(
-    name = "Data Jobs Diagnostics")
+@Tag(name = "Data Jobs Diagnostics")
 @Hidden
 public class DiagnosticsController {
   // ${svc.url.prefix} is read from application.properties (overridden in other services, so e.g.
