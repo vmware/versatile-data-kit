@@ -21,7 +21,7 @@ project.ext {
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1',
             'org.json:json'                                                      : 'org.json:json:20220924',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.11.0',
-            'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.29',
+            'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
             'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r',
             'org.zeroturnaround:zt-exec'                                         : 'org.zeroturnaround:zt-exec:1.12',
             'javax.mail:mail'                                                    : 'javax.mail:mail:1.4.7',
