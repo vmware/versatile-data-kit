@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+
 class Cell:
     """
     Helper class that retrieves data from Jupyter cells
