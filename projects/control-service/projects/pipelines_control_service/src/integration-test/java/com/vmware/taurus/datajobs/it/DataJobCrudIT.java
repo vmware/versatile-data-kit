@@ -77,44 +77,36 @@ public class DataJobCrudIT extends BaseIT {
 
     // Execute get swagger with no user
     mockMvc
+            .perform(
+                    get("/data-jobs/swagger-ui.html")
+                            .content(dataJobRequestBody)
+                            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is3xxRedirection());
+
+    // Execute get swagger with no user
+    mockMvc
+            .perform(
+                    get("/data-jobs/swagger-ui/index.html")
+                            .content(dataJobRequestBody)
+                            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+    mockMvc
         .perform(
-            get("/data-jobs/swagger-ui.html")
+            get("/data-jobs/swagger-ui/swagger-ui.css")
                 .content(dataJobRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
     mockMvc
         .perform(
-            get("/data-jobs/webjars/springfox-swagger-ui/swagger-ui.css.map")
+            get("/data-jobs/swagger-ui/swagger-ui-bundle.js")
                 .content(dataJobRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
+
     mockMvc
         .perform(
-            get("/data-jobs/webjars/springfox-swagger-ui/swagger-ui-bundle.js.map")
-                .content(dataJobRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(
-            get("/data-jobs/swagger-resources/configuration/ui")
-                .content(dataJobRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(
-            get("/data-jobs/swagger-resources/configuration/security")
-                .content(dataJobRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(
-            get("/data-jobs/swagger-resources")
-                .content(dataJobRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(
-            get("/data-jobs/v2/api-docs")
+            get("/data-jobs/api-docs")
                 .content(dataJobRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
