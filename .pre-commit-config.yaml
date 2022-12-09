@@ -28,7 +28,8 @@ repos:
     hooks:
       - id: black
         language_version: python3
-        exclude: ^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py
+        exclude: (^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py |
+          ^projects/vdk-plugins/vdk-notebook/tests/jobs/rest-api-job-fail-syntax-error/steps.ipynb)
   # ensure pydoc is up-to standard
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.1.1
