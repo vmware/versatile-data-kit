@@ -17,7 +17,7 @@
 ## Summary
 This VEP outlines the changes that would need to be introduced to provide users and Versatile Data Kit administrators with tools to troubleshoot data jobs, which are deployed in a kubernetes cluster. These tools will be provided through a dedicated plugin, which will be configurable and extendable, so more functionality could be added in the future.
 
-The initial troubleshooting capability that will be introduced, will be the ability to do a thread dump of the python process and send it to a specific endpoint.
+The initial troubleshooting capability introduced, is the ability to do a thread dump of the python process and send it to a specific endpoint.
 
 
 ## Glossary
