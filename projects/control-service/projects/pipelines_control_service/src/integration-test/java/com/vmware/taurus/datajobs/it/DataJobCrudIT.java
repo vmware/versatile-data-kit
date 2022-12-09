@@ -77,19 +77,19 @@ public class DataJobCrudIT extends BaseIT {
 
     // Execute get swagger with no user
     mockMvc
-            .perform(
-                    get("/data-jobs/swagger-ui.html")
-                            .content(dataJobRequestBody)
-                            .contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/data-jobs/swagger-ui.html")
+                .content(dataJobRequestBody)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is3xxRedirection());
 
     // Execute get swagger with no user
     mockMvc
-            .perform(
-                    get("/data-jobs/swagger-ui/index.html")
-                            .content(dataJobRequestBody)
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk());
+        .perform(
+            get("/data-jobs/swagger-ui/index.html")
+                .content(dataJobRequestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(
