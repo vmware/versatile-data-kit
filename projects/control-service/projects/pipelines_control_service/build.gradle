@@ -93,13 +93,10 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testRuntimeOnly versions.'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'com.kerb4j:kerb4j-client:0.1.2'
     testImplementation 'org.apache.kerby:kerb-simplekdc:2.0.2'
-
-
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.13'
+    implementation 'org.springdoc:springdoc-openapi-core:1.1.49'
     // transitive dependencies version force
     // on next upgrade, revise if those still need to be set explicitly
-    implementation versions.'io.swagger:swagger-annotations'
-    implementation versions.'io.swagger:swagger-models'
-    implementation versions.'io.springfox:springfox-swagger2'
     implementation versions.'org.apache.commons:commons-compress'
     implementation versions.'com.google.guava:guava'
     implementation versions.'com.nimbusds:nimbus-jose-jwt'

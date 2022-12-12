@@ -1,15 +1,14 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Versatile Data Kit Control Service API
   version: '1.0'
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  description: |
-    The Data Jobs API of Versatile Data Kit Control Service.
+  description: "The Data Jobs API of Versatile Data Kit Control Service.
     Data Jobs allows Data Engineers to implement automated pull ingestion (E in ELT)
     and batch data transformation into a database (T in ELT).
     See also https://github.com/vmware/versatile-data-kit/wiki/Introduction
@@ -44,10 +43,9 @@ info:
                                Implementation of the API is not considered stable nor well tested.
                                Generally this is given to clients to experiment within testing environment. Must not be used in production.
     <li> <i>Deprecated</i> - API is expected to be removed within next one or two major version upgrade.
-                             The deprecation notice/comment will say when the API will be removed and what alternatives should be used instead.
+                             The deprecation notice/comment will say when the API will be removed and what alternatives should be used instead."
 
 paths:
-
   '/data-jobs/for-team/{team_name}/info':
     get:
       tags:
@@ -269,8 +267,7 @@ paths:
           description: Request a GraphQL-like query.
           schema:
             type: string
-            example: |
-              {
+            example: "{
                 jobs(pageNumber: 1, pageSize: 20, filter: []) {
                   content {
                     jobName
@@ -293,9 +290,8 @@ paths:
                   totalPages
                   totalItems
                 }
-              }
-            default: |
-              {
+              }"
+            default: "{
                 jobs(pageNumber: 1, pageSize: 20, filter: []) {
                   content {
                     jobName
@@ -310,7 +306,7 @@ paths:
                   totalPages
                   totalItems
                 }
-              }
+              }"
           required: false
           in: query
         - name: operation_name
@@ -518,7 +514,7 @@ paths:
       Note: Currently deployment_id and mode are not implemented. Only a single active deployment of a job is possible.
     get:
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       parameters:
         - name: deployment_id   # Ignored. Only one deployment currently supported
           description: Get the Deployment with this id (e.g production, staging, dev)
@@ -556,7 +552,7 @@ paths:
           required: false
           in: query
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '202':
           description: Update accepted successfully.
@@ -589,7 +585,7 @@ paths:
     summary: Manage single deployment
     get:
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '200':
           $ref: '#/components/responses/Deployment'
@@ -600,7 +596,7 @@ paths:
       description: <i>(Introduced in v1.0)</i>
     delete:
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '202':
           description: Deletion accepted successfully.
@@ -619,7 +615,7 @@ paths:
               $ref: '#/components/schemas/DataJobDeployment'
         required: true
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '202':
           description: Update accepted successfully.
@@ -1545,17 +1541,18 @@ security:
   - bearerAuth: []
 
 tags:
-  - name: Data Jobs
-  - name: Data Jobs Deployment
-    description: |
-      Data Job Deployment takes the code/build and deploy-specific properties of the data job, then it is ready for immediate run in the execution environment. <br>
+  - name: "Data Jobs"
+    description: (Stable)
+  - name: "Data Jobs Deployment"
+    description: "(Stable) | Data Job Deployment takes the code/build and deploy-specific properties of the data job, then it is ready for immediate run in the execution environment. <br>
       Data job code/build - all python, SQL files, and requirements.txt of the data job.
-      NOTE: deploymentID and mode are not implemented, so they are ignored.
-  - name: Data Jobs Execution
-    description: API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
-  - name: Data Jobs Properties
-    description: |
-      Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
-      NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet.
-  - name: Data Jobs Service
-  - name: Data Jobs Sources
+      NOTE: deploymentID and mode are not implemented, so they are ignored."
+  - name: "Data Jobs Execution"
+    description: (Experimental) | API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
+  - name: "Data Jobs Properties"
+    description: "Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
+      NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
+  - name: "Data Jobs Service"
+    description: (Stable)
+  - name: "Data Jobs Sources"
+    description: (Stable)
