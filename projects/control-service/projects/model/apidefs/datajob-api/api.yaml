@@ -1542,14 +1542,17 @@ security:
 
 tags:
   - name: "Data Jobs"
+    description: (Stable)
   - name: "Data Jobs Deployment"
-    description: "Data Job Deployment takes the code/build and deploy-specific properties of the data job, then it is ready for immediate run in the execution environment. <br>
+    description: "(Stable) | Data Job Deployment takes the code/build and deploy-specific properties of the data job, then it is ready for immediate run in the execution environment. <br>
       Data job code/build - all python, SQL files, and requirements.txt of the data job.
       NOTE: deploymentID and mode are not implemented, so they are ignored."
   - name: "Data Jobs Execution"
-    description: API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
+    description: (Experimental) | API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
   - name: "Data Jobs Properties"
     description: "Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
       NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
   - name: "Data Jobs Service"
+    description: (Stable)
   - name: "Data Jobs Sources"
+    description: (Stable)
