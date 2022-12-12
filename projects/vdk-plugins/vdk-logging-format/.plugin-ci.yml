@@ -26,6 +26,10 @@ build-py310-vdk-logging-format:
   extends: .build-vdk-logging-format
   image: "python:3.10"
 
+build-py311-vdk-logging-format:
+  extends: .build-vdk-logging-format
+  image: "python:3.11"
+
 release-vdk-logging-format:
   variables:
     PLUGIN_NAME: vdk-logging-format
