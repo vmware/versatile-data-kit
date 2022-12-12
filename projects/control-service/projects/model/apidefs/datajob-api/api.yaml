@@ -514,7 +514,7 @@ paths:
       Note: Currently deployment_id and mode are not implemented. Only a single active deployment of a job is possible.
     get:
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       parameters:
         - name: deployment_id   # Ignored. Only one deployment currently supported
           description: Get the Deployment with this id (e.g production, staging, dev)
@@ -552,7 +552,7 @@ paths:
           required: false
           in: query
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '202':
           description: Update accepted successfully.
@@ -585,7 +585,7 @@ paths:
     summary: Manage single deployment
     get:
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '200':
           $ref: '#/components/responses/Deployment'
@@ -596,7 +596,7 @@ paths:
       description: <i>(Introduced in v1.0)</i>
     delete:
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '202':
           description: Deletion accepted successfully.
@@ -615,7 +615,7 @@ paths:
               $ref: '#/components/schemas/DataJobDeployment'
         required: true
       tags:
-        - Data Jobs Deployment
+        - "Data Jobs Deployment"
       responses:
         '202':
           description: Update accepted successfully.
@@ -1541,15 +1541,15 @@ security:
   - bearerAuth: []
 
 tags:
-  - name: Data Jobs
-  - name: Data Jobs Deployment
+  - name: "Data Jobs"
+  - name: "Data Jobs Deployment"
     description: "Data Job Deployment takes the code/build and deploy-specific properties of the data job, then it is ready for immediate run in the execution environment. <br>
       Data job code/build - all python, SQL files, and requirements.txt of the data job.
       NOTE: deploymentID and mode are not implemented, so they are ignored."
-  - name: Data Jobs Execution
+  - name: "Data Jobs Execution"
     description: API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
-  - name: Data Jobs Properties
+  - name: "Data Jobs Properties"
     description: "Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
       NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
-  - name: Data Jobs Service
-  - name: Data Jobs Sources
+  - name: "Data Jobs Service"
+  - name: "Data Jobs Sources"

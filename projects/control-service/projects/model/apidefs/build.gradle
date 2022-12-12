@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.openapi.generator' version '6.0.0'
+    id 'org.openapi.generator' version '6.2.1'
 }
 
 subprojects {
@@ -26,10 +26,33 @@ subprojects {
     task cleanUpUnwantedGeneratedFiles(type: Delete) {
         print(rootDir)
         delete files("$rootDir/src/test", "$rootDir/src/main/java/org/openapitools/OpenApiGeneratorApplication.java")
-        delete fileTree("$rootDir/src/main") {
+        delete fileTree("$rootDir/src/main/java/com/vmware/taurus/controlplane/model/api") {
             include '**/*Controller.java'
         }
+        doLast {
+            FileTree propFiles = fileTree("$rootDir/src/main/java/com/vmware/taurus/controlplane/model/data") {
+            }
 
+            propFiles.each { File propFile ->
+                String content = propFile.getText()
+                content = content.replaceAll("@NotNull", "")
+                        .replace('"DataJobsDeployment"','"Data Jobs Deployment"')
+                propFile.setText(content)
+            }
+
+            fileTree("$rootDir/src/main/java/com/vmware/taurus/controlplane/model/api") {
+                    }.each { File propFile ->
+                String content = propFile.getText()
+                content = content
+                        .replace('"DataJobsDeployment"','"Data Jobs Deployment"')
+                        .replace('"DataJobs"','"Data Jobs"')
+                        .replace('"DataJobsExecution"','"Data Jobs Execution"')
+                        .replace('"DataJobsProperties"','"Data Jobs Properties"')
+                        .replace('"DataJobsService"','"Data Jobs Service"')
+                        .replace('"DataJobsSources"','"Data Jobs Sources"')
+                propFile.setText(content)
+            }
+        }
     }
 
     task buildPython(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
