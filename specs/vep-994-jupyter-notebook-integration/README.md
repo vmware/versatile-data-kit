@@ -171,25 +171,25 @@ Before giving a proper definition to this class, we should see how we categorise
 
 ![jupyter-cells](cells.jpeg)
 
-Jupyter itself categorises the cells into three groups: code, markdown and raw. 
-We will be looking into only the code ones since the plugin works only with them. 
+Jupyter itself categorises the cells into three groups: code, markdown and raw.
+We will be looking into only the code ones since the plugin works only with them.
 The code cells can be categorised into two types - ones which are tagged with "vdk" and the ones that are not.
 The ones that are untagged are ignored by our plugin, and will not take part in the data job.
 Once we have our "vdk" cells we separate them into two groups: SQL and Python.
-The SQL ones respectively consist of a single SQL query 
+The SQL ones respectively consist of a single SQL query
 (to be more specific a notebook cell which includes the [magic](#glossary) %sql), and the python ones - python code.
-The python code itself is categorised into two - code for defining the run() method (which is used by VDK) 
+The python code itself is categorised into two - code for defining the run() method (which is used by VDK)
 and code that is outside that run() method - we call these the "helper" cells.
 
 The Cell  class is a simple class that encapsulates this logic.
 
 #### Notebook
 This class is the representation of a [Notebook](#glossary). It contains SQL, run() and "helper" cells and a method
-called register_notebook_steps. The method has the responsibility to register the NotebookSteps it contains into a given 
+called register_notebook_steps. The method has the responsibility to register the NotebookSteps it contains into a given
 Job Context. The context of the job is passed to it by the VDKHook.
 
 #### NotebookStep
-As a class NotebookStep is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) 
+As a class NotebookStep is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py)
 with one additional attribute that is used for saving the code gathered from Notebook cells.
 
 The real definition of Notebook Step is  "a single unit of work for a Data Job that includes notebook files".
