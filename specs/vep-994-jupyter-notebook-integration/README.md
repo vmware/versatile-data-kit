@@ -27,6 +27,7 @@ useful for a wide audience.
 
 * VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
 * Notebook: A .ipynb file.
+* Notebook cell: a multiline text input field
 * Magic: Magic functions are pre-defined functions(“magics”) in Jupyter kernel that executes supplied commands.
 
 ## Motivation
@@ -155,31 +156,53 @@ No direct changes to the public API.
 
 ## Detailed design
 ### VDK Notebook plugin
- This VDK plugin will provide the functionality to run Jobs which will retrieve Job steps from notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
+ This VDK plugin will provide the functionality to run Jobs contain notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
 As it can be seen from the below diagram the plugin will consist of a new hook and a few new classes.
 
-![vdk-notebook-plugin](vdk-notebook-plugin.png)
+![vdk-notebook-plugin](vdk-notebook-plugin.jpeg)
 
 #### VDK Hook
 The VDK Hook will encapsulate the logic for the initialization of a job that will get the code from Notebook files. When initialized like that jobs that work with Notebooks will be run as a standard data job which works with .py and .sql files.
 It will be using the NotebookReader and the NotebookLocator classes.
 #### NotebookLocator
 It is a simple class which has a method which returns the notebook files found in a given directory.
-#### NotebookReader
-This class contains the method read_notebook_and_save_steps which creates the job steps that will be run from a given job directory. The context of the job is passed to it by the VDKHook.
-The steps that are created are NotebookSteps which is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) with one additional attribute that is used for saving the code from the .ipynb file. The method adds a step runner function from NotebookStepFuncFactory to those steps, so when a step is going to be run that function is being called.
+#### Cell
+Before giving a proper definition to this class, we should see how we categorise the [Notebook cells](#glossary):
+
+![jupyter-cells](cells.jpeg)
+
+Jupyter itself categorises the cells into three groups: code, markdown and raw. 
+We will be looking into only the code ones since the plugin works only with them. 
+The code cells can be categorised into two types - ones which are tagged with "vdk" and the ones that are not.
+The ones that are untagged are ignored by our plugin, and will not take part in the data job.
+Once we have our "vdk" cells we separate them into two groups: SQL and Python.
+The SQL ones respectively consist of a single SQL query 
+(to be more specific a notebook cell which includes the [magic](#glossary) %sql), and the python ones - python code.
+The python code itself is categorised into two - code for defining the run() method (which is used by VDK) 
+and code that is outside that run() method - we call these the "helper" cells.
+
+The Cell  class is a simple class that encapsulates this logic.
+
+#### Notebook
+This class is the representation of a [Notebook](#glossary). It contains SQL, run() and "helper" cells and a method
+called register_notebook_steps. The method has the responsibility to register the NotebookSteps it contains into a given 
+Job Context. The context of the job is passed to it by the VDKHook.
+
 #### NotebookStep
-* Notebook Step:  A single unit of work for a Data Job that includes notebook files.
-* A SQL step is a SQL statement.
-To be more specific a notebook cell which includes the "vdk" tag and the [magic](#glossary) %sql.
-* A python step is the run(job_input) method.  The run method should be in a cell that is tagged with "vdk".
-The cells that do not include a run method but are still tagged with "vdk" are added to the same namespace as the run method.
-So, if the run method is calling another method from another cell from the namespace, the other cell becomes a part of the step.
-* Notebook Steps in a notebook file are executed from top to the bottom - the step
+As a class NotebookStep is a descendant of the [Step class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/step.py) 
+with one additional attribute that is used for saving the code gathered from Notebook cells.
+
+The real definition of Notebook Step is  "a single unit of work for a Data Job that includes notebook files".
+These steps can be separated into these groups:
+* A SQL step - the "code" attribute contains the code from a single SQL cell.
+* A python step - the "code" attribute contains the code from a single run() cell and the "helper" cells.
+Notebook Steps in a notebook file are executed from top to the bottom - the step
 located on the top of the file will be run first, and the one in the bottom will be run last.
 
-* NotebookStep from the diagram above is the dataclass that represents the Notebook step.
-
+#### Python version
+<!-- TODO provide a solution to this problem -->
+Currently, the user should look for Python version discrepancies -
+VDK and Jupyter Notebooks should be using the same version to avoid unwanted behaviour.
 
 ### VDK JupyterLab extension
  This extension will be both front-end and server side extension for JupyterLab.
