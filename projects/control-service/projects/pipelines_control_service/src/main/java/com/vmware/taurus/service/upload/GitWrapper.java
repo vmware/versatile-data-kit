@@ -108,13 +108,12 @@ public class GitWrapper {
       String reason,
       PrePushOperation op)
       throws IOException, GitAPIException {
-    PushCommand push = git.push().setCredentialsProvider(credentialsProvider);
     op.apply();
     Status gitStatus = git.status().call();
     // if no changes are introduced, no point in try to push we skip
     if (gitStatus.hasUncommittedChanges()) {
       commitChanges(git, username, jobName, reason);
-      while (tryToPush(push)) {
+      while (tryToPush(git.push().setCredentialsProvider(credentialsProvider))) {
         revertAndPullRemote(git, credentialsProvider);
         op.apply();
         gitStatus = git.status().call();
