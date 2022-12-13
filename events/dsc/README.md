@@ -1,7 +1,5 @@
 # Practical Kimball Data Patterns
 
-https://datasciconference.com
-
 ## Table of Contents
 - [Presentation slides](#Presentation-slides)
 - [Pre-requisites](#Pre-requisites)
