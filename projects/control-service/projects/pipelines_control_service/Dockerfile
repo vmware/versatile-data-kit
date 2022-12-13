@@ -4,7 +4,7 @@
 # Builder stage
 # This stage is implemented like in the guide, but it may be more efficient to
 # have it in the gradle build process outside docker.
-FROM adoptopenjdk:11-jre-hotspot as builder
+FROM adoptopenjdk:17-jre-hotspot as builder
 ARG JAR_NAME
 WORKDIR application
 COPY ./${JAR_NAME} application.jar
