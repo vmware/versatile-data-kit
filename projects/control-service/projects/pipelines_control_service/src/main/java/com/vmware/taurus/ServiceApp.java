@@ -5,14 +5,17 @@
 
 package com.vmware.taurus;
 
+import org.openapitools.configuration.SpringDocConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.client.RestTemplate;
 
 /** Utility class for easier application startup from Intellij Idea */
 @EnableAsync
 @SpringBootApplication
+@Import(SpringDocConfiguration.class)
 public class ServiceApp {
 
   @Bean

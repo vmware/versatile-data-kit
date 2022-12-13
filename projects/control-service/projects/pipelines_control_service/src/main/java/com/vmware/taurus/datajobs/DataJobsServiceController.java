@@ -8,7 +8,7 @@ package com.vmware.taurus.datajobs;
 import com.vmware.taurus.controlplane.model.api.DataJobsServiceApi;
 import com.vmware.taurus.controlplane.model.data.DataJobApiInfo;
 import com.vmware.taurus.service.UserAgentService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @NoArgsConstructor
-@Api(tags = {"Data Jobs Service"})
+@Tag(name = "Data Jobs Service")
 public class DataJobsServiceController implements DataJobsServiceApi {
 
   @Autowired UserAgentService userAgentService;

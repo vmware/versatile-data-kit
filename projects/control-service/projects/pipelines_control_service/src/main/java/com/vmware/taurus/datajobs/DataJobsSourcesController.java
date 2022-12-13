@@ -10,7 +10,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.upload.JobUpload;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ import java.util.Optional;
 @RestController
 @AllArgsConstructor
 @NoArgsConstructor
-@Api(tags = {"Data Jobs Sources"})
+@Tag(name = "Data Jobs Sources")
 public class DataJobsSourcesController implements DataJobsSourcesApi {
   @Autowired private JobsService jobsService;
 

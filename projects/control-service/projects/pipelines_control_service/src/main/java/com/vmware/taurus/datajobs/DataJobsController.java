@@ -17,7 +17,7 @@ import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.upload.JobUpload;
 import graphql.GraphQLError;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,7 @@ import java.util.function.Supplier;
 @RestController
 @AllArgsConstructor
 @NoArgsConstructor
-@Api(tags = {"Data Jobs"})
+@Tag(name = "Data Jobs")
 public class DataJobsController implements DataJobsApi {
   static Logger log = LoggerFactory.getLogger(DataJobsController.class);
 

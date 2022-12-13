@@ -8,7 +8,7 @@ package com.vmware.taurus.properties.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.controlplane.model.api.DataJobsPropertiesApi;
 import com.vmware.taurus.properties.service.PropertiesService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 @RestController
 @ComponentScan(basePackages = "com.vmware.taurus.properties")
-@Api(tags = {"Data Jobs Properties"})
+@Tag(name = "Data Jobs Properties")
 public class DataJobsPropertiesController implements DataJobsPropertiesApi {
   static Logger log = LoggerFactory.getLogger(DataJobsPropertiesController.class);
 
