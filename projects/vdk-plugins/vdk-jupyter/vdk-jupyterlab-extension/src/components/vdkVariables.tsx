@@ -28,47 +28,42 @@ export default class VariablesDialong extends Component<IVariables> {
             <>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobPath">Enter the needed {this.props.label} variables for the job:</label>
-                    <input type="text" id="variablesInput" className='jp-vdk-input' onLoad={this._loadCurrentVariables} />
-                    <button id="addVariable" onClick={this._addVariable}>Add</button>
-                    <button id="seeVariables" onClick={this._loadCurrentVariables}>Show variables</button>
+                    <input type="text" id="variablesInput" className='jp-vdk-input' />
+                    <button id="addVariable" className="jp-vdk-button" onClick={this._addVariable}>Add</button>
+                    <button id="seeVariables" className="jp-vdk-button" onClick={this._loadVariables}>Show variables</button>
                 </div>
                 <ul id="vdkVariables" className='hidden'></ul>
             </>
         );
     }
-     /**
-   * Callback invoked upon clicking  Show variables
-   *
-   * @param event - event object
-   */
-      private _loadCurrentVariables = (event: any): void => {
-        if (localStorage.getItem("env_variables")) {
-            const str = localStorage.getItem("env_variables");
-            let variablesArray = JSON.parse(str!);
-            variablesArray.forEach((variable: string) => {
-                this._appendElementToVariableList(variable);
-            });
-            document.getElementById("vdkVariables")?.classList.remove("hidden");
-        }
-        else{
-            alert("No variables are set from Jupyter!");
-        }
-      }
+    /**
+  * Callback invoked upon clicking  Show variables
+  *
+  * @param event - event object
+  */
+    private _loadVariables = (event: any): void => {
+        this._loadVariablesFromStorage();
+    }
     /**
    * Callback invoked upon clicking add 
    *
    * @param event - event object
    */
     private _addVariable = (event: any): void => {
-        const inputEl = document.getElementById("variablesInput") as HTMLInputElement;
-        this._appendElementToVariableList(inputEl.value);
-        let variablesArray = [];
-        if (localStorage.getItem("env_variables")) {
-            variablesArray = JSON.parse(localStorage.getItem("env_variables")!);
+        if (document.getElementById("vdkVariables")?.innerHTML.trim() == "") {
+            this._loadVariablesFromStorage();
         }
-        variablesArray.push(inputEl.value);
-        localStorage.setItem("env_variables", JSON.stringify(variablesArray));
-        inputEl.value = "";
+        const inputEl = document.getElementById("variablesInput") as HTMLInputElement;
+        if (inputEl.value != "") {
+            this._appendElementToVariableUl(inputEl.value);
+            let variablesArray = [];
+            if (localStorage.getItem("env_variables")) {
+                variablesArray = JSON.parse(localStorage.getItem("env_variables")!);
+            }
+            variablesArray.push(inputEl.value);
+            localStorage.setItem("env_variables", JSON.stringify(variablesArray));
+            inputEl.value = "";
+        }
     };
     /**
     * Callback invoked upon pressing delete
@@ -86,14 +81,13 @@ export default class VariablesDialong extends Component<IVariables> {
         }
         currButton.parentElement?.remove();
         localStorage.setItem("env_variables", JSON.stringify(variablesArray));
-        console.log(variablesArray);
     }
 
-    private _appendElementToVariableList(value: string) {
+    private _appendElementToVariableUl(value: string) {
         let variablesUl = document.getElementById("vdkVariables");
         let item = document.createElement("li");
         item.classList.add("jp-vdk-variables-list-item");
-        console.log("here");
+
         let variable = document.createElement("p");
         variable.innerHTML = value;
 
@@ -105,6 +99,19 @@ export default class VariablesDialong extends Component<IVariables> {
         item.appendChild(variable);
         item.appendChild(deleteButton);
         variablesUl?.appendChild(item);
-        console.log(variablesUl);
+    }
+
+    private _loadVariablesFromStorage() {
+        if (localStorage.getItem("env_variables")) {
+            const str = localStorage.getItem("env_variables");
+            let variablesArray = JSON.parse(str!);
+            variablesArray.forEach((variable: string) => {
+                this._appendElementToVariableUl(variable);
+            });
+            document.getElementById("vdkVariables")?.classList.remove("hidden");
+        }
+        else {
+            alert("No variables are set from Jupyter!");
+        }
     }
 }

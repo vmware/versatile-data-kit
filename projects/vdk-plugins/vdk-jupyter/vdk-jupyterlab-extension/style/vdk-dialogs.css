@@ -1,0 +1,30 @@
+.jp-vdk-input-wrapper{
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+}
+
+.jp-vdk-variables-list-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.vdk-delete-variable-btn{
+    list-style: none;
+    background-color: transparent;
+    border: none;
+    color: darkgray;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+    padding-left: 10px;
+}
+
+.hidden{
+    display: hidden;
+}
+
+.jp-vdk-button{
+    margin-top: 10px;
+}
