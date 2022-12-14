@@ -156,7 +156,7 @@ No direct changes to the public API.
 
 ## Detailed design
 ### VDK Notebook plugin
- This VDK plugin will provide the functionality to run Jobs contain notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
+ This VDK plugin will provide the functionality to run Jobs which contain notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
 As it can be seen from the below diagram the plugin will consist of a new hook and a few new classes.
 
 ![vdk-notebook-plugin](vdk-notebook-plugin.jpeg)
@@ -201,6 +201,7 @@ located on the top of the file will be run first, and the one in the bottom will
 
 #### Python version
 <!-- TODO provide a solution to this problem -->
+See [issue-1438](https://github.com/vmware/versatile-data-kit/issues/1438).
 Currently, the user should look for Python version discrepancies -
 VDK and Jupyter Notebooks should be using the same version to avoid unwanted behaviour.
 
