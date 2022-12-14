@@ -165,7 +165,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     Method loadInternalV1CronjobTemplate =
         KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
     if (loadInternalV1CronjobTemplate == null) {
-      Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
+      Assertions.fail("The method 'loadInternalV1CronjobTemplate' does not exist.");
     }
     loadInternalV1CronjobTemplate.setAccessible(true);
     V1CronJob internalCronjobTemplate =
