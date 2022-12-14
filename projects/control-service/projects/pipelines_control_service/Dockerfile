@@ -12,7 +12,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 
 # Final stage
-FROM adoptopenjdk:11-jre-hotspot
+FROM adoptopenjdk:17-jre-hotspot
 LABEL maintainer="Project Versatile Data Kit <miroslavi@vmware.com>"
 
 # install kerberos client so that we can use kadmin
