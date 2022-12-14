@@ -96,8 +96,11 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
     )
     def connect(self) -> PEP249Connection:
         """
+        Checks if we are still properly connected to the database (including by issuing validation query)
+        and re-connect if not.
         :return: PEP249 Connection object (managed)
         """
+
         if not self._is_db_con_open:
             db_con = self._connect()
             self._log.debug(f"Established {str(db_con)}")

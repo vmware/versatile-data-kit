@@ -9,7 +9,6 @@ from typing import Optional
 from vdk.api.job_input import IJobArguments
 from vdk.api.job_input import IJobInput
 from vdk.api.job_input import ITemplate
-from vdk.api.plugin.plugin_input import PEP249Connection
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
@@ -61,8 +60,8 @@ class JobInput(IJobInput):
 
     # Connections
 
-    def get_managed_connection(self) -> PEP249Connection:
-        return self.__managed_connection_builder.open_default_connection().connect()
+    def get_managed_connection(self) -> ManagedConnectionBase:
+        return self.__managed_connection_builder.open_default_connection()
 
     def get_arguments(self) -> dict:
         return self.__job_arguments.get_arguments()
