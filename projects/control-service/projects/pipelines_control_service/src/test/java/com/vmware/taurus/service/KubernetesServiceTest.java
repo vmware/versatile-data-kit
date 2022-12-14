@@ -453,20 +453,6 @@ public class KubernetesServiceTest {
                 any(),
                 anyList()))
         .thenCallRealMethod();
-    Mockito.when(
-            mock.v1CronJobFromTemplate(
-                anyString(),
-                anyString(),
-                anyBoolean(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                anyList()))
-        .thenCallRealMethod();
 
     ReflectionTestUtils.setField(
         mock, // inject into this object
