@@ -51,9 +51,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
     String jobName = "test-job";
     V1CronJob expectedResult =
         new V1CronJob()
-            .spec(
-                new V1CronJobSpec()
-                    .jobTemplate(new V1JobTemplateSpec().spec(new V1JobSpec())));
+            .spec(new V1CronJobSpec().jobTemplate(new V1JobTemplateSpec().spec(new V1JobSpec())));
     KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
 
     Exception exception =
@@ -217,7 +215,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
 
     BatchV1Api batchV1Api = Mockito.mock(BatchV1Api.class);
     Mockito.when(
-                    batchV1Api.readNamespacedCronJob(
+            batchV1Api.readNamespacedCronJob(
                 Mockito.eq(jobName), Mockito.isNull(), Mockito.isNull()))
         .thenReturn(result);
 

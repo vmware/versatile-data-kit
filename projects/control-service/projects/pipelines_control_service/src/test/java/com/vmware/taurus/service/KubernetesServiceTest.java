@@ -397,7 +397,6 @@ public class KubernetesServiceTest {
             .getImagePullSecrets());
   }
 
-
   @Test
   public void testV1CronJobFromTemplate_imagePullSecretsListWithOneNonEmptyValueAndOneEmptyValue() {
     KubernetesService mock = mockCronJobFromTemplate();
