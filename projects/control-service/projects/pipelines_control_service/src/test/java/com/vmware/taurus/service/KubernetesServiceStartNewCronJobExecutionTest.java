@@ -8,7 +8,7 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobEnvVar;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
 import io.kubernetes.client.openapi.models.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -49,11 +49,11 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
   public void testStartNewCronJobExecution_incorrectCronJobDefinition_shouldThrowException()
       throws ApiException {
     String jobName = "test-job";
-    V1beta1CronJob expectedResult =
-        new V1beta1CronJob()
+    V1CronJob expectedResult =
+        new V1CronJob()
             .spec(
-                new V1beta1CronJobSpec()
-                    .jobTemplate(new V1beta1JobTemplateSpec().spec(new V1JobSpec())));
+                new V1CronJobSpec()
+                    .jobTemplate(new V1JobTemplateSpec().spec(new V1JobSpec())));
     KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
 
     Exception exception =
@@ -80,12 +80,12 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
     String executionId = "test-execution-id";
     V1EnvVar vdkOpIdEnv = new V1EnvVar().name(JobEnvVar.VDK_OP_ID.getValue()).value("test-op-id");
     V1EnvVar testEnv = new V1EnvVar().name("test-env-name").value("test-env-value");
-    V1beta1CronJob expectedResult =
-        new V1beta1CronJob()
+    V1CronJob expectedResult =
+        new V1CronJob()
             .spec(
-                new V1beta1CronJobSpec()
+                new V1CronJobSpec()
                     .jobTemplate(
-                        new V1beta1JobTemplateSpec()
+                        new V1JobTemplateSpec()
                             .spec(
                                 new V1JobSpec()
                                     .template(
@@ -149,12 +149,12 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
             expectedAnnotationKey2,
             "test-annotation-value-1");
 
-    V1beta1CronJob expectedResult =
-        new V1beta1CronJob()
+    V1CronJob expectedResult =
+        new V1CronJob()
             .spec(
-                new V1beta1CronJobSpec()
+                new V1CronJobSpec()
                     .jobTemplate(
-                        new V1beta1JobTemplateSpec()
+                        new V1JobTemplateSpec()
                             .metadata(
                                 new V1ObjectMeta()
                                     .putAnnotationsItem(
@@ -202,7 +202,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
     Assertions.assertEquals(expectedAnnotations, annotationsArgumentCaptor.getValue());
   }
 
-  private KubernetesService mockKubernetesService(String jobName, V1beta1CronJob result)
+  private KubernetesService mockKubernetesService(String jobName, V1CronJob result)
       throws ApiException {
     KubernetesService kubernetesService = Mockito.mock(KubernetesService.class);
     Mockito.doCallRealMethod()
@@ -215,13 +215,13 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
             Mockito.anyMap(),
             Mockito.any());
 
-    BatchV1beta1Api batchV1beta1Api = Mockito.mock(BatchV1beta1Api.class);
+    BatchV1Api batchV1Api = Mockito.mock(BatchV1Api.class);
     Mockito.when(
-            batchV1beta1Api.readNamespacedCronJob(
+                    batchV1Api.readNamespacedCronJob(
                 Mockito.eq(jobName), Mockito.isNull(), Mockito.isNull()))
         .thenReturn(result);
 
-    Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(batchV1beta1Api);
+    Mockito.when(kubernetesService.initBatchV1Api()).thenReturn(batchV1Api);
 
     return kubernetesService;
   }

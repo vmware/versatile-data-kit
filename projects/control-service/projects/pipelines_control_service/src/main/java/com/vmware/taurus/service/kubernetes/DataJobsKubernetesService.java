@@ -24,9 +24,8 @@ public class DataJobsKubernetesService extends KubernetesService {
 
   public DataJobsKubernetesService(
       @Value("${datajobs.deployment.k8s.namespace:}") String namespace,
-      @Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig,
-      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob) {
-    super(namespace, kubeconfig, k8sSupportsV1CronJob, log);
+      @Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig) {
+    super(namespace, kubeconfig, log);
     if (StringUtils.isBlank(kubeconfig) && !new File(kubeconfig).isFile()) {
       log.warn(
           "Data Jobs (Deployment) Kubernetes service may not have been correctly bootstrapped. {}"

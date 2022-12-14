@@ -820,7 +820,7 @@ customStartupProbeProbe: {}
 datajobTemplate:
   enabled: false
   template:
-    apiVersion: batch/v1beta1
+    apiVersion: batch/v1
     kind: CronJob
     metadata:
       annotations:                   # merged with additional annotations from TPCS

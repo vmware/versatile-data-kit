@@ -7,9 +7,9 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.models.V1CronJob;
 import io.kubernetes.client.openapi.models.V1JobSpec;
-import io.kubernetes.client.openapi.models.V1beta1CronJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,10 +31,9 @@ public class KubernetesServiceStartJobWithArgumentsIT {
   public void getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
 
     kubernetesService = Mockito.mock(KubernetesService.class);
-    Mockito.when(kubernetesService.getK8sSupportsV1CronJob()).thenReturn(false);
-    V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
-    BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
-    Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(mockBatch);
+    V1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
+    BatchV1Api mockBatch = Mockito.mock(BatchV1Api.class);
+    Mockito.when(kubernetesService.initBatchV1Api()).thenReturn(mockBatch);
     Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any()))
         .thenReturn(internalCronjobTemplate);
     Mockito.doNothing().when(kubernetesService).createNewJob(any(), any(), any(), any());
@@ -159,18 +158,18 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     }
   }
 
-  private V1beta1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
-    KubernetesService service = new DataJobsKubernetesService("default", "someConfig", false);
+  private V1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
+    KubernetesService service = new DataJobsKubernetesService("default", "someConfig");
     // V1betaCronJob initializing snippet copied from tests above, using reflection
     service.afterPropertiesSet();
-    Method loadInternalV1beta1CronjobTemplate =
-        KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
-    if (loadInternalV1beta1CronjobTemplate == null) {
+    Method loadInternalV1CronjobTemplate =
+        KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
+    if (loadInternalV1CronjobTemplate == null) {
       Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
     }
-    loadInternalV1beta1CronjobTemplate.setAccessible(true);
-    V1beta1CronJob internalCronjobTemplate =
-        (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
+    loadInternalV1CronjobTemplate.setAccessible(true);
+    V1CronJob internalCronjobTemplate =
+        (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
     var container =
         internalCronjobTemplate
             .getSpec()
