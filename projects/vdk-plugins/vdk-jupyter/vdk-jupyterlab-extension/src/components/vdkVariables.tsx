@@ -45,7 +45,7 @@ export default class VariablesDialong extends Component<IVariables> {
         this._loadVariablesFromStorage();
     }
     /**
-   * Callback invoked upon clicking add 
+   * Callback invoked upon clicking add
    *
    * @param event - event object
    */
