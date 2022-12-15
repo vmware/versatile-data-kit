@@ -20,12 +20,14 @@ from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Conn
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 
+log = logging.getLogger(__name__)
+
 
 class ManagedConnectionRouter(IManagedConnectionRegistry):
     """
     Create ManagedConnection by routing the configured database plugin.
-    Configuration is controlled by DB_DEFAULT_TYPE for defualt connection.
-    Or specfific connection can be specified by open_connection(dbtype)
+    Configuration is controlled by DB_DEFAULT_TYPE for default connection.
+    Or specific connection can be specified by open_connection(dbtype)
     In both cases dbtype must match the string in which the plugin register itself with.
     """
 
@@ -70,35 +72,52 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
 
     def open_connection(self, dbtype: str) -> ManagedConnectionBase:
         """
+        Opens a connection for the given database type.
+
         :param dbtype: The type of connection to open. It needs to have been registered before that by add_connection_builder
         or it will thrown an error
-        :return: the new connection if succesfull or throws an expception
+        :return: the new connection if successful or throws an exception
         """
         dbtype = dbtype.lower() if dbtype else None
+        conn = None
         if dbtype in self._connections:
             conn = self._connections[dbtype]
-            if conn._is_connected():
-                return conn
-            else:
-                conn._connect()
-                return conn
-        self._log.debug(f"Connection to {dbtype} is missing. Will try to connect")
-        if dbtype in self._connection_builders:
-            return self.__create_connection(dbtype)
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=self._log,
-            what_happened=f"Provided configuration variable for {DB_DEFAULT_TYPE} has invalid value.",
-            why_it_happened=f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however {dbtype} is invalid value for this variable.",
-            consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-            countermeasures=f"Provide either valid value for {DB_DEFAULT_TYPE} or install database plugin that supports this type. "
-            f"Currently possible values are {list(self._connection_builders.keys())}",
-        )
+        elif dbtype in self._connection_builders:
+            self._log.debug(f"Connection to {dbtype} is missing. Will try to connect")
+            conn = self.__create_connection(dbtype)
+        else:
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                log=self._log,
+                what_happened=f"Provided configuration variable for {DB_DEFAULT_TYPE} has invalid value.",
+                why_it_happened=f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however {dbtype} is invalid value for this variable.",
+                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                countermeasures=f"Provide either valid value for {DB_DEFAULT_TYPE} or install database plugin that supports this type. "
+                f"Currently possible values are {list(self._connection_builders.keys())}",
+            )
+        if not conn._is_connected():
+            conn.connect()
+        return conn
+
+    def __cache_connection(self, dbType: str, conn: ManagedConnectionBase):
+        if dbType in self._connections:
+            # Though not expected, this checks is added to reduce the chance of connection leaks.
+            log.warning(
+                f"There is already cached connection for dbType {dbType}. Replacing it "
+            )
+            prev_conn = self._connections[dbType]
+            try:
+                prev_conn.close()
+            except Exception as e:
+                log.debug(
+                    f"Failed to close cached connection: {e}. Likely it's no longer valid."
+                )
+        self._connections[dbType] = conn
 
     def __create_connection(self, dbtype: str):
         conn = self._connection_builders[dbtype]()
         if isinstance(conn, ManagedConnectionBase):
-            self._connections[dbtype] = conn
+            self.__cache_connection(dbtype, conn)
             if not conn._connection_hook_spec_factory:
                 conn._connection_hook_spec_factory = self._connection_hook_spec_factory
         elif conn is None:
@@ -115,9 +134,11 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
         else:
             log = logging.getLogger(conn.__class__.__name__)
             conn.close()  # we will let ManagedConnection to open it when needed.
-            self._connections[dbtype] = WrappedConnection(
+            wrapped_conn = WrappedConnection(
                 log,
                 self._connection_builders[dbtype],
                 self._connection_hook_spec_factory,
             )
+            self.__cache_connection(dbtype, wrapped_conn)
+
         return self._connections[dbtype]
