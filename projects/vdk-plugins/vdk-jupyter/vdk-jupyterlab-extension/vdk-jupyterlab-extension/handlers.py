@@ -1,17 +1,26 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
+import os
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
-
+from .vdk import VDK
 
 class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
         self.finish(json.dumps({
             "path": f"{os.getcwd()}"
+        }))
+    
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        status_code = VDK.run_job(input_data["jobPath"], input_data["jobArguments"])
+        self.finish(json.dumps({
+            "message": f"{status_code}"
         }))
 
 
