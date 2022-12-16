@@ -5,20 +5,58 @@ VDK-JOBS-TROUBLESHOOTING plugin script.
 """
 import logging
 from typing import List
+from typing import Optional
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.plugin.jobs_troubleshoot.api.troubleshoot_utility import ITroubleshootUtility
 from vdk.plugin.jobs_troubleshoot.troubleshoot_configuration import add_definitions
+from vdk.plugin.jobs_troubleshoot.troubleshoot_utilities.utilities_registry import (
+    get_utilities_to_use,
+)
 
 log = logging.getLogger(__name__)
 
 
 class JobTroubleshootingPlugin:
+    def __init__(self):
+        self.troubleshooting_utils: Optional[List[ITroubleshootUtility]] = []
+
     @staticmethod
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         add_definitions(config_builder=config_builder)
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        self.troubleshooting_utils = get_utilities_to_use(
+            job_config=context.core_context.configuration
+        )
+        try:
+            for util in self.troubleshooting_utils:
+                util.start()
+        except Exception as e:
+            log.info(
+                f"""
+                An exception occurred while processing a troubleshooting
+                utility. The error was: {e}
+                """
+            )
+
+    @hookimpl
+    def finalize_job(self, context: JobContext) -> None:
+        try:
+            for util in self.troubleshooting_utils:
+                util.stop()
+        except Exception as e:
+            log.info(
+                f"""
+                An exception occurred while processing a troubleshooting
+                utility. The error was: {e}
+                """
+            )
 
 
 @hookimpl
