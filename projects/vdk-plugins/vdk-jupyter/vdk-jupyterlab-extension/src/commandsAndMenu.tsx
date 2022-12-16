@@ -9,7 +9,6 @@ export function updateVDKMenu(commands: CommandRegistry) {
         label: "Run",
         caption: 'Execute VDK Run Command',
         execute: async () => {
-            console.log(sessionStorage.getItem("current-path")!);
             showDialog({
                 title: "Run Job",
                 body: <RunJobDialong jobPath={sessionStorage.getItem("current-path")!} ></RunJobDialong>,
