@@ -63,7 +63,7 @@ export default class RunJobDialong extends Component<IRunJobDialogProps> {
             sessionStorage.setItem("job-args", value)
         }
     };
-    
+
     private _isJSON = (str: string) => {
           try {
             JSON.parse(str)

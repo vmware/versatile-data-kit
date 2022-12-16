@@ -1,3 +1,6 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import subprocess
 
@@ -21,8 +24,19 @@ class VDK:
             path = os.getcwd() + path
             if not os.path.exists(path):
                 return "Incorrect path!"
-        p = subprocess.run(
-            f"vdk run {path} 2> vdk_logs.txt", shell=True, check=True, capture_output=True) if not arguments else \
+        p = (
             subprocess.run(
-                f"vdk run {path} --arguments {arguments} 2> vdk_logs.txt", shell=True, check=True, capture_output=True)
+                f"vdk run {path} 2> vdk_logs.txt",
+                shell=True,
+                check=True,
+                capture_output=True,
+            )
+            if not arguments
+            else subprocess.run(
+                f"vdk run {path} --arguments {arguments} 2> vdk_logs.txt",
+                shell=True,
+                check=True,
+                capture_output=True,
+            )
+        )
         return p.returncode

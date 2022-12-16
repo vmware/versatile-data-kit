@@ -8,7 +8,7 @@
         "id": "jp-vdk-menu",
         "label": "VDK",
         "rank": 80,
-        "items": [    
+        "items": [
           {
             "command": "jp-vdk:menu-run"
           }
