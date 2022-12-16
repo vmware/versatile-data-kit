@@ -32,7 +32,7 @@ export default class RunJobDialong extends Component<IRunJobDialogProps> {
                 </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="vdkArguments">Arguments:</label>
-                    <input type="text" id="vdkArgumentsKey" className='jp-vdk-input' placeholder='{"key": "value"}' onChange={this._onArgsChange} />
+                    <input type="text" className='jp-vdk-input' placeholder='{"key": "value"}' onChange={this._onArgsChange} />
                 </div>
                 <ul id="argumentsUl" className="hidden"></ul>
             </>

@@ -4,6 +4,7 @@ import {
 } from '@jupyterlab/application';
 
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { updateVDKMenu } from './commandsAndMenu';
 
 import { getCurrentPathRequest } from './serverRequests';
 
@@ -17,7 +18,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
   activate: (app: JupyterFrontEnd, settingRegistry: ISettingRegistry | null) => {
     console.log('JupyterLab extension vdk-jupyterlab-extension is activated!');
     getCurrentPathRequest();
-    
+    const { commands } = app;
+    updateVDKMenu(commands);
   }
 };
 
