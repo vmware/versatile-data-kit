@@ -7,23 +7,18 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
 
-class RouteHandler(APIHandler):
-    # The following decorator should be present on all verb methods (head, get, post,
-    # patch, put, delete, options) to ensure only authorized user can request the
-    # Jupyter server
+class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
-        self.finish(
-            json.dumps(
-                {"data": "This is /vdk-jupyterlab-extension/get_example endpoint!"}
-            )
-        )
+        self.finish(json.dumps({
+            "path": f"{os.getcwd()}"
+        }))
 
 
 def setup_handlers(web_app):
     host_pattern = ".*$"
 
     base_url = web_app.settings["base_url"]
-    route_pattern = url_path_join(base_url, "vdk-jupyterlab-extension", "get_example")
-    handlers = [(route_pattern, RouteHandler)]
-    web_app.add_handlers(host_pattern, handlers)
+    run_job_route_pattern = url_path_join(base_url, "vdk-jupyterlab-extension", "run")
+    run_job_handlers = [(run_job_route_pattern, RunJobHandler)]
+    web_app.add_handlers(host_pattern, run_job_handlers)
