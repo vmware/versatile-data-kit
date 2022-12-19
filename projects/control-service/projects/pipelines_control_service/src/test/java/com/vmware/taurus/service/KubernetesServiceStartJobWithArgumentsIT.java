@@ -162,13 +162,8 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     KubernetesService service = new DataJobsKubernetesService("default", "someConfig");
     // V1betaCronJob initializing snippet copied from tests above, using reflection
     service.afterPropertiesSet();
-    Method loadInternalV1CronjobTemplate =
-        KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
-    if (loadInternalV1CronjobTemplate == null) {
-      Assertions.fail("The method 'loadInternalV1CronjobTemplate' does not exist.");
-    }
-    loadInternalV1CronjobTemplate.setAccessible(true);
-    V1CronJob internalCronjobTemplate = (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
+
+    V1CronJob internalCronjobTemplate = service.loadInternalV1CronjobTemplate();
     var container =
         internalCronjobTemplate
             .getSpec()

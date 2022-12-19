@@ -249,6 +249,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
   }
 
+
   private V1CronJob loadV1CronjobTemplate() {
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
       log.debug("Datajob template file location is not set. Using internal datajob template.");
@@ -262,7 +263,8 @@ public abstract class KubernetesService implements InitializingBean {
     return cronjobTemplate;
   }
 
-  private V1CronJob loadInternalV1CronjobTemplate() {
+  @VisibleForTesting
+  V1CronJob loadInternalV1CronjobTemplate() {
     try {
       return loadV1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
     } catch (Exception e) {
