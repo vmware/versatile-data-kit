@@ -133,12 +133,14 @@ public abstract class FieldStrategy<T> {
    * @return
    */
   protected boolean checkMatch(String searchString, String matcherString) {
-    if(matcherString.contains("*")) {
+    if (searchString == null || matcherString == null) {
+      return false;
+    } else if (matcherString.contains("*")) {
       // Matching strings that contain * as wildcards.
       return FilenameUtils.wildcardMatch(searchString.toLowerCase(), matcherString.toLowerCase());
     } else {
-     // exact matches
-     return searchString.equalsIgnoreCase(matcherString);
+      // exact matches
+      return searchString.equalsIgnoreCase(matcherString);
     }
   }
 
