@@ -75,6 +75,17 @@ def test_router_open_connection_closed():
     assert conn is conn.connect()
 
 
+def test_router_open_connection_validation_check_reconnect():
+    router, mock_conn, _ = managed_connection_router()
+
+    conn = router.open_connection("TEST_DB")
+    # we are purposefully using the raw connection (_db_con) and closing it
+    # in order to see if the validation check works
+    conn._db_con.close()
+    conn = router.open_connection("TEST_DB")
+    assert conn is conn.connect()
+
+
 def test_router_no_such_connection():
     router, mock_conn, _ = managed_connection_router()
 
