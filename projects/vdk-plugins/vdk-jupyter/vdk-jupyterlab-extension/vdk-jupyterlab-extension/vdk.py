@@ -24,7 +24,11 @@ class VDK:
             if not os.path.exists(path):
                 return "Incorrect path!"
         with open("vdk_logs.txt", "w+") as log_file:
-            cmd = ["vdk", "run", path] if not arguments else ["vdk", "run", path, "--arguments", arguments]
+            cmd = (
+                ["vdk", "run", path]
+                if not arguments
+                else ["vdk", "run", path, "--arguments", arguments]
+            )
             process = subprocess.Popen(
                 cmd, stdout=log_file, stderr=log_file, env=os.environ.copy()
             )
