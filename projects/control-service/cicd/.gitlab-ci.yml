@@ -22,7 +22,7 @@
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
-  image: docker:19.03.15
+  image: docker:20.10.21
   variables:
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
@@ -33,7 +33,7 @@
 control_service_build_image:
   extends: .control_service_base_build
   services:
-    - docker:19.03.15-dind
+    - docker:20.10.21-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
