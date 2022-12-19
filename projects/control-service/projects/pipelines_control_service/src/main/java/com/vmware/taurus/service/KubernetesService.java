@@ -249,7 +249,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
   }
 
-
   private V1CronJob loadV1CronjobTemplate() {
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
       log.debug("Datajob template file location is not set. Using internal datajob template.");
