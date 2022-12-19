@@ -122,12 +122,11 @@ public abstract class FieldStrategy<T> {
   }
 
   /**
-   *
    * Helper method which checks if the provided search string matches with a given matcher string.
-   * String capitalization is ignored.
-   * Supported operations are wildcard matching of '*' characters in the matcher string, or
-   * exact matches. If the matcher string contains '*' we will attempt to match wildcards,
-   * otherwise both strings are compared for equality.
+   * String capitalization is ignored. Supported operations are wildcard matching of '*' characters
+   * in the matcher string, or exact matches. If the matcher string contains '*' we will attempt to
+   * match wildcards, otherwise both strings are compared for equality.
+   *
    * @param searchString
    * @param matcherString
    * @return
@@ -143,5 +142,4 @@ public abstract class FieldStrategy<T> {
       return searchString.equalsIgnoreCase(matcherString);
     }
   }
-
 }

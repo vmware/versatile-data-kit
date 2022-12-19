@@ -10,7 +10,6 @@ import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,11 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class GraphQLJobTeamFetcherIT {
 
-  @Autowired
-  JobsRepository jobsRepository;
+  @Autowired JobsRepository jobsRepository;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @AfterEach
   public void cleanup() {
@@ -85,46 +82,45 @@ public class GraphQLJobTeamFetcherIT {
 
   @Test
   public void testRetrieveJobNameWithTrailingWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("some-long-data-job-name",
-        "some-*");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "some-long-data-job-name", "some-*");
   }
 
   @Test
   public void testRetrieveJobNameWithTrailingAndLeadingWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("some-long-data-job-name",
-        "*-long-*");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "some-long-data-job-name", "*-long-*");
   }
 
   @Test
   public void testRetrieveJobNameWithLeadingWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("some-long-data-job-name",
-        "*-name");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "some-long-data-job-name", "*-name");
   }
 
   @Test
   public void testRetrieveJobNameWithComplicatedWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("some-long-data-job-name",
-        "*-long-*-name");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "some-long-data-job-name", "*-long-*-name");
   }
 
   @Test
   public void testRetrieveJobNameWithWildcard_shouldNotRetrieve() throws Exception {
 
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected("some-long-data-job-name",
-        "*-other-*");
-
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+        "some-long-data-job-name", "*-other-*");
   }
 
   /**
    * Re-usable test that creates a data job with a given team name and attempts to retrieve it via
    * the graphQL API, expecting to find it.
    *
-   * @param jobTeam      - the team name.
+   * @param jobTeam - the team name.
    * @param searchString - the graphQl search string.
    * @throws Exception
    */
-  private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(String jobTeam,
-      String searchString) throws Exception {
+  private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+      String jobTeam, String searchString) throws Exception {
     createJobWithTeam(jobTeam);
     mockMvc
         .perform(
@@ -140,12 +136,12 @@ public class GraphQLJobTeamFetcherIT {
    * Re-usable test that creates a data job with a given team name and attempts to retrieve it via
    * the graphQL API, expecting to not find it, due to the provided search string.
    *
-   * @param jobTeam      - the team name.
+   * @param jobTeam - the team name.
    * @param searchString - the graphQl search string.
    * @throws Exception
    */
-  private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(String jobTeam,
-      String searchString) throws Exception {
+  private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+      String jobTeam, String searchString) throws Exception {
     createJobWithTeam(jobTeam);
     mockMvc
         .perform(
@@ -156,8 +152,7 @@ public class GraphQLJobTeamFetcherIT {
         .andExpect(jsonPath("$.data.content").isEmpty());
   }
 
-  private void testJobApiRetrievalWithTeamName_retrieveExpected(String jobTeam)
-      throws Exception {
+  private void testJobApiRetrievalWithTeamName_retrieveExpected(String jobTeam) throws Exception {
     testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(jobTeam, jobTeam);
   }
 

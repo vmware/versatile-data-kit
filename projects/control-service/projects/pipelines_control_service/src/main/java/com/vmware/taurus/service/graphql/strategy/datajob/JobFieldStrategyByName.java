@@ -30,9 +30,7 @@ public class JobFieldStrategyByName extends FieldStrategy<V2DataJob> {
       @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
     Predicate<V2DataJob> predicate = criteria.getPredicate();
     if (filterProvided(filter)) {
-      predicate =
-          predicate.and(
-              dataJob -> checkMatch(dataJob.getJobName(), filter.getPattern()));
+      predicate = predicate.and(dataJob -> checkMatch(dataJob.getJobName(), filter.getPattern()));
     }
     return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
   }

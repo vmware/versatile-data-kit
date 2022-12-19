@@ -51,8 +51,7 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
   @Override
   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
     return dataJob ->
-        dataJob.getConfig() != null
-            && checkMatch(dataJob.getConfig().getTeam(), searchStr);
+        dataJob.getConfig() != null && checkMatch(dataJob.getConfig().getTeam(), searchStr);
   }
 
   @Override
