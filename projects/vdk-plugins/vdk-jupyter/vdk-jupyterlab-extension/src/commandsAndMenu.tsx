@@ -1,7 +1,7 @@
 import { CommandRegistry } from "@lumino/commands";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import React from "react";
-import RunJobDialong from "./components/RunJob";
+import RunJobDialog from "./components/RunJob";
 import { jobRunRequest } from "./serverRequests";
 
 export function updateVDKMenu(commands: CommandRegistry) {
@@ -11,7 +11,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         execute: async () => {
             showDialog({
                 title: "Run Job",
-                body: <RunJobDialong jobPath={sessionStorage.getItem("current-path")!} ></RunJobDialong>,
+                body: <RunJobDialog jobPath={sessionStorage.getItem("current-path")!} ></RunJobDialog>,
                 buttons: [Dialog.okButton(), Dialog.cancelButton()],
             }).then(result => {
                 if (!result.value) {

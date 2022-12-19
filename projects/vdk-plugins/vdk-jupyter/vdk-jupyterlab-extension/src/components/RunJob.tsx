@@ -8,7 +8,7 @@ export interface IRunJobDialogProps {
 }
 
 
-export default class RunJobDialong extends Component<IRunJobDialogProps> {
+export default class RunJobDialog extends Component<IRunJobDialogProps> {
     /**
    * Returns a React component for rendering a run menu.
    *
