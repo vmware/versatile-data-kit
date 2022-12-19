@@ -320,3 +320,22 @@ def test_run_dbapi_connection_with_execute_hook_proxies(tmpdir):
     result: Result = runner.invoke(["run", job_path("simple-create-insert")])
 
     cli_assert_equal(0, result)
+
+
+@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
+def test_run_job_with_get_managed_connection():
+    db_plugin = SqLite3MemoryDbPlugin()
+    runner = CliEntryBasedTestRunner(db_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            job_path("pandas-job"),
+        ]
+    )
+
+    cli_assert_equal(0, result)
+    assert db_plugin.db.execute_query("select * from test_table") == [
+        ("Computer", 900),
+        ("Tablet", 300),
+    ]
