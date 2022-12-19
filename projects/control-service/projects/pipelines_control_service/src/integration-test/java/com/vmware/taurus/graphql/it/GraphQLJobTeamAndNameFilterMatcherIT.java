@@ -5,7 +5,6 @@ package com.vmware.taurus.graphql.it;
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.JobsRepository;
@@ -29,11 +28,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
 
-  @Autowired
-  JobsRepository jobsRepository;
+  @Autowired JobsRepository jobsRepository;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @AfterEach
   public void cleanup() {
@@ -50,7 +47,9 @@ public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
         + "    pageNumber: 1\n"
         + "    pageSize: 100\n"
         + "    filter: [\n"
-        + "      { property: " + searchProperty + ", pattern: \""
+        + "      { property: "
+        + searchProperty
+        + ", pattern: \""
         + searchPattern
         + "\", sort: ASC }\n"
         + "      { property: \"jobName\", sort: ASC }\n"
@@ -77,81 +76,77 @@ public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
   @Test
   public void testFilterByJobTeamExactMatch_shouldRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("test-team", "test-team",
-        "\"config.team\"");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "test-team", "test-team", "\"config.team\"");
   }
 
   @Test
   public void testFilterByJobNameExactMatch_shouldRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("test-team", "test-job",
-        "\"jobName\"");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "test-team", "test-job", "\"jobName\"");
   }
 
   @Test
   public void testFilterByJobTeamExactMatch_shouldNotRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected("test-team", "test-team1",
-        "\"config.team\"");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+        "test-team", "test-team1", "\"config.team\"");
   }
 
   @Test
   public void testFilterByJobNameExactMatch_shouldNotRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected("test-team", "test-job1",
-        "\"jobName\"");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+        "test-team", "test-job1", "\"jobName\"");
   }
 
   @Test
   public void testFilterByJobNameExactMatch_multipleJobs_shouldRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
     createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("test-team", "test-job",
-        "\"jobName\"");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "test-team", "test-job", "\"jobName\"");
   }
 
   @Test
   public void testFilterByJobNameExactMatch_multipleJobs_shouldNotRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
     createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected("test-team", "test-job1",
-        "\"jobName\"");
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+        "test-team", "test-job1", "\"jobName\"");
   }
 
   @Test
   public void testFilterByJobNameWildcardMatch_multipleJobs_shouldRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
     createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("test-team", "test-*",
-        "\"jobName\"");
-
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "test-team", "test-*", "\"jobName\"");
   }
 
   @Test
   public void testFilterByJobNameWildcardMatch_multipleJobs_shouldNotRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
     createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected("test-team", "unrelated-*",
-        "\"jobName\"");
-
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+        "test-team", "unrelated-*", "\"jobName\"");
   }
 
   @Test
   public void testFilterByTeamNameWildcardMatch_multipleJobs_shouldRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
     createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected("test-team", "test-*",
-        "\"config.team\"");
-
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
+        "test-team", "test-*", "\"config.team\"");
   }
 
   @Test
   public void testFilterByTeamNameWildcardMatch_multipleJobs_shouldNotRetrieve() throws Exception {
     createJobWithTeam("test-team", "test-job");
     createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected("test-team", "unrelated-*",
-        "\"config.team\"");
-
+    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
+        "test-team", "unrelated-*", "\"config.team\"");
   }
 
   private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
