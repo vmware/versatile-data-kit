@@ -1,6 +1,6 @@
 import { requestAPI } from "./handler";
  /**
-   * Utility functions that are called by the dialogs. 
+   * Utility functions that are called by the dialogs.
    * They are called when a request to the server is needed to be sent.
    */
 
