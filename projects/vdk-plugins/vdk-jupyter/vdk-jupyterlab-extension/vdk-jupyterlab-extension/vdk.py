@@ -1,8 +1,9 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
-import subprocess
 import shlex
+import subprocess
+
 
 class VDK:
     """
@@ -26,7 +27,11 @@ class VDK:
         with open("vdk_logs.txt", "w+") as log_file:
             path = shlex.quote(path)
             arguments = shlex.quote(arguments)
-            cmd_str = f"vdk run {path}" if not arguments else f"vdk run {path} --arguments {arguments}"
+            cmd_str = (
+                f"vdk run {path}"
+                if not arguments
+                else f"vdk run {path} --arguments {arguments}"
+            )
             cmd = shlex.split(cmd_str)
             process = subprocess.Popen(
                 cmd, stdout=log_file, stderr=log_file, env=os.environ.copy()
