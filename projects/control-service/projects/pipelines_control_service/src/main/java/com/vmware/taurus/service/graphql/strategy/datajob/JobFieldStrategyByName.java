@@ -37,6 +37,6 @@ public class JobFieldStrategyByName extends FieldStrategy<V2DataJob> {
 
   @Override
   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-    return dataJob -> dataJob.getJobName() != null && checkMatch(dataJob.getJobName(), searchStr);
+    return dataJob -> checkMatch(dataJob.getJobName(), searchStr);
   }
 }
