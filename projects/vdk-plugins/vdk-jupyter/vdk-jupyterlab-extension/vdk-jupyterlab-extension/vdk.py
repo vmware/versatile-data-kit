@@ -5,7 +5,8 @@ import shlex
 import subprocess
 
 
-class VDK:
+
+class VdkUI:
     """
     A single parent class containing all the individual VDK methods in it.
     """

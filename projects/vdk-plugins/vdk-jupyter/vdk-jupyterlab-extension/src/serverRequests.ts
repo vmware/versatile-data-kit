@@ -1,6 +1,13 @@
 import { requestAPI } from "./handler";
+ /**
+   * Utility functions that are called by the dialogs. 
+   * They are called when a request to the server is needed to be sent.
+   */
 
 
+ /**
+    * Sent a GET request to the server to get current working directory
+    */
 export function getCurrentPathRequest(){
     requestAPI<any>('run', {
         method: 'GET',
@@ -15,6 +22,10 @@ export function getCurrentPathRequest(){
         });
 }
 
+ /**
+    * Sent a POST request to the server to run a data job.
+    * The information about the data job is retrieved from sessionStorage and sent as JSON.
+    */
 export function jobRunRequest() {
     const dataToSend = {
         jobPath: sessionStorage.getItem("job-path"),
