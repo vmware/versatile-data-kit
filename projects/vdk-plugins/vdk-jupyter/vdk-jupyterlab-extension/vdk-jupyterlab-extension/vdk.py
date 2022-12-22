@@ -36,6 +36,5 @@ class VdkUI:
             process = subprocess.Popen(
                 cmd, stdout=log_file, stderr=log_file, env=os.environ.copy()
             )
-            subprocess.check_output(["/bin/ls", "-l"])
             process.wait()
             return f"{process.returncode}"
