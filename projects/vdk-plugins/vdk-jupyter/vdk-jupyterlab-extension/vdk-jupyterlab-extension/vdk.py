@@ -6,7 +6,10 @@ import subprocess
 from pathlib import Path
 
 from IPython import get_ipython
-from vdk.internal.builtin_plugins.run.standalone_data_job import StandaloneDataJobFactory
+from vdk.internal.builtin_plugins.run.standalone_data_job import (
+    StandaloneDataJobFactory,
+)
+
 
 class VdkUI:
     """
@@ -39,7 +42,6 @@ class VdkUI:
             process = subprocess.Popen(
                 cmd, stdout=log_file, stderr=log_file, env=os.environ.copy()
             )
-            subprocess.check_output(['/bin/ls', '-l'])
+            subprocess.check_output(["/bin/ls", "-l"])
             process.wait()
             return f"{process.returncode}"
-
