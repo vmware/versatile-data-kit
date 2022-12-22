@@ -6,15 +6,13 @@
 package com.vmware.taurus.service.graphql.strategy.datajob;
 
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
-import com.vmware.taurus.service.graphql.model.Filter;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-
 import java.util.Comparator;
 import java.util.function.Predicate;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JobFieldStrategyByName extends FieldStrategy<V2DataJob> {
@@ -32,16 +30,13 @@ public class JobFieldStrategyByName extends FieldStrategy<V2DataJob> {
       @NonNull Criteria<V2DataJob> criteria, @NonNull Filter filter) {
     Predicate<V2DataJob> predicate = criteria.getPredicate();
     if (filterProvided(filter)) {
-      predicate =
-          predicate.and(
-              dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), filter.getPattern()));
+      predicate = predicate.and(dataJob -> checkMatch(dataJob.getJobName(), filter.getPattern()));
     }
-
     return new Criteria<>(predicate, detectSortingComparator(filter, COMPARATOR_DEFAULT, criteria));
   }
 
   @Override
   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-    return dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), searchStr);
+    return dataJob -> checkMatch(dataJob.getJobName(), searchStr);
   }
 }
