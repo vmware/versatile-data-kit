@@ -58,7 +58,9 @@ class Notebook:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
                     if CellFuncFactory.is_vdk_cell(cell):
-                        if CellFuncFactory.is_sql_cell(cell) or CellFuncFactory.is_vdk_run_cell(cell):
+                        if CellFuncFactory.is_sql_cell(
+                            cell
+                        ) or CellFuncFactory.is_vdk_run_cell(cell):
                             self.sql_and_run_cells.append(cell)
                         else:
                             self.python_helper_cells.append(cell)
@@ -83,7 +85,9 @@ class Notebook:
         if not self.sql_and_run_cells:
             log.debug(f"Neither VDK run methods nor SQL statements were detected!")
         for index, cell in enumerate(self.sql_and_run_cells):
-            cell_type = TYPE_PYTHON if CellFuncFactory.is_vdk_run_cell(cell) else TYPE_SQL
+            cell_type = (
+                TYPE_PYTHON if CellFuncFactory.is_vdk_run_cell(cell) else TYPE_SQL
+            )
             runner_func = (
                 NotebookStepFuncFactory.run_python_step
                 if cell_type == TYPE_PYTHON
