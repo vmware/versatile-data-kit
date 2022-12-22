@@ -34,7 +34,11 @@ class VdkUI:
             )
             cmd = shlex.split(cmd_str)
             process = subprocess.Popen(
-                cmd, stdout=log_file, stderr=log_file, env=os.environ.copy(), shell=False
+                cmd,
+                stdout=log_file,
+                stderr=log_file,
+                env=os.environ.copy(),
+                shell=False,
             )
             process.wait()
             return f"{process.returncode}"
