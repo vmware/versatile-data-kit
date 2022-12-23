@@ -108,6 +108,54 @@ class TestTemplateRegression(unittest.TestCase):
             template_args=template_args,
         )
 
+    def test_load_dimension_scd1_checks_positive(self) -> None:
+
+        def sample_check(tmp_table_name):
+            return True
+            
+        test_schema = "vdkprototypes"
+        source_view = "vw_dim_org_partition_test"
+        target_table = "dw_dim_org_partitioned"
+
+        res = self._run_job(
+            "load_dimension_scd1_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "check": sample_check
+            }
+        )
+
+        assert not res.exception
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
+        assert actual_rs.output and expected_rs.output
+        assert actual_rs.output == expected_rs.output
+
+    def test_load_dimension_scd1_checks_negative(self) -> None:
+
+        def sample_check(tmp_table_name):
+            return False
+            
+        test_schema = "vdkprototypes"
+        source_view = "vw_dim_org_partition_test"
+        target_table = "dw_dim_org_partitioned"
+
+        res = self._run_job(
+            "load_dimension_scd1_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "check": sample_check
+            }
+        )
+
+        assert res.exception
+
     def test_load_dimension_scd2(self) -> None:
         test_schema = "vdkprototypes"
         source_view = "vw_scmdb_people"
