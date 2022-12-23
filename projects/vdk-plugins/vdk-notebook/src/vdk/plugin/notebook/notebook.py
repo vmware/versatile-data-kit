@@ -11,7 +11,7 @@ from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.plugin.notebook.cell import Cell
-from vdk.plugin.notebook.cell import CellFuncFactory
+from vdk.plugin.notebook.cell import CellUtils
 from vdk.plugin.notebook.notebook_based_step import NotebookStep
 from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
 
@@ -57,10 +57,10 @@ class Notebook:
             for jupyter_cell in content["cells"]:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
-                    if CellFuncFactory.is_vdk_cell(cell):
-                        if CellFuncFactory.is_sql_cell(
+                    if CellUtils.is_vdk_cell(cell):
+                        if CellUtils.is_sql_cell(
                             cell
-                        ) or CellFuncFactory.is_vdk_run_cell(cell):
+                        ) or CellUtils.is_vdk_run_cell(cell):
                             self.sql_and_run_cells.append(cell)
                         else:
                             self.python_helper_cells.append(cell)
@@ -86,7 +86,7 @@ class Notebook:
             log.debug(f"Neither VDK run methods nor SQL statements were detected!")
         for index, cell in enumerate(self.sql_and_run_cells):
             cell_type = (
-                TYPE_PYTHON if CellFuncFactory.is_vdk_run_cell(cell) else TYPE_SQL
+                TYPE_PYTHON if CellUtils.is_vdk_run_cell(cell) else TYPE_SQL
             )
             runner_func = (
                 NotebookStepFuncFactory.run_python_step
@@ -94,7 +94,7 @@ class Notebook:
                 else NotebookStepFuncFactory.run_sql_step
             )
             if cell_type == TYPE_PYTHON:
-                CellFuncFactory.combine_cells(cell, self.python_helper_cells)
+                CellUtils.combine_cells(cell, self.python_helper_cells)
             step = NotebookStep(
                 name="".join(
                     [
@@ -106,6 +106,6 @@ class Notebook:
                 runner_func=runner_func,
                 file_path=self.file_path,
                 job_dir=context.job_directory,
-                code=CellFuncFactory.get_cell_code(cell),
+                code=CellUtils.get_cell_code(cell),
             )
             context.step_builder.add_step(step)

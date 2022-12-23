@@ -14,7 +14,8 @@ class Cell:
         self.source = "".join(jupyter_cell["source"])
 
 
-class CellFuncFactory:
+# TODO: add a better parsing methods
+class CellUtils:
     @staticmethod
     def is_vdk_cell(cell: Cell):
         return "vdk" in cell.tags
