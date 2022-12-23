@@ -35,6 +35,7 @@ class TestTemplateRegression(unittest.TestCase):
         self.__runner = CliEntryBasedTestRunner(impala_plugin)
         time.sleep(10)  # wait for impala instance to come online
         self._run_query("CREATE DATABASE IF NOT EXISTS vdkprototypes")
+        self._run_query("CREATE DATABASE IF NOT EXISTS staging_vdkprototypes")
 
     def test_load_dimension_scd1(self) -> None:
         test_schema = "vdkprototypes"
@@ -116,6 +117,7 @@ class TestTemplateRegression(unittest.TestCase):
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org_partition_test"
         target_table = "dw_dim_org_partitioned"
+        staging_schema = "staging_vdkprototypes"
 
         res = self._run_job(
             "load_dimension_scd1_template_job",
@@ -124,7 +126,8 @@ class TestTemplateRegression(unittest.TestCase):
                 "source_view": source_view,
                 "target_schema": test_schema,
                 "target_table": target_table,
-                "check": sample_check
+                "check": sample_check,
+                "staging_schema": staging_schema
             }
         )
 
@@ -142,6 +145,7 @@ class TestTemplateRegression(unittest.TestCase):
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org_partition_test"
         target_table = "dw_dim_org_partitioned"
+        staging_schema = "staging_vdkprototypes"
 
         res = self._run_job(
             "load_dimension_scd1_template_job",
@@ -150,7 +154,8 @@ class TestTemplateRegression(unittest.TestCase):
                 "source_view": source_view,
                 "target_schema": test_schema,
                 "target_table": target_table,
-                "check": sample_check
+                "check": sample_check,
+                "staging_schema": staging_schema
             }
         )
 
