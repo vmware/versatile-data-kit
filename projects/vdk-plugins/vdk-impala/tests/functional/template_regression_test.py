@@ -110,10 +110,9 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def test_load_dimension_scd1_checks_positive(self) -> None:
-
         def sample_check(tmp_table_name):
             return True
-            
+
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org_partition_test"
         target_table = "dw_dim_org_partitioned"
@@ -127,8 +126,8 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_schema": test_schema,
                 "target_table": target_table,
                 "check": sample_check,
-                "staging_schema": staging_schema
-            }
+                "staging_schema": staging_schema,
+            },
         )
 
         assert not res.exception
@@ -138,10 +137,9 @@ class TestTemplateRegression(unittest.TestCase):
         assert actual_rs.output == expected_rs.output
 
     def test_load_dimension_scd1_checks_negative(self) -> None:
-
         def sample_check(tmp_table_name):
             return False
-            
+
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org_partition_test"
         target_table = "dw_dim_org_partitioned"
@@ -155,8 +153,8 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_schema": test_schema,
                 "target_table": target_table,
                 "check": sample_check,
-                "staging_schema": staging_schema
-            }
+                "staging_schema": staging_schema,
+            },
         )
 
         assert res.exception
