@@ -32,6 +32,10 @@ build-py310-vdk-trino:
   extends: .build-vdk-trino
   image: "python:3.10"
 
+build-py311-vdk-trino:
+  extends: .build-vdk-trino
+  image: "python:3.11"
+
 build-vdk-trino-on-vdk-core-release:
   variables:
     PLUGIN_NAME: vdk-trino
