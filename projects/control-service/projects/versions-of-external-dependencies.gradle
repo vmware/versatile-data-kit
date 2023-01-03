@@ -32,7 +32,7 @@ project.ext {
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.2.0',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.2',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:4.43.0',
-            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.42.0',
+            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.0.1',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
             'org.springframework.security.kerberos:spring-security-kerberos-test': 'org.springframework.security.kerberos:spring-security-kerberos-test:1.0.1.RELEASE',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.14.0', //5.11.2
