@@ -430,6 +430,7 @@ public class KubernetesServiceTest {
   }
 
   private KubernetesService mockCronJobFromTemplate() {
-    return new KubernetesService(null ,null, org.slf4j.LoggerFactory.getLogger(KubernetesService.class)){};
+    return new KubernetesService(
+        null, null, org.slf4j.LoggerFactory.getLogger(KubernetesService.class)) {};
   }
 }
