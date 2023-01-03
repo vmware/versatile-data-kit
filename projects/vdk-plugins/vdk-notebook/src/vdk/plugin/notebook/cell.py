@@ -1,35 +1,43 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from dataclasses import dataclass
 
 
+@dataclass
 class Cell:
     """
-    Helper class that retrieves data from Jupyter cells
-    Only the data essential for running a VDK data job is saved
-    Other data is ignored
+    A class that represents Jupyter code cell
     """
 
     def __init__(self, jupyter_cell):
         self.tags = jupyter_cell["metadata"].get("tags", {})
         self.source = "".join(jupyter_cell["source"])
 
-    def is_vdk_cell(self):
-        return "vdk" in self.tags
 
-    def is_sql_cell(self):
-        return self.source.startswith("%sql")
+# TODO: add a better parsing methods
+class CellUtils:
+    @staticmethod
+    def is_vdk_cell(cell: Cell):
+        return "vdk" in cell.tags
 
-    def is_vdk_run_cell(self):
-        return "def run(" in self.source
+    @staticmethod
+    def is_sql_cell(cell: Cell):
+        return cell.source.startswith("%sql")
 
-    def add_code(self, cells):
+    @staticmethod
+    def is_vdk_run_cell(cell: Cell):
+        return "def run(" in cell.source
+
+    @staticmethod
+    def combine_cells(main_cell: Cell, additional_cells):
         code = []
-        for cell in cells:
+        for cell in additional_cells:
             code.append(cell.source)
-        self.source = "\n".join(code) + "\n" + self.source
+        main_cell.source = "\n".join(code) + "\n" + main_cell.source
 
-    def get_code(self):
-        if self.source.startswith("%sql"):
-            code = self.source.replace("%sql", "")
+    @staticmethod
+    def get_cell_code(cell: Cell):
+        if cell.source.startswith("%sql"):
+            code = cell.source.replace("%sql", "")
             return code.replace(";", "")
-        return self.source
+        return cell.source

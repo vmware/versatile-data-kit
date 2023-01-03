@@ -27,6 +27,10 @@ build-py310-vdk-sqlite:
   extends: .build-vdk-sqlite
   image: "python:3.10"
 
+build-py311-vdk-sqlite:
+  extends: .build-vdk-sqlite
+  image: "python:3.11"
+
 release-vdk-sqlite:
   variables:
     PLUGIN_NAME: vdk-sqlite
