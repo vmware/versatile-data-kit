@@ -5,11 +5,6 @@
 
 package com.vmware.taurus.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobLabel;
@@ -18,8 +13,6 @@ import io.kubernetes.client.openapi.models.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -437,27 +430,6 @@ public class KubernetesServiceTest {
   }
 
   private KubernetesService mockCronJobFromTemplate() {
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
-    Mockito.when(
-            mock.v1CronJobFromTemplate(
-                anyString(),
-                anyString(),
-                anyBoolean(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                anyList()))
-        .thenCallRealMethod();
-
-    ReflectionTestUtils.setField(
-        mock, // inject into this object
-        "log", // assign to this field
-        Mockito.mock(Logger.class)); // object to be injected
-
-    return mock;
+    return new KubernetesService(null ,null, org.slf4j.LoggerFactory.getLogger(KubernetesService.class)){};
   }
 }
