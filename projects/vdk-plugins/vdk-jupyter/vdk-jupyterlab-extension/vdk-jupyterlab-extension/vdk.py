@@ -26,16 +26,17 @@ class VdkUI:
                 return "Incorrect path!"
         with open("vdk_logs.txt", "w+") as log_file:
             path = shlex.quote(path)
-            arguments = shlex.quote(arguments)
-            cmd_str = (
-                f"vdk run {path}"
-                if not arguments
-                else f"vdk run {path} --arguments {arguments}"
-            )
-            cmd = shlex.split(cmd_str)
+            cmd: list[str] = ["vdk", "run", f"{path}"]
+            if arguments:
+                arguments = shlex.quote(arguments)
+                cmd.append("--arguments")
+                cmd.append(f"{arguments}")
             process = subprocess.Popen(
-                cmd, stdout=log_file, stderr=log_file, env=os.environ.copy()
+                cmd,
+                stdout=log_file,
+                stderr=log_file,
+                env=os.environ.copy(),
+                shell=False,
             )
-            subprocess.check_output(["/bin/ls", "-l"])
             process.wait()
             return f"{process.returncode}"
