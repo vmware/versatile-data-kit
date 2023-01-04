@@ -126,8 +126,8 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_schema": test_schema,
                 "target_table": target_table,
                 "check": sample_check,
-                "staging_schema": staging_schema
-            }
+                "staging_schema": staging_schema,
+            },
         )
 
         assert not res.exception
@@ -153,8 +153,8 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_schema": test_schema,
                 "target_table": target_table,
                 "check": sample_check,
-                "staging_schema": staging_schema
-            }
+                "staging_schema": staging_schema,
+            },
         )
 
         assert res.exception
