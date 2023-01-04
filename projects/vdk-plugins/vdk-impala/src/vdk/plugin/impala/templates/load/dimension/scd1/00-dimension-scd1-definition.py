@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from typing import Callable, Optional
 from pydantic import BaseModel
 from vdk.api.job_input import IJobInput
 from vdk.plugin.impala.templates.template_arguments_validator import (
@@ -12,6 +13,8 @@ class SlowlyChangingDimensionTypeOverwriteParams(BaseModel):
     target_table: str
     source_schema: str
     source_view: str
+    check: Optional[Callable[[str], bool]]
+    staging_schema: Optional[str]
 
 
 class SlowlyChangingDimensionTypeOverwrite(TemplateArgumentsValidator):
