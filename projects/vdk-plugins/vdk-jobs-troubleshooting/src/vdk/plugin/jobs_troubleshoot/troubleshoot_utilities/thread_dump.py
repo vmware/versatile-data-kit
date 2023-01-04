@@ -1,7 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2023 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
 import json
 import logging
 import sys
@@ -22,7 +20,15 @@ log = logging.getLogger(__name__)
 
 
 class ThreadDumpHandler(BaseHTTPRequestHandler):
+    """
+    A class for handling HTTP requests and generating thread dumps used by the thread-dump troubleshooting utility.
+    """
+
     def do_GET(self):
+        """
+        Handles GET requests. If the request path is "/threads", a thread dump is logged and sent as the response.
+        Otherwise, a 404 error is sent as the response.
+        """
         if self.path == "/threads":
             log.info("Dumping threads")
             self.send_response(200)
@@ -33,6 +39,9 @@ class ThreadDumpHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
     def _log_thread_dump(self):
+        """
+        Logs a thread dump and writes it to the response body.
+        """
         try:
             log.info("------- Dumping threads stacks -------")
             for t in threading.enumerate():

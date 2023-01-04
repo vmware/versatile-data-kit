@@ -38,14 +38,14 @@ def utilities_registry(job_config: Configuration) -> Dict[str, Any]:
 
 def get_utilities_to_use(
     job_config: Configuration,
-) -> Optional[List[ITroubleshootUtility]]:
+) -> List[ITroubleshootUtility]:
     """
     Get a list of the initialized troubleshooting utilities that are specified
     by the VDK_TROUBLESHOOT_UTILITIES_TO_USE configuration variable.
     :param job_config: Data Job configuration
     :return: A list of utility objects that are to be used.
     """
-    utilities: Optional[List[ITroubleshootUtility]] = []
+    utilities: List[ITroubleshootUtility] = []
     selected_utilities: str = job_config.get_value(TROUBLESHOOT_UTILITIES_TO_USE)
     registered_utilities: Dict = utilities_registry(job_config=job_config)
 

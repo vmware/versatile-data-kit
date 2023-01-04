@@ -21,8 +21,18 @@ log = logging.getLogger(__name__)
 
 
 class JobTroubleshootingPlugin:
+    """
+    Entrypoint for the Data Jobs Troubleshooting plugin - it provides the means to initialize and configure
+    troubleshooting utilities, based on the configured environment variables.
+
+    Example:
+    To start the thread dump utility, configure the following environment variables:
+        VDK_TROUBLESHOOT_UTILITIES_TO_USE="thread-dump"
+        VDK_PORT_TO_USE=8783
+    """
+
     def __init__(self):
-        self.troubleshooting_utils: Optional[List[ITroubleshootUtility]] = []
+        self.troubleshooting_utils: List[ITroubleshootUtility] = []
 
     @staticmethod
     @hookimpl
