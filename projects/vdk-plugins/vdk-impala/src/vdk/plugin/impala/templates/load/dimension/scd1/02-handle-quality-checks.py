@@ -1,9 +1,14 @@
-from vdk.api.job_input import IJobInput
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import re
 
-SQL_FILES_FOLDER = os.path.dirname(
-    os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
+from vdk.api.job_input import IJobInput
+
+SQL_FILES_FOLDER = (
+    os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
+)
 
 
 def run(job_input: IJobInput):
@@ -13,37 +18,37 @@ def run(job_input: IJobInput):
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
     staging_schema = job_arguments.get("staging_schema")
-    insert_query = get_query('02-insert-into-target.sql')
+    insert_query = get_query("02-insert-into-target.sql")
 
     if check:
         if not staging_schema:
             raise ValueError(
                 'No staging_schema specified to execute the defined data checks against.')
 
-        staging_table = f'{staging_schema}.{target_table}'
+        staging_table = f"{staging_schema}.{target_table}"
         align_stg_table_with_target(
-            f'{target_schema}.{target_table}', staging_table, job_input)
+            f"{target_schema}.{target_table}", staging_table, job_input
+        )
 
-        insert_into_staging = insert_query.format(target_schema=staging_schema,
-                                                  target_table=target_table)
+        insert_into_staging = insert_query.format(
+            target_schema=staging_schema, target_table=target_table
+        )
         job_input.execute_statement(insert_into_staging)
 
         if check(staging_table):
-            insert_into_target = insert_query.format(source_schema=staging_schema,
-                                                     source_view=target_table)
+            insert_into_target = insert_query.format(
+                source_schema=staging_schema, source_view=target_table
+            )
             job_input.execute_query(insert_into_target)
         else:
-            raise Exception('The data is not passing the quality checks!')
+            raise Exception("The data is not passing the quality checks!")
 
     else:
         job_input.execute_query(insert_query)
 
 
 def get_query(sql_file_name):
-    query_full_path = os.path.join(
-        SQL_FILES_FOLDER,
-        sql_file_name
-    )
+    query_full_path = os.path.join(SQL_FILES_FOLDER, sql_file_name)
     with open(query_full_path) as query:
         content = query.read()
         return content
@@ -53,18 +58,17 @@ def align_stg_table_with_target(target_table, stg_table, job_input):
     create_table_like(target_table, stg_table, job_input)
 
     orig_create_table_statement = extract_create_table_statement(
-        target_table, job_input)
-    clone_create_table_statement = extract_create_table_statement(
-        stg_table, job_input)
+        target_table, job_input
+    )
+    clone_create_table_statement = extract_create_table_statement(stg_table, job_input)
 
     if orig_create_table_statement != clone_create_table_statement:
-        job_input.execute_query(f'DROP TABLE {stg_table}')
+        job_input.execute_query(f"DROP TABLE {stg_table}")
         create_table_like(target_table, stg_table, job_input)
 
 
 def extract_create_table_statement(table_name, job_input):
-    statement = job_input.execute_query(
-        f'SHOW CREATE TABLE {table_name}')[0][0]
+    statement = job_input.execute_query(f"SHOW CREATE TABLE {table_name}")[0][0]
     statement = remove_location(statement)
     statement = remove_table_properties(statement)
     statement = remove_create_table_prefix(statement)
@@ -73,16 +77,17 @@ def extract_create_table_statement(table_name, job_input):
 
 def create_table_like(orig_table_name, clone_table_name, job_input):
     job_input.execute_query(
-        f"CREATE TABLE IF NOT EXISTS {clone_table_name} LIKE {orig_table_name}")
+        f"CREATE TABLE IF NOT EXISTS {clone_table_name} LIKE {orig_table_name}"
+    )
 
 
 def remove_location(create_table_statement):
-    return re.sub("\s+LOCATION '[^']'", '', create_table_statement)
+    return re.sub(r"\s+LOCATION '[^']'", "", create_table_statement)
 
 
 def remove_create_table_prefix(create_table_statement):
-    return re.sub("^CREATE TABLE[^\\(]*\\(", '', create_table_statement)
+    return re.sub("^CREATE TABLE[^\\(]*\\(", "", create_table_statement)
 
 
 def remove_table_properties(create_table_statement):
-    return re.sub("\s+TBLPROPERTIES \\([^\\)]*\\)", '', create_table_statement)
+    return re.sub("\\s+TBLPROPERTIES \\([^\\)]*\\)", "", create_table_statement)
