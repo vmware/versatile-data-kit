@@ -17,7 +17,7 @@ def run(job_input: IJobInput):
 
     if check:
         if not staging_schema:
-            raise Exception(
+            raise ValueError(
                 'No staging_schema specified to execute the defined data checks against.')
 
         staging_table = f'{staging_schema}.{target_table}'
