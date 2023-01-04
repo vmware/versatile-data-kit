@@ -1,5 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import json
 import logging
 import sys
@@ -22,33 +24,40 @@ log = logging.getLogger(__name__)
 class ThreadDumpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/threads":
-            self.send_response(200)
-            self.wfile.write(b"making a thread dump")
             log.info("Dumping threads")
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain]")
+            self.end_headers()
             self._log_thread_dump()
         else:
             self.send_error(404)
 
-    @staticmethod
-    def _log_thread_dump():
+    def _log_thread_dump(self):
         try:
+            log.info("------- Dumping threads stacks -------")
             for t in threading.enumerate():
                 log.info(
                     f"Thread:{t.getName()} alive:{t.is_alive()} daemon:{t.isDaemon()}"
                 )
-            log.info("--------------------------------------------------------------")
-            log.info("Dumping threads stacks:")
+                self.wfile.write(
+                    str.encode(
+                        f"\nThread:{t.getName()} alive:{t.is_alive()} daemon:{t.isDaemon()}"
+                    )
+                )
             code = []
             for threadId, stack in sys._current_frames().items():
-                code.append("\n# ThreadID: %s" % threadId)
+                code.append("# ThreadID: %s" % threadId)
                 for filename, lineno, name, line in traceback.extract_stack(stack):
-                    code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
-                    if line:
-                        code.append("  %s" % (line.strip()))
-            log.info(f"Threads stacks:{json.dumps(code)}")
-            log.info("--------------------------------------------------------------")
+                    code.append(
+                        "%s::%d::%s::%s"
+                        % (filename, lineno, name, (line.strip() if line else ""))
+                    )
+            for line in code:
+                log.info(line)
+                self.wfile.write(str.encode(f"\n {line}"))
+            log.info("------- End of thread dump -------")
         except Exception as e:
-            log.exception(f"test_reporter_thread exception:{e}", exc_info=True)
+            log.exception(f"Error while dumping threads:{e}", exc_info=True)
 
 
 class ThreadDumpUtility(ITroubleshootUtility):
