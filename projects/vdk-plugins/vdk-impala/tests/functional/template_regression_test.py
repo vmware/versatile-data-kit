@@ -144,6 +144,7 @@ class TestTemplateRegression(unittest.TestCase):
         source_view = "vw_dim_org_partition_test"
         target_table = "dw_dim_org_partitioned"
         staging_schema = "staging_vdkprototypes"
+        initial_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
 
         res = self._run_job(
             "load_dimension_scd1_template_job",
@@ -157,7 +158,11 @@ class TestTemplateRegression(unittest.TestCase):
             }
         )
 
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+
         assert res.exception
+        assert actual_rs.output and initial_rs.output
+        assert actual_rs.output == initial_rs.output
 
     def test_load_dimension_scd2(self) -> None:
         test_schema = "vdkprototypes"
