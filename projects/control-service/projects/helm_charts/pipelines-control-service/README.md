@@ -3,7 +3,7 @@ Versatile Data Kit is a platform that enables Data Engineers to implement automa
 
 ## Prerequisites
 - Kubernetes 1.19<=x>1.25 works with no config changes
-- for kubernetes 1.25+ the datajob template needs to be changed in the [values.yaml](./values.yaml). Specifically enabled needs to be set to true and apiVersion needs to be set to batch/v1
+- for kubernetes 1.25+ the datajob template needs to be changed in the [values.yaml](./values.yaml). Specifically `enabled` needs to be set to `true` and `apiVersion` needs to be set to `batch/v1`
 - Helm 3.0
 - PV provisioner support in the underlying infrastructure if using the embedded database.
 - During helm install - CRUD on Kubernetes Deployment, Service, ServiceAccount, Role, Rolebindings. Control Service itself manages CronJob(Job and Pod as well), Secret resources. Statefulset and PVC if using the embedded database
