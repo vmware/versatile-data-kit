@@ -4,7 +4,6 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 
 from vdk.internal.core.config import Configuration
 from vdk.plugin.jobs_troubleshoot.api.troubleshoot_utility import ITroubleshootUtility

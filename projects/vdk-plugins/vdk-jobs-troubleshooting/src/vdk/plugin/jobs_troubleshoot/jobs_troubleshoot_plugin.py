@@ -5,7 +5,6 @@ VDK-JOBS-TROUBLESHOOTING plugin script.
 """
 import logging
 from typing import List
-from typing import Optional
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
