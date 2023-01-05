@@ -75,7 +75,8 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 
 
 ## High-level design
-![high-level-design.png](high-level-design.png)
+
+![high-level-design.png](images/high-level-design.png)
 
 JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
 Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
@@ -89,9 +90,9 @@ Please, before reading this section make sure you read the user [guide](https://
 
 Here is the proposed UI and its user flows:
 
-![ux1](ux1.gif)
+![ux1](images/ux1.gif)
 
-![ux2](ux2.gif)
+![ux2](images/ux2.gif)
 
 You can see the full video in the parent directory of this file.
 
@@ -122,11 +123,11 @@ You can see the full video in the parent directory of this file.
 As you can see there are two variations of working with Python cells:
 1) Solution 1 - with def run():
 
-![python-steps-solution1](python-steps-solution1.gif)
+![python-steps-solution1](images/python-steps-solution1.gif)
 
 2) Solution 2 - with %vdk-run-start and %vdk-run-end
 
-![python-steps-solution2](python-steps-solution2.gif)
+![python-steps-solution2](images/python-steps-solution2.gif)
 
 Since they both cover the same requirements we selected which one is more appropriate according to user opinions.
 
@@ -158,18 +159,21 @@ No direct changes to the public API.
 ### VDK Notebook plugin
  This VDK plugin will provide the functionality to run Jobs which contain notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
 As it can be seen from the below diagram the plugin will consist of a new hook and a few new classes.
+<!-- Link for the diagram:
+ https://lucid.app/lucidchart/f30edac7-1ed0-4e29-8cd7-99fea6aa4592/edit?viewport_loc=-408%2C-134%2C2417%2C1419%2C0_0&invitationId=inv_542e02a8-ca61-4d8b-bb93-6914817eb884
+-->
 
-![vdk-notebook-plugin](vdk-notebook-plugin.jpeg)
+![vdk-notebook-plugin](images/vdk-notebook-plugin.jpeg)
 
 #### VDK Hook
 The VDK Hook will encapsulate the logic for the initialization of a job that will get the code from Notebook files. When initialized like that jobs that work with Notebooks will be run as a standard data job which works with .py and .sql files.
-It will be using the NotebookReader and the NotebookLocator classes.
+It will be using the Notebook and the NotebookLocator classes.
 #### NotebookLocator
 It is a simple class which has a method which returns the notebook files found in a given directory.
 #### Cell
 Before giving a proper definition to this class, we should see how we categorise the [Notebook cells](#glossary):
 
-![jupyter-cells](cells.jpeg)
+![jupyter-cells](images/cells.jpeg)
 
 Jupyter itself categorises the cells into three groups: code, markdown and raw.
 We will be looking into only the code ones since the plugin works only with them.
@@ -181,7 +185,7 @@ The SQL ones respectively consist of a single SQL query
 The python code itself is categorised into two - code for defining the run() method (which is used by VDK)
 and code that is outside that run() method - we call these the "helper" cells.
 
-The Cell  class is a simple class that encapsulates this logic.
+The Cell  class is a dataclass class that encapsulates this logic.
 
 #### Notebook
 This class is the representation of a [Notebook](#glossary). It contains SQL, run() and "helper" cells and a method
@@ -213,11 +217,12 @@ requests sent by the front-end side. Only the server extension will have direct 
 ,since the standard file based step run is not working with notebook files. For the remaining operations such as deploy, log in, log out, etc. it will be using the corresponding VDK plugin/project.
 
 From the diagram below you can see what the extension will consist of:
-![jupyterlab-extension](jlab-extension.png)
+
+![jupyterlab-extension](images/jlab-extension.png)
 
 Example use case:
 
-![example-use-case](example.png)
+![example-use-case](images/example.png)
 
 ### Availability
 The availability of the extension will be managed by JupyterLab since it is going to be run as part of the JupyterLab ecosystem.
