@@ -12,7 +12,7 @@ def load_ipython_extension(ipython):
     IPython will look for this function specifically.
     See https://ipython.readthedocs.io/en/stable/config/extensions/index.html
     """
-    ipython.register_magic_function(magic_load_job, magic_name="intialize_vdk_job")
+    ipython.register_magic_function(magic_load_job, magic_name="reload_job_input")
 
 
 @magic_arguments()
@@ -29,9 +29,11 @@ def magic_load_job(line: str):
     load_job(args.path, args.arguments, args.template)
 
 
-def load_job(path: str = None, arguments:str = None, template: str = None):
+def load_job(path: str = None, arguments: str = None, template: str = None):
     if path:
         path = pathlib.Path(path)
+    else:
+        path = pathlib.Path(os.getcwd())
     with StandaloneDataJobFactory.create(
             data_job_directory=path,
             job_args=arguments,
