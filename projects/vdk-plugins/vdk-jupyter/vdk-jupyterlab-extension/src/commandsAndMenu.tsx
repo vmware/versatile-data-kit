@@ -33,7 +33,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
                 buttons: [Dialog.okButton(), Dialog.cancelButton()],
             }).then(result => {
                 if (!result.value) {
-
+                    // TODO: add server requests
                 }
             }).catch((e) => console.log(e));
         },

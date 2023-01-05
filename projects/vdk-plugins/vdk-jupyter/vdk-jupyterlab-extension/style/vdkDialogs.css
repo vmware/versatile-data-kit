@@ -3,3 +3,17 @@
     flex-direction: column;
     margin-top: 15px;
 }
+
+.hidden{
+    display: none;
+}
+
+.jp-vdk-create-options-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.jp-createJob-checkbox{
+    margin-left: 10px;
+}
