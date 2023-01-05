@@ -76,7 +76,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         }
     }
     /**
-    * Helper method for checkbox click events which include removing/adding visibility of input element to the dialog 
+    * Helper method for checkbox click events which include removing/adding visibility of input element to the dialog
     */
    private _handleCheckboxEvent(checkboxId: string, inputId: string, createJobType: string){
     let checkbox = document.getElementById(checkboxId);
