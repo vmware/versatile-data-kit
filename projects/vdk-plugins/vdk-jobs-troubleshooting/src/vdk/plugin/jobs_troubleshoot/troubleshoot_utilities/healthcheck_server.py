@@ -1,9 +1,11 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 from http.server import HTTPServer
-from http.server import SimpleHTTPRequestHandler
 from threading import Thread
 from typing import Any
+
+log = logging.getLogger(__name__)
 
 
 class HealthCheckServer:
@@ -19,30 +21,14 @@ class HealthCheckServer:
             port (int): The port number on which the server will listen for requests.
             handler (Any, optional): The request handler class. Defaults to SimpleHTTPRequestHandler.
         """
-
         if handler:
             self._server = HTTPServer(("", port), handler)
+            self._thread = Thread(target=self._server.serve_forever)
+            log.error(f"Troubleshooting utility server started on port {port}.")
         else:
-            self._server = HTTPServer(("", port), SimpleHTTPRequestHandler)
-        self._thread = Thread(target=self._server.serve_forever)
-
-    def __enter__(self):
-        """
-        Enters a with block. This method starts the server.
-        """
-        self.start()
-        return self
-
-    def __exit__(self, typ, value, traceback):
-        """
-        Exits a with block. This method stops the server.
-
-        Parameters:
-            typ (Any): The exception type.
-            value (Any): The exception value.
-            traceback (Any): The traceback.
-        """
-        self.stop()
+            log.error(
+                "Troubleshooting utility handler not specified. Will not start the server."
+            )
 
     def start(self):
         """
