@@ -2,7 +2,7 @@
 
 Ipython extension for VDK
 
-This extension introduces a magic command for Jupyter. 
+This extension introduces a magic command for Jupyter.
 The command enables the user to load job_input for his current data job and use it freely while working with Jupyter.
 
 See more about magic commands: https://ipython.readthedocs.io/en/stable/interactive/magics.html
@@ -18,7 +18,7 @@ And to load the job_input:
 ```
 %reload_job_input
 ```
-The %reload_job_input magic can be used with arguments such as passing the job's path with --path 
+The %reload_job_input magic can be used with arguments such as passing the job's path with --path
 or giving the job a new with --name, etc.
 
 ### Example

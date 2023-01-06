@@ -14,7 +14,7 @@ setuptools.setup(
     name="vdk-ipython-ext",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description='Ipython extension for VDK',
+    description="Ipython extension for VDK",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core"],
@@ -22,11 +22,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specifc part
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
-    entry_points={
-        "vdk.plugin.run": [
-            "ipython-ext = vdk_ipython_ext"
-        ]
-    },
+    entry_points={"vdk.plugin.run": ["ipython-ext = vdk_ipython_ext"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
@@ -35,6 +31,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        "Framework :: IPython"
+        "Framework :: IPython",
     ],
 )

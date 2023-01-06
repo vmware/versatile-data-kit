@@ -1,9 +1,16 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import pathlib
 
 from IPython import get_ipython
-from vdk.internal.builtin_plugins.run.standalone_data_job import StandaloneDataJobFactory
-from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from IPython.core.magic_arguments import argument
+from IPython.core.magic_arguments import magic_arguments
+from IPython.core.magic_arguments import parse_argstring
+from vdk.internal.builtin_plugins.run.standalone_data_job import (
+    StandaloneDataJobFactory,
+)
 
 
 def load_ipython_extension(ipython):
@@ -29,16 +36,11 @@ def magic_load_job(line: str):
     load_job(args.path, args.name, args.arguments, args.template)
 
 
-def load_job(path: str = None, name: str = None, arguments: str = None, template: str = None):
+def load_job(
+    path: str = None, name: str = None, arguments: str = None, template: str = None
+):
     path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
     with StandaloneDataJobFactory.create(
-            data_job_directory=path,
-            name=name,
-            job_args=arguments,
-            template_name=template
+        data_job_directory=path, name=name, job_args=arguments, template_name=template
     ) as job_input:
-        get_ipython().push(
-            variables={
-                "job_input": job_input
-            }
-        )
+        get_ipython().push(variables={"job_input": job_input})
