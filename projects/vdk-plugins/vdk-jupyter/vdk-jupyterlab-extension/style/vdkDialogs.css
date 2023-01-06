@@ -1,19 +1,19 @@
-.jp-vdk-input-wrapper{
-    display: flex;
-    flex-direction: column;
-    margin-top: 15px;
+.jp-vdk-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
 }
 
-.hidden{
-    display: none;
+.hidden {
+  display: none;
 }
 
-.jp-vdk-create-options-wrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.jp-vdk-create-options-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.jp-createJob-checkbox{
-    margin-left: 10px;
+.jp-createJob-checkbox {
+  margin-left: 10px;
 }
