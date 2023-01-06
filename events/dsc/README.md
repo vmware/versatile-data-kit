@@ -1,7 +1,5 @@
 # Practical Kimball Data Patterns
 
-https://datasciconference.com
-
 ## Table of Contents
 - [Presentation slides](#Presentation-slides)
 - [Pre-requisites](#Pre-requisites)
@@ -13,7 +11,7 @@ https://datasciconference.com
 
 ## Presentation slides
 
-Open them at [vdk-dim-model-dsc.pdf](https://github.com/vmware/versatile-data-kit/files/10149505/vdk-dim-model-dsc-serbia.pdf)
+Open them at [vdk-dim-model.pdf](https://github.com/vmware/versatile-data-kit/files/10218545/vdk-dim-model.pdf)
 
 ## Presenter
 

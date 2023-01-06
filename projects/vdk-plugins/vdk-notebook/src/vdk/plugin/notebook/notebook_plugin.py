@@ -1,33 +1,29 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from typing import List
+from __future__ import annotations
+
+import logging
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
-from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.core.context import CoreContext
+from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.plugin.notebook.notebook import JobNotebookLocator
+from vdk.plugin.notebook.notebook import Notebook
 
-"""
-Include the plugins implementation. For example:
-"""
+log = logging.getLogger(__name__)
 
 
-class DummyPlugin:
-    @hookimpl(tryfirst=True)
-    def vdk_configure(self, config_builder: ConfigurationBuilder):
-        config_builder.add(
-            key="dummy_config_key",
-            default_value="dummy",
-            description="""
-                Dummy configuration
-            """,
-        )
-
-    @hookimpl
-    def vdk_initialize(self, context: CoreContext):
-        print("initializing dummy")
+class NotebookPlugin:
+    @hookimpl(trylast=True)
+    def initialize_job(self, context: JobContext):
+        file_locator: JobNotebookLocator = JobNotebookLocator()
+        notebook_files = file_locator.get_notebook_files(context.job_directory)
+        if len(notebook_files) >= 1:
+            for file_path in notebook_files:
+                nb: Notebook = Notebook(file_path)
+                nb.register_notebook_steps(context)
 
 
 @hookimpl
-def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    plugin_registry.load_plugin_with_hooks_impl(DummyPlugin(), "DummyPlugin")
+def vdk_start(plugin_registry: IPluginRegistry):
+    plugin_registry.load_plugin_with_hooks_impl(NotebookPlugin(), "notebook-plugin")

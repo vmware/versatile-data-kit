@@ -6,16 +6,14 @@
 package com.vmware.taurus.service.graphql.strategy.datajob;
 
 import com.vmware.taurus.service.graphql.model.Criteria;
+import com.vmware.taurus.service.graphql.model.Filter;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
-import com.vmware.taurus.service.graphql.model.Filter;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-
 import java.util.Comparator;
 import java.util.function.Predicate;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
@@ -43,9 +41,7 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
                 part = part.replace("%", ".*").trim();
                 var configTeamLower = config.getTeam().toLowerCase();
                 var partLower = part.toLowerCase();
-
-                return configTeamLower.matches(partLower)
-                    || configTeamLower.trim().equals(partLower.trim());
+                return checkMatch(configTeamLower, partLower);
               });
     }
 
@@ -55,8 +51,7 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
   @Override
   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
     return dataJob ->
-        dataJob.getConfig() != null
-            && StringUtils.containsIgnoreCase(dataJob.getConfig().getTeam(), searchStr);
+        dataJob.getConfig() != null && checkMatch(dataJob.getConfig().getTeam(), searchStr);
   }
 
   @Override

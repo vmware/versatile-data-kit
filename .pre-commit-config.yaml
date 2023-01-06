@@ -24,11 +24,11 @@ repos:
     hooks:
       - id: gitlint
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 22.12.0
     hooks:
       - id: black
         language_version: python3
-        exclude: ^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py
+        exclude: (^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py|^projects/vdk-plugins/vdk-notebook/tests/jobs/rest-api-job-fail-syntax-error/steps.ipynb)
   # ensure pydoc is up-to standard
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.1.1
@@ -54,7 +54,7 @@ repos:
         args: [ --py37-plus, '--application-directories=.:src' ]
   # use latest python syntax
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.0
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]

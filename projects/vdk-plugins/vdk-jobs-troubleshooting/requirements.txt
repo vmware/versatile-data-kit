@@ -1,0 +1,7 @@
+
+# testing dependencies
+pytest
+pytest-httpserver
+requests
+vdk-core
+vdk-test-utils

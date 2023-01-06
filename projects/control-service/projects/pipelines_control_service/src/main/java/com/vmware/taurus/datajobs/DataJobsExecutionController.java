@@ -11,7 +11,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobExecutionLogs;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.execution.JobExecutionService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  */
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"Data Jobs Execution"})
+@Tag(name = "Data Jobs Execution")
 public class DataJobsExecutionController implements DataJobsExecutionApi {
 
   private final JobsService jobsService;
