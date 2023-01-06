@@ -14,7 +14,7 @@ def run(job_input: IJobInput):
             if response.status_code != 200:
                 target_port = target_port + 1
                 continue
-        except:
+        except Exception:
             target_port = target_port + 1
             continue
         print(response.status_code)
