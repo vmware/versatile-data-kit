@@ -30,13 +30,13 @@ build-py311-vdk-jobs-troubleshooting:
   extends: .build-vdk-jobs-troubleshooting
   image: "python:3.11"
 
-#build-vdk-jobs-troubleshooting-on-vdk-core-release:
-#  variables:
-#    PLUGIN_NAME: vdk-jobs-troubleshooting
-#  extends: .build-plugin-on-vdk-core-release
-#  image: "python:3.9"
+build-vdk-jobs-troubleshooting-on-vdk-core-release:
+ variables:
+   PLUGIN_NAME: vdk-jobs-troubleshooting
+ extends: .build-plugin-on-vdk-core-release
+ image: "python:3.9"
 
-#release-vdk-jobs-troubleshooting:
-#  variables:
-#    PLUGIN_NAME: vdk-jobs-troubleshooting
-#  extends: .release-plugin
+release-vdk-jobs-troubleshooting:
+ variables:
+   PLUGIN_NAME: vdk-jobs-troubleshooting
+ extends: .release-plugin
