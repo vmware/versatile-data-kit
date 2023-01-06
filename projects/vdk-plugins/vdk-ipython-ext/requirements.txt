@@ -5,3 +5,4 @@ vdk-core
 
 pytest
 vdk-test-utils
+IPython

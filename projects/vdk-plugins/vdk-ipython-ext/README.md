@@ -2,26 +2,34 @@
 
 Ipython extension for VDK
 
-TODO: what the project is about, what is its purpose
+This extension introduces a magic command for Jupyter. 
+The command enables the user to load job_input for his current data job and use it freely while working with Jupyter.
+
+See more about magic commands: https://ipython.readthedocs.io/en/stable/interactive/magics.html
 
 
 ## Usage
-
+To use the extension it must be firstly installed with pip as a python package.
+Then to load the extension in Jupyter the user should use:
 ```
-pip install vdk-ipython-ext
+%reload_ext vdk_ipython_ext
 ```
-
-### Configuration
-
-(`vdk config-help` is useful command to browse all config options of your installation of vdk)
-
-| Name | Description | (example)  Value |
-|---|---|---|
-| dummy_config_key | Dummy configuration | "Dummy" |
+And to load the job_input:
+```
+%reload_job_input
+```
+The %reload_job_input magic can be used with arguments such as passing the job's path with --path 
+or giving the job a new with --name, etc.
 
 ### Example
+The output of this example is "myjob"
+```
+%reload_ext vdk_ipython_ext
 
-TODO
+%reload_job_input --name=myjob
+
+job_input.get_name()
+```
 
 ### Build and testing
 
