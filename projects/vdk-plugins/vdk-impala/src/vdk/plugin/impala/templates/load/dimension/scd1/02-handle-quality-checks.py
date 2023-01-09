@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
+
 from vdk.api.job_input import IJobInput
 
 SQL_FILES_FOLDER = (
