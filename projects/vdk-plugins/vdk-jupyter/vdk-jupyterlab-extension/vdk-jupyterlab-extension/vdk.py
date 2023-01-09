@@ -44,12 +44,12 @@ class VdkUI:
     @staticmethod
     def delete_job(name: str, team: str, rest_api_url: str):
         """
-               Execute `delete job`.
-               :param name: the name of the data job that will be deleted
-               :param team: the team of the data job that will be deleted
-               :param rest_api_url: The base REST API URL.
-               :return: message that the job is deleted
-               """
+        Execute `delete job`.
+        :param name: the name of the data job that will be deleted
+        :param team: the team of the data job that will be deleted
+        :param rest_api_url: The base REST API URL.
+        :return: message that the job is deleted
+        """
         try:
             cmd = JobDelete(rest_api_url)
             cmd.delete_job(name, team)

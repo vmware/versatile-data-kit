@@ -25,7 +25,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
     */
     render(): React.ReactElement {
         return (
-            <>  
+            <>
                  <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobName">Job Name:</label>
                     <input type="text" id="jobName" className='jp-vdk-input' placeholder={this.props.jobName} onChange={this._onNameChange} />

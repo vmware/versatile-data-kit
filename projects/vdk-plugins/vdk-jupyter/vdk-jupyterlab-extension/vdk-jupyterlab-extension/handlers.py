@@ -27,7 +27,9 @@ class DeleteJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
-            status = VdkUI.delete_job(input_data["jobName"], input_data["jobTeam"], input_data["restApiUrl"])
+            status = VdkUI.delete_job(
+                input_data["jobName"], input_data["jobTeam"], input_data["restApiUrl"]
+            )
             self.finish(json.dumps({"message": f"{status}"}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}"}))
@@ -41,6 +43,8 @@ def setup_handlers(web_app):
     run_job_handlers = [(run_job_route_pattern, RunJobHandler)]
     web_app.add_handlers(host_pattern, run_job_handlers)
 
-    delete_job_route_pattern = url_path_join(base_url, "vdk-jupyterlab-extension", "delete")
+    delete_job_route_pattern = url_path_join(
+        base_url, "vdk-jupyterlab-extension", "delete"
+    )
     delete_job_handlers = [(delete_job_route_pattern, DeleteJobHandler)]
     web_app.add_handlers(host_pattern, delete_job_handlers)

@@ -59,7 +59,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
                           Dialog.warnButton({ label: 'Yes' })
                         ]
                       });
-                    if (actualResult.button.accept) {  
+                    if (actualResult.button.accept) {
                         try {
                            deleteRunRequest();
                           } catch (error) {
