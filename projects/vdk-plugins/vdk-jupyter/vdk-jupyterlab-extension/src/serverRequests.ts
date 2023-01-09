@@ -51,18 +51,20 @@ export function jobRunRequest() {
     * Sent a POST request to the server to delete a data job.
     * The information about the data job is retrieved from sessionStorage and sent as JSON.
     */
-export async function deleteJobRequest(): Promise<void> {
-    try {
-        let dataToSend = {
-            jobName: sessionStorage.getItem("delete-job-name"),
-            jobTeam: sessionStorage.getItem("delete-job-team"),
-            restApiUrl: sessionStorage.getItem("delete-job-rest-api-url")
-        };
-        requestAPI<any>('delete', {
-            body: JSON.stringify(dataToSend),
-            method: 'POST',
+  export function deleteRunRequest() {
+    let dataToSend = {
+        jobName: sessionStorage.getItem("delete-job-name"),
+        jobTeam: sessionStorage.getItem("delete-job-team"),
+        restApiUrl: sessionStorage.getItem("delete-job-rest-api-url")
+    };
+    requestAPI<any>('delete', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST',
+    })
+        .then(data => {
+            console.log(data["message"])
         })
-    } catch (error) {
-        throw error;
-    }
-  }
+        .catch(reason => {
+            throw(reason)
+        });
+}

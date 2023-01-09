@@ -2,7 +2,7 @@ import { CommandRegistry } from "@lumino/commands";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import React from "react";
 import RunJobDialog from "./components/RunJob";
-import { deleteJobRequest, jobRunRequest } from "./serverRequests";
+import { deleteRunRequest, jobRunRequest } from "./serverRequests";
 import CreateJobDialog from "./components/CreateJob";
 import DeleteJobDialog from "./components/DeleteJob";
 
@@ -61,7 +61,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
                       });
                     if (actualResult.button.accept) {  
                         try {
-                            await deleteJobRequest();
+                           deleteRunRequest();
                           } catch (error) {
                             console.error(
                                 'Encountered an error when deleting the job. Error: ',

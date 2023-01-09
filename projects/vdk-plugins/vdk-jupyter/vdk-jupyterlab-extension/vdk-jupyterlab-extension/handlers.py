@@ -22,6 +22,12 @@ class RunJobHandler(APIHandler):
         self.finish(json.dumps({"message": f"{status_code}"}))
 
 
+class DeleteJobHandler(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        self.finish(json.dumps({"message": f"delete"}))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
 
@@ -29,3 +35,7 @@ def setup_handlers(web_app):
     run_job_route_pattern = url_path_join(base_url, "vdk-jupyterlab-extension", "run")
     run_job_handlers = [(run_job_route_pattern, RunJobHandler)]
     web_app.add_handlers(host_pattern, run_job_handlers)
+
+    delete_job_route_pattern = url_path_join(base_url, "vdk-jupyterlab-extension", "delete")
+    delete_job_handlers = [(delete_job_route_pattern, DeleteJobHandler)]
+    web_app.add_handlers(host_pattern, delete_job_handlers)
