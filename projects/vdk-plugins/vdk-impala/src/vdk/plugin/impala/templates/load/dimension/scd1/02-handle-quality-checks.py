@@ -3,7 +3,7 @@
 
 import os
 import re
-
+from insert_data import DataInserter
 from vdk.api.job_input import IJobInput
 
 SQL_FILES_FOLDER = (
@@ -17,7 +17,7 @@ def run(job_input: IJobInput):
     check = job_arguments.get("check")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
-    staging_schema = job_arguments.get("staging_schema")
+    staging_schema = job_arguments.get("staging_schema", target_schema)
     insert_query = get_query("02-insert-into-target.sql")
 
     if check:
@@ -25,7 +25,7 @@ def run(job_input: IJobInput):
             raise ValueError(
                 'No staging_schema specified to execute the defined data checks against.')
 
-        staging_table = f"{staging_schema}.{target_table}"
+        staging_table = f"{staging_schema}.vdk_check_{target_table}"
         align_stg_table_with_target(
             f"{target_schema}.{target_table}", staging_table, job_input
         )
