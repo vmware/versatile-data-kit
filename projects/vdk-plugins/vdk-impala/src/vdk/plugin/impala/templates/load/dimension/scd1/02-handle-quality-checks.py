@@ -1,6 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import os
 import re
 from insert_data import DataInserter
@@ -23,7 +22,8 @@ def run(job_input: IJobInput):
     if check:
         if not staging_schema:
             raise ValueError(
-                'No staging_schema specified to execute the defined data checks against.')
+                "No staging_schema specified to execute the defined data checks against."
+            )
 
         staging_table = f"{staging_schema}.vdk_check_{target_table}"
         align_stg_table_with_target(
