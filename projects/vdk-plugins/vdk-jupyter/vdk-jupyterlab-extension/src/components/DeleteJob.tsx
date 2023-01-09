@@ -34,7 +34,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
                     <label className='jp-vdk-label' htmlFor="jobTeam">Job Team:</label>
                     <input type="text" id="jobTeam" className='jp-vdk-input' placeholder="jobs" onChange={this._onTeamChange} />
                 </div>
-                <div className='jp-vdk-input-wrapper hidden'>
+                <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobRestApiUrl">Rest Api URL:</label>
                     <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this._onRestApiUrlChange} />
                 </div>

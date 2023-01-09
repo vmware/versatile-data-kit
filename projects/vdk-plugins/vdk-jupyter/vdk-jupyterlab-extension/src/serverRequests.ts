@@ -62,7 +62,7 @@ export function jobRunRequest() {
         method: 'POST',
     })
         .then(data => {
-            console.log(data["message"])
+            alert(data["message"]);
         })
         .catch(reason => {
             throw(reason)

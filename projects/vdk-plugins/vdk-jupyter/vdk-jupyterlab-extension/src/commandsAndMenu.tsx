@@ -46,7 +46,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         execute: async () => {
             let defaultJobName = sessionStorage.getItem("current-path")!.substring(sessionStorage.getItem("current-path")!.lastIndexOf("/"));
             showDialog({
-                title: "Create Job",
+                title: "Delete Job",
                 body: <DeleteJobDialog jobName={defaultJobName}></DeleteJobDialog>,
                 buttons: [Dialog.okButton(), Dialog.cancelButton()],
             }).then(async result => {

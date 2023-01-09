@@ -25,7 +25,12 @@ class RunJobHandler(APIHandler):
 class DeleteJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
-        self.finish(json.dumps({"message": f"delete"}))
+        input_data = self.get_json_body()
+        try:
+            status = VdkUI.delete_job(input_data["jobName"], input_data["jobTeam"], input_data["restApiUrl"])
+            self.finish(json.dumps({"message": f"{status}"}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}"}))
 
 
 def setup_handlers(web_app):

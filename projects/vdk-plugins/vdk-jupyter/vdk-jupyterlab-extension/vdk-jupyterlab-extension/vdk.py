@@ -4,6 +4,8 @@ import os
 import shlex
 import subprocess
 
+from vdk.internal.control.command_groups.job.delete import JobDelete
+
 
 class VdkUI:
     """
@@ -40,3 +42,12 @@ class VdkUI:
             )
             process.wait()
             return f"{process.returncode}"
+
+    @staticmethod
+    def delete_job(name: str, team: str, rest_api_url: str):
+        try:
+            cmd = JobDelete(rest_api_url)
+            cmd.delete_job(name, team)
+            return f"Deleted the job with name {name} from {team} team. "
+        except Exception as e:
+            raise e
