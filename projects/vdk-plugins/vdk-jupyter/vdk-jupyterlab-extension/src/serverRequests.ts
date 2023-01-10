@@ -68,3 +68,27 @@ export function jobRunRequest() {
             throw(reason)
         });
 }
+
+
+ /**
+    * Sent a POST request to the server to download a data job.
+    * The information about the data job is retrieved from sessionStorage and sent as JSON.
+    */
+  export function downloadJobRequest() {
+    let dataToSend = {
+        jobName: sessionStorage.getItem("download-job-name"),
+        jobTeam: sessionStorage.getItem("download-job-team"),
+        restApiUrl: sessionStorage.getItem("download-job-rest-api-url"), 
+        parentPath: sessionStorage.getItem("download-job-path"),
+    };
+    requestAPI<any>('download', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST',
+    })
+        .then(data => {
+            alert(data["message"]);
+        })
+        .catch(reason => {
+            throw(reason)
+        });
+}
