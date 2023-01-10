@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 export interface IDownloadJobDialogProps {
     /**
-     * Current Path 
+     * Current Path
      */
      parentPath: string;
 }

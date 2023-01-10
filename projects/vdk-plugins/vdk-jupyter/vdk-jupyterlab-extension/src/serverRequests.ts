@@ -78,7 +78,7 @@ export function jobRunRequest() {
     let dataToSend = {
         jobName: sessionStorage.getItem("download-job-name"),
         jobTeam: sessionStorage.getItem("download-job-team"),
-        restApiUrl: sessionStorage.getItem("download-job-rest-api-url"), 
+        restApiUrl: sessionStorage.getItem("download-job-rest-api-url"),
         parentPath: sessionStorage.getItem("download-job-path"),
     };
     requestAPI<any>('download', {
