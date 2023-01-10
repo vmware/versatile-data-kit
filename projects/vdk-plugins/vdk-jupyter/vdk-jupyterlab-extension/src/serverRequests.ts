@@ -46,3 +46,25 @@ export function jobRunRequest() {
             );
         });
 }
+
+ /**
+    * Sent a POST request to the server to delete a data job.
+    * The information about the data job is retrieved from sessionStorage and sent as JSON.
+    */
+  export function deleteJobRequest() {
+    let dataToSend = {
+        jobName: sessionStorage.getItem("delete-job-name"),
+        jobTeam: sessionStorage.getItem("delete-job-team"),
+        restApiUrl: sessionStorage.getItem("delete-job-rest-api-url")
+    };
+    requestAPI<any>('delete', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST',
+    })
+        .then(data => {
+            alert(data["message"]);
+        })
+        .catch(reason => {
+            throw(reason)
+        });
+}
