@@ -49,7 +49,7 @@ class JobTroubleshootingPlugin:
         except Exception as e:
             log.info(
                 f"""
-                An exception occurred while processing a troubleshooting
+                An exception occurred while starting a troubleshooting
                 utility. The error was: {e}
                 """
             )
@@ -62,7 +62,7 @@ class JobTroubleshootingPlugin:
         except Exception as e:
             log.info(
                 f"""
-                An exception occurred while processing a troubleshooting
+                An exception occurred while stopping a troubleshooting
                 utility. The error was: {e}
                 """
             )
