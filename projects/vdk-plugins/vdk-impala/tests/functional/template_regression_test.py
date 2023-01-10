@@ -114,8 +114,8 @@ class TestTemplateRegression(unittest.TestCase):
             return True
 
         test_schema = "vdkprototypes"
-        source_view = "vw_dim_org_partition_test"
-        target_table = "dw_dim_org_partitioned"
+        source_view = "vw_dim_org"
+        target_table = "dw_dim_org"
         staging_schema = "staging_vdkprototypes"
 
         res = self._run_job(
@@ -141,8 +141,8 @@ class TestTemplateRegression(unittest.TestCase):
             return False
 
         test_schema = "vdkprototypes"
-        source_view = "vw_dim_org_partition_test"
-        target_table = "dw_dim_org_partitioned"
+        source_view = "vw_dim_org"
+        target_table = "dw_dim_org"
         staging_schema = "staging_vdkprototypes"
         initial_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
 
