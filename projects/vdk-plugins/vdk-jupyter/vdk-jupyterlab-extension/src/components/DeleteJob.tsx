@@ -5,6 +5,10 @@ export interface IDeleteJobDialogProps {
      * Current Job name
      */
     jobName: string;
+    /**
+     * Current Team name
+     */
+     jobTeam: string;
 }
 
 
@@ -28,15 +32,15 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
             <>
                  <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobName">Job Name:</label>
-                    <input type="text" id="jobName" className='jp-vdk-input' placeholder={this.props.jobName} onChange={this._onNameChange} />
+                    <input type="text" id="jobName" className='jp-vdk-input' placeholder={this.props.jobName} onChange={this.onNameChange} />
                 </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobTeam">Job Team:</label>
-                    <input type="text" id="jobTeam" className='jp-vdk-input' placeholder="jobs" onChange={this._onTeamChange} />
+                    <input type="text" id="jobTeam" className='jp-vdk-input' placeholder={this.props.jobTeam} onChange={this.onTeamChange} />
                 </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobRestApiUrl">Rest Api URL:</label>
-                    <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this._onRestApiUrlChange} />
+                    <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this.onRestApiUrlChange} />
                 </div>
             </>
         );
@@ -46,7 +50,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
    *
    * @param event - event object
    */
-      private _onNameChange = (event: any): void => {
+      private onNameChange = (event: any): void => {
         const nameInput = event.currentTarget as HTMLInputElement;
         let value = nameInput.value;
         if (!value) {
@@ -59,7 +63,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
    *
    * @param event - event object
    */
-    private _onTeamChange = (event: any): void => {
+    private onTeamChange = (event: any): void => {
         const teamInput = event.currentTarget as HTMLInputElement;
         let value = teamInput.value;
         if (!value) {
@@ -72,7 +76,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
    *
    * @param event - event object
    */
-    private _onRestApiUrlChange = (event: any): void => {
+    private onRestApiUrlChange = (event: any): void => {
         const urlInput = event.currentTarget as HTMLInputElement;
         let value = urlInput.value;
         if (!value) {

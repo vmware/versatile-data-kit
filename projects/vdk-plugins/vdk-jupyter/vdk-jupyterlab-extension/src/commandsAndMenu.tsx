@@ -2,7 +2,7 @@ import { CommandRegistry } from "@lumino/commands";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import React from "react";
 import RunJobDialog from "./components/RunJob";
-import { deleteRunRequest, jobRunRequest } from "./serverRequests";
+import { deleteJobRequest, jobRunRequest } from "./serverRequests";
 import CreateJobDialog from "./components/CreateJob";
 import DeleteJobDialog from "./components/DeleteJob";
 
@@ -40,6 +40,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         },
     });
 
+    sessionStorage.setItem("delete-job-team", "default-team");
     commands.addCommand("jp-vdk:menu-delete", {
         label: "Delete",
         caption: 'Execute VDK Delete Command',
@@ -47,30 +48,31 @@ export function updateVDKMenu(commands: CommandRegistry) {
             let defaultJobName = sessionStorage.getItem("current-path")!.substring(sessionStorage.getItem("current-path")!.lastIndexOf("/"));
             showDialog({
                 title: "Delete Job",
-                body: <DeleteJobDialog jobName={defaultJobName}></DeleteJobDialog>,
+                body: <DeleteJobDialog jobName={defaultJobName} jobTeam={sessionStorage.getItem("delete-job-team")!}></DeleteJobDialog>,
                 buttons: [Dialog.okButton(), Dialog.cancelButton()],
             }).then(async result => {
                 if (!result.value) {
-                    const actualResult = await showDialog({
+                    let bodyMessage = 'Do you really want to delete the job with name ' + sessionStorage.getItem("delete-job-name") + " from " + sessionStorage.getItem("delete-job-rest-api-url") + "?"
+                    showDialog({
                         title: "Delete a data job",
-                        body: ('Do you really want to delete the job?'),
+                        body: (bodyMessage),
                         buttons: [
                           Dialog.cancelButton({ label: 'Cancel' }),
                           Dialog.warnButton({ label: 'Yes' })
                         ]
-                      });
-                    if (actualResult.button.accept) {
-                        try {
-                           deleteRunRequest();
-                          } catch (error) {
-                            console.error(
+                    }).then(async actualResult =>{
+                        if(actualResult.button.accept){
+                            try {
+                                deleteJobRequest();
+                            } catch (error) {
+                                console.error(
                                 'Encountered an error when deleting the job. Error: ',
                                 error
-                            );
-                        }
-                    }
+                                );
+                            }
+                    }}).catch((e) => console.log(e));
                 }
-            }).catch((e) => console.log(e));
+            }).catch((e) => console.log(e));      
         },
     });
 }

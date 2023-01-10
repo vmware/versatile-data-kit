@@ -51,7 +51,7 @@ export function jobRunRequest() {
     * Sent a POST request to the server to delete a data job.
     * The information about the data job is retrieved from sessionStorage and sent as JSON.
     */
-  export function deleteRunRequest() {
+  export function deleteJobRequest() {
     let dataToSend = {
         jobName: sessionStorage.getItem("delete-job-name"),
         jobTeam: sessionStorage.getItem("delete-job-team"),
