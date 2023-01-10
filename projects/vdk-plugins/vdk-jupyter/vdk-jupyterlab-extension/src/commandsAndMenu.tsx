@@ -2,7 +2,7 @@ import { CommandRegistry } from "@lumino/commands";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import React from "react";
 import RunJobDialog from "./components/RunJob";
-import { deleteJobRequest, jobRunRequest } from "./serverRequests";
+import { deleteJobRequest, downloadJobRequest, jobRunRequest } from "./serverRequests";
 import CreateJobDialog from "./components/CreateJob";
 import DeleteJobDialog from "./components/DeleteJob";
 import DownloadJobDialog from "./components/DownloadJob";
@@ -88,7 +88,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
             }).then(result => {
                 if (!result.value) {
                     if(result.button.accept){
-                        // TODO: add requests to the server
+                        downloadJobRequest();
                     }
                 }
             }).catch((e) => console.log(e));
