@@ -26,7 +26,11 @@ class HealthCheckServer:
             if handler:
                 port = self.find_open_port(port)
                 self._server = HTTPServer(("", port), handler)
-                self._thread = Thread(target=self._server.serve_forever, daemon=True)
+                self._thread = Thread(
+                    target=self._server.serve_forever,
+                    name="troubleshooting_utility",
+                    daemon=True,
+                )
                 log.info(f"Troubleshooting utility server will start on port {port}.")
             else:
                 log.error(
@@ -54,7 +58,6 @@ class HealthCheckServer:
         try:
             self._server.shutdown()
             self._server.server_close()
-            self._thread.join()
             logging.info("Troubleshooting utility server stopped.")
         except Exception as e:
             logging.error("Unable to stop troubleshooting server", exc_info=e)
