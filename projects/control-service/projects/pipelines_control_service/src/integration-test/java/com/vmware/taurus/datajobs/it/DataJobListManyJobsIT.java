@@ -55,19 +55,13 @@ public class DataJobListManyJobsIT extends BaseIT {
                     + "\"pageNumber\": 1,"
                     + "\"pageSize\": 10"
                     + "}")
-            .contentType(MediaType.APPLICATION_JSON));
-    // .andExpect(status().isNotFound());
-    //            .andExpect(
-    //                    content()
-    //                            .string(
-    //                                    lambdaMatcher(
-    //                                            s ->
-    //                                                    (s.contains(TEST_JOB_1))
-    //                                                            && (s.contains(TEST_JOB_2))
-    //                                                            && (s.contains(TEST_JOB_6))
-    //                                                            && (!s.contains(TEST_JOB_3))
-    //                                                            && (!s.contains(TEST_JOB_4))
-    //                                                            && (!s.contains(TEST_JOB_5)))));
+            .contentType(MediaType.APPLICATION_JSON))
+     .andExpect(status().isNotFound())
+                .andExpect(
+                        content()
+                                .string(
+                                        lambdaMatcher(
+                                                s -> checkContentContainsJobNames(s))));
 
     deleteDummyJobs();
   }
