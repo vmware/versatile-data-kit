@@ -6,7 +6,7 @@ import re
 from vdk.api.job_input import IJobInput
 
 SQL_FILES_FOLDER = (
-        os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
+    os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
 )
 
 
@@ -14,14 +14,14 @@ def run(job_input: IJobInput):
     job_arguments = job_input.get_arguments()
 
     check = job_arguments.get("check")
-    partition_clause = job_arguments['_vdk_template_insert_partition_clause']
+    partition_clause = job_arguments["_vdk_template_insert_partition_clause"]
     source_schema = job_arguments.get("source_schema")
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
     staging_schema = job_arguments.get("staging_schema", target_schema)
     insert_query = get_query("02-insert-into-target.sql")
-    staging_table_name = f'vdk_check_{target_table}'
+    staging_table_name = f"vdk_check_{target_table}"
 
     if check:
         if not staging_schema:
@@ -35,16 +35,21 @@ def run(job_input: IJobInput):
         )
 
         insert_into_staging = insert_query.format(
-            target_schema=staging_schema, target_table=staging_table_name,
-            _vdk_template_insert_partition_clause=partition_clause, source_schema=source_schema, source_view=source_view
+            target_schema=staging_schema,
+            target_table=staging_table_name,
+            _vdk_template_insert_partition_clause=partition_clause,
+            source_schema=source_schema,
+            source_view=source_view,
         )
         job_input.execute_query(insert_into_staging)
 
         if check(staging_table):
             insert_into_target = insert_query.format(
-                source_schema=staging_schema, source_view=staging_table_name,
-                _vdk_template_insert_partition_clause=partition_clause, target_schema=target_schema,
-                target_table=target_table
+                source_schema=staging_schema,
+                source_view=staging_table_name,
+                _vdk_template_insert_partition_clause=partition_clause,
+                target_schema=target_schema,
+                target_table=target_table,
             )
             job_input.execute_query(insert_into_target)
         else:
