@@ -546,8 +546,6 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def _run_job(self, job_name: str, args: dict):
-        for key in args.keys():
-            args[key] = str(args[key])
 
         return self.__runner.invoke(
             [
