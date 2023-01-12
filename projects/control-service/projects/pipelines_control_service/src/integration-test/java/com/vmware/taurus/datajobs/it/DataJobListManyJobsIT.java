@@ -54,7 +54,7 @@ public class DataJobListManyJobsIT extends BaseIT {
                         + "    }"
                         + "  ],"
                         + "\"pageNumber\": 1,"
-                        + "\"pageSize\": 10"
+                        + "\"pageSize\": " + JOB_COUNT
                         + "}")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
