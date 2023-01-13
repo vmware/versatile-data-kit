@@ -117,7 +117,7 @@ public class HttpTracer implements org.springframework.boot.actuate.trace.http.H
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     ObjectNode node = mapper.convertValue(trace, ObjectNode.class);
-    if (node != null){
+    if (node != null) {
       node.put("@type", "taurus_httptrace");
       node.put("deployment_mode", String.join(",", environment.getActiveProfiles()));
       String opId = operationContext.getOpId();
@@ -127,7 +127,7 @@ public class HttpTracer implements org.springframework.boot.actuate.trace.http.H
       HttpServletRequest request = operationContext.getRequest();
       if (null != request) { // methods from the actuator don't have the request set
         String requestMapping =
-                "" + request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+            "" + request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         node.put("request_mapping", requestMapping);
       }
       String user = operationContext.getUser();

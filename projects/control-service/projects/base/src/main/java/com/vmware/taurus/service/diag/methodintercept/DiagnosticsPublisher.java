@@ -64,7 +64,7 @@ public class DiagnosticsPublisher implements Consumer<DiagnosticsContext> {
 
       ObjectMapper mapper = new ObjectMapper();
       ObjectNode node = mapper.convertValue(metrics, ObjectNode.class);
-      if (node!=null){
+      if (node != null) {
         node.put("@table", "taurus_api_call");
         node.put("@id", opId);
         String json = node.toPrettyString();
