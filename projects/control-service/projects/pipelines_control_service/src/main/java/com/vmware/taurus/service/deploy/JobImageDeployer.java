@@ -113,29 +113,37 @@ public class JobImageDeployer {
       if (apiException.getCode() == 422) {
         try {
           Gson gson = new Gson();
-          Map<Object, Object> error = gson.fromJson(apiException.getResponseBody(), HashMap.class);
-          log.error(
-              "Failed to schedule job due to Kubernetes client error (422). Generally input"
-                  + " validation should be done earlier. If this exception happens, most likely we"
-                  + " need to do some better input validation at client library. We are assuming"
-                  + " all k8s client error when creating cron job can be only customer"
-                  + " misconfiguration sending notification and reporting as user error",
-              apiException);
           String msg =
-              NotificationContent.getErrorBody(
-                  "Tried to deploy a data job",
-                  "There has been an error in the configuration of your data job : "
-                      + error.get("message"),
-                  "Your new/updated job was not deployed. Your job will run its latest successfully"
-                      + " deployed version (if any) as scheduled.",
-                  "Please fix the job's configuration");
-          log.error(msg);
+                  NotificationContent.getErrorBody(
+                          "Tried to deploy a data job",
+                          "There has been an error in the configuration of your data job.",
+                          "Your new/updated job was not deployed. Your job will run its latest successfully"
+                                  + " deployed version (if any) as scheduled.",
+                          "Please fix the job's configuration");
+          Map<Object, Object> error = gson.fromJson(apiException.getResponseBody(), HashMap.class);
+          if (error!=null){
+            log.error(
+                    "Failed to schedule job due to Kubernetes client error (422). Generally input"
+                            + " validation should be done earlier. If this exception happens, most likely we"
+                            + " need to do some better input validation at client library. We are assuming"
+                            + " all k8s client error when creating cron job can be only customer"
+                            + " misconfiguration sending notification and reporting as user error",
+                    apiException);
+            msg = NotificationContent.getErrorBody(
+                            "Tried to deploy a data job",
+                            "There has been an error in the configuration of your data job : "
+                                    + error.get("message"),
+                            "Your new/updated job was not deployed. Your job will run its latest successfully"
+                                    + " deployed version (if any) as scheduled.",
+                            "Please fix the job's configuration");
+            log.error(msg);
+          }
           deploymentProgress.failed(
-              dataJob.getJobConfig(),
-              jobDeployment,
-              DeploymentStatus.USER_ERROR,
-              msg,
-              sendNotification);
+                  dataJob.getJobConfig(),
+                  jobDeployment,
+                  DeploymentStatus.USER_ERROR,
+                  msg,
+                  sendNotification);
           return false;
         } catch (Exception ignored) {
           log.debug("Failed to parse ApiException body, re-throwing it.: ", ignored);

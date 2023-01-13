@@ -64,12 +64,16 @@ public class DiagnosticsPublisher implements Consumer<DiagnosticsContext> {
 
       ObjectMapper mapper = new ObjectMapper();
       ObjectNode node = mapper.convertValue(metrics, ObjectNode.class);
-      node.put("@table", "taurus_api_call");
-      node.put("@id", opId);
-      String json = node.toPrettyString();
-      log.trace("Sending telemetry: {}", json);
-      this.telemetryClient.sendAsync(json);
+      if (node!=null){
+        node.put("@table", "taurus_api_call");
+        node.put("@id", opId);
+        String json = node.toPrettyString();
+        log.trace("Sending telemetry: {}", json);
+        this.telemetryClient.sendAsync(json);
 
+      } else {
+        log.warn("Could not send telemetry.\n" + "Data was " + metrics);
+      }
     } catch (Exception e) {
       log.warn("Could not send telemetry.\n" + "Data was " + metrics, e);
     }
