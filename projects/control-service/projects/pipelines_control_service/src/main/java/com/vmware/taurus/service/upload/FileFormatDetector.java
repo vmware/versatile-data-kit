@@ -62,11 +62,11 @@ class FileFormatDetector {
    * https://tika.apache.org/2.5.0/formats.html#Full_list_of_Supported_Formats
    */
   public String detectFileType(Path filePath) throws IOException {
-      Metadata metadata = new Metadata();
-      metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, filePath.toFile().getName());
-      try (TikaInputStream stream = TikaInputStream.get(filePath, metadata)) {
-        var mediaType = detector.detect(stream, metadata);
-        return mediaType.toString();
-      }
+    Metadata metadata = new Metadata();
+    metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, filePath.toFile().getName());
+    try (TikaInputStream stream = TikaInputStream.get(filePath, metadata)) {
+      var mediaType = detector.detect(stream, metadata);
+      return mediaType.toString();
+    }
   }
 }

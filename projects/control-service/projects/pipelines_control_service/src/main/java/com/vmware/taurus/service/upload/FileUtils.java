@@ -100,7 +100,7 @@ public class FileUtils {
     File jobZipFile = new File(tempDir, "job_zip.zip");
     File jobTempDir = new File(tempDir, "job_dir");
     org.apache.commons.io.FileUtils.copyInputStreamToFile(resource.getInputStream(), jobZipFile);
-    try (ZipFile theZipFile = new ZipFile(jobZipFile)){
+    try (ZipFile theZipFile = new ZipFile(jobZipFile)) {
       theZipFile.extractAll(jobTempDir.getAbsolutePath());
     }
     List<Path> paths = Files.list(jobTempDir.toPath()).collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class FileUtils {
   }
 
   public static void zipDataJob(File fromDataJobDirectory, File intoNewZipFile) throws IOException {
-    try (ZipFile theZipFile = new ZipFile(intoNewZipFile)){
+    try (ZipFile theZipFile = new ZipFile(intoNewZipFile)) {
       theZipFile.addFolder(fromDataJobDirectory);
     }
   }
