@@ -89,11 +89,10 @@ public class DataJobListManyJobsIT extends BaseIT {
   }
 
   private void deleteJob(String jobName, String teamName) throws Exception {
-    mockMvc
-        .perform(
-            delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
-                .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON));
+    mockMvc.perform(
+        delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
+            .with(user("user"))
+            .contentType(MediaType.APPLICATION_JSON));
   }
 
   private boolean checkContentContainsJobNames(String content) {
