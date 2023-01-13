@@ -58,7 +58,7 @@ public class DataJobListManyJobsIT extends BaseIT {
                         + JOB_COUNT
                         + "}")
                 .contentType(MediaType.APPLICATION_JSON))
-        // .andExpect(status().isOk())
+        .andExpect(status().isOk())
         .andExpect(content().string(lambdaMatcher(s -> checkContentContainsJobNames(s))));
 
     deleteDummyJobs();
@@ -93,8 +93,7 @@ public class DataJobListManyJobsIT extends BaseIT {
         .perform(
             delete(String.format("/data-jobs/for-team/%s/jobs/%s", teamName, jobName))
                 .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON));
   }
 
   private boolean checkContentContainsJobNames(String content) {
