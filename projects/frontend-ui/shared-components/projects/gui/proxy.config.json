@@ -1,0 +1,17 @@
+{
+  "/metadata/lineage/datajob:test_datajob": {
+    "target": "http://localhost.vmware.com:4200/assets/lineage-data/lineage_result.json",
+    "pathRewrite": {
+      "^/metadata/lineage/datajob:test_datajob": ""
+    },
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/metadata": {
+    "target": "cicd-control-service-svc:8092",
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  }
+}
