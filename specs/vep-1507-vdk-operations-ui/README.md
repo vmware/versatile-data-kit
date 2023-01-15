@@ -48,6 +48,12 @@ One example is features that were cut during scoping.
 
 ## High-level design
 
+#### Folder Structure
+
+* [frontend-ui](../../projects/frontend-ui) The root folder for all frontend code.
+  * [shared-components](../../projects/frontend-ui/shared-components/README.md): the root folder for the shared components project, for more details please see the readme.
+  * [data-pipelines](../../projects/frontend-ui/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
+
 <!--
 All the rest sections tell **how** are we solving it?
 

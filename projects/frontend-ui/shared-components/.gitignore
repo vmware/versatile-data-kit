@@ -1,0 +1,9 @@
+.idea/
+projects/gui/debug.log
+projects/gui/e2e/hars/
+projects/gui/e2e/logs/
+projects/gui/e2e/reports/
+projects/gui/e2e/screenshots/
+projects/gui/e2e/videos/
+projects/gui/reports/
+.DS_Store
