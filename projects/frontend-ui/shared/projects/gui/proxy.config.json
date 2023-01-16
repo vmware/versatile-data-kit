@@ -7,11 +7,5 @@
     "changeOrigin": true,
     "secure": false,
     "logLevel": "debug"
-  },
-  "/metadata": {
-    "target": "cicd-control-service-svc:8092",
-    "changeOrigin": true,
-    "secure": false,
-    "logLevel": "debug"
   }
 }

@@ -1,8 +1,5 @@
 # VDK Shared Components library
 
-This project implements common UI functionality that is used in the data-pipelines project.
-But these components are also used by private projects within VMWare.
-
 ## Code scaffolding
 
 
