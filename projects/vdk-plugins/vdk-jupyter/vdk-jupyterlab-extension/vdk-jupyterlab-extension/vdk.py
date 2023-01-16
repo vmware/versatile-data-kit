@@ -5,6 +5,7 @@ import shlex
 import subprocess
 
 from vdk.internal.control.command_groups.job.delete import JobDelete
+from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 
 
 class VdkUI:
@@ -50,9 +51,20 @@ class VdkUI:
         :param rest_api_url: The base REST API URL.
         :return: message that the job is deleted
         """
-        try:
-            cmd = JobDelete(rest_api_url)
-            cmd.delete_job(name, team)
-            return f"Deleted the job with name {name} from {team} team. "
-        except Exception as e:
-            raise e
+        cmd = JobDelete(rest_api_url)
+        cmd.delete_job(name, team)
+        return f"Deleted the job with name {name} from {team} team. "
+
+    @staticmethod
+    def download_job(name: str, team: str, rest_api_url: str, path: str):
+        """
+        Execute `download job`.
+        :param name: the name of the data job that will be downloaded
+        :param team: the team of the data job that will be downloaded
+        :param rest_api_url: The base REST API URL
+        :param path: the path to the directory where the job will be downloaded
+        :return: message that the job is downloaded
+        """
+        cmd = JobDownloadSource(rest_api_url)
+        cmd.download(team, name, path)
+        return f"Downloaded the job with name {name} to {path}. "
