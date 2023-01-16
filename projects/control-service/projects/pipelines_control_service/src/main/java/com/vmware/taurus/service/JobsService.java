@@ -138,12 +138,11 @@ public class JobsService {
    * @return if the job existed
    */
   public boolean updateJob(DataJob jobInfo) {
-    var dataJob =
-        jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null;
-    if (dataJob != null) {
-      dataJobMetrics.updateInfoGauges(dataJob);
+    if(jobsRepository.existsById(jobInfo.getName())){
+      dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
+      return true;
     }
-    return dataJob != null;
+    return false;
   }
 
   /**
