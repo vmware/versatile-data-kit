@@ -1,7 +1,6 @@
 # VDK Shared Components library
 
-This project implements common UI functionality that is used in the data-pipelines project.
-Everything in this folder is project agnostic and there is nothing data-pipelines specific about them.
+This project implements common UI functionality that is project agnostic.
 The hope with having them in a separate directory is that other projects might leverage them.
 
 ## Running
