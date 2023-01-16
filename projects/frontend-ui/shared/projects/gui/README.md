@@ -8,7 +8,7 @@ The Shared Components contains:
    ```bash
    npm i -g @angular/cli
    ```
-1. install dependencies 
+1. install dependencies
    ```bas
    npm ci --omit=optional
    ```
