@@ -1,57 +1,20 @@
 The Shared Components contains:
 
 * **[Shared Components Library](projects/shared/README.md)** Library that holds UI Components.
-* **[Documentation UI](projects/documentation-ui/src)** Reference UI Wrapper and Documentation Implementation
-
 
 ## Running and Testing
 
-You can use the reference implementation in `projects/documentation-ui` as showcase of the library.
-Using `npm link` you can achieve real-time development of the library without the need to upload it to repository
-
-_**Note**_: If you run directly npm install without linking it will tell you that there is no such package.
-That's why you need to link it the first time you build your development environment.
-
-Refer to [.gitlab-ci.yml](../../cicd/.gitlab-ci.yml) file for correct setup guaranteed to work by automation.
-Bug in general the steps are:
-
-0. Set npm registry to use
-   * There is .npmrc file in the project that refers to correct registries and provide configuration
-   * If something is not working with autoconfiguration, manually set registries
-
-   ```bash
-   $ npm config set legacy-peer-deps true
-   ```
-1. Install Angular Cli and all other dependencies except '@vdk/shared'
+0. Install Angular Cli
    ```bash
    npm i -g @angular/cli
    ```
-   ```bash
+1. install dependencies 
+   ```bas
    npm ci --omit=optional
    ```
 2. Build the shared UI library
    ```bash
    npm run build
-   ```
-3. Go to the build dir
-   ```bash
-   cd dist/shared
-   ```
-4. Link it to local repo
-   ```bash
-   npm link
-   ```
-5. Return to project dir
-   ```bash
-   cd ../../
-   ```
-6. Create symlink from build artifact to the wrapper ui (documentation-ui)
-   ```bash
-   npm link @vdk/shared
-   ```
-7. Start the wrapper ui application, serve on [http://localhost.vmware.com:4200](http://localhost.vmware.com:4200)
-   ```bash
-   npm start
    ```
 
 ### Linting
