@@ -1,0 +1,19 @@
+.jp-vdk-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+.jp-vdk-create-options-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.jp-create-job-checkbox {
+  margin-left: 10px;
+}
