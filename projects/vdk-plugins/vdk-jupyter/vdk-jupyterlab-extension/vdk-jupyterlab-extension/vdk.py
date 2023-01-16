@@ -51,12 +51,9 @@ class VdkUI:
         :param rest_api_url: The base REST API URL.
         :return: message that the job is deleted
         """
-        try:
-            cmd = JobDelete(rest_api_url)
-            cmd.delete_job(name, team)
-            return f"Deleted the job with name {name} from {team} team. "
-        except Exception as e:
-            raise e
+        cmd = JobDelete(rest_api_url)
+        cmd.delete_job(name, team)
+        return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
     def download_job(name: str, team: str, rest_api_url: str, path: str):
@@ -68,9 +65,6 @@ class VdkUI:
         :param path: the path to the directory where the job will be downloaded
         :return: message that the job is downloaded
         """
-        try:
-            cmd = JobDownloadSource(rest_api_url)
-            cmd.download(team, name, path)
-            return f"Downloaded the job with name {name} to {path}. "
-        except Exception as e:
-            raise e
+        cmd = JobDownloadSource(rest_api_url)
+        cmd.download(team, name, path)
+        return f"Downloaded the job with name {name} to {path}. "

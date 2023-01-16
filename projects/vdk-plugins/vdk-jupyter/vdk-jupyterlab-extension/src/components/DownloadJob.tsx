@@ -36,7 +36,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
                 </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobRestApiUrl">Rest Api URL:</label>
-                    <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this.onRestApiUrlChange} />
+                    <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="http://my_vdk_instance" onChange={this.onRestApiUrlChange} />
                 </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="jobPath">Path to parent directory where the job will be saved:</label>
