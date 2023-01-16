@@ -1,7 +1,9 @@
 # VDK Shared Components library
 
 This project implements common UI functionality that is used in the data-pipelines project.
-But these components are also used by private projects within VMWare.
+Everything in this folder is project agnostic and there is nothing data-pipelines specific about them.
+The hope with having them in a separate directory is that other projects might leverage them. 
+At the moment there are many other private projects in VMware which are using them.
 
 ## Running
 
