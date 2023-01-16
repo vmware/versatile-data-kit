@@ -15,18 +15,18 @@
 - [Alternatives](#alternatives)
 
 ## Summary
-Create an open source frontend for the VDK.  
+Create an open source frontend for the VDK.
 The frontend will let customers, create,delete deploy and generally managed nad browse their jobs.
 For frontend is written in an extensible format to easily allow other teams to build extensions.
 
 ## Glossary
-data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code 
-shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects 
+data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code
+shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects
 
 ## Motivation
 1. Improve usability
    1. With a UI customers will be able to use VDK much quicker and much more proficiently because UIs are easier to understand and become familiar with than CLI tools
-2. increase VDK adoption 
+2. increase VDK adoption
    1. At the moment the VDK needs to be interacted with through the VDK cli or through web requests. Its thought that this is slowing down adoption of the VDK.
 
 
