@@ -117,29 +117,27 @@ public class HttpTracer implements org.springframework.boot.actuate.trace.http.H
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     ObjectNode node = mapper.convertValue(trace, ObjectNode.class);
-    if (node != null) {
-      node.put("@type", "taurus_httptrace");
-      node.put("deployment_mode", String.join(",", environment.getActiveProfiles()));
-      String opId = operationContext.getOpId();
-      if (null != opId) {
-        node.put("@id", opId);
-      }
-      HttpServletRequest request = operationContext.getRequest();
-      if (null != request) { // methods from the actuator don't have the request set
-        String requestMapping =
-            "" + request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        node.put("request_mapping", requestMapping);
-      }
-      String user = operationContext.getUser();
-      if (null != user) {
-        node.put("user", user);
-      }
-      String team = operationContext.getTeam();
-      if (null != team) {
-        node.put("team", team);
-      }
-      String json = node.toPrettyString();
-      this.telemetryClient.sendAsync(json);
+    node.put("@type", "taurus_httptrace");
+    node.put("deployment_mode", String.join(",", environment.getActiveProfiles()));
+    String opId = operationContext.getOpId();
+    if (null != opId) {
+      node.put("@id", opId);
     }
+    HttpServletRequest request = operationContext.getRequest();
+    if (null != request) { // methods from the actuator don't have the request set
+      String requestMapping =
+          "" + request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+      node.put("request_mapping", requestMapping);
+    }
+    String user = operationContext.getUser();
+    if (null != user) {
+      node.put("user", user);
+    }
+    String team = operationContext.getTeam();
+    if (null != team) {
+      node.put("team", team);
+    }
+    String json = node.toPrettyString();
+    this.telemetryClient.sendAsync(json);
   }
 }

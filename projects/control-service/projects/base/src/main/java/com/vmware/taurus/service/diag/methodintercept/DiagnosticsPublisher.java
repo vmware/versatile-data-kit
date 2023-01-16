@@ -46,7 +46,6 @@ public class DiagnosticsPublisher implements Consumer<DiagnosticsContext> {
 
   @Override
   public void accept(DiagnosticsContext context) {
-
     Map<Metrics, Object> metrics = contextToMetrics(context);
     String opId = "" + metrics.get(Metrics.op_id);
     try {
@@ -64,16 +63,11 @@ public class DiagnosticsPublisher implements Consumer<DiagnosticsContext> {
 
       ObjectMapper mapper = new ObjectMapper();
       ObjectNode node = mapper.convertValue(metrics, ObjectNode.class);
-      if (node != null) {
-        node.put("@table", "taurus_api_call");
-        node.put("@id", opId);
-        String json = node.toPrettyString();
-        log.trace("Sending telemetry: {}", json);
-        this.telemetryClient.sendAsync(json);
-
-      } else {
-        log.warn("Could not send telemetry.\n" + "Data was " + metrics);
-      }
+      node.put("@table", "taurus_api_call");
+      node.put("@id", opId);
+      String json = node.toPrettyString();
+      log.trace("Sending telemetry: {}", json);
+      this.telemetryClient.sendAsync(json);
     } catch (Exception e) {
       log.warn("Could not send telemetry.\n" + "Data was " + metrics, e);
     }
