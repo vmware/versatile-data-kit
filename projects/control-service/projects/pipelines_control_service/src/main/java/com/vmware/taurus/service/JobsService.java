@@ -138,7 +138,7 @@ public class JobsService {
    * @return if the job existed
    */
   public boolean updateJob(DataJob jobInfo) {
-    if(jobsRepository.existsById(jobInfo.getName())){
+    if (jobsRepository.existsById(jobInfo.getName())) {
       dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
       return true;
     }
