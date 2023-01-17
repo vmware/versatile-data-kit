@@ -25,19 +25,8 @@ class CellUtils:
         return cell.source.startswith("%sql")
 
     @staticmethod
-    def is_vdk_run_cell(cell: Cell):
-        return "def run(" in cell.source
-
-    @staticmethod
-    def combine_cells(main_cell: Cell, additional_cells):
-        code = []
-        for cell in additional_cells:
-            code.append(cell.source)
-        main_cell.source = "\n".join(code) + "\n" + main_cell.source
-
-    @staticmethod
     def get_cell_code(cell: Cell):
         if cell.source.startswith("%sql"):
             code = cell.source.replace("%sql", "")
-            return code.replace(";", "")
+            return code
         return cell.source

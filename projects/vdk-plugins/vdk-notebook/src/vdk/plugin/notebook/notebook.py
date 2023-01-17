@@ -1,5 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import imp
 import json
 import logging
 import pathlib
@@ -46,26 +47,57 @@ class Notebook:
     Other cells are ignored.
     """
 
-    def __init__(self, file_path: Path):
+    @staticmethod
+    def register_notebook_steps(file_path: Path, context: JobContext):
         try:
-            self.sql_and_run_cells = []
-            self.python_helper_cells = []
-            self.file_path = file_path
+            python_module = imp.new_module('notebook')
+            exec("job_input = 1", python_module.__dict__)
+            notebook_steps = []
             # see Jupyter json schema here:
             # https://github.com/jupyter/nbformat/blob/main/nbformat/v4/nbformat.v4.schema.json
             content = json.loads(file_path.read_text())
+            index = 0
             for jupyter_cell in content["cells"]:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
                     if CellUtils.is_vdk_cell(cell):
-                        if CellUtils.is_sql_cell(cell) or CellUtils.is_vdk_run_cell(
-                            cell
-                        ):
-                            self.sql_and_run_cells.append(cell)
+                        if CellUtils.is_sql_cell(cell):
+                            step = NotebookStep(
+                                name="".join(
+                                    [
+                                        file_path.name.replace(".ipynb", "_"),
+                                        str(index),
+                                    ]
+                                ),
+                                type=TYPE_SQL,
+                                runner_func=NotebookStepFuncFactory.run_sql_step,
+                                file_path=file_path,
+                                job_dir=context.job_directory,
+                                code=CellUtils.get_cell_code(cell),
+                            )
+                            notebook_steps.append(step)
+                            context.step_builder.add_step(step)
                         else:
-                            self.python_helper_cells.append(cell)
+                            step = NotebookStep(
+                                name="".join(
+                                    [
+                                        file_path.name.replace(".ipynb", "_"),
+                                        str(index),
+                                    ]
+                                ),
+                                type=TYPE_PYTHON,
+                                runner_func=NotebookStepFuncFactory.run_python_step,
+                                file_path=file_path,
+                                job_dir=context.job_directory,
+                                module=python_module,
+                                code=CellUtils.get_cell_code(cell),
+                            )
+                            notebook_steps.append(step)
+                            context.step_builder.add_step(step)
+                index += 1
+
             log.debug(
-                f"{len(self.sql_and_run_cells) + len(self.python_helper_cells)} "
+                f"{len(notebook_steps)} "
                 f"cells with vdk tag were detected!"
             )
         except json.JSONDecodeError as e:
@@ -80,30 +112,3 @@ class Notebook:
                 exception=e,
                 wrap_in_vdk_error=True,
             )
-
-    def register_notebook_steps(self, context: JobContext):
-        if not self.sql_and_run_cells:
-            log.debug(f"Neither VDK run methods nor SQL statements were detected!")
-        for index, cell in enumerate(self.sql_and_run_cells):
-            cell_type = TYPE_PYTHON if CellUtils.is_vdk_run_cell(cell) else TYPE_SQL
-            runner_func = (
-                NotebookStepFuncFactory.run_python_step
-                if cell_type == TYPE_PYTHON
-                else NotebookStepFuncFactory.run_sql_step
-            )
-            if cell_type == TYPE_PYTHON:
-                CellUtils.combine_cells(cell, self.python_helper_cells)
-            step = NotebookStep(
-                name="".join(
-                    [
-                        self.file_path.name.replace(".ipynb", "_"),
-                        str(index),
-                    ]
-                ),
-                type=cell_type,
-                runner_func=runner_func,
-                file_path=self.file_path,
-                job_dir=context.job_directory,
-                code=CellUtils.get_cell_code(cell),
-            )
-            context.step_builder.add_step(step)
