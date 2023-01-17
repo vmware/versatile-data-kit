@@ -2,9 +2,10 @@ import { CommandRegistry } from "@lumino/commands";
 import { Dialog, showDialog } from "@jupyterlab/apputils";
 import React from "react";
 import RunJobDialog from "./components/RunJob";
-import { deleteJobRequest, jobRunRequest } from "./serverRequests";
+import { deleteJobRequest, downloadJobRequest, jobRunRequest } from "./serverRequests";
 import CreateJobDialog from "./components/CreateJob";
 import DeleteJobDialog from "./components/DeleteJob";
+import DownloadJobDialog from "./components/DownloadJob";
 
 export function updateVDKMenu(commands: CommandRegistry) {
     commands.addCommand("jp-vdk:menu-run", {
@@ -71,6 +72,24 @@ export function updateVDKMenu(commands: CommandRegistry) {
                                 );
                             }
                     }}).catch((e) => console.log(e));
+                }
+            }).catch((e) => console.log(e));
+        },
+    });
+
+    commands.addCommand("jp-vdk:menu-download", {
+        label: "Download",
+        caption: 'Execute VDK Download Command',
+        execute: async () => {
+            showDialog({
+                title: "Download Job",
+                body: <DownloadJobDialog parentPath={sessionStorage.getItem("current-path")!}></DownloadJobDialog>,
+                buttons: [Dialog.okButton(), Dialog.cancelButton()],
+            }).then(result => {
+                if (!result.value) {
+                    if(result.button.accept){
+                        downloadJobRequest();
+                    }
                 }
             }).catch((e) => console.log(e));
         },
