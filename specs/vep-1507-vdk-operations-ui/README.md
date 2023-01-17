@@ -15,35 +15,38 @@
 - [Alternatives](#alternatives)
 
 ## Summary
-Create an open source frontend for the VDK.
-The frontend will let customers, create,delete deploy and generally managed nad browse their jobs.
-For frontend is written in an extensible format to easily allow other teams to build extensions.
+
+<!--
+Short summary of the proposal. It will be used as user-focused
+documentation such as release notes or a (customer facing) development roadmap.
+The tone and content of the `Summary` section should be
+useful for a wide audience.
+-->
 
 ## Glossary
-data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code
-shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects
+<!--
+Optional section which defines terms and abbreviations used in the rest of the document.
+-->
 
 ## Motivation
-1. Improve usability
-   1. With a UI customers will be able to use VDK much quicker and much more proficiently because UIs are easier to understand and become familiar with than CLI tools
-2. increase VDK adoption
-   1. At the moment the VDK needs to be interacted with through the VDK cli or through web requests. Its thought that this is slowing down adoption of the VDK.
+<!--
+It tells **why** do we need X?
+Describe why the change is important and the benefits to users.
+Explain the user problem that need to be solved.
+-->
 
 ## Requirements and goals
+<!--
+It tells **what** is it trying to achieve?
+List the specific goals (functional and nonfunctional requirements)? How will we
+know that this has succeeded?
 
-1. website should be intuitive, fast, responsive
-2. It should be easy to setup and run locally
-3. It should be easy to extend with new features
-4. It should be well tested
-5. It should be well documented
+Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
+Non-goals are only features, which a contributor can reasonably assume were a goal.
+One example is features that were cut during scoping.
+-->
 
 ## High-level design
-
-#### Folder Structure
-
-* [frontend-ui](../../projects/frontend-ui) The root folder for all frontend code.
-  * [shared](../../projects/frontend-ui/shared/README.md): the root folder for the shared components project, for more details please see the readme.
-  * [data-pipelines](../../projects/frontend-ui/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
 
 <!--
 All the rest sections tell **how** are we solving it?
