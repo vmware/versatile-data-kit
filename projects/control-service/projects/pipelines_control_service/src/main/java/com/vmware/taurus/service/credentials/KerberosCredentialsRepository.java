@@ -57,7 +57,7 @@ public class KerberosCredentialsRepository implements CredentialsRepository {
       ProcessExecutor executor = new ProcessExecutor();
       executor.readOutput(true);
       ProcessResult result = executor.command("/bin/sh", "-c", "which kadmin").execute();
-      if (result.getExitValue() != 0) {
+      if (result == null || result.getExitValue() != 0) {
         log.error(
             "Missing required dependencies. "
                 + " kadmin are missing or are not found on PATH."
