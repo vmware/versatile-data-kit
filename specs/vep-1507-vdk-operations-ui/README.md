@@ -16,7 +16,7 @@
 
 ## Summary
 At the moment customers can deploy and manage jobs through the VDK CLI tool or through the API's.
-We want to extend on this and create a web frontend for the VDK. 
+We want to extend on this and create a web frontend for the VDK.
 The frontend will let customers, create,delete deploy and generally managed nad browse their jobs.
 Frontend is written in an extensible format to easily allow other teams to build extensions.
 To achieve this extensibility the frontend will be built in angular.
@@ -122,4 +122,3 @@ Consider at least the below topics but you do not need to cover those that are n
 <!--
 Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
 -->
-
