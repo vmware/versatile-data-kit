@@ -143,7 +143,7 @@ public final class RepositoryUtil {
             .resourcesMemoryLimit(1000)
             .message(message)
             .lastDeployedBy("test_user")
-            .lastDeployedDate(OffsetDateTime.now())
+            .lastDeployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
             .jobVersion("test_version")
             .jobSchedule("*/5 * * * *")
             .opId("test_op_id")
