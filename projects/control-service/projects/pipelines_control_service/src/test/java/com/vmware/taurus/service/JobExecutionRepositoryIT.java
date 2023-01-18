@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /** Integration tests of the setup of Spring Data repository for data job executions */
@@ -293,7 +294,7 @@ public class JobExecutionRepositoryIT {
     jobExecutionRepository.save(execution1);
     jobExecutionRepository.save(execution2);
 
-    var executionEndTime = OffsetDateTime.now();
+    var executionEndTime = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
     var message = "Changed by test";
     jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
         ExecutionStatus.CANCELLED,
