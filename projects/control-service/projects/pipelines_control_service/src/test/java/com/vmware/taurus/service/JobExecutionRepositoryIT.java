@@ -247,7 +247,7 @@ public class JobExecutionRepositoryIT {
     jobExecutionRepository.save(execution1);
     jobExecutionRepository.save(execution2);
 
-    var executionEndTime = OffsetDateTime.now();
+    var executionEndTime = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
     var message = "Changed by test";
     jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
         ExecutionStatus.CANCELLED,
