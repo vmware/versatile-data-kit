@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -843,8 +844,8 @@ public class DataJobMonitorTest {
         executionId,
         terminationMessage,
         executionSucceeded,
-        OffsetDateTime.now(),
-        OffsetDateTime.now());
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
   }
 
   private static JobExecution buildJobExecutionStatus(
@@ -868,7 +869,7 @@ public class DataJobMonitorTest {
         .resourcesCpuLimit(2F)
         .resourcesMemoryRequest(500)
         .resourcesMemoryLimit(1000)
-        .deployedDate(OffsetDateTime.now())
+        .deployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
         .deployedBy("lastDeployedBy")
         .succeeded(executionSucceeded)
         .build();
