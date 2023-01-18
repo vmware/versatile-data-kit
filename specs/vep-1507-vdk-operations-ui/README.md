@@ -15,25 +15,43 @@
 - [Alternatives](#alternatives)
 
 ## Summary
+
+<!--
+Short summary of the proposal. It will be used as user-focused
+documentation such as release notes or a (customer facing) development roadmap.
+The tone and content of the `Summary` section should be
+useful for a wide audience.
+-->
+
 At the moment customers can deploy and manage jobs through the VDK CLI tool or through the API's.
 We want to extend on this and create a web frontend for the VDK.
-The frontend will let customers, create,delete deploy and generally managed nad browse their jobs.
+The frontend will let customers, create,delete deploy and generally manage and browse their jobs.
 Frontend is written in an extensible format to easily allow other teams to build extensions.
-To achieve this extensibility the frontend will be built in angular.
+To achieve this extensibility the frontend is built in angular.
 
 ## Glossary
+<!--
+Optional section which defines terms and abbreviations used in the rest of the document.
+-->
+
 data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code. for more details please see [README.md](/projects/frontend/data-pipelines/README.md)
 shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects [README.md](/projects/frontend/data-pipelines/README.md)
 
 ## Motivation
-We want to improve the usability of VDK. With a UI customers will be able to use VDK much quicker and much more proficiently because UIs are easier to understand and become familiar with than CLI tools or APIs.
-
+We want to improve the usability of VDK. With a GUI customers will be able to use VDK much quicker and much more proficiently because GUIs are quicker to understand and become familiar with compared to CLI tools or APIs.
+Adding a GUI now will allow us to build features in the future that would be close to impossible to build without a GUI. An example of this would be rendering DAGs from lineage data.
 
 ## Requirements and goals
-1. It should be easy to setup and run locally or in a k8s cluster
+<!--
+It tells **why** do we need X?
+Describe why the change is important and the benefits to users.
+Explain the user problem that need to be solved.
+-->
+1. It should be easy to setup and run locally or in a k8s cluster.
 2. It should be easy to extend with new features
-3. It should be well tested
-4. It should be well documented
+   1. Adding a new section should be well documented
+   2. We expect programmers who didn't work on the initial build of the project to be able to build a section for their needs in isolated manner
+   3. After they have created a section they can easily add it to a deployed instance
 
 ## High-level design
 
