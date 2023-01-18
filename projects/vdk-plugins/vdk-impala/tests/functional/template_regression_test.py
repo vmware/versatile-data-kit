@@ -110,8 +110,6 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def test_load_dimension_scd1_checks_positive(self) -> None:
-        def sample_check(tmp_table_name):
-            return True
 
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org"
@@ -125,7 +123,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "source_view": source_view,
                 "target_schema": test_schema,
                 "target_table": target_table,
-                "check": sample_check,
+                "check": "use_positive_check",
                 "staging_schema": staging_schema,
             },
         )
@@ -137,8 +135,6 @@ class TestTemplateRegression(unittest.TestCase):
         assert actual_rs.output == expected_rs.output
 
     def test_load_dimension_scd1_checks_negative(self) -> None:
-        def sample_check(tmp_table_name):
-            return False
 
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org"
@@ -153,7 +149,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "source_view": source_view,
                 "target_schema": test_schema,
                 "target_table": target_table,
-                "check": sample_check,
+                "check": "use_negative_check",
                 "staging_schema": staging_schema,
             },
         )
