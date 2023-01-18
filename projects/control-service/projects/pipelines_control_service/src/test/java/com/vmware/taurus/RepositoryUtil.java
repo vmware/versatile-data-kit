@@ -16,6 +16,7 @@ import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 
 public final class RepositoryUtil {
 
@@ -115,8 +116,8 @@ public final class RepositoryUtil {
         dataJob,
         executionStatus,
         message,
-        OffsetDateTime.now(),
-        OffsetDateTime.now());
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
   }
 
   public static DataJobExecution createDataJobExecution(
