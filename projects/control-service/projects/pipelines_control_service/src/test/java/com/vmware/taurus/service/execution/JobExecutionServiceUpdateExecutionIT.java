@@ -7,6 +7,7 @@ package com.vmware.taurus.service.execution;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 import com.google.gson.JsonObject;
@@ -233,7 +234,7 @@ public class JobExecutionServiceUpdateExecutionIT {
             .resourcesMemoryLimit(1)
             .resourcesMemoryRequest(1)
             .deployedBy("test_deployed_by")
-            .deployedDate(OffsetDateTime.now())
+            .deployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
             .podTerminationMessage(terminationMessage)
             .containerTerminationReason(containerTerminationMessage)
             .build();
@@ -256,8 +257,8 @@ public class JobExecutionServiceUpdateExecutionIT {
             actualDataJob,
             actualExecutionSucceeded,
             actualTerminationMessage,
-            OffsetDateTime.now(),
-            OffsetDateTime.now(),
+            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
             "");
     DataJobExecution actualJobExecution =
         jobExecutionService.readJobExecution(
