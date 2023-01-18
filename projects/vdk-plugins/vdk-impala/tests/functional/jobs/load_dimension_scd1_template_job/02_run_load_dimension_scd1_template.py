@@ -9,7 +9,6 @@ __copyright__ = (
 
 
 def run(job_input: IJobInput) -> None:
-
     def sample_check_true(tmp_table_name):
         return True
 
