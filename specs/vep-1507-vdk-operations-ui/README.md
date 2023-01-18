@@ -15,36 +15,25 @@
 - [Alternatives](#alternatives)
 
 ## Summary
-
-<!--
-Short summary of the proposal. It will be used as user-focused
-documentation such as release notes or a (customer facing) development roadmap.
-The tone and content of the `Summary` section should be
-useful for a wide audience.
--->
+At the moment customers can deploy and manage jobs through the VDK CLI tool or through the API's.
+We want to extend on this and create a web frontend for the VDK. 
+The frontend will let customers, create,delete deploy and generally managed nad browse their jobs.
+Frontend is written in an extensible format to easily allow other teams to build extensions.
+To achieve this extensibility the frontend will be built in angular.
 
 ## Glossary
-<!--
-Optional section which defines terms and abbreviations used in the rest of the document.
--->
+data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code. for more details please see [README.md](/projects/frontend/data-pipelines/README.md)
+shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects [README.md](/projects/frontend/data-pipelines/README.md)
 
 ## Motivation
-<!--
-It tells **why** do we need X?
-Describe why the change is important and the benefits to users.
-Explain the user problem that need to be solved.
--->
+We want to improve the usability of VDK. With a UI customers will be able to use VDK much quicker and much more proficiently because UIs are easier to understand and become familiar with than CLI tools or APIs.
+
 
 ## Requirements and goals
-<!--
-It tells **what** is it trying to achieve?
-List the specific goals (functional and nonfunctional requirements)? How will we
-know that this has succeeded?
-
-Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
-Non-goals are only features, which a contributor can reasonably assume were a goal.
-One example is features that were cut during scoping.
--->
+1. It should be easy to setup and run locally or in a k8s cluster
+2. It should be easy to extend with new features
+3. It should be well tested
+4. It should be well documented
 
 ## High-level design
 
@@ -134,8 +123,3 @@ Consider at least the below topics but you do not need to cover those that are n
 Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
 -->
 
-## Alternatives
-<!--
-Optionally, describe what alternatives has been considered.
-Keep it short - if needed link to more detailed research document.
--->
