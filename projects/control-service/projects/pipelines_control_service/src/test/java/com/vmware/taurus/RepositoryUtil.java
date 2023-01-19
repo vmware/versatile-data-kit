@@ -83,7 +83,7 @@ public final class RepositoryUtil {
         executionStatus,
         message,
         startTime,
-        OffsetDateTime.now());
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
   }
 
   public static DataJobExecution createDataJobExecution(
