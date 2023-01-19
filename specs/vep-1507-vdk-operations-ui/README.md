@@ -23,28 +23,50 @@ The tone and content of the `Summary` section should be
 useful for a wide audience.
 -->
 
+At the moment customers can deploy and manage jobs through the VDK CLI tool or through the API's.
+We want to extend on this and create a web frontend for the VDK.
+The frontend will let customers, create,delete deploy and generally manage and browse their jobs.
+Frontend is written in an extensible format to easily allow other teams to build extensions.
+To achieve this extensibility the frontend is built in angular.
+
 ## Glossary
 <!--
 Optional section which defines terms and abbreviations used in the rest of the document.
 -->
 
+data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code. for more details please see [README.md](/projects/frontend/data-pipelines/README.md)
+shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects [README.md](/projects/frontend/data-pipelines/README.md)
+
 ## Motivation
+One of the core goals of the VDK is to provide a common and efficient framework for implementing, executing, monitoring, and troubleshooting data jobs (and data pipelines).
+
+In a sufficiently complex system, a single data team would need to manage many different data jobs - upgrade them, monitor them, fix incidents and issues, etc. Using CLI or API directly for the purpose of troubleshooting or operating multiple jobs doesn't scale. The CLI is very limited in terms of filtering, searching and visualizing complex information. And both require a higher level of technical skills to use.
+
+In an UI we want user to be able to
+
+For Developers - To be able to manage data jobs that allows for more flexibility - update configuration, check latest version, etc.
+For Operator/Support - ability to detect status of data jobs and easily access troubleshooting tools, as well as the ability to track and see log data jobs
+For team leads to be able to have aggregated view of the status of all jobs how often they fail, why do they fail.
+
+
+## Requirements and goals
 <!--
 It tells **why** do we need X?
 Describe why the change is important and the benefits to users.
 Explain the user problem that need to be solved.
 -->
 
-## Requirements and goals
-<!--
-It tells **what** is it trying to achieve?
-List the specific goals (functional and nonfunctional requirements)? How will we
-know that this has succeeded?
+### Goals:
+1. It should be easy to setup and run locally or in a k8s cluster.
+2. It should be easy to extend with new features
+   1. Adding a new section should be well documented
+   2. We expect programmers who didn't work on the initial build of the project to be able to build a section for their needs in isolated manner
+   3. After they have created a section they can easily add it to a deployed instance
 
-Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
-Non-goals are only features, which a contributor can reasonably assume were a goal.
-One example is features that were cut during scoping.
--->
+
+
+### Non Goals:
+1. Screens for rendering data lineage graphs.
 
 ## High-level design
 
@@ -118,10 +140,4 @@ Consider at least the below topics but you do not need to cover those that are n
 ## Implementation stories
 <!--
 Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
--->
-
-## Alternatives
-<!--
-Optionally, describe what alternatives has been considered.
-Keep it short - if needed link to more detailed research document.
 -->
