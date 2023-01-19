@@ -28,6 +28,19 @@ NotebookStepFunction = Callable[["NotebookStep", IJobInput], bool]
 class NotebookStep(Step):
     """
     A notebook step that will be executed when running a data job.
+
+    Step class attributes:
+    ::name: str - the name of the concrete step (e.g name of the file)
+    ::type: str - string representing a step type (sql or python).
+    ::runner_func: StepFunction - function that will execute the actual step
+    ::file_path: pathlib.Path - file where the step is defined
+    ::job_dir: pathlib.Path - the root job directory
+    ::parent: Step | None = None - parent Step
+
+    Additional attributes:
+    ::code: str - the code string retrieved from Jupyter code cell
+    ::module: module object - the module the code belongs to
+    (see imp.new_module in https://docs.python.org/3/library/imp.html)
     """
 
     def __init__(self, name, type, runner_func, file_path, job_dir, code, module=None, parent=None):
