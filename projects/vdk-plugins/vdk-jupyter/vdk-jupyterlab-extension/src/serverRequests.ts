@@ -73,8 +73,17 @@ export async function deleteJobRequest() {
       body: JSON.stringify(dataToSend),
       method: 'POST'
     })
-      .then(data => {
-        alert(data['message']);
+      .then(async data => {
+        if(!data["error"]){
+            alert(data["message"]);
+        }
+        else{
+            await showErrorMessage(
+                'Encountered an error when deleting the job. Error:',
+                data["message"],
+                [Dialog.okButton()]
+              );
+        }
       })
       .catch(async reason => {
         await showErrorMessage(
@@ -109,8 +118,17 @@ export async function downloadJobRequest() {
       body: JSON.stringify(dataToSend),
       method: 'POST'
     })
-      .then(data => {
-        alert(data['message']);
+      .then(async data => {
+        if(!data["error"]){
+            alert(data["message"]);
+        }
+        else{
+            await showErrorMessage(
+                'Encountered an error when trying to download the job. Error:',
+                data["message"],
+                [Dialog.okButton()]
+              );
+        }
       })
       .catch(async reason => {
         await showErrorMessage(
