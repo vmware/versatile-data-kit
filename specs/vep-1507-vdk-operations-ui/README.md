@@ -38,8 +38,16 @@ data-pipelines: This is the npm project of the bootstrapping codebase it contain
 shared-components, @vdk/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects [README.md](/projects/frontend/data-pipelines/README.md)
 
 ## Motivation
-We want to improve the usability of VDK. With a GUI customers will be able to use VDK much quicker and much more proficiently because GUIs are quicker to understand and become familiar with compared to CLI tools or APIs.
-Adding a GUI now will allow us to build features in the future that would be close to impossible to build without a GUI. An example of this would be rendering DAGs from lineage data.
+One of the core goals of the VDK is to provide a common and efficient framework for implementing, executing, monitoring, and troubleshooting data jobs (and data pipelines).
+
+In a sufficiently complex system, a single data team would need to manage many different data jobs - upgrade them, monitor them, fix incidents and issues, etc. Using CLI or API directly for the purpose of troubleshooting or operating multiple jobs doesn't scale. The CLI is very limited in terms of filtering, searching and visualizing complex information. And both require a higher level of technical skills to use.
+
+In an UI we want user to be able to
+
+For Developers - To be able to manage data jobs that allows for more flexibility - update configuration, check latest version, etc.
+For Operator/Support - ability to detect status of data jobs and easily access troubleshooting tools, as well as the ability to track and see log data jobs
+For team leads to be able to have aggregated view of the status of all jobs how often they fail, why do they fail.
+
 
 ## Requirements and goals
 <!--
