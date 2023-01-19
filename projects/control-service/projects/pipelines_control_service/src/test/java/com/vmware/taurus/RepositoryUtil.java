@@ -100,7 +100,7 @@ public final class RepositoryUtil {
         executionStatus,
         "test_message",
         startTime,
-        OffsetDateTime.now());
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
   }
 
   public static DataJobExecution createDataJobExecution(
