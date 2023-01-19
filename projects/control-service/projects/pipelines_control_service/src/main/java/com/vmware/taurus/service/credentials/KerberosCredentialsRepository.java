@@ -62,7 +62,7 @@ public class KerberosCredentialsRepository implements CredentialsRepository {
             "Missing required dependencies. "
                 + " kadmin are missing or are not found on PATH."
                 + "Possible reason: "
-                + result.getOutput().getUTF8()
+                + (result != null ? result.getOutput().getUTF8() : "")
                 + "Without those credential management will not work. ");
       }
       var krbConf = System.getenv().getOrDefault("KRB5_CONFIG", "/etc/krb5.conf");
