@@ -50,7 +50,7 @@ class Notebook:
     @staticmethod
     def register_notebook_steps(file_path: Path, context: JobContext):
         try:
-            python_module = imp.new_module('notebook')
+            python_module = imp.new_module("notebook")
             exec("job_input = 1", python_module.__dict__)
             notebook_steps = []
             # see Jupyter json schema here:
@@ -63,8 +63,11 @@ class Notebook:
                     if CellUtils.is_vdk_cell(cell):
                         is_sql = CellUtils.is_sql_cell(cell)
                         cell_type = TYPE_SQL if is_sql else TYPE_PYTHON
-                        runner_func = NotebookStepFuncFactory.run_sql_step if is_sql \
+                        runner_func = (
+                            NotebookStepFuncFactory.run_sql_step
+                            if is_sql
                             else NotebookStepFuncFactory.run_python_step
+                        )
                         step = NotebookStep(
                             name="".join(
                                 [
@@ -84,10 +87,7 @@ class Notebook:
                         context.step_builder.add_step(step)
                 index += 1
 
-            log.debug(
-                f"{len(notebook_steps)} "
-                f"cells with vdk tag were detected!"
-            )
+            log.debug(f"{len(notebook_steps)} " f"cells with vdk tag were detected!")
         except json.JSONDecodeError as e:
             errors.log_and_rethrow(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,

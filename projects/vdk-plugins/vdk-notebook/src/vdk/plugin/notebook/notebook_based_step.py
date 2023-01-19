@@ -43,7 +43,17 @@ class NotebookStep(Step):
     (see imp.new_module in https://docs.python.org/3/library/imp.html)
     """
 
-    def __init__(self, name, type, runner_func, file_path, job_dir, code, module=None, parent=None):
+    def __init__(
+        self,
+        name,
+        type,
+        runner_func,
+        file_path,
+        job_dir,
+        code,
+        module=None,
+        parent=None,
+    ):
         super().__init__(name, type, runner_func, file_path, job_dir, parent)
         self.runner_func = runner_func
         self.code = code

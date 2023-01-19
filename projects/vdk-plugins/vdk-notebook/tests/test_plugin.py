@@ -48,4 +48,3 @@ class JupyterTests(unittest.TestCase):
             ["run", jobs_path_from_caller_directory("rest-api-job-fail-code-error")]
         )
         cli_assert_equal(2, result)
-

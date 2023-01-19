@@ -121,9 +121,9 @@ This is how a notebook with 2 SQL NotebookSteps and 4 Python steps would look li
 ![working-with-steps](images/working-with_notebook-steps.png)
 
 In contrast to working with SQL and Python files, working with Notebook files would not require  having a def run function with IJobInput parameter to work with job_input.
-The job_input variable will be loaded for the current notebook, so the user will have direct access to it. 
-Since the job_input variable will be already loaded the user can run a step during the development time, but to see how the whole job works he needs to execute the job with the "Run" command 
-on the VDK menu. 
+The job_input variable will be loaded for the current notebook, so the user will have direct access to it.
+Since the job_input variable will be already loaded the user can run a step during the development time, but to see how the whole job works he needs to execute the job with the "Run" command
+on the VDK menu.
 
 ## API design
 No direct changes to the public API.
@@ -158,8 +158,8 @@ The SQL ones respectively consist of a single SQL query
 
 The Cell  class is a dataclass class that encapsulates this logic.
 
-#### Notebook 
-This class has one static method.The method has the responsibility to register the NotebookSteps to JobContex 
+#### Notebook
+This class has one static method.The method has the responsibility to register the NotebookSteps to JobContex
 from a given notebook file. The context of the job is passed to it by the VDKHook.
 
 #### NotebookStep
