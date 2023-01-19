@@ -55,11 +55,18 @@ It tells **why** do we need X?
 Describe why the change is important and the benefits to users.
 Explain the user problem that need to be solved.
 -->
+
+### Goals:
 1. It should be easy to setup and run locally or in a k8s cluster.
 2. It should be easy to extend with new features
    1. Adding a new section should be well documented
    2. We expect programmers who didn't work on the initial build of the project to be able to build a section for their needs in isolated manner
    3. After they have created a section they can easily add it to a deployed instance
+
+
+
+### Non Goals:
+1. Screens for rendering data lineage graphs.
 
 ## High-level design
 
