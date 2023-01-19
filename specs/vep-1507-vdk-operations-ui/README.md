@@ -66,20 +66,6 @@ In this context, a component is any separate software process.
 -->
 
 
-## API design
-
-<!--
-
-Describe the changes and additions to the public API (if there are any).
-
-For all API changes:
-
-Include Swagger URL for HTTP APIs, no matter if the API is RESTful or RPC-like.
-PyDoc/Javadoc (or similar) for Python/Java changes.
-Explain how does the system handle API violations.
--->
-
-
 ## Detailed design
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
