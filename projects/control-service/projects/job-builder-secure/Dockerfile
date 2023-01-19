@@ -24,7 +24,7 @@ RUN apk add --no-cache --update \
     git \
     bash
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.10/main python3=3.7.10-r0 py3-pip \
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.10/main python3=3.10.9-r1 py3-pip \
     && pip3 install awscli  \
     && apk --purge -v del py3-pip \
     && rm -rf /var/cache/apk/*
