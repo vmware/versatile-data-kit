@@ -61,39 +61,27 @@ class Notebook:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
                     if CellUtils.is_vdk_cell(cell):
-                        if CellUtils.is_sql_cell(cell):
-                            step = NotebookStep(
-                                name="".join(
-                                    [
-                                        file_path.name.replace(".ipynb", "_"),
-                                        str(index),
-                                    ]
-                                ),
-                                type=TYPE_SQL,
-                                runner_func=NotebookStepFuncFactory.run_sql_step,
-                                file_path=file_path,
-                                job_dir=context.job_directory,
-                                code=CellUtils.get_cell_code(cell),
-                            )
-                            notebook_steps.append(step)
-                            context.step_builder.add_step(step)
-                        else:
-                            step = NotebookStep(
-                                name="".join(
-                                    [
-                                        file_path.name.replace(".ipynb", "_"),
-                                        str(index),
-                                    ]
-                                ),
-                                type=TYPE_PYTHON,
-                                runner_func=NotebookStepFuncFactory.run_python_step,
-                                file_path=file_path,
-                                job_dir=context.job_directory,
-                                module=python_module,
-                                code=CellUtils.get_cell_code(cell),
-                            )
-                            notebook_steps.append(step)
-                            context.step_builder.add_step(step)
+                        is_sql = CellUtils.is_sql_cell(cell)
+                        cell_type = TYPE_SQL if is_sql else TYPE_PYTHON
+                        runner_func = NotebookStepFuncFactory.run_sql_step if is_sql \
+                            else NotebookStepFuncFactory.run_python_step
+                        step = NotebookStep(
+                            name="".join(
+                                [
+                                    file_path.name.replace(".ipynb", "_"),
+                                    str(index),
+                                ]
+                            ),
+                            type=cell_type,
+                            runner_func=runner_func,
+                            file_path=file_path,
+                            job_dir=context.job_directory,
+                            code=CellUtils.get_cell_code(cell),
+                        )
+                        if not is_sql:
+                            step.module = python_module
+                        notebook_steps.append(step)
+                        context.step_builder.add_step(step)
                 index += 1
 
             log.debug(
