@@ -147,17 +147,19 @@ public class JobExecutionResultManager {
    * @return returns parsed termination message
    */
   private static PodTerminationMessage parsePodTerminationMessage(String podTerminationMessage) {
-    String status = "";
+    String status = StringUtils.isEmpty(podTerminationMessage) ? "" : podTerminationMessage;
     String vdkVersion = "";
 
     if (!StringUtils.isEmpty(podTerminationMessage)) {
       try {
         Map<String, String> obj = new Gson().fromJson(podTerminationMessage, Map.class);
-        status = obj.get(TERMINATION_MESSAGE_ATTRIBUTE_STATUS);
-        vdkVersion = obj.getOrDefault(TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, "");
+        if (obj != null) {
+          status = obj.get(TERMINATION_MESSAGE_ATTRIBUTE_STATUS);
+          vdkVersion = obj.getOrDefault(TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, "");
+        }
       } catch (com.google.gson.JsonSyntaxException ex) {
         // Fallback to the old plain text format
-        status = podTerminationMessage;
+        log.debug("Unable to parse podTerminationMessage");
       }
     }
 
