@@ -72,14 +72,14 @@ Explain the user problem that need to be solved.
 
 #### Folder Structure
 
-* [frontend](../../projects/frontend) The root folder for all frontend code.
-    * [shared-components](../../projects/frontend/shared-components/README.md): the root folder for the shared components project, for more details please see the readme.
+* [frontend](/projects/frontend) The root folder for all frontend code.
+    * [shared-components](/projects/frontend/shared-components/README.md): the root folder for the shared components project, for more details please see the readme.
       * gui: This contains the root package.json file for the project.
         * projects:
           * documentation-ui: functionality for testing and developing new components
           * shared: all the shared components live here
       * cicd: gitlab config
-    * [data-pipelines](../../projects/frontend-ui/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
+    * [data-pipelines](/projects/frontend/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
 <!--
 All the rest sections tell **how** are we solving it?
 
