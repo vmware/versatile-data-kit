@@ -72,7 +72,7 @@ Explain the user problem that need to be solved.
 
 #### Folder Structure
 
-* [frontend](../../projects/frontend-ui) The root folder for all frontend code.
+* [frontend](../../projects/frontend) The root folder for all frontend code.
     * [shared-components](../../projects/frontend-ui/shared-components/README.md): the root folder for the shared components project, for more details please see the readme.
       * gui: This contains the root package.json file for the project.
         * projects:
