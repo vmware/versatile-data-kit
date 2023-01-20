@@ -1,6 +1,6 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import imp
+import importlib.util
 import json
 import logging
 import pathlib
@@ -50,7 +50,12 @@ class Notebook:
     @staticmethod
     def register_notebook_steps(file_path: Path, context: JobContext):
         try:
-            python_module = imp.new_module("notebook")
+            # see https://docs.python.org/3/library/importlib.html#importlib.util.module_from_spec
+            spec = importlib.util.spec_from_loader("notebook", loader=None)
+            python_module = importlib.util.module_from_spec(spec)
+            # Used to declare the job_input in the new module
+            # Gives access to it: module.job_inut
+            # Used to pass the real vdk job_input variable in run_python_step (module.job_input = job_input
             exec("job_input = 1", python_module.__dict__)
             notebook_steps = []
             # see Jupyter json schema here:
