@@ -94,7 +94,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    kerberosCredentialsRepository.setMiniKdc(getKdc());
+    kerberosCredentialsRepository.setMiniKdc(simpleKdcServer);
   }
 
   @AfterEach

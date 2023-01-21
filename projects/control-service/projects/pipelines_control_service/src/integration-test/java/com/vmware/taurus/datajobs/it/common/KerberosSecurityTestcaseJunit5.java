@@ -5,21 +5,22 @@
 
 package com.vmware.taurus.datajobs.it.common;
 
+import org.apache.kerby.kerberos.kerb.KrbException;
+import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.security.kerberos.test.KerberosSecurityTestcase;
 
-public class KerberosSecurityTestcaseJunit5 extends KerberosSecurityTestcase {
+public class KerberosSecurityTestcaseJunit5 {
+  SimpleKdcServer simpleKdcServer;
   // TODO we should think about moving away from MiniKDC as it's not maintained.
   @BeforeEach
-  @Override
   public void startMiniKdc() throws Exception {
-    super.startMiniKdc();
+    simpleKdcServer = new SimpleKdcServer();
+    simpleKdcServer.start();
   }
 
   @AfterEach
-  @Override
-  public void stopMiniKdc() {
-    super.stopMiniKdc();
+  public void stopMiniKdc() throws KrbException {
+    simpleKdcServer.stop();
   }
 }
