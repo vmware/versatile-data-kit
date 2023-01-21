@@ -121,11 +121,19 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId2))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTimeSmaller.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString()))
+                .value(
+                    expectedEndTimeSmaller
+                        .plusNanos(500)
+                        .truncatedTo(ChronoUnit.MICROS)
+                        .toString()))
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].id").value(expectedId1))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[1].endTime")
-                .value(expectedEndTimeLarger.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString()));
+                .value(
+                    expectedEndTimeLarger
+                        .plusNanos(500)
+                        .truncatedTo(ChronoUnit.MICROS)
+                        .toString()));
   }
 
   @Test
@@ -150,11 +158,16 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId1))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTimeLarger.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString()))
+                .value(
+                    expectedEndTimeLarger.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString()))
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].id").value(expectedId2))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[1].endTime")
-                .value(expectedEndTimeSmaller.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString()));
+                .value(
+                    expectedEndTimeSmaller
+                        .plusNanos(500)
+                        .truncatedTo(ChronoUnit.MICROS)
+                        .toString()));
   }
 
   @Test
