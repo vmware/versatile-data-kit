@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +96,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTime.toString()));
+                .value(expectedEndTime.truncatedTo(ChronoUnit.MICROS).toString()));
   }
 
   @Test
@@ -120,11 +121,11 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId2))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTimeSmaller.toString()))
+                .value(expectedEndTimeSmaller.truncatedTo(ChronoUnit.MICROS).toString()))
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].id").value(expectedId1))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[1].endTime")
-                .value(expectedEndTimeLarger.toString()));
+                .value(expectedEndTimeLarger.truncatedTo(ChronoUnit.MICROS).toString()));
   }
 
   @Test
@@ -149,11 +150,11 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId1))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTimeLarger.toString()))
+                .value(expectedEndTimeLarger.truncatedTo(ChronoUnit.MICROS).toString()))
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].id").value(expectedId2))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[1].endTime")
-                .value(expectedEndTimeSmaller.toString()));
+                .value(expectedEndTimeSmaller.truncatedTo(ChronoUnit.MICROS).toString()));
   }
 
   @Test
