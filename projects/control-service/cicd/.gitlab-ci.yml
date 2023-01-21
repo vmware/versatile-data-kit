@@ -22,17 +22,18 @@
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
-  image: docker:20.10.21
+  image: docker:20.10.22
   variables:
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
-    - apk --no-cache add openjdk17-jdk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-    - apk --no-cache add git zip curl zip python3 py3-pip aws-cli --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    - apk --no-cache add openjdk17-jdk
+    - apk --no-cache add git zip curl zip py-pip
+    - pip install --upgrade pip && pip install awscli
 
 control_service_build_image:
   extends: .control_service_base_build
   services:
-    - docker:20.10.21-dind
+    - docker:20.10.22-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -118,9 +119,9 @@ control_service_test_helm_chart:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_publish_job_base_image:
-  image: docker:20.10.21
+  image: docker:20.10.22
   services:
-    - docker:20.10.21-dind
+    - docker:20.10.22-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -145,9 +146,9 @@ control_service_publish_job_base_image:
 
 
 control_service_publish_job_builder_image:
-  image: docker:20.10.21
+  image: docker:20.10.22
   services:
-    - docker:20.10.21-dind
+    - docker:20.10.22-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -240,7 +241,8 @@ control_service_deploy_testing_data_pipelines:
   stage: pre_release
   image: proum/aws-iam-authenticator
   script:
-    - apk --no-cache add bash openssl curl git gettext zip python3 py3-pip aws-cli
+    - apk --no-cache add bash openssl curl git gettext zip py-pip
+    - pip install --upgrade pip && pip install awscli
     - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
