@@ -252,6 +252,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     return ticketValidator;
   }
 
+
+
   @Bean
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
   public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
