@@ -16,6 +16,7 @@ public class KerberosSecurityTestcaseJunit5 {
   @BeforeEach
   public void startMiniKdc() throws Exception {
     simpleKdcServer = new SimpleKdcServer();
+    simpleKdcServer.init();
     simpleKdcServer.start();
   }
 
