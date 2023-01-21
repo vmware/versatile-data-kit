@@ -27,8 +27,7 @@
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
     - apk --no-cache add openjdk17-jdk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-    - apk --no-cache add git zip curl zip python3 py3-pip --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-    - pip3 install --upgrade pip && pip3 install awscli
+    - apk --no-cache add git zip curl zip python3 py3-pip aws-cli --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 control_service_build_image:
   extends: .control_service_base_build
