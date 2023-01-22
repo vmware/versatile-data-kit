@@ -102,8 +102,8 @@ public class GraphQLExecutionsIT extends BaseIT {
   }
 
   private void cleanup() {
-    jobsRepository.deleteAll(jobsRepository
-            .findAllById(List.of(TEST_JOB_NAME_1, TEST_JOB_NAME_2, TEST_JOB_NAME_3)));
+    jobsRepository.deleteAll(
+        jobsRepository.findAllById(List.of(TEST_JOB_NAME_1, TEST_JOB_NAME_2, TEST_JOB_NAME_3)));
   }
 
   @Test
