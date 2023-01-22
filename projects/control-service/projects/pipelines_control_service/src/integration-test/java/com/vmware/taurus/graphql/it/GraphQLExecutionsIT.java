@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -67,7 +68,7 @@ public class GraphQLExecutionsIT extends BaseIT {
     this.dataJob2 = jobsRepository.save(new DataJob(TEST_JOB_NAME_2, config2));
     this.dataJob3 = jobsRepository.save(new DataJob(TEST_JOB_NAME_3, config3));
 
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
     this.dataJobExecution1 =
         JobExecutionUtil.createDataJobExecution(
             jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.SUCCEEDED);
@@ -101,9 +102,8 @@ public class GraphQLExecutionsIT extends BaseIT {
   }
 
   private void cleanup() {
-    jobsRepository
-        .findAllById(List.of(TEST_JOB_NAME_1, TEST_JOB_NAME_2, TEST_JOB_NAME_3))
-        .forEach(dataJob -> jobsRepository.delete(dataJob));
+    jobsRepository.deleteAll(jobsRepository
+            .findAllById(List.of(TEST_JOB_NAME_1, TEST_JOB_NAME_2, TEST_JOB_NAME_3)));
   }
 
   @Test
