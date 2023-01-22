@@ -6,6 +6,7 @@
 package com.vmware.taurus.datajobs.it.common;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.model.DataJob;
@@ -37,7 +38,7 @@ public class JobExecutionUtil {
             .resourcesMemoryLimit(1000)
             .message("message")
             .lastDeployedBy("test_user")
-            .lastDeployedDate(OffsetDateTime.now())
+            .lastDeployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
             .jobVersion("test_version")
             .jobSchedule("*/5 * * * *")
             .opId("test_op_id")
