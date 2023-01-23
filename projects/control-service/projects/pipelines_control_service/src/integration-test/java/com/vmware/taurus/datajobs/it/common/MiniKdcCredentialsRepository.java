@@ -6,12 +6,14 @@
 package com.vmware.taurus.datajobs.it.common;
 
 import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Optional;
 import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /**
  * This class can be used to replace {@link KerberosCredentialsRepository} for testing purposes. It
@@ -21,14 +23,17 @@ import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
  * (tsvetkovt@vmware.com) was not able to connect to MiniKdc or to a * dockerized KDC with kadmin.
  * TODO we should think about moving away from MiniKDC as it's not maintained.
  */
-@Setter
+@Component
+@Primary
 public class MiniKdcCredentialsRepository extends KerberosCredentialsRepository {
   private static final Logger log = LoggerFactory.getLogger(MiniKdcCredentialsRepository.class);
 
   private SimpleKdcServer miniKdc;
 
-  public MiniKdcCredentialsRepository() {
+  @Autowired
+  public MiniKdcCredentialsRepository(SimpleKdcServer miniKdc) {
     super("test", "test");
+    this.miniKdc = miniKdc;
   }
 
   @Override
