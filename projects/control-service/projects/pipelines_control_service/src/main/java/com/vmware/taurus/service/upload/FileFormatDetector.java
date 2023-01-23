@@ -64,8 +64,9 @@ class FileFormatDetector {
   public String detectFileType(Path filePath) throws IOException {
     Metadata metadata = new Metadata();
     metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, filePath.toFile().getName());
-    TikaInputStream stream = TikaInputStream.get(filePath, metadata);
-    var mediaType = detector.detect(stream, metadata);
-    return mediaType.toString();
+    try (TikaInputStream stream = TikaInputStream.get(filePath, metadata)) {
+      var mediaType = detector.detect(stream, metadata);
+      return mediaType.toString();
+    }
   }
 }
