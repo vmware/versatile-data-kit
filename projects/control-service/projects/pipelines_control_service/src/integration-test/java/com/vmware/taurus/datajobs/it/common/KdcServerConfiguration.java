@@ -13,12 +13,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KdcServerConfiguration {
 
-    @Bean(destroyMethod = "stop")
-    SimpleKdcServer simpleKdcServer() throws KrbException {
-        var simpleKdcServer = new SimpleKdcServer();
-        simpleKdcServer.init();
-        simpleKdcServer.start();
-        return simpleKdcServer;
-    }
+  @Bean(destroyMethod = "stop")
+  SimpleKdcServer simpleKdcServer() throws KrbException {
+    var simpleKdcServer = new SimpleKdcServer();
+    simpleKdcServer.init();
+    simpleKdcServer.start();
+    return simpleKdcServer;
+  }
 }
-
