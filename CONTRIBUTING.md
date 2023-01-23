@@ -113,7 +113,7 @@ We prefer maintaining a straight branch history by rebasing before merging. Fast
 ## Changelog
 Versioning of all components follows https://semver.org
 
-For generating release notes (changelog) we rely on good commit titles and commit descriptions (see above section). 
+For generating release notes (changelog) we rely on good commit titles and commit descriptions (see above section).
 
 ## Pull Request Checklist
 
