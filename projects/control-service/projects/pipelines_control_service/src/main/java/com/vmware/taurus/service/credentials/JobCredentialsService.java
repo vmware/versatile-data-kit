@@ -22,8 +22,6 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Optional;
 
-import static graphql.Assert.assertTrue;
-
 /**
  * Manages credentials of a job.
  *
@@ -56,8 +54,9 @@ public class JobCredentialsService {
     String principal = getJobPrincipalName(jobName);
     File keytabFile;
     try {
+      // create a temp file name by creating a temp file and then deleteing the actual file.
       keytabFile = File.createTempFile(principal, ".keytab");
-      assertTrue(keytabFile.delete());
+      keytabFile.delete();
     } catch (IOException e) {
       throw new ExternalSystemError(MainExternalSystem.HOST_CONTAINER, e);
     }

@@ -16,8 +16,6 @@ import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.openapi.ApiException;
-import org.apache.kerby.kerberos.kerb.KrbException;
-import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -29,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,7 +41,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
-@Import({BaseIT.KerberosConfig.class})
+@Import({KdcServerConfiguration.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT {
@@ -67,8 +62,6 @@ public class BaseIT {
 
   @Autowired protected MockMvc mockMvc;
 
-  @Autowired private SimpleKdcServer simpleKdcServer;
-
   @Autowired private WebApplicationContext context;
 
   @Value("${integrationTest.dataJobsNamespace:}")
@@ -81,19 +74,6 @@ public class BaseIT {
 
   private boolean ownsControlNamespace = false;
 
-  @TestConfiguration
-  static class KerberosConfig {
-
-    @Bean
-    @Primary
-    public SimpleKdcServer simpleKdcServer() throws KrbException {
-      var simpleKdcServer = new SimpleKdcServer();
-      simpleKdcServer.init();
-      simpleKdcServer.start();
-      return simpleKdcServer;
-    }
-  }
-
   @BeforeEach
   public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
@@ -101,8 +81,7 @@ public class BaseIT {
   }
 
   @AfterEach
-  public void after() throws KrbException {
-    simpleKdcServer.stop();
+  public void after() {
     if (ownsDataJobsNamespace) {
       try {
         dataJobsKubernetesService.deleteNamespace(dataJobsNamespace);
