@@ -12,7 +12,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
-import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
