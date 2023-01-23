@@ -17,6 +17,8 @@ import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
 import io.kubernetes.client.openapi.ApiException;
+import org.apache.kerby.kerberos.kerb.KrbException;
+import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -48,7 +50,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @Import({BaseIT.KerberosConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
-public class BaseIT extends KerberosSecurityTestcaseJunit5 {
+public class BaseIT {
   private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
   public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
@@ -60,13 +62,13 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   protected static final ObjectMapper mapper = new ObjectMapper();
 
-  @Autowired private MiniKdcCredentialsRepository kerberosCredentialsRepository;
-
   @Autowired protected DataJobsKubernetesService dataJobsKubernetesService;
 
   @Autowired protected ControlKubernetesService controlKubernetesService;
 
   @Autowired protected MockMvc mockMvc;
+
+  @Autowired private SimpleKdcServer simpleKdcServer;
 
   @Autowired private WebApplicationContext context;
 
@@ -85,8 +87,11 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
     @Bean
     @Primary
-    public KerberosCredentialsRepository credentialsRepository() {
-      return new MiniKdcCredentialsRepository();
+    public SimpleKdcServer simpleKdcServer() throws KrbException {
+      var simpleKdcServer = new SimpleKdcServer();
+      simpleKdcServer.init();
+      simpleKdcServer.start();
+      return simpleKdcServer;
     }
   }
 
@@ -94,11 +99,11 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    kerberosCredentialsRepository.setMiniKdc(simpleKdcServer);
   }
 
   @AfterEach
-  public void after() {
+  public void after() throws KrbException {
+    simpleKdcServer.stop();
     if (ownsDataJobsNamespace) {
       try {
         dataJobsKubernetesService.deleteNamespace(dataJobsNamespace);
@@ -116,7 +121,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   }
 
   public static Matcher<String> lambdaMatcher(Predicate<String> predicate) {
-    return new BaseMatcher<String>() {
+    return new BaseMatcher<>() {
       @Override
       public boolean matches(Object actual) {
         return predicate.test((String) actual);
