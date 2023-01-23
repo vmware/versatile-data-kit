@@ -26,7 +26,7 @@
   variables:
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
-    - apk --no-cache add openjdk17-jdk git zip curl zip py-pip
+    - apk --no-cache add openjdk11-jdk git zip curl zip py-pip
     - pip install --upgrade pip && pip install awscli
 
 control_service_build_image:
@@ -39,7 +39,7 @@ control_service_build_image:
     DOCKER_TLS_CERTDIR: ""
   stage: build
   script:
-    - apk --no-cache add git openjdk17-jdk
+    - apk --no-cache add git openjdk11-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
@@ -191,7 +191,7 @@ control_service_publish_image:
     DOCKER_TLS_CERTDIR: ""
   stage: publish_artifacts
   script:
-    - apk add --no-cache git openjdk17-jdk
+    - apk add --no-cache git openjdk11-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - docker login -u $VDK_DOCKER_REGISTRY_USERNAME -p $VDK_DOCKER_REGISTRY_PASSWORD
     - cd projects/control-service/projects
@@ -216,7 +216,7 @@ control_service_publish_api_client:
   image: docker:20.10.22
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip openjdk17-jdk git python
+    - apk add --no-cache py-pip openjdk11-jdk git python
     - pip install -U pip setuptools wheel twine
     - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
     - cd projects/control-service/projects/model/apidefs/datajob-api/build
