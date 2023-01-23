@@ -8,16 +8,15 @@ import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 /**
  * Sent a GET request to the server to get current working directory
  */
-export function getCurrentPathRequest() {
-  requestAPI<any>('run', {
-    method: 'GET'
-  })
-    .then(data => {
-      sessionStorage.setItem('current-path', data['path']);
-    })
-    .catch(reason => {
-      throw reason;
+export async function getCurrentPathRequest() {
+  try {
+    const data = await requestAPI<any>('run', {
+      method: 'GET'
     });
+    sessionStorage.setItem('current-path', data['path']);
+  } catch (error) {
+    throw error;
+  }
 }
 
 /**
@@ -30,25 +29,24 @@ export async function jobRunRequest() {
     jobArguments: sessionStorage.getItem('job-args')
   };
   if (dataToSend['jobPath']) {
-    requestAPI<any>('run', {
-      body: JSON.stringify(dataToSend),
-      method: 'POST'
-    })
-      .then(data => {
-        const message =
-          'Job execution has finished with status ' +
-          data['message'] +
-          ' \n See vdk_logs.txt file for more!';
-        alert(message);
-        sessionStorage.removeItem('job-args');
-      })
-      .catch(async reason => {
-        await showErrorMessage(
-          'Encountered an error when trying to run the job. Error:',
-          reason,
-          [Dialog.okButton()]
-        );
+    try {
+      const data = await requestAPI<any>('run', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST'
       });
+      const message =
+        'Job execution has finished with status ' +
+        data['message'] +
+        ' \n See vdk_logs.txt file for more!';
+      alert(message);
+      sessionStorage.removeItem('job-args');
+    } catch (error) {
+      await showErrorMessage(
+        'Encountered an error when trying to run the job. Error:',
+        error,
+        [Dialog.okButton()]
+      );
+    }
   } else {
     await showErrorMessage(
       'Encountered an error when trying to run the job. Error:',
@@ -69,36 +67,33 @@ export async function deleteJobRequest() {
     restApiUrl: sessionStorage.getItem('delete-job-rest-api-url')
   };
   if (dataToSend['jobName'] && dataToSend['jobTeam']) {
-    requestAPI<any>('delete', {
-      body: JSON.stringify(dataToSend),
-      method: 'POST'
-    })
-      .then(async data => {
-        if(!data["error"]){
-            alert(data["message"]);
-        }
-        else{
-            await showErrorMessage(
-                'Encountered an error when deleting the job. Error:',
-                data["message"],
-                [Dialog.okButton()]
-              );
-        }
-      })
-      .catch(async reason => {
+    try {
+      const data = await requestAPI<any>('delete', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST'
+      });
+      if (!data['error']) {
+        alert(data['message']);
+      } else {
         await showErrorMessage(
           'Encountered an error when deleting the job. Error:',
-          reason,
+          data['message'],
           [Dialog.okButton()]
         );
-      });
-  }
-  else{
-    await showErrorMessage(
+      }
+    } catch (error) {
+      await showErrorMessage(
         'Encountered an error when deleting the job. Error:',
-        'The name and the team of the job should be defined!',
+        error,
         [Dialog.okButton()]
       );
+    }
+  } else {
+    await showErrorMessage(
+      'Encountered an error when deleting the job. Error:',
+      'The name and the team of the job should be defined!',
+      [Dialog.okButton()]
+    );
   }
 }
 
@@ -114,29 +109,27 @@ export async function downloadJobRequest() {
     parentPath: sessionStorage.getItem('download-job-path')
   };
   if (dataToSend['jobName'] && dataToSend['jobTeam']) {
-    requestAPI<any>('download', {
-      body: JSON.stringify(dataToSend),
-      method: 'POST'
-    })
-      .then(async data => {
-        if(!data["error"]){
-            alert(data["message"]);
-        }
-        else{
-            await showErrorMessage(
-                'Encountered an error when trying to download the job. Error:',
-                data["message"],
-                [Dialog.okButton()]
-              );
-        }
-      })
-      .catch(async reason => {
+    try {
+      let data = await requestAPI<any>('download', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST'
+      });
+      if (!data['error']) {
+        alert(data['message']);
+      } else {
         await showErrorMessage(
           'Encountered an error when trying to download the job. Error:',
-          reason,
+          data['message'],
           [Dialog.okButton()]
         );
-      });
+      }
+    } catch (reason) {
+      await showErrorMessage(
+        'Encountered an error when trying to download the job. Error:',
+        reason,
+        [Dialog.okButton()]
+      );
+    }
   } else {
     await showErrorMessage(
       'Encountered an error when trying to download the job. Error:',
