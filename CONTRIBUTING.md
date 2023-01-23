@@ -111,21 +111,13 @@ Familiarize with [recommendations written here](https://github.com/vmware/versat
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
 ## Changelog
-It's important to update CHANGELOG.md with any adjustments to the project.
 Versioning of all components follows https://semver.org
 
-Changelog has the following sections:
-- New feature: significant additions to the project. This usually requires bumping at least a minor version;
-- Improvements - an enhancement to existing functionality and minor additions;
-- Bug Fixes - Fixes of bugs/regressions;
-- Breaking Changes: any changes that break Versatile Data Kit's backward-compatibility.
+For generating release notes (changelog) we rely on good commit titles and commit descriptions (see above section). 
 
-Each component project maintains its own CHANGELOG.
-Go to projects/component-name/CHANGELOG.md to see the changelog of the component
-
+## Pull Request Checklist
 
 Before submitting your pull request, we advise you to use the following:
-## Pull Request Checklist
 
 1. Check if your code changes will pass both code linting checks and unit tests.
 2. Ensure your commit messages are descriptive. Be sure to include any related GitHub issue references in the commit message. See [GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) for referencing issues and commits.
