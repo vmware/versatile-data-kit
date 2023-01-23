@@ -86,6 +86,12 @@ For every new component on the diagram, explain which goals does it solve.
 In this context, a component is any separate software process.
 
 -->
+#### Package publishing
+The shared-component and frontend packages are published to NPMJS(https://www.npmjs.com/) under the user versatiledatakit.
+They are published to a public NPMJS to support two workflows:
+1. Customers want to use the shared component libraries in their projects.
+2. Customers want to build their own docker image for data-pipelines instead of using the one provided by us.
+
 
 
 ## Detailed design
