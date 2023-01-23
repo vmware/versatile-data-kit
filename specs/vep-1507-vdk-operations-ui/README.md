@@ -70,6 +70,16 @@ Explain the user problem that need to be solved.
 
 ## High-level design
 
+#### Folder Structure
+
+* [frontend](/projects/frontend) The root folder for all frontend code.
+    * [shared-components](/projects/frontend/shared-components/README.md): the root folder for the shared components project, for more details please see the readme.
+      * gui: This contains the root package.json file for the project.
+        * projects:
+          * documentation-ui: functionality for testing and developing new components
+          * shared: all the shared components live here
+      * cicd: gitlab config
+    * [data-pipelines](/projects/frontend/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
 <!--
 All the rest sections tell **how** are we solving it?
 
@@ -86,6 +96,13 @@ For every new component on the diagram, explain which goals does it solve.
 In this context, a component is any separate software process.
 
 -->
+#### Package publishing
+The shared-component and frontend packages are published to NPMJS(https://www.npmjs.com/) under the user versatiledatakit.
+NPMJS was chosen as the package repository because it is the most widely adopted javascript package manager.
+They are published to a public NPMJS to support two workflows:
+1. Customers want to use the shared component libraries in their projects.
+2. Customers want to build their own docker image for data-pipelines instead of using the one provided by us.
+
 
 
 ## Detailed design
