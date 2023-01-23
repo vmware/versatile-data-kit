@@ -112,8 +112,8 @@ class TestTemplateRegression(unittest.TestCase):
     def test_load_dimension_scd1_checks_positive(self) -> None:
 
         test_schema = "vdkprototypes"
-        source_view = "vw_dim_org"
-        target_table = "dw_dim_org"
+        source_view = "vw_dim_org_check_positive"
+        target_table = "dw_dim_org_check_positive"
         staging_schema = "staging_vdkprototypes"
 
         res = self._run_job(
@@ -137,8 +137,8 @@ class TestTemplateRegression(unittest.TestCase):
     def test_load_dimension_scd1_checks_negative(self) -> None:
 
         test_schema = "vdkprototypes"
-        source_view = "vw_dim_org"
-        target_table = "dw_dim_org"
+        source_view = "vw_dim_org_check_negative"
+        target_table = "dw_dim_org_check_negative"
         staging_schema = "staging_vdkprototypes"
 
         res = self._run_job(
