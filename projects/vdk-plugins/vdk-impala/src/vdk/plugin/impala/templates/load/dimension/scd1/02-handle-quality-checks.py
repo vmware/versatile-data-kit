@@ -9,7 +9,11 @@ SQL_FILES_FOLDER = (
     os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
 )
 
-
+"""
+This step is intened to handle quality checks if such provided
+and stop the data from being populated into the target table if the check has negative outcome.
+Otherwise the data will be directly processed according to the used template type
+"""
 def run(job_input: IJobInput):
     job_arguments = job_input.get_arguments()
 
