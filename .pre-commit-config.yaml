@@ -31,7 +31,7 @@ repos:
         exclude: (^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py|^projects/vdk-plugins/vdk-notebook/tests/jobs/rest-api-job-fail-syntax-error/steps.ipynb)
   # ensure pydoc is up-to standard
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.2.3
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         args: # http://www.pydocstyle.org/en/stable/error_codes.html --convention=pep257 seems too much?
@@ -67,7 +67,7 @@ repos:
   #        args: [ -s, B101 ]
   # add copyright notice
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.3.1
+    rev: v1.4.1
     hooks:
       - id: insert-license
         files: \.java$
