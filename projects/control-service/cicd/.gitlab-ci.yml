@@ -158,7 +158,7 @@ control_service_publish_api_client:
 # Go to the namespace -> StorageClass
 control_service_deploy_testing_data_pipelines:
   stage: pre_release
-  image: proum/aws-iam-authenticator
+  image: docker:20.10.22
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
