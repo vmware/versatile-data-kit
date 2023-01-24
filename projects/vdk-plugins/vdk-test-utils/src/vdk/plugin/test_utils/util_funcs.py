@@ -77,7 +77,7 @@ def cli_assert_output_contains(expected_substring: str, result: Result) -> None:
     cli_assert(
         expected_substring in result.output,
         result,
-        f"result output does not contains {expected_substring}",
+        f"result output does not contain {expected_substring}",
     )
 
 
