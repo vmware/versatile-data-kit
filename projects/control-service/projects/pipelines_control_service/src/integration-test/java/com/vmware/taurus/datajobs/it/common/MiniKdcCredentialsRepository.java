@@ -40,10 +40,10 @@ public class MiniKdcCredentialsRepository extends KerberosCredentialsRepository 
   public void createPrincipal(String principal, Optional<File> keytabLocation) {
     try {
       /* delete the file if it is present at the location.
-       Different KDC implementations expect different inputs for the create principal function.
-       the SimpleKDCServer expects no file at the location of the provided filename.
-       whereas the production kdc server impl expects an empty file.
-       To make the production code as clear as possible we create a file in the production code and the onus falls on the test code to delete the file. */
+      Different KDC implementations expect different inputs for the create principal function.
+      the SimpleKDCServer expects no file at the location of the provided filename.
+      whereas the production kdc server impl expects an empty file.
+      To make the production code as clear as possible we create a file in the production code and the onus falls on the test code to delete the file. */
       keytabLocation.get().delete();
       miniKdc.createAndExportPrincipals(keytabLocation.get(), principal);
     } catch (Exception e) {
