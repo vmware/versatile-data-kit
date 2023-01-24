@@ -4,6 +4,7 @@
 
 pytest
 pytest-httpserver
+urllib3
 vdk-control-api-auth
 vdk-control-service-api
 vdk-core
