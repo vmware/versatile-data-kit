@@ -13,7 +13,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 
-export TAG=cffd4c1
+export TAG=${TAG:-$(git rev-parse --short HEAD)}
 export RELEASE_NAME=${RELEASE_NAME:-cicd-control-service}
 export VDK_OPTIONS=${VDK_OPTIONS:-"$SCRIPT_DIR/vdk-options.ini"}
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}

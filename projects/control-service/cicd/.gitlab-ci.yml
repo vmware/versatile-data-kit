@@ -36,11 +36,78 @@
     - apk --no-cache add openjdk11-jdk git zip curl zip py-pip
     - pip install --upgrade pip && pip install awscli
 
+control_service_build_image:
+  extends:
+    - .control_service_base_build
+    - .images:dind
+  stage: build
+  script:
+    - apk --no-cache add git openjdk11-jdk
+    - export TAG=$(git rev-parse --short HEAD)
+    - cd projects/control-service/projects
+    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
+    - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
+    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
+  retry: !reference [.control_service_retry, retry_options]
+  coverage: "/    - Line Coverage: ([0-9.]+)%/"
+  artifacts:
+    when: always
+    paths:
+      - ./projects/control-service/projects/*/build/reports/**
+    expire_in: 1 week
+    reports:
+      junit: ./projects/control-service/projects/**/build/test-results/test/TEST-*.xml
+  only:
+    refs:
+      - external_pull_requests
+      - main
+    changes: *control_service_code_change_locations
+
+control_service_integration_test:
+  extends: .control_service_base_build
+  stage: build
+  variables:
+    DEPLOYMENT_K8S_KUBECONFIG: "~/.kube/config"
+    DEPLOYMENT_K8S_NAMESPACE: $CICD_KUBERNETES_NAMESPACE
+    CONTROL_K8S_KUBECONFIG: "~/.kube/config"
+    CONTROL_K8S_NAMESPACE: $CICD_KUBERNETES_NAMESPACE
+    DOCKER_REGISTRY_URL: $CICD_CONTAINER_REGISTRY_URI
+    DOCKER_REGISTRY_USERNAME: $CICD_CONTAINER_REGISTRY_USER_NAME
+    DOCKER_REGISTRY_PASSWORD: $CICD_CONTAINER_REGISTRY_USER_PASSWORD
+    GIT_URL: $CICD_GIT_URI
+    GIT_USERNAME: $CICD_GIT_USER
+    GIT_PASSWORD: $CICD_GIT_PASSWORD
+    GIT_USERNAME_READ_WRITE: $CICD_GIT_USER
+    GIT_PASSWORD_READ_WRITE: $CICD_GIT_PASSWORD
+  script:
+    - cd projects/control-service/projects
+    - ./gradlew -p ./model build publishToMavenLocal
+    - mkdir -p ~/.kube
+    - cp $KUBECONFIG ~/.kube/config
+    - ./gradlew -v
+    - ./gradlew projects --info
+    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
+  retry: !reference [.control_service_retry, retry_options]
+  artifacts:
+    when: always
+    paths:
+      - ./projects/control-service/projects/*/build/reports/**
+    expire_in: 1 week
+    reports:
+      junit: ./projects/control-service/projects/**/build/test-results/integrationTest/TEST-*.xml
+  only:
+    refs:
+      - external_pull_requests
+      - main
+    changes: *control_service_code_change_locations
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_test_helm_chart:
   stage: build
   script:
-    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - cd projects/control-service/projects/helm_charts/pipelines-control-service
     - helm dependency update
@@ -166,10 +233,14 @@ control_service_deploy_testing_data_pipelines:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-      - external_pull_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
@@ -199,7 +270,7 @@ control_service_release:
   script:
     - apk --no-cache add bash openssl curl git
     - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
