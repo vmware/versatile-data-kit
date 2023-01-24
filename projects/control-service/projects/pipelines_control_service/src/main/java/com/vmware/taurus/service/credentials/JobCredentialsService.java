@@ -54,9 +54,7 @@ public class JobCredentialsService {
     String principal = getJobPrincipalName(jobName);
     File keytabFile;
     try {
-      // create a temp file name by creating a temp file and then deleteing the actual file.
       keytabFile = File.createTempFile(principal, ".keytab");
-      keytabFile.delete();
     } catch (IOException e) {
       throw new ExternalSystemError(MainExternalSystem.HOST_CONTAINER, e);
     }
