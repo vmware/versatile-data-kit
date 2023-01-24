@@ -233,14 +233,10 @@ control_service_deploy_testing_data_pipelines:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_code_change_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_helm_change_locations
+  only:
+    refs:
+      - main
+      - external_pull_requests
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
