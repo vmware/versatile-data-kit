@@ -23,6 +23,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
+
 /** Integration tests of the setup of Spring Data repository for data job executions */
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionRepositoryIT {
@@ -246,7 +248,7 @@ public class JobExecutionRepositoryIT {
     jobExecutionRepository.save(execution1);
     jobExecutionRepository.save(execution2);
 
-    var executionEndTime = OffsetDateTime.now();
+    var executionEndTime = getTimeAccurateToMicroSecond();
     var message = "Changed by test";
     jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
         ExecutionStatus.CANCELLED,
@@ -293,7 +295,7 @@ public class JobExecutionRepositoryIT {
     jobExecutionRepository.save(execution1);
     jobExecutionRepository.save(execution2);
 
-    var executionEndTime = OffsetDateTime.now();
+    var executionEndTime = getTimeAccurateToMicroSecond();
     var message = "Changed by test";
     jobExecutionRepository.updateExecutionStatusWhereOldStatusInAndExecutionIdIn(
         ExecutionStatus.CANCELLED,
