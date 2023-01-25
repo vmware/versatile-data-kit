@@ -158,6 +158,6 @@ public final class RepositoryUtil {
    * In newer versions of java .now() gives nano-second precision and it causes tests written before we adopted that java version to fail.
    */
   public static OffsetDateTime getTimeAccurateToMicroSecond(){
-    OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    return OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
   }
 }
