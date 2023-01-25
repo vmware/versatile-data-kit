@@ -209,10 +209,14 @@ control_service_publish_image:
     when: always
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
-  only:
-    refs:
-      #  TODO revert before merging
-      - external_pull_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 control_service_publish_api_client:
   image: docker:20.10.22
@@ -248,10 +252,14 @@ control_service_deploy_testing_data_pipelines:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      #  TODO revert before merging
-      - external_pull_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
@@ -266,10 +274,14 @@ control_service_post_deployment_test:
     - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
     - vdk-heartbeat -f projects/control-service/cicd/post_deploy_test_heartbeat_config.ini
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      #  TODO revert before merging
-      - external_pull_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 control_service_release:
   image: docker:20.10.22
