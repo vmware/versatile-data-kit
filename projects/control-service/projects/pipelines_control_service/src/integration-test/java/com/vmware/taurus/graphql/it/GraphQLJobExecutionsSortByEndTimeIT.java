@@ -202,7 +202,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
     jobExecutionRepository.save(jobExecution);
   }
 
-  private static String roundDateTimeToMicros(OffsetDateTime dateTime){
+  private static String roundDateTimeToMicros(OffsetDateTime dateTime) {
     return dateTime.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString();
   }
 }
