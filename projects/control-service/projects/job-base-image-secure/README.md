@@ -3,10 +3,10 @@
 Job base image is the container "base" image used when building per data job custom image during deployment.
 
 This directory provides the source of some base images for standard python versions.
-It's used by default installation of VDK and should also serve as an example on how operators of VDK can build their own base image.
+It's used by secured installation of VDK.
 
-The current base image installs supporting libraries for Oracle database
-and some native bindings necessary for installing from source some python packages which user may specify for their data job.
+The current base image installs supporting libraries for some native bindings necessary for installing from source
+some python packages which user may specify for their data job.
 
 ## Build
 

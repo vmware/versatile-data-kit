@@ -153,7 +153,6 @@ control_service_publish_job_base_image-secure:
   only:
     refs:
       - main
-      - external_pull_requests
     changes:
       - projects/control-service/projects/job-base-image-secure/**/*
   except:
