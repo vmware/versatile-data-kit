@@ -25,6 +25,7 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.vmware.taurus.datajobs.it.common.JobExecutionUtil.getTimeAccurateToMicroSecond;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,7 +69,7 @@ public class GraphQLExecutionsIT extends BaseIT {
     this.dataJob2 = jobsRepository.save(new DataJob(TEST_JOB_NAME_2, config2));
     this.dataJob3 = jobsRepository.save(new DataJob(TEST_JOB_NAME_3, config3));
 
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
     this.dataJobExecution1 =
         JobExecutionUtil.createDataJobExecution(
             jobExecutionRepository, "testId1", dataJob1, now, now, ExecutionStatus.SUCCEEDED);
