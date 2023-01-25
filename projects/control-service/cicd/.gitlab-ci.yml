@@ -270,7 +270,7 @@ control_service_release:
   script:
     - apk --no-cache add bash openssl curl git
     - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
+    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
