@@ -30,9 +30,9 @@ class DeleteJobHandler(APIHandler):
             status = VdkUI.delete_job(
                 input_data["jobName"], input_data["jobTeam"], input_data["restApiUrl"]
             )
-            self.finish(json.dumps({"message": f"{status}"}))
+            self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
-            self.finish(json.dumps({"message": f"{e}"}))
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class DownloadJobHandler(APIHandler):
@@ -46,9 +46,9 @@ class DownloadJobHandler(APIHandler):
                 input_data["restApiUrl"],
                 input_data["parentPath"],
             )
-            self.finish(json.dumps({"message": f"{status}"}))
+            self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
-            self.finish(json.dumps({"message": f"{e}"}))
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 def setup_handlers(web_app):
