@@ -290,10 +290,11 @@ control_service_release:
     - cd projects/control-service/projects/helm_charts
     - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      #  TODO revert before merging
-      - external_pull_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
 control_service_vdk_heartbeat_release:
@@ -309,7 +310,8 @@ control_service_vdk_heartbeat_release:
     - docker build --tag $VDK_HEARTBEAT_IMAGE_NAME -f Dockerfile.vdk.heartbeat .
     - docker push $VDK_HEARTBEAT_IMAGE_NAME
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      #  TODO revert before merging
-      - external_pull_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
