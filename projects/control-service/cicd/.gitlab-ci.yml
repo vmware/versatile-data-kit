@@ -299,6 +299,8 @@ control_service_release:
     - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -326,6 +328,8 @@ control_service_vdk_heartbeat_release:
     - docker push $VDK_HEARTBEAT_IMAGE_NAME
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
