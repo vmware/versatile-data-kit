@@ -17,9 +17,10 @@
 control_service_vdk_heartbeat_release:
   image: docker:20.10.22
   services:
-    - docker:20.10.22-dind
+    - name: docker:20.10.22-dind
+      alias: thedockerhost
   variables:
-    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: tcp://thedockerhost:2375
     DOCKER_TLS_CERTDIR: ""
   stage: release
   before_script:
