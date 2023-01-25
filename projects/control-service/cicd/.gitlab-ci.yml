@@ -8,7 +8,6 @@
   image: docker:20.10.22
   variables:
     DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   services:
     - docker:20.10.22-dind
@@ -21,9 +20,10 @@ control_service_vdk_heartbeat_release:
     - docker:20.10.22-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   stage: release
+  before_script:
+    - docker info
   script:
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION=$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID
