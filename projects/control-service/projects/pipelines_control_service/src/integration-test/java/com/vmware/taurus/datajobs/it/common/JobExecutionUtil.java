@@ -16,16 +16,20 @@ import com.vmware.taurus.service.model.ExecutionType;
 
 public class JobExecutionUtil {
 
-  /** at the database level we only store date-times accurate to the microsecond. Like wise in older versions of java .now() returned timestamps accurate to micro-seconds.
-   * In newer versions of java .now() gives nano-second precision and it causes tests written before we adopted that java version to fail.
+  /**
+   * at the database level we only store date-times accurate to the microsecond. Like wise in older
+   * versions of java .now() returned timestamps accurate to micro-seconds. In newer versions of
+   * java .now() gives nano-second precision and it causes tests written before we adopted that java
+   * version to fail.
    */
-  public static OffsetDateTime getTimeAccurateToMicroSecond(){
+  public static OffsetDateTime getTimeAccurateToMicroSecond() {
     return OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
   }
 
-  public static OffsetDateTime roundDateTimeToMicros(OffsetDateTime dateTime){
+  public static OffsetDateTime roundDateTimeToMicros(OffsetDateTime dateTime) {
     return dateTime.plusNanos(500).truncatedTo(ChronoUnit.MICROS);
   }
+
   public static DataJobExecution createDataJobExecution(
       JobExecutionRepository jobExecutionRepository,
       String executionId,
