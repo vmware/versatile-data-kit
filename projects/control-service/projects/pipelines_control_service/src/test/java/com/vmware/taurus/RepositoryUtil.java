@@ -143,7 +143,7 @@ public final class RepositoryUtil {
             .resourcesMemoryLimit(1000)
             .message(message)
             .lastDeployedBy("test_user")
-            .lastDeployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
+            .lastDeployedDate(getTimeAccurateToMicroSecond())
             .jobVersion("test_version")
             .jobSchedule("*/5 * * * *")
             .opId("test_op_id")
@@ -151,5 +151,13 @@ public final class RepositoryUtil {
             .build();
 
     return jobExecutionRepository.save(expectedJobExecution);
+  }
+
+
+  /** at the database level we only store date-times accurate to the microsecond. Like wise in older versions of java .now() returned timestamps accurate to micro-seconds.
+   * In newer versions of java .now() gives nano-second precision and it causes tests written before we adopted that java version to fail.
+   */
+  public static OffsetDateTime getTimeAccurateToMicroSecond(){
+    OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
   }
 }
