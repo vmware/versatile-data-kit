@@ -16,7 +16,13 @@
 
 # TODO: automatically rebuild image on vdk-heartbeat change
 control_service_vdk_heartbeat_release:
-  extends: .images:dind
+  image: docker:19.03.15
+  services:
+    - docker:19.03.15-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   stage: release
   script:
     - export CHART_NAME=pipelines-control-service
