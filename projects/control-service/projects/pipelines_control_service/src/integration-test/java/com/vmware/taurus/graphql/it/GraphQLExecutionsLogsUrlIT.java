@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.graphql.it;
 
-import static com.vmware.taurus.datajobs.it.common.JobExecutionUtil.getTimeAccurateToMicroSecond;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
