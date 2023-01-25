@@ -7,7 +7,6 @@ package com.vmware.taurus.service.execution;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 import com.google.gson.JsonObject;
