@@ -209,14 +209,10 @@ control_service_publish_image:
     when: always
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_code_change_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_helm_change_locations
+  only:
+    refs:
+      #  TODO revert before merging
+      - external_pull_requests
 
 control_service_publish_api_client:
   image: docker:20.10.22
