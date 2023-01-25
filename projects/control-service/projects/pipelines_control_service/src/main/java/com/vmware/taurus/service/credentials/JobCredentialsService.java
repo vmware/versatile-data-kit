@@ -58,7 +58,7 @@ public class JobCredentialsService {
     } catch (IOException e) {
       throw new ExternalSystemError(MainExternalSystem.HOST_CONTAINER, e);
     }
-    try (Closeable ignored = () -> keytabFile.delete()) {
+    try (Closeable ignored = keytabFile::delete) {
       credentialsRepository.createPrincipal(principal, Optional.of(keytabFile));
 
       String secretName = getJobKeytabKubernetesSecretName(jobName);
