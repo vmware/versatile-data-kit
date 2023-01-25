@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.FILTER_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.ORDER_FIELD;
 import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVariables.PAGE_NUMBER_FIELD;
@@ -128,7 +129,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   public void testFindAllAndBuildResponse_filerByStartTimeGte_shouldReturnResult()
       throws Exception {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -175,7 +176,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   @Test
   public void testFindAllAndBuildResponse_filerByEndTimeGte_shouldReturnResult() throws Exception {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -225,7 +226,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   @Test
   public void testFindAllAndBuildResponse_filerByAllFields_shouldReturnResult() throws Exception {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -471,7 +472,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository, "job-one");
     DataJob actualDataJob2 = RepositoryUtil.createDataJob(jobsRepository, "job-two");
 
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     var expectedExecution =
         RepositoryUtil.createDataJobExecution(
@@ -506,7 +507,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       throws Exception {
 
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -525,7 +526,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
     when(filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD))
-        .thenReturn(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS).minusDays(2));
+        .thenReturn(getTimeAccurateToMicroSecond().minusDays(2));
 
     DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
     DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -538,7 +539,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   public void testFindAllAndBuildResponse_filterByEndTimeLte_shouldReturnResult() throws Exception {
 
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -558,7 +559,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
     when(filterRaw.get(DataJobExecutionFilter.END_TIME_LTE_FIELD))
-        .thenReturn(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS).minusDays(2));
+        .thenReturn(getTimeAccurateToMicroSecond().minusDays(2));
 
     DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
     DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -573,7 +574,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       throws Exception {
 
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -592,7 +593,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
     when(filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD))
-        .thenReturn(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS).minusDays(4));
+        .thenReturn(getTimeAccurateToMicroSecond().minusDays(4));
 
     DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
     DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);
@@ -606,7 +607,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       throws Exception {
 
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -626,7 +627,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
     when(filterRaw.get(DataJobExecutionFilter.START_TIME_LTE_FIELD))
-        .thenReturn(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS).minusDays(2));
+        .thenReturn(getTimeAccurateToMicroSecond().minusDays(2));
 
     DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
     DataJobPage response = (DataJobPage) allAndBuildResponse.get(dataFetchingEnvironment);

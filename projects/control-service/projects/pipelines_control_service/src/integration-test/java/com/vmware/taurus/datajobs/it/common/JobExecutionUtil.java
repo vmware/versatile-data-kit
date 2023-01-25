@@ -48,7 +48,7 @@ public class JobExecutionUtil {
             .resourcesMemoryLimit(1000)
             .message("message")
             .lastDeployedBy("test_user")
-            .lastDeployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
+            .lastDeployedDate(getTimeAccurateToMicroSecond())
             .jobVersion("test_version")
             .jobSchedule("*/5 * * * *")
             .opId("test_op_id")

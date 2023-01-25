@@ -30,6 +30,8 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionResult;
 
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionServiceUpdateExecutionIT {
@@ -234,7 +236,7 @@ public class JobExecutionServiceUpdateExecutionIT {
             .resourcesMemoryLimit(1)
             .resourcesMemoryRequest(1)
             .deployedBy("test_deployed_by")
-            .deployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS))
+            .deployedDate(getTimeAccurateToMicroSecond())
             .podTerminationMessage(terminationMessage)
             .containerTerminationReason(containerTerminationMessage)
             .build();
@@ -257,8 +259,8 @@ public class JobExecutionServiceUpdateExecutionIT {
             actualDataJob,
             actualExecutionSucceeded,
             actualTerminationMessage,
-            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
-            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            getTimeAccurateToMicroSecond(),
+            getTimeAccurateToMicroSecond(),
             "");
     DataJobExecution actualJobExecution =
         jobExecutionService.readJobExecution(

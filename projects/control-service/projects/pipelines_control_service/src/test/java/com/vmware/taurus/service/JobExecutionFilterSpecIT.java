@@ -18,8 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
+
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionFilterSpecIT {
@@ -70,7 +71,7 @@ public class JobExecutionFilterSpecIT {
   @Test
   public void testJobExecutionFilterSpec_filerByStartTimeGte_shouldReturnResult() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -113,7 +114,7 @@ public class JobExecutionFilterSpecIT {
   @Test
   public void testJobExecutionFilterSpec_filerByEndTimeGte_shouldReturnResult() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -160,7 +161,7 @@ public class JobExecutionFilterSpecIT {
   @Test
   public void testJobExecutionFilterSpec_filerByAllFields_shouldReturnResult() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,

@@ -83,7 +83,7 @@ public final class RepositoryUtil {
         executionStatus,
         message,
         startTime,
-        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
+        getTimeAccurateToMicroSecond());
   }
 
   public static DataJobExecution createDataJobExecution(
@@ -100,7 +100,7 @@ public final class RepositoryUtil {
         executionStatus,
         "test_message",
         startTime,
-        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
+        getTimeAccurateToMicroSecond());
   }
 
   public static DataJobExecution createDataJobExecution(
@@ -116,8 +116,8 @@ public final class RepositoryUtil {
         dataJob,
         executionStatus,
         message,
-        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
-        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
+        getTimeAccurateToMicroSecond(),
+        getTimeAccurateToMicroSecond());
   }
 
   public static DataJobExecution createDataJobExecution(
