@@ -32,7 +32,6 @@ control_service_vdk_heartbeat_release:
     - docker login $VDK_DOCKER_REGISTRY_URL --username $VDK_DOCKER_REGISTRY_USERNAME --password $VDK_DOCKER_REGISTRY_PASSWORD
     - cd projects/control-service/cicd
     - docker build --tag $VDK_HEARTBEAT_IMAGE_NAME -f Dockerfile.vdk.heartbeat .
-    - docker push $VDK_HEARTBEAT_IMAGE_NAME
   retry: !reference [.control_service_retry, retry_options]
   only:
     refs:
