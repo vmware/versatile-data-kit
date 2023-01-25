@@ -107,7 +107,7 @@ control_service_integration_test:
 control_service_test_helm_chart:
   stage: build
   script:
-    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
+    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - cd projects/control-service/projects/helm_charts/pipelines-control-service
     - helm dependency update
