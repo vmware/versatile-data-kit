@@ -26,10 +26,6 @@ public class JobExecutionUtil {
     return OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
   }
 
-  public static OffsetDateTime roundDateTimeToMicros(OffsetDateTime dateTime) {
-    return dateTime.plusNanos(500).truncatedTo(ChronoUnit.MICROS);
-  }
-
   public static DataJobExecution createDataJobExecution(
       JobExecutionRepository jobExecutionRepository,
       String executionId,
