@@ -23,6 +23,7 @@ setuptools.setup(
         "vdk-control-api-auth",
         "vdk-plugin-control-cli",
         "vdk-control-service-api",
+        "urllib3",
     ],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),

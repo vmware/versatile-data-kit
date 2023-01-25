@@ -2,7 +2,7 @@ project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
             'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
-            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.28',
+            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.29',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.10.3',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.4',
@@ -34,7 +34,6 @@ project.ext {
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:4.43.0',
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.42.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
-            'org.springframework.security.kerberos:spring-security-kerberos-test': 'org.springframework.security.kerberos:spring-security-kerberos-test:1.0.1.RELEASE',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
