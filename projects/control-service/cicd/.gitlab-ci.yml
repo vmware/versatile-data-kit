@@ -305,8 +305,15 @@ control_service_release:
       changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
+# We are using an old version of docker here because we get error on the newest version which at the time was tag=20.10.22
 control_service_vdk_heartbeat_release:
-  extends: .images:dind
+  image: docker:19.03.15
+  services:
+    - docker:19.03.15-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   stage: release
   script:
     - export CHART_NAME=pipelines-control-service
