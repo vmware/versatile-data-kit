@@ -1,0 +1,12 @@
+@startuml
+!theme minty
+class ITroubleshootUtility {
++start()
++stop()
+}
+class ThreadDumpUtility {}
+class SomeOtherUtility {}
+
+ThreadDumpUtility --|> ITroubleshootUtility
+SomeOtherUtility --|> ITroubleshootUtility
+@enduml

@@ -155,6 +155,6 @@ In VDK repo [../build-plugin.sh](https://github.com/vmware/versatile-data-kit/tr
 
 The CI/CD is separated in two stages, a build stage and a release stage.
 The build stage is made up of a few jobs, all which inherit from the same
-job configuration and only differ in the Python version they use (3.7, 3.8, 3.9 and 3.10).
+job configuration and only differ in the Python version they use.
 They run according to rules, which are ordered in a way such that changes to a
 plugin's directory trigger the plugin CI, but changes to a different plugin does not.

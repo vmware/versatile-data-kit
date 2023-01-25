@@ -1,6 +1,6 @@
 ### Purpose:
 
-This template can be used to load raw data from Data Lake to target Table in Data Warehouse. In summary, it appends all records from the source table to the target table. Similar to all other SQL modeling templates there is also schema validation, table refresh and statistics are computed when necessary.
+This template can be used to load raw data from Data Lake to target Table in Data Warehouse. In summary, it appends all records from the source view to the target table. Similar to all other SQL modeling templates there is also schema validation, table refresh and statistics are computed when necessary.
 
 ### Template Name (template_name):
 

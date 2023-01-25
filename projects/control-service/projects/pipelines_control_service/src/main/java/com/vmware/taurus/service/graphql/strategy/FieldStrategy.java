@@ -10,6 +10,7 @@ import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
 import com.vmware.taurus.service.graphql.model.Filter;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
+import org.apache.commons.io.FilenameUtils;
 
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -118,5 +119,27 @@ public abstract class FieldStrategy<T> {
       return comparator;
     }
     return criteria.getComparator();
+  }
+
+  /**
+   * Helper method which checks if the provided search string matches with a given matcher string.
+   * String capitalization is ignored. Supported operations are wildcard matching of '*' characters
+   * in the matcher string, or exact matches. If the matcher string contains '*' we will attempt to
+   * match wildcards, otherwise both strings are compared for equality.
+   *
+   * @param searchString
+   * @param matcherString
+   * @return
+   */
+  protected boolean checkMatch(String searchString, String matcherString) {
+    if (searchString == null || matcherString == null) {
+      return false;
+    } else if (matcherString.contains("*")) {
+      // Matching strings that contain * as wildcards.
+      return FilenameUtils.wildcardMatch(searchString.toLowerCase(), matcherString.toLowerCase());
+    } else {
+      // exact matches
+      return searchString.equalsIgnoreCase(matcherString);
+    }
   }
 }

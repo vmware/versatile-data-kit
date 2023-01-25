@@ -8,8 +8,9 @@ package com.vmware.taurus.service.diag;
 import com.vmware.taurus.SpringAppPropNames;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.diag.telemetry.ITelemetry;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,17 +18,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.time.Instant;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Api(
-    tags = {"Data Jobs Diagnostics"},
-    hidden = true)
-@ApiIgnore
+@Tag(name = "Data Jobs Diagnostics")
+@Hidden
 public class DiagnosticsController {
   // ${svc.url.prefix} is read from application.properties (overridden in other services, so e.g.
   // Team service has /team/debug/servertime)
@@ -40,7 +38,7 @@ public class DiagnosticsController {
     return System.currentTimeMillis();
   }
 
-  @ApiOperation("Get system clock in UTC")
+  @Operation(summary = "Get system clock in UTC")
   @RequestMapping(
       value = "/${" + SpringAppPropNames.SVC_NAME + "}/debug/servertime",
       method = RequestMethod.GET)

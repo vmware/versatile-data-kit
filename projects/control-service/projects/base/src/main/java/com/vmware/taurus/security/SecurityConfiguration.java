@@ -71,9 +71,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   private final Set<String> authorizedRoles;
   public static final String[] ENDPOINTS_TO_IGNORE = {
     "/",
-    "/data-jobs/v2/api-docs",
+    "/data-jobs/api-docs",
+    "/data-jobs/api-docs/**",
     "/data-jobs/swagger-resources/**",
-    //        "/data-jobs/configuration/**",
+    "/data-jobs/swagger-ui/*",
     "/data-jobs/swagger-ui.html",
     "/data-jobs/webjars/**",
     // There should not be sensitive data in prometheus, and it makes

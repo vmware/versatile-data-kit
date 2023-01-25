@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'org.openapi.generator' version '4.3.0'
+//  when we upgrade to a newer version of openapi.generator we should delete the folder openapi-code-generator/template
+    id 'org.openapi.generator' version '6.2.1'
 }
 
 subprojects {
@@ -19,6 +20,32 @@ subprojects {
         validateSpec = true
         outputDir = "$rootDir"
         configFile = "$rootDir/openapi-code-generator/config-spring.json"
+        templateDir = "$rootDir/openapi-code-generator/template"
+    }
+
+//    At the moment there doesn't seem to be a way to get open api generator to create the openApi config object but not generate main and all the controllers.
+//    So we create main and all the controllers but then delete them immediately after.
+    task cleanUpUnwantedGeneratedFiles(type: Delete) {
+        print(rootDir)
+        delete files("$rootDir/src/test", "$rootDir/src/main/java/org/openapitools/OpenApiGeneratorApplication.java")
+        delete fileTree("$rootDir/src/main/java/com/vmware/taurus/controlplane/model/api") {
+            include '**/*Controller.java'
+        }
+        doLast {
+
+            fileTree("$rootDir/src/main/java/com/vmware/taurus/controlplane/model/api") {
+                    }.each { File propFile ->
+                String content = propFile.getText()
+                content = content
+                        .replace('"DataJobsDeployment"','"Data Jobs Deployment"')
+                        .replace('"DataJobs"','"Data Jobs"')
+                        .replace('"DataJobsExecution"','"Data Jobs Execution"')
+                        .replace('"DataJobsProperties"','"Data Jobs Properties"')
+                        .replace('"DataJobsService"','"Data Jobs Service"')
+                        .replace('"DataJobsSources"','"Data Jobs Sources"')
+                propFile.setText(content)
+            }
+        }
     }
 
     task buildPython(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
@@ -27,8 +54,8 @@ subprojects {
         outputDir = "$projectDir/build/python"
         configFile = "$projectDir/config-python.json"
     }
-
+    cleanUpUnwantedGeneratedFiles.dependsOn 'openApiGenerate'
     compileJava.dependsOn 'openApiGenerate' //generate Java from openapi specs
 }
 
-compileJava.dependsOn 'datajob-api:openApiGenerate'
+compileJava.dependsOn 'datajob-api:cleanUpUnwantedGeneratedFiles'

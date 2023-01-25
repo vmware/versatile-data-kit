@@ -26,6 +26,10 @@ build-py310-vdk-lineage:
   extends: .build-vdk-lineage
   image: "python:3.10"
 
+build-py311-vdk-lineage:
+  extends: .build-vdk-lineage
+  image: "python:3.11"
+
 release-vdk-lineage:
   variables:
     PLUGIN_NAME: vdk-lineage

@@ -29,7 +29,7 @@ class SQLiteConnection:
         log.info(
             f"Creating new connection against local file database located at: {self.__db_file}"
         )
-        return sqlite3.connect(f"{self.__db_file}")
+        return sqlite3.connect(f"{self.__db_file}", isolation_level=None)
 
     def execute_query(self, query: str) -> List[List]:
         conn = self.new_connection()

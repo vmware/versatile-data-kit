@@ -125,7 +125,7 @@ class GraphQLDataFetchersTest {
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
     when(dataFetchingEnvironment.getArgument("filter"))
-        .thenReturn(constructFilter(Filter.of("jobName", "sample-job", Sort.Direction.DESC)));
+        .thenReturn(constructFilter(Filter.of("jobName", "sample-job*", Sort.Direction.DESC)));
 
     DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
 

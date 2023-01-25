@@ -96,8 +96,11 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
     )
     def connect(self) -> PEP249Connection:
         """
+        Checks if we are still properly connected to the database (including by issuing validation query)
+        and re-connect if not.
         :return: PEP249 Connection object (managed)
         """
+
         if not self._is_db_con_open:
             db_con = self._connect()
             self._log.debug(f"Established {str(db_con)}")
@@ -210,6 +213,12 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
         if False is self._is_db_con_open:
             return False
         try:
+            """
+            The remote end (the database server) may have disconnected or the session may have timed out (on the remote one)
+            but in the client (here in vdk - we are the client) we do not know.
+            We try to check with "select 1". It is statement that both is something that works on each db (we think)
+            and it's usually optimized by most db since it's frequently used by validation
+            """
             self._cursor().execute(" select 1 -- Testing if connection is alive.")
             return True
         except Exception as e:
