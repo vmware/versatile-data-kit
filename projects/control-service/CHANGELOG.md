@@ -1,7 +1,7 @@
 Changelog
 =========
 
-ChangeLog is no longer updated. 
+ChangeLog is no longer updated.
 Release notes are generated automatically through [VDK release process](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md#how-to-make-a-new-vdk-release)
 
 The file is kept for historical purposes to show the evolution of the Control Service before release process was in place.
