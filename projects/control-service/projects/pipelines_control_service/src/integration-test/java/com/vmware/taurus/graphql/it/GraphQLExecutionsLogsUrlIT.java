@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -132,7 +133,7 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
                     "{"
                         + "\"filter\": {"
                         + "      \"startTimeGte\": \""
-                        + dataJobExecution3.getStartTime()
+                        + dataJobExecution3.getStartTime().truncatedTo(ChronoUnit.MICROS)
                         + "\""
                         + "    },"
                         + "\"pageNumber\": 1,"

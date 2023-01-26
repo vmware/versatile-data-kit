@@ -6,6 +6,7 @@
 package com.vmware.taurus.datajobs.it.common;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.model.DataJob;
@@ -14,6 +15,16 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 
 public class JobExecutionUtil {
+
+  /**
+   * at the database level we only store date-times accurate to the microsecond. Like wise in older
+   * versions of java .now() returned timestamps accurate to micro-seconds. In newer versions of
+   * java .now() gives nano-second precision and it causes tests written before we adopted that java
+   * version to fail.
+   */
+  public static OffsetDateTime getTimeAccurateToMicroSecond() {
+    return OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
+  }
 
   public static DataJobExecution createDataJobExecution(
       JobExecutionRepository jobExecutionRepository,
@@ -37,7 +48,7 @@ public class JobExecutionUtil {
             .resourcesMemoryLimit(1000)
             .message("message")
             .lastDeployedBy("test_user")
-            .lastDeployedDate(OffsetDateTime.now())
+            .lastDeployedDate(getTimeAccurateToMicroSecond())
             .jobVersion("test_version")
             .jobSchedule("*/5 * * * *")
             .opId("test_op_id")

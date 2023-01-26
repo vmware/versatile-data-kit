@@ -33,7 +33,7 @@
   variables:
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
-    - apk --no-cache add openjdk11-jdk git zip curl zip py-pip
+    - apk --no-cache add openjdk17-jdk git zip curl zip py-pip
     - pip install --upgrade pip && pip install awscli
 
 control_service_build_image:
@@ -42,7 +42,7 @@ control_service_build_image:
     - .images:dind
   stage: build
   script:
-    - apk --no-cache add git openjdk11-jdk
+    - apk --no-cache add git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
@@ -140,6 +140,25 @@ control_service_publish_job_base_image:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
+control_service_publish_job_base_image-secure:
+  extends: .images:dind
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/job-base-image-secure
+    - export VERSION_TAG="1.$CI_PIPELINE_ID"
+    - bash -ex ./publish-job-base.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - main
+    changes:
+      - projects/control-service/projects/job-base-image-secure/**/*
+  except:
+    changes:
+      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+
 
 control_service_publish_job_builder_image:
   extends: .images:dind
@@ -178,7 +197,7 @@ control_service_publish_image:
   extends: .images:dind
   stage: publish_artifacts
   script:
-    - apk add --no-cache git openjdk11-jdk
+    - apk add --no-cache git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - docker login -u $VDK_DOCKER_REGISTRY_USERNAME -p $VDK_DOCKER_REGISTRY_PASSWORD
     - cd projects/control-service/projects
@@ -203,7 +222,7 @@ control_service_publish_api_client:
   image: docker:20.10.22
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip openjdk11-jdk git python
+    - apk add --no-cache py-pip openjdk17-jdk git python
     - pip install -U pip setuptools wheel twine
     - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
     - cd projects/control-service/projects/model/apidefs/datajob-api/build
@@ -286,8 +305,15 @@ control_service_release:
       changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
+# We are using an old version of docker here because we get error on the newest version which at the time was tag=20.10.22
 control_service_vdk_heartbeat_release:
-  extends: .images:dind
+  image: docker:19.03.15
+  services:
+    - docker:19.03.15-dind
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   stage: release
   script:
     - export CHART_NAME=pipelines-control-service

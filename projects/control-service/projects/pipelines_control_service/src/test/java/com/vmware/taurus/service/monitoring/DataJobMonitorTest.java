@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -843,8 +844,8 @@ public class DataJobMonitorTest {
         executionId,
         terminationMessage,
         executionSucceeded,
-        OffsetDateTime.now(),
-        OffsetDateTime.now());
+        getTimeAccurateToMicroSecond(),
+        getTimeAccurateToMicroSecond());
   }
 
   private static JobExecution buildJobExecutionStatus(
@@ -868,7 +869,7 @@ public class DataJobMonitorTest {
         .resourcesCpuLimit(2F)
         .resourcesMemoryRequest(500)
         .resourcesMemoryLimit(1000)
-        .deployedDate(OffsetDateTime.now())
+        .deployedDate(getTimeAccurateToMicroSecond())
         .deployedBy("lastDeployedBy")
         .succeeded(executionSucceeded)
         .build();
