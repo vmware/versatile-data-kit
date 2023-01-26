@@ -1,4 +1,4 @@
-# Job base image TEST
+# Job base image
 
 Job base image is the container "base" image used when building per data job custom image during deployment.
 
