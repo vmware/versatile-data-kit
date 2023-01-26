@@ -151,6 +151,8 @@ control_service_publish_job_base_image-secure:
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-base-image-secure/**/*
@@ -165,6 +167,8 @@ control_service_publish_job_builder_image:
     - bash -ex ./publish-vdk-job-builder.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-builder/version.txt
