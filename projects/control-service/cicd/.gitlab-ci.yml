@@ -210,6 +210,8 @@ control_service_publish_image:
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
       when: never
