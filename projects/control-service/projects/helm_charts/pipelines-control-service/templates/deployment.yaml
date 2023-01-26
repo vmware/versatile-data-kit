@@ -252,6 +252,10 @@ spec:
             - name: DATAJOBS_BUILDER_REGISTRY_SECRET
               value: {{ template "pipelines-control-service.fullname" . }}-dtjb-buldr-rgstry-scrt
             {{- end }}
+            {{- if .Values.controlK8sK8sSupportsV1CronJob }}
+            - name: DATAJOBS_SUPPORT_V1CRONJOB
+            value: "{{ .Values.controlK8sK8sSupportsV1CronJob }}"
+            {{- end }}
 
 
 {{- if .Values.extraVars }}
