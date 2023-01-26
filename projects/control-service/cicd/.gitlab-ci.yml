@@ -224,6 +224,8 @@ control_service_publish_api_client:
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
       - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
