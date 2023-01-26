@@ -67,9 +67,9 @@
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-       - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#      changes:
+#       - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
 
 
 .release-vdk-image:
@@ -99,6 +99,6 @@
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#      changes:
+#        - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
