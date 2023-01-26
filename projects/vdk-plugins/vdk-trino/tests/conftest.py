@@ -43,7 +43,7 @@ def docker_compose_file(pytestconfig):
 def trino_service(docker_ip, docker_services):
     """Ensure that Trino service is up and responsive."""
     # os.system("echo Check open ports:")
-    # os.system("ss -lntu")
+    # os.system("ss -lntu") test
     runner = CliEntryBasedTestRunner(trino_plugin)
 
     # give the server some time to start before checking if it is ready
