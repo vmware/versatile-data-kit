@@ -1,6 +1,6 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 
-ARG base_image=python:3.9-slim
+ARG base_image=versatiledatakit/data-job-base-python-3.10-secure:latest
 
 FROM $base_image
 
@@ -33,8 +33,9 @@ ENV JOB_NAME $job_name
 ENV VDK_JOB_GITHASH $job_githash
 
 # Delete system executables
-RUN rm /bin/chown
-RUN rm /bin/uname
+RUN rm /usr/bin/chmod
+RUN rm /usr/bin/chown
+RUN rm /usr/bin/uname
 RUN python -m pip uninstall pip -y
 
 USER $UID
