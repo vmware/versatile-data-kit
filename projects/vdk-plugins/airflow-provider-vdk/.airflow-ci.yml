@@ -49,6 +49,6 @@ release-airflow-provider-vdk:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes:
-#        - "projects/vdk-plugins/airflow-provider-vdk/**/*"
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - "projects/vdk-plugins/airflow-provider-vdk/**/*"

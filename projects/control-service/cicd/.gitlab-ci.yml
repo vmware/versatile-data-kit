@@ -212,13 +212,13 @@ control_service_publish_image:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *control_service_code_change_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *control_service_helm_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 control_service_publish_api_client:
   image: docker:20.10.22
@@ -303,10 +303,10 @@ control_service_release:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *control_service_code_change_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *control_service_helm_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
 # We are using an old version of docker here because we get error on the newest version which at the time was tag=20.10.22
@@ -332,7 +332,7 @@ control_service_vdk_heartbeat_release:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *control_service_code_change_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *control_service_helm_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations

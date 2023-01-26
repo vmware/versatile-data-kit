@@ -38,5 +38,5 @@ vdk-heartbeat-release:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *vdk_heartbeat_changes_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *vdk_heartbeat_changes_locations
