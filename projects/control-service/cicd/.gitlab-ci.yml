@@ -150,15 +150,10 @@ control_service_publish_job_base_image-secure:
     - export VERSION_TAG="1.$CI_PIPELINE_ID"
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes:
-      - projects/control-service/projects/job-base-image-secure/**/*
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
-
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image-secure/**/*
 
 control_service_publish_job_builder_image:
   extends: .images:dind
@@ -169,14 +164,10 @@ control_service_publish_job_builder_image:
     - cd projects/control-service/projects/job-builder
     - bash -ex ./publish-vdk-job-builder.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes:
-      - projects/control-service/projects/job-builder/version.txt
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-builder/version.txt
 
 
 control_service_publish_job_builder_secure_image:
@@ -232,14 +223,10 @@ control_service_publish_api_client:
     - python setup.py sdist --formats=gztar
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
       - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
