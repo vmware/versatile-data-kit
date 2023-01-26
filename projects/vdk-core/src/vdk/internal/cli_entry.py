@@ -108,7 +108,7 @@ class CliEntry:
         root_command: click.Group,
         command_line_args: List,
     ) -> int:
-        """
+        """Test
         Main method of the CLI. It call all configuration and initialization hooks and start CLI
         """
         plugin_registry.add_hook_specs(CoreHookSpecs)
