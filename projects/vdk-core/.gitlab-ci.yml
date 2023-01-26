@@ -109,5 +109,7 @@ vdk-core-release:
     - ./cicd/release-vdk-core.sh
   retry: !reference [.retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *vdk_core_locations

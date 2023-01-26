@@ -131,6 +131,8 @@ control_service_publish_job_base_image:
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-base-image/**/*
@@ -146,10 +148,11 @@ control_service_publish_job_base_image-secure:
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-base-image-secure/**/*
-
 
 control_service_publish_job_builder_image:
   extends: .images:dind
@@ -161,6 +164,8 @@ control_service_publish_job_builder_image:
     - bash -ex ./publish-vdk-job-builder.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-builder/version.txt
@@ -175,7 +180,10 @@ control_service_publish_job_builder_secure_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
     - bash -ex ./publish-vdk-job-builder-secure.sh
+  retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-builder-secure/version.txt
@@ -198,6 +206,8 @@ control_service_publish_image:
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
       when: never
@@ -219,6 +229,8 @@ control_service_publish_api_client:
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
@@ -283,6 +295,8 @@ control_service_release:
     - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -310,6 +324,8 @@ control_service_vdk_heartbeat_release:
     - docker push $VDK_HEARTBEAT_IMAGE_NAME
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
