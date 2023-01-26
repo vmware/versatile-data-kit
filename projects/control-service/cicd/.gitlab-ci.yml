@@ -175,9 +175,10 @@ control_service_publish_job_builder_secure_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
     - bash -ex ./publish-vdk-job-builder-secure.sh
-  only:
-    changes:
-      - projects/control-service/projects/job-builder-secure/version.txt
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-builder-secure/version.txt
 
 
 control_service_publish_image:
