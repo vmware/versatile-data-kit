@@ -130,15 +130,12 @@ control_service_publish_job_base_image:
     - export VERSION_TAG="1.$CI_PIPELINE_ID"
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-      - external_pull_requests
-    changes:
-      - projects/control-service/projects/job-base-image/**/*
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image/**/*
 
 control_service_publish_job_base_image-secure:
   extends: .images:dind
