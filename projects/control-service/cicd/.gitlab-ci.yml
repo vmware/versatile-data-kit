@@ -186,7 +186,7 @@ control_service_publish_job_builder_secure_image:
       when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
-      - projects/control-service/projects/job-builder-secure/version.txt
+        - projects/control-service/projects/job-builder-secure/version.txt
 
 
 control_service_publish_image:
@@ -233,7 +233,7 @@ control_service_publish_api_client:
       when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
-      - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
+        - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
