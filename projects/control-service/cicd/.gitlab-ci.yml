@@ -163,7 +163,7 @@ control_service_publish_job_builder_image:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
-        - projects/control-service/projects/job-builder-secure/version.txt
+        - projects/control-service/projects/job-builder/version.txt
 
 
 control_service_publish_job_builder_secure_image:
