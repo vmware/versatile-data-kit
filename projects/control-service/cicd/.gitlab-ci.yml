@@ -180,8 +180,12 @@ control_service_publish_job_builder_secure_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
     - bash -ex ./publish-vdk-job-builder-secure.sh
-  only:
-    changes:
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
       - projects/control-service/projects/job-builder-secure/version.txt
 
 
