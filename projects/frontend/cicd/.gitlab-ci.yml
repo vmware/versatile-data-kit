@@ -1,12 +1,12 @@
 
 
 frontend_publish_test_image:
-  image: docker:20.10.22
+  image: docker:20.10.23
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
   services:
-    - docker:20.10.22-dind
+    - docker:20.10.23-dind
   stage: release
   script:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
