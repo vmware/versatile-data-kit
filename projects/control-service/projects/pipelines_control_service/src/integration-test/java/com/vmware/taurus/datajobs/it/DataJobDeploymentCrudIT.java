@@ -20,12 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -41,7 +35,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
@@ -50,18 +43,6 @@ public class DataJobDeploymentCrudIT extends BaseIT {
   private static final String TEST_JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private static final Object DEPLOYMENT_ID = "testing";
-
-  @TestConfiguration
-  static class TaskExecutorConfig {
-
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      // Deployment methods are non-blocking (Async) which makes them harder to test.
-      // Making them sync for the purposes of this test.
-      return new SyncTaskExecutor();
-    }
-  }
 
   @BeforeEach
   public void setup() throws Exception {

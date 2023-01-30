@@ -27,22 +27,29 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
-import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
 import com.vmware.taurus.service.JobsRepository;
 
 @AutoConfigureMetrics
-public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = ControlplaneApplication.class)
+public class DataJobTerminationStatusIT extends BaseIT {
 
   public static final String INFO_METRICS = "taurus_datajob_info";
   public static final String TERMINATION_STATUS_METRICS = "taurus_datajob_termination_status";
@@ -54,6 +61,9 @@ public class DataJobTerminationStatusIT extends BaseDataJobDeploymentIT {
           .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @Autowired JobsRepository jobsRepository;
+
+  @RegisterExtension
+  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder().build();
 
   // TODO split this test into job termination status test and data job execution test
   /**

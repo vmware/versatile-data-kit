@@ -26,7 +26,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
+import lombok.Builder;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -72,17 +74,17 @@ public class DataJobDeploymentExtension
     implements BeforeEachCallback, ExtensionContext.Store.CloseableResource, ParameterResolver {
 
   private static final Lock LOCK = new ReentrantLock();
-  protected static final ObjectMapper MAPPER = new ObjectMapper();
+  protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  public static final String JOB_NAME =
+  private String JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
-  public static final String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
-  public static final String JOB_SCHEDULE = "*/2 * * * *";
-  public static final String USER_NAME = "user";
-  public static final String DEPLOYMENT_ID = "NOT_USED";
-  public static final String TEAM_NAME = "test-team";
+  private String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
+  private String JOB_SCHEDULE = "*/2 * * * *";
+  private String USER_NAME = "user";
+  private String DEPLOYMENT_ID = "NOT_USED";
+  private String TEAM_NAME = "test-team";
 
-  private static final Map<String, Object> SUPPORTED_PARAMETERS =
+  private final Map<String, Object> SUPPORTED_PARAMETERS =
       Map.of(
           "jobName",
           JOB_NAME,
@@ -94,6 +96,27 @@ public class DataJobDeploymentExtension
           TEAM_NAME);
 
   private ExtensionContext context;
+
+  private String jobSource = "simple_job.zip";
+
+  private boolean jobGlobal = true;
+
+  private boolean initialized = false;
+
+  @Builder
+  private static DataJobDeploymentExtension of(String jobSource, Boolean jobGlobal){
+    DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
+
+    if (StringUtils.isNotBlank(jobSource)) {
+      dataJobDeploymentExtension.jobSource = jobSource;
+    }
+
+    if (jobGlobal != null) {
+      dataJobDeploymentExtension.jobGlobal = jobGlobal;
+    }
+
+    return dataJobDeploymentExtension;
+  }
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
@@ -123,13 +146,19 @@ public class DataJobDeploymentExtension
                                 String.format(
                                     "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME)))));
 
-    LOCK.lock();
     String uniqueKey = this.getClass().getName();
-    Object value = context.getRoot().getStore(GLOBAL).get(uniqueKey);
 
-    if (value == null) {
+    if (jobGlobal) {
+      LOCK.lock();
+
+      if (context.getRoot().getStore(GLOBAL).get(uniqueKey) != null) {
+        initialized = true;
+      }
+    }
+
+    if (!initialized) {
       byte[] jobZipBinary =
-          IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("simple_job.zip"));
+          IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(jobSource));
 
       // Upload the data job
       MvcResult uploadResult =
@@ -182,6 +211,11 @@ public class DataJobDeploymentExtension
 
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(JOB_NAME);
+      await()
+              .atMost(360, TimeUnit.SECONDS)
+              .with()
+              .pollInterval(10, TimeUnit.SECONDS)
+              .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
       Optional<JobDeploymentStatus> cronJobOptional =
           dataJobsKubernetesService.readCronJob(jobDeploymentName);
       assertTrue(cronJobOptional.isPresent());
@@ -192,14 +226,25 @@ public class DataJobDeploymentExtension
       assertTrue(cronJob.getImageName().endsWith(dataJobVersion.getVersionSha()));
       assertEquals(USER_NAME, cronJob.getLastDeployedBy());
 
-      context.getRoot().getStore(GLOBAL).put(uniqueKey, this);
+      initialized = true;
+
+      if (jobGlobal) {
+        context.getRoot().getStore(GLOBAL).put(uniqueKey, this);
+        context.getRoot().getStore(GLOBAL).put("jobName", JOB_NAME);
+      }
     }
 
-    LOCK.unlock();
+    if (jobGlobal) {
+      LOCK.unlock();
+    }
   }
 
   @Override
   public void close() throws Throwable {
+    if (jobGlobal) {
+      JOB_NAME = (String) context.getRoot().getStore(GLOBAL).get("jobName");
+    }
+
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
@@ -256,6 +301,10 @@ public class DataJobDeploymentExtension
   public Object resolveParameter(
       ParameterContext parameterContext, ExtensionContext extensionContext)
       throws ParameterResolutionException {
+    if (jobGlobal && parameterContext.getParameter().getName() == "jobName") {
+      return context.getRoot().getStore(GLOBAL).get("jobName");
+    }
+
     return SUPPORTED_PARAMETERS.getOrDefault(parameterContext.getParameter().getName(), null);
   }
 }

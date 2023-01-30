@@ -5,7 +5,9 @@
 
 package com.vmware.taurus.graphql.it;
 
-import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
@@ -14,7 +16,9 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.OffsetDateTime;
@@ -25,11 +29,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class GraphQLJobExecutionsStatusCountIT extends BaseDataJobDeploymentIT {
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = ControlplaneApplication.class)
+public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
 
   @Autowired JobExecutionRepository jobExecutionRepository;
 
   @Autowired JobsRepository jobsRepository;
+
+  @RegisterExtension
+  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder().build();
 
   @BeforeEach
   public void cleanup() {

@@ -27,7 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,7 +46,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
-@Import({KdcServerConfiguration.class})
+@Import({KdcServerConfiguration.class, BaseIT.TaskExecutorConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT {
@@ -73,6 +78,17 @@ public class BaseIT {
   protected String controlNamespace;
 
   private boolean ownsControlNamespace = false;
+
+  @TestConfiguration
+  public static class TaskExecutorConfig {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      // Deployment methods are non-blocking (Async) which makes them harder to test.
+      // Making them sync for the purposes of this test.
+      return new SyncTaskExecutor();
+    }
+  }
 
   @BeforeEach
   public void before() {
