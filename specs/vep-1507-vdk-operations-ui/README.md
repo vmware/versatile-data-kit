@@ -80,6 +80,7 @@ Explain the user problem that need to be solved.
           * shared: all the shared components live here
       * cicd: gitlab config
     * [data-pipelines](/projects/frontend/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
+    * cicd: contains docker images, scripts etc needed for cicd jobs
 <!--
 All the rest sections tell **how** are we solving it?
 
