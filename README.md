@@ -75,7 +75,7 @@ Create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull 
     2. Joining the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
 - Follow us on [Twitter](https://twitter.com/VDKProject).
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
-- Join our [mailing list](join-versatiledatakit@groups.vmware.com).
+- Join our [development mailing list](mailto:join-versatiledatakit@groups.vmware.com), used by developers and maintainers of VDK.
 
 # Code of Conduct
 Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels, and mailing lists is expected to be familiar with and follow the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md).
