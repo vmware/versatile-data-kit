@@ -41,6 +41,7 @@ public class DataJobCancellationIT extends BaseIT {
   public void testJobCancellation_createDeployExecuteAndCancelJob(
       String jobName, String username, String deploymentId, String teamName) throws Exception {
     // manually start job execution
+    System.out.println("USER- " + username);
     mockMvc
         .perform(
             post(String.format(

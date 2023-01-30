@@ -76,7 +76,8 @@ public class DataJobDeploymentExtension
   private static final Lock LOCK = new ReentrantLock();
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String JOB_NAME = "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+  private String JOB_NAME =
+      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
   private String JOB_SCHEDULE = "*/2 * * * *";
   private String USER_NAME = "user";
@@ -103,7 +104,7 @@ public class DataJobDeploymentExtension
   private boolean initialized = false;
 
   @Builder
-  private static DataJobDeploymentExtension of(String jobSource, Boolean jobGlobal) {
+  private static DataJobDeploymentExtension of(String jobSource, Boolean jobGlobal){
     DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
     if (StringUtils.isNotBlank(jobSource)) {
@@ -122,28 +123,7 @@ public class DataJobDeploymentExtension
     this.context = context;
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
-        SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
-
-    // Setup
-    String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, JOB_NAME);
-
-    // Create the data job
-    mockMvc
-        .perform(
-            post(String.format("/data-jobs/for-team/%s/jobs", TEAM_NAME))
-                .with(user("user"))
-                .content(dataJobRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isCreated())
-        .andExpect(
-            header()
-                .string(
-                    HttpHeaders.LOCATION,
-                    BaseIT.lambdaMatcher(
-                        s ->
-                            s.endsWith(
-                                String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME)))));
+            SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     String uniqueKey = this.getClass().getName();
 
@@ -152,8 +132,31 @@ public class DataJobDeploymentExtension
 
       if (context.getRoot().getStore(GLOBAL).get(uniqueKey) != null) {
         initialized = true;
+        JOB_NAME = (String) context.getRoot().getStore(GLOBAL).get("jobName");
       }
     }
+
+    // Setup
+    String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, JOB_NAME);
+    // Create the data job
+    mockMvc
+            .perform(
+                    post(String.format("/data-jobs/for-team/%s/jobs", TEAM_NAME))
+                            .with(user("user"))
+                            .content(dataJobRequestBody)
+                            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    header()
+                            .string(
+                                    HttpHeaders.LOCATION,
+                                    BaseIT.lambdaMatcher(
+                                            s ->
+                                                    s.endsWith(
+                                                            String.format(
+                                                                    "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME)))));
+
+
 
     if (!initialized) {
       byte[] jobZipBinary =
@@ -171,7 +174,7 @@ public class DataJobDeploymentExtension
               .andReturn();
       DataJobVersion dataJobVersion =
           MAPPER.readValue(uploadResult.getResponse().getContentAsString(), DataJobVersion.class);
-
+      System.out.println("JOBHASBEENDEPLOYED - " + JOB_NAME);
       // Update the data job configuration
       var dataJob =
           new com.vmware.taurus.controlplane.model.data.DataJob()
@@ -211,10 +214,10 @@ public class DataJobDeploymentExtension
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(JOB_NAME);
       await()
-          .atMost(360, TimeUnit.SECONDS)
-          .with()
-          .pollInterval(10, TimeUnit.SECONDS)
-          .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
+              .atMost(360, TimeUnit.SECONDS)
+              .with()
+              .pollInterval(10, TimeUnit.SECONDS)
+              .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
       Optional<JobDeploymentStatus> cronJobOptional =
           dataJobsKubernetesService.readCronJob(jobDeploymentName);
       assertTrue(cronJobOptional.isPresent());
@@ -300,7 +303,9 @@ public class DataJobDeploymentExtension
   public Object resolveParameter(
       ParameterContext parameterContext, ExtensionContext extensionContext)
       throws ParameterResolutionException {
-    if (jobGlobal && parameterContext.getParameter().getName() == "jobName") {
+    System.out.println("GLOBAL " + jobGlobal + "BEFORE - " + JOB_NAME);
+    if (jobGlobal && parameterContext.getParameter().getName().equals("jobName")) {
+      System.out.println("GLOBAL " + jobGlobal + "AFTER - " + context.getRoot().getStore(GLOBAL).get("jobName"));
       return context.getRoot().getStore(GLOBAL).get("jobName");
     }
 

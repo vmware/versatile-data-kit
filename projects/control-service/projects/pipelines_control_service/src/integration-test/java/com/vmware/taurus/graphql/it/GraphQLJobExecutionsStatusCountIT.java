@@ -42,11 +42,6 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   static DataJobDeploymentExtension dataJobDeploymentExtension =
       DataJobDeploymentExtension.builder().build();
 
-  @BeforeEach
-  public void cleanup() {
-    jobExecutionRepository.deleteAll();
-  }
-
   private void addJobExecution(
       OffsetDateTime endTime, ExecutionStatus executionStatus, String jobName) {
     var execution =
@@ -79,6 +74,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   @Test
   public void testExecutionStatusCount_expectTwoSuccessful(String jobName, String username)
       throws Exception {
+    jobExecutionRepository.deleteAll();
     var expectedEndTimeLarger = OffsetDateTime.now();
     var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
@@ -99,6 +95,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   @Test
   public void testExecutionStatusCount_expectNoCounts(String jobName, String username)
       throws Exception {
+    jobExecutionRepository.deleteAll();
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(JOBS_URI)
@@ -113,6 +110,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   @Test
   public void testExecutionStatusCount_expectTwoSuccessfulTwoFailed(String jobName, String username)
       throws Exception {
+    jobExecutionRepository.deleteAll();
     var expectedEndTimeLarger = OffsetDateTime.now();
     var expectedEndTimeSmaller = OffsetDateTime.now().minusDays(1);
 
@@ -135,6 +133,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   @Test
   public void testExecutionStatusCount_expectOneSuccessfulOneFailed(String jobName, String username)
       throws Exception {
+    jobExecutionRepository.deleteAll();
     var expectedEndTimeLarger = OffsetDateTime.now();
 
     addJobExecution(expectedEndTimeLarger, ExecutionStatus.SUCCEEDED, jobName);
@@ -158,6 +157,10 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
       String message,
       OffsetDateTime startTime) {
 
+    System.out.println("JOB NAME -- " + jobName);
+    for (DataJob dataJob : jobsRepository.findAll()) {
+      System.out.println("JOB_NAME_ " + dataJob.getName());
+    }
     DataJob dataJob = jobsRepository.findById(jobName).get();
 
     var jobExecution =
