@@ -16,10 +16,9 @@ frontend_publish_test_image:
     - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
     - docker build -t $image_tag .
     - docker push $image_tag
-#  TODO comment back in after tested
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes:
-#        - projects/frontend/cicd/version.txt
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/frontend/cicd/version.txt
