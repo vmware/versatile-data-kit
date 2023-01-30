@@ -13,7 +13,7 @@ frontend_publish_test_image:
     - cd projects/frontend/cicd
     - VERSION_TAG="$(cat version.txt)"
     - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
-    - docker build -t $image_tag -f Dockerfile
+    - docker build -t $image_tag .
     - docker push $image_tag
 #  TODO comment back in after tested
 #  rules:
