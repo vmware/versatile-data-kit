@@ -54,9 +54,6 @@ dependencies {
    implementation versions.'org.influxdb:influxdb-java'
    implementation versions.'com.google.guava:guava'
    implementation versions.'io.micrometer:micrometer-registry-prometheus'
-   implementation versions.'io.springfox:springfox-swagger2'
-   implementation versions.'io.springfox:springfox-swagger-ui'
-   implementation versions.'org.tuckey:urlrewritefilter' //to move Swagger under /teams/
    implementation versions.'org.apache.commons:commons-lang3'
 
    implementation versions.'com.nimbusds:nimbus-jose-jwt' // necessary for authZ ; remove after
@@ -72,8 +69,8 @@ dependencies {
    implementation versions.'commons-io:commons-io'
    implementation versions.'org.json:json'
    implementation versions.'org.yaml:snakeyaml'
-   implementation versions.'io.swagger:swagger-annotations'
-   implementation versions.'io.swagger:swagger-models'
+   implementation versions.'io.swagger.core.v3:swagger-annotations'
+   implementation versions.'io.swagger.core.v3:swagger-models'
    implementation versions.'io.micrometer:micrometer-core'
    testImplementation versions.'org.awaitility:awaitility'
    testImplementation versions.'com.github.tomakehurst:wiremock'

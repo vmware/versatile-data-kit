@@ -273,4 +273,40 @@ public class DataJobMetricsTest {
         meterRegistry.counter(DataJobMetrics.TAURUS_DATAJOB_WATCH_TASK_INVOCATIONS_COUNTER_NAME);
     Assertions.assertEquals(5.0, counter.count(), 0.001);
   }
+
+  @Test
+  @Order(14)
+  void testClearGaugesAtJobDisable() {
+    var config = new JobConfig();
+    config.setNotificationDelayPeriodMinutes(60);
+
+    var dataJob = new DataJob("test-data-job", config);
+    dataJob.setLatestJobTerminationStatus(ExecutionStatus.SUCCEEDED);
+    dataJob.setLatestJobExecutionId("execution-id-new");
+
+    // Update metrics
+    dataJobMetrics.updateInfoGauges(jobsRepository.save(dataJob));
+    dataJobMetrics.updateTerminationStatusGauge(jobsRepository.save(dataJob));
+
+    // Assert that the termination status gauge has been set.
+    var gauges =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+    Assertions.assertEquals(1, gauges.size());
+
+    // Assert that the data job notification delay gauge has been set.
+    gauges =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+    Assertions.assertEquals(1, gauges.size());
+
+    // Clear the gauges
+    dataJobMetrics.clearTerminationStatusAndDelayNotifGauges("test-data-job");
+
+    // Assert that the gauges have been cleared.
+    gauges =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_NOTIFICATION_DELAY_METRIC_NAME).gauges();
+    Assertions.assertEquals(0, gauges.size());
+    gauges =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+    Assertions.assertEquals(0, gauges.size());
+  }
 }

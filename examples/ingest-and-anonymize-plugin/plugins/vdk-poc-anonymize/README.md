@@ -1,6 +1,10 @@
 # POC Anonymization plugin
 
-(Created from https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/plugin-template/src/vdk/plugin/plugin_template)
+**This is a sample plugin used in an example/tutorial for creating plugins. It is not a real plugin.**
+
+**The below README is a sample README of what is usually expected of a real plugin README**
+
+
 
 
 POC Anonymization plugin automatically all data being ingested using Versatile Data Kit
