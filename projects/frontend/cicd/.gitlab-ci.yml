@@ -7,13 +7,13 @@ frontend_publish_test_image:
     DOCKER_DRIVER: overlay2
   services:
     - docker:20.10.22-dind
-  stage: build
+  stage: release
   script:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/frontend/cicd
     - VERSION_TAG="$(cat version.txt)"
     - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
-    - docker build -t image_tag -f Dockerfile
+    - docker build -t $image_tag -f Dockerfile
     - docker push $image_tag
 #  TODO comment back in after tested
 #  rules:
