@@ -7,7 +7,7 @@ control_service_publish_job_builder_image:
     DOCKER_DRIVER: overlay2
   services:
     - docker:20.10.22-dind
-  stage: release
+  stage: build
   script:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/frontend/cicd
