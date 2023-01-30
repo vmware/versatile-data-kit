@@ -15,7 +15,6 @@ control_service_publish_job_builder_image:
     - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
     - docker build -t image_tag -f Dockerfile
     - docker push $image_tag
-  retry: !reference [.control_service_retry, retry_options]
 #  TODO comment back in after tested
 #  rules:
 #    - if: '$CI_PIPELINE_SOURCE == "schedule"'
