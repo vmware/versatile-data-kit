@@ -1,0 +1,25 @@
+
+
+control_service_publish_job_builder_image:
+  image: docker:20.10.22
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+  services:
+    - docker:20.10.22-dind
+  stage: publish
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/frontend/cicd
+    - VERSION_TAG="$(cat version.txt)"
+    - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
+    - docker build -t image_tag -f Dockerfile
+    - docker push $image_tag
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/frontend/cicd/version.txt
