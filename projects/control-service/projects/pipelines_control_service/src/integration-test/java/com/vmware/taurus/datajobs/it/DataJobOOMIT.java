@@ -7,15 +7,12 @@ package com.vmware.taurus.datajobs.it;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,13 +24,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,8 +46,9 @@ public class DataJobOOMIT extends BaseIT {
   private static final Object DEPLOYMENT_ID = "testing-oom";
 
   private final ObjectMapper objectMapper =
-          new ObjectMapper()
-                  .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
+      new ObjectMapper()
+          .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
+
   @AfterEach
   public void cleanUp() throws Exception {
     // delete job
@@ -104,8 +100,7 @@ public class DataJobOOMIT extends BaseIT {
   public void testJobCancellation_createDeployExecuteAndCancelJob() throws Exception {
     // Take the job zip as byte array
     byte[] jobZipBinary =
-        IOUtils.toByteArray(
-            getClass().getClassLoader().getResourceAsStream("oom_job.zip"));
+        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("oom_job.zip"));
 
     // Execute job upload with user
     MvcResult jobUploadResult =
@@ -178,19 +173,23 @@ public class DataJobOOMIT extends BaseIT {
     String location = dataJobExecutionResponse.getResponse().getHeader("location");
     String executionId = location.substring(location.lastIndexOf("/") + 1);
     checkDataJobExecutionStatus(
-            executionId, DataJobExecution.StatusEnum.USER_ERROR, TEST_JOB_NAME, TEST_TEAM_NAME, "user");
+        executionId, DataJobExecution.StatusEnum.USER_ERROR, TEST_JOB_NAME, TEST_TEAM_NAME, "user");
 
     checkDataJobExecutionStatus(
-            executionId, DataJobExecution.StatusEnum.PLATFORM_ERROR, TEST_JOB_NAME, TEST_TEAM_NAME, "user");
+        executionId,
+        DataJobExecution.StatusEnum.PLATFORM_ERROR,
+        TEST_JOB_NAME,
+        TEST_TEAM_NAME,
+        "user");
   }
 
   private void checkDataJobExecutionStatus(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String jobName,
-          String teamName,
-          String username)
-          throws Exception {
+      String executionId,
+      DataJobExecution.StatusEnum executionStatus,
+      String jobName,
+      String teamName,
+      String username)
+      throws Exception {
 
     try {
       testDataJobExecutionRead(executionId, executionStatus, jobName, teamName, username);
@@ -198,11 +197,11 @@ public class DataJobOOMIT extends BaseIT {
       try {
         // print logs in case execution has failed
         MvcResult dataJobExecutionLogsResult =
-                getExecuteLogs(executionId, jobName, teamName, username);
+            getExecuteLogs(executionId, jobName, teamName, username);
         log.info(
-                "Job Execution {} logs:\n{}",
-                executionId,
-                dataJobExecutionLogsResult.getResponse().getContentAsString());
+            "Job Execution {} logs:\n{}",
+            executionId,
+            dataJobExecutionLogsResult.getResponse().getContentAsString());
       } catch (Error ignore) {
       }
       throw e;
@@ -210,59 +209,59 @@ public class DataJobOOMIT extends BaseIT {
   }
 
   private void testDataJobExecutionRead(
-          String executionId,
-          DataJobExecution.StatusEnum executionStatus,
-          String jobName,
-          String teamName,
-          String username) {
+      String executionId,
+      DataJobExecution.StatusEnum executionStatus,
+      String jobName,
+      String teamName,
+      String username) {
 
     DataJobExecution[] dataJobExecution = new DataJobExecution[1];
 
     await()
-            .atMost(5, TimeUnit.MINUTES)
-            .with()
-            .pollInterval(15, TimeUnit.SECONDS)
-            .until(
-                    () -> {
-                      String dataJobExecutionReadUrl =
-                              String.format(
-                                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
-                                      teamName, jobName, executionId);
-                      MvcResult dataJobExecutionResult =
-                              mockMvc
-                                      .perform(
-                                              get(dataJobExecutionReadUrl)
-                                                      .with(user(username))
-                                                      .contentType(MediaType.APPLICATION_JSON))
-                                      .andExpect(status().isOk())
-                                      .andReturn();
+        .atMost(5, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+        .until(
+            () -> {
+              String dataJobExecutionReadUrl =
+                  String.format(
+                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
+                      teamName, jobName, executionId);
+              MvcResult dataJobExecutionResult =
+                  mockMvc
+                      .perform(
+                          get(dataJobExecutionReadUrl)
+                              .with(user(username))
+                              .contentType(MediaType.APPLICATION_JSON))
+                      .andExpect(status().isOk())
+                      .andReturn();
 
-                      dataJobExecution[0] =
-                              objectMapper.readValue(
-                                      dataJobExecutionResult.getResponse().getContentAsString(),
-                                      DataJobExecution.class);
-                      if (dataJobExecution[0] == null) {
-                        log.info("No response from server");
-                      } else {
-                        log.info("Response from server  " + dataJobExecution[0].getStatus());
-                      }
-                      return dataJobExecution[0] != null
-                              && executionStatus.equals(dataJobExecution[0].getStatus());
-                    });
+              dataJobExecution[0] =
+                  objectMapper.readValue(
+                      dataJobExecutionResult.getResponse().getContentAsString(),
+                      DataJobExecution.class);
+              if (dataJobExecution[0] == null) {
+                log.info("No response from server");
+              } else {
+                log.info("Response from server  " + dataJobExecution[0].getStatus());
+              }
+              return dataJobExecution[0] != null
+                  && executionStatus.equals(dataJobExecution[0].getStatus());
+            });
 
     assertEquals(executionStatus, dataJobExecution[0].getStatus());
   }
 
   private MvcResult getExecuteLogs(
-          String executionId, String jobName, String teamName, String username) throws Exception {
+      String executionId, String jobName, String teamName, String username) throws Exception {
     String dataJobExecutionListUrl =
-            String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
+        String.format(
+            "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
     MvcResult dataJobExecutionLogsResult =
-            mockMvc
-                    .perform(get(dataJobExecutionListUrl).with(user(username)))
-                    .andExpect(status().isOk())
-                    .andReturn();
+        mockMvc
+            .perform(get(dataJobExecutionListUrl).with(user(username)))
+            .andExpect(status().isOk())
+            .andReturn();
     return dataJobExecutionLogsResult;
   }
 }
