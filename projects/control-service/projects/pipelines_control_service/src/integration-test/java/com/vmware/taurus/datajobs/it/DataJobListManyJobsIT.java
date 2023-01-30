@@ -31,7 +31,7 @@ public class DataJobListManyJobsIT extends BaseIT {
           + " schedule {          scheduleCron        }      }    }    totalPages    totalItems  }"
           + "}";
 
-  private static final int JOB_COUNT = 50;
+  private static final int JOB_COUNT = 100;
 
   @Test
   public void testListManyJobs() throws Exception {
