@@ -76,7 +76,7 @@ class Notebook:
                             file_path=file_path,
                             job_dir=context.job_directory,
                             code=cell.source,
-                            module=python_module
+                            module=python_module,
                         )
                         notebook_steps.append(step)
                         context.step_builder.add_step(step)
