@@ -12,17 +12,12 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.platform.commons.util.StringUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -36,9 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,13 +51,15 @@ public class DataJobEphemeralStorageIT extends BaseIT {
           .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder()
+  static DataJobDeploymentExtension dataJobDeploymentExtension =
+      DataJobDeploymentExtension.builder()
           .jobSource("job_ephemeral_storage.zip")
           .jobGlobal(false)
           .build();
 
   @Test
-  public void testEphemeralStorageJob(String jobName, String teamName, String username, String deploymentId) throws Exception {
+  public void testEphemeralStorageJob(
+      String jobName, String teamName, String username, String deploymentId) throws Exception {
     String opId = jobName + UUID.randomUUID().toString().toLowerCase();
 
     // manually start job execution
@@ -108,12 +103,7 @@ public class DataJobEphemeralStorageIT extends BaseIT {
 
     // Check the data job execution status
     checkDataJobExecutionStatus(
-        executionId,
-        DataJobExecution.StatusEnum.SUCCEEDED,
-        opId,
-        jobName,
-        teamName,
-        username);
+        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username);
   }
 
   private void checkDataJobExecutionStatus(

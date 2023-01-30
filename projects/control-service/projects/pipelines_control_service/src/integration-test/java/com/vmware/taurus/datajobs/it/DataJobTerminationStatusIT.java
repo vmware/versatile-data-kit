@@ -47,8 +47,8 @@ import com.vmware.taurus.service.JobsRepository;
 
 @AutoConfigureMetrics
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 public class DataJobTerminationStatusIT extends BaseIT {
 
   public static final String INFO_METRICS = "taurus_datajob_info";
@@ -63,7 +63,8 @@ public class DataJobTerminationStatusIT extends BaseIT {
   @Autowired JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder().build();
+  static DataJobDeploymentExtension dataJobDeploymentExtension =
+      DataJobDeploymentExtension.builder().build();
 
   // TODO split this test into job termination status test and data job execution test
   /**

@@ -76,8 +76,7 @@ public class DataJobDeploymentExtension
   private static final Lock LOCK = new ReentrantLock();
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String JOB_NAME =
-      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+  private String JOB_NAME = "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
   private String JOB_SCHEDULE = "*/2 * * * *";
   private String USER_NAME = "user";
@@ -104,7 +103,7 @@ public class DataJobDeploymentExtension
   private boolean initialized = false;
 
   @Builder
-  private static DataJobDeploymentExtension of(String jobSource, Boolean jobGlobal){
+  private static DataJobDeploymentExtension of(String jobSource, Boolean jobGlobal) {
     DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
     if (StringUtils.isNotBlank(jobSource)) {
@@ -212,10 +211,10 @@ public class DataJobDeploymentExtension
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(JOB_NAME);
       await()
-              .atMost(360, TimeUnit.SECONDS)
-              .with()
-              .pollInterval(10, TimeUnit.SECONDS)
-              .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
+          .atMost(360, TimeUnit.SECONDS)
+          .with()
+          .pollInterval(10, TimeUnit.SECONDS)
+          .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
       Optional<JobDeploymentStatus> cronJobOptional =
           dataJobsKubernetesService.readCronJob(jobDeploymentName);
       assertTrue(cronJobOptional.isPresent());

@@ -32,8 +32,8 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 public class GraphQLJobExecutionsSortByEndTimeIT extends BaseIT {
 
   @Autowired JobExecutionRepository jobExecutionRepository;
@@ -41,7 +41,8 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseIT {
   @Autowired JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder().build();
+  static DataJobDeploymentExtension dataJobDeploymentExtension =
+      DataJobDeploymentExtension.builder().build();
 
   @BeforeEach
   public void cleanup() {
@@ -148,11 +149,16 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseIT {
     createDataJobExecution(expectedId1, jobName, expectedEndTimeLarger);
     createDataJobExecution(expectedId2, jobName, expectedEndTimeSmaller);
 
-    System.out.println("LOGGG " + mockMvc
-            .perform(
+    System.out.println(
+        "LOGGG "
+            + mockMvc
+                .perform(
                     MockMvcRequestBuilders.get(JOBS_URI)
-                            .queryParam("query", getQuery(jobName, "DESC"))
-                            .with(user(username))).andReturn().getResponse().getContentAsString());
+                        .queryParam("query", getQuery(jobName, "DESC"))
+                        .with(user(username)))
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(JOBS_URI)

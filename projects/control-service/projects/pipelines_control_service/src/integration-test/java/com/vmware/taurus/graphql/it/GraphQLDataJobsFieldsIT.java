@@ -27,8 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 public class GraphQLDataJobsFieldsIT extends BaseIT {
 
   private static final String DEFAULT_QUERY_WITH_DEPLOYMENTS =
@@ -44,7 +44,8 @@ public class GraphQLDataJobsFieldsIT extends BaseIT {
   @Autowired private JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder().build();
+  static DataJobDeploymentExtension dataJobDeploymentExtension =
+      DataJobDeploymentExtension.builder().build();
 
   @Test
   void testFields(String jobName, String teamName, String username) throws Exception {

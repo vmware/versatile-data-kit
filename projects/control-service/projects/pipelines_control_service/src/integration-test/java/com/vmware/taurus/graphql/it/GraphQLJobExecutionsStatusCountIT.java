@@ -30,8 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
 
   @Autowired JobExecutionRepository jobExecutionRepository;
@@ -39,7 +39,8 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   @Autowired JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension = DataJobDeploymentExtension.builder().build();
+  static DataJobDeploymentExtension dataJobDeploymentExtension =
+      DataJobDeploymentExtension.builder().build();
 
   @BeforeEach
   public void cleanup() {
