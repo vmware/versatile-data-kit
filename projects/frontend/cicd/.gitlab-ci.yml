@@ -3,6 +3,7 @@
 frontend_publish_test_image:
   image: docker:19.03.15
   variables:
+    DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ''
     DOCKER_HOST: tcp://docker:2375
   services:
