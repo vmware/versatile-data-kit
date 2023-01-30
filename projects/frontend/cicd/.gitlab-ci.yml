@@ -1,6 +1,6 @@
 
 
-control_service_publish_job_builder_image:
+frontend_publish_test_image:
   image: docker:20.10.22
   variables:
     DOCKER_HOST: tcp://localhost:2375
