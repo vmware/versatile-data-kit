@@ -48,3 +48,9 @@ class JupyterTests(unittest.TestCase):
             ["run", jobs_path_from_caller_directory("rest-api-job-fail-code-error")]
         )
         cli_assert_equal(2, result)
+
+    def test_failing_job_with_sql_error(self) -> None:
+        result: Result = self.__runner.invoke(
+            ["run", jobs_path_from_caller_directory("rest-api-job-sql-error")]
+        )
+        cli_assert_equal(1, result)
