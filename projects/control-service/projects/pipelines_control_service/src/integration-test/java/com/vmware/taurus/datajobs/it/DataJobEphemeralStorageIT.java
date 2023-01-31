@@ -54,7 +54,6 @@ public class DataJobEphemeralStorageIT extends BaseIT {
   static DataJobDeploymentExtension dataJobDeploymentExtension =
       DataJobDeploymentExtension.builder()
           .jobSource("job_ephemeral_storage.zip")
-          .jobGlobal(false)
           .build();
 
   @Test

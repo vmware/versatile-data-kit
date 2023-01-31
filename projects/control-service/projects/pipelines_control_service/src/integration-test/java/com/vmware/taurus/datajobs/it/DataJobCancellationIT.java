@@ -34,14 +34,13 @@ public class DataJobCancellationIT extends BaseIT {
   static DataJobDeploymentExtension dataJobDeploymentExtension =
       DataJobDeploymentExtension.builder()
           .jobSource("simple_job_cancel.zip")
-          .jobGlobal(false)
           .build();
 
   @Test
   public void testJobCancellation_createDeployExecuteAndCancelJob(
       String jobName, String username, String deploymentId, String teamName) throws Exception {
     // manually start job execution
-    System.out.println("USER- " + username);
+
     mockMvc
         .perform(
             post(String.format(

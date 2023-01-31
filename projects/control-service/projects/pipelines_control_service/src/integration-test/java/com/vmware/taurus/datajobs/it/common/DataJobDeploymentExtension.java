@@ -8,7 +8,6 @@ package com.vmware.taurus.datajobs.it.common;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,19 +20,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
 import lombok.Builder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -71,14 +64,14 @@ import com.vmware.taurus.service.model.JobDeploymentStatus;
  * this may affect other tests.</b>
  */
 public class DataJobDeploymentExtension
-    implements BeforeEachCallback, ExtensionContext.Store.CloseableResource, ParameterResolver {
+    implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
-  private static final Lock LOCK = new ReentrantLock();
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String JOB_NAME = "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+  private String JOB_NAME =
+      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
-  private String JOB_SCHEDULE = "*/2 * * * *";
+  private String JOB_SCHEDULE = "*/20 * * * *";
   private String USER_NAME = "user";
   private String DEPLOYMENT_ID = "NOT_USED";
   private String TEAM_NAME = "test-team";
@@ -94,24 +87,14 @@ public class DataJobDeploymentExtension
           "teamName",
           TEAM_NAME);
 
-  private ExtensionContext context;
-
   private String jobSource = "simple_job.zip";
 
-  private boolean jobGlobal = true;
-
-  private boolean initialized = false;
-
   @Builder
-  private static DataJobDeploymentExtension of(String jobSource, Boolean jobGlobal) {
+  private static DataJobDeploymentExtension of(String jobSource){
     DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
     if (StringUtils.isNotBlank(jobSource)) {
       dataJobDeploymentExtension.jobSource = jobSource;
-    }
-
-    if (jobGlobal != null) {
-      dataJobDeploymentExtension.jobGlobal = jobGlobal;
     }
 
     return dataJobDeploymentExtension;
@@ -119,43 +102,30 @@ public class DataJobDeploymentExtension
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    this.context = context;
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
-        SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
-
-    String uniqueKey = this.getClass().getName();
-
-    if (jobGlobal) {
-      LOCK.lock();
-
-      if (context.getRoot().getStore(GLOBAL).get(uniqueKey) != null) {
-        initialized = true;
-        JOB_NAME = (String) context.getRoot().getStore(GLOBAL).get("jobName");
-      }
-    }
+            SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     // Setup
     String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, JOB_NAME);
     // Create the data job
     mockMvc
-        .perform(
-            post(String.format("/data-jobs/for-team/%s/jobs", TEAM_NAME))
-                .with(user("user"))
-                .content(dataJobRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isCreated())
-        .andExpect(
-            header()
-                .string(
-                    HttpHeaders.LOCATION,
-                    BaseIT.lambdaMatcher(
-                        s ->
-                            s.endsWith(
-                                String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME)))));
+            .perform(
+                    post(String.format("/data-jobs/for-team/%s/jobs", TEAM_NAME))
+                            .with(user("user"))
+                            .content(dataJobRequestBody)
+                            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(
+                    header()
+                            .string(
+                                    HttpHeaders.LOCATION,
+                                    BaseIT.lambdaMatcher(
+                                            s ->
+                                                    s.endsWith(
+                                                            String.format(
+                                                                    "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME)))));
 
-    if (!initialized) {
       byte[] jobZipBinary =
           IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(jobSource));
 
@@ -171,7 +141,7 @@ public class DataJobDeploymentExtension
               .andReturn();
       DataJobVersion dataJobVersion =
           MAPPER.readValue(uploadResult.getResponse().getContentAsString(), DataJobVersion.class);
-      System.out.println("JOBHASBEENDEPLOYED - " + JOB_NAME);
+
       // Update the data job configuration
       var dataJob =
           new com.vmware.taurus.controlplane.model.data.DataJob()
@@ -211,10 +181,10 @@ public class DataJobDeploymentExtension
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(JOB_NAME);
       await()
-          .atMost(360, TimeUnit.SECONDS)
-          .with()
-          .pollInterval(10, TimeUnit.SECONDS)
-          .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
+              .atMost(360, TimeUnit.SECONDS)
+              .with()
+              .pollInterval(10, TimeUnit.SECONDS)
+              .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
       Optional<JobDeploymentStatus> cronJobOptional =
           dataJobsKubernetesService.readCronJob(jobDeploymentName);
       assertTrue(cronJobOptional.isPresent());
@@ -224,67 +194,32 @@ public class DataJobDeploymentExtension
       assertEquals(true, cronJob.getEnabled());
       assertTrue(cronJob.getImageName().endsWith(dataJobVersion.getVersionSha()));
       assertEquals(USER_NAME, cronJob.getLastDeployedBy());
-
-      initialized = true;
-
-      if (jobGlobal) {
-        context.getRoot().getStore(GLOBAL).put(uniqueKey, this);
-        context.getRoot().getStore(GLOBAL).put("jobName", JOB_NAME);
-      }
-    }
-
-    if (jobGlobal) {
-      LOCK.unlock();
-    }
   }
 
   @Override
-  public void close() throws Throwable {
-    if (jobGlobal) {
-      JOB_NAME = (String) context.getRoot().getStore(GLOBAL).get("jobName");
-    }
-
+  public void afterEach(ExtensionContext context) throws Exception {
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
-        SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
-
-    // Execute delete deployment
-    mockMvc
-        .perform(
-            delete(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEAM_NAME, JOB_NAME, DEPLOYMENT_ID))
-                .with(user(USER_NAME))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
-
-    // Wait for deployment to be deleted
-    String jobDeploymentName = JobImageDeployer.getCronJobName(JOB_NAME);
-    await()
-        .atMost(5, TimeUnit.SECONDS)
-        .with()
-        .pollInterval(1, TimeUnit.SECONDS)
-        .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
+            SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     mockMvc
-        .perform(
-            delete(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEAM_NAME, JOB_NAME))
-                .with(user(USER_NAME))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
+            .perform(
+                    delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME))
+                            .with(user(USER_NAME))
+                            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
 
     // Finally, delete the K8s jobs to avoid them messing up subsequent runs of the same test
     dataJobsKubernetesService.listJobs().stream()
-        .filter(jobName -> jobName.startsWith(JOB_NAME))
-        .forEach(
-            s -> {
-              try {
-                dataJobsKubernetesService.deleteJob(s);
-              } catch (ApiException e) {
-                e.printStackTrace();
-              }
-            });
+            .filter(jobName -> jobName.startsWith(JOB_NAME))
+            .forEach(
+                    s -> {
+                      try {
+                        dataJobsKubernetesService.deleteJob(s);
+                      } catch (ApiException e) {
+                        e.printStackTrace();
+                      }
+                    });
   }
 
   @Override
@@ -300,13 +235,6 @@ public class DataJobDeploymentExtension
   public Object resolveParameter(
       ParameterContext parameterContext, ExtensionContext extensionContext)
       throws ParameterResolutionException {
-    System.out.println("GLOBAL " + jobGlobal + "BEFORE - " + JOB_NAME);
-    if (jobGlobal && parameterContext.getParameter().getName().equals("jobName")) {
-      System.out.println(
-          "GLOBAL " + jobGlobal + "AFTER - " + context.getRoot().getStore(GLOBAL).get("jobName"));
-      return context.getRoot().getStore(GLOBAL).get("jobName");
-    }
-
     return SUPPORTED_PARAMETERS.getOrDefault(parameterContext.getParameter().getName(), null);
   }
 }

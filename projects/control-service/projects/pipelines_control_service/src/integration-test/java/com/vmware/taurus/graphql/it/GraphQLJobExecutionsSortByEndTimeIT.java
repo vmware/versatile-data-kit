@@ -149,16 +149,6 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseIT {
     createDataJobExecution(expectedId1, jobName, expectedEndTimeLarger);
     createDataJobExecution(expectedId2, jobName, expectedEndTimeSmaller);
 
-    System.out.println(
-        "LOGGG "
-            + mockMvc
-                .perform(
-                    MockMvcRequestBuilders.get(JOBS_URI)
-                        .queryParam("query", getQuery(jobName, "DESC"))
-                        .with(user(username)))
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(JOBS_URI)
