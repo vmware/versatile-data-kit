@@ -1,7 +1,5 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import importlib.util
-import inspect
 import logging
 import sys
 import traceback
@@ -64,11 +62,6 @@ class NotebookStepFuncFactory:
     """
     Implementations of runner_func for running Notebook steps
     """
-
-    @staticmethod
-    def run_sql_step(step: NotebookStep, job_input: IJobInput) -> bool:
-        job_input.execute_query(step.code)
-        return True
 
     @staticmethod
     def run_python_step(step: NotebookStep, job_input: IJobInput) -> bool:
