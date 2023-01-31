@@ -7,44 +7,28 @@ package com.vmware.taurus.datajobs.it;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigureMetrics;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.service.JobsRepository;
 
 @AutoConfigureMetrics
@@ -95,16 +79,23 @@ public class DataJobTerminationStatusIT extends BaseIT {
    * </ul>
    */
   @Test
-  public void testDataJobTerminationStatus(String jobName, String teamName, String username, String deploymentId)
-      throws Exception {
+  public void testDataJobTerminationStatus(
+      String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
-    ImmutablePair<String, String> executeDataJobResult = JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
+    ImmutablePair<String, String> executeDataJobResult =
+        JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
     String opId = executeDataJobResult.getLeft();
     String executionId = executeDataJobResult.getRight();
 
     // Check the data job execution status
     JobExecutionUtil.checkDataJobExecutionStatus(
-        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username, mockMvc);
+        executionId,
+        DataJobExecution.StatusEnum.SUCCEEDED,
+        opId,
+        jobName,
+        teamName,
+        username,
+        mockMvc);
 
     // Wait for the job execution to complete, polling every 5 seconds
     // See: https://github.com/awaitility/awaitility/wiki/Usage
@@ -147,7 +138,13 @@ public class DataJobTerminationStatusIT extends BaseIT {
 
     // Check the data job execution status
     JobExecutionUtil.checkDataJobExecutionStatus(
-        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username, mockMvc);
+        executionId,
+        DataJobExecution.StatusEnum.SUCCEEDED,
+        opId,
+        jobName,
+        teamName,
+        username,
+        mockMvc);
   }
 
   private String scrapeMetrics() throws Exception {

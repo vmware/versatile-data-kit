@@ -171,17 +171,18 @@ public class WebHookServerMockExtension
                 .withMethod(HttpMethod.POST.name())
                 .withHeader("Content-type", "application/json")
                 .withPath(
-                    String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, "integration-test-.*")))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, "integration-test-.*")))
         .respond(getOkResponse());
 
     mockWebHookServerClient
-            .when(
-                    request()
-                            .withMethod(HttpMethod.POST.name())
-                            .withHeader("Content-type", "application/json")
-                            .withPath(
-                                    String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_1)))
-            .respond(getOkResponse());
+        .when(
+            request()
+                .withMethod(HttpMethod.POST.name())
+                .withHeader("Content-type", "application/json")
+                .withPath(
+                    String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_1)))
+        .respond(getOkResponse());
 
     mockWebHookServerClient
         .when(
