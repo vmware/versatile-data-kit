@@ -162,11 +162,11 @@ We extend this with extra functionality we need.
 A docker image is built with all these dependencies to make e2e testing easier in gitlab.
 
 it contains:
-1. Angluar
-2. Chrome Browser
-3. Command cli utils (curl, git, zip etc...)
-4. Sonar
-5. Npm and Nvm
+1. Angluar (build)
+2. Chrome Browser (for UI testing)
+3. Command cli utils (curl, git, zip etc...) (auxiliary functions/packaging reports etc..)
+4. Sonar (Code Quality checking)
+5. Npm and Nvm (build) 
 
 The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
 New versions are released by changing the version in [version.txt](/projects/frontend/cicd/version.txt)
