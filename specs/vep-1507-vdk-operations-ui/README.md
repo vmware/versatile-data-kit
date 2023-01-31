@@ -169,6 +169,8 @@ it contains:
 5. Npm and Nvm
 
 The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
+New versions are released by changing the version in [version.txt](/projects/frontend/cicd/version.txt)
+New releases are published under the image name [registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
 
 ## Implementation stories
 <!--
