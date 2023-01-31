@@ -5,23 +5,20 @@
 
 package com.vmware.taurus.datajobs.it;
 
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
-import java.util.ArrayList;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -40,43 +37,8 @@ public class DataJobCancellationIT extends BaseIT {
   public void testJobCancellation_createDeployExecuteAndCancelJob(
       String jobName, String username, String deploymentId, String teamName) throws Exception {
     // manually start job execution
-
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-                    teamName, jobName, deploymentId))
-                .with(user(username))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    "{\n"
-                        + "  \"args\": {\n"
-                        + "    \"key\": \"value\"\n"
-                        + "  },\n"
-                        + "  \"started_by\": \"schedule/runtime\"\n"
-                        + "}"))
-        .andExpect(status().is(202))
-        .andReturn();
-
-    // wait for pod to initialize
-    Thread.sleep(10000);
-
-    // retrieve running job execution id.
-    var exc =
-        mockMvc
-            .perform(
-                get(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-                        teamName, jobName, deploymentId))
-                    .with(user("user"))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    var gson = new Gson();
-    ArrayList<LinkedTreeMap> parsed =
-        gson.fromJson(exc.getResponse().getContentAsString(), ArrayList.class);
-    String executionId = (String) parsed.get(0).get("id");
+    ImmutablePair<String, String> executeDataJobResult = JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
+    String executionId = executeDataJobResult.getRight();
 
     // cancel running execution
     mockMvc
@@ -91,8 +53,7 @@ public class DataJobCancellationIT extends BaseIT {
   }
 
   @Test
-  public void testJobCancellation_nonExistingJob(
-      String jobName, String username, String deploymentId, String teamName) throws Exception {
+  public void testJobCancellation_nonExistingJob(String jobName, String teamName) throws Exception {
 
     mockMvc
         .perform(

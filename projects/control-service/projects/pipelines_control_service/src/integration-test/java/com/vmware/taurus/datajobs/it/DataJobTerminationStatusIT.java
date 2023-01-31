@@ -30,6 +30,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -54,11 +56,6 @@ public class DataJobTerminationStatusIT extends BaseIT {
   public static final String INFO_METRICS = "taurus_datajob_info";
   public static final String TERMINATION_STATUS_METRICS = "taurus_datajob_termination_status";
   public static final String HEADER_X_OP_ID = "X-OPID";
-
-  private static final Logger log = LoggerFactory.getLogger(DataJobTerminationStatusIT.class);
-  private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @Autowired JobsRepository jobsRepository;
 
@@ -98,33 +95,16 @@ public class DataJobTerminationStatusIT extends BaseIT {
    * </ul>
    */
   @Test
-  public void testDataJobTerminationStatus(String jobName, String teamName, String username)
+  public void testDataJobTerminationStatus(String jobName, String teamName, String username, String deploymentId)
       throws Exception {
-    // Execute data job
-    String opId = jobName + UUID.randomUUID().toString().toLowerCase();
-    DataJobExecutionRequest dataJobExecutionRequest =
-        new DataJobExecutionRequest().startedBy(username);
-
-    String triggerDataJobExecutionUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName, jobName, "release");
-    MvcResult dataJobExecutionResponse =
-        mockMvc
-            .perform(
-                post(triggerDataJobExecutionUrl)
-                    .with(user(username))
-                    .header(HEADER_X_OP_ID, opId)
-                    .content(mapper.writeValueAsString(dataJobExecutionRequest))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(202))
-            .andReturn();
+    // manually start job execution
+    ImmutablePair<String, String> executeDataJobResult = JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
+    String opId = executeDataJobResult.getLeft();
+    String executionId = executeDataJobResult.getRight();
 
     // Check the data job execution status
-    String location = dataJobExecutionResponse.getResponse().getHeader("location");
-    String executionId = location.substring(location.lastIndexOf("/") + 1);
-    checkDataJobExecutionStatus(
-        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username);
+    JobExecutionUtil.checkDataJobExecutionStatus(
+        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username, mockMvc);
 
     // Wait for the job execution to complete, polling every 5 seconds
     // See: https://github.com/awaitility/awaitility/wiki/Usage
@@ -166,8 +146,8 @@ public class DataJobTerminationStatusIT extends BaseIT {
             + match.get());
 
     // Check the data job execution status
-    checkDataJobExecutionStatus(
-        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username);
+    JobExecutionUtil.checkDataJobExecutionStatus(
+        executionId, DataJobExecution.StatusEnum.SUCCEEDED, opId, jobName, teamName, username, mockMvc);
   }
 
   private String scrapeMetrics() throws Exception {
@@ -212,186 +192,5 @@ public class DataJobTerminationStatusIT extends BaseIT {
         String.format(
             "The metrics %s does not have correct value for label %s. Expected: %s, Actual: %s",
             metrics, label, expectedValue, actualValue));
-  }
-
-  private void checkDataJobExecutionStatus(
-      String executionId,
-      DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username)
-      throws Exception {
-
-    try {
-      testDataJobExecutionRead(executionId, executionStatus, opId, jobName, teamName, username);
-      testDataJobExecutionList(executionId, executionStatus, opId, jobName, teamName, username);
-      testDataJobDeploymentExecutionList(
-          executionId, executionStatus, opId, jobName, teamName, username);
-      testDataJobExecutionLogs(executionId, jobName, teamName, username);
-    } catch (Error e) {
-      try {
-        // print logs in case execution has failed
-        MvcResult dataJobExecutionLogsResult =
-            getExecuteLogs(executionId, jobName, teamName, username);
-        log.info(
-            "Job Execution {} logs:\n{}",
-            executionId,
-            dataJobExecutionLogsResult.getResponse().getContentAsString());
-      } catch (Error ignore) {
-      }
-      throw e;
-    }
-  }
-
-  private void testDataJobExecutionRead(
-      String executionId,
-      DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username) {
-
-    DataJobExecution[] dataJobExecution = new DataJobExecution[1];
-
-    await()
-        .atMost(5, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .until(
-            () -> {
-              String dataJobExecutionReadUrl =
-                  String.format(
-                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
-                      teamName, jobName, executionId);
-              MvcResult dataJobExecutionResult =
-                  mockMvc
-                      .perform(
-                          get(dataJobExecutionReadUrl)
-                              .with(user(username))
-                              .contentType(MediaType.APPLICATION_JSON))
-                      .andExpect(status().isOk())
-                      .andReturn();
-
-              dataJobExecution[0] =
-                  objectMapper.readValue(
-                      dataJobExecutionResult.getResponse().getContentAsString(),
-                      DataJobExecution.class);
-              if (dataJobExecution[0] == null) {
-                log.info("No response from server");
-              } else {
-                log.info("Response from server  " + dataJobExecution[0].getStatus());
-              }
-              return dataJobExecution[0] != null
-                  && executionStatus.equals(dataJobExecution[0].getStatus());
-            });
-
-    assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
-  }
-
-  private void testDataJobExecutionList(
-      String executionId,
-      DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username)
-      throws Exception {
-
-    String dataJobExecutionListUrl =
-        String.format("/data-jobs/for-team/%s/jobs/%s/executions", teamName, jobName);
-    MvcResult dataJobExecutionResult =
-        mockMvc
-            .perform(
-                get(dataJobExecutionListUrl)
-                    .with(user(username))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    List<DataJobExecution> dataJobExecutions =
-        objectMapper.readValue(
-            dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
-    assertNotNull(dataJobExecutions);
-    dataJobExecutions =
-        dataJobExecutions.stream()
-            .filter(e -> e.getId().equals(executionId))
-            .collect(Collectors.toList());
-    assertEquals(1, dataJobExecutions.size());
-    assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
-  }
-
-  private void testDataJobDeploymentExecutionList(
-      String executionId,
-      DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username)
-      throws Exception {
-
-    String dataJobDeploymentExecutionListUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName, jobName, "release");
-    MvcResult dataJobExecutionResult =
-        mockMvc
-            .perform(
-                get(dataJobDeploymentExecutionListUrl)
-                    .with(user(username))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    List<DataJobExecution> dataJobExecutions =
-        objectMapper.readValue(
-            dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
-    assertNotNull(dataJobExecutions);
-    dataJobExecutions =
-        dataJobExecutions.stream()
-            .filter(e -> e.getId().equals(executionId))
-            .collect(Collectors.toList());
-    assertEquals(1, dataJobExecutions.size());
-    assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
-  }
-
-  private void testDataJobExecutionLogs(
-      String executionId, String jobName, String teamName, String username) throws Exception {
-    MvcResult dataJobExecutionLogsResult = getExecuteLogs(executionId, jobName, teamName, username);
-    assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
-  }
-
-  @NotNull
-  private MvcResult getExecuteLogs(
-      String executionId, String jobName, String teamName, String username) throws Exception {
-    String dataJobExecutionListUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
-    MvcResult dataJobExecutionLogsResult =
-        mockMvc
-            .perform(get(dataJobExecutionListUrl).with(user(username)))
-            .andExpect(status().isOk())
-            .andReturn();
-    return dataJobExecutionLogsResult;
-  }
-
-  private void assertDataJobExecutionValid(
-      String executionId,
-      DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      DataJobExecution dataJobExecution,
-      String jobName,
-      String username) {
-
-    assertNotNull(dataJobExecution);
-    assertEquals(executionId, dataJobExecution.getId());
-    assertEquals(jobName, dataJobExecution.getJobName());
-    assertEquals(executionStatus, dataJobExecution.getStatus());
-    assertEquals(DataJobExecution.TypeEnum.MANUAL, dataJobExecution.getType());
-    assertEquals(username + "/" + "user", dataJobExecution.getStartedBy());
-    assertEquals(opId, dataJobExecution.getOpId());
   }
 }
