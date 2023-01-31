@@ -153,7 +153,22 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+### CICD
 
+#### e2e test image
+To run e2e tests alot of dependencies are needed (browsers, build systems etc...).
+Cypress(e2e framework) are actually aware of this and provide a base image.
+We extend this with extra functionality we need.
+A docker image is built with all these dependencies to make e2e testing easier in gitlab.
+
+it contains:
+1. Angluar
+2. Chrome Browser
+3. Command cli utils (curl, git, zip etc...)
+4. Sonar
+5. Npm and Nvm
+
+The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
 
 ## Implementation stories
 <!--
