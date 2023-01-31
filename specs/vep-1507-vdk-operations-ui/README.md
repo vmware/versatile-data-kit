@@ -166,7 +166,7 @@ it contains:
 2. Chrome Browser (for UI testing)
 3. Command cli utils (curl, git, zip etc...) (auxiliary functions/packaging reports etc..)
 4. Sonar (Code Quality checking)
-5. Npm and Nvm (build) 
+5. Npm and Nvm (build)
 
 The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
 New versions are released by changing the version in [version.txt](/projects/frontend/cicd/version.txt)
