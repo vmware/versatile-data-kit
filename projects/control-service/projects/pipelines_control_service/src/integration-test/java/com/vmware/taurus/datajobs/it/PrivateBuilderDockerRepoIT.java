@@ -32,7 +32,6 @@ import org.springframework.test.context.TestPropertySource;
     classes = ControlplaneApplication.class)
 public class PrivateBuilderDockerRepoIT extends BaseIT {
 
-
   @Value("${datajobs.builder.registrySecret.content.testOnly:}")
   private String dataJobsBuilderRegistrySecretContent;
 
