@@ -44,7 +44,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension =
-          DataJobDeploymentExtension.builder().jobSource("job_ephemeral_storage.zip").build();
+      DataJobDeploymentExtension.builder().jobSource("job_ephemeral_storage.zip").build();
 
   private void createBuilderImagePullSecret(String namespaceName) throws Exception {
     try {
