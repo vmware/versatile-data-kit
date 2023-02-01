@@ -71,6 +71,7 @@ class VdkUI:
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
 
+    # TODO: make it work with notebook jobs
     @staticmethod
     def create_job(name: str, team: str, rest_api_url: str, path: str, local: bool, cloud: bool):
         """
