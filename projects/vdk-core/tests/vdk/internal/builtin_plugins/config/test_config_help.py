@@ -24,6 +24,9 @@ class TestConfigPlugin:
         config_builder.add("key_int", 1, False, "int")
         config_builder.add("key_no_description", 1)
         config_builder.add("key_misconfigured_description", None, True, 111)
+        config_builder.add(
+            "key_sensitive", "default-value", True, "key-description", True
+        )
 
 
 def test_cli_config_help():
@@ -40,6 +43,7 @@ def test_cli_config_help():
     assert "to-be-shown-default-value" in result.output
     assert "key_bool" in result.output
     assert "key_int" in result.output
-    assert "key_misconfigured_description" in result.output
-
     assert "key_no_description" not in result.output
+    assert "key_misconfigured_description" in result.output
+    assert "key_sensitive" in result.output
+    assert "This option is marked as sensitive." in result.output
