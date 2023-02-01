@@ -46,7 +46,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
-@Import({KdcServerConfiguration.class, BaseIT.TaskExecutorConfig.class})
+@Import({KdcServerConfiguration.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
 public class BaseIT {
@@ -78,17 +78,6 @@ public class BaseIT {
   protected String controlNamespace;
 
   private boolean ownsControlNamespace = false;
-
-  @TestConfiguration
-  public static class TaskExecutorConfig {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      // Deployment methods are non-blocking (Async) which makes them harder to test.
-      // Making them sync for the purposes of this test.
-      return new SyncTaskExecutor();
-    }
-  }
 
   @BeforeEach
   public void before() {
