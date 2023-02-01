@@ -64,7 +64,7 @@ class CreateJobHandler(APIHandler):
                 input_data["restApiUrl"],
                 input_data["jobPath"],
                 local,
-                cloud
+                cloud,
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
