@@ -88,7 +88,7 @@ public class WebHookServerMockExtension
   }
 
   @Override
-  public void close() throws Throwable {
+  public void close() {
     mockWebHookServer.close();
     mockWebHookServerClient.close();
   }
@@ -172,7 +172,7 @@ public class WebHookServerMockExtension
                 .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format(
-                        "/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, "integration-test-.*")))
+                        "/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, JobExecutionUtil.JOB_NAME_PREFIX + ".*")))
         .respond(getOkResponse());
 
     mockWebHookServerClient

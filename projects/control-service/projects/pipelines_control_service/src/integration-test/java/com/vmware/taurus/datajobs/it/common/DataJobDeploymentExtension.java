@@ -68,7 +68,7 @@ public class DataJobDeploymentExtension
 
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String JOB_NAME = "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+  private String JOB_NAME = JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
   private String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
   private String JOB_SCHEDULE = "*/20 * * * *";
   private String USER_NAME = "user";
@@ -187,6 +187,7 @@ public class DataJobDeploymentExtension
           .with()
           .pollInterval(10, TimeUnit.SECONDS)
           .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
+
       Optional<JobDeploymentStatus> cronJobOptional =
           dataJobsKubernetesService.readCronJob(jobDeploymentName);
       assertTrue(cronJobOptional.isPresent());

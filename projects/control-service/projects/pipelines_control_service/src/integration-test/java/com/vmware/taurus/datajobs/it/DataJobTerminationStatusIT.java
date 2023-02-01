@@ -39,7 +39,6 @@ public class DataJobTerminationStatusIT extends BaseIT {
 
   public static final String INFO_METRICS = "taurus_datajob_info";
   public static final String TERMINATION_STATUS_METRICS = "taurus_datajob_termination_status";
-  public static final String HEADER_X_OP_ID = "X-OPID";
 
   @Autowired JobsRepository jobsRepository;
 

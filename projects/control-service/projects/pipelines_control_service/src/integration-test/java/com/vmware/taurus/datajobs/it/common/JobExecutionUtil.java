@@ -39,6 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class JobExecutionUtil {
 
+  public static final String JOB_NAME_PREFIX = "integration-test-";
+
   private static final ObjectMapper objectMapper =
       new ObjectMapper()
           .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
