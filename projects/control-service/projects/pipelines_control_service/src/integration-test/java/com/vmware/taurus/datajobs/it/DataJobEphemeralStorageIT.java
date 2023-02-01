@@ -19,8 +19,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-
-
 @Slf4j
 @TestPropertySource(
     properties = {
