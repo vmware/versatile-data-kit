@@ -84,11 +84,11 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
     if (checkbox?.classList.contains("checked")) {
         checkbox.classList.remove("checked");
         input?.parentElement?.classList.add("hidden");
-        localStorage.removeItem(createJobType);
+        sessionStorage.removeItem(createJobType);
     }
     else {
         checkbox?.classList.add("checked");
-        localStorage.setItem(createJobType, "1");
+        sessionStorage.setItem(createJobType, "1");
         input?.parentElement?.classList.remove("hidden");
     }
    }
