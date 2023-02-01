@@ -8,11 +8,9 @@ from pathlib import Path
 from typing import List
 
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
-from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.plugin.notebook.cell import Cell
-from vdk.plugin.notebook.cell import CellUtils
 from vdk.plugin.notebook.notebook_based_step import NotebookStep
 from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
 
@@ -65,14 +63,7 @@ class Notebook:
             for jupyter_cell in content["cells"]:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
-                    if CellUtils.is_vdk_cell(cell):
-                        is_sql = CellUtils.is_sql_cell(cell)
-                        cell_type = TYPE_SQL if is_sql else TYPE_PYTHON
-                        runner_func = (
-                            NotebookStepFuncFactory.run_sql_step
-                            if is_sql
-                            else NotebookStepFuncFactory.run_python_step
-                        )
+                    if "vdk" in cell.tags:
                         step = NotebookStep(
                             name="".join(
                                 [
@@ -80,14 +71,13 @@ class Notebook:
                                     str(index),
                                 ]
                             ),
-                            type=cell_type,
-                            runner_func=runner_func,
+                            type=TYPE_PYTHON,
+                            runner_func=NotebookStepFuncFactory.run_python_step,
                             file_path=file_path,
                             job_dir=context.job_directory,
-                            code=CellUtils.get_cell_code(cell),
+                            code=cell.source,
+                            module=python_module,
                         )
-                        if not is_sql:
-                            step.module = python_module
                         notebook_steps.append(step)
                         context.step_builder.add_step(step)
                 index += 1
