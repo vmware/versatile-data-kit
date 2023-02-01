@@ -61,6 +61,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.function.Predicate.not;
 
@@ -490,9 +491,13 @@ public abstract class KubernetesService implements InitializingBean {
    *     data
    */
   public List<JobDeploymentStatus> readJobDeploymentStatuses() {
-    return getK8sSupportsV1CronJob()
-        ? readV1CronJobDeploymentStatuses()
-        : readV1beta1CronJobDeploymentStatuses();
+    if (getK8sSupportsV1CronJob()) {
+      return Stream.concat(readV1CronJobDeploymentStatuses().stream(), readV1beta1CronJobDeploymentStatuses().stream())
+              .collect(Collectors.toList());
+    }
+    else {
+      return readV1beta1CronJobDeploymentStatuses();
+    }
   }
 
   public List<JobDeploymentStatus> readV1beta1CronJobDeploymentStatuses() {
@@ -761,16 +766,30 @@ public abstract class KubernetesService implements InitializingBean {
 
   public Set<String> listCronJobs() throws ApiException {
     log.debug("Listing k8s cron jobs");
-    var cronJobs =
+    Set<String> v1Set = Collections.emptySet();
+
+    if(getK8sSupportsV1CronJob()) {
+      var v1CronJobs =
+              new BatchV1Api(client)
+                      .listNamespacedCronJob(
+                              namespace, null, null, null, null, null, null, null, null, null, null);
+      v1Set =
+              v1CronJobs.getItems().stream()
+                      .map(j -> j.getMetadata().getName())
+                      .collect(Collectors.toSet());
+      log.debug("K8s V1 cron jobs: {}", v1Set);
+    }
+
+    var v1BetaCronJobs =
         new BatchV1beta1Api(client)
             .listNamespacedCronJob(
                 namespace, null, null, null, null, null, null, null, null, null, null);
     var set =
-        cronJobs.getItems().stream()
+        v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s cron jobs: {}", set);
-    return set;
+    log.debug("K8s V1Beta cron jobs: {}", set);
+    return Stream.concat(v1Set.stream(), set.stream()).collect(Collectors.toSet());
   }
 
   public void createCronJob(
@@ -1168,6 +1187,23 @@ public abstract class KubernetesService implements InitializingBean {
 
   public void deleteCronJob(String name) throws ApiException {
     log.debug("Deleting k8s cron job: {}", name);
+
+    // If the V1 Cronjob API is enabled, we try to delete the cronjob with it and exit the method.
+    // If, however, the cronjob cannot be deleted, this means that it might have been created
+    // with the V1Beta1 API, so we need to try again with the beta API.
+    if (getK8sSupportsV1CronJob()) {
+      try {
+        new BatchV1Api(client)
+                .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+        log.debug("Deleted k8s cron job: {}", name);
+        return;
+      } catch (Exception e) {
+        log.debug(
+                "An exception occurred while trying to delete cron job. Message was: ",
+                e);
+      }
+    }
+
     try {
       new BatchV1beta1Api(client)
           .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
