@@ -114,9 +114,9 @@ class Configuration:
         """
         key = _normalize_config_key(key)
         desc = self.__config_key_to_description.get(key)
-        prefix = 'SENSITIVE: ' if self.is_sensitive(key) else ''
+        prefix = "SENSITIVE: " if self.is_sensitive(key) else ""
 
-        return f'{prefix}{desc}' if desc else None
+        return f"{prefix}{desc}" if desc else None
 
     def is_sensitive(self, key: ConfigKey) -> bool | None:
         """
@@ -162,7 +162,7 @@ class ConfigurationBuilder:
         default_value: ConfigValue,
         show_default_value=True,
         description=None,
-        is_sensitive=False
+        is_sensitive=False,
     ) -> ConfigurationBuilder:
         """
         Add new configuration variable definition.
@@ -173,7 +173,7 @@ class ConfigurationBuilder:
         The default value type will enforce the type of the option. Can be None - in this case the type would str.
         :param description: Set description if you want config variable to appear in command line help .
         :param is_sensitive: True if the configuration variable represents sensitive data, e.g. password, otherwise False
-        Will appear in description if True 
+        Will appear in description if True
         It is strongly recommended to set description. If no description is set the config key will be hidden.
         TODO: in the future we should require description always and have separate hidden=True/False instead
         :return: self so it can be chained like builder.add(..).set_value(...)...

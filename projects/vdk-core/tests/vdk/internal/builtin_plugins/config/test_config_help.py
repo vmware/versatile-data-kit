@@ -24,7 +24,9 @@ class TestConfigPlugin:
         config_builder.add("key_int", 1, False, "int")
         config_builder.add("key_no_description", 1)
         config_builder.add("key_misconfigured_description", None, True, 111)
-        config_builder.add("key_sensitive", 'default-value', True, 'key-description', True)
+        config_builder.add(
+            "key_sensitive", "default-value", True, "key-description", True
+        )
 
 
 def test_cli_config_help():
