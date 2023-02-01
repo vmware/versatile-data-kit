@@ -4,8 +4,10 @@ import os
 import shlex
 import subprocess
 
+from vdk.internal.control.command_groups.job.create import JobCreate
 from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
+from vdk.internal.control.utils import cli_utils
 
 
 class VdkUI:
@@ -68,3 +70,25 @@ class VdkUI:
         cmd = JobDownloadSource(rest_api_url)
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
+
+    @staticmethod
+    def create_job(name: str, team: str, rest_api_url: str, path: str, local: bool, cloud: bool):
+        """
+        Execute `download job`.
+        :param name: the name of the data job that will be created
+        :param team: the team of the data job that will be created
+        :param rest_api_url: The base REST API URL
+        :param path: the path to the directory where the job will be created
+        :param local: create sample job on local file system
+        :param cloud: create job in the cloud
+        :return: message that the job is created
+        """
+        cmd = JobCreate(rest_api_url)
+        if cloud:
+            cli_utils.check_rest_api_url(rest_api_url)
+
+        if local:
+            cmd.validate_job_path(path, name)
+
+        cmd.create_job(name, team, path, cloud, local)
+        return f"Job with name {name} was created."

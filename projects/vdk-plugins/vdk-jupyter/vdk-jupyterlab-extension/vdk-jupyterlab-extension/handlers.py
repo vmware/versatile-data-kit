@@ -51,6 +51,26 @@ class DownloadJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
+class CreateJobHandler(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        try:
+            local = True if input_data["isLocal"] else False
+            cloud = True if input_data["isCloud"] else False
+            status = VdkUI.create_job(
+                input_data["jobName"],
+                input_data["jobTeam"],
+                input_data["restApiUrl"],
+                input_data["jobPath"],
+                local,
+                cloud
+            )
+            self.finish(json.dumps({"message": f"{status}", "error": ""}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
 
@@ -70,3 +90,9 @@ def setup_handlers(web_app):
     )
     download_job_handlers = [(download_job_route_pattern, DownloadJobHandler)]
     web_app.add_handlers(host_pattern, download_job_handlers)
+
+    create_job_route_pattern = url_path_join(
+        base_url, "vdk-jupyterlab-extension", "create"
+    )
+    create_job_handlers = [(create_job_route_pattern, CreateJobHandler)]
+    web_app.add_handlers(host_pattern, create_job_handlers)
