@@ -492,10 +492,11 @@ public abstract class KubernetesService implements InitializingBean {
    */
   public List<JobDeploymentStatus> readJobDeploymentStatuses() {
     if (getK8sSupportsV1CronJob()) {
-      return Stream.concat(readV1CronJobDeploymentStatuses().stream(), readV1beta1CronJobDeploymentStatuses().stream())
-              .collect(Collectors.toList());
-    }
-    else {
+      return Stream.concat(
+              readV1CronJobDeploymentStatuses().stream(),
+              readV1beta1CronJobDeploymentStatuses().stream())
+          .collect(Collectors.toList());
+    } else {
       return readV1beta1CronJobDeploymentStatuses();
     }
   }
@@ -768,15 +769,15 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Listing k8s cron jobs");
     Set<String> v1Set = Collections.emptySet();
 
-    if(getK8sSupportsV1CronJob()) {
+    if (getK8sSupportsV1CronJob()) {
       var v1CronJobs =
-              new BatchV1Api(client)
-                      .listNamespacedCronJob(
-                              namespace, null, null, null, null, null, null, null, null, null, null);
+          new BatchV1Api(client)
+              .listNamespacedCronJob(
+                  namespace, null, null, null, null, null, null, null, null, null, null);
       v1Set =
-              v1CronJobs.getItems().stream()
-                      .map(j -> j.getMetadata().getName())
-                      .collect(Collectors.toSet());
+          v1CronJobs.getItems().stream()
+              .map(j -> j.getMetadata().getName())
+              .collect(Collectors.toSet());
       log.debug("K8s V1 cron jobs: {}", v1Set);
     }
 
@@ -1194,13 +1195,11 @@ public abstract class KubernetesService implements InitializingBean {
     if (getK8sSupportsV1CronJob()) {
       try {
         new BatchV1Api(client)
-                .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+            .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
         log.debug("Deleted k8s cron job: {}", name);
         return;
       } catch (Exception e) {
-        log.debug(
-                "An exception occurred while trying to delete cron job. Message was: ",
-                e);
+        log.debug("An exception occurred while trying to delete cron job. Message was: ", e);
       }
     }
 

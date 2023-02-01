@@ -446,8 +446,8 @@ public class KubernetesServiceTest {
     v1DeploymentStatus.setCronJobName("v1TestJob");
     v1TestList.add(v1DeploymentStatus);
 
-    var mergedTestLists = Stream.concat(v1TestList.stream(), v1BetaTestList.stream())
-            .collect(Collectors.toList());
+    var mergedTestLists =
+        Stream.concat(v1TestList.stream(), v1BetaTestList.stream()).collect(Collectors.toList());
 
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(true);
     Mockito.when(mock.readV1CronJobDeploymentStatuses()).thenReturn(v1TestList);
