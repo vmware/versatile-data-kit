@@ -120,20 +120,6 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  @Primary
-  @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
-  public AuthenticationManager authenticationManagerWithKerb(HttpSecurity http) throws Exception {
-    return http.getSharedObject(AuthenticationManagerBuilder.class)
-        .authenticationProvider(kerberosServiceAuthenticationProvider())
-        .build();
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-    return http.getSharedObject(AuthenticationManagerBuilder.class).build();
-  }
-
-  @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return (web) -> web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
   }
@@ -262,6 +248,20 @@ public class SecurityConfiguration {
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
   public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
     return new SecurityConfiguration.DataJobsUserDetailsService();
+  }
+
+  @Bean
+  @Primary
+  @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+  public AuthenticationManager authenticationManagerWithKerb(HttpSecurity http) throws Exception {
+    return http.getSharedObject(AuthenticationManagerBuilder.class)
+            .authenticationProvider(kerberosServiceAuthenticationProvider())
+            .build();
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    return http.getSharedObject(AuthenticationManagerBuilder.class).build();
   }
 
   class DataJobsUserDetailsService implements UserDetailsService {
