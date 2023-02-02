@@ -14,13 +14,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +38,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.util.Arrays;
@@ -57,7 +58,7 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @Slf4j
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
   private static final String AUTHORITY_PREFIX = "SCOPE_";
 
@@ -111,37 +112,53 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     this.keytabFileLocation = keytabFileLocation;
   }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    if (featureFlags.isSecurityEnabled()) {
-      enableSecurity(http);
-    } else {
-      log.info("Security is disabled.");
-      http.csrf().disable().authorizeRequests().anyRequest().anonymous();
-    }
+  @Bean
+  @Primary
+  protected SecurityFilterChain configure(HttpSecurity http,
+                                          AuthenticationManager authenticationManager) throws Exception {
+    return enableSecurity(http, authenticationManager);
   }
 
-  @Override
-  public void configure(WebSecurity web) {
-    web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
+  @Bean
+  protected SecurityFilterChain configure2(HttpSecurity http) throws Exception {
+    log.info("Security is disabled.");
+    return http.csrf().disable().authorizeRequests().anyRequest().anonymous().and().build();
   }
 
-  private void enableSecurity(HttpSecurity http) throws Exception {
+
+  @Bean
+  @Primary
+  @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
+  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    return http.getSharedObject(AuthenticationManagerBuilder.class).authenticationProvider(kerberosServiceAuthenticationProvider()).build();
+  }
+  @Bean
+  public AuthenticationManager authenticationManager2(HttpSecurity http) throws Exception {
+    return http.getSharedObject(AuthenticationManagerBuilder.class).build();
+  }
+
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
+  }
+
+  private SecurityFilterChain enableSecurity(HttpSecurity http,
+                                             AuthenticationManager authenticationManager) throws Exception {
     log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
 
     http.anonymous()
-        .disable()
-        .csrf()
-        .disable()
-        .authorizeRequests(
-            authorizeRequests -> {
-              if (!authorizedRoles.isEmpty()) {
-                authorizeRequests
-                    .antMatchers("/**")
-                    .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
-              }
-              authorizeRequests.anyRequest().authenticated();
-            });
+            .disable()
+            .csrf()
+            .disable()
+            .authorizeRequests(
+                    authorizeRequests -> {
+                      if (!authorizedRoles.isEmpty()) {
+                        authorizeRequests
+                                .antMatchers("/**")
+                                .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
+                      }
+                      authorizeRequests.anyRequest().authenticated();
+                    });
 
     if (featureFlags.isOAuth2Enabled()) {
       http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
@@ -149,9 +166,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     if (featureFlags.isKrbAuthEnabled()) {
       http.addFilterBefore(
-          spnegoAuthenticationProcessingFilter(authenticationManagerBean()),
+          spnegoAuthenticationProcessingFilter(authenticationManager),
           BasicAuthenticationFilter.class);
     }
+    return http.build();
   }
 
   @Bean
@@ -212,17 +230,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
     return Collections.emptySet();
   }
-
   /*
      KERBEROS config settings, a lot of these are optional.
   */
 
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) {
-    if (featureFlags.isKrbAuthEnabled()) {
-      auth.authenticationProvider(kerberosServiceAuthenticationProvider());
-    }
-  }
 
   @Bean
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
@@ -258,12 +269,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     return new SecurityConfiguration.DataJobsUserDetailsService();
   }
 
-  @Override
-  @Bean
-  @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
-  public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
-  }
 
   class DataJobsUserDetailsService implements UserDetailsService {
 
