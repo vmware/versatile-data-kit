@@ -80,6 +80,7 @@ Explain the user problem that need to be solved.
           * shared: all the shared components live here
       * cicd: gitlab config
     * [data-pipelines](/projects/frontend/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
+    * cicd: contains docker images, scripts etc needed for cicd jobs
 <!--
 All the rest sections tell **how** are we solving it?
 
@@ -152,7 +153,24 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+### CICD
 
+#### e2e test image
+To run e2e tests alot of dependencies are needed (browsers, build systems etc...).
+Cypress(e2e framework) are actually aware of this and provide a base image.
+We extend this with extra functionality we need.
+A docker image is built with all these dependencies to make e2e testing easier in gitlab.
+
+it contains:
+1. Angluar (build)
+2. Chrome Browser (for UI testing)
+3. Command cli utils (curl, git, zip etc...) (auxiliary functions/packaging reports etc..)
+4. Sonar (Code Quality checking)
+5. Npm and Nvm (build)
+
+The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
+New versions are released by changing the version in [version.txt](/projects/frontend/cicd/version.txt)
+New releases are published under the image name [registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
 
 ## Implementation stories
 <!--

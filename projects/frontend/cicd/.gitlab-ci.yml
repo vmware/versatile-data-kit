@@ -1,0 +1,24 @@
+
+
+frontend_publish_test_image:
+  image: docker:19.03.15
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ''
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+    - docker:19.03.15-dind
+  stage: release
+  script:
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/frontend/cicd
+    - VERSION_TAG="$(cat version.txt)"
+    - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
+    - docker build -t $image_tag .
+    - docker push $image_tag
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/frontend/cicd/version.txt
