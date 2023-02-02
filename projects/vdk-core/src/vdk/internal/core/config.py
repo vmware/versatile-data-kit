@@ -210,7 +210,11 @@ class ConfigurationBuilder:
         return [k for k in self.__config_key_to_default_value.keys()]
 
     def __add_public(
-        self, key: ConfigKey, description: str, is_sensitive: bool = False, default_value: ConfigValue = None
+        self,
+        key: ConfigKey,
+        description: str,
+        is_sensitive: bool = False,
+        default_value: ConfigValue = None,
     ) -> None:
         if not isinstance(description, str):
             log.warning(
