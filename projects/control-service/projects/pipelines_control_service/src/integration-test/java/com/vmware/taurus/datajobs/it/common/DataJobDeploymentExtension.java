@@ -126,7 +126,8 @@ public class DataJobDeploymentExtension
 
     if (!initialized) {
       byte[] jobZipBinary =
-          IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(JOB_SOURCE_PATH + jobSource));
+          IOUtils.toByteArray(
+              getClass().getClassLoader().getResourceAsStream(JOB_SOURCE_PATH + jobSource));
 
       // Upload the data job
       MvcResult uploadResult =

@@ -16,37 +16,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.awaitility.Awaitility.await;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @Slf4j
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 public class DataJobOOMIT extends BaseIT {
 
-    @RegisterExtension
-    static DataJobDeploymentExtension dataJobDeploymentExtension =
-            new DataJobDeploymentExtension("oom_job.zip");
+  @RegisterExtension
+  static DataJobDeploymentExtension dataJobDeploymentExtension =
+      new DataJobDeploymentExtension("oom_job.zip");
 
-    @Test
-    public void testDataJob_causesOOM_shouldCompleteWithUserError(
-            String jobName, String teamName, String username, String deploymentId) throws Exception {
-        // manually start job execution
-        ImmutablePair<String, String> executeDataJobResult =
-                JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
-        String opId = executeDataJobResult.getLeft();
-        String executionId = executeDataJobResult.getRight();
+  @Test
+  public void testDataJob_causesOOM_shouldCompleteWithUserError(
+      String jobName, String teamName, String username, String deploymentId) throws Exception {
+    // manually start job execution
+    ImmutablePair<String, String> executeDataJobResult =
+        JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
+    String opId = executeDataJobResult.getLeft();
+    String executionId = executeDataJobResult.getRight();
 
-        // Check the data job execution status
-        JobExecutionUtil.checkDataJobExecutionStatus(
-                executionId,
-                DataJobExecution.StatusEnum.USER_ERROR,
-                opId,
-                jobName,
-                teamName,
-                username,
-                mockMvc);
-    }
+    // Check the data job execution status
+    JobExecutionUtil.checkDataJobExecutionStatus(
+        executionId,
+        DataJobExecution.StatusEnum.USER_ERROR,
+        opId,
+        jobName,
+        teamName,
+        username,
+        mockMvc);
+  }
 }

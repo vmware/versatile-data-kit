@@ -92,7 +92,8 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
     // Take the job zip as byte array
     byte[] jobZipBinary =
-        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     // Execute job upload with no user
     mockMvc
@@ -376,7 +377,8 @@ public class DataJobDeploymentCrudIT extends BaseIT {
   @Test
   public void testDataJobDeleteSource() throws Exception {
     byte[] jobZipBinary =
-        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     mockMvc
         .perform(

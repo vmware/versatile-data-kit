@@ -1654,7 +1654,7 @@ public abstract class KubernetesService implements InitializingBean {
 
     // omits events that come after the Data Job completion
     if (jobExecutionStatusBuilder.succeeded != null
-            && StringUtils.isBlank(jobExecutionStatusBuilder.containerTerminationReason)) {
+        && StringUtils.isBlank(jobExecutionStatusBuilder.containerTerminationReason)) {
       return Optional.empty();
     }
 
