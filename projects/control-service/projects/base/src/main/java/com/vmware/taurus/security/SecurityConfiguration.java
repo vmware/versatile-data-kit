@@ -120,22 +120,16 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  protected SecurityFilterChain configure2(HttpSecurity http) throws Exception {
-    log.info("Security is disabled.");
-    return http.csrf().disable().authorizeRequests().anyRequest().anonymous().and().build();
-  }
-
-  @Bean
   @Primary
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
-  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+  public AuthenticationManager authenticationManagerWithKerb(HttpSecurity http) throws Exception {
     return http.getSharedObject(AuthenticationManagerBuilder.class)
         .authenticationProvider(kerberosServiceAuthenticationProvider())
         .build();
   }
 
   @Bean
-  public AuthenticationManager authenticationManager2(HttpSecurity http) throws Exception {
+  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
     return http.getSharedObject(AuthenticationManagerBuilder.class).build();
   }
 
