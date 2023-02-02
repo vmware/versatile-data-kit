@@ -14,12 +14,16 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
@@ -27,11 +31,17 @@ import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 
-public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT {
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
+public class GraphQLJobExecutionsSortByEndTimeIT extends BaseIT {
 
   @Autowired JobExecutionRepository jobExecutionRepository;
 
   @Autowired JobsRepository jobsRepository;
+
+  @RegisterExtension
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @BeforeEach
   public void cleanup() {
