@@ -23,12 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -78,7 +73,7 @@ public class DataJobDeploymentExtension
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
   private String jobName =
-          JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+      JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
 
   private String jobSource = "simple_job.zip";
 
@@ -87,7 +82,7 @@ public class DataJobDeploymentExtension
   private final Map<String, Object> SUPPORTED_PARAMETERS =
       Map.of(
           "jobName",
-              jobName,
+          jobName,
           "username",
           USER_NAME,
           "deploymentId",
@@ -95,8 +90,7 @@ public class DataJobDeploymentExtension
           "teamName",
           TEAM_NAME);
 
-  public DataJobDeploymentExtension() {
-  }
+  public DataJobDeploymentExtension() {}
 
   public DataJobDeploymentExtension(String jobName) {
     this.jobName = jobName;

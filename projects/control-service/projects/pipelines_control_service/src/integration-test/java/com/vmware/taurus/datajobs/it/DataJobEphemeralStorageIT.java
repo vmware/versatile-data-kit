@@ -35,7 +35,7 @@ public class DataJobEphemeralStorageIT extends BaseIT {
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension =
-          new DataJobDeploymentExtension("job_ephemeral_storage.zip");
+      new DataJobDeploymentExtension("job_ephemeral_storage.zip");
 
   @Test
   public void testEphemeralStorageJob(

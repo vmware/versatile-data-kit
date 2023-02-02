@@ -44,8 +44,7 @@ public class GraphQLDataJobsFieldsIT extends BaseIT {
   @Autowired private JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension =
-      new DataJobDeploymentExtension();
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @Test
   void testFields(String jobName, String teamName, String username) throws Exception {

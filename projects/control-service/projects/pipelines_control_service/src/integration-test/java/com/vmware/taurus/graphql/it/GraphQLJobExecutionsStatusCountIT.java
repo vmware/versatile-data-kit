@@ -39,8 +39,7 @@ public class GraphQLJobExecutionsStatusCountIT extends BaseIT {
   @Autowired JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension =
-      new DataJobDeploymentExtension();
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @BeforeEach
   public void cleanup() {
