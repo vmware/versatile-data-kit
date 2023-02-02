@@ -20,77 +20,62 @@
 <!-- TODO: code coverage -->
 </p>
 
+
 # Overview
+Versatile Data Kit (VDK) is an open source framework that enables anyone with basic SQL or Python knowledge to build, run, and manage their own data workflows.
 
-Versatile Data Kit (VDK) is an open source framework that enables anyone with basic SQL or Python knowledge to build their own data pipelines.
+Data processing instructions use plain text SQL or python files that are executed sequentially in alphanumeric order, allowing you to easily build your data workflows.
 
-Versatile Data Kit enables Data Engineers to develop, deploy, run and manage Data Jobs. **A Data Job is a data processing workload** and can be written in Python, SQL, or both at the same time. A Data Job enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any type of data storage.
+VDK is built for resiliency and can recover in mid-process or restart entirely from the start.
+
+
+# Data Journey and Versatile Data Kit
+VDK creates data processing workflows to:
+- Ingest data (extract)
+- Transform data (transform)
+- Export data (load)
+
+
+![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
+![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
+
+
+# Solve common data engineering problems
+- Ingest data from different sources, including CSV files, JSON objects, and data from REST API services.
+- Use Python/SQL and VDK templates to transform data.
+- Ensure data applications are packaged, versioned, and deployed correctly while dealing with credentials, retries, and reconnects.
+- Provide built-in monitoring and smart notification capabilities.
+- Track both code and data modifications and the relationship between them, allowing quicker troubleshooting and version rollback.
+
 
 ![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-light.svg#gh-light-mode-only)
 ![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-dark.svg#gh-dark-mode-only)
 
-Versatile Data Kit consists of two main components:
+# Versatile Data Kit Components
+- Software Development Kit (SDK):
+    - Tools to automate the extraction, transformation, and loading of data.
+    - A plugin framework that allows users to extend the framework according to their specific requirements.
+- Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
 
-* A **Data SDK** provides all tools for the automation of data extraction, transformation, and loading, as well as a plugin framework that allows users to extend the framework according to their specific requirements.
-* A **Control Service** allows users to create, deploy, manage and execute Data Jobs in Kubernetes runtime environment.
+# Getting Started
+Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
 
-To help solve common data engineering problems Versatile Data Kit:
-* allows ingestion of data from different sources, including CSV files, JSON objects, data provided by REST API services, etc.;
-* ensures data applications are packaged, versioned, and deployed correctly while dealing with credentials, retries, reconnects, etc.;
-* provides built-in monitoring and smart notification capabilities;
-* tracks both code and data modifications and the relations between them, enabling engineers to troubleshoot faster and providing an easy revert to a stable version.
-
-
-#### Data Journey and where VDK fits in
-![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
-![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
-
-# Installation and Getting Started
-
-#### Install Versatile Data Kit SDK
-
-```bash
-pip install -U pip setuptools wheel
-pip install quickstart-vdk
-```
-Note that Versatile Data Kit requires Python 3.7+.
-
-See the [Installation page](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-sdk) for more details.
-
-#### Use
-
-```bash
-# see Help to see what you can do
-vdk --help
-```
-Check out the [Getting Started page](https://github.com/vmware/versatile-data-kit/wiki/getting-started) to create and run your first Data Job.
-
-# Documentation
-
-Official documentation for Versatile Data Kit can be found [here](https://github.com/vmware/versatile-data-kit/wiki/Introduction).
+# Next Steps
+- See [use case examples](https://github.com/vmware/versatile-data-kit/wiki/Examples) that show how VDK fits into the data workflow.
+- See the [documentation](https://github.com/vmware/versatile-data-kit/wiki/Introduction) for VDK.
+- Read the article about [using the Versatile Data Kit and Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e).
+- Join us at a [community meeting](https://github.com/vmware/versatile-data-kit/wiki/Community-and-Resources)
 
 # Contributing
-
-If you are interested in contributing as a developer, visit [CONTRIBUTING.md](CONTRIBUTING.md).
+Create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes. If you are interested in contributing as a developer, visit the [contributing](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md) page.
 
 # Contacts
-Feedback is very welcome via the [GitHub site as issues](https://github.com/vmware/versatile-data-kit/issues) or [pull requests](https://github.com/vmware/versatile-data-kit/pulls)
-
-* Join our dedicated Slack channel on the CNCF Slack workspace:
-    * First [Join CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf)
-    * Then search for #versatile-data-kit or [click here to join the channel](https://cloud-native.slack.com/archives/C033PSLKCPR)
-
-- [Follow us on twitter](https://twitter.com/intent/follow?screen_name=VDKProject).
+- Connect on Slack by:
+    1. Joining the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).
+    2. Joining the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
+- Follow us on [Twitter](https://twitter.com/VDKProject).
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
-
-- [Join our mailing list](mailto:join-versatiledatakit@groups.vmware.com?subject=Invite%20me%20to%20the%20VDK%20mailing%20list)
-
-# How to use Versatile Data Kit?
-- Video [Data Ingestion with Versatile Data Kit](https://youtu.be/JRV_5cxVQDU)
-- Video [Data Transformation with Versatile Data Kit](https://youtu.be/2F6_REtupgA)
-- Blog Post [A complete example using the Versatile Data Kit and Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e)
-
-For the full list of resources go to [Community and Resources](https://github.com/vmware/versatile-data-kit/wiki/Community-and-Resources)
+- Join our [development mailing list](mailto:join-versatiledatakit@groups.vmware.com), used by developers and maintainers of VDK.
 
 # Code of Conduct
-Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels and mailing lists is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+Everyone involved in working on the project's source code, or engaging in any issue trackers, Slack channels, and mailing lists is expected to be familiar with and follow the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md).
