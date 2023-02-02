@@ -92,8 +92,8 @@ public class DataJobDeploymentExtension
 
   public DataJobDeploymentExtension() {}
 
-  public DataJobDeploymentExtension(String jobName) {
-    this.jobName = jobName;
+  public DataJobDeploymentExtension(String jobSource) {
+    this.jobSource = jobSource;
   }
 
   @Override
