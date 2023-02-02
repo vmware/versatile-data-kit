@@ -255,8 +255,8 @@ public class SecurityConfiguration {
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
   public AuthenticationManager authenticationManagerWithKerb(HttpSecurity http) throws Exception {
     return http.getSharedObject(AuthenticationManagerBuilder.class)
-            .authenticationProvider(kerberosServiceAuthenticationProvider())
-            .build();
+        .authenticationProvider(kerberosServiceAuthenticationProvider())
+        .build();
   }
 
   @Bean
