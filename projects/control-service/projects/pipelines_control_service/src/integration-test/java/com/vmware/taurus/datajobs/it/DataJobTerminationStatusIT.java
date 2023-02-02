@@ -43,8 +43,7 @@ public class DataJobTerminationStatusIT extends BaseIT {
   @Autowired JobsRepository jobsRepository;
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension =
-      DataJobDeploymentExtension.builder().build();
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   // TODO split this test into job termination status test and data job execution test
   /**

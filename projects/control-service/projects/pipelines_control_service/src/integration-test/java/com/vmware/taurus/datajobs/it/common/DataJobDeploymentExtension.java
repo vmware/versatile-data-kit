@@ -24,6 +24,9 @@ import java.util.concurrent.TimeUnit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.extension.*;
@@ -66,20 +69,25 @@ import com.vmware.taurus.service.model.JobDeploymentStatus;
 public class DataJobDeploymentExtension
     implements BeforeEachCallback, AfterAllCallback, ParameterResolver {
 
+  private static final String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
+  private static final String JOB_SCHEDULE = "*/20 * * * *";
+  private static final String USER_NAME = "user";
+  private static final String DEPLOYMENT_ID = "NOT_USED";
+  private static final String TEAM_NAME = "test-team";
+
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String JOB_NAME =
-      JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
-  private String JOB_NOTIFIED_EMAIL = "versatiledatakit@vmware.com";
-  private String JOB_SCHEDULE = "*/20 * * * *";
-  private String USER_NAME = "user";
-  private String DEPLOYMENT_ID = "NOT_USED";
-  private String TEAM_NAME = "test-team";
+  private String jobName =
+          JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+
+  private String jobSource = "simple_job.zip";
+
+  private boolean initialized = false;
 
   private final Map<String, Object> SUPPORTED_PARAMETERS =
       Map.of(
           "jobName",
-          JOB_NAME,
+              jobName,
           "username",
           USER_NAME,
           "deploymentId",
@@ -87,19 +95,11 @@ public class DataJobDeploymentExtension
           "teamName",
           TEAM_NAME);
 
-  private String jobSource = "simple_job.zip";
+  public DataJobDeploymentExtension() {
+  }
 
-  private boolean initialized = false;
-
-  @Builder
-  private static DataJobDeploymentExtension of(String jobSource) {
-    DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
-
-    if (StringUtils.isNotBlank(jobSource)) {
-      dataJobDeploymentExtension.jobSource = jobSource;
-    }
-
-    return dataJobDeploymentExtension;
+  public DataJobDeploymentExtension(String jobName) {
+    this.jobName = jobName;
   }
 
   @Override
@@ -109,7 +109,7 @@ public class DataJobDeploymentExtension
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     // Setup
-    String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, JOB_NAME);
+    String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, jobName);
     // Create the data job
     mockMvc
         .perform(
@@ -126,7 +126,7 @@ public class DataJobDeploymentExtension
                         s ->
                             s.endsWith(
                                 String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME)))));
+                                    "/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName)))));
 
     if (!initialized) {
       byte[] jobZipBinary =
@@ -136,7 +136,7 @@ public class DataJobDeploymentExtension
       MvcResult uploadResult =
           mockMvc
               .perform(
-                  post(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEAM_NAME, JOB_NAME))
+                  post(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEAM_NAME, jobName))
                       .with(user(USER_NAME))
                       .content(jobZipBinary)
                       .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -148,7 +148,7 @@ public class DataJobDeploymentExtension
       // Update the data job configuration
       var dataJob =
           new com.vmware.taurus.controlplane.model.data.DataJob()
-              .jobName(JOB_NAME)
+              .jobName(jobName)
               .team(TEAM_NAME)
               .config(
                   new DataJobConfig()
@@ -161,7 +161,7 @@ public class DataJobDeploymentExtension
                               .addNotifiedOnJobFailureUserErrorItem(JOB_NOTIFIED_EMAIL))
                       .schedule(new DataJobSchedule().scheduleCron(JOB_SCHEDULE)));
       mockMvc.perform(
-          put(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME))
+          put(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
               .with(user(USER_NAME))
               .content(MAPPER.writeValueAsString(dataJob))
               .contentType(MediaType.APPLICATION_JSON));
@@ -174,7 +174,7 @@ public class DataJobDeploymentExtension
               .enabled(true);
       mockMvc
           .perform(
-              post(String.format("/data-jobs/for-team/%s/jobs/%s/deployments", TEAM_NAME, JOB_NAME))
+              post(String.format("/data-jobs/for-team/%s/jobs/%s/deployments", TEAM_NAME, jobName))
                   .with(user(USER_NAME))
                   .content(MAPPER.writeValueAsString(dataJobDeployment))
                   .contentType(MediaType.APPLICATION_JSON))
@@ -182,7 +182,7 @@ public class DataJobDeploymentExtension
           .andReturn();
 
       // Verify that the job deployment was created
-      String jobDeploymentName = JobImageDeployer.getCronJobName(JOB_NAME);
+      String jobDeploymentName = JobImageDeployer.getCronJobName(jobName);
       await()
           .atMost(360, TimeUnit.SECONDS)
           .with()
@@ -211,14 +211,14 @@ public class DataJobDeploymentExtension
 
     mockMvc
         .perform(
-            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, JOB_NAME))
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
                 .with(user(USER_NAME))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     // Finally, delete the K8s jobs to avoid them messing up subsequent runs of the same test
     dataJobsKubernetesService.listJobs().stream()
-        .filter(jobName -> jobName.startsWith(JOB_NAME))
+        .filter(jobName -> jobName.startsWith(this.jobName))
         .forEach(
             s -> {
               try {

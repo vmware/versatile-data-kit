@@ -28,7 +28,7 @@ public class DataJobCancellationIT extends BaseIT {
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension =
-      DataJobDeploymentExtension.builder().jobSource("simple_job_cancel.zip").build();
+      new DataJobDeploymentExtension("simple_job_cancel.zip");
 
   @Test
   public void testJobCancellation_createDeployExecuteAndCancelJob(
