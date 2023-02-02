@@ -114,8 +114,8 @@ public class SecurityConfiguration {
 
   @Bean
   @Primary
-  protected SecurityFilterChain configure(HttpSecurity http,
-                                          AuthenticationManager authenticationManager) throws Exception {
+  protected SecurityFilterChain configure(
+      HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
     return enableSecurity(http, authenticationManager);
   }
 
@@ -125,13 +125,15 @@ public class SecurityConfiguration {
     return http.csrf().disable().authorizeRequests().anyRequest().anonymous().and().build();
   }
 
-
   @Bean
   @Primary
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
   public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-    return http.getSharedObject(AuthenticationManagerBuilder.class).authenticationProvider(kerberosServiceAuthenticationProvider()).build();
+    return http.getSharedObject(AuthenticationManagerBuilder.class)
+        .authenticationProvider(kerberosServiceAuthenticationProvider())
+        .build();
   }
+
   @Bean
   public AuthenticationManager authenticationManager2(HttpSecurity http) throws Exception {
     return http.getSharedObject(AuthenticationManagerBuilder.class).build();
@@ -142,23 +144,23 @@ public class SecurityConfiguration {
     return (web) -> web.ignoring().antMatchers(ENDPOINTS_TO_IGNORE);
   }
 
-  private SecurityFilterChain enableSecurity(HttpSecurity http,
-                                             AuthenticationManager authenticationManager) throws Exception {
+  private SecurityFilterChain enableSecurity(
+      HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
     log.info("Security is enabled with OAuth2. JWT Key URI: {}", jwksUri);
 
     http.anonymous()
-            .disable()
-            .csrf()
-            .disable()
-            .authorizeRequests(
-                    authorizeRequests -> {
-                      if (!authorizedRoles.isEmpty()) {
-                        authorizeRequests
-                                .antMatchers("/**")
-                                .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
-                      }
-                      authorizeRequests.anyRequest().authenticated();
-                    });
+        .disable()
+        .csrf()
+        .disable()
+        .authorizeRequests(
+            authorizeRequests -> {
+              if (!authorizedRoles.isEmpty()) {
+                authorizeRequests
+                    .antMatchers("/**")
+                    .hasAnyAuthority(authorizedRoles.toArray(String[]::new));
+              }
+              authorizeRequests.anyRequest().authenticated();
+            });
 
     if (featureFlags.isOAuth2Enabled()) {
       http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
@@ -234,7 +236,6 @@ public class SecurityConfiguration {
      KERBEROS config settings, a lot of these are optional.
   */
 
-
   @Bean
   @ConditionalOnProperty(value = KERBEROS_AUTH_ENABLED_PROPERTY)
   public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
@@ -268,7 +269,6 @@ public class SecurityConfiguration {
   public SecurityConfiguration.DataJobsUserDetailsService dataJobsUserDetailsService() {
     return new SecurityConfiguration.DataJobsUserDetailsService();
   }
-
 
   class DataJobsUserDetailsService implements UserDetailsService {
 
