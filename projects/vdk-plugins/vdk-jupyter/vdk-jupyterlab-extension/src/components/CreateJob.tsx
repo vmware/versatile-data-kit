@@ -84,11 +84,11 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
     if (checkbox?.classList.contains("checked")) {
         checkbox.classList.remove("checked");
         input?.parentElement?.classList.add("hidden");
-        localStorage.removeItem(createJobType);
+        sessionStorage.removeItem(createJobType);
     }
     else {
         checkbox?.classList.add("checked");
-        localStorage.setItem(createJobType, "1");
+        sessionStorage.setItem(createJobType, "1");
         input?.parentElement?.classList.remove("hidden");
     }
    }
@@ -103,7 +103,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        sessionStorage.setItem("job-name", value);
+        sessionStorage.setItem("create-job-name", value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -116,7 +116,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-team";
         }
-        sessionStorage.setItem("team-name", value);
+        sessionStorage.setItem("create-job-team", value);
     };
     /**
    * Callback invoked upon changing the job path input.
@@ -129,7 +129,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        sessionStorage.setItem("job-path", value);
+        sessionStorage.setItem("create-job-path", value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -142,7 +142,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-url";
         }
-        sessionStorage.setItem("job-rest-api-url", value);
+        sessionStorage.setItem("create-job-rest-api-url", value);
     };
 
 }

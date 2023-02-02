@@ -138,3 +138,47 @@ export async function downloadJobRequest() {
     );
   }
 }
+
+/**
+ * Sent a POST request to the server to create a data job.
+ * The information about the data job is retrieved from sessionStorage and sent as JSON.
+ */
+ export async function createJobRequest() {
+  let dataToSend = {
+    jobName: sessionStorage.getItem('create-job-name'),
+    jobTeam: sessionStorage.getItem('create-job-team'),
+    restApiUrl: sessionStorage.getItem('create-job-rest-api-url'),
+    jobPath: sessionStorage.getItem('create-job-path'),
+    isLocal: sessionStorage.getItem('local'),
+    isCloud: sessionStorage.getItem('cloud')
+  };
+  if (dataToSend['jobName'] && dataToSend['jobTeam']) {
+    try {
+      const data = await requestAPI<any>('create', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST'
+      });
+      if (!data['error']) {
+        alert(data['message']);
+      } else {
+        await showErrorMessage(
+          'Encountered an error when creating the job. Error:',
+          data['message'],
+          [Dialog.okButton()]
+        );
+      }
+    } catch (error) {
+      await showErrorMessage(
+        'Encountered an error when creating the job. Error:',
+        error,
+        [Dialog.okButton()]
+      );
+    }
+  } else {
+    await showErrorMessage(
+      'Encountered an error when creating the job. Error:',
+      'The name and the team of the job should be defined!',
+      [Dialog.okButton()]
+    );
+  }
+}

@@ -5,11 +5,15 @@
 
 package com.vmware.taurus.graphql.it;
 
-import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import java.time.OffsetDateTime;
@@ -22,7 +26,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class GraphQLDataJobsFieldsIT extends BaseDataJobDeploymentIT {
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
+public class GraphQLDataJobsFieldsIT extends BaseIT {
 
   private static final String DEFAULT_QUERY_WITH_DEPLOYMENTS =
       "query($filter: [Predicate], $executionOrder: DataJobExecutionOrder, $search: String,"
@@ -35,6 +42,9 @@ public class GraphQLDataJobsFieldsIT extends BaseDataJobDeploymentIT {
           + "      nextRunEpochSeconds        }      }    }    totalPages    totalItems  }}";
 
   @Autowired private JobsRepository jobsRepository;
+
+  @RegisterExtension
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @Test
   void testFields(String jobName, String teamName, String username) throws Exception {
