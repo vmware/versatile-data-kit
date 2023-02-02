@@ -110,3 +110,6 @@ release-vdk-image-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never

@@ -52,6 +52,7 @@ We follow the GitHub workflow and you can find more details on the [GitHub flow 
   * vdk-heartbeat - tool for verifying the deployed SDK and Control Service are functional and working correctly;
   * vdk-control-cli - User friendly CLI interface over Control Service operations including login/logout;
   * vdk-plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, etc.;
+  * frontend - Angular web UI for creating, deploying and managing jobs.
 * support - helper scripts used by developers of the project during their workday;
 * cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder;
 * examples - list of example use-cases. Each example directory has its README with detailed explanations;

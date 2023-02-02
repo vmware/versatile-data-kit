@@ -3,6 +3,7 @@ import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import React from 'react';
 import RunJobDialog from './components/RunJob';
 import {
+  createJobRequest,
   deleteJobRequest,
   downloadJobRequest,
   jobRunRequest
@@ -10,6 +11,7 @@ import {
 import CreateJobDialog from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
+import { removeCreateJobDataFromSessionStorage } from './utils';
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -60,8 +62,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
         if (!result.value) {
-          // TODO: add server requests
+          createJobRequest();
         }
+        removeCreateJobDataFromSessionStorage();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when running the job. Error:',
