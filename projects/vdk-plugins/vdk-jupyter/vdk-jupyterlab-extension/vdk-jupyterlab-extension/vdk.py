@@ -77,7 +77,7 @@ class VdkUI:
         name: str, team: str, rest_api_url: str, path: str, local: bool, cloud: bool
     ):
         """
-        Execute `download job`.
+        Execute `create job`.
         :param name: the name of the data job that will be created
         :param team: the team of the data job that will be created
         :param rest_api_url: The base REST API URL
