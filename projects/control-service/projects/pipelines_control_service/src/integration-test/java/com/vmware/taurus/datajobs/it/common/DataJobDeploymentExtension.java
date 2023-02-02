@@ -70,6 +70,8 @@ public class DataJobDeploymentExtension
   private static final String DEPLOYMENT_ID = "NOT_USED";
   private static final String TEAM_NAME = "test-team";
 
+  private static final String JOB_SOURCE_PATH = "data_jobs/";
+
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
   private String jobName =
@@ -124,7 +126,7 @@ public class DataJobDeploymentExtension
 
     if (!initialized) {
       byte[] jobZipBinary =
-          IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(jobSource));
+          IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream(JOB_SOURCE_PATH + jobSource));
 
       // Upload the data job
       MvcResult uploadResult =

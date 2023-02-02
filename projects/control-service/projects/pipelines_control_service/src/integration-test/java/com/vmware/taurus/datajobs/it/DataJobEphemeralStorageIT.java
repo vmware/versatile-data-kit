@@ -5,8 +5,6 @@
 
 package com.vmware.taurus.datajobs.it;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
@@ -28,10 +26,6 @@ import org.springframework.test.context.TestPropertySource;
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobEphemeralStorageIT extends BaseIT {
-
-  private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension =
