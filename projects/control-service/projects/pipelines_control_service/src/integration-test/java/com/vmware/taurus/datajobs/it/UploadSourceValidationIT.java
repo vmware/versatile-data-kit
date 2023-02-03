@@ -48,7 +48,7 @@ public class UploadSourceValidationIT extends BaseIT {
   @Test
   public void testDataJobUploadSource() throws Exception {
     byte[] jobZipBinary =
-        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("simple_job.zip"));
+        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     mockMvc
         .perform(
