@@ -174,7 +174,7 @@ public class KubernetesServiceTest {
 
     KubernetesService mock = Mockito.mock(KubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
-    Mockito.when(mock.getTerminationStatus(expectedJob)).thenReturn(Optional.empty());
+    Mockito.when(mock.getTerminationStatus(expectedJob)).thenReturn(Optional.ofNullable(new V1ContainerStateTerminated().reason("test")));
     Mockito.when(mock.getJobExecutionStatus(expectedJob, condition)).thenCallRealMethod();
     Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional =
         mock.getJobExecutionStatus(expectedJob, condition);
