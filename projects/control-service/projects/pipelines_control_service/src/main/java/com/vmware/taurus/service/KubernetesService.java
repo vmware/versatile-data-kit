@@ -26,10 +26,7 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.PodLogs;
-import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.apis.VersionApi;
+import io.kubernetes.client.openapi.apis.*;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.models.*;
@@ -451,7 +448,18 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
-    return getK8sSupportsV1CronJob() ? readV1CronJob(cronJobName) : readV1beta1CronJob(cronJobName);
+    /**
+     * Reads the deployment status of a cron job in a Kubernetes cluster.
+     * The method first tries to read the cron job using the V1Beta API,
+     * and if it fails, it falls back to reading the cron job using the V1 API.
+     *
+     * @param cronJobName the name of the cron job to be read
+     * @return an Optional containing the deployment status of the cron job if it exists,
+     *         or an empty Optional if the cron job does not exist or cannot be read
+     */
+    var jobStatus = readV1beta1CronJob(cronJobName);
+
+    return jobStatus.isPresent() ? jobStatus : readV1CronJob(cronJobName);
   }
 
   public Optional<JobDeploymentStatus> readV1beta1CronJob(String cronJobName) {
@@ -766,31 +774,38 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   public Set<String> listCronJobs() throws ApiException {
+    /**
+     * Returns a set of cron job names for a given namespace in a Kubernetes cluster.
+     * The cron jobs can be of version V1 or V1Beta.
+     *
+     * @return a set of cron job names
+     * @throws ApiException if there is a problem accessing the Kubernetes API
+     */
     log.debug("Listing k8s cron jobs");
-    Set<String> v1Set = Collections.emptySet();
+    Set<String> V1CronJobNames = Collections.emptySet();
 
     if (getK8sSupportsV1CronJob()) {
       var v1CronJobs =
           new BatchV1Api(client)
               .listNamespacedCronJob(
                   namespace, null, null, null, null, null, null, null, null, null, null);
-      v1Set =
+      V1CronJobNames =
           v1CronJobs.getItems().stream()
               .map(j -> j.getMetadata().getName())
               .collect(Collectors.toSet());
-      log.debug("K8s V1 cron jobs: {}", v1Set);
+      log.debug("K8s V1 cron jobs: {}", V1CronJobNames);
     }
 
     var v1BetaCronJobs =
         new BatchV1beta1Api(client)
             .listNamespacedCronJob(
                 namespace, null, null, null, null, null, null, null, null, null, null);
-    var set =
+    var V1BetaCronJobNames =
         v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s V1Beta cron jobs: {}", set);
-    return Stream.concat(v1Set.stream(), set.stream()).collect(Collectors.toSet());
+    log.debug("K8s V1Beta cron jobs: {}", V1BetaCronJobNames);
+    return Stream.concat(V1CronJobNames.stream(), V1BetaCronJobNames.stream()).collect(Collectors.toSet());
   }
 
   public void createCronJob(
@@ -1006,7 +1021,7 @@ public abstract class KubernetesService implements InitializingBean {
       List<V1Volume> volumes,
       Map<String, String> jobDeploymentAnnotations)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
+    if (readV1CronJob(name).isPresent()) {
       updateV1CronJob(
           name,
           image,
@@ -1063,7 +1078,7 @@ public abstract class KubernetesService implements InitializingBean {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
+    if (readV1CronJob(name).isPresent()) {
       updateV1CronJob(
           name,
           image,
