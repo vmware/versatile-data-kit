@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class DockerRegistryService {
 
-  @Value("${datajobs.proxy.repositoryUrl}")
-  private String proxyRepositoryURL;
+  // @Value("${datajobs.proxy.repositoryUrl}")
+  private String proxyRepositoryURL = "registry.gitlab.com/dev.dp.taurus/data-jobs";
 
-  @Value("${datajobs.builder.image}")
-  private String builderImage;
+  // @Value("${datajobs.builder.image}")
+  private String builderImage = "registry.hub.docker.com/versatiledatakit/job-builder:1.2.3";
 
   @Value("${datajobs.builder.registrySecret:}")
   private String registrySecret;
