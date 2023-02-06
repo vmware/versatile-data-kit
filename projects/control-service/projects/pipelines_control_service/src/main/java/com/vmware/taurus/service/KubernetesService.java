@@ -2047,8 +2047,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
   }
 
-  @VisibleForTesting
-  public V1beta1CronJob v1beta1CronJobFromTemplate(
+  V1beta1CronJob v1beta1CronJobFromTemplate(
       String name,
       String schedule,
       boolean suspend,
