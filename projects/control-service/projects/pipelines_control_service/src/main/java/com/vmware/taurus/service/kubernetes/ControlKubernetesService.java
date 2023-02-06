@@ -7,7 +7,6 @@ package com.vmware.taurus.service.kubernetes;
 
 import com.vmware.taurus.service.KubernetesService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,5 +24,4 @@ public class ControlKubernetesService extends KubernetesService {
       @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig) {
     super(namespace, kubeconfig, log);
   }
-
 }

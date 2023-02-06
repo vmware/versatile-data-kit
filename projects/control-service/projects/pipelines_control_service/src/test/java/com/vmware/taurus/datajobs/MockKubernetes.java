@@ -65,9 +65,8 @@ public class MockKubernetes {
     return new SyncTaskExecutor();
   }
 
-
   private void mockKubernetesService(KubernetesService mock)
-          throws ApiException, IOException, InterruptedException {
+      throws ApiException, IOException, InterruptedException {
     // By defautl beans are singleton scoped so we are sure this will be called once
     // hence it's safe to keep the variables here isntead of static.
     final Map<String, Map<String, byte[]>> secrets = new ConcurrentHashMap<>();
@@ -75,29 +74,29 @@ public class MockKubernetes {
     final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
 
     when(mock.getSecretData(any()))
-            .thenAnswer(inv -> secrets.getOrDefault(inv.getArgument(0), Collections.emptyMap()));
+        .thenAnswer(inv -> secrets.getOrDefault(inv.getArgument(0), Collections.emptyMap()));
     doAnswer(answer(secrets::put)).when(mock).saveSecretData(any(), any());
     doAnswer(inv -> secrets.remove(inv.getArgument(0))).when(mock).removeSecretData(any());
 
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createJob(
-                    anyString(),
-                    anyString(),
-                    anyBoolean(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyString(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    anyString(),
-                    anyString());
+        .when(mock)
+        .createJob(
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyString(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            anyString(),
+            anyString());
     doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
 
     doAnswer(
@@ -106,15 +105,15 @@ public class MockKubernetes {
               if (jobs.containsKey(jobName)) {
                 if (jobName.startsWith("failure-")) {
                   return new KubernetesService.JobStatusCondition(
-                          false, "Status", "Job name starts with 'failure-'", "", 0);
+                      false, "Status", "Job name starts with 'failure-'", "", 0);
                 } else {
                   return new KubernetesService.JobStatusCondition(true, "Status", "", "", 0);
                 }
               }
               return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
             })
-            .when(mock)
-            .watchJob(anyString(), anyInt(), any());
+        .when(mock)
+        .watchJob(anyString(), anyInt(), any());
 
     doAnswer(inv -> "logs").when(mock).getJobLogs(anyString(), anyInt());
   }
@@ -130,54 +129,54 @@ public class MockKubernetes {
     final Map<String, InvocationOnMock> crons = new ConcurrentHashMap<>();
 
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createCronJob(
-                    anyString(),
-                    anyString(),
-                    any(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any());
+        .when(mock)
+        .createCronJob(
+            anyString(),
+            anyString(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createCronJob(
-                    anyString(),
-                    anyString(),
-                    any(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyList());
+        .when(mock)
+        .createCronJob(
+            anyString(),
+            anyString(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyList());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-            .when(mock)
-            .updateCronJob(
-                    anyString(),
-                    anyString(),
-                    any(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any());
+        .when(mock)
+        .updateCronJob(
+            anyString(),
+            anyString(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     doAnswer(inv -> crons.keySet()).when(mock).listCronJobs();
     doAnswer(inv -> crons.remove(inv.getArgument(0))).when(mock).deleteCronJob(anyString());
     doAnswer(
@@ -192,7 +191,7 @@ public class MockKubernetes {
               }
               return Optional.ofNullable(deployment);
             })
-            .when(mock)
-            .readCronJob(anyString());
+        .when(mock)
+        .readCronJob(anyString());
   }
 }

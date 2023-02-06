@@ -156,7 +156,6 @@ public abstract class KubernetesService implements InitializingBean {
     @Getter private final String value;
   }
 
-
   @org.springframework.beans.factory.annotation.Value(
       "${datajobs.control.k8s.jobTTLAfterFinishedSeconds}")
   protected int jobTTLAfterFinishedSeconds;
@@ -175,8 +174,7 @@ public abstract class KubernetesService implements InitializingBean {
    * @param kubeconfig The kubeconfig configuration of the Kubernetes cluster to connect to
    * @param log log to use - used in subclasses in order to set classname to subclass.
    */
-  protected KubernetesService(
-      String namespace, String kubeconfig, Logger log) {
+  protected KubernetesService(String namespace, String kubeconfig, Logger log) {
     this.namespace = namespace;
     this.kubeconfig = kubeconfig;
     this.log = log;
@@ -210,7 +208,6 @@ public abstract class KubernetesService implements InitializingBean {
         client.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
     // client.getHttpClient().setReadTimeout(0, TimeUnit.SECONDS);
   }
-
 
   private String getCurrentNamespace() {
     return getNamespaceFileContents().stream()
@@ -593,7 +590,8 @@ public abstract class KubernetesService implements InitializingBean {
    * @return A {@link JobExecution} object representing the Data Job execution status.
    */
   @VisibleForTesting
-  public Optional<JobExecution> getJobExecutionStatus(V1Job job, JobStatusCondition jobStatusCondition) {
+  public Optional<JobExecution> getJobExecutionStatus(
+      V1Job job, JobStatusCondition jobStatusCondition) {
     JobExecution.JobExecutionBuilder jobExecutionStatusBuilder = JobExecution.builder();
     // jobCondition = null means that the K8S Job is still running
     if (jobStatusCondition != null) {
@@ -1003,7 +1001,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
     return Optional.empty();
   }
-
 
   public static V1Container container(
       String name,
