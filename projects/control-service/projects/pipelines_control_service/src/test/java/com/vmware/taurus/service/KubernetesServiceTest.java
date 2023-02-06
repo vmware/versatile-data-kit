@@ -85,6 +85,7 @@ public class KubernetesServiceTest {
   public void testGetJobExecutionStatus_emptyJob_shouldReturnEmptyJobExecutionStatus() {
     V1Job v1Job = new V1Job();
     var mock = Mockito.mock(DataJobsKubernetesService.class);
+
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(mock.getTerminationStatus(v1Job)).thenReturn(Optional.empty());
     Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();
@@ -632,9 +633,9 @@ public class KubernetesServiceTest {
     Assertions.assertEquals(expectedMb, actual);
   }
 
+
   private DataJobsKubernetesService mockCronJobFromTemplate() {
     var mock = Mockito.mock(DataJobsKubernetesService.class);
-
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(
             mock.v1beta1CronJobFromTemplate(
