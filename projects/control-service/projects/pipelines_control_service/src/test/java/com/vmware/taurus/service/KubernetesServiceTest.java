@@ -633,7 +633,6 @@ public class KubernetesServiceTest {
     Assertions.assertEquals(expectedMb, actual);
   }
 
-
   private DataJobsKubernetesService mockCronJobFromTemplate() {
     var mock = Mockito.mock(DataJobsKubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
