@@ -60,7 +60,6 @@ control_service_build_image:
   only:
     refs:
       - external_pull_requests
-      - main
     changes: *control_service_code_change_locations
 
 control_service_integration_test:
@@ -98,7 +97,6 @@ control_service_integration_test:
   only:
     refs:
       - external_pull_requests
-      - main
     changes: *control_service_code_change_locations
   except:
     changes:
@@ -211,7 +209,7 @@ control_service_publish_image:
     - docker login -u $VDK_DOCKER_REGISTRY_USERNAME -p $VDK_DOCKER_REGISTRY_PASSWORD
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
-    - ./gradlew build --info --stacktrace
+    - ./gradlew build -x test --info --stacktrace
     - ./gradlew :pipelines_control_service:dockerPush --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
