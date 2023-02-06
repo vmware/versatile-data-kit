@@ -37,8 +37,7 @@ public class KubernetesServiceCancelRunningCronJobTest {
   public void
       testIsRunningJob_notNullResponseAndNullStatus_shouldThrowDataJobExecutionCannotBeCancelledException()
           throws ApiException {
-    var kubernetesService =
-        mockKubernetesService(new V1Status().status(null).code(404));
+    var kubernetesService = mockKubernetesService(new V1Status().status(null).code(404));
 
     Assertions.assertThrows(
         DataJobExecutionCannotBeCancelledException.class,
