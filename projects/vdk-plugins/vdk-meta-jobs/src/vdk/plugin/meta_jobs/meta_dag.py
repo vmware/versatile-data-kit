@@ -42,6 +42,7 @@ class MetaJobsDag:
 
     def build_dag(self, jobs: List[Dict]):
         for job in jobs:
+            # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             trackable_job = TrackableJob(
                 job["job_name"],
                 job.get("team_name", self._team_name),

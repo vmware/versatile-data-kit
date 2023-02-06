@@ -90,7 +90,8 @@ class TrackingDataJobExecutor:
         job: TrackableJob = self._jobs_cache.get(job_name)
         if job is None:
             raise IndexError(
-                f"The job {job_name} cannot be found. Verify that the job name is spelled correctly."
+                f"The job {job_name} has not been registered. Use register_job first. "
+                "Alternatively, verify that all of the job names in your job list are spelled correctly."
             )
         return job
 
