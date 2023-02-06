@@ -7,6 +7,7 @@ package com.vmware.taurus.service.kubernetes;
 
 import com.vmware.taurus.service.KubernetesService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,8 @@ public class ControlKubernetesService extends KubernetesService {
   // those should be null/empty when Control service is deployed in k8s hence default is empty
   public ControlKubernetesService(
       @Value("${datajobs.control.k8s.namespace:}") String namespace,
-      @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
-      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob) {
-    super(namespace, kubeconfig, k8sSupportsV1CronJob, log);
+      @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig) {
+    super(namespace, kubeconfig, log);
   }
+
 }

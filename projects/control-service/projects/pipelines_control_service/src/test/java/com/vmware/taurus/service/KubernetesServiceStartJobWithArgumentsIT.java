@@ -25,12 +25,12 @@ import static org.mockito.ArgumentMatchers.any;
 
 public class KubernetesServiceStartJobWithArgumentsIT {
 
-  private KubernetesService kubernetesService;
+  private DataJobsKubernetesService kubernetesService;
 
   @BeforeEach
   public void getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
 
-    kubernetesService = Mockito.mock(KubernetesService.class);
+    kubernetesService = Mockito.mock(DataJobsKubernetesService.class);
     Mockito.when(kubernetesService.getK8sSupportsV1CronJob()).thenReturn(false);
     V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
     BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
@@ -46,7 +46,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     // Kubernetes Service is an abstract class and a lot of the methods which depend on this field
     // and are mocked here
     // cannot be mocked or accessed by the extending classes since they are not public.
-    var f1 = kubernetesService.getClass().getSuperclass().getDeclaredField("jobCommandProvider");
+    var f1 = kubernetesService.getClass().getDeclaredField("jobCommandProvider");
     f1.setAccessible(true);
     f1.set(kubernetesService, new JobCommandProvider());
   }
@@ -164,7 +164,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     // V1betaCronJob initializing snippet copied from tests above, using reflection
     service.afterPropertiesSet();
     Method loadInternalV1beta1CronjobTemplate =
-        KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+            DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
     if (loadInternalV1beta1CronjobTemplate == null) {
       Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
     }

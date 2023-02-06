@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service;
 
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
@@ -24,7 +25,7 @@ public class KubernetesServiceCancelRunningCronJobTest {
   @Test
   public void testIsRunningJob_nullResponse_shouldThrowDataJobExecutionCannotBeCancelledException()
       throws ApiException {
-    KubernetesService kubernetesService = mockKubernetesService(null);
+    var kubernetesService = mockKubernetesService(null);
 
     Assertions.assertThrows(
         DataJobExecutionCannotBeCancelledException.class,
@@ -37,7 +38,7 @@ public class KubernetesServiceCancelRunningCronJobTest {
   public void
       testIsRunningJob_notNullResponseAndNullStatus_shouldThrowDataJobExecutionCannotBeCancelledException()
           throws ApiException {
-    KubernetesService kubernetesService =
+    var kubernetesService =
         mockKubernetesService(new V1Status().status(null).code(404));
 
     Assertions.assertThrows(
@@ -50,7 +51,7 @@ public class KubernetesServiceCancelRunningCronJobTest {
   @Test
   public void testIsRunningJob_notNullResponseAndStatusSuccess_shouldNotThrowException()
       throws ApiException {
-    KubernetesService kubernetesService = mockKubernetesService(new V1Status().code(200));
+    var kubernetesService = mockKubernetesService(new V1Status().code(200));
 
     Assertions.assertDoesNotThrow(
         () ->
@@ -68,7 +69,7 @@ public class KubernetesServiceCancelRunningCronJobTest {
             .code(1)
             .message("test-message")
             .details(new V1StatusDetails());
-    KubernetesService kubernetesService = mockKubernetesService(v1Status);
+    var kubernetesService = mockKubernetesService(v1Status);
 
     Assertions.assertThrows(
         KubernetesException.class,
@@ -77,12 +78,9 @@ public class KubernetesServiceCancelRunningCronJobTest {
                 "test-team", "test-job-name", "test-execution-id"));
   }
 
-  private KubernetesService mockKubernetesService(V1Status v1Status) throws ApiException {
-    KubernetesService kubernetesService = Mockito.mock(KubernetesService.class);
-    ReflectionTestUtils.setField(
-        kubernetesService, // inject into this object
-        "log", // assign to this field
-        Mockito.mock(Logger.class)); // object to be injected
+  private DataJobsKubernetesService mockKubernetesService(V1Status v1Status) throws ApiException {
+    var kubernetesService = Mockito.mock(DataJobsKubernetesService.class);
+
     Mockito.doCallRealMethod()
         .when(kubernetesService)
         .cancelRunningCronJob(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
