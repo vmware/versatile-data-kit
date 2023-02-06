@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
 public class KubernetesResources {
   @Value("${datajobs.deployment.initContainer.resources.requests.cpu}")
   private String dataJobInitContainerCpuRequests;
@@ -26,7 +25,11 @@ public class KubernetesResources {
   @Value("${datajobs.deployment.initContainer.resources.limits.memory}")
   private String dataJobInitContainerMemoryLimits;
 
-  @Autowired private final BuilderResources builderResources;
+  private final BuilderResources builderResources;
+
+  public KubernetesResources(BuilderResources builderResources) {
+    this.builderResources = builderResources;
+  }
 
   public KubernetesService.Resources dataJobInitContainerRequests() {
     return new KubernetesService.Resources(
