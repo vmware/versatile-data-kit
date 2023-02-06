@@ -116,7 +116,12 @@ public class SecurityConfiguration {
   @Primary
   protected SecurityFilterChain configure(
       HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-    return enableSecurity(http, authenticationManager);
+    if (featureFlags.isSecurityEnabled()) {
+      return enableSecurity(http, authenticationManager);
+    }else{
+      log.info("Security is disabled.");
+      return http.csrf().disable().authorizeRequests().anyRequest().anonymous().and().build();
+    }
   }
 
   @Bean
