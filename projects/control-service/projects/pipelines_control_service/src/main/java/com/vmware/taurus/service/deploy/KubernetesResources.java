@@ -6,32 +6,37 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.service.KubernetesService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
 public class KubernetesResources {
-  // TODO: clients may need to configure those - consider making them configurable.
+  @Value("${datajobs.deployment.initContainer.resources.requests.cpu}")
+  private String dataJobInitContainerCpuRequests;
 
-  // Data jobs Default resource configuration for the init container only.
-  public static final String DATA_JOB_INIT_CONTAINER_CPU_REQUESTS = "100m";
-  public static final String DATA_JOB_INIT_CONTAINER_MEMORY_REQUESTS = "100M";
+  @Value("${datajobs.deployment.initContainer.resources.requests.memory}")
+  private String dataJobInitContainerMemoryRequests;
 
-  public static final String DATA_JOB_INIT_CONTAINER_CPU_LIMITS = "100m";
-  public static final String DATA_JOB_INIT_CONTAINER_MEMORY_LIMITS = "100M";
+  @Value("${datajobs.deployment.initContainer.resources.limits.cpu}")
+  private String dataJobInitContainerCpuLimits;
 
-  @Autowired private final BuilderResources builderResources;
+  @Value("${datajobs.deployment.initContainer.resources.limits.memory}")
+  private String dataJobInitContainerMemoryLimits;
+
+  private final BuilderResources builderResources;
+
+  public KubernetesResources(BuilderResources builderResources) {
+    this.builderResources = builderResources;
+  }
 
   public KubernetesService.Resources dataJobInitContainerRequests() {
     return new KubernetesService.Resources(
-        DATA_JOB_INIT_CONTAINER_CPU_REQUESTS, DATA_JOB_INIT_CONTAINER_MEMORY_REQUESTS);
+        dataJobInitContainerCpuRequests, dataJobInitContainerMemoryRequests);
   }
 
   public KubernetesService.Resources dataJobInitContainerLimits() {
     return new KubernetesService.Resources(
-        DATA_JOB_INIT_CONTAINER_CPU_LIMITS, DATA_JOB_INIT_CONTAINER_MEMORY_LIMITS);
+        dataJobInitContainerCpuLimits, dataJobInitContainerMemoryLimits);
   }
 
   public KubernetesService.Resources builderRequests() {
