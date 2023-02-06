@@ -86,7 +86,7 @@ public class KubernetesServiceTest {
   @Test
   public void testGetJobExecutionStatus_emptyJob_shouldReturnEmptyJobExecutionStatus() {
     V1Job v1Job = new V1Job();
-    var mock = Mockito.mock(DataJobsKubernetesService.class);
+    var mock = Mockito.mock(KubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(mock.getTerminationStatus(v1Job)).thenReturn(Optional.empty());
     Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();

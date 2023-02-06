@@ -1387,8 +1387,8 @@ public abstract class KubernetesService implements InitializingBean {
     return new BatchV1Api(client);
   }
 
-  @VisibleForTesting
-  public BatchV1beta1Api initBatchV1beta1Api() {
+  // Default for testing purposes
+  BatchV1beta1Api initBatchV1beta1Api() {
     return new BatchV1beta1Api(client);
   }
 
@@ -1483,8 +1483,7 @@ public abstract class KubernetesService implements InitializingBean {
    * @return A {@link V1ContainerStateTerminated} object representing the termination status of the
    *     job.
    */
-  @VisibleForTesting
-  public Optional<V1ContainerStateTerminated> getTerminationStatus(V1Job job) {
+  Optional<V1ContainerStateTerminated> getTerminationStatus(V1Job job) {
     List<V1Pod> jobPods;
 
     try {
@@ -1517,8 +1516,7 @@ public abstract class KubernetesService implements InitializingBean {
    * @param job The job whose status to return.
    * @return A {@link JobExecution} object representing the Data Job execution status.
    */
-  @VisibleForTesting
-  public Optional<JobExecution> getJobExecutionStatus(
+  Optional<JobExecution> getJobExecutionStatus(
       V1Job job, JobStatusCondition jobStatusCondition) {
     JobExecution.JobExecutionBuilder jobExecutionStatusBuilder = JobExecution.builder();
     // jobCondition = null means that the K8S Job is still running
@@ -2117,8 +2115,7 @@ public abstract class KubernetesService implements InitializingBean {
     return cronjob;
   }
 
-  @VisibleForTesting
-  public V1CronJob v1CronJobFromTemplate(
+  V1CronJob v1CronJobFromTemplate(
       String name,
       String schedule,
       boolean suspend,
