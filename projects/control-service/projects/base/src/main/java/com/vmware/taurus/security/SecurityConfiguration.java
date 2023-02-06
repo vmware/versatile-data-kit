@@ -118,7 +118,7 @@ public class SecurityConfiguration {
       HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
     if (featureFlags.isSecurityEnabled()) {
       return enableSecurity(http, authenticationManager);
-    }else{
+    } else {
       log.info("Security is disabled.");
       return http.csrf().disable().authorizeRequests().anyRequest().anonymous().and().build();
     }
