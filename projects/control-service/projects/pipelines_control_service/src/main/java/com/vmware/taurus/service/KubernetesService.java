@@ -1516,8 +1516,7 @@ public abstract class KubernetesService implements InitializingBean {
    * @param job The job whose status to return.
    * @return A {@link JobExecution} object representing the Data Job execution status.
    */
-  Optional<JobExecution> getJobExecutionStatus(
-      V1Job job, JobStatusCondition jobStatusCondition) {
+  Optional<JobExecution> getJobExecutionStatus(V1Job job, JobStatusCondition jobStatusCondition) {
     JobExecution.JobExecutionBuilder jobExecutionStatusBuilder = JobExecution.builder();
     // jobCondition = null means that the K8S Job is still running
     if (jobStatusCondition != null) {
