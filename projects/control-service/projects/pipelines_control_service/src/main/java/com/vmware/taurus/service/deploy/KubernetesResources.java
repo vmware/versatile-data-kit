@@ -16,10 +16,13 @@ import org.springframework.stereotype.Component;
 public class KubernetesResources {
   @Value("${datajobs.deployment.initContainer.resources.requests.cpu}")
   private String dataJobInitContainerCpuRequests;
+
   @Value("${datajobs.deployment.initContainer.resources.requests.memory}")
   private String dataJobInitContainerMemoryRequests;
+
   @Value("${datajobs.deployment.initContainer.resources.limits.cpu}")
   private String dataJobInitContainerCpuLimits;
+
   @Value("${datajobs.deployment.initContainer.resources.limits.memory}")
   private String dataJobInitContainerMemoryLimits;
 
@@ -27,12 +30,12 @@ public class KubernetesResources {
 
   public KubernetesService.Resources dataJobInitContainerRequests() {
     return new KubernetesService.Resources(
-            dataJobInitContainerCpuRequests, dataJobInitContainerMemoryRequests);
+        dataJobInitContainerCpuRequests, dataJobInitContainerMemoryRequests);
   }
 
   public KubernetesService.Resources dataJobInitContainerLimits() {
     return new KubernetesService.Resources(
-            dataJobInitContainerCpuLimits, dataJobInitContainerMemoryLimits);
+        dataJobInitContainerCpuLimits, dataJobInitContainerMemoryLimits);
   }
 
   public KubernetesService.Resources builderRequests() {
