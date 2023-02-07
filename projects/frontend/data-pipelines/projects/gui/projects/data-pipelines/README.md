@@ -1,4 +1,4 @@
-# Taurus Data Pipelines
+# Data Pipelines Frontend
 
 Data Pipelines help Data Engineers develop, deploy, run, and manage data processing workloads (called "Data Job").
 This library provides UI screens that helps to manage data jobs via Data Pipelines API.
