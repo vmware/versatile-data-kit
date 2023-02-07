@@ -58,8 +58,7 @@ public class KerberosAuthenticationIT extends TestKerberosServerHelper {
 
   private DataJob dataJob;
 
-  @LocalServerPort
-  int randomPort;
+  @LocalServerPort int randomPort;
 
   @BeforeEach
   public void addTestJob() {

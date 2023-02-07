@@ -32,9 +32,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
   @Override
   public boolean preHandle(
-          HttpServletRequest request,
-          @NotNull HttpServletResponse response,
-          @NotNull Object handler) {
+      HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
     String opId = request.getHeader("X-OPID");
     if (null == opId) {
       opId = "0" + System.currentTimeMillis();
@@ -48,8 +46,10 @@ public class RequestInterceptor implements HandlerInterceptor {
 
   @Override
   public void afterCompletion(
-          HttpServletRequest request, @NotNull HttpServletResponse response,
-          @NotNull Object handler, Exception ex) {
+      HttpServletRequest request,
+      @NotNull HttpServletResponse response,
+      @NotNull Object handler,
+      Exception ex) {
     log.debug("<<<<<<< Exiting {}", request.getRequestURI());
   }
 }
