@@ -62,7 +62,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
         if (!result.value) {
-          createJobRequest();
+          if (result.button.accept) {
+            createJobRequest();
+          }
         }
         removeCreateJobDataFromSessionStorage();
       } catch (error) {
