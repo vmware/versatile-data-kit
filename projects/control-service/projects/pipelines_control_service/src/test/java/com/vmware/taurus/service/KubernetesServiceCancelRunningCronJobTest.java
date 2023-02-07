@@ -75,7 +75,6 @@ public class KubernetesServiceCancelRunningCronJobTest {
                 "test-team", "test-job-name", "test-execution-id"));
   }
 
-
   private DataJobsKubernetesService mockKubernetesService(V1Status v1Status) throws ApiException {
     var kubernetesService = Mockito.mock(DataJobsKubernetesService.class);
 
