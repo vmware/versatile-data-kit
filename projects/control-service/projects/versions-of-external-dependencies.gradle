@@ -7,7 +7,7 @@ project.ext {
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.10.3',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.4',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
-            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.2',
+            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.3',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.24',
             'com.h2database:h2'                                                  : 'com.h2database:h2:2.1.214',
             'org.apache.httpcomponents:httpclient'                               : 'org.apache.httpcomponents:httpclient:4.5.14',
@@ -41,7 +41,7 @@ project.ext {
             'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
             'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:20.0',
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.0',
-            'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.6.0',
+            'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.7.0',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
