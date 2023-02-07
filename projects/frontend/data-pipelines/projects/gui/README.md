@@ -86,7 +86,7 @@ _**Note**_: Code coverage report will be generated in `reports/coverage`(for the
 
 _**Note**_: Code coverage report for the Data Pipeline library will be also logged in the Console(and consumed by the CI/CD)
 
-TODO re-visit when OAuth is agreed on
+[TODO](https://github.com/vmware/versatile-data-kit/issues/1610) re-visit when OAuth is agreed on
 [E2E] Run `npx cypress open --env OAUTH2_API_TOKEN=<the API token>` to open [Cypress](https://www.cypress.io/) dev tool for e2e testing
 * Configuring the e2e tests environment: In `cypress.json > env` section are configured `login_url` and `data_jobs_url`
  that are used by the e2e tests. To override the values a feasible option is to create a local file: `cypress.env.json`
@@ -105,7 +105,7 @@ _**Note**_: Chrome may have sporadic issues running the tests in headed mode. To
 1. Use an other browser(Firefox, Chromium, or  Electron)
 2. Run the tests in headless mode: `npx cypress run --browser chrome --headless --env OAUTH2_API_TOKEN=<the API token>`
 
-TODO re-visit when OAuth is agreed on
+[TODO](https://github.com/vmware/versatile-data-kit/issues/1610) re-visit when OAuth is agreed on
 _**Important note**_: e2e tests require OAuth2 API token to initiate the Code login flow against OAuth endpoint.
 *  On _**Unix environments**_(one time): `export OAUTH2_API_TOKEN=<the API token | OAuth_DP_USER_API_TOKEN variable value from CI/CD>`
 *  On _**Windows environments**_(each time): `npx cypress open --env OAUTH2_API_TOKEN=<the API token | OAuth_DP_USER_API_TOKEN variable value from CI/CD>`
