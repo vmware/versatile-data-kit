@@ -1,6 +1,6 @@
-# Data Pipelines Frontend
+# VDK Frontend
 
-Data Pipelines help Data Engineers develop, deploy, run, and manage data processing workloads (called "Data Job").
+VDK Frontend help Data Engineers develop, deploy, run, and manage data processing workloads (called "Data Job").
 This library provides UI screens that helps to manage data jobs via [Data Pipelines API](/projects/control-service/projects/model/apidefs/datajob-api/api.yaml).
 
 ## Implementation
