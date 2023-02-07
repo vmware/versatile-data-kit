@@ -86,7 +86,7 @@ public class KubernetesServiceTest {
   @Test
   public void testGetJobExecutionStatus_emptyJob_shouldReturnEmptyJobExecutionStatus() {
     V1Job v1Job = new V1Job();
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
+    var mock = Mockito.mock(KubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(mock.getTerminationStatus(v1Job)).thenReturn(Optional.empty());
     Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();
@@ -455,7 +455,7 @@ public class KubernetesServiceTest {
 
   @Test
   public void testV1beta1CronJobFromTemplate_emptyImagePullSecretsList() {
-    KubernetesService mock = mockCronJobFromTemplate();
+    var mock = mockCronJobFromTemplate();
     V1beta1CronJob v1beta1CronJob =
         mock.v1beta1CronJobFromTemplate(
             "",
@@ -482,7 +482,7 @@ public class KubernetesServiceTest {
 
   @Test
   public void testV1CronJobFromTemplate_emptyImagePullSecretsList() {
-    KubernetesService mock = mockCronJobFromTemplate();
+    var mock = mockCronJobFromTemplate();
     V1CronJob v1CronJob =
         mock.v1CronJobFromTemplate(
             "",
@@ -509,7 +509,7 @@ public class KubernetesServiceTest {
 
   @Test
   public void testV1beta1CronJobFromTemplate_imagePullSecretsListWithEmptyValues() {
-    KubernetesService mock = mockCronJobFromTemplate();
+    var mock = mockCronJobFromTemplate();
     V1beta1CronJob v1beta1CronJob =
         mock.v1beta1CronJobFromTemplate(
             "",
@@ -536,7 +536,7 @@ public class KubernetesServiceTest {
 
   @Test
   public void testV1CronJobFromTemplate_imagePullSecretsListWithEmptyValues() {
-    KubernetesService mock = mockCronJobFromTemplate();
+    var mock = mockCronJobFromTemplate();
     V1CronJob v1CronJob =
         mock.v1CronJobFromTemplate(
             "",
@@ -564,7 +564,7 @@ public class KubernetesServiceTest {
   @Test
   public void
       testV1beta1CronJobFromTemplate_imagePullSecretsListWithOneNonEmptyValueAndOneEmptyValue() {
-    KubernetesService mock = mockCronJobFromTemplate();
+    var mock = mockCronJobFromTemplate();
     String secretName = "test_secret_name";
     V1beta1CronJob v1beta1CronJob =
         mock.v1beta1CronJobFromTemplate(
@@ -596,7 +596,7 @@ public class KubernetesServiceTest {
 
   @Test
   public void testV1CronJobFromTemplate_imagePullSecretsListWithOneNonEmptyValueAndOneEmptyValue() {
-    KubernetesService mock = mockCronJobFromTemplate();
+    var mock = mockCronJobFromTemplate();
     String secretName = "test_secret_name";
     V1CronJob v1CronJob =
         mock.v1CronJobFromTemplate(
@@ -634,7 +634,7 @@ public class KubernetesServiceTest {
   }
 
   private KubernetesService mockCronJobFromTemplate() {
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
+    var mock = Mockito.mock(KubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(
             mock.v1beta1CronJobFromTemplate(
