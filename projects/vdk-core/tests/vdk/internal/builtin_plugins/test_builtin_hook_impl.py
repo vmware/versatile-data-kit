@@ -48,7 +48,6 @@ class TestLocalIdSet:
 class TestExternalIdSet:
     @classmethod
     def setup_method(cls):
-
         cls.configuration = (
             ConfigurationBuilder()
             .add("ATTEMPT_ID", "mzhivkov-test-job-1234567890-akmvy")
@@ -83,7 +82,6 @@ class TestExternalIdSet:
 class TestExecutionIdSet:
     @classmethod
     def setup_method(cls):
-
         cls.configuration = (
             ConfigurationBuilder()
             .add("EXECUTION_ID", "mzhivkov-test-job-1234567890")

@@ -110,7 +110,6 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def test_load_dimension_scd1_checks_positive(self) -> None:
-
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org_check_positive"
         target_table = "dw_dim_org_check_positive"
@@ -135,7 +134,6 @@ class TestTemplateRegression(unittest.TestCase):
         assert actual_rs.output == expected_rs.output
 
     def test_load_dimension_scd1_checks_negative(self) -> None:
-
         test_schema = "vdkprototypes"
         source_view = "vw_dim_org_check_negative"
         target_table = "dw_dim_org_check_negative"
@@ -541,7 +539,6 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def _run_job(self, job_name: str, args: dict):
-
         return self.__runner.invoke(
             [
                 "run",
@@ -566,7 +563,6 @@ class TestTemplateRegression(unittest.TestCase):
     def _run_template_with_bad_arguments(
         self, template_name: str, template_args: dict, num_exp_errors: int
     ) -> None:
-
         expected_error_regex = re.escape(
             f'{num_exp_errors} validation {"errors" if num_exp_errors > 1 else "error"} '
             f"for {template_name} template"

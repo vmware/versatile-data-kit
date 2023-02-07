@@ -560,7 +560,6 @@ class IngesterBase(IIngester):
         Close immediately. The method will not wait for the active queue items to get processed.
         """
         if self._closed.get_and_increment() == 0:
-
             if self._exception_on_failure:
                 self.__handle_results()
 

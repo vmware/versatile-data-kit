@@ -60,9 +60,9 @@ def test_execute_close_reopen():
     assert managed_conn._is_connected()
 
 
-def get_test_managed_and_raw_connection() -> Tuple[
-    ManagedConnectionBase, PEP249Connection
-]:
+def get_test_managed_and_raw_connection() -> (
+    Tuple[ManagedConnectionBase, PEP249Connection]
+):
     mock_conn = MagicMock(spec=PEP249Connection)
     connection_hook_spec_factory = MagicMock(spec=ConnectionHookSpecFactory)
     connection_hook_spec_factory.get_connection_hook_spec.return_value = MagicMock()

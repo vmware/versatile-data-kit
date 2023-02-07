@@ -19,7 +19,6 @@ class ExecutionTrackingPlugin:
 
     @hookimpl
     def initialize_job(self, context: JobContext):
-
         state = context.core_context.state
         configuration = context.core_context.configuration
 

@@ -198,7 +198,6 @@ class DatabaseHeartbeatTest(HeartbeatTest):
             record_count < expected_record_count
             and time.time() - start_time < self.config.RUN_TEST_TIMEOUT_SECONDS
         ):
-
             log.info(f"Search for records with uuid = {self.uuid_value}")
             caught_exception = None
             try:

@@ -75,7 +75,6 @@ class TerminationMessageWriterPlugin:
     def _execute_termination_action(
         file_util, error_overall, user_error, execution_skipped
     ):
-
         termination_message = {"vdk_version": get_version()}
 
         if execution_skipped:
