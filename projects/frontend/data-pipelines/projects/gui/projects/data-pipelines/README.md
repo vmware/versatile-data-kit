@@ -78,5 +78,5 @@ Run `npm run test` to execute the unit tests via [Karma](https://karma-runner.gi
 
 ### Testing
 
-You can use the reference implementation in <project_root>/projects/gui/projects/ui as showcase of the library.
+You can use the implementation in <project_root>/projects/gui/projects/ui as showcase of the library.
 Using `npm link`(https://docs.npmjs.com/cli/v9/commands/npm-link) you can achieve real-time development of the library without the need to upload it to repository
