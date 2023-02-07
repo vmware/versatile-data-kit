@@ -463,7 +463,7 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   public Optional<JobDeploymentStatus> readV1beta1CronJob(String cronJobName) {
-    log.debug("Reading k8s cron job: {}", cronJobName);
+    log.debug("Reading k8s V1beta1 cron job: {}", cronJobName);
     V1beta1CronJob cronJob = null;
     try {
       cronJob = new BatchV1beta1Api(client).readNamespacedCronJob(cronJobName, namespace, null);
@@ -478,7 +478,7 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   public Optional<JobDeploymentStatus> readV1CronJob(String cronJobName) {
-    log.debug("Reading k8s cron job: {}", cronJobName);
+    log.debug("Reading k8s V1 cron job: {}", cronJobName);
     V1CronJob cronJob = null;
     try {
       cronJob = new BatchV1Api(client).readNamespacedCronJob(cronJobName, namespace, null);
@@ -510,7 +510,7 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   public List<JobDeploymentStatus> readV1beta1CronJobDeploymentStatuses() {
-    log.debug("Reading all k8s cron jobs");
+    log.debug("Reading all k8s V1beta1 cron jobs");
     V1beta1CronJobList cronJobs = null;
     try {
       cronJobs =
@@ -530,7 +530,7 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   public List<JobDeploymentStatus> readV1CronJobDeploymentStatuses() {
-    log.debug("Reading all k8s cron jobs");
+    log.debug("Reading all k8s V1 cron jobs");
     V1CronJobList cronJobs = null;
     try {
       cronJobs =
@@ -939,7 +939,7 @@ public abstract class KubernetesService implements InitializingBean {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    log.debug("Creating k8s cron job name:{}, image:{}", name, image);
+    log.debug("Creating k8s V1beta1 cron job name:{}, image:{}", name, image);
     var cronJob =
         v1beta1CronJobFromTemplate(
             name,
@@ -956,10 +956,11 @@ public abstract class KubernetesService implements InitializingBean {
     V1beta1CronJob nsJob =
         new BatchV1beta1Api(client)
             .createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s cron job: {}", nsJob);
+    log.debug("Created k8s V1beta1 cron job: {}", nsJob);
     log.debug(
-        "Created k8s cron job name: {}, uid:{}, link:{}",
+        "Created k8s cron job name: {}, api_version:{}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
+        nsJob.getApiVersion(),
         nsJob.getMetadata().getUid(),
         nsJob.getMetadata().getSelfLink());
   }
@@ -984,7 +985,7 @@ public abstract class KubernetesService implements InitializingBean {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    log.debug("Creating k8s cron job name:{}, image:{}", name, image);
+    log.debug("Creating k8s V1 cron job name:{}, image:{}", name, image);
     var cronJob =
         v1CronJobFromTemplate(
             name,
@@ -1000,10 +1001,11 @@ public abstract class KubernetesService implements InitializingBean {
             imagePullSecrets);
     V1CronJob nsJob =
         new BatchV1Api(client).createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s cron job: {}", nsJob);
+    log.debug("Created k8s V1 cron job: {}", nsJob);
     log.debug(
-        "Created k8s cron job name: {}, uid:{}, link:{}",
+        "Created k8s cron job name: {}, api_version: {}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
+        nsJob.getApiVersion(),
         nsJob.getMetadata().getUid(),
         nsJob.getMetadata().getSelfLink());
   }
@@ -1153,7 +1155,7 @@ public abstract class KubernetesService implements InitializingBean {
         new BatchV1beta1Api(client)
             .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
-        "Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}",
+        "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
         image,
         nsJob.getMetadata().getUid(),
@@ -1195,7 +1197,7 @@ public abstract class KubernetesService implements InitializingBean {
         new BatchV1Api(client)
             .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
-        "Updated k8s cron job status for name:{}, image:{}, uid:{}, link:{}",
+        "Updated k8s V1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
         image,
         nsJob.getMetadata().getUid(),
@@ -1212,7 +1214,7 @@ public abstract class KubernetesService implements InitializingBean {
       try {
         new BatchV1Api(client)
             .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
-        log.debug("Deleted k8s cron job: {}", name);
+        log.debug("Deleted k8s V1 cron job: {}", name);
         return;
       } catch (Exception e) {
         log.debug("An exception occurred while trying to delete cron job. Message was: ", e);
@@ -1222,6 +1224,7 @@ public abstract class KubernetesService implements InitializingBean {
     try {
       new BatchV1beta1Api(client)
           .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+      log.debug("Deleted k8s V1beta1 cron job: {}", name);
     } catch (JsonSyntaxException e) {
       if (e.getCause() instanceof IllegalStateException) {
         IllegalStateException ise = (IllegalStateException) e.getCause();
@@ -2485,6 +2488,14 @@ public abstract class KubernetesService implements InitializingBean {
   private Optional<JobDeploymentStatus> mapV1beta1CronJobToDeploymentStatus(
       V1beta1CronJob cronJob, String cronJobName) {
     JobDeploymentStatus deployment = null;
+    String apiVersion = null;
+
+    try {
+      apiVersion = cronJob.getApiVersion();
+    } catch (NullPointerException e) {
+      log.debug("Could not get API version for cronjob {}", cronJobName);
+    }
+
     if (cronJob != null) {
       deployment = new JobDeploymentStatus();
       deployment.setEnabled(!cronJob.getSpec().getSuspend());
@@ -2538,7 +2549,15 @@ public abstract class KubernetesService implements InitializingBean {
   private Optional<JobDeploymentStatus> mapV1CronJobToDeploymentStatus(
       V1CronJob cronJob, String cronJobName) {
     JobDeploymentStatus deployment = null;
-    if (cronJob != null) {
+    String apiVersion = null;
+
+    try {
+      apiVersion = cronJob.getApiVersion();
+    } catch (NullPointerException e) {
+      log.debug("Could not get API version for cronjob {}", cronJobName);
+    }
+
+    if (cronJob != null && apiVersion != null && apiVersion.equals("batch/v1")) {
       deployment = new JobDeploymentStatus();
       deployment.setEnabled(!cronJob.getSpec().getSuspend());
       deployment.setDataJobName(cronJob.getMetadata().getName());
