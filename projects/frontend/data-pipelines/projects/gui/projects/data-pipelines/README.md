@@ -20,7 +20,7 @@ npm i @clr/{angular,icons,ui} # Clarity (UI Components like DataGrid)
 ```typescript
 imports: [
   ...
-  TaurusharedCoreModule.forRoot(), // taurus shared core services
+  TaurusSharedCoreModule.forRoot(), // taurus shared core services
   TaurusSharedFeaturesModule.forRoot(), // taurus shared features
   TaurusSharedNgRxModule.forRootWithDevtools(), // vdk redux actual ngrx implementation
   ...
