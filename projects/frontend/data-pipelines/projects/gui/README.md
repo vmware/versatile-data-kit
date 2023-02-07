@@ -119,8 +119,6 @@ _**Note**_: There are two levels of filtering of the E2E tests that constitutes 
 2. More granular tag selection: `grepTags=@integration`. e.g.: `it('Manage page - grid search', { tags: '@integration' }, () => {` or
    `describe('Data Jobs Manage Page', { tags: '@integration' }, () => {`
 
-_**Important note**_: In order to ensure the ability to run the Integration Suite against the Data Jobs Wrapper UI and the Management Console UI
-as part of the TMS Staging pipeline, it is required to ensure that the test suite runs successfully against both the UIs(local and/or TMS Staging instance)
 
 ### Local Proxy Configuration
 
