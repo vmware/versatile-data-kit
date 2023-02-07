@@ -41,7 +41,7 @@ project.ext {
             'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
             'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:20.0',
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.0',
-            'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.6.0',
+            'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.7.0',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
