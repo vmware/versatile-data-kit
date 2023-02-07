@@ -3,7 +3,7 @@
 The gui part of data-pipelines contains:
 
   * **[Data Pipelines](projects/data-pipelines/README.md)** Library that holds UI Components for managing Data Pipeline API.
-  * **[UI](projects/ui/src)** Reference UI Wrapper Implementation of the Data Pipeline library
+  * **[UI](projects/ui/src)** Default UI Wrapper Implementation of the Data Pipeline library
 
 The wrapper ([ui](projects/ui/src)) provides standard OAuth2 authorization flow, configuration of which could be found in [auth.ts](projects/ui/src/app/auth.ts)
 
