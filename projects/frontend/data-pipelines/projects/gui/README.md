@@ -9,7 +9,7 @@ The wrapper ([ui](projects/ui/src)) provides standard OAuth2 authorization flow,
 
 ## Running and Testing
 
-You can use the reference implementation in `projects/ui` as showcase of the library.
+You can use Frontend implementation in `projects/ui`.
 Using `npm link` you can achieve real-time development of the library without the need to upload it to repository
 
 _**Note**_: If you run directly npm install without linking it will tell you that there is no such package.
