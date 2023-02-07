@@ -5,7 +5,6 @@ This library provides UI screens that helps to manage data jobs via [Data Pipeli
 
 ## Implementation
 
-
 ### Include the packages and ngrx dependencies
 ```shell
 npm i @vdk/{data-pipelines,shared} # Actual library
