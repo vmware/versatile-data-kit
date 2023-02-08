@@ -1,0 +1,459 @@
+<?xml version="1.0"?>
+<testsuite name="Chrome Headless 108.0.5359.94 (Mac OS 10.15.7)" package="" timestamp="2023-02-08T17:12:59" id="0" hostname="mdilyanXMHYD.vmware.com" tests="442" errors="0" failures="0" time="0.28">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/108.0.5359.94 Safari/537.36"/>
+  </properties>
+  <testcase name="GenericAction Statics:: Methods:: |of| should verify factory method will create instance" time="0.041" classname="GenericAction Statics:: Methods:: |of|"/>
+  <testcase name="GenericAction Statics:: Methods:: |of| should verify factory method will create instance with Task" time="0.001" classname="GenericAction Statics:: Methods:: |of|"/>
+  <testcase name="GenericAction should verify instance is created" time="0" classname="GenericAction"/>
+  <testcase name="SystemEventComparable Statics:: Methods::() |of| should verify factory method will create instance" time="0" classname="SystemEventComparable Statics:: Methods::() |of|"/>
+  <testcase name="SystemEventComparable Methods::() |compare| should verify will return 0 for equal" time="0.001" classname="SystemEventComparable Methods::() |compare|"/>
+  <testcase name="SystemEventComparable Methods::() |compare| should verify will return -1 given comparable is not instance of the current Constructor" time="0" classname="SystemEventComparable Methods::() |compare|"/>
+  <testcase name="SystemEventComparable Methods::() |compare| should verify will return -1 for lessThan" time="0" classname="SystemEventComparable Methods::() |compare|"/>
+  <testcase name="SystemEventComparable Methods::() |compare| should verify will return -1 for greaterThan" time="0" classname="SystemEventComparable Methods::() |compare|"/>
+  <testcase name="SystemEventComparable should verify instance is created" time="0" classname="SystemEventComparable"/>
+  <testcase name="SystemEventComparable should verify value is correctly assigned" time="0" classname="SystemEventComparable"/>
+  <testcase name="RouterEffects should navigate forward" time="0.005" classname="RouterEffects"/>
+  <testcase name="RouterEffects should navigate back" time="0.001" classname="RouterEffects"/>
+  <testcase name="RouterEffects should verify will handle error and won't invoke Location.forward()" time="0.001" classname="RouterEffects"/>
+  <testcase name="RouterEffects should use Location.go()" time="0.001" classname="RouterEffects"/>
+  <testcase name="RouterEffects should navigate to path" time="0.001" classname="RouterEffects"/>
+  <testcase name="RouterEffects should verify will handle error and won't invoke navigate back" time="0.001" classname="RouterEffects"/>
+  <testcase name="RouterEffects should verify will handle error and won't invoke router navigate" time="0.001" classname="RouterEffects"/>
+  <testcase name="RouterEffects should verify will handle error and won't invoke Location.go()" time="0" classname="RouterEffects"/>
+  <testcase name="UrlUtil normalize Endpoint with Forward Slash at the end" time="0" classname="UrlUtil"/>
+  <testcase name="UrlUtil constructTieSwaggerUiEndpoint with Empty Input" time="0" classname="UrlUtil"/>
+  <testcase name="UrlUtil normalize Endpoint with Empty input" time="0" classname="UrlUtil"/>
+  <testcase name="UrlUtil normalize Endpoint with no Forward Slash at the end" time="0" classname="UrlUtil"/>
+  <testcase name="UrlUtil constructTieSwaggerUiEndpoint with Valid Input" time="0" classname="UrlUtil"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_LOADED| should verify invokes correct methods" time="0.001" classname="componentReducer Actions:: |COMPONENT_LOADED|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_IDLE| should verify invokes correct methods" time="0.001" classname="componentReducer Actions:: |COMPONENT_IDLE|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_LOADING| should verify invokes correct methods" time="0" classname="componentReducer Actions:: |COMPONENT_LOADING|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_INIT| should verify invokes correct methods" time="0" classname="componentReducer Actions:: |COMPONENT_INIT|"/>
+  <testcase name="componentReducer Actions:: |ROUTER_NAVIGATION| should verify invokes correct methods" time="0" classname="componentReducer Actions:: |ROUTER_NAVIGATION|"/>
+  <testcase name="componentReducer Actions:: |UNKNOWN_ACTION for this Reducer| should verify will return state as it is" time="0" classname="componentReducer Actions:: |UNKNOWN_ACTION for this Reducer|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_FAILED| should verify invokes correct methods (data from action)" time="0" classname="componentReducer Actions:: |COMPONENT_FAILED|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_FAILED| should verify invokes correct methods (data from store)" time="0" classname="componentReducer Actions:: |COMPONENT_FAILED|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_CLEAR_DATA| should verify invokes correct methods" time="0.001" classname="componentReducer Actions:: |COMPONENT_CLEAR_DATA|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_UPDATE| should verify invokes correct methods (data from store)" time="0" classname="componentReducer Actions:: |COMPONENT_UPDATE|"/>
+  <testcase name="componentReducer Actions:: |COMPONENT_UPDATE| should verify invokes correct methods (data from action)" time="0" classname="componentReducer Actions:: |COMPONENT_UPDATE|"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 400 and sub-error is Nil" time="0.002" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 501 and sub-error is Nil" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 401 and sub-error is Nil" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type SyntaxError and provided additional ErrorHandlerConfig" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when sub-error is of type ErrorEvent" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error is Nil" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 500 and sub-error is server side error with what and why" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 500 and sub-error is server side error" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type SyntaxError" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 507 and sub-error is server side error with what and why" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 423 and sub-error is of type string" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 404 and sub-error is Nil" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 417 and sub-error is server side error" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 403 and sub-error is server side error" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 405 and sub-error is Nil" time="0.001" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 500 and sub-error is Nil" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast: Error of type HttpErrorResponse when status 422 and sub-error is Nil" time="0" classname="ErrorHandlerService Methods:: |processError| should verify will invoke ToastService with expected Toast:"/>
+  <testcase name="ErrorHandlerService Methods:: |handleError| should verify will return Observable in error state" time="0" classname="ErrorHandlerService Methods:: |handleError|"/>
+  <testcase name="ErrorHandlerService should verify instance is created" time="0" classname="ErrorHandlerService"/>
+  <testcase name="ComponentModelComparable Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentModelComparable Statics:: Methods:: |of|"/>
+  <testcase name="ComponentModelComparable should verify instance is created" time="0" classname="ComponentModelComparable"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when task is different" time="0.001" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when error is different" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return 0 when navigationId is different" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when ref is different and content is different" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when stored comparable value is not instance of ComponentModel" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return 0 when ref is different but content is same" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when status is different" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when provided comparable is not instance of expected" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return 0 when data ref is same" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return 0 when ComponentModel ref is same" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="ComponentModelComparable Methods:: |compare| should verify will return -1 when no comparable model provided" time="0" classname="ComponentModelComparable Methods:: |compare|"/>
+  <testcase name="SystemEventDispatcher Statics:: Methods::() |post| should verify will post NON-BLOCKING System Event to 2 Handlers" time="0.001" classname="SystemEventDispatcher Statics:: Methods::() |post|"/>
+  <testcase name="SystemEventDispatcher Statics:: Methods::() |post| should verify will post NON-BLOCKING System Event to 1 Handler and will skip the second one" time="0" classname="SystemEventDispatcher Statics:: Methods::() |post|"/>
+  <testcase name="SystemEventDispatcher Statics:: Methods::() |send| should verify will send BLOCKING System Event to 1 Handler and will skip the second one" time="0.001" classname="SystemEventDispatcher Statics:: Methods::() |send|"/>
+  <testcase name="SystemEventDispatcher Statics:: Methods::() |send| should verify will send BLOCKING System Event to 2 Handlers" time="0" classname="SystemEventDispatcher Statics:: Methods::() |send|"/>
+  <testcase name="NGRX_STORE_DEVTOOLS_CONFIG should verify default values are set" time="0" classname="NGRX_STORE_DEVTOOLS_CONFIG"/>
+  <testcase name="Tasks |createTaskIdentifier| should verify will return value undefined when no task provided" time="0" classname="Tasks |createTaskIdentifier|"/>
+  <testcase name="Tasks |createTaskIdentifier| should verify will return expected value" time="0" classname="Tasks |createTaskIdentifier|"/>
+  <testcase name="Tasks |extractTaskFromIdentifier| should verify will return Task from provided identifier" time="0" classname="Tasks |extractTaskFromIdentifier|"/>
+  <testcase name="routerReducer should verify will invoke correct methods" time="0" classname="routerReducer"/>
+  <testcase name="SharedRouterSerializer Methods:: |serialize| should verify will invoke correct methods" time="0.001" classname="SharedRouterSerializer Methods:: |serialize|"/>
+  <testcase name="SharedRouterSerializer should verify instance is created" time="0" classname="SharedRouterSerializer"/>
+  <testcase name="RequestFilter should verify instance is created" time="0" classname="RequestFilter"/>
+  <testcase name="RequestFilter should verify correct value are assigned" time="0.001" classname="RequestFilter"/>
+  <testcase name="RequestFilter should verify wont assign Nil parameters" time="0" classname="RequestFilter"/>
+  <testcase name="RequestFilter Statics:: Methods:: |empty| should verify will create empty instance with no criteria" time="0" classname="RequestFilter Statics:: Methods:: |empty|"/>
+  <testcase name="RequestFilter Statics:: Methods:: |of| should verify factory method will create instance" time="0.001" classname="RequestFilter Statics:: Methods:: |of|"/>
+  <testcase name="RequestFilter Statics:: Methods:: |fromLiteral| should verify will create new instance from given literal Array of ApiPredicates" time="0" classname="RequestFilter Statics:: Methods:: |fromLiteral|"/>
+  <testcase name="RequestFilter Methods:: |toLiteralDeepClone| should verify will create literal deep cloned from RequestFilter object " time="0" classname="RequestFilter Methods:: |toLiteralDeepClone|"/>
+  <testcase name="RequestFilter Methods:: |toLiteral| should verify will create literal from RequestFilter object " time="0" classname="RequestFilter Methods:: |toLiteral|"/>
+  <testcase name="ComponentStateImpl Methods:: |toLiteralDeepClone| should verify will create LiteralComponentState deep cloned" time="0.001" classname="ComponentStateImpl Methods:: |toLiteralDeepClone|"/>
+  <testcase name="ComponentStateImpl Methods:: |toLiteral| should verify will create LiteralComponentState" time="0" classname="ComponentStateImpl Methods:: |toLiteral|"/>
+  <testcase name="ComponentStateImpl Methods:: |copy| should verify will create copy from ComponentStateImpl" time="0.001" classname="ComponentStateImpl Methods:: |copy|"/>
+  <testcase name="ComponentStateImpl Methods:: |copy| should verify will merge provided State on top of original and return instance" time="0" classname="ComponentStateImpl Methods:: |copy|"/>
+  <testcase name="ComponentStateImpl should verify provided value will be correctly assigned" time="0" classname="ComponentStateImpl"/>
+  <testcase name="ComponentStateImpl Statics:: Methods:: |fromLiteralComponentState| should verify will create instance of ComponentStateImpl from LiteralComponentState" time="0" classname="ComponentStateImpl Statics:: Methods:: |fromLiteralComponentState|"/>
+  <testcase name="ComponentStateImpl Statics:: Methods:: |of| should verify factory method will create instance" time="0.001" classname="ComponentStateImpl Statics:: Methods:: |of|"/>
+  <testcase name="ComponentStateImpl Statics:: Methods:: |cloneDeepLiteral| should verify will create deep clone from LiteralComponentState" time="0" classname="ComponentStateImpl Statics:: Methods:: |cloneDeepLiteral|"/>
+  <testcase name="ComponentStateImpl should verify will correctly assign default values" time="0" classname="ComponentStateImpl"/>
+  <testcase name="ComponentStateImpl should verify instance is created" time="0" classname="ComponentStateImpl"/>
+  <testcase name="TaurusObject should verify instance is created" time="0" classname="TaurusObject"/>
+  <testcase name="TaurusObject Methods:: |dispose| should verify will clean all subscriptions" time="0" classname="TaurusObject Methods:: |dispose|"/>
+  <testcase name="TaurusObject Methods:: |removeSubscriptionRef| should verify will remove provided subscription from buffer" time="0.001" classname="TaurusObject Methods:: |removeSubscriptionRef|"/>
+  <testcase name="TaurusObject Methods:: |removeSubscriptionRef| should verify will return false when provided reference is not Subscription instance" time="0" classname="TaurusObject Methods:: |removeSubscriptionRef|"/>
+  <testcase name="TaurusObject Methods:: |removeSubscriptionRef| should verify will remove provided subscription from buffer and unsubscribe error will be logged in console" time="0" classname="TaurusObject Methods:: |removeSubscriptionRef|"/>
+  <testcase name="TaurusObject Methods:: |removeSubscriptionRef| should verify will unsubscribe even reference doesn't exist in buffer" time="0" classname="TaurusObject Methods:: |removeSubscriptionRef|"/>
+  <testcase name="TaurusObject Methods:: |ngOnDestroy| should verify will invoke correct method" time="0.001" classname="TaurusObject Methods:: |ngOnDestroy|"/>
+  <testcase name="TaurusObject Properties:: |subscriptions| should verify default value is empty Array" time="0" classname="TaurusObject Properties:: |subscriptions|"/>
+  <testcase name="SystemEventHandler should verify will record metadata with Reflect to Constructor" time="0" classname="SystemEventHandler"/>
+  <testcase name="SystemEventHandler should verify will add metadata on existing with Reflect to Constructor" time="0" classname="SystemEventHandler"/>
+  <testcase name="Route Classes RouteState Statics:: Methods:: |empty| should verify will create empty instance with default values" time="0" classname="Route Classes RouteState Statics:: Methods:: |empty|"/>
+  <testcase name="Route Classes RouteState Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="Route Classes RouteState Statics:: Methods:: |of|"/>
+  <testcase name="Route Classes RouteState should verify instance is created" time="0" classname="Route Classes RouteState"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> configPathSegments| should verify will return configPathSegments" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> configPathSegments|"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> absoluteConfigPath| should verify will return absoluteConfigPath" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> absoluteConfigPath|"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> routePath| should verify will return routePath" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> routePath|"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> queryParams| should verify will return queryParams" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> queryParams|"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> absoluteRoutePath| should verify will return location" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> absoluteRoutePath|"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> configPath| should verify will return configPath" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> configPath|"/>
+  <testcase name="Route Classes RouteState Getters/Setters:: |GET -> routePathSegments| should verify will return routePathSegments" time="0" classname="Route Classes RouteState Getters/Setters:: |GET -> routePathSegments|"/>
+  <testcase name="Route Classes RouteState Methods:: |getData| should verify will invoke correct methods" time="0" classname="Route Classes RouteState Methods:: |getData|"/>
+  <testcase name="Route Classes RouteState Methods:: |toJSON| should verify will return correct object for serialization" time="0.001" classname="Route Classes RouteState Methods:: |toJSON|"/>
+  <testcase name="Route Classes RouteState Methods:: |serializeQueryParams| should verify will return empty string when no queryParams" time="0" classname="Route Classes RouteState Methods:: |serializeQueryParams|"/>
+  <testcase name="Route Classes RouteState Methods:: |serializeQueryParams| should verify will serialize queryParams in string" time="0" classname="Route Classes RouteState Methods:: |serializeQueryParams|"/>
+  <testcase name="Route Classes RouteState Methods:: |getQueryParam| should verify will invoke correct methods" time="0" classname="Route Classes RouteState Methods:: |getQueryParam|"/>
+  <testcase name="Route Classes RouteState Methods:: |getUrl| should verify will return correct value" time="0" classname="Route Classes RouteState Methods:: |getUrl|"/>
+  <testcase name="Route Classes RouteState Methods:: |getParentAbsoluteRoutePath| should verify will return correct value" time="0" classname="Route Classes RouteState Methods:: |getParentAbsoluteRoutePath|"/>
+  <testcase name="Route Classes RouteState Methods:: |getParam| should verify will invoke correct methods" time="0" classname="Route Classes RouteState Methods:: |getParam|"/>
+  <testcase name="Route Classes RouterState Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="Route Classes RouterState Statics:: Methods:: |of|"/>
+  <testcase name="Route Classes RouterState Statics:: Methods:: |empty| should verify will create empty instance with default values" time="0" classname="Route Classes RouterState Statics:: Methods:: |empty|"/>
+  <testcase name="Route Classes RouterState Methods:: |getPrevious| should verify will return null for index that is out of bound of stored States" time="0" classname="Route Classes RouterState Methods:: |getPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |getPrevious| should verify will return the first before current for index 0" time="0" classname="Route Classes RouterState Methods:: |getPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |getPrevious| should verify will return the third before current for index 2" time="0" classname="Route Classes RouterState Methods:: |getPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |getPrevious| should verify will return null for number less than 0" time="0" classname="Route Classes RouterState Methods:: |getPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |getPrevious| should verify will return the first before current for index not a number" time="0" classname="Route Classes RouterState Methods:: |getPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |getPrevious| should verify will return the first before current as default" time="0" classname="Route Classes RouterState Methods:: |getPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |appendPrevious| should verify will pop the oldest one and will unshift the new one when buffer has 10 elements" time="0.001" classname="Route Classes RouterState Methods:: |appendPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |appendPrevious| should verify won't add new state when previousState has same navigationId like current" time="0" classname="Route Classes RouterState Methods:: |appendPrevious|"/>
+  <testcase name="Route Classes RouterState Methods:: |appendPrevious| should verify will add previousStates to current one" time="0" classname="Route Classes RouterState Methods:: |appendPrevious|"/>
+  <testcase name="Route Classes RouterState should verify instance is created" time="0" classname="Route Classes RouterState"/>
+  <testcase name="Route Classes RouteSegments Methods:: |getQueryParam| should verify will return queryParam" time="0" classname="Route Classes RouteSegments Methods:: |getQueryParam|"/>
+  <testcase name="Route Classes RouteSegments Methods:: |getParam| should verify will return param" time="0" classname="Route Classes RouteSegments Methods:: |getParam|"/>
+  <testcase name="Route Classes RouteSegments Methods:: |getData| should verify will return param" time="0" classname="Route Classes RouteSegments Methods:: |getData|"/>
+  <testcase name="Route Classes RouteSegments Statics:: Methods:: |empty| should verify will create empty instance with default values" time="0" classname="Route Classes RouteSegments Statics:: Methods:: |empty|"/>
+  <testcase name="Route Classes RouteSegments Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="Route Classes RouteSegments Statics:: Methods:: |of|"/>
+  <testcase name="Route Classes RouteSegments Getters/Setters:: |GET -> routePathSegments| should verify will return routePathSegments" time="0" classname="Route Classes RouteSegments Getters/Setters:: |GET -> routePathSegments|"/>
+  <testcase name="Route Classes RouteSegments Getters/Setters:: |GET -> configPathSegments| should verify will return configPathSegments" time="0" classname="Route Classes RouteSegments Getters/Setters:: |GET -> configPathSegments|"/>
+  <testcase name="Route Classes RouteSegments should verify instance is created" time="0" classname="Route Classes RouteSegments"/>
+  <testcase name="NavigationService Methods::() |navigateTo| should verify will invoke correct methods merge QueryParams, provided and from routeState" time="0.001" classname="NavigationService Methods::() |navigateTo|"/>
+  <testcase name="NavigationService Methods::() |navigateTo| should verify will invoke correct methods preserve routerState QueryParams" time="0.001" classname="NavigationService Methods::() |navigateTo|"/>
+  <testcase name="NavigationService Methods::() |navigateTo| should verify will reject Promise when no NavigationAction is provided" time="0.001" classname="NavigationService Methods::() |navigateTo|"/>
+  <testcase name="NavigationService Methods::() |initialize| should verify method exist and is callable" time="0.001" classname="NavigationService Methods::() |initialize|"/>
+  <testcase name="NavigationService Methods::() |navigate| should verify will return Promise.resolve(false) on Nil value for url" time="0" classname="NavigationService Methods::() |navigate|"/>
+  <testcase name="NavigationService Methods::() |navigate| should verify will handle extras parameters" time="0.001" classname="NavigationService Methods::() |navigate|"/>
+  <testcase name="NavigationService Methods::() |navigate| should verify will handle both url string and url Array" time="0" classname="NavigationService Methods::() |navigate|"/>
+  <testcase name="NavigationService Methods::() |navigate| should verify will return Promise" time="0.001" classname="NavigationService Methods::() |navigate|"/>
+  <testcase name="NavigationService Methods::() |navigate| should verify will call Router.navigate() from Angular" time="0" classname="NavigationService Methods::() |navigate|"/>
+  <testcase name="NavigationService Methods::() |_navigationSystemEventHandler_| should verify will execute navigation when payload is provided" time="0.001" classname="NavigationService Methods::() |_navigationSystemEventHandler_|"/>
+  <testcase name="NavigationService Methods::() |_navigationSystemEventHandler_| should verify will skip navigation if payload is Nil" time="0" classname="NavigationService Methods::() |_navigationSystemEventHandler_|"/>
+  <testcase name="NavigationService Methods::() |navigateBack| should verify will invoke correct methods when NavigationAction provided" time="0.001" classname="NavigationService Methods::() |navigateBack|"/>
+  <testcase name="NavigationService Methods::() |navigateBack| should verify will invoke correct methods when no NavigationAction provided" time="0.001" classname="NavigationService Methods::() |navigateBack|"/>
+  <testcase name="NavigationService should verify instance is created" time="0" classname="NavigationService"/>
+  <testcase name="ComponentActions ComponentLoading Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentActions ComponentLoading Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentLoading should verify instance is created" time="0" classname="ComponentActions ComponentLoading"/>
+  <testcase name="ComponentActions ComponentLoading should verify prototype chaining" time="0" classname="ComponentActions ComponentLoading"/>
+  <testcase name="ComponentActions ComponentLoading should verify correct type is assigned" time="0" classname="ComponentActions ComponentLoading"/>
+  <testcase name="ComponentActions ComponentUpdate Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentActions ComponentUpdate Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentUpdate should verify instance is created" time="0" classname="ComponentActions ComponentUpdate"/>
+  <testcase name="ComponentActions ComponentUpdate should verify prototype chaining" time="0" classname="ComponentActions ComponentUpdate"/>
+  <testcase name="ComponentActions ComponentUpdate should verify correct type is assigned" time="0" classname="ComponentActions ComponentUpdate"/>
+  <testcase name="ComponentActions ComponentIdle Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentActions ComponentIdle Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentIdle should verify instance is created" time="0" classname="ComponentActions ComponentIdle"/>
+  <testcase name="ComponentActions ComponentIdle should verify prototype chaining" time="0" classname="ComponentActions ComponentIdle"/>
+  <testcase name="ComponentActions ComponentIdle should verify correct type is assigned" time="0" classname="ComponentActions ComponentIdle"/>
+  <testcase name="ComponentActions ComponentClearData Statics:: Methods:: |of| should verify factory method will create instance" time="0.001" classname="ComponentActions ComponentClearData Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentClearData should verify prototype chaining" time="0" classname="ComponentActions ComponentClearData"/>
+  <testcase name="ComponentActions ComponentClearData should verify correct type is assigned" time="0" classname="ComponentActions ComponentClearData"/>
+  <testcase name="ComponentActions ComponentClearData should verify instance is created" time="0" classname="ComponentActions ComponentClearData"/>
+  <testcase name="ComponentActions ComponentFailed Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentActions ComponentFailed Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentFailed should verify instance is created" time="0" classname="ComponentActions ComponentFailed"/>
+  <testcase name="ComponentActions ComponentFailed should verify correct type is assigned" time="0" classname="ComponentActions ComponentFailed"/>
+  <testcase name="ComponentActions ComponentFailed should verify prototype chaining" time="0" classname="ComponentActions ComponentFailed"/>
+  <testcase name="ComponentActions ComponentInit Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentActions ComponentInit Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentInit should verify correct type is assigned" time="0" classname="ComponentActions ComponentInit"/>
+  <testcase name="ComponentActions ComponentInit should verify prototype chaining" time="0" classname="ComponentActions ComponentInit"/>
+  <testcase name="ComponentActions ComponentInit should verify instance is created" time="0" classname="ComponentActions ComponentInit"/>
+  <testcase name="ComponentActions ComponentLoaded should verify prototype chaining" time="0" classname="ComponentActions ComponentLoaded"/>
+  <testcase name="ComponentActions ComponentLoaded Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="ComponentActions ComponentLoaded Statics:: Methods:: |of|"/>
+  <testcase name="ComponentActions ComponentLoaded should verify instance is created" time="0" classname="ComponentActions ComponentLoaded"/>
+  <testcase name="ComponentActions ComponentLoaded should verify correct type is assigned" time="0" classname="ComponentActions ComponentLoaded"/>
+  <testcase name="RequestPage Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="RequestPage Statics:: Methods:: |of|"/>
+  <testcase name="RequestPage Statics:: Methods:: |fromLiteral| should verify will create new instance from given literal object" time="0" classname="RequestPage Statics:: Methods:: |fromLiteral|"/>
+  <testcase name="RequestPage Statics:: Methods:: |empty| should verify will create empty instance with default values" time="0" classname="RequestPage Statics:: Methods:: |empty|"/>
+  <testcase name="RequestPage should verify instance is created" time="0" classname="RequestPage"/>
+  <testcase name="RequestPage should verify correct value are assigned" time="0" classname="RequestPage"/>
+  <testcase name="RequestPage should verify on Nil parameters default value will be assigned" time="0.001" classname="RequestPage"/>
+  <testcase name="RequestPage Methods:: |toLiteral| should verify will create literal object from RequestPage object " time="0" classname="RequestPage Methods:: |toLiteral|"/>
+  <testcase name="RequestPage Methods:: |toLiteralDeepClone| should verify will create literal deep cloned object from RequestPage object " time="0" classname="RequestPage Methods:: |toLiteralDeepClone|"/>
+  <testcase name="RequestOrder should verify wont assign Nil parameters" time="0.001" classname="RequestOrder"/>
+  <testcase name="RequestOrder should verify correct value are assigned" time="0" classname="RequestOrder"/>
+  <testcase name="RequestOrder Statics:: Methods:: |empty| should verify will create empty instance with no criteria" time="0" classname="RequestOrder Statics:: Methods:: |empty|"/>
+  <testcase name="RequestOrder Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="RequestOrder Statics:: Methods:: |of|"/>
+  <testcase name="RequestOrder Statics:: Methods:: |fromLiteral| should verify will create new instance from given literal Array of ApiPredicates" time="0" classname="RequestOrder Statics:: Methods:: |fromLiteral|"/>
+  <testcase name="RequestOrder Methods:: |toLiteral| should verify will create literal from RequestOrder object " time="0" classname="RequestOrder Methods:: |toLiteral|"/>
+  <testcase name="RequestOrder Methods:: |toLiteralDeepClone| should verify will create literal deep cloned from RequestPage object " time="0" classname="RequestOrder Methods:: |toLiteralDeepClone|"/>
+  <testcase name="RequestOrder should verify instance is created" time="0" classname="RequestOrder"/>
+  <testcase name="SHARED_ROOT_REDUCERS should verify root reducers are registered" time="0" classname="SHARED_ROOT_REDUCERS"/>
+  <testcase name="CompoundPredicate Statics:: |of| should verify will throw Error" time="0.001" classname="CompoundPredicate Statics:: |of|"/>
+  <testcase name="ComponentModel Statics:: Methods::() |of| should verify factory method will create instance" time="0" classname="ComponentModel Statics:: Methods::() |of|"/>
+  <testcase name="ComponentModel Getters/Setters:: |GET -> routePath| should verify will return correct value from routerState" time="0" classname="ComponentModel Getters/Setters:: |GET -> routePath|"/>
+  <testcase name="ComponentModel Getters/Setters:: |GET -> routePath| should verify will return correct value from componentState" time="0" classname="ComponentModel Getters/Setters:: |GET -> routePath|"/>
+  <testcase name="ComponentModel Getters/Setters:: |GET -> status| should verify will return correct value" time="0" classname="ComponentModel Getters/Setters:: |GET -> status|"/>
+  <testcase name="ComponentModel Getters/Setters:: |GET -> routerState| should verify will return correct value" time="0.001" classname="ComponentModel Getters/Setters:: |GET -> routerState|"/>
+  <testcase name="ComponentModel Methods:: |isModified| should verify will invoke correct methods" time="0.001" classname="ComponentModel Methods:: |isModified|"/>
+  <testcase name="ComponentModel Methods:: |withFilter| should verify will invoke correct method with correct payload" time="0" classname="ComponentModel Methods:: |withFilter|"/>
+  <testcase name="ComponentModel Methods:: |withRequestParam| should verify will set data to Request param map" time="0" classname="ComponentModel Methods:: |withRequestParam|"/>
+  <testcase name="ComponentModel Methods:: |clearError| should verify will invoke correct method with correct payload" time="0" classname="ComponentModel Methods:: |clearError|"/>
+  <testcase name="ComponentModel Methods:: |withStatusFailed| should verify will invoke correct method with correct payload" time="0" classname="ComponentModel Methods:: |withStatusFailed|"/>
+  <testcase name="ComponentModel Methods:: |withUiState| should verify will set data to Data map" time="0" classname="ComponentModel Methods:: |withUiState|"/>
+  <testcase name="ComponentModel Methods:: |updateComponentState| should verify will update local ComponentState" time="0" classname="ComponentModel Methods:: |updateComponentState|"/>
+  <testcase name="ComponentModel Methods:: |getTask| should verify will return Task from ComponentState" time="0" classname="ComponentModel Methods:: |getTask|"/>
+  <testcase name="ComponentModel Methods:: |withError| should verify will invoke correct method with correct payload" time="0" classname="ComponentModel Methods:: |withError|"/>
+  <testcase name="ComponentModel Methods:: |withPage| should verify will invoke correct method with correct payload" time="0.001" classname="ComponentModel Methods:: |withPage|"/>
+  <testcase name="ComponentModel Methods:: |withSearch| should verify will invoke correct method with correct payload" time="0" classname="ComponentModel Methods:: |withSearch|"/>
+  <testcase name="ComponentModel Methods:: |getUiState| should verify will return uiState from ComponentState for given key" time="0" classname="ComponentModel Methods:: |getUiState|"/>
+  <testcase name="ComponentModel Methods:: |getComponentState| should verify will return ComponentState" time="0.001" classname="ComponentModel Methods:: |getComponentState|"/>
+  <testcase name="ComponentModel Methods:: |withStatusLoading| should verify will invoke correct method with correct payload" time="0" classname="ComponentModel Methods:: |withStatusLoading|"/>
+  <testcase name="ComponentModel Methods:: |withTask| should verify will set Task to ComponentState" time="0" classname="ComponentModel Methods:: |withTask|"/>
+  <testcase name="ComponentModel Methods:: |withStatusLoaded| should verify will invoke correct method with correct payload" time="0.001" classname="ComponentModel Methods:: |withStatusLoaded|"/>
+  <testcase name="ComponentModel Methods:: |withData| should verify will set data to Data map" time="0" classname="ComponentModel Methods:: |withData|"/>
+  <testcase name="ComponentModel Methods:: |withStatusIdle| should verify will invoke correct method with correct payload" time="0.001" classname="ComponentModel Methods:: |withStatusIdle|"/>
+  <testcase name="ComponentModel should verify instance is created" time="0" classname="ComponentModel"/>
+  <testcase name="RouteStateFactory Methods:: |create| should verify will return RouteState from provided ActivatedRouteSnapshot" time="0" classname="RouteStateFactory Methods:: |create|"/>
+  <testcase name="RouteStateFactory should verify instance is created" time="0" classname="RouteStateFactory"/>
+  <testcase name="SystemEventFilterExpression Statics:: Methods::() |of| should verify factory method will create instance" time="0" classname="SystemEventFilterExpression Statics:: Methods::() |of|"/>
+  <testcase name="SystemEventFilterExpression Methods::() |hasPredicates| should verify will return true if there is Predicates in Expression, otherwise false" time="0" classname="SystemEventFilterExpression Methods::() |hasPredicates|"/>
+  <testcase name="SystemEventFilterExpression Methods::() |evaluate| should verify will return false if one of the Predicates return false" time="0" classname="SystemEventFilterExpression Methods::() |evaluate|"/>
+  <testcase name="SystemEventFilterExpression Methods::() |evaluate| should verify will return true only when all predicates return true" time="0" classname="SystemEventFilterExpression Methods::() |evaluate|"/>
+  <testcase name="SystemEventFilterExpression Methods::() |addPredicate| should verify will add new Predicates to existing one" time="0.001" classname="SystemEventFilterExpression Methods::() |addPredicate|"/>
+  <testcase name="SystemEventFilterExpression should verify is no Predicates given will create empty Expression" time="0" classname="SystemEventFilterExpression"/>
+  <testcase name="SystemEventFilterExpression should verify Predicates are correctly assigned" time="0" classname="SystemEventFilterExpression"/>
+  <testcase name="SystemEventFilterExpression should verify instance is created" time="0" classname="SystemEventFilterExpression"/>
+  <testcase name="ToastsComponent should create" time="0.011" classname="ToastsComponent"/>
+  <testcase name="ToastsComponent remove removes an element from the toasts list " time="0.003" classname="ToastsComponent remove"/>
+  <testcase name="ComparableImpl Methods::() |notEqual| should verify will return true if values are not equal, otherwise false" time="0" classname="ComparableImpl Methods::() |notEqual|"/>
+  <testcase name="ComparableImpl Methods::() |equal| should verify will return true if values are equal, otherwise false" time="0" classname="ComparableImpl Methods::() |equal|"/>
+  <testcase name="ComparableImpl Methods::() |notNil| should verify will return false if value is null or undefined, otherwise true" time="0" classname="ComparableImpl Methods::() |notNil|"/>
+  <testcase name="ComparableImpl Methods::() |isNil| should verify will return true if value is null or undefined, otherwise false" time="0" classname="ComparableImpl Methods::() |isNil|"/>
+  <testcase name="ComparableImpl Methods::() |compare| should verify will return -1 given comparable is not instance of the current Constructor" time="0" classname="ComparableImpl Methods::() |compare|"/>
+  <testcase name="ComparableImpl Methods::() |compare| should verify will return 0 for equal" time="0" classname="ComparableImpl Methods::() |compare|"/>
+  <testcase name="ComparableImpl Methods::() |compare| should verify will return -1 for lessThan" time="0" classname="ComparableImpl Methods::() |compare|"/>
+  <testcase name="ComparableImpl Methods::() |compare| should verify will return 1 for greaterThan" time="0" classname="ComparableImpl Methods::() |compare|"/>
+  <testcase name="ComparableImpl Methods::() |lessThanInclusive| should verify will return true if value is less than or equal to provided, otherwise false" time="0" classname="ComparableImpl Methods::() |lessThanInclusive|"/>
+  <testcase name="ComparableImpl Methods::() |greaterThan| should verify will return true if value is greater than provided, otherwise false" time="0" classname="ComparableImpl Methods::() |greaterThan|"/>
+  <testcase name="ComparableImpl Methods::() |like| should verify will return true if values are similar, otherwise false" time="0" classname="ComparableImpl Methods::() |like|"/>
+  <testcase name="ComparableImpl Methods::() |lessThan| should verify will return true if value is less than provided, otherwise false" time="0.001" classname="ComparableImpl Methods::() |lessThan|"/>
+  <testcase name="ComparableImpl Methods::() |greaterThanInclusive| should verify will return true if value is greater than or equal to provided, otherwise false" time="0" classname="ComparableImpl Methods::() |greaterThanInclusive|"/>
+  <testcase name="ComparableImpl Statics:: Methods::() |of| should verify factory method will create instance" time="0" classname="ComparableImpl Statics:: Methods::() |of|"/>
+  <testcase name="ComparableImpl should verify value is correctly assigned" time="0" classname="ComparableImpl"/>
+  <testcase name="ComparableImpl should verify instance is created" time="0" classname="ComparableImpl"/>
+  <testcase name="PredicatesComparable should verify instance is created" time="0" classname="PredicatesComparable"/>
+  <testcase name="PredicatesComparable should verify value is correctly assigned" time="0.001" classname="PredicatesComparable"/>
+  <testcase name="PredicatesComparable Methods::() |notNil| should verify will return true all the time" time="0" classname="PredicatesComparable Methods::() |notNil|"/>
+  <testcase name="PredicatesComparable Methods::() |isNil| should verify will return false all the time" time="0" classname="PredicatesComparable Methods::() |isNil|"/>
+  <testcase name="PredicatesComparable Methods::() |lessThanInclusive| should verify will return -1 and log warn to console" time="0" classname="PredicatesComparable Methods::() |lessThanInclusive|"/>
+  <testcase name="PredicatesComparable Methods::() |greaterThan| should verify will return -1 and log warn to console" time="0" classname="PredicatesComparable Methods::() |greaterThan|"/>
+  <testcase name="PredicatesComparable Methods::() |greaterThanInclusive| should verify will return -1 and log warn to console" time="0" classname="PredicatesComparable Methods::() |greaterThanInclusive|"/>
+  <testcase name="PredicatesComparable Methods::() |notEqual| should verify will return true if one or more predicates return false, otherwise false" time="0" classname="PredicatesComparable Methods::() |notEqual|"/>
+  <testcase name="PredicatesComparable Methods::() |lessThan| should verify will return -1 and log warn to console" time="0" classname="PredicatesComparable Methods::() |lessThan|"/>
+  <testcase name="PredicatesComparable Methods::() |like| should verify will return true if one or more predicates return true, otherwise false" time="0" classname="PredicatesComparable Methods::() |like|"/>
+  <testcase name="PredicatesComparable Methods::() |equal| should verify will return true if all predicates return true, otherwise false" time="0" classname="PredicatesComparable Methods::() |equal|"/>
+  <testcase name="PredicatesComparable Methods::() |compare| should verify will return -1 and log warn to console" time="0.001" classname="PredicatesComparable Methods::() |compare|"/>
+  <testcase name="PredicatesComparable Statics:: Methods::() |of| should verify factory method will create instance" time="0" classname="PredicatesComparable Statics:: Methods::() |of|"/>
+  <testcase name="NGRX_STORE_CONFIG should verify default values are set" time="0" classname="NGRX_STORE_CONFIG"/>
+  <testcase name="SHARED_ROOT_EFFECTS should verify expected Effects are in this registry" time="0" classname="SHARED_ROOT_EFFECTS"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Getters::() |instance| should verify will return always same Repository instance" time="0.001" classname="SystemEventHandlerRegistry Statics:: Getters::() |instance|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |findHandlerByReference| should verify will find Handler by its reference" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |findHandlerByReference|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |getPreparedArrayOfHandlers| should verify will return 3 handlers for given Event" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |getPreparedArrayOfHandlers|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |getPreparedArrayOfHandlers| should verify will return empty Array when there is no Handlers for Event" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |getPreparedArrayOfHandlers|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |getPreparedArrayOfHandlers| should verify will return 3 handlers in reverse order for given Event" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |getPreparedArrayOfHandlers|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |register| should verify will register handler in Registry" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |register|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |register| should verify will execute register and execute methods in Registry instance" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |register|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |unregister| should verify will execute unregister and execute methods in Registry instance" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |unregister|"/>
+  <testcase name="SystemEventHandlerRegistry Statics:: Methods::() |unregister| should verify will remove handler in Registry after it is added" time="0" classname="SystemEventHandlerRegistry Statics:: Methods::() |unregister|"/>
+  <testcase name="NavigationActions LocationBack Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="NavigationActions LocationBack Statics:: Methods:: |of|"/>
+  <testcase name="NavigationActions LocationBack should verify correct type is assigned" time="0" classname="NavigationActions LocationBack"/>
+  <testcase name="NavigationActions LocationBack should verify prototype chaining" time="0" classname="NavigationActions LocationBack"/>
+  <testcase name="NavigationActions LocationBack should verify instance is created" time="0" classname="NavigationActions LocationBack"/>
+  <testcase name="NavigationActions LocationForward should verify instance is created" time="0" classname="NavigationActions LocationForward"/>
+  <testcase name="NavigationActions LocationForward Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="NavigationActions LocationForward Statics:: Methods:: |of|"/>
+  <testcase name="NavigationActions LocationForward should verify prototype chaining" time="0" classname="NavigationActions LocationForward"/>
+  <testcase name="NavigationActions LocationForward should verify correct type is assigned" time="0" classname="NavigationActions LocationForward"/>
+  <testcase name="NavigationActions LocationGo should verify instance is created" time="0" classname="NavigationActions LocationGo"/>
+  <testcase name="NavigationActions LocationGo Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="NavigationActions LocationGo Statics:: Methods:: |of|"/>
+  <testcase name="NavigationActions LocationGo should verify prototype chaining" time="0" classname="NavigationActions LocationGo"/>
+  <testcase name="NavigationActions LocationGo should verify correct type is assigned" time="0" classname="NavigationActions LocationGo"/>
+  <testcase name="NavigationActions RouterNavigate Statics:: Methods:: |of| should verify factory method will create instance" time="0" classname="NavigationActions RouterNavigate Statics:: Methods:: |of|"/>
+  <testcase name="NavigationActions RouterNavigate should verify correct type is assigned" time="0" classname="NavigationActions RouterNavigate"/>
+  <testcase name="NavigationActions RouterNavigate should verify instance is created" time="0" classname="NavigationActions RouterNavigate"/>
+  <testcase name="NavigationActions RouterNavigate should verify prototype chaining" time="0" classname="NavigationActions RouterNavigate"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isNumber| should verify if number" time="0" classname="CollectionsUtil:: Statics Methods::() |isNumber|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |dateISO| should verify will return Date in ISO format" time="0" classname="CollectionsUtil:: Statics Methods::() |dateISO|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isArray| should verify if array" time="0" classname="CollectionsUtil:: Statics Methods::() |isArray|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |interpolateString| should verify will interpolate provided Replacer&lt;string> replacers" time="0" classname="CollectionsUtil:: Statics Methods::() |interpolateString|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |interpolateString| should verify will interpolate provided string replacers" time="0" classname="CollectionsUtil:: Statics Methods::() |interpolateString|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isString| should verify if string" time="0" classname="CollectionsUtil:: Statics Methods::() |isString|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isEqual| should verify will return true after deep comparison of two objects" time="0" classname="CollectionsUtil:: Statics Methods::() |isEqual|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isArrayEmpty| should verify will return true when value is Array and doesn't have elements" time="0" classname="CollectionsUtil:: Statics Methods::() |isArrayEmpty|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isArrayEmpty| should verify will return true when value is not Array" time="0" classname="CollectionsUtil:: Statics Methods::() |isArrayEmpty|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isArrayEmpty| should verify will return false when value is Array and has elements" time="0" classname="CollectionsUtil:: Statics Methods::() |isArrayEmpty|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isFunction| should verify if function" time="0" classname="CollectionsUtil:: Statics Methods::() |isFunction|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isUndefined| should verify if undefined" time="0" classname="CollectionsUtil:: Statics Methods::() |isUndefined|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateObject| should verify will break iteration if iterator returns false or -1" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateObject| should verify will return null immediately if there is no iterator provided" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateObject| should verify method will iterate all properties from Object" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateObject| should verify will return null immediately if value is null" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateObject| should verify will return null immediately if value is null" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateObject| should verify will return null immediately if value is not literal object" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isBooleanAndTrue| should verify if boolean and true" time="0" classname="CollectionsUtil:: Statics Methods::() |isBooleanAndTrue|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isPrimitiveOrDate| should verify if Date or Primitive" time="0" classname="CollectionsUtil:: Statics Methods::() |isPrimitiveOrDate|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isObjectNotNull| should verify if value is Object but not null" time="0" classname="CollectionsUtil:: Statics Methods::() |isObjectNotNull|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isLiteralObjectWithProperties| should verify if plain object with properties" time="0" classname="CollectionsUtil:: Statics Methods::() |isLiteralObjectWithProperties|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |cloneDeep| should verify will deep clone provided Object" time="0" classname="CollectionsUtil:: Statics Methods::() |cloneDeep|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |cloneDeep| should verify will deep clone provided Array" time="0" classname="CollectionsUtil:: Statics Methods::() |cloneDeep|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isDate| should verify if Date" time="0" classname="CollectionsUtil:: Statics Methods::() |isDate|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isCollection| should verify if value is type of Collection" time="0.001" classname="CollectionsUtil:: Statics Methods::() |isCollection|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |areMapsEqual| should verify will return false when maps are different reference, same size, same content, different order" time="0" classname="CollectionsUtil:: Statics Methods::() |areMapsEqual|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |areMapsEqual| should verify will return false when maps are different reference, same size and different content" time="0" classname="CollectionsUtil:: Statics Methods::() |areMapsEqual|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |areMapsEqual| should verify will return true when maps are same reference" time="0" classname="CollectionsUtil:: Statics Methods::() |areMapsEqual|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |areMapsEqual| should verify will return false when maps are different reference and different size" time="0" classname="CollectionsUtil:: Statics Methods::() |areMapsEqual|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |areMapsEqual| should verify will return true when maps are different reference, same size and same content" time="0.001" classname="CollectionsUtil:: Statics Methods::() |areMapsEqual|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |objectValues| should verify will return Array of values from provided Object" time="0" classname="CollectionsUtil:: Statics Methods::() |objectValues|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isLiteralObjectOrNull| should verify if literal object including null" time="0" classname="CollectionsUtil:: Statics Methods::() |isLiteralObjectOrNull|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isObjectWithProperties| should verify if value is Object and has properties" time="0" classname="CollectionsUtil:: Statics Methods::() |isObjectWithProperties|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isObject| should verify if object" time="0" classname="CollectionsUtil:: Statics Methods::() |isObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |transformMapToObject| should verify will remap provided Map to Object" time="0" classname="CollectionsUtil:: Statics Methods::() |transformMapToObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |transformObjectToMap| should verify will remap provided Object to Map" time="0" classname="CollectionsUtil:: Statics Methods::() |transformObjectToMap|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |objectPairs| should verify will return empty Array if provided value is not literal Object" time="0" classname="CollectionsUtil:: Statics Methods::() |objectPairs|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |objectPairs| should verify will return Array of pairs [key, value] from provided Object" time="0" classname="CollectionsUtil:: Statics Methods::() |objectPairs|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isPrimitive| should verify if value is Primitive" time="0" classname="CollectionsUtil:: Statics Methods::() |isPrimitive|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isNull| should verify if null" time="0" classname="CollectionsUtil:: Statics Methods::() |isNull|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isLiteralObject| should verify if literal object" time="0" classname="CollectionsUtil:: Statics Methods::() |isLiteralObject|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isBoolean| should verify if boolean" time="0" classname="CollectionsUtil:: Statics Methods::() |isBoolean|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |getObjectPropertyDescriptor| should verify will get Object property descriptor" time="0" classname="CollectionsUtil:: Statics Methods::() |getObjectPropertyDescriptor|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |getObjectPropertyDescriptor| should verify will return null if provided value is not Function or Object or key is not String" time="0" classname="CollectionsUtil:: Statics Methods::() |getObjectPropertyDescriptor|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |isNaN| should verify if nan" time="0" classname="CollectionsUtil:: Statics Methods::() |isNaN|"/>
+  <testcase name="CollectionsUtil:: Statics Methods::() |iterateClassStatics| should verify will return null when no class provided" time="0" classname="CollectionsUtil:: Statics Methods::() |iterateClassStatics|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getAllComponentState| should verify will return Array of all ComponentState in given routePathSegments" time="0.001" classname="ComponentsStateHelper Methods:: |getAllComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |updateLiteralComponentState| should verify will update state in right routePathSegments" time="0.001" classname="ComponentsStateHelper Methods:: |updateLiteralComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getComponentState| should verify will return ComponentState" time="0.001" classname="ComponentsStateHelper Methods:: |getComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getComponentState| should verify will return null if there is no such state" time="0" classname="ComponentsStateHelper Methods:: |getComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getComponentState| should verify will return null if there is no such routePathSegments" time="0" classname="ComponentsStateHelper Methods:: |getComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getState| should verify will return literalComponentState" time="0.001" classname="ComponentsStateHelper Methods:: |getState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |resetComponentStates| should verify will reset all ComponentStata status in given routePathSegments" time="0.001" classname="ComponentsStateHelper Methods:: |resetComponentStates|"/>
+  <testcase name="ComponentsStateHelper Methods:: |deleteRoutePathSegments| should verify will delete routePathSegment" time="0" classname="ComponentsStateHelper Methods:: |deleteRoutePathSegments|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getLiteralComponentState| should verify will return LiteralComponentState" time="0" classname="ComponentsStateHelper Methods:: |getLiteralComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getLiteralComponentState| should verify will return null if there is no such state" time="0" classname="ComponentsStateHelper Methods:: |getLiteralComponentState|"/>
+  <testcase name="ComponentsStateHelper Methods:: |getLiteralComponentState| should verify will return null if there is no such routePathSegments" time="0" classname="ComponentsStateHelper Methods:: |getLiteralComponentState|"/>
+  <testcase name="ComponentsStateHelper should verify instance is created" time="0" classname="ComponentsStateHelper"/>
+  <testcase name="Form Section Container Component should show Readonly and Edit section after save" time="0.028" classname="Form Section Container Component"/>
+  <testcase name="Form Section Container Component should project .title content correctly" time="0.012" classname="Form Section Container Component"/>
+  <testcase name="Form Section Container Component should readOnly and Edit sections to be toggled on Cancel" time="0.01" classname="Form Section Container Component"/>
+  <testcase name="Form Section Container Component should readOnly and Edit sections to be toggled on Edit" time="0.009" classname="Form Section Container Component"/>
+  <testcase name="And should verify instance is created from comparable" time="0.001" classname="And"/>
+  <testcase name="And Methods:: |evaluate| should verify will invoke correct methods" time="0" classname="And Methods:: |evaluate|"/>
+  <testcase name="And should verify instance is created from predicates" time="0" classname="And"/>
+  <testcase name="And should verify instance is created from one predicate" time="0" classname="And"/>
+  <testcase name="And Statics:: Methods:: |of| should verify factory method will create instance from comparable" time="0" classname="And Statics:: Methods:: |of|"/>
+  <testcase name="And Statics:: Methods:: |of| should verify factory method will create instance from predicates" time="0" classname="And Statics:: Methods:: |of|"/>
+  <testcase name="rxjs operators |getModel| should verify will create ComponentModel down the stream" time="0.002" classname="rxjs operators |getModel|"/>
+  <testcase name="rxjs operators |getModelAndTask| should verify will create ComponentModel down the stream" time="0.001" classname="rxjs operators |getModelAndTask|"/>
+  <testcase name="rxjs operators |handleActionError| should verify will handle Stream error and return ComponentFailed action" time="0.001" classname="rxjs operators |handleActionError|"/>
+  <testcase name="Equal Methods::() |evaluate| should verify will return true if both comparables have same values, otherwise false" time="0" classname="Equal Methods::() |evaluate|"/>
+  <testcase name="Equal should verify instance is created" time="0" classname="Equal"/>
+  <testcase name="Equal Statics:: Methods::() |of| should verify factory method will create instance" time="0" classname="Equal Statics:: Methods::() |of|"/>
+  <testcase name="Equal should verify value (Comparable) is correctly assigned" time="0" classname="Equal"/>
+  <testcase name="ComponentService -> ComponentServiceImpl should verify service is created" time="0.001" classname="ComponentService -> ComponentServiceImpl"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |dispatchAction| should verify will invoke correct methods" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |dispatchAction|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |dispatchAction| should verify will invoke correct methods when Task is provided" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |dispatchAction|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |update| should verify will dispatch ComponentUpdate with provided ComponentState" time="0" classname="ComponentService -> ComponentServiceImpl Methods:: |update|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |load| should verify will dispatch ComponentLoading with provided ComponentState" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |load|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |load| should verify will dispatch ComponentIdle and ComponentLoading with provided component id" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |load|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |onInit| should verify wont emit when state doesn't exist" time="0.002" classname="ComponentService -> ComponentServiceImpl Methods:: |onInit|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |onInit| should verify will emit when state exist" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |onInit|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |init| should verify will initialize correct component and dispatch ComponentInit" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |init|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |init| should verify wont dispatch ComponentInit" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |init|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |hasInSegment| should verify will return true when ComponentState exist" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |hasInSegment|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |hasInSegment| should verify will return false when ComponentState not exist" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |hasInSegment|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |getModel| should verify will emit on default statuses" time="0.002" classname="ComponentService -> ComponentServiceImpl Methods:: |getModel|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |getModel| should verify will emit on every status" time="0.002" classname="ComponentService -> ComponentServiceImpl Methods:: |getModel|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |getModel| should verify will emit on requested statuses" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |getModel|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |getModel| should verify wont emit when state doesn't exist" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |getModel|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |idle| should verify will dispatch ComponentIdle with provided ComponentState" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |idle|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |onLoaded| should verify will emit when state exist and its status is FAILED" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |onLoaded|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |onLoaded| should verify wont emit when state doesn't exist" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |onLoaded|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |onLoaded| should verify wont emit when state status is not LOADED or FAILED" time="0" classname="ComponentService -> ComponentServiceImpl Methods:: |onLoaded|"/>
+  <testcase name="ComponentService -> ComponentServiceImpl Methods:: |onLoaded| should verify will emit when state exist and its status is LOADED" time="0.001" classname="ComponentService -> ComponentServiceImpl Methods:: |onLoaded|"/>
+  <testcase name="CopyToClipboardButtonComponent when no btnLabel specified should set the proper &quot;copied&quot; status" time="0.009" classname="CopyToClipboardButtonComponent when no btnLabel specified"/>
+  <testcase name="CopyToClipboardButtonComponent when no btnLabel specified should copy the value to the clipboard" time="0.005" classname="CopyToClipboardButtonComponent when no btnLabel specified"/>
+  <testcase name="CopyToClipboardButtonComponent when no btnLabel specified should initialize size properly" time="0.005" classname="CopyToClipboardButtonComponent when no btnLabel specified"/>
+  <testcase name="BaseActionWithPayload Statics:: Methods:: |of| should verify will throw Error" time="0" classname="BaseActionWithPayload Statics:: Methods:: |of|"/>
+  <testcase name="ToastServiceComponent show makes expected calls" time="0.001" classname="ToastServiceComponent show"/>
+  <testcase name="ToastServiceComponent should create" time="0" classname="ToastServiceComponent"/>
+  <testcase name="Or should verify instance is created from comparable" time="0.001" classname="Or"/>
+  <testcase name="Or should verify instance is created from predicates" time="0" classname="Or"/>
+  <testcase name="Or should verify instance is created from one predicate" time="0" classname="Or"/>
+  <testcase name="Or Methods:: |evaluate| should verify will invoke correct methods" time="0" classname="Or Methods:: |evaluate|"/>
+  <testcase name="Or Statics:: Methods:: |of| should verify factory method will create instance from comparable" time="0.001" classname="Or Statics:: Methods:: |of|"/>
+  <testcase name="Or Statics:: Methods:: |of| should verify factory method will create instance from predicates" time="0" classname="Or Statics:: Methods:: |of|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent should verify component is created" time="0.002" classname="TaurusBaseComponent -> TaurusSubclassComponent"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |navigationService| should verify NavigationService will be injected" time="0" classname="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |navigationService|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |activatedRoute| should verify ActivatedRoute will be injected" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |activatedRoute|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |uuid| should verify default value is undefined" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |uuid|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |componentService| should verify ComponentService will be injected" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Properties:: |componentService|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |setStateIdle| should verify will invoke correct methods" time="0" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |setStateIdle|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will invoke correct Taurus lifecycle hooks for LOADED and not modified" time="0.002" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will invoke correct Taurus lifecycle hooks for LOADED and modified with Task" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will invoke correct Taurus lifecycle hooks for FAILED and modified" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will invoke correct Taurus lifecycle hooks for FAILED and modified with Task" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will invoke correct Taurus lifecycle hooks for LOADED and not modified with Task" time="0" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will create correct subscriptions" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel| should verify will invoke correct Taurus lifecycle hooks for LOADED and modified" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |bindModel|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: navigateBack should verify will invoke correct methods" time="0" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: navigateBack"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: navigateTo should verify will invoke correct methods" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: navigateTo"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |normalizeModelState| should verify will invoke correct methods" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Methods:: |normalizeModelState|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Angular lifecycle hooks:: |ngOnDestroy| should verify will invoke expected methods" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Angular lifecycle hooks:: |ngOnDestroy|"/>
+  <testcase name="TaurusBaseComponent -> TaurusSubclassComponent Angular lifecycle hooks:: |ngOnInit| should verify will invoke expected method" time="0.001" classname="TaurusBaseComponent -> TaurusSubclassComponent Angular lifecycle hooks:: |ngOnInit|"/>
+  <testcase name="VmwSimpleTranslateService error message should show if key is not found" time="0.001" classname="VmwSimpleTranslateService"/>
+  <testcase name="VmwSimpleTranslateService should translate string as per specified language" time="0" classname="VmwSimpleTranslateService"/>
+  <testcase name="VmwSimpleTranslateService should return translation in the default langauge if the string does not exist in the specified language" time="0" classname="VmwSimpleTranslateService"/>
+  <testcase name="VmwSimpleTranslateService should accept a LCID and set language" time="0.001" classname="VmwSimpleTranslateService"/>
+  <testcase name="SimplePredicate Statics:: |of| should verify will throw Error" time="0" classname="SimplePredicate Statics:: |of|"/>
+  <testcase name="VmwSearchComponent should create" time="0.005" classname="VmwSearchComponent"/>
+  <testcase name="VmwSearchComponent should not show helper text with results when resultCount is not used" time="0.003" classname="VmwSearchComponent"/>
+  <testcase name="VmwSearchComponent should show helper text with results when resultCount is a number" time="0.004" classname="VmwSearchComponent"/>
+  <testcase name="VmwFormSectionComponent should project .form-section-footer content only when focused and then change edit state" time="0.005" classname="VmwFormSectionComponent"/>
+  <testcase name="VmwFormSectionComponent should project .form-section-content content correctly" time="0.004" classname="VmwFormSectionComponent"/>
+  <testcase name="VmwFormSectionComponent should project .form-section-header content correctly" time="0.004" classname="VmwFormSectionComponent"/>
+  <testcase name="RouterService -> RouterServiceImpl Methods:: |get| should verify will return correct Observable state" time="0.001" classname="RouterService -> RouterServiceImpl Methods:: |get|"/>
+  <testcase name="RouterService -> RouterServiceImpl Methods:: |get| should verify will select RouterState from Store" time="0" classname="RouterService -> RouterServiceImpl Methods:: |get|"/>
+  <testcase name="RouterService -> RouterServiceImpl Methods:: |initialize| should verify will create subscriptions and will assign value to local state" time="0.001" classname="RouterService -> RouterServiceImpl Methods:: |initialize|"/>
+  <testcase name="RouterService -> RouterServiceImpl Methods:: |initialize| should verify will push created subscriptions to buffer" time="0" classname="RouterService -> RouterServiceImpl Methods:: |initialize|"/>
+  <testcase name="RouterService -> RouterServiceImpl Methods:: |getState| should verify will select RouterState from Store" time="0.001" classname="RouterService -> RouterServiceImpl Methods:: |getState|"/>
+  <testcase name="RouterService -> RouterServiceImpl Methods:: |getState| should verify will return correct Observable state" time="0" classname="RouterService -> RouterServiceImpl Methods:: |getState|"/>
+  <testcase name="RouterService -> RouterServiceImpl Statics:: Methods:: |getState| should verify will return RouteState" time="0.001" classname="RouterService -> RouterServiceImpl Statics:: Methods:: |getState|"/>
+  <testcase name="RouterService -> RouterServiceImpl Statics:: Methods:: |get| should verify will return RouterState" time="0" classname="RouterService -> RouterServiceImpl Statics:: Methods:: |get|"/>
+  <testcase name="RouterService -> RouterServiceImpl should verify instance is created" time="0" classname="RouterService -> RouterServiceImpl"/>
+  <system-out>
+    <![CDATA[Chrome Headless 108.0.5359.94 (Mac OS 10.15.7) WARN: 'Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.'
+,Chrome Headless 108.0.5359.94 (Mac OS 10.15.7) ERROR: 'error'
+,Chrome Headless 108.0.5359.94 (Mac OS 10.15.7) ERROR: 'error'
+,Chrome Headless 108.0.5359.94 (Mac OS 10.15.7) ERROR: 'error'
+,Chrome Headless 108.0.5359.94 (Mac OS 10.15.7) ERROR: 'error'
+,Chrome Headless 108.0.5359.94 (Mac OS 10.15.7) ERROR: 'Cannot navigate without NavigationAction'
+
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>

@@ -1,0 +1,27 @@
+{
+  "baseUrl": "http://localhost.vmware.com:4200/",
+  "projectId": "bh68ff",
+  "fixturesFolder": "e2e/fixtures",
+  "integrationFolder": "e2e/integration",
+  "pluginsFile": "e2e/plugins/index.js",
+  "screenshotsFolder": "e2e/screenshots",
+  "videosFolder": "e2e/videos",
+  "supportFile": "e2e/support/index.js",
+  "reporter": "junit",
+  "taskTimeout": 60000,
+  "responseTimeout": 60000,
+  "requestTimeout": 30000,
+  "pageLoadTimeout": 60000,
+  "execTimeout": 60000,
+  "defaultCommandTimeout": 12000,
+  "viewportWidth": 1366,
+  "viewportHeight": 768,
+  "reporterOptions": {
+    "mochaFile": "e2e/reports/test-results.xml",
+    "toConsole": true
+  },
+  "env": {
+    "hars_folders": "e2e/hars",
+    "login_url": "https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize"
+  }
+}

@@ -1,0 +1,48 @@
+<div class="search-container"
+        [class.disabled]="disabled"
+        [class.focused]="focused">
+    <cds-icon shape="search"
+              size="18"
+              [attr.class]="searchQueryValue ? 'is-highlight' : ''"
+              data-test-id="search-icon">
+    </cds-icon>
+
+    <input type="text"
+           (focus)="focused = true"
+           (blur)="focused = false"
+           (keydown)="handleKeyDown($event)"
+           class="clr-input"
+           [attr.aria-label]="searchAriaLabelText || finalPlaceholder"
+           [value]="searchQueryValue"
+           [formControl]="searchQuery"
+           [placeholder]="finalPlaceholder"
+           [style.padding-right]="searchInputPaddingRight"
+           data-test-id="search-input"/>
+
+    <ng-container *ngIf="searchQueryValue">
+        <button *ngIf="!showSearchButton || !isSeachButtonVisible; else searchButtonSection"
+                class="clear-search-btn"
+                [title]="clearSearchTitle"
+                [attr.aria-label]="clearSearchTitle"
+                (click)="clearSearch()"
+                data-test-id="clear-search-btn"
+                type="button">
+            <cds-icon shape="times-circle"
+                      size="16">
+            </cds-icon>
+        </button>
+
+        <ng-template #searchButtonSection>
+            <button class="btn btn-link"
+                    #searchButton
+                    data-test-id="search-button"
+                    [attr.disabled]="+searchQueryValue?.length < searchTermMinimalLength ? '': null"
+                    [attr.aria-label]="searchButtonAriaLabelText || null"
+                    (click)="triggerSearch()">
+                {{ searchButtonText }}
+            </button>
+        </ng-template>
+    </ng-container>
+
+    <clr-control-helper *ngIf=helperText data-test-id="search-results-text">{{helperText}}</clr-control-helper>
+</div>

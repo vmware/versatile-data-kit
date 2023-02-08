@@ -1,0 +1,12 @@
+.toast-container {
+  z-index: 1051;
+
+  .toast-title {
+    max-width: 300px;
+  }
+
+  .toast-description {
+    margin-top: 5px;
+    max-width: 330px;
+  }
+}

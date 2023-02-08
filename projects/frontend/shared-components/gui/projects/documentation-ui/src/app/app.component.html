@@ -1,0 +1,56 @@
+<div class="main-container" appWootric *ngIf="idToken">
+    <!-- Header -->
+    <header class="header-6">
+        <div class="branding">
+            <a routerLink="overview" routerLinkActive="active" class="nav-link">
+                <clr-icon shape="vm-bug"></clr-icon>
+                <span class="title" data-cy="app-main-title">Shared Components Documentation UI</span>
+            </a>
+        </div>
+        <div class="header-actions">
+            <clr-dropdown>
+                <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
+                    {{userName}}
+                </button>
+                <clr-dropdown-menu clrPosition="bottom-right">
+                    <div (click)="logout()" aria-label="Logout" clrDropdownItem>Logout</div>
+                </clr-dropdown-menu>
+            </clr-dropdown>
+        </div>
+    </header>
+    <!-- Container -->
+    <div class="content-container switch-btn-bottom">
+        <!-- Vertical navigation -->
+        <clr-vertical-nav>
+            <!-- Overview -->
+            <a
+                id="navLinkGetStartedIntroduction"
+                clrVerticalNavLink
+                routerLink="overview"
+                routerLinkActive="active"
+            >Overview</a>
+            <clr-vertical-nav-group>
+                <div data-cy="nav-group-components">
+                    Components
+                </div>
+            </clr-vertical-nav-group>
+
+        </clr-vertical-nav>
+
+        <!-- Content area -->
+        <div class="content-area">
+            <div class="csp-content-area-margin">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="checking-user" *ngIf="!idToken">
+    <div class="loading-spinner">
+        <h2 class="loading-title">Loading Shared Components Documentation UIs</h2>
+        <clr-spinner></clr-spinner>
+    </div>
+</div>
+
+<shared-toasts></shared-toasts>

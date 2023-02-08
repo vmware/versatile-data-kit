@@ -1,0 +1,13 @@
+<div class="vmw-form-container">
+    <div [@customFormState]="getFormState()" (@customFormState.done)="emitAnimationDone()" class="vmw-vertical-line">
+    </div>
+    <div class="vmw-form-content">
+        <div class="form-header">
+            <ng-content select=".form-section-header"></ng-content>
+        </div>
+        <ng-content select=".form-section-content"></ng-content>
+        <div @footerState *ngIf="focused">
+            <ng-content select=".form-section-footer"></ng-content>
+        </div>
+    </div>
+</div>

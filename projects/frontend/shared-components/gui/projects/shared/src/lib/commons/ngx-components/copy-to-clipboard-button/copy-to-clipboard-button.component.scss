@@ -1,0 +1,104 @@
+span.copy-button {
+    button {
+        margin-right: 0px !important;
+        border: none;
+        padding: 0;
+    }
+}
+
+.flip-horizontal-bottom {
+    -webkit-animation: flip-horizontal-bottom 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+            animation: flip-horizontal-bottom 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+}
+
+.flip-horizontal-reverse {
+    -webkit-animation: flip-horizontal-reverse 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+            animation: flip-horizontal-reverse 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+}
+
+.anim-object {
+    transform-style: preserve-3d;
+    display: block;
+    outline: none;
+}
+
+.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 3px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform: rotateX(0deg);
+}
+
+.front {
+    z-index: 20;
+
+    &.face-label {
+        position: relative;
+    }
+}
+
+.back {
+    z-index: 10;
+    transform: rotateX(180deg);
+    &.face-label {
+        top: 0px;
+    }
+}
+
+.hide-tooltip {
+    display: none;
+}
+
+/**
+ * ----------------------------------------
+ * animation flip-horizontal-bottom
+ * ----------------------------------------
+ */
+@-webkit-keyframes flip-horizontal-bottom {
+    0% {
+        -webkit-transform: rotateX(0);
+                transform: rotateX(0);
+    }
+    100% {
+        -webkit-transform: rotateX(-180deg);
+                transform: rotateX(-180deg);
+    }
+}
+
+@keyframes flip-horizontal-bottom {
+    0% {
+        -webkit-transform: rotateX(0);
+                transform: rotateX(0);
+    }
+    100% {
+        -webkit-transform: rotateX(-180deg);
+                transform: rotateX(-180deg);
+    }
+}
+
+@-webkit-keyframes flip-horizontal-reverse {
+    0% {
+        -webkit-transform: rotateX(-180deg);
+                transform: rotateX(-180deg);
+    }
+    100% {
+        -webkit-transform: rotateX(0);
+                transform: rotateX(0);
+    }
+}
+
+@keyframes flip-horizontal-reverse {
+    0% {
+        -webkit-transform: rotateX(-180deg);
+                transform: rotateX(-180deg);
+    }
+    100% {
+        -webkit-transform: rotateX(0);
+                transform: rotateX(0);
+    }
+}

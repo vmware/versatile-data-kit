@@ -1,0 +1,17 @@
+{
+  "/metadata/lineage/datajob:test_datajob": {
+    "target": "http://localhost.vmware.com:4200/assets/lineage-data/lineage_result.json",
+    "pathRewrite": {
+      "^/metadata/lineage/datajob:test_datajob": ""
+    },
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/metadata": {
+    "target": "http://cp.dev.taurus.vmware.com",
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  }
+}

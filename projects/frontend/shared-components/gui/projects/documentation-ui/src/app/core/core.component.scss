@@ -1,0 +1,16 @@
+.core-component {
+  .card {
+    height: 100%;
+
+    .card-block {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+}
