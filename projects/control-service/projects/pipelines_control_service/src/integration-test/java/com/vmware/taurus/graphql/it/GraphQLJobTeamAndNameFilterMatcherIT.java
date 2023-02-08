@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
+public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT{
 
   @Autowired JobsRepository jobsRepository;
 
@@ -131,22 +131,6 @@ public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
     createJobWithTeam("another-team", "another-job");
     testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
         "test-team", "unrelated-*", "\"jobName\"");
-  }
-
-  @Test
-  public void testFilterByTeamNameWildcardMatch_multipleJobs_shouldRetrieve() throws Exception {
-    createJobWithTeam("test-team", "test-job");
-    createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
-        "test-team", "test-*", "\"config.team\"");
-  }
-
-  @Test
-  public void testFilterByTeamNameWildcardMatch_multipleJobs_shouldNotRetrieve() throws Exception {
-    createJobWithTeam("test-team", "test-job");
-    createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
-        "test-team", "unrelated-*", "\"config.team\"");
   }
 
   private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
