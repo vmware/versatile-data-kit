@@ -101,7 +101,6 @@ public class GraphQLJobTeamFetcherIT {
         .andExpect(jsonPath("$.data.content[0].config.team").value(jobTeam));
   }
 
-
   private void testJobApiRetrievalWithTeamName_retrieveExpected(String jobTeam) throws Exception {
     testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(jobTeam, jobTeam);
   }

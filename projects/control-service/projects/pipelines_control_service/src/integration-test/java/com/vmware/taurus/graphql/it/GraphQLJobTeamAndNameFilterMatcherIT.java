@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT{
+public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
 
   @Autowired JobsRepository jobsRepository;
 
