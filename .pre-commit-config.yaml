@@ -100,7 +100,7 @@ repos:
           - --comment-style
           - <!--|   ~|  -->
       - id: insert-license
-        files: \.scss$
+        files: (\.scss$|\.css$)
         args:
           - --license-filepath
           - NOTICE.txt
