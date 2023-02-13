@@ -9,9 +9,9 @@ import {
   jobRunRequest
 } from './serverRequests';
 import CreateJobDialog, { createJobData } from './components/CreateJob';
-import DeleteJobDialog from './components/DeleteJob';
+import DeleteJobDialog, { deleteJobData } from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { removeDeleteJobDataFromSessionStorage, removeDownloadJobDataFromSessionStorage } from './utils';
+import { removeDownloadJobDataFromSessionStorage } from './utils';
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -76,21 +76,17 @@ export function updateVDKMenu(commands: CommandRegistry) {
     }
   });
 
-  sessionStorage.setItem('delete-job-team', 'default-team');
   commands.addCommand('jp-vdk:menu-delete', {
     label: 'Delete',
     caption: 'Execute VDK Delete Command',
     execute: async () => {
-      let defaultJobName = sessionStorage
-        .getItem('current-path')!
-        .substring(sessionStorage.getItem('current-path')!.lastIndexOf('/'));
       try {
         const result = await showDialog({
           title: 'Delete Job',
           body: (
             <DeleteJobDialog
-              jobName={defaultJobName}
-              jobTeam={sessionStorage.getItem('delete-job-team')!}
+              jobName='job-to-delete'
+              jobTeam='default-team'
             ></DeleteJobDialog>
           ),
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
@@ -98,9 +94,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (result.button.accept) {
           let bodyMessage =
             'Do you really want to delete the job with name ' +
-            sessionStorage.getItem('delete-job-name') +
+            deleteJobData.jobName +
             ' from ' +
-            sessionStorage.getItem('delete-job-rest-api-url') +
+            deleteJobData.restApiUrl +
             '?';
           try {
             const finalResult = await showDialog({
@@ -108,7 +104,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
               body: bodyMessage,
               buttons: [
                 Dialog.cancelButton({ label: 'Cancel' }),
-                Dialog.warnButton({ label: 'Yes' })
+                Dialog.okButton({ label: 'Yes' })
               ]
             });
             if (finalResult.button.accept) {
@@ -122,7 +118,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
             );
           }
         }
-        removeDeleteJobDataFromSessionStorage();
+        deleteJobData.setToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when deleting the job. Error:',
