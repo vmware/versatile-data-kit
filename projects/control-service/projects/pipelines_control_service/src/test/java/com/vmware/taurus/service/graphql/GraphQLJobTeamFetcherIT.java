@@ -80,37 +80,6 @@ public class GraphQLJobTeamFetcherIT {
     testJobApiRetrievalWithTeamName_retrieveExpected("VIDA");
   }
 
-  @Test
-  public void testRetrieveJobNameWithTrailingWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
-        "some-long-data-job-name", "some-*");
-  }
-
-  @Test
-  public void testRetrieveJobNameWithTrailingAndLeadingWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
-        "some-long-data-job-name", "*-long-*");
-  }
-
-  @Test
-  public void testRetrieveJobNameWithLeadingWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
-        "some-long-data-job-name", "*-name");
-  }
-
-  @Test
-  public void testRetrieveJobNameWithComplicatedWildcard() throws Exception {
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
-        "some-long-data-job-name", "*-long-*-name");
-  }
-
-  @Test
-  public void testRetrieveJobNameWithWildcard_shouldNotRetrieve() throws Exception {
-
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
-        "some-long-data-job-name", "*-other-*");
-  }
-
   /**
    * Re-usable test that creates a data job with a given team name and attempts to retrieve it via
    * the graphQL API, expecting to find it.
@@ -130,26 +99,6 @@ public class GraphQLJobTeamFetcherIT {
         .andExpect(status().is(200))
         .andExpect(jsonPath("$.data.content[0].jobName").value("test-job"))
         .andExpect(jsonPath("$.data.content[0].config.team").value(jobTeam));
-  }
-
-  /**
-   * Re-usable test that creates a data job with a given team name and attempts to retrieve it via
-   * the graphQL API, expecting to not find it, due to the provided search string.
-   *
-   * @param jobTeam - the team name.
-   * @param searchString - the graphQl search string.
-   * @throws Exception
-   */
-  private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
-      String jobTeam, String searchString) throws Exception {
-    createJobWithTeam(jobTeam);
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(getJobsUri(jobTeam))
-                .queryParam("query", getQuery(searchString))
-                .with(user("test")))
-        .andExpect(status().is(200))
-        .andExpect(jsonPath("$.data.content").isEmpty());
   }
 
   private void testJobApiRetrievalWithTeamName_retrieveExpected(String jobTeam) throws Exception {

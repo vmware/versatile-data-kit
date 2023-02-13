@@ -23,6 +23,10 @@ build-py310-vdk-snowflake:
   extends: .build-vdk-snowflake
   image: "python:3.10"
 
+build-py311-vdk-snowflake:
+  extends: .build-vdk-snowflake
+  image: "python:3.11"
+
 release-vdk-snowflake:
   variables:
     PLUGIN_NAME: vdk-snowflake
