@@ -6,7 +6,6 @@ import { assert } from 'console';
  * This is required to ensure we capture all log messages.
  */
 test.use({ autoGoto: false });
-const delay = ms => new Promise(res => setTimeout(res, ms));
 
 test('should open run job pop up and then cancel the operation', async ({ page }) => {
   await page.goto("");
@@ -28,7 +27,7 @@ test('should try to run a job with empty input and get error', async ({ page }) 
 
 });
 
-test('should try to run a job with incorrect data and get a dialog error message', async ({page}) =>{
+test('should try to run a job with incorrect data and get a dialog error message', async ({page}) => {
   await page.goto("");
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Run').click();
