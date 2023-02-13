@@ -55,7 +55,11 @@ VDK creates data processing workflows to:
 - Software Development Kit (SDK):
     - Tools to automate the extraction, transformation, and loading of data.
     - A plugin framework that allows users to extend the framework according to their specific requirements.
+
+![](https://github.com/vmware/versatile-data-kit/blob/person/zverulacis/gif/support/images/versatile-data-kit-help.gif)
+
 - Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
+
 
 # Getting Started
 Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
