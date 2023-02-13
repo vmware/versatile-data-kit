@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import DownloadJobData from '../dataClasses/downloadJobData';
+
+export var downloadJobData = new DownloadJobData("", "", "", "");
 
 export interface IDownloadJobDialogProps {
     /**
@@ -56,7 +59,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-job";
         }
-        sessionStorage.setItem("download-job-name", value);
+        downloadJobData.jobName = value;
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -69,7 +72,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-team";
         }
-        sessionStorage.setItem("download-job-team", value);
+        downloadJobData.jobTeam = value;
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -82,7 +85,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-url";
         }
-        sessionStorage.setItem("download-job-rest-api-url", value);
+        downloadJobData.restApiUrl = value;
     };
      /**
    * Callback invoked upon changing the  job path input.
@@ -95,6 +98,6 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if(!value){
             value = this.props.parentPath;
         }
-        sessionStorage.setItem("download-job-path", value)
+        downloadJobData.jobPath = value;
     };
 }

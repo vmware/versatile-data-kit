@@ -44,7 +44,7 @@ class DownloadJobHandler(APIHandler):
                 input_data["jobName"],
                 input_data["jobTeam"],
                 input_data["restApiUrl"],
-                input_data["parentPath"],
+                input_data["jobPath"],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:

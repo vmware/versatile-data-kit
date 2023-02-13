@@ -3,6 +3,7 @@ import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 import { runJobData } from './components/RunJob';
 import { createJobData } from './components/CreateJob';
 import { deleteJobData } from './components/DeleteJob';
+import { downloadJobData } from './components/DownloadJob';
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -95,16 +96,10 @@ export async function deleteJobRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function downloadJobRequest() {
-  let dataToSend = {
-    jobName: sessionStorage.getItem('download-job-name'),
-    jobTeam: sessionStorage.getItem('download-job-team'),
-    restApiUrl: sessionStorage.getItem('download-job-rest-api-url'),
-    parentPath: sessionStorage.getItem('download-job-path')
-  };
-  if (dataToSend['jobName'] && dataToSend['jobTeam']) {
+  if (downloadJobData.jobName && downloadJobData.jobTeam) {
     try {
       let data = await requestAPI<any>('download', {
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(downloadJobData),
         method: 'POST'
       });
       if (!data['error']) {

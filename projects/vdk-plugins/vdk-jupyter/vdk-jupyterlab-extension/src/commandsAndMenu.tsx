@@ -10,8 +10,7 @@ import {
 } from './serverRequests';
 import CreateJobDialog, { createJobData } from './components/CreateJob';
 import DeleteJobDialog, { deleteJobData } from './components/DeleteJob';
-import DownloadJobDialog from './components/DownloadJob';
-import { removeDownloadJobDataFromSessionStorage } from './utils';
+import DownloadJobDialog, { downloadJobData } from './components/DownloadJob';
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -147,7 +146,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           downloadJobRequest();
         }
-        removeDownloadJobDataFromSessionStorage();
+        downloadJobData.setToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to download the job. Error:',
