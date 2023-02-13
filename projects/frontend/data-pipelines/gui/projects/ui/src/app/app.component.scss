@@ -1,0 +1,29 @@
+/*
+ * Copyright 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.small-text {
+  font-size: smaller;
+}
+
+.checking-user {
+  display: table;
+  height: 28rem;
+  width: 100%;
+
+  .loading-spinner {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+
+    .loading-title {
+      margin-bottom: .6rem;
+    }
+  }
+}
+
+.nav-right {
+  float: right;
+  display: contents;
+}
