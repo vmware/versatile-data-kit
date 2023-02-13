@@ -9,11 +9,6 @@ export function removeCreateJobDataFromSessionStorage(){
     sessionStorage.removeItem('cloud');
 }
 
-export function removeRunJobDataFromSessionStorage(){
-    sessionStorage.removeItem('job-path');
-    sessionStorage.removeItem('job-args');
-}
-
 export function removeDeleteJobDataFromSessionStorage(){
     sessionStorage.removeItem('delete-job-name');
     sessionStorage.removeItem('delete-job-team');
@@ -25,4 +20,14 @@ export function removeDownloadJobDataFromSessionStorage(){
     sessionStorage.removeItem('download-job-team');
     sessionStorage.removeItem('download-job-rest-api-url');
     sessionStorage.removeItem('download-job-path');
+}
+
+
+export default class RunJobData {
+    constructor(public jobPath: String, public jobArguments: String) {}
+
+    setToDefault(){
+        this.jobPath = "";
+        this.jobArguments = "";
+    }
 }

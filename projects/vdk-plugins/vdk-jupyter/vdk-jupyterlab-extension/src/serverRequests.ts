@@ -1,5 +1,6 @@
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
+import { runJobData } from './components/RunJob';
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -24,14 +25,10 @@ export async function getCurrentPathRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function jobRunRequest() {
-  const dataToSend = {
-    jobPath: sessionStorage.getItem('job-path'),
-    jobArguments: sessionStorage.getItem('job-args')
-  };
-  if (dataToSend['jobPath']) {
+  if (runJobData.jobPath) {
     try {
       const data = await requestAPI<any>('run', {
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(runJobData),
         method: 'POST'
       });
       const message =
@@ -39,7 +36,6 @@ export async function jobRunRequest() {
         data['message'] +
         ' \n See vdk_logs.txt file for more!';
       alert(message);
-      sessionStorage.removeItem('job-args');
     } catch (error) {
       await showErrorMessage(
         'Encountered an error when trying to run the job. Error:',

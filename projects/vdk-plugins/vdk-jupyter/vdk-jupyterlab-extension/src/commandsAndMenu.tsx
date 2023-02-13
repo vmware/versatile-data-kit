@@ -1,7 +1,7 @@
 import { CommandRegistry } from '@lumino/commands';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import React from 'react';
-import RunJobDialog from './components/RunJob';
+import RunJobDialog, { runJobData } from './components/RunJob';
 import {
   createJobRequest,
   deleteJobRequest,
@@ -11,7 +11,7 @@ import {
 import CreateJobDialog from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { removeCreateJobDataFromSessionStorage, removeDeleteJobDataFromSessionStorage, removeDownloadJobDataFromSessionStorage, removeRunJobDataFromSessionStorage } from './utils';
+import { removeCreateJobDataFromSessionStorage, removeDeleteJobDataFromSessionStorage, removeDownloadJobDataFromSessionStorage } from './utils';
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -32,7 +32,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           jobRunRequest();
         }
-        removeRunJobDataFromSessionStorage();
+        runJobData.setToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to run the job. Error:',

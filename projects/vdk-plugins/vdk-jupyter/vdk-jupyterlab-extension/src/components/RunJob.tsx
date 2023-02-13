@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import RunJobData from '../utils';
+
+export var runJobData = new RunJobData("", "");
 
 export interface IRunJobDialogProps {
     /**
@@ -15,6 +18,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
    * @param props - component properties
    * @returns React component
    */
+
     constructor(props: IRunJobDialogProps) {
         super(props);
     }
@@ -49,7 +53,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
         if(!value){
             value = this.props.jobPath;
         }
-        sessionStorage.setItem("job-path", value)
+        runJobData.jobPath = value;
     };
     /**
     * Callback invoked upon  changing the args input
@@ -60,7 +64,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
         const element = event.currentTarget as HTMLInputElement;
         let value = element.value;
         if(value && this._isJSON(value)){
-            sessionStorage.setItem("job-args", value)
+            runJobData.jobArguments = value;
         }
     };
 
