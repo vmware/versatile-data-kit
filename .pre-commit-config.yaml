@@ -77,6 +77,34 @@ repos:
           - --comment-style
           - /*| *| */
       - id: insert-license
+        files: \.ts$
+        args:
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*| *| */
+      - id: insert-license
+        files: \.js$
+        args:
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*| *| */
+      - id: insert-license
+        files: \.html
+        args:
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - <!--|   ~|  -->
+      - id: insert-license
+        files: \.scss$
+        args:
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*| *| */
+      - id: insert-license
         files: \.py$
         args:
           - --license-filepath
