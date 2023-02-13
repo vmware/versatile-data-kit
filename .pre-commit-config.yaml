@@ -10,6 +10,7 @@ repos:
         # exclude helm chart templates
         exclude: ^projects/control-service/projects/helm_charts
       - id: check-json
+        exclude: (^projects/frontend/data-pipelines/gui/tsconfig.json|^projects/frontend/data-pipelines/gui/package-lock.json)
       - id: check-ast
         exclude: ^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py
       - id: check-added-large-files
