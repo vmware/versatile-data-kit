@@ -44,9 +44,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @TestPropertySource(
-        properties = {
-                "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-        })
+    properties = {
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+    })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
