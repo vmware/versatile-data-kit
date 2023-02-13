@@ -11,7 +11,7 @@ import {
 import CreateJobDialog from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { removeCreateJobDataFromSessionStorage } from './utils';
+import { removeCreateJobDataFromSessionStorage, removeDeleteJobDataFromSessionStorage, removeDownloadJobDataFromSessionStorage, removeRunJobDataFromSessionStorage } from './utils';
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -28,11 +28,11 @@ export function updateVDKMenu(commands: CommandRegistry) {
           ),
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
-        if (!result.value) {
-          if (result.button.accept) {
-            jobRunRequest();
-          }
+        const resultButtonClicked = !result.value && result.button.accept;
+        if (resultButtonClicked) {
+          jobRunRequest();
         }
+        removeRunJobDataFromSessionStorage();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to run the job. Error:',
@@ -61,10 +61,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
           ),
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
-        if (!result.value) {
-          if (result.button.accept) {
-            createJobRequest();
-          }
+        const resultButtonClicked = !result.value && result.button.accept;
+        if (resultButtonClicked) {
+          createJobRequest();
         }
         removeCreateJobDataFromSessionStorage();
       } catch (error) {
@@ -123,6 +122,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
             );
           }
         }
+        removeDeleteJobDataFromSessionStorage();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when deleting the job. Error:',
@@ -147,11 +147,11 @@ export function updateVDKMenu(commands: CommandRegistry) {
           ),
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
-        if (!result.value) {
-          if (result.button.accept) {
-            downloadJobRequest();
-          }
+        const resultButtonClicked = !result.value && result.button.accept;
+        if (resultButtonClicked) {
+          downloadJobRequest();
         }
+        removeDownloadJobDataFromSessionStorage();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to download the job. Error:',
