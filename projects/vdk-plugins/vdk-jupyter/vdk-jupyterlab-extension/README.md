@@ -97,15 +97,15 @@ In development mode, you will also need to remove the symlink created by `jupyte
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
 folder is located. Then you can remove the symlink named `vdk-jupyterlab-extension` within that folder.
 
-### Front-end extension 
+### Front-end extension
 This extension uses [JSX](https://reactjs.org/docs/introducing-jsx.html).
 
-The components of the front-end extension are located in the /src directory. All the new UI elements are added there. 
+The components of the front-end extension are located in the /src directory. All the new UI elements are added there.
 
-The main script for the extension is index.ts - this is where the front-end extension is loaded. 
+The main script for the extension is index.ts - this is where the front-end extension is loaded.
 In handlers.ts the connection with the server is done, while in serverRequests.ts all the requests are sent.
 
-In the subdirectory /components are located the JSX components that represent VDK menu elements. 
+In the subdirectory /components are located the JSX components that represent VDK menu elements.
 All the components use the sessionStorage to save data that is submitted from the user.
 Here is how all components use it:
 
@@ -127,7 +127,7 @@ Here is how all components use it:
 |   RunJob    |                                            "job-args" : arguments for the job that is going to be run                                             |
 
 
-### Server extension 
+### Server extension
 This extension uses [Tordnado](https://www.tornadoweb.org/en/stable/).
 
  All the requests handlers are located in handlers.py file where the communication with the front-end is created.
