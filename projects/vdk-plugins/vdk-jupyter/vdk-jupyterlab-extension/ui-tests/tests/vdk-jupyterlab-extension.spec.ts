@@ -88,7 +88,7 @@ test('should open delete job confirmation pop up', async ({ page }) => {
   await page.locator('#jp-vdk-menu').getByText('Delete').click();
   await page.locator('div').filter({ hasText: 'Delete Job' });
   await page.getByRole('button', { name: 'OK' }).click();
-  // this is tested with empty input that's why the message is with null 
+  // this is tested with empty input that's why the message is with null
   await page.locator('div').filter({ hasText: 'Do you really want to delete the job with name null from null?' });
   await page.getByRole('button', { name: 'Cancel' }).click();
 });
@@ -99,7 +99,7 @@ test('should try to delete a job with empty input and get error', async ({ page 
   await page.locator('#jp-vdk-menu').getByText('Delete').click();
   await page.locator('div').filter({ hasText: 'Delete Job' });
   await page.getByRole('button', { name: 'OK' }).click();
-  // this is tested with empty input that's why the message is with null 
+  // this is tested with empty input that's why the message is with null
   await page.locator('div').filter({ hasText: 'Do you really want to delete the job with name null from null?' }).first().click();
   await page.getByRole('button', { name: 'Yes' }).click();
   await page.locator('div').filter({ hasText: 'Encountered an error when deleting the job.'});
