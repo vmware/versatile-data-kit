@@ -1,0 +1,5 @@
+.page-container {
+    display: grid;
+    height: 100%;
+    grid-template-rows: 40px 1fr;
+}

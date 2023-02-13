@@ -1,0 +1,29 @@
+<!--
+   ~ Copyright 2021 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div *ngIf="(dataJob.deployments | extractJobStatus) === 'Not Deployed'"
+     class="tooltip tooltip-lg tooltip-bottom-right" role="tooltip" aria-haspopup="true">
+    <clr-icon title="Not Deployed - This job is created but still not deployed"
+              shape="circle"
+              data-cy="data-pipelines-job-not-deployed"
+              [attr.size]="15"></clr-icon>
+</div>
+<div *ngIf="(dataJob.deployments | extractJobStatus) === 'Disabled'" class="tooltip tooltip-lg tooltip-bottom-right"
+     role="tooltip" aria-haspopup="true">
+    <clr-icon title="Disabled - This job is deployed but not executing by schedule"
+              class="is-solid status-icon-disabled"
+              style="color: var(--clr-color-neutral-600)"
+              shape="times-circle"
+              data-cy="data-pipelines-job-disabled"
+              [attr.size]="15"></clr-icon>
+</div>
+<div *ngIf="(dataJob.deployments | extractJobStatus) === 'Enabled'" class="tooltip tooltip-lg tooltip-bottom-right"
+     role="tooltip" aria-haspopup="true">
+    <clr-icon title="Enabled - This job is deployed and executed by schedule"
+              class="is-solid status-icon-enabled"
+              shape="check-circle"
+              data-cy="data-pipelines-job-enabled"
+              [attr.size]="20"></clr-icon>
+</div>

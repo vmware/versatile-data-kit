@@ -1,0 +1,23 @@
+/*
+ * Copyright 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.empty-state-container {
+
+  vdk-empty-state-placeholder  {
+    text-align: center;
+    ::ng-deep h2 {
+      font-size: 18px !important;
+      font-weight: 500;
+      margin-top: .1rem !important;
+      line-height: 1rem;
+    }
+
+    ::ng-deep h3 {
+      font-size: 13px !important;
+      line-height: 1rem;
+      margin-top: .3rem;
+    }
+  }
+}

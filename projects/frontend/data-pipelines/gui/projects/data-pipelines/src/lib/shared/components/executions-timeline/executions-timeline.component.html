@@ -1,0 +1,100 @@
+<!--
+   ~ Copyright 2021 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<!-- eslint-disable @angular-eslint/template/no-call-expression -->
+
+<ul class="clr-timeline clr-timeline-horizontal">
+    <li *ngFor="let execution of (jobExecutions | slice:(jobExecutions.length > 5 ? jobExecutions.length - 5 : 0)); trackBy: trackByFn"
+        class="clr-timeline-step"
+        [attr.data-cy]="execution.id">
+
+        <div *ngIf="execution.startTime"
+             class="clr-timeline-step-header clr-timeline__step-header--underline-dotted"
+             timeago
+             [date]="execution.startTime"
+             [live]="true"
+             [attr.title]="'Started ' + (execution.startTime | date:'MMM d, y, hh:mm a':'UTC') + ' UTC'"></div>
+
+        <clr-icon *ngIf="execution.status === dataJobExecutionStatus.SUBMITTED"
+                  shape="hourglass"
+                  aria-label="Submitted execution"></clr-icon>
+        <clr-spinner *ngIf="execution.status === dataJobExecutionStatus.RUNNING"
+                     aria-label="In progress"
+                     clrMedium>Executing...
+        </clr-spinner>
+        <clr-icon
+            *ngIf="execution.status === dataJobExecutionStatus.FINISHED || execution.status === dataJobExecutionStatus.SUCCEEDED"
+            shape="success-standard"
+            aria-label="Failed execution"></clr-icon>
+        <clr-icon *ngIf="execution.status === dataJobExecutionStatus.CANCELLED"
+                  shape="times-circle"
+                  aria-label="Canceled execution"></clr-icon>
+        <clr-icon *ngIf="execution.status === dataJobExecutionStatus.SKIPPED"
+                  shape="circle-arrow"
+                  dir="right"
+                  aria-label="Skipped execution"></clr-icon>
+        <clr-icon *ngIf="execution.status === dataJobExecutionStatus.FAILED"
+                  shape="error-standard"
+                  aria-label="Failed execution"></clr-icon>
+        <clr-icon *ngIf="execution.status === dataJobExecutionStatus.USER_ERROR"
+                  class="is-danger"
+                  shape="error-standard"
+                  aria-label="User Error"></clr-icon>
+        <clr-icon *ngIf="execution.status === dataJobExecutionStatus.PLATFORM_ERROR"
+                  class="is-warning"
+                  shape="error-standard"
+                  aria-label="Platform Error"></clr-icon>
+
+        <div class="clr-timeline-step-body">
+
+            <span class="clr-timeline-step-title">{{(execution.status ? execution.status.replace('_', ' ') : execution.status) | titlecase}}</span>
+
+            <div class="clr-timeline-step-description">
+                <div class="clr-timeline__element--display-block">
+                    <span>Duration: </span>
+                    <span class="clr-timeline__duration-tag"
+                          [attr.title]="execution.endTime ? ('Ended ' + (execution.endTime | date:'MMM d, y, hh:mm a':'UTC') + ' UTC') : ''">{{execution | formatDelta}}</span>
+                </div>
+
+                <div *ngIf="execution?.logsUrl"
+                     class="clr-timeline__element--display-block">
+                    <a class="label-link"
+                       title="Check logs from VMware Log Insight"
+                       rel="noopener"
+                       target="_blank"
+                       [attr.href]="execution.logsUrl">
+
+                        <clr-icon class="clr-timeline__log-link"
+                                  shape="pop-out"
+                                  size="12"></clr-icon>
+
+                        <span> Logs</span>
+                    </a>
+                </div>
+
+                <span *ngIf="isExecutionManual(execution)"
+                      class="label manual-execution-label label-info"
+                      title="'{{getManualExecutedByTitle(execution)}}'">Manual</span>
+            </div>
+        </div>
+    </li>
+
+    <!-- Next Scheduled execution -->
+    <li class="clr-timeline-step" *ngIf="next">
+        <div class="clr-timeline-step-header"
+             style="text-decoration:underline; text-decoration-style: dotted;"
+             timeago
+             [attr.title]="(next | date:'MMM d, y, hh:mm a':'UTC') + ' UTC'"
+             [date]="next"
+             [live]="true"></div>
+
+        <clr-icon shape="event"></clr-icon>
+
+        <div class="clr-timeline-step-body">
+            <span class="clr-timeline-step-title">Scheduled</span>
+            <span class="clr-timeline-step-description">{{ next | date: 'MMM d, y, hh:mm a':'UTC' }} UTC</span>
+        </div>
+    </li>
+</ul>

@@ -1,0 +1,146 @@
+/*
+ * Copyright 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@mixin fill-parent-content() {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #8f9ba3;
+}
+
+.label-link {
+  cursor: pointer;
+}
+
+.label-link-suppress-decoration {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+::ng-deep
+.edit-column-modal {
+  .modal-header {
+    padding: 0 0 0 0 !important;
+  }
+}
+
+::ng-deep
+.clr-timeline-horizontal {
+  padding-top: 0 !important;
+}
+
+
+.status-icon-enabled {
+  color: hsl(93, 67%, 38%);
+}
+
+.clr-col-6 {
+  border-right: 1px solid #999999;
+}
+
+.placeholder-error-label {
+  color: gray;
+}
+
+.grid-column-details {
+  display: grid;
+  height: 100%;
+  grid-template: "a a a b b b" auto "c c c c c c" auto "d d d d d d" auto "f f f f f f" auto/ 1fr 1fr 1fr 1fr 1fr 1fr;
+
+  .grid-area-a {
+    grid-area: a;
+  }
+
+  .grid-area-b {
+    grid-area: b;
+  }
+
+  .grid-area-c {
+    grid-area: c;
+  }
+
+  .grid-area-d {
+    grid-area: d;
+  }
+
+  .grid-area-e {
+    grid-area: e;
+  }
+
+  .grid-area-f {
+    grid-area: f;
+  }
+}
+
+.clr-timeline-step clr-icon[shape=success-standard] {
+  color: var(--clr-timeline-success-step-color, #5eb715);
+}
+
+.clr-timeline-step clr-icon[shape=error-standard] {
+  color: var(--clr-timeline-error-step-color, #c21d00);
+}
+
+.clr-timeline-step clr-icon {
+  height: 1.8rem;
+  width: 1.8rem;
+  min-height: 1.8rem;
+  min-width: 1.8rem;
+}
+
+.btn-show-more {
+  padding: 0 !important;
+}
+
+:host {
+  @include fill-parent-content();
+}
+
+.data-pipelines-job__details-page {
+  @include fill-parent-content();
+
+  .data-pipelines-job__details-body {
+    @include fill-parent-content();
+
+    margin-bottom: 1rem;
+
+    .data-pipelines-job__section--border-none {
+      border: none;
+    }
+
+    .data-pipelines-job__contacts-container {
+      display: flex;
+      align-items: center;
+
+      .data-pipelines-job__contacts-list-container {
+        display: inline-flex;
+        align-items: center;
+
+        > div {
+          display: inline-flex;
+          margin-right: 0.3rem;
+
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+      }
+
+      .data-pipelines-job__contacts-list-signpost-container {
+        display: inline-flex;
+        align-items: center;
+
+        ul {
+          list-style-type: none;
+        }
+      }
+    }
+  }
+}

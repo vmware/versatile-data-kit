@@ -1,0 +1,11 @@
+<!--
+   ~ Copyright 2021 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<span data-cy="data-pipelines-job-executions-type-container"
+      [attr.title]="executionTypeProperties.status ? 'Manual: Started by ' + jobExecution.startedBy : 'Scheduled'">
+
+    <clr-icon [attr.shape]="executionTypeProperties.shape"
+              [ngClass]="executionTypeProperties.status"></clr-icon>
+</span>

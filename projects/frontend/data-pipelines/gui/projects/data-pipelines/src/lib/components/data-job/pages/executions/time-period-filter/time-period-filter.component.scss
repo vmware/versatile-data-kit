@@ -1,0 +1,592 @@
+/*
+ * Copyright 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:host {
+  .time-filter__action-btn {
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      height: 1.6rem;
+      line-height: 1.6rem;
+      margin: 0;
+
+      &:first-child {
+        margin-right: 0.6rem;
+      }
+    }
+  }
+
+  .time-filter__heading {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .time-filter__container {
+    display: flex;
+    align-items: center;
+  }
+
+  .time-filter__label {
+    line-height: 1rem;
+  }
+
+  ::ng-deep {
+    clr-signpost {
+      p {
+        color: #0a7bd8;
+        margin: 0;
+      }
+
+      form {
+        width: 13rem;
+
+        .clr-date-container {
+          &.clr-form-control {
+            &:first-child {
+              margin-top: 0;
+            }
+          }
+        }
+      }
+
+      .signpost-content-body {
+        overflow-y: visible;
+      }
+    }
+
+    dp-date-picker {
+      --date-picker-border-color: rgba(0, 0, 0, .1);
+      --date-picker-box-shadow: 1px 1px 5px #0000001a;
+
+      --date-picker-background-color: #fff;
+      --date-picker-selected-background-color: var(--clr-calendar-active-cell-background-color, #d8e3e9);
+      --date-picker-hover-background-color: var(--clr-calendar-btn-hover-focus-color, #e8e8e8);
+      --date-picker-text-color: var(--clr-p1-color, #666666);
+      --date-picker-selected-text-color: var(--clr-calendar-active-cell-color, black);
+      --date-picker-current-text-color: var(--clr-calendar-today-date-cell-color, black);
+
+      .dp-popup {
+        background: var(--date-picker-background-color);
+        border-color: var(--date-picker-border-color);
+        box-shadow: var(--date-picker-box-shadow);
+      }
+
+      dp-calendar-nav {
+        &.dp-material {
+          .dp-calendar-nav-container {
+            border: 0;
+            height: 36px;
+          }
+
+          .dp-nav-btns-container {
+            right: 0;
+          }
+
+          .dp-nav-header {
+            left: 10px;
+          }
+
+          .dp-nav-header-btn {
+            height: 1.8rem;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            width: auto;
+            font-size: var(--clr-calendar-picker-btn-font-size, 0.9rem);
+            font-weight: var(--clr-calendar-picker-btn-font-weight, 200);
+            line-height: 1.8rem;
+            border-radius: var(--clr-global-borderradius, 0.15rem);
+            color: var(--clr-calendar-btn-color, #0072a3);
+            background: var(--date-picker-background-color);
+
+            &:hover {
+              background: var(--date-picker-hover-background-color);
+            }
+          }
+
+          .dp-calendar-nav-left {
+            &:before {
+              left: 2px;
+            }
+          }
+
+          .dp-calendar-nav-right {
+            &:before {
+              left: -2px;
+            }
+          }
+
+          .dp-calendar-nav-left,
+          .dp-calendar-nav-right {
+            width: 36px;
+            height: 36px;
+            color: var(--clr-calendar-btn-color, #0072a3);
+            background: var(--date-picker-background-color);
+
+            &:before {
+              width: 10px;
+              height: 10px;
+            }
+
+            &:hover {
+              background: var(--date-picker-hover-background-color);
+            }
+          }
+
+          .dp-current-location-btn {
+            background: var(--clr-calendar-btn-color, #0072a3);
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+
+      dp-day-calendar {
+        &.dp-material {
+          .dp-calendar-wrapper {
+            border: 0;
+          }
+
+          .dp-weekdays {
+            margin-bottom: 0;
+            height: 36px;
+            display: flex;
+            align-items: center;
+          }
+
+          .dp-calendar-weekday {
+            width: 36px;
+            height: 25px;
+            text-align: center;
+            font-size: var(--clr-day-font-size, 0.6rem);
+            font-weight: 600;
+            color: var(--clr-p1-color, #666666);
+          }
+
+          .dp-calendar-day {
+            height: 1.8rem;
+            min-width: 1.8rem;
+            line-height: 1.8rem;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            border-radius: var(--clr-global-borderradius, 0.15rem);
+            color: var(--date-picker-text-color);
+            background: var(--date-picker-background-color);
+
+            &.dp-current-day {
+              color: var(--date-picker-current-text-color);
+              font-weight: var(--clr-calendar-today-date-cell-font-weight, 600);
+            }
+
+            &.dp-selected {
+              color: var(--date-picker-selected-text-color);
+              background: var(--date-picker-selected-background-color);
+            }
+
+            &:hover {
+              background: var(--date-picker-hover-background-color);
+            }
+
+            &:disabled {
+              opacity: .4;
+              pointer-events: none;
+            }
+          }
+        }
+
+        .dp-day-calendar-container {
+          background: var(--date-picker-background-color);
+        }
+      }
+
+      dp-day-time-calendar {
+        padding: 0.6rem;
+
+        &.dp-material {
+          dp-time-select {
+            border: 0;
+
+            .dp-time-select-controls {
+              background: var(--date-picker-background-color);
+            }
+
+            .dp-time-select-control {
+              width: 36px;
+
+              &.dp-time-select-separator {
+                width: 5px;
+              }
+            }
+
+            .dp-time-select-control-up {
+              &:before {
+                top: 2px;
+              }
+            }
+
+            .dp-time-select-control-down {
+              &:before {
+                top: -2px;
+              }
+            }
+
+            .dp-time-select-control-up,
+            .dp-time-select-control-down {
+              padding: 0;
+              margin: 0;
+              border: 0;
+              width: 36px;
+              height: 36px;
+              border-radius: var(--clr-global-borderradius, 0.15rem);
+              color: var(--clr-calendar-btn-color, #0072a3);
+
+              &:before {
+                width: 9px;
+                height: 9px;
+              }
+
+              &:hover {
+                background: var(--date-picker-hover-background-color);
+              }
+            }
+          }
+        }
+      }
+
+      dp-month-calendar {
+        &.dp-material {
+          .dp-month-calendar-container {
+            background: var(--date-picker-background-color);
+          }
+
+          .dp-calendar-month {
+            height: 2.4rem;
+            min-width: 2.4rem;
+            width: 6.3rem;
+            padding: 0 0.6rem;
+            margin: 0;
+            border: 0;
+            border-radius: var(--clr-global-borderradius, 0.15rem);
+            cursor: pointer;
+            font-size: .9rem;
+            font-weight: 200;
+            line-height: 1.8rem;
+            color: var(--date-picker-text-color);
+            background: var(--date-picker-background-color);
+
+            &.dp-current-month {
+              color: var(--date-picker-current-text-color);
+              font-weight: var(--clr-calendar-today-date-cell-font-weight, 600);
+            }
+
+            &.dp-selected {
+              color: var(--date-picker-selected-text-color);
+              background: var(--date-picker-selected-background-color);
+            }
+
+            &:hover {
+              background: var(--date-picker-hover-background-color);
+            }
+
+            &:disabled {
+              opacity: .4;
+              pointer-events: none;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// TODO uncomment for v13+
+//::ng-deep .cdk-overlay-container {
+//  .dp-material {
+//    &.data-pipelines__executions-filter-picker {
+//      &.dp-popup {
+//        --date-picker-border-color: rgba(0, 0, 0, .1);
+//        --date-picker-box-shadow: 1px 1px 5px #0000001a;
+//
+//        --date-picker-background-color: #fff;
+//        --date-picker-selected-background-color: var(--clr-calendar-active-cell-background-color, #d8e3e9);
+//        --date-picker-hover-background-color: var(--clr-calendar-btn-hover-focus-color, #e8e8e8);
+//        --date-picker-text-color: var(--clr-p1-color, #666666);
+//        --date-picker-selected-text-color: var(--clr-calendar-active-cell-color, black);
+//        --date-picker-current-text-color: var(--clr-calendar-today-date-cell-color, black);
+//
+//        background: var(--date-picker-background-color);
+//        border-color: var(--date-picker-border-color);
+//        box-shadow: var(--date-picker-box-shadow);
+//
+//        dp-calendar-nav {
+//          &.dp-material {
+//            .dp-calendar-nav-container {
+//              border: 0;
+//              height: 36px;
+//            }
+//
+//            .dp-nav-btns-container {
+//              right: 0;
+//            }
+//
+//            .dp-nav-header {
+//              left: 10px;
+//            }
+//
+//            .dp-nav-header-btn {
+//              height: 1.8rem;
+//              padding: 0;
+//              margin: 0;
+//              border: 0;
+//              width: auto;
+//              font-size: var(--clr-calendar-picker-btn-font-size, 0.9rem);
+//              font-weight: var(--clr-calendar-picker-btn-font-weight, 200);
+//              line-height: 1.8rem;
+//              border-radius: var(--clr-global-borderradius, 0.15rem);
+//              color: var(--clr-calendar-btn-color, #0072a3);
+//              background: var(--date-picker-background-color);
+//
+//              &:hover {
+//                background: var(--date-picker-hover-background-color);
+//              }
+//            }
+//
+//            .dp-calendar-nav-left {
+//              &:before {
+//                left: 2px;
+//              }
+//            }
+//
+//            .dp-calendar-nav-right {
+//              &:before {
+//                left: -2px;
+//              }
+//            }
+//
+//            .dp-calendar-nav-left,
+//            .dp-calendar-nav-right {
+//              width: 36px;
+//              height: 36px;
+//              color: var(--clr-calendar-btn-color, #0072a3);
+//              background: var(--date-picker-background-color);
+//
+//              &:before {
+//                width: 10px;
+//                height: 10px;
+//              }
+//
+//              &:hover {
+//                background: var(--date-picker-hover-background-color);
+//              }
+//            }
+//
+//            .dp-current-location-btn {
+//              background: var(--clr-calendar-btn-color, #0072a3);
+//              width: 18px;
+//              height: 18px;
+//            }
+//          }
+//        }
+//
+//        dp-day-calendar {
+//          &.dp-material {
+//            .dp-calendar-wrapper {
+//              border: 0;
+//            }
+//
+//            .dp-weekdays {
+//              margin-bottom: 0;
+//              height: 36px;
+//              display: flex;
+//              align-items: center;
+//            }
+//
+//            .dp-calendar-weekday {
+//              width: 36px;
+//              height: 25px;
+//              text-align: center;
+//              font-size: var(--clr-day-font-size, 0.6rem);
+//              font-weight: 600;
+//              color: var(--clr-p1-color, #666666);
+//            }
+//
+//            .dp-calendar-day {
+//              height: 1.8rem;
+//              min-width: 1.8rem;
+//              line-height: 1.8rem;
+//              padding: 0;
+//              margin: 0;
+//              border: 0;
+//              border-radius: var(--clr-global-borderradius, 0.15rem);
+//              color: var(--date-picker-text-color);
+//              background: var(--date-picker-background-color);
+//
+//              &.dp-current-day {
+//                color: var(--date-picker-current-text-color);
+//                font-weight: var(--clr-calendar-today-date-cell-font-weight, 600);
+//              }
+//
+//              &.dp-selected {
+//                color: var(--date-picker-selected-text-color);
+//                background: var(--date-picker-selected-background-color);
+//              }
+//
+//              &:hover {
+//                background: var(--date-picker-hover-background-color);
+//              }
+//
+//              &:disabled {
+//                opacity: .4;
+//                pointer-events: none;
+//              }
+//            }
+//          }
+//
+//          .dp-day-calendar-container {
+//            background: var(--date-picker-background-color);
+//          }
+//        }
+//
+//        dp-day-time-calendar {
+//          padding: 0.6rem;
+//
+//          &.dp-material {
+//            dp-time-select {
+//              border: 0;
+//
+//              .dp-time-select-controls {
+//                background: var(--date-picker-background-color);
+//              }
+//
+//              .dp-time-select-control {
+//                width: 36px;
+//
+//                &.dp-time-select-separator {
+//                  width: 5px;
+//                }
+//              }
+//
+//              .dp-time-select-control-up {
+//                &:before {
+//                  top: 2px;
+//                }
+//              }
+//
+//              .dp-time-select-control-down {
+//                &:before {
+//                  top: -2px;
+//                }
+//              }
+//
+//              .dp-time-select-control-up,
+//              .dp-time-select-control-down {
+//                padding: 0;
+//                margin: 0;
+//                border: 0;
+//                width: 36px;
+//                height: 36px;
+//                border-radius: var(--clr-global-borderradius, 0.15rem);
+//                color: var(--clr-calendar-btn-color, #0072a3);
+//
+//                &:before {
+//                  width: 9px;
+//                  height: 9px;
+//                }
+//
+//                &:hover {
+//                  background: var(--date-picker-hover-background-color);
+//                }
+//              }
+//            }
+//          }
+//        }
+//
+//        dp-month-calendar {
+//          &.dp-material {
+//            .dp-month-calendar-container {
+//              background: var(--date-picker-background-color);
+//            }
+//
+//            .dp-calendar-month {
+//              height: 2.4rem;
+//              min-width: 2.4rem;
+//              width: 6.3rem;
+//              padding: 0 0.6rem;
+//              margin: 0;
+//              border: 0;
+//              border-radius: var(--clr-global-borderradius, 0.15rem);
+//              cursor: pointer;
+//              font-size: .9rem;
+//              font-weight: 200;
+//              line-height: 1.8rem;
+//              color: var(--date-picker-text-color);
+//              background: var(--date-picker-background-color);
+//
+//              &.dp-current-month {
+//                color: var(--date-picker-current-text-color);
+//                font-weight: var(--clr-calendar-today-date-cell-font-weight, 600);
+//              }
+//
+//              &.dp-selected {
+//                color: var(--date-picker-selected-text-color);
+//                background: var(--date-picker-selected-background-color);
+//              }
+//
+//              &:hover {
+//                background: var(--date-picker-hover-background-color);
+//              }
+//
+//              &:disabled {
+//                opacity: .4;
+//                pointer-events: none;
+//              }
+//            }
+//          }
+//        }
+//      }
+//    }
+//  }
+//}
+
+.fade-to-dark {
+  &.dark {
+    :host {
+      ::ng-deep {
+        dp-date-picker {
+          --date-picker-border-color: #000;
+          --date-picker-box-shadow: 0 0.05rem 0.15rem rgb(0 0 0 / 50%);
+
+          --date-picker-background-color: #21333b;
+          --date-picker-selected-background-color: #324f62;
+          --date-picker-hover-background-color: #28404d;
+          --date-picker-text-color: #acbac3;
+          --date-picker-selected-text-color: #fff;
+          --date-picker-current-text-color: #fff;
+        }
+      }
+    }
+
+    // TODO uncomment for v13+
+    //::ng-deep .cdk-overlay-container {
+    //  .dp-material {
+    //    &.data-pipelines__executions-filter-picker {
+    //      &.dp-popup {
+    //        --date-picker-border-color: #000;
+    //        --date-picker-box-shadow: 0 0.05rem 0.15rem rgb(0 0 0 / 50%);
+    //
+    //        --date-picker-background-color: #21333b;
+    //        --date-picker-selected-background-color: #324f62;
+    //        --date-picker-hover-background-color: #28404d;
+    //        --date-picker-text-color: #acbac3;
+    //        --date-picker-selected-text-color: #fff;
+    //        --date-picker-current-text-color: #fff;
+    //      }
+    //    }
+    //  }
+    //}
+  }
+}

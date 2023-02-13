@@ -1,0 +1,14 @@
+/*
+ * Copyright 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@import "../../../base-grid/data-jobs-base-grid.component";
+
+clr-datagrid clr-dg-placeholder {
+  .msg-btn-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}

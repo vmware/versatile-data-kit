@@ -1,0 +1,13 @@
+<!--
+   ~ Copyright 2021 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div class="card" style="height:230px; padding: 20px; margin-top: 0;">
+    <div class="duration-chart">
+        <canvas id="durationChart"
+                data-cy="data-pipelines-job-executions-duration-chart"></canvas>
+        <button *ngIf="chartZoomed" class="btn btn-sm btn-link reset-zoom" (click)="resetZoom()">Reset Zoom</button>
+        <span *ngIf="!chartZoomed" class="zoom-tooltip">Click and drag to zoom</span>
+    </div>
+</div>
