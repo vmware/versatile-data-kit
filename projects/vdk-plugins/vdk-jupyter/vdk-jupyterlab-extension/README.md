@@ -105,7 +105,7 @@ The components of the front-end extension are located in the /src directory. All
 The main script for the extension is index.ts - this is where the front-end extension is loaded.
 In handlers.ts the connection with the server is done, while in serverRequests.ts all the requests are sent.
 In the subdirectory /components are located the JSX components that represent VDK menu elements.
-In the subdirectory /dataClasses are located the data classes responsible for saving the user input data for all the 
+In the subdirectory /dataClasses are located the data classes responsible for saving the user input data for all the
 vdk operations.
 
 
