@@ -1,0 +1,19 @@
+{
+  "job_name": "e2e-cp-$env-placeholder$-test-job",
+  "description": "Testing job, that is used in data-pipelines CI/CD for UI e2e tests. It is intended to be always available in order to speed up deployment and if deleted will be automatically re-created by the e2e tests." ,
+  "config": {
+    "db_default_type": "IMPALA" ,
+    "contacts": {
+      "notified_on_job_failure_user_error": [] ,
+      "notified_on_job_failure_platform_error": [] ,
+      "notified_on_job_success": [] ,
+      "notified_on_job_deploy": []
+    } ,
+    "schedule": {
+      "schedule_cron": "11 23 5 8 1"
+    } ,
+    "generate_keytab": true ,
+    "enable_execution_notifications": true
+  } ,
+  "team": "supercollider"
+}
