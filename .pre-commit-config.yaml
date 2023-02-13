@@ -13,6 +13,7 @@ repos:
       - id: check-ast
         exclude: ^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py
       - id: check-added-large-files
+        exclude: ^projects/frontend/data-pipelines/gui/tsconfig.json
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-executables-have-shebangs
