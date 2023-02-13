@@ -56,8 +56,8 @@ class CreateJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
-            local = True if input_data["isLocal"] else False
-            cloud = True if input_data["isCloud"] else False
+            local = True if input_data["local"] else False
+            cloud = True if input_data["cloud"] else False
             status = VdkUI.create_job(
                 input_data["jobName"],
                 input_data["jobTeam"],

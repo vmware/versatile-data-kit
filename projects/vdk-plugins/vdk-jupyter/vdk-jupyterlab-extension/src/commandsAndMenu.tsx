@@ -8,10 +8,10 @@ import {
   downloadJobRequest,
   jobRunRequest
 } from './serverRequests';
-import CreateJobDialog from './components/CreateJob';
+import CreateJobDialog, { createJobData } from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { removeCreateJobDataFromSessionStorage, removeDeleteJobDataFromSessionStorage, removeDownloadJobDataFromSessionStorage } from './utils';
+import { removeDeleteJobDataFromSessionStorage, removeDownloadJobDataFromSessionStorage } from './utils';
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -65,7 +65,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           createJobRequest();
         }
-        removeCreateJobDataFromSessionStorage();
+        createJobData.setToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when running the job. Error:',

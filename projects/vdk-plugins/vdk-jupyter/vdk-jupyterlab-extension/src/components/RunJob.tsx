@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import RunJobData from '../utils';
+import RunJobData from '../dataClasses/runJobData';
 
 export var runJobData = new RunJobData("", "");
 

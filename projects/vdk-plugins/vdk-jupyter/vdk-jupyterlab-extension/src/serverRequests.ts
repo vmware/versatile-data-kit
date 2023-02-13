@@ -1,6 +1,7 @@
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 import { runJobData } from './components/RunJob';
+import { createJobData } from './components/CreateJob';
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -140,18 +141,10 @@ export async function downloadJobRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
  export async function createJobRequest() {
-  let dataToSend = {
-    jobName: sessionStorage.getItem('create-job-name'),
-    jobTeam: sessionStorage.getItem('create-job-team'),
-    restApiUrl: sessionStorage.getItem('create-job-rest-api-url'),
-    jobPath: sessionStorage.getItem('create-job-path'),
-    isLocal: sessionStorage.getItem('local'),
-    isCloud: sessionStorage.getItem('cloud')
-  };
-  if (dataToSend['jobName'] && dataToSend['jobTeam']) {
+  if (createJobData.jobName && createJobData.jobTeam) {
     try {
       const data = await requestAPI<any>('create', {
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(createJobData),
         method: 'POST'
       });
       if (!data['error']) {
