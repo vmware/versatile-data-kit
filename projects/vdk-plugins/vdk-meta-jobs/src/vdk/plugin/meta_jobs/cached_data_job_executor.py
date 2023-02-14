@@ -91,6 +91,7 @@ class TrackingDataJobExecutor:
         if job is None:
             raise IndexError(
                 f"The job {job_name} has not been registered. Use register_job first. "
+                "Alternatively, verify that all of the job names in your job list are spelled correctly."
             )
         return job
 
