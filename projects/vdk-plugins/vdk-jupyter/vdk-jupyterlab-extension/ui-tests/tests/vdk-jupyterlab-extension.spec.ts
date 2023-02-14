@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { expect, test } from '@jupyterlab/galata';
 import { assert } from 'console';
 
