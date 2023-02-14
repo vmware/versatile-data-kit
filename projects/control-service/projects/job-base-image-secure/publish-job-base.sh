@@ -23,7 +23,15 @@ function build_and_push_image() {
     --target "$image_tag_local" \
     --tag "$image_tag_version" \
     --http-probe=false \
-    --exec "/bin/sh -c \"groupadd -h && useradd -h && pip3 list && export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && userdel --help && groupdel --help && chown --help && chmod --help && rm --help && python3 -m pip install --upgrade pip && /bin/bash --help\"" \
+    --exec "/bin/sh -c \"pip3 list && python3 -m pip install --upgrade pip\"" \
+    --include-bin "/usr/bin/chmod" \
+    --include-bin "/usr/bin/chown" \
+    --include-bin "/usr/bin/rm" \
+    --include-bin "/usr/bin/bash" \
+    --include-bin "/usr/sbin/groupadd" \
+    --include-bin "/usr/sbin/groupdel" \
+    --include-bin "/usr/sbin/useradd" \
+    --include-bin "/usr/sbin/userdel" \
     --include-path "/usr/lib"
 
     docker push "$image_tag_version"
