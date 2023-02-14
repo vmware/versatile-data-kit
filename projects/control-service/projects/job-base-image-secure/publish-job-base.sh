@@ -22,7 +22,6 @@ function build_and_push_image() {
     docker-slim build \
     --target "$image_tag_local" \
     --tag "$image_tag_version" \
-    #--tag "$image_tag_latest" \
     --http-probe=false \
     --exec "/bin/sh -c \"groupadd -h && useradd -h && pip3 list && export PYTHONPATH=/usr/local/lib/python3.7/site-packages:/vdk/site-packages/ && userdel --help && groupdel --help && chown --help && chmod --help && rm --help && python3 -m pip install --upgrade pip && /bin/bash --help\"" \
     --include-path "/usr/lib"
