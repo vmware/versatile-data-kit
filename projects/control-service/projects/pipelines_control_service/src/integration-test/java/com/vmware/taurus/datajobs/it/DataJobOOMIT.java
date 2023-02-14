@@ -15,24 +15,19 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 @Slf4j
-@TestPropertySource(
-    properties = {
-      "dataJob.readOnlyRootFileSystem=true",
-    })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-public class DataJobEphemeralStorageIT extends BaseIT {
+public class DataJobOOMIT extends BaseIT {
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension =
-      new DataJobDeploymentExtension("job_ephemeral_storage.zip");
+      new DataJobDeploymentExtension("oom_job.zip");
 
   @Test
-  public void testEphemeralStorageJob(
+  public void testDataJob_causesOOM_shouldCompleteWithUserError(
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
     ImmutablePair<String, String> executeDataJobResult =
@@ -43,7 +38,7 @@ public class DataJobEphemeralStorageIT extends BaseIT {
     // Check the data job execution status
     JobExecutionUtil.checkDataJobExecutionStatus(
         executionId,
-        DataJobExecution.StatusEnum.SUCCEEDED,
+        DataJobExecution.StatusEnum.USER_ERROR,
         opId,
         jobName,
         teamName,

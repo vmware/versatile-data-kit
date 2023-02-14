@@ -26,7 +26,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
   public void testStartNewCronJobExecution_nullCronJobDefinition_shouldThrowException()
       throws ApiException {
     String jobName = "test-job";
-    KubernetesService kubernetesService = mockKubernetesService(jobName, null);
+    var kubernetesService = mockKubernetesService(jobName, null);
 
     Exception exception =
         Assertions.assertThrows(
@@ -54,7 +54,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
             .spec(
                 new V1beta1CronJobSpec()
                     .jobTemplate(new V1beta1JobTemplateSpec().spec(new V1JobSpec())));
-    KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
+    var kubernetesService = mockKubernetesService(jobName, expectedResult);
 
     Exception exception =
         Assertions.assertThrows(
@@ -95,7 +95,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                                                     .addContainersItem(
                                                         new V1Container().addEnvItem(testEnv)))))));
 
-    KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
+    var kubernetesService = mockKubernetesService(jobName, expectedResult);
     kubernetesService.startNewCronJobExecution(
         jobName,
         executionId,
@@ -172,7 +172,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                                                 new V1PodSpec()
                                                     .addContainersItem(new V1Container()))))));
 
-    KubernetesService kubernetesService = mockKubernetesService(jobName, expectedResult);
+    var kubernetesService = mockKubernetesService(jobName, expectedResult);
     kubernetesService.startNewCronJobExecution(
         jobName,
         executionId,
@@ -204,7 +204,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
 
   private KubernetesService mockKubernetesService(String jobName, V1beta1CronJob result)
       throws ApiException {
-    KubernetesService kubernetesService = Mockito.mock(KubernetesService.class);
+    var kubernetesService = Mockito.mock(KubernetesService.class);
     Mockito.doCallRealMethod()
         .when(kubernetesService)
         .startNewCronJobExecution(
