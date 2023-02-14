@@ -1,7 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.ingestion import ingester_configuration
 from vdk.internal.builtin_plugins.run.job_context import JobContext

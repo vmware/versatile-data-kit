@@ -3,9 +3,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-
 # The script builds a docker image with fully installed VDK - native dependencies, python dependencies and the actual VDK.
 # The image is then deployed to ECR with.
 # This image will be used for base image for each data job.

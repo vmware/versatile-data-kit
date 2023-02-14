@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Copyright 2021 VMware, Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-
 package com.vmware.taurus.exception;
 
 /** For user-facing exceptions ({@link UserFacingError}) the HTTP status is likely to be 4xx */

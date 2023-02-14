@@ -1,7 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
 import click
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution

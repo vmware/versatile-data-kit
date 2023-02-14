@@ -3,9 +3,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-
 if ! which python3 >/dev/null 2>&1 ; then
   echo "ERROR:"
   echo "Please install python 3.7+. Build cannot continue without it."

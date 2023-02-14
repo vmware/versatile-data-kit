@@ -3,9 +3,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-
 # The script will deploy/upgrade Control service using helm
 # Set RUN_ENVIRONMENT_SETUP to 'y' to setup the test environment.
 

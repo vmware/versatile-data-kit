@@ -1,7 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
 import json
 
 from vdk.plugin.trino.lineage_utils import _get_input_tables_from_explain

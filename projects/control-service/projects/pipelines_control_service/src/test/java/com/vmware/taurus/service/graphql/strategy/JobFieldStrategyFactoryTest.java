@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Copyright 2021 VMware, Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-
 package com.vmware.taurus.service.graphql.strategy;
 
 import com.vmware.taurus.service.graphql.model.V2DataJob;
