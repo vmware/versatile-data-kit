@@ -76,27 +76,23 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 
 ## High-level design
 
-![high-level-design.png](images/high-level-design.png)
+![high-level-design.png](images/high-level-design.jpeg)
 
 JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
 Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
-The proposed design describes the solution for creating a Jupyter UI for VDK. For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands.
+The proposed design describes the solution for creating a Jupyter UI for VDK. 
+For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands.
 
-Since JupyterLab works with notebook files the proposed design should support getting the job steps from them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
+Since JupyterLab works with notebook files the proposed design should support getting the job steps from them and executing them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
+
+Since users should be able to work with data jobs directly in .ipynb files, an ipython extension package will be introduced. It will be responsible for loading the data job in the Jupyter environment.
 
 ### Ux flows
-Please, before reading this section make sure you read the user [guide](https://github.com/vmware/versatile-data-kit/wiki/User-Guide). You need to understand how VDK currently works to understand the UI changes that will be done.
+Please, before reading this section make sure you read the user [guide](https://github.com/vmware/versatile-data-kit/wiki/User-Guide).
+You need to understand how VDK currently works to get a better understanding of the changes that will be done.
 
-Here is the proposed UI and its user flows:
-
-![ux1](images/ux1.gif)
-
-![ux2](images/ux2.gif)
-
-You can see the full video in the parent directory of this file.
-
- Pay attention: the job directory which will be mentioned bellow is the standard VDK job directory (but instead of .py and .sql files we will have ipynb files)
+Pay attention: the job directory which will be mentioned bellow is the standard VDK job directory (but instead of .py and .sql files we will have ipynb files)
 
 |                  Operation                  |                                                                                                                                                                                                                       Flow                                                                                                                                                                                                                        | Covered  use cases | Priority |
 |:-------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
@@ -107,7 +103,7 @@ You can see the full video in the parent directory of this file.
 |                 Create job                  | After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Create job" option. After clicking that option the user gets a pop up where he should enter the needed information for the job that will be created: name, team, directory and whether it will only be created locally or in the cloud as well. After filling all the needed information for the job by clicking a "Create" button it will be created. |         1          |   high   |
 |                 Delete job                  |                                                                                                                                                                                              "Delete job" will be introduced just like "Create job".                                                                                                                                                                                              |         1          |   mid    |
 |                Work with SQL                |                                                                                                                                                    SQL queries will be executed using python. Using the job_input.execute_query method. These are going to be recognised as Python steps, too.                                                                                                                                                    |      2,3,4,7       |   high   |
-|       Work with Python NotebookSteps        |                                                                  One Python step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk") that shows that the cell should be included in the job. All the cells that do not have that tag will not be included in the job as a step. One notebook file can have as several Python steps.)                                                                  |       2,3,4        |   high   |
+|       Work with Python NotebookSteps        |                                                                     One Python step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk") that shows that the cell should be included in the job. All the cells that do not have that tag will not be included in the job as a step. One notebook file can have many Python steps.                                                                      |       2,3,4        |   high   |
 |                   Deploy                    |                                     It will be added as an option in the vdk drop down menu mentioned in the first column of the table (where "create", "download" will be). A pop up will be introduced asking for what the user wants to do whether he wants to latest deployed version of specific job, to disable a data job, etc. Afterwards, he will be asked about the needed information to do that.                                      |         1          |   high   |
 |               Download a job                |                                                                                                                                                                                                      Similar to "Create job", "Delete job".                                                                                                                                                                                                       |         1          |   high   |
 |                 Execute job                 |                                                                                                                                                                                                                Similar to "Deploy"                                                                                                                                                                                                                |         1          |   mid    |
@@ -125,10 +121,13 @@ The job_input variable will be loaded for the current notebook, so the user will
 Since the job_input variable will be already loaded the user can run a step during the development time, but to see how the whole job works he needs to execute the job with the "Run" command
 on the VDK menu.
 
+You can find a video presenting a few UI components in the main directory of the VEP. 
+
 ## API design
 No direct changes to the public API.
 
 ## Detailed design
+
 ### VDK Notebook plugin
  This VDK plugin will provide the functionality to run Jobs which contain notebook files instead of .py and .sql files. This plugin can be used alone without the JupyterLab extension.
 As it can be seen from the below diagram the plugin will consist of a new hook and a few new classes.
@@ -176,11 +175,15 @@ Currently, the user should look for Python version discrepancies -
 VDK and Jupyter Notebooks should be using the same version to avoid unwanted behaviour.
 
 ### VDK JupyterLab extension
- This extension will be both front-end and server side extension for JupyterLab.
- The front-end side will be introducing the graphical elements such as menus, buttons, etc. and will be responsible with sending
-requests to the server side extension. The server extension is a  package that extends to JupyterLab Server’s REST API/endpoints—i.e. adds extra request handlers to Server’s Tornado Web Application. It will be responsible with executing the vdk commands and functions according to the
-requests sent by the front-end side. Only the server extension will have direct connection to VDK and will send the needed response according to the results from VDK to the front-end extension. The extension will be using VDK Notebook plugin to run VDK Jobs and steps
-,since the standard file based step run is not working with notebook files. For the remaining operations such as deploy, log in, log out, etc. it will be using the corresponding VDK plugin/project.
+
+Before reading this section make sure you fully understand what a JupyterLab extension is.
+You can find more information [here](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html).
+
+ This is an extension with frontend (in TypeScript) and backend (in Python) parts. 
+ The front-end side will be introducing the graphical elements - the VDK menu and its options, and will be responsible with sending requests for executing vdk commands to the server side extension. 
+ The server extension is a  package that extends to JupyterLab Server’s REST API/endpoints—i.e. adds extra request handlers to Server’s Tornado Web Application. 
+ It will be responsible with executing the vdk commands and functions according to the
+requests sent by the front-end side. 
 
 From the diagram below you can see what the extension will consist of:
 
@@ -189,6 +192,26 @@ From the diagram below you can see what the extension will consist of:
 Example use case:
 
 ![example-use-case](images/example.png)
+
+#### Folder Structure
+
+* [vdk-jupyterlab-extension](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension): the root folder for all the code.
+* [src](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/src): the root folder for all the front-end code
+* [vdk-jupyterlab-extension](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/vdk-jupyterlab-extension): the root folder for all the python code for the server extension
+* [ui-tests](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests): the root folder for the e2e tests
+* [schema](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/schema): the directory contains JSON Schemas that describe the settings used by the extension
+* [style](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/style): the directory contains CSS for the front-end
+* [jupyter-config](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/jupyter-config): contains cofiguration files
+
+### VDK iPython extension 
+
+Before reading this section make sure you fully understand what an iPython extension is.
+You can find more information [here](https://ipython.readthedocs.io/en/stable/config/extensions/index.html).
+
+This extension introduces a magic commands for Jupyter. 
+The main responsibilities of the extension are: 
+* to load a data job to a specified notebook file - the users will be able to work with initialized job_input variable during development of a data job
+* to be able to finalise the loaded data job in accordance to the user's preferences
 
 ### Availability
 The availability of the extension will be managed by JupyterLab since it is going to be run as part of the JupyterLab ecosystem.
@@ -205,6 +228,8 @@ You can read more [here](https://jupyter-notebook.readthedocs.io/en/stable/secur
 
 VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as Authorization/Bearer Header.
 The testing installation uses (Staging) CSP Authentication provider. To get access token you need refresh or access token To get refresh token go to https://console-stg.cloud.vmware.com/csp/gateway/portal/#/user/tokens
+
+
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
@@ -224,14 +249,6 @@ Consider at least the below topics but you do not need to cover those that are n
 ### Configuration changes.
 ### Upgrade / Downgrade Strategy (especially if it might be breaking change).
   * Data migration plan (it needs to be automated or avoided - we should not require user manual actions.)
-### Troubleshooting
-  * What are possible failure modes.
-    * Detection: How can it be detected via metrics?
-    * Mitigations: What can be done to stop the bleeding, especially for already
-      running user workloads?
-    * Diagnostics: What are the useful log messages and their required logging
-      levels that could help debug the issue?
-    * Testing: Are there any tests for failure mode? If not, describe why._
 ### Operability
   * What are the SLIs (Service Level Indicators) an operator can use to determine the health of the system.
   * What are the expected SLOs (Service Level Objectives).
