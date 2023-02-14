@@ -81,7 +81,7 @@ Legend (terms and table are based on Pragmatic Marketing recommendations):
 JupyterLab is the next-generation user interface for Project Jupyter offering all the familiar building blocks of the classic Jupyter Notebook (notebook, terminal, text editor, file browser, rich outputs, etc.) in a flexible and powerful user interface.
 Fundamentally, JupyterLab is designed as an extensible environment. JupyterLab extensions can customize or enhance any part of JupyterLab.
 
-The proposed design describes the solution for creating a Jupyter UI for VDK. 
+The proposed design describes the solution for creating a Jupyter UI for VDK.
 For this purpose, a JupyterLab extension will be implemented, and it will give us the chance to create graphical elements like buttons and widgets – alternatives of currently used CLI commands.
 
 Since JupyterLab works with notebook files the proposed design should support getting the job steps from them and executing them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
@@ -121,7 +121,7 @@ The job_input variable will be loaded for the current notebook, so the user will
 Since the job_input variable will be already loaded the user can run a step during the development time, but to see how the whole job works he needs to execute the job with the "Run" command
 on the VDK menu.
 
-You can find a video presenting a few UI components in the main directory of the VEP. 
+You can find a video presenting a few UI components in the main directory of the VEP.
 
 ## API design
 No direct changes to the public API.
@@ -179,11 +179,11 @@ VDK and Jupyter Notebooks should be using the same version to avoid unwanted beh
 Before reading this section make sure you fully understand what a JupyterLab extension is.
 You can find more information [here](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html).
 
- This is an extension with frontend (in TypeScript) and backend (in Python) parts. 
- The front-end side will be introducing the graphical elements - the VDK menu and its options, and will be responsible with sending requests for executing vdk commands to the server side extension. 
- The server extension is a  package that extends to JupyterLab Server’s REST API/endpoints—i.e. adds extra request handlers to Server’s Tornado Web Application. 
+ This is an extension with frontend (in TypeScript) and backend (in Python) parts.
+ The front-end side will be introducing the graphical elements - the VDK menu and its options, and will be responsible with sending requests for executing vdk commands to the server side extension.
+ The server extension is a  package that extends to JupyterLab Server’s REST API/endpoints—i.e. adds extra request handlers to Server’s Tornado Web Application.
  It will be responsible with executing the vdk commands and functions according to the
-requests sent by the front-end side. 
+requests sent by the front-end side.
 
 From the diagram below you can see what the extension will consist of:
 
@@ -203,13 +203,13 @@ Example use case:
 * [style](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/style): the directory contains CSS for the front-end
 * [jupyter-config](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/jupyter-config): contains cofiguration files
 
-### VDK iPython extension 
+### VDK iPython extension
 
 Before reading this section make sure you fully understand what an iPython extension is.
 You can find more information [here](https://ipython.readthedocs.io/en/stable/config/extensions/index.html).
 
-This extension introduces a magic commands for Jupyter. 
-The main responsibilities of the extension are: 
+This extension introduces a magic commands for Jupyter.
+The main responsibilities of the extension are:
 * to load a data job to a specified notebook file - the users will be able to work with initialized job_input variable during development of a data job
 * to be able to finalise the loaded data job in accordance to the user's preferences
 
