@@ -57,11 +57,12 @@ control_service_build_image:
     expire_in: 1 week
     reports:
       junit: ./projects/control-service/projects/**/build/test-results/test/TEST-*.xml
-  only:
-    refs:
-      - external_pull_requests
-    changes: *control_service_code_change_locations
-
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image/**/*
 control_service_integration_test:
   extends: .control_service_base_build
   stage: build
@@ -94,13 +95,12 @@ control_service_integration_test:
     expire_in: 1 week
     reports:
       junit: ./projects/control-service/projects/**/build/test-results/integrationTest/TEST-*.xml
-  only:
-    refs:
-      - external_pull_requests
-    changes: *control_service_code_change_locations
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image/**/*
 
 control_service_test_helm_chart:
   stage: build
