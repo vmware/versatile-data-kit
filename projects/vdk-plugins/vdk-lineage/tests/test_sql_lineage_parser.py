@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from vdk.api.lineage.model.sql.model import LineageTable
 from vdk.plugin.lineage.sql_lineage_parser import get_table_lineage_from_query
