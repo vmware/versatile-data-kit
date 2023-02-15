@@ -10,9 +10,11 @@ repos:
         # exclude helm chart templates
         exclude: ^projects/control-service/projects/helm_charts
       - id: check-json
+        exclude: (^projects/frontend/data-pipelines/gui/tsconfig.json|^projects/frontend/data-pipelines/gui/package-lock.json|^projects/frontend/data-pipelines/gui/projects/data-pipelines/.eslintrc.json|^projects/frontend/data-pipelines/gui/projects/data-pipelines/tsconfig.lib.prod.json|^projects/frontend/data-pipelines/gui/projects/data-pipelines/tsconfig.spec.json|^projects/frontend/data-pipelines/gui/projects/data-pipelines/tsconfig.lib.json|^projects/frontend/data-pipelines/gui/projects/ui/.eslintrc.json|^projects/frontend/data-pipelines/gui/projects/ui/tsconfig.app.json|^projects/frontend/data-pipelines/gui/projects/ui/tsconfig.spec.json)
       - id: check-ast
         exclude: ^projects/vdk-core/tests/functional/run/jobs/syntax-error-job/1_step.py
       - id: check-added-large-files
+        exclude: (^projects/frontend/data-pipelines/gui/tsconfig.json|^projects/frontend/data-pipelines/gui/package-lock.json|^projects/frontend/data-pipelines/gui/projects/ui/src/assets/css/clr-ui.min.css)
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-executables-have-shebangs
@@ -77,6 +79,44 @@ repos:
           - NOTICE.txt
           - --comment-style
           - /*| *| */
+      - id: insert-license
+        files: \.ts$
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*| *| */
+      - id: insert-license
+        files: \.js$
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*| *| */
+      - id: insert-license
+        files: \.html
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - <!--|   ~|  -->
+      - id: insert-license
+        files: (\.scss$|\.css$)
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*| *| */
+      - id: insert-license
+        files: (\.yaml$|\.yml$)
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
       - id: insert-license
         files: \.py$
         args:
