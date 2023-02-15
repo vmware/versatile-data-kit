@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 repos:
@@ -72,6 +72,7 @@ repos:
       - id: insert-license
         files: \.java$
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
           - --comment-style
@@ -79,11 +80,13 @@ repos:
       - id: insert-license
         files: \.py$
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
       - id: insert-license
         files: \.sh$
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
 # License header create issues in helm chart yaml files
