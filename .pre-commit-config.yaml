@@ -82,6 +82,7 @@ repos:
       - id: insert-license
         files: \.ts$
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
           - --comment-style
@@ -89,6 +90,7 @@ repos:
       - id: insert-license
         files: \.js$
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
           - --comment-style
@@ -96,6 +98,7 @@ repos:
       - id: insert-license
         files: \.html
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
           - --comment-style
@@ -103,10 +106,17 @@ repos:
       - id: insert-license
         files: (\.scss$|\.css$)
         args:
+          - --use-current-year
           - --license-filepath
           - NOTICE.txt
           - --comment-style
           - /*| *| */
+      - id: insert-license
+        files: (\.yaml$|\.yml$)
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
       - id: insert-license
         files: \.py$
         args:
