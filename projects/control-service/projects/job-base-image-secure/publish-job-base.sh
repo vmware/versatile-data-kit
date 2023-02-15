@@ -17,7 +17,7 @@ function build_and_push_image() {
     image_tag_version="$image_repo:$VERSION_TAG"
     image_tag_latest="$image_repo:latest"
 
-    docker build -t "$image_tag_local" -f "$SCRIPT_DIR/$docker_file" $arguments "$SCRIPT_DIR"
+    docker build -t "$image_tag_local" -f "$SCRIPT_DIR/$docker_file" "$arguments" "$SCRIPT_DIR"
 
     docker-slim build \
     --target "$image_tag_local" \
