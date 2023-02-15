@@ -443,7 +443,13 @@ vdk create -n example-meta-job -t my-team --no-template -u http://localhost:8092
 vdk deploy -n example-meta-job -t my-team -p example-meta-job -r "metajob-example" -u http://localhost:8092
 ```
 
+You can now run your Meta Job through the Execution API by using the following command:
+```console
+vdk execute --start -n example-meta-job -t my-team -u http://localhost:8092
+```
 
+Alternatively, if you would like your Meta Job to run on a set schedule, you can configure
+its cron schedule in its config.ini file as you would with any other Data Job.
 
 
 What's next
