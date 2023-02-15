@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Copyright 2021 VMware, Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export function removeCreateJobDataFromSessionStorage(){
     sessionStorage.removeItem('create-job-name');
     sessionStorage.removeItem('create-job-team');
