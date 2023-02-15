@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-VERSION_TAG="0.1docker-slim"
+VERSION_TAG="${VERSION_TAG:-"0.1dev"}"
 VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
 
 function build_and_push_image() {
@@ -22,6 +22,7 @@ function build_and_push_image() {
     docker-slim build \
     --target "$image_tag_local" \
     --tag "$image_tag_version" \
+    --tag "$image_tag_latest" \
     --http-probe=false \
     --exec "/bin/sh -c \"pip3 list && python3 -m pip install --upgrade pip\"" \
     --include-bin "/usr/bin/chmod" \
@@ -35,7 +36,7 @@ function build_and_push_image() {
     --include-path "/usr/lib"
 
     docker push "$image_tag_version"
-    #docker push "$image_tag_latest"
+    docker push "$image_tag_latest"
 }
 
 build_and_push_image \
