@@ -1,3 +1,6 @@
+# Copyright 2023-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 {{- if .Values.dataJob.fluentd.enabled }}
 apiVersion: logs.vdp.vmware.com/v1beta1
 kind: FluentdConfig

@@ -1,3 +1,6 @@
+# Copyright 2023-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # This is a copy of the ingress-nginx manifest for KinD, available here:
 # https://github.com/kubernetes/ingress-nginx/blob/main/deploy/static/provider/kind/deploy.yaml
 apiVersion: v1
