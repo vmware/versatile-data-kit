@@ -240,7 +240,7 @@ public abstract class KubernetesService implements InitializingBean {
     // Step 1 - load the internal datajob template in order to validate it.
     try {
       if (getK8sSupportsV1CronJob()) {
-        loadV1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
+        loadV1CronjobTemplate(new ClassPathResource("v1-" + K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
       } else {
         loadV1beta1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
       }
@@ -313,7 +313,7 @@ public abstract class KubernetesService implements InitializingBean {
 
   private V1CronJob loadInternalV1CronjobTemplate() {
     try {
-      return loadV1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
+      return loadV1CronjobTemplate(new ClassPathResource("v1-" + K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
     } catch (Exception e) {
       // This should never happen unless we are testing locally and we've messed up
       // with the internal template resource file.
