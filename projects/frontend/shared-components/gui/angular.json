@@ -1,0 +1,214 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": false,
+    "defaultCollection": "@angular-eslint/schematics",
+    "packageManager": "npm"
+  },
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "shared": {
+      "projectType": "library",
+      "root": "projects/shared",
+      "sourceRoot": "projects/shared/src",
+      "prefix": "shared",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/shared/tsconfig.lib.json",
+            "project": "projects/shared/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared/tsconfig.lib.prod.json",
+              "project": "projects/shared/ng-package.json"
+            },
+            "development": {}
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/shared/src/test.ts",
+            "tsConfig": "projects/shared/tsconfig.spec.json",
+            "karmaConfig": "projects/shared/karma.conf.js",
+            "codeCoverage": true,
+            "codeCoverageExclude": [
+              "projects/shared/src/**/*component.ts",
+              "projects/shared/src/lib/unit-testing/**/*"
+            ],
+            "sourceMap": {
+              "scripts": true,
+              "vendor": true,
+              "styles": true
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/shared/**/*.ts",
+              "projects/shared/**/*.html"
+            ]
+          }
+        }
+      },
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      }
+    },
+    "documentation-ui": {
+      "projectType": "application",
+      "root": "projects/documentation-ui",
+      "sourceRoot": "projects/documentation-ui/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/documentation-ui",
+            "index": "projects/documentation-ui/src/index.html",
+            "main": "projects/documentation-ui/src/main.ts",
+            "polyfills": "projects/documentation-ui/src/polyfills.ts",
+            "tsConfig": "projects/documentation-ui/tsconfig.app.json",
+            "allowedCommonJsDependencies": [
+              "dagre",
+              "webcola"
+            ],
+            "assets": [
+              "projects/documentation-ui/src/favicon.ico",
+              "projects/documentation-ui/src/assets",
+              {
+                "glob": "clr-ui*.min.*",
+                "input": "node_modules/@clr/ui",
+                "output": "assets/css"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@vdk/shared/assets",
+                "output": "/assets/"
+              }
+            ],
+            "styles": [
+              "node_modules/@clr/icons/clr-icons.min.css",
+              "projects/documentation-ui/src/styles.scss"
+            ],
+            "scripts": [
+              "node_modules/@clr/icons/clr-icons.min.js"
+            ]
+          },
+          "configurations": {
+            "development": {
+              "sourceMap": {
+                "scripts": true,
+                "vendor": true,
+                "styles": true
+              },
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "buildOptimizer": false,
+              "optimization": false,
+              "namedChunks": true,
+              "preserveSymlinks": true
+            },
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/documentation-ui/src/environments/environment.ts",
+                  "with": "projects/documentation-ui/src/environments/environment.prod.ts"
+                }
+              ],
+              "sourceMap": false,
+              "vendorChunk": false,
+              "extractLicenses": true,
+              "buildOptimizer": true,
+              "optimization": true,
+              "namedChunks": false,
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host": "localhost.vmware.com",
+            "port": 4200,
+            "proxyConfig": "proxy.config.json"
+          },
+          "configurations": {
+            "development": {
+              "browserTarget": "documentation-ui:build:development"
+            },
+            "production": {
+              "browserTarget": "documentation-ui:build:production"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "documentation-ui:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/documentation-ui/src/test.ts",
+            "polyfills": "projects/documentation-ui/src/polyfills.ts",
+            "tsConfig": "projects/documentation-ui/tsconfig.spec.json",
+            "karmaConfig": "projects/documentation-ui/karma.conf.js",
+            "codeCoverage": true,
+            "codeCoverageExclude": [
+              "projects/documentation-ui/src/**/*component.ts"
+            ],
+            "assets": [
+              "projects/documentation-ui/src/favicon.ico",
+              "projects/documentation-ui/src/assets"
+            ],
+            "styles": [
+              "projects/documentation-ui/src/styles.scss"
+            ],
+            "scripts": [
+              "node_modules/@clr/icons/clr-icons.min.js"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/documentation-ui/**/*.ts",
+              "projects/documentation-ui/**/*.html"
+            ]
+          }
+        }
+      },
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      }
+    }
+  },
+  "defaultProject": "shared"
+}

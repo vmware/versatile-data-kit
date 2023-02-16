@@ -22,7 +22,7 @@ Bug in general the steps are:
    ```bash
    $ npm config set legacy-peer-deps true
    ```
-1. Install Angular Cli and all other dependencies except '@taurus/shared'
+1. Install Angular Cli and all other dependencies except '@vdk/shared'
    ```bash
    npm i -g @angular/cli
    ```
@@ -64,6 +64,3 @@ Run `npm run lint` to execute lint via [ESLint](https://eslint.org/docs/user-gui
 _**Note**_: Code coverage report will be generated in `reports/coverage`(for the UI Document Wrapper and the Shared Components Library)
 
 _**Note**_: Code coverage report for the Shared UI Components library will be also logged in the Console(and consumed by the CI/CD)
-
-[E2E] Run `npm run e2e` to open [Cypress](https://www.cypress.io/) dev tool for e2e testing
-- Cypress environment variables must be supplied providing credentials for needed infrastructure
