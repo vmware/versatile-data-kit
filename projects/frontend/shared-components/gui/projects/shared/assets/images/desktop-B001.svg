@@ -1,0 +1,31 @@
+<svg id="ac76fa68-8104-43db-a602-1fb2744c44c3" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" width="107.77" height="90.37" viewBox="0 0 107.77 90.37">
+    <defs>
+        <linearGradient id="ae30c67e-e7a1-4f04-89c4-a48fa71830c3" x1="82.44" y1="42.6" x2="5.28" y2="42.6"
+                        gradientUnits="userSpaceOnUse">
+            <stop offset="0.03" stop-color="#fff" stop-opacity="0.97"/>
+            <stop offset="0.35" stop-color="#fff" stop-opacity="0.61"/>
+            <stop offset="0.67" stop-color="#fff" stop-opacity="0.28"/>
+            <stop offset="0.89" stop-color="#fff" stop-opacity="0.08"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+    </defs>
+    <title>desktop-B001</title>
+    <polygon points="68.97 85.28 38.9 85.28 41.66 70.24 66.2 70.24 68.97 85.28" fill="#1e4489"/>
+    <rect x="5.38" y="4.29" width="97.11" height="66.05" rx="1.7" fill="#218fcf"/>
+    <rect x="16.45" y="14.31" width="31.73" height="45.06" fill="#80bfe3"/>
+    <rect x="19.41" y="17.47" width="25.8" height="19.38" fill="#cee6f7"/>
+    <rect x="53.1" y="14.31" width="38.75" height="22.53" fill="#cee6f7"/>
+    <rect x="53.1" y="41.14" width="38.75" height="18.24" fill="#80bfe3"/>
+    <polygon points="6.03 37.98 5.28 80.92 82.44 4.29 54.53 4.29 39.72 4.29 6.03 37.98" opacity="0.43"
+             fill="url(#ae30c67e-e7a1-4f04-89c4-a48fa71830c3)"/>
+    <circle cx="57.93" cy="45.82" r="1.99" fill="#22b9a5"/>
+    <line x1="55.94" y1="33.08" x2="77.09" y2="33.08" fill="none" stroke="#22b9a5" stroke-miterlimit="10"
+          stroke-width="0.61"/>
+    <line x1="55.94" y1="29.4" x2="80.01" y2="29.4" fill="none" stroke="#22b9a5" stroke-miterlimit="10"
+          stroke-width="0.61"/>
+    <line x1="55.94" y1="25.72" x2="73.72" y2="25.72" fill="none" stroke="#22b9a5" stroke-miterlimit="10"
+          stroke-width="0.61"/>
+    <line x1="30.65" y1="85.15" x2="76.6" y2="85.15" fill="none" stroke="#1e4489" stroke-miterlimit="10"
+          stroke-width="1.84"/>
+</svg>
