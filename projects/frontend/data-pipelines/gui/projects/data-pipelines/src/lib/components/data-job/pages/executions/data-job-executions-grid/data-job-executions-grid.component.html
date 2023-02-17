@@ -1,0 +1,95 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<clr-datagrid data-cy="data-pipelines-job-executions-datagrid"
+              [clrDgLoading]="loading">
+
+    <clr-dg-placeholder>We couldn't find any executions!</clr-dg-placeholder>
+
+    <clr-dg-column data-cy="data-pipelines-job-executions-status-header"
+                   [clrDgField]="'status'">Status
+        <clr-dg-filter [clrDgFilter]="statusFilter">
+            <lib-data-job-execution-status-filter #statusFilter></lib-data-job-execution-status-filter>
+        </clr-dg-filter>
+    </clr-dg-column>
+    <clr-dg-column class="grid-column__min-width--s grid-column__max-width--s"
+                   data-cy="data-pipelines-job-executions-type-header"
+                   [clrDgField]="'type'">Type
+        <clr-dg-filter [clrDgFilter]="typeFilter">
+            <lib-data-job-execution-type-filter #typeFilter></lib-data-job-execution-type-filter>
+        </clr-dg-filter>
+    </clr-dg-column>
+    <clr-dg-column data-cy="data-pipelines-job-executions-duration-header"
+                   [clrDgSortBy]="durationComparator">Duration
+    </clr-dg-column>
+    <clr-dg-column data-cy="data-pipelines-job-executions-start-header"
+                   [clrDgSortBy]="'startTime'"
+                   [clrDgSortOrder]="descSort">Start (UTC)
+    </clr-dg-column>
+    <clr-dg-column data-cy="data-pipelines-job-executions-end-header"
+                   [clrDgSortBy]="'endTime'">End (UTC)
+    </clr-dg-column>
+    <clr-dg-column data-cy="data-pipelines-job-executions-id-header"
+                   [clrDgField]="'id'">ID
+    </clr-dg-column>
+    <clr-dg-column data-cy="data-pipelines-job-executions-version-header"
+                   [clrDgField]="'version'">Version
+    </clr-dg-column>
+    <clr-dg-column class="grid-column__min-width--s grid-column__max-width--s">Logs</clr-dg-column>
+
+    <clr-dg-row *clrDgItems="let jobExecution of jobExecutions; trackBy: trackByFn" [clrDgItem]="jobExecution">
+
+        <clr-dg-cell>
+            <lib-data-job-execution-status [jobStatus]="jobExecution.status"
+                                           [jobMessage]="jobExecution?.message"
+                                           [showErrorMessage]="true"
+                                           data-cy="data-pipelines-job-execution-status"
+            ></lib-data-job-execution-status>
+        </clr-dg-cell>
+        <clr-dg-cell class="execution-type-cell grid-column__min-width--s grid-column__max-width--s"
+                     data-cy="data-pipelines-job-executions-type-cell">
+            <lib-data-job-execution-type [jobExecution]="jobExecution"></lib-data-job-execution-type>
+        </clr-dg-cell>
+        <clr-dg-cell data-cy="data-pipelines-job-executions-duration-cell">{{ jobExecution.duration }}</clr-dg-cell>
+        <clr-dg-cell
+            data-cy="data-pipelines-job-executions-start-cell">{{ jobExecution.startTime | date:'MMM d, y, hh:mm:ss a':'UTC' }}</clr-dg-cell>
+        <clr-dg-cell
+            data-cy="data-pipelines-job-executions-end-cell">{{ jobExecution.endTime | date:'MMM d, y, hh:mm:ss a':'UTC' }}</clr-dg-cell>
+        <clr-dg-cell>{{ jobExecution.id }}</clr-dg-cell>
+        <clr-dg-cell>{{ jobExecution.jobVersion | slice:0:8 }}</clr-dg-cell>
+        <clr-dg-cell class="text-center grid-column__min-width--s grid-column__max-width--s">
+            <a *ngIf="jobExecution?.logsUrl"
+               class="label-link"
+               [attr.href]="jobExecution.logsUrl"
+               target="_blank"
+               rel="noopener">
+                <clr-icon shape="pop-out"
+                          size="15"
+                          title="{{jobExecution.logsUrl}}"></clr-icon>
+            </a>
+        </clr-dg-cell>
+        <clr-dg-action-overflow>
+            <button class="action-item"
+                    (click)="showDeploymentDetails(jobExecution)">Deployment Details
+            </button>
+        </clr-dg-action-overflow>
+    </clr-dg-row>
+
+
+    <clr-dg-footer>
+        <clr-dg-pagination #pagination
+                           data-cy="data-pipelines-job-executions-datagrid-pagination"
+                           [clrDgPageSize]="10">
+            <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">Executions per page</clr-dg-page-size>
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}} of {{pagination.totalItems}} executions
+        </clr-dg-pagination>
+    </clr-dg-footer>
+
+</clr-datagrid>
+
+
+<lib-data-job-deployment-details-modal *ngIf="jobDeploymentModalData"
+                                       [dataJobDeployment]="jobDeploymentModalData"
+                                       [(openModal)]="openDeploymentDetailsModal"></lib-data-job-deployment-details-modal>
