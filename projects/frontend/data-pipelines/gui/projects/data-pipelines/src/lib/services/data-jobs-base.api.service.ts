@@ -93,7 +93,6 @@ export class DataJobsBaseApiService {
                     typePolicies: {
                         Query: {
                             fields: {
-                                // TODO workaround documented in https://jira.eng.vmware.com/browse/TAUR-4179
                                 jobs: (_existing, _options) => {
                                     return {};
                                 },
