@@ -1,0 +1,360 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<!-- eslint-disable @angular-eslint/template/no-call-expression,@angular-eslint/template/cyclomatic-complexity -->
+
+<div id="data-job-details-page" class="page-container data-pipelines-job__details-page">
+    <div class="data-pipelines-job__details-body">
+        <div class="clr-row">
+            <div class="clr-col-6">
+                <form [formGroup]="tmForm" class="clr-form" style="padding-top: 0">
+
+                    <vdk-form-section-container data-cy="data-pipelines-data-job-details-status"
+                                                class="p-header-section" [isSubmitEnabled]="isStatusSubmitEnabled()"
+                                                [formState]="(jobState?.deployments | extractJobStatus) === 'Not Deployed' ? readFormState: formState"
+                                                sectionName="status" [canEditSection]="canEditSection"
+                                                (submitForm)="submitForm($event)"
+                                                (sectionStateChange)="sectionStateChange($event)">
+
+                        <div class="section-title" style="width: 2.8rem">Status</div>
+
+                        <div class="form-section-readonly">
+                            <lib-status-panel [jobDeployments]="jobState?.deployments"></lib-status-panel>
+                        </div>
+
+                        <div class="form-section-edit">
+                            <clr-radio-container clrInline>
+                                <clr-radio-wrapper>
+                                    <input clrRadio checked type="radio" name="status" value="Enabled"
+                                           formControlName="status"
+                                           data-cy="data-pipelines-data-job-details-status-enable"/>
+                                    <label>Enabled</label>
+                                </clr-radio-wrapper>
+                                <clr-radio-wrapper>
+                                    <input clrRadio type="radio" name="status" value="Disabled" formControlName="status"
+                                           data-cy="data-pipelines-data-job-details-status-disable"/>
+                                    <label>Disabled</label>
+                                </clr-radio-wrapper>
+                                <input class="modal-submit" type="submit"/>
+                            </clr-radio-container>
+                        </div>
+                    </vdk-form-section-container>
+
+                    <vdk-form-section-container data-cy="data-pipelines-data-job-details-description"
+                                                class="p-header-section"
+                                                [isSubmitEnabled]="isDescriptionSubmitEnabled()"
+                                                [formState]="formState" sectionName="description"
+                                                [canEditSection]="canEditSection"
+                                                (submitForm)="submitForm($event)"
+                                                (sectionStateChange)="sectionStateChange($event)">
+
+                        <div class="section-title" style="width: 2.8rem">Description</div>
+
+                        <div class="form-section-readonly">
+                            <span *ngIf="showFullDescription && description.value" data-cy="description-show-less">{{
+                                description.value }} <br/>
+                                <button class="btn btn-link btn-sm btn-show-more"
+                                        (click)="showFullDescription = false">show less</button>
+                            </span>
+
+                            <span *ngIf="!showFullDescription && description.value"
+                                  data-cy="data-pipelines-job-details-description">{{ description.value | words:
+                                descriptionWordsBeforeTruncate }}
+                                <button *ngIf="description.value?.split(' ').length > descriptionWordsBeforeTruncate"
+                                        class="btn btn-link btn-sm btn-show-more" data-cy="description-show-more"
+                                        (click)="showFullDescription = true">show more</button>
+                            </span>
+                        </div>
+
+                        <div class="form-section-edit">
+                            <clr-textarea-container>
+                                <textarea clrTextarea class="w-100" formControlName="description"
+                                          name="description">{{ description.value }}</textarea>
+                                <input class="modal-submit" type="submit"/>
+                            </clr-textarea-container>
+                        </div>
+                    </vdk-form-section-container>
+
+                    <vdk-form-section-container *ngIf="shouldShowTeamsSection" data-cy="team-form-field"
+                                                class="p-header-section" sectionName="team" [formState]="readFormState">
+                        <div class="section-title" style="width: 4.8rem">Owner team
+                        </div>
+                        <div class="form-section-readonly">
+                            <span *ngIf="team.value" data-cy="data-pipelines-job-details-team"
+                                  class="label label-light-blue tag" [routerLink]="['/explore/teams', team.value]">
+                                <a class="label-link label-link-suppress-decoration">{{team.value}}</a>
+                            </span>
+                        </div>
+                    </vdk-form-section-container>
+
+                    <vdk-form-section-container data-cy="data-pipelines-data-job-details-schedule"
+                                                class="p-header-section" [formState]="readFormState"
+                                                sectionName="schedule">
+                        <div class="section-title" style="width: 7rem">Schedule (in UTC)</div>
+                        <div class="form-section-readonly" data-cy="data-pipelines-job-details-schedule">
+                            {{ jobDetails?.config?.schedule?.schedule_cron | formatSchedule:'Not scheduled' }}
+
+                            <clr-signpost *ngIf="jobDetails?.config?.schedule?.schedule_cron">
+                                <clr-signpost-content [clrPosition]="'left-middle'" *clrIfOpen>
+                                    <strong>Cron expression</strong><br/>
+                                    {{jobDetails?.config?.schedule?.schedule_cron}}
+                                    <br/>
+                                    <br/>
+                                    <strong>Next 5 executions</strong>
+                                    <ol *ngIf="!cronError">
+                                        <li *ngFor="let times of [1,2,3,4,5]">
+                                            {{
+                                            jobDetails?.config?.schedule?.schedule_cron | parseNextRun:times | date:
+                                                'MMM d, y, hh:mm a':'UTC'
+                                            }} UTC
+                                        </li>
+                                    </ol>
+                                    <em *ngIf="cronError"><br/>{{cronError}}</em>
+                                </clr-signpost-content>
+                            </clr-signpost>
+                        </div>
+
+                        <div class="form-section-edit">
+                            <clr-textarea-container>
+                                <input type="text" class="w-100" clrTextarea name="schedule"
+                                       value="{{jobDetails?.config?.schedule?.schedule_cron}}"/>
+                                <input class="modal-submit" type="submit"/>
+                            </clr-textarea-container>
+                        </div>
+                    </vdk-form-section-container>
+
+                    <vdk-form-section-container class="p-header-section" [formState]="readFormState"
+                                                sectionName="source_url">
+                        <div class="section-title" style="width: 5.5rem">Source location</div>
+                        <div class="form-section-readonly">
+                            <div [ngSwitch]="jobState?.deployments | extractJobStatus">
+                                <div *ngSwitchCase="dataJobStatusEnum.NOT_DEPLOYED">
+                                    <em>The data job is not deployed</em>
+                                </div>
+                                <div *ngSwitchDefault>
+                                    <a class="label-link" href="{{ jobState?.config?.sourceUrl }}" target="_blank"
+                                       rel="noopener">
+                                        {{ jobState?.config?.sourceUrl }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </vdk-form-section-container>
+                </form>
+            </div>
+            <div class="clr-col-6 data-pipelines-job__section--border-none">
+                <form [formGroup]="tmForm" class="clr-form" style="padding-top: 0">
+                    <vdk-form-section-container class="p-header-section" [formState]="readFormState">
+
+                        <div class="section-title" style="width: 6.2rem">Notifications
+                            <clr-signpost>
+                                <clr-signpost-content [clrPosition]="'left-middle'" *clrIfOpen>
+                                    Notifications are used to inform the users about a specific activity.
+                                    To configure notifications, edit data job's config.ini file and redeploy the data
+                                    job.
+                                </clr-signpost-content>
+                            </clr-signpost>
+                        </div>
+
+                        <div class="form-section-readonly">
+                            <div class="clr-form-control">
+                                <span for="onJobDeployed" class="clr-control-label">On Job Deployed</span>
+                                <div class="clr-control-container">
+                                    <div id="onJobDeployed"
+                                         class="data-pipelines-job__contacts-container"
+                                         data-cy="data-pipelines-job-details-on-deployed">
+                                        <ng-container
+                                            *ngIf="(jobDetails?.config?.contacts?.notified_on_job_deploy | extractContacts).length > 0">
+                                            <div class="data-pipelines-job__contacts-list-container">
+                                                <div *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_deploy | extractContacts) | slice:0:3">
+                                                    <span>{{contacts}}</span>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                        <div *ngIf="(jobDetails?.config?.contacts?.notified_on_job_deploy | extractContacts).length > 3"
+                                             class="data-pipelines-job__contacts-list-signpost-container">
+                                            <clr-signpost>
+                                                <button class="btn btn-link" clrSignpostTrigger>
+                                                    ...(+{{(jobDetails?.config?.contacts?.notified_on_job_deploy |
+                                                    extractContacts).length - 3}})
+                                                </button>
+                                                <clr-signpost-content [clrPosition]="'left-middle'" *clrIfOpen>
+                                                    <ul>
+                                                        <li *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_deploy | extractContacts)">
+                                                            <span>{{contacts}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </clr-signpost-content>
+                                            </clr-signpost>
+                                        </div>
+                                        <em *ngIf="showNoNotificationsLabel(jobDetails?.config?.contacts?.notified_on_job_deploy)">
+                                            Not configured
+                                        </em>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clr-form-control">
+                                <label for="onPlatformError" class="clr-control-label">On Platform Error</label>
+                                <div class="clr-control-container">
+                                    <div id="onPlatformError"
+                                         class="data-pipelines-job__contacts-container"
+                                         data-cy="data-pipelines-job-details-on-platform-error">
+                                        <ng-container
+                                            *ngIf="(jobDetails?.config?.contacts?.notified_on_job_failure_platform_error | extractContacts).length > 0">
+                                            <div class="data-pipelines-job__contacts-list-container">
+                                                <div *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_failure_platform_error | extractContacts) | slice:0:3">
+                                                    <span>{{contacts}}</span>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                        <div *ngIf="(jobDetails?.config?.contacts?.notified_on_job_failure_platform_error | extractContacts).length > 3"
+                                             class="data-pipelines-job__contacts-list-signpost-container">
+                                            <clr-signpost>
+                                                <button class="btn btn-link" clrSignpostTrigger>
+                                                    ...(+{{(jobDetails?.config?.contacts?.notified_on_job_failure_platform_error
+                                                    | extractContacts).length - 3}})
+                                                </button>
+                                                <clr-signpost-content [clrPosition]="'left-middle'" *clrIfOpen>
+                                                    <ul>
+                                                        <li *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_failure_platform_error | extractContacts)">
+                                                            <span>{{contacts}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </clr-signpost-content>
+                                            </clr-signpost>
+                                        </div>
+                                        <em *ngIf="showNoNotificationsLabel(jobDetails?.config?.contacts?.notified_on_job_failure_platform_error)">
+                                            Not configured
+                                        </em>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clr-form-control">
+                                <label for="onUserError" class="clr-control-label">On User Error</label>
+                                <div class="clr-control-container">
+                                    <div id="onUserError"
+                                         class="data-pipelines-job__contacts-container"
+                                         data-cy="data-pipelines-job-details-on-user-error">
+                                        <ng-container
+                                            *ngIf="(jobDetails?.config?.contacts?.notified_on_job_failure_user_error | extractContacts).length > 0">
+                                            <div class="data-pipelines-job__contacts-list-container">
+                                                <div *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_failure_user_error | extractContacts) | slice:0:3">
+                                                    <span>{{contacts}}</span>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                        <div *ngIf="(jobDetails?.config?.contacts?.notified_on_job_failure_user_error | extractContacts).length > 3"
+                                             class="data-pipelines-job__contacts-list-signpost-container">
+                                            <clr-signpost>
+                                                <button class="btn btn-link" clrSignpostTrigger>
+                                                    ...(+{{(jobDetails?.config?.contacts?.notified_on_job_failure_user_error
+                                                    | extractContacts).length - 3}})
+                                                </button>
+                                                <clr-signpost-content [clrPosition]="'left-middle'" *clrIfOpen>
+                                                    <ul>
+                                                        <li *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_failure_user_error | extractContacts)">
+                                                            <span>{{contacts}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </clr-signpost-content>
+                                            </clr-signpost>
+                                        </div>
+                                        <em *ngIf="showNoNotificationsLabel(jobDetails?.config?.contacts?.notified_on_job_failure_user_error)">
+                                            Not configured
+                                        </em>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clr-form-control">
+                                <label for="onJobSuccess" class="clr-control-label">On Job Success</label>
+                                <div class="clr-control-container">
+                                    <div id="onJobSuccess"
+                                         class="data-pipelines-job__contacts-container"
+                                         data-cy="data-pipelines-job-details-on-success">
+                                        <ng-container
+                                            *ngIf="(jobDetails?.config?.contacts?.notified_on_job_success | extractContacts).length > 0">
+                                            <div class="data-pipelines-job__contacts-list-container">
+                                                <div *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_success | extractContacts) | slice:0:3">
+                                                    <span>{{contacts}}</span>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                        <div *ngIf="(jobDetails?.config?.contacts?.notified_on_job_success | extractContacts).length > 3"
+                                             class="data-pipelines-job__contacts-list-signpost-container">
+                                            <clr-signpost>
+                                                <button class="btn btn-link" clrSignpostTrigger>
+                                                    ...(+{{(jobDetails?.config?.contacts?.notified_on_job_success |
+                                                    extractContacts).length - 3}})
+                                                </button>
+                                                <clr-signpost-content [clrPosition]="'left-middle'" *clrIfOpen>
+                                                    <ul>
+                                                        <li *ngFor="let contacts of (jobDetails?.config?.contacts?.notified_on_job_success | extractContacts)">
+                                                            <span>{{contacts}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </clr-signpost-content>
+                                            </clr-signpost>
+                                        </div>
+                                        <em *ngIf="showNoNotificationsLabel(jobDetails?.config?.contacts?.notified_on_job_success)">
+                                            Not configured
+                                        </em>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section-edit">
+                            <clr-textarea-container>
+                                <label for="onPlatformErrorTextArea">On Job deploy</label>
+                                <textarea id="onPlatformErrorTextArea" class="w-100" clrTextarea
+                                          name="onPlatformErrorTextArea">{{jobDetails?.config?.contacts?.notified_on_job_deploy}}</textarea>
+                            </clr-textarea-container>
+                            <clr-textarea-container>
+                                <label for="onJobDeployTextArea">On Job Platform error</label>
+                                <textarea id="onJobDeployTextArea" class="w-100" clrTextarea
+                                          name="onJobDeployTextArea">{{jobDetails?.config?.contacts?.notified_on_job_failure_platform_error}}</textarea>
+                            </clr-textarea-container>
+                            <clr-textarea-container>
+                                <label for="onUserErrorTextArea">On User error</label>
+                                <textarea id="onUserErrorTextArea" class="w-100" clrTextarea
+                                          name="onUserErrorTextArea">{{jobDetails?.config?.contacts?.notified_on_job_failure_user_error}}</textarea>
+                            </clr-textarea-container>
+                            <clr-textarea-container>
+                                <label for="onJobSuccessTextArea">On Job success</label>
+                                <textarea id="onJobSuccessTextArea" class="w-100" clrTextarea
+                                          name="onJobSuccessTextArea">{{jobDetails?.config?.contacts?.notified_on_job_success}}</textarea>
+                            </clr-textarea-container>
+                            <input class="modal-submit" type="submit"/>
+                        </div>
+                    </vdk-form-section-container>
+                </form>
+            </div>
+        </div>
+
+        <div class="clr-row">
+            <div class="clr-col-12">
+                <h5>
+                    Last 5 Executions
+                    <button style="display: contents;" class="btn btn-link btn-sm" (click)="loadJobExecutions()"
+                            title="Refresh execution info" [disabled]="isJobRunning()">
+                        <clr-icon size="23" shape="refresh"></clr-icon>
+                    </button>
+                </h5>
+                <div *ngIf="!loadingExecutions && !jobExecutions.length && !next">
+                    <br/>
+                    <span>
+                        We couldn't find any executions, but you can always schedule one!
+                    </span>
+                </div>
+                <lib-executions-timeline *ngIf="!loadingExecutions"
+                                         [jobExecutions]="jobExecutions"
+                                         [next]="(jobState?.deployments | extractJobStatus) === 'Enabled' ? next : null"></lib-executions-timeline>
+            </div>
+            <div *ngIf="loadingExecutions" class="clr-col-12">
+                <div class="loading-title">Loading executions...</div>
+            </div>
+        </div>
+    </div>
+</div>

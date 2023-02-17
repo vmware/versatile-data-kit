@@ -1,9 +1,9 @@
-package com.vmware.taurus.graphql.it;
-
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
+
+package com.vmware.taurus.graphql.it;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;

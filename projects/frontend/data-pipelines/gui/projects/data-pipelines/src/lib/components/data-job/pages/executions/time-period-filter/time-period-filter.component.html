@@ -1,0 +1,103 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div class="time-filter__container">
+    <span class="time-filter__heading">Time period (UTC): </span>
+    <clr-spinner *ngIf="loading; else timeFilter"
+                 data-cy="data-pipelines-job-executions-loading-spinner"
+                 clrSmall="true"></clr-spinner>
+</div>
+
+<ng-template #timeFilter>
+    <clr-signpost>
+        <p clrSignpostTrigger
+           data-cy="data-pipelines-job-executions-time-period">{{ fromTime | date:'MMM d, y, hh:mm:ss a':'UTC'}} to {{ toTime | date:'MMM d, y, hh:mm:ss a':'UTC' }} </p>
+        <clr-signpost-content clrPosition="bottom-middle">
+            <form clrForm
+                  autocomplete="off"
+                  [formGroup]="tmForm"
+                  (ngSubmit)="submitForm($event)">
+                <div class="clr-date-container clr-form-control clr-row">
+                    <label class="clr-control-label clr-col-12 clr-col-md-2 time-filter__label" for="from-date-form-control">From</label>
+                    <div class="clr-control-container clr-col-12 clr-col-md-10">
+                        <div class="clr-input-wrapper">
+                            <div #fromDateGroup class="clr-input-group time-filter__from-picker-container">
+                                <input id="from-date-form-control"
+                                       class="clr-input"
+                                       name="fromTime"
+                                       #fromPicker="dpDayPicker"
+                                       [attr.placeholder]="'MMM DD, yyyy, HH:mm:ss A'"
+                                       [formControl]="tmForm.controls['fromDate']"
+                                       [dpDayPicker]="fromPickerConfig"
+                                       [theme]="'dp-material data-pipelines__executions-filter-picker'"
+                                       [mode]="'daytime'"
+                                       [minDate]="fromTimeMin"
+                                       [maxDate]="fromTimeMax"
+                                       (focus)="fromDateGroup.classList.add('clr-focus')"
+                                       (blur)="fromDateGroup.classList.remove('clr-focus')"
+                                       (open)="onPickerOpened('from', true)"
+                                       (close)="onPickerOpened('from', false)"
+                                       (onChange)="onDateTimeChange($event, 'from')"/>
+                                <button type="button"
+                                        class="clr-input-group-icon-action clr-smart-open-close"
+                                        title="Toggle datepicker"
+                                        aria-label="Toggle from datepicker"
+                                        (click)="togglePicker($event, 'from')">
+                                    <clr-icon class="is-info"
+                                              shape="calendar"></clr-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clr-date-container clr-form-control clr-row">
+                    <label class="clr-control-label clr-col-12 clr-col-md-2 time-filter__label" for="to-date-form-control">To</label>
+                    <div class="clr-control-container clr-col-12 clr-col-md-10">
+                        <div class="clr-input-wrapper">
+                            <div #toDateGroup class="clr-input-group">
+                                <input id="to-date-form-control"
+                                       class="clr-input"
+                                       name="toTime"
+                                       #toPicker="dpDayPicker"
+                                       [attr.placeholder]="'MMM DD, yyyy, HH:mm:ss A'"
+                                       [formControl]="tmForm.controls['toDate']"
+                                       [dpDayPicker]="toPickerConfig"
+                                       [theme]="'dp-material data-pipelines__executions-filter-picker'"
+                                       [mode]="'daytime'"
+                                       [minDate]="toTimeMin"
+                                       (focus)="toDateGroup.classList.add('clr-focus')"
+                                       (blur)="toDateGroup.classList.remove('clr-focus')"
+                                       (open)="onPickerOpened('to', true)"
+                                       (close)="onPickerOpened('to', false)"
+                                       (onChange)="onDateTimeChange($event, 'to')"/>
+                                <button type="button"
+                                        class="clr-input-group-icon-action clr-smart-open-close"
+                                        title="Toggle datepicker"
+                                        aria-label="Toggle to datepicker"
+                                        (click)="togglePicker($event, 'to')">
+                                    <clr-icon class="is-info"
+                                              shape="calendar"></clr-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12 time-filter__action-btn">
+                        <button data-cy="time-filter-clear-btn"
+                                type="button"
+                                class="btn btn-secondary"
+                                (click)="clearFilter($event)">Reset</button>
+                        <button data-cy="time-filter-apply-btn"
+                                type="submit"
+                                class="btn btn-primary"
+                                [disabled]="tmForm.invalid">Apply</button>
+                    </div>
+                </div>
+            </form>
+        </clr-signpost-content>
+    </clr-signpost>
+
+</ng-template>

@@ -1,0 +1,18 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<span id="jobStatus" data-cy="data-pipelines-job-details-status">
+    <span *ngIf="(jobDeployments | extractJobStatus) === 'Not Deployed'" class="label"
+          title="Not Deployed - This job is created but still not deployed"
+          data-cy="data-pipelines-job-details-status-not-deployed" style="color: var(--clr-color-neutral-800)">Not
+      Deployed</span>
+    <span *ngIf="(jobDeployments | extractJobStatus) === 'Disabled'" class="label"
+          title="Disabled - This job is deployed but not executing by schedule"
+          data-cy="data-pipelines-job-details-status-disabled"
+          style="color: var(--clr-color-neutral-600)">Disabled</span>
+    <span *ngIf="(jobDeployments | extractJobStatus) === 'Enabled'" class="label label-success"
+          title="Enabled - This job is deployed and executed by schedule"
+          data-cy="data-pipelines-job-details-status-enabled">Enabled</span>
+  </span>
