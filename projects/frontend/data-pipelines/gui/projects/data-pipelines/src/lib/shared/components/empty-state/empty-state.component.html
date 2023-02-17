@@ -1,0 +1,31 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<!-- @format -->
+
+<div class="empty-state-container">
+    <vdk-empty-state-placeholder
+        [style.margin-top]="marginTop"
+        [style.margin-bottom]="marginBottom"
+        [title]="title"
+        [description]="description"
+    >
+        <img
+            *ngIf="imgSrc; else lottieAnimationTemplate"
+            [style.opacity]="opacity"
+            [style.width]="width + 'px'"
+            [src]="imgSrc"
+        />
+
+        <ng-template #lottieAnimationTemplate>
+			<ng-lottie
+				*ngIf="animSrc"
+                       width="{{width}}px"
+                       [options]="{ path: animSrc }"
+            >
+            </ng-lottie>
+        </ng-template>
+    </vdk-empty-state-placeholder>
+</div>
