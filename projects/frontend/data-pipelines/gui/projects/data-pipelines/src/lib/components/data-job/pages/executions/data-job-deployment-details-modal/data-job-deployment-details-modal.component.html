@@ -1,0 +1,82 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<clr-modal [(clrModalOpen)]="openModal" clrModalSize='lg'>
+    <h3 class="modal-title">Deployment Details</h3>
+    <div class="modal-body">
+
+        <div class="clr-row">
+            <div class="clr-col-5">
+                <h6>Version</h6>
+                <p>{{dataJobDeployment.jobVersion}}</p>
+            </div>
+            <div class="clr-col-3">
+                <h6>Deployed by</h6>
+                <p>{{dataJobDeployment.deployedBy}}</p>
+            </div>
+            <div class="clr-col-4">
+                <h6>Deployed at (UTC)</h6>
+                <p>{{dataJobDeployment.deployedDate | date:'MMM d, y, hh:mm a':'UTC'}}</p>
+            </div>
+        </div>
+
+        <div class="clr-row">
+            <div class="clr-col-5">
+                <h6>Schedule cron (UTC)</h6>
+                <p>{{dataJobDeployment.schedule.scheduleCron}}</p>
+            </div>
+            <div class="clr-col-3">
+                <h6>VDK version</h6>
+                <p>{{dataJobDeployment.vdkVersion}}</p>
+            </div>
+        </div>
+
+        <h4>
+            Resources
+            <clr-signpost>
+                <clr-signpost-content *clrIfOpen>
+                    <p>
+                        Learn more about resources requests and limits
+                        <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits"
+                           target="_blank"
+                           rel=noopener>
+                            <clr-icon shape="pop-out"></clr-icon>
+                        </a>
+                    </p>
+                    <p>
+                        Learn more about each resource
+                        <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes"
+                           target="_blank"
+                           rel=noopener>
+                            <clr-icon shape="pop-out"></clr-icon>
+                        </a>
+                    </p>
+                </clr-signpost-content>
+            </clr-signpost>
+        </h4>
+
+        <div class="clr-row">
+            <div class="clr-col-5">
+                <h6>CPU Limit</h6>
+                <p>{{dataJobDeployment.resources.cpuLimit}}</p>
+            </div>
+            <div class="clr-col-5">
+                <h6>CPU Request</h6>
+                <p>{{dataJobDeployment.resources.cpuRequest}}</p>
+            </div>
+        </div>
+        <div class="clr-row">
+            <div class="clr-col-5">
+                <h6>Memory Limit</h6>
+                <p>{{dataJobDeployment.resources.memoryLimit}}</p>
+            </div>
+            <div class="clr-col-5">
+                <h6>Memory Request</h6>
+                <p>{{dataJobDeployment.resources.memoryRequest}}</p>
+            </div>
+        </div>
+
+    </div>
+</clr-modal>

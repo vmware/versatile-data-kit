@@ -1,0 +1,48 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.clr-timeline-step clr-icon[shape=success-standard] {
+  color: var(--clr-timeline-success-step-color, #5eb715);
+}
+
+.clr-timeline-step clr-icon[shape=error-standard] {
+  color: var(--clr-timeline-error-step-color, #c21d00);
+}
+
+.clr-timeline-step clr-icon {
+  height: 1.8rem;
+  width: 1.8rem;
+  min-height: 1.8rem;
+  min-width: 1.8rem;
+}
+
+.clr-timeline-horizontal {
+  padding-top: 35px;
+}
+
+.manual-execution-label {
+  margin-top: 5px;
+}
+
+.clr-timeline {
+  .clr-timeline__step-header--underline-dotted {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+
+  .clr-timeline__log-link {
+    min-height: 0 !important;
+    min-width: 0 !important;
+  }
+
+  .clr-timeline__element--display-block {
+    display: block;
+  }
+
+  .clr-timeline__duration-tag {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}

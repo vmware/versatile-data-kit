@@ -1,0 +1,18 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div class="vdk-form-container">
+    <div [@customFormState]="getFormState()" (@customFormState.done)="emitAnimationDone()" class="vdk-vertical-line">
+    </div>
+    <div class="vdk-form-content">
+        <div class="form-header">
+            <ng-content select=".form-section-header"></ng-content>
+        </div>
+        <ng-content select=".form-section-content"></ng-content>
+        <div @footerState *ngIf="focused">
+            <ng-content select=".form-section-footer"></ng-content>
+        </div>
+    </div>
+</div>
