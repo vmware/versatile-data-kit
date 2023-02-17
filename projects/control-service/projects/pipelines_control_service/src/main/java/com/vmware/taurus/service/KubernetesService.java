@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -1651,6 +1651,12 @@ public abstract class KubernetesService implements InitializingBean {
     // jobCondition = null means that the Data Job is still running
     jobExecutionStatusBuilder.succeeded(
         Optional.ofNullable(jobStatusCondition).map(JobStatusCondition::isSuccess).orElse(null));
+
+    // omits events that come after the Data Job completion
+    if (jobExecutionStatusBuilder.succeeded != null
+        && StringUtils.isBlank(jobExecutionStatusBuilder.containerTerminationReason)) {
+      return Optional.empty();
+    }
 
     return Optional.of(jobExecutionStatusBuilder.build());
   }

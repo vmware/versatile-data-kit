@@ -1,8 +1,11 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import abc
 from dataclasses import dataclass
+from typing import List
+from typing import Optional
 
+from taurus_datajob_api import DataJobExecution
 from vdk.plugin.meta_jobs.api import meta_job
 
 
@@ -36,6 +39,19 @@ class IDataJobExecutor(abc.ABC):
         :param team_name:
         :param execution_id:
         :return: status in string as defined by Control Service API
+        """
+        pass
+
+    @abc.abstractmethod
+    def job_executions_list(
+        self, job_name: str, team_name: str
+    ) -> Optional[List[DataJobExecution]]:
+        """
+        Get the list of all recent executions of a data job. The list returned by
+        the Control Srvice is sorted, and the lat element is the latest execution.
+        :param job_name: Name of data job for which executions are to be returned.
+        :param team_name: Name of the team owning the data job.
+        :return: A list of DataJobExecution objects.
         """
         pass
 

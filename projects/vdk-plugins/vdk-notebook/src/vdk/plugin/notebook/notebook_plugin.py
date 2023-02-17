@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
@@ -20,8 +20,7 @@ class NotebookPlugin:
         notebook_files = file_locator.get_notebook_files(context.job_directory)
         if len(notebook_files) >= 1:
             for file_path in notebook_files:
-                nb: Notebook = Notebook(file_path)
-                nb.register_notebook_steps(context)
+                Notebook.register_notebook_steps(file_path, context)
 
 
 @hookimpl

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -48,7 +48,8 @@ public class UploadSourceValidationIT extends BaseIT {
   @Test
   public void testDataJobUploadSource() throws Exception {
     byte[] jobZipBinary =
-        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("simple_job.zip"));
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     mockMvc
         .perform(

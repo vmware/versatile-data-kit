@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,7 +12,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
-import com.vmware.taurus.service.credentials.KerberosCredentialsRepository;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
@@ -28,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,10 +41,10 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
-@Import({BaseIT.KerberosConfig.class})
+@Import({KdcServerConfiguration.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(WebHookServerMockExtension.class)
-public class BaseIT extends KerberosSecurityTestcaseJunit5 {
+public class BaseIT {
   private static Logger log = LoggerFactory.getLogger(BaseIT.class);
 
   public static final String TEST_JOB_SCHEDULE = "15 10 * * *";
@@ -59,8 +55,6 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   protected static final String HEADER_X_OP_ID = "X-OPID";
 
   protected static final ObjectMapper mapper = new ObjectMapper();
-
-  @Autowired private MiniKdcCredentialsRepository kerberosCredentialsRepository;
 
   @Autowired protected DataJobsKubernetesService dataJobsKubernetesService;
 
@@ -80,21 +74,10 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
 
   private boolean ownsControlNamespace = false;
 
-  @TestConfiguration
-  static class KerberosConfig {
-
-    @Bean
-    @Primary
-    public KerberosCredentialsRepository credentialsRepository() {
-      return new MiniKdcCredentialsRepository();
-    }
-  }
-
   @BeforeEach
   public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    kerberosCredentialsRepository.setMiniKdc(getKdc());
   }
 
   @AfterEach
@@ -116,7 +99,7 @@ public class BaseIT extends KerberosSecurityTestcaseJunit5 {
   }
 
   public static Matcher<String> lambdaMatcher(Predicate<String> predicate) {
-    return new BaseMatcher<String>() {
+    return new BaseMatcher<>() {
       @Override
       public boolean matches(Object actual) {
         return predicate.test((String) actual);

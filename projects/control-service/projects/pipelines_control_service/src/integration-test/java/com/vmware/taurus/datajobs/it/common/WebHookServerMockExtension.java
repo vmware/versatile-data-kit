@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -88,7 +88,7 @@ public class WebHookServerMockExtension
   }
 
   @Override
-  public void close() throws Throwable {
+  public void close() {
     mockWebHookServer.close();
     mockWebHookServerClient.close();
   }
@@ -163,6 +163,17 @@ public class WebHookServerMockExtension
                 .withHeader("Content-type", "application/json")
                 .withPath(
                     String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME)))
+        .respond(getOkResponse());
+
+    mockWebHookServerClient
+        .when(
+            request()
+                .withMethod(HttpMethod.POST.name())
+                .withHeader("Content-type", "application/json")
+                .withPath(
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s",
+                        TEST_TEAM_NAME, JobExecutionUtil.JOB_NAME_PREFIX + ".*")))
         .respond(getOkResponse());
 
     mockWebHookServerClient

@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -88,6 +88,32 @@ def _prepare(httpserver: PluginHTTPServer, jobs=None):
             uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{job_name}",
             method="GET",
         ).respond_with_handler(exec_handler(job_name, job_status, execution_duration))
+
+        def exec_list_handler(job_name):
+            def _handler_fn(r: Request):
+                execution: DataJobExecution = DataJobExecution(
+                    id=f"{job_name}-latest",
+                    job_name=job_name,
+                    logs_url="http://url",
+                    deployment=DataJobDeployment(),
+                    start_time="2021-09-24T14:14:03.922Z",
+                    status="succeeded",
+                    message="foo",
+                )
+                response_data = json.dumps(execution.to_dict(), indent=4)
+                return Response(
+                    [response_data],
+                    status=200,
+                    headers=None,
+                    content_type="application/json",
+                )
+
+            return _handler_fn
+
+        httpserver.expect_request(
+            uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions",
+            method="GET",
+        ).respond_with_handler(exec_list_handler(job_name))
 
     return rest_api_url
 
@@ -203,8 +229,10 @@ def test_meta_job_cannot_start_job(httpserver: PluginHTTPServer):
             ["run", jobs_path_from_caller_directory("meta-job")]
         )
         cli_assert_equal(1, result)
+        # we should have 2 requests in the log, one to get a list
+        # of all executions, and one for the failing data job
         # no other request should be tried as the meta job fails
-        assert len(httpserver.log) == 1
+        assert len(httpserver.log) == 2
 
 
 def test_meta_job_long_running(httpserver: PluginHTTPServer):
@@ -248,7 +276,7 @@ def test_meta_job_long_running(httpserver: PluginHTTPServer):
         # if implementation is changed the number below would likely change.
         # If the new count is not that big we can edit it here to pass the test,
         # if the new count is too big, we have an issue that need to be investigated.
-        assert len(httpserver.log) == 17
+        assert len(httpserver.log) == 21
 
 
 def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):

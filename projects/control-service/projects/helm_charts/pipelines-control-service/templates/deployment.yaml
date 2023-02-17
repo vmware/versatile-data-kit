@@ -1,3 +1,6 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -252,6 +255,14 @@ spec:
             - name: DATAJOBS_BUILDER_REGISTRY_SECRET
               value: {{ template "pipelines-control-service.fullname" . }}-dtjb-buldr-rgstry-scrt
             {{- end }}
+            - name: DATAJOBS_DEPLOYMENT_INITCONTAINER_RESOURCES_REQUESTS_MEMORY
+              value: "{{ .Values.dataJob.deployment.initContainer.resources.requests.memory }}"
+            - name: DATAJOBS_DEPLOYMENT_INITCONTAINER_RESOURCES_REQUESTS_CPU
+              value: "{{ .Values.dataJob.deployment.initContainer.resources.requests.cpu }}"
+            - name: DATAJOBS_DEPLOYMENT_INITCONTAINER_RESOURCES_LIMITS_MEMORY
+              value: "{{ .Values.dataJob.deployment.initContainer.resources.limits.memory }}"
+            - name: DATAJOBS_DEPLOYMENT_INITCONTAINER_RESOURCES_LIMITS_CPU
+              value: "{{ .Values.dataJob.deployment.initContainer.resources.limits.cpu }}"
 
 
 {{- if .Values.extraVars }}

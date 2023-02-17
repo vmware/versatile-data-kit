@@ -1,0 +1,16 @@
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices
+FROM photon:latest
+
+# Set the working directory
+WORKDIR /job
+
+# Uninstall native dependencies
+RUN yum erase toybox -y
+
+# Install python
+RUN yum install python3-3.10.0-9.ph4 python3-pip-3.10.0-9.ph4 shadow -y
+RUN ln -fs /usr/bin/python3 /usr/local/bin/python
+
+# Install native dependencies so that requirements in requirements.txt can be installed
+# some (like openssl) should be pre-installed in the base image but let's be explicit
+RUN yum install build-essential -y

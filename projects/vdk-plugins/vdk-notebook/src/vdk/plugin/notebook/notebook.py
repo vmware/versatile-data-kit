@@ -1,5 +1,6 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import importlib.util
 import json
 import logging
 import pathlib
@@ -7,7 +8,6 @@ from pathlib import Path
 from typing import List
 
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
-from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.plugin.notebook.cell import Cell
@@ -45,26 +45,44 @@ class Notebook:
     Other cells are ignored.
     """
 
-    def __init__(self, file_path: Path):
+    @staticmethod
+    def register_notebook_steps(file_path: Path, context: JobContext):
         try:
-            self.sql_and_run_cells = []
-            self.python_helper_cells = []
-            self.file_path = file_path
+            # see https://docs.python.org/3/library/importlib.html#importlib.util.module_from_spec
+            spec = importlib.util.spec_from_loader("notebook", loader=None)
+            python_module = importlib.util.module_from_spec(spec)
+            # Used to declare the job_input in the new module
+            # Gives access to it: module.job_inut
+            # Used to pass the real vdk job_input variable in run_python_step (module.job_input = job_input
+            exec("job_input = 1", python_module.__dict__)
+            notebook_steps = []
             # see Jupyter json schema here:
             # https://github.com/jupyter/nbformat/blob/main/nbformat/v4/nbformat.v4.schema.json
             content = json.loads(file_path.read_text())
+            index = 0
             for jupyter_cell in content["cells"]:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
-                    if cell.is_vdk_cell():
-                        if cell.is_sql_cell() or cell.is_vdk_run_cell():
-                            self.sql_and_run_cells.append(cell)
-                        else:
-                            self.python_helper_cells.append(cell)
-            log.debug(
-                f"{len(self.sql_and_run_cells) + len(self.python_helper_cells)} "
-                f"cells with vdk tag were detected!"
-            )
+                    if "vdk" in cell.tags:
+                        step = NotebookStep(
+                            name="".join(
+                                [
+                                    file_path.name.replace(".ipynb", "_"),
+                                    str(index),
+                                ]
+                            ),
+                            type=TYPE_PYTHON,
+                            runner_func=NotebookStepFuncFactory.run_python_step,
+                            file_path=file_path,
+                            job_dir=context.job_directory,
+                            code=cell.source,
+                            module=python_module,
+                        )
+                        notebook_steps.append(step)
+                        context.step_builder.add_step(step)
+                index += 1
+
+            log.debug(f"{len(notebook_steps)} " f"cells with vdk tag were detected!")
         except json.JSONDecodeError as e:
             errors.log_and_rethrow(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
@@ -77,30 +95,3 @@ class Notebook:
                 exception=e,
                 wrap_in_vdk_error=True,
             )
-
-    def register_notebook_steps(self, context: JobContext):
-        if not self.sql_and_run_cells:
-            log.debug(f"Neither VDK run methods nor SQL statements were detected!")
-        for index, cell in enumerate(self.sql_and_run_cells):
-            cell_type = TYPE_PYTHON if cell.is_vdk_run_cell() else TYPE_SQL
-            runner_func = (
-                NotebookStepFuncFactory.run_python_step
-                if cell.is_vdk_run_cell()
-                else NotebookStepFuncFactory.run_sql_step
-            )
-            if cell.is_vdk_run_cell():
-                cell.add_code(self.python_helper_cells)
-            step = NotebookStep(
-                name="".join(
-                    [
-                        self.file_path.name.replace(".ipynb", "_"),
-                        str(index),
-                    ]
-                ),
-                type=cell_type,
-                runner_func=runner_func,
-                file_path=self.file_path,
-                job_dir=context.job_directory,
-                code=cell.get_code(),
-            )
-            context.step_builder.add_step(step)

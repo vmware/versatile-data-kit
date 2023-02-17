@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -58,7 +58,7 @@ public class JobCredentialsService {
     } catch (IOException e) {
       throw new ExternalSystemError(MainExternalSystem.HOST_CONTAINER, e);
     }
-    try (Closeable ignored = () -> keytabFile.delete()) {
+    try (Closeable ignored = keytabFile::delete) {
       credentialsRepository.createPrincipal(principal, Optional.of(keytabFile));
 
       String secretName = getJobKeytabKubernetesSecretName(jobName);

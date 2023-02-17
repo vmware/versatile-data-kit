@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
@@ -43,18 +43,41 @@ from vdk.internal.plugin.plugin import PluginRegistry
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 
 
-def cli_assert(is_true, result: Result) -> None:
+def cli_assert(
+    is_true: bool, result: Result, message: str = "result assert fails"
+) -> None:
+    """
+    Test if some statement is true .
+    If false error is raised with debug details about the CLI run taken from Result
+    """
     assert is_true, (
-        f"result assert fails, Output: {result.output} "
-        f"Exception:\n {''.join(traceback.format_exception(*result.exc_info))} "
+        f"Message: {message} \n"
+        f"Exception:\n {''.join(traceback.format_exception(*result.exc_info))} \n"
+        f"Output:\n {result.output}"
     )
 
 
-def cli_assert_equal(expected_exit_code, result: Result) -> None:
-    assert result.exit_code == expected_exit_code, (
-        f"result exit code is not {expected_exit_code} but it is {result.exit_code}, \n"
-        f"Exception:\n {''.join(traceback.format_exception(*result.exc_info))} \n"
-        f"Output:\n {result.output}"
+def cli_assert_equal(expected_exit_code: int, result: Result) -> None:
+    """
+    Test if exit code of a tested CLI run is as expected.
+    If not error is raised with debug details about the CLI run.
+    """
+    cli_assert(
+        result.exit_code == expected_exit_code,
+        result,
+        f"result exit code is not {expected_exit_code} but it is {result.exit_code}",
+    )
+
+
+def cli_assert_output_contains(expected_substring: str, result: Result) -> None:
+    """
+    Check if the output of a CLI run (logs or stdout) contains the passed expected substring.
+    If not error is raised with debug details about the CLI run.
+    """
+    cli_assert(
+        expected_substring in result.output,
+        result,
+        f"result output does not contain {expected_substring}",
     )
 
 

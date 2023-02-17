@@ -4,7 +4,7 @@
 # Builder stage
 # This stage is implemented like in the guide, but it may be more efficient to
 # have it in the gradle build process outside docker.
-FROM adoptopenjdk:11-jre-hotspot as builder
+FROM eclipse-temurin:17 as builder
 ARG JAR_NAME
 WORKDIR application
 COPY ./${JAR_NAME} application.jar
@@ -12,7 +12,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 
 # Final stage
-FROM adoptopenjdk:11-jre-hotspot
+FROM eclipse-temurin:17
 LABEL maintainer="Project Versatile Data Kit <miroslavi@vmware.com>"
 
 # install kerberos client so that we can use kadmin

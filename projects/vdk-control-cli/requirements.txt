@@ -18,7 +18,7 @@ pytest
 pytest-httpserver
 requests>=2.25
 requests_oauthlib
-setuptools~=47.1
+setuptools>=65.5.1
 tabulate
 
 # Dependencies for creating HTTP calls against the OAuth2 provider. We can potentially remove those

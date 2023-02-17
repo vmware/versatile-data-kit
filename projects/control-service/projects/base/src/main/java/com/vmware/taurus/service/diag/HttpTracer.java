@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -124,7 +124,7 @@ public class HttpTracer implements org.springframework.boot.actuate.trace.http.H
       node.put("@id", opId);
     }
     HttpServletRequest request = operationContext.getRequest();
-    if (null != request) { // methods from the actuator dont have the request set
+    if (null != request) { // methods from the actuator don't have the request set
       String requestMapping =
           "" + request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
       node.put("request_mapping", requestMapping);

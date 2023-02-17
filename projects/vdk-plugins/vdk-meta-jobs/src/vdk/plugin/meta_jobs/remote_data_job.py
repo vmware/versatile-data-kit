@@ -1,10 +1,11 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
 import time
 import uuid
 from enum import Enum
+from typing import List
 from typing import Optional
 
 from taurus_datajob_api import ApiClient
@@ -134,6 +135,18 @@ class RemoteDataJob:
             team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
         )
         return job_execution
+
+    def get_job_executions(self) -> Optional[List[DataJobExecution]]:
+        """
+        Returns a list of all executions for a specific data job. The list
+        is sorted and the last element is the latest available execution.
+
+        :return: A list of DataJobExecution objects for the available executions.
+        """
+        job_execution_list = self.__execution_api.data_job_execution_list(
+            team_name=self.team_name, job_name=self.job_name
+        )
+        return job_execution_list
 
     def wait_for_job(
         self,

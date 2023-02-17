@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -19,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobExecutionFilterSpecIT {
@@ -69,7 +71,7 @@ public class JobExecutionFilterSpecIT {
   @Test
   public void testJobExecutionFilterSpec_filerByStartTimeGte_shouldReturnResult() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -112,7 +114,7 @@ public class JobExecutionFilterSpecIT {
   @Test
   public void testJobExecutionFilterSpec_filerByEndTimeGte_shouldReturnResult() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,
@@ -159,7 +161,7 @@ public class JobExecutionFilterSpecIT {
   @Test
   public void testJobExecutionFilterSpec_filerByAllFields_shouldReturnResult() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = getTimeAccurateToMicroSecond();
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository,

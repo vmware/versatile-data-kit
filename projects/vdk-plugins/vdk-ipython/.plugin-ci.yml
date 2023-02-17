@@ -1,0 +1,35 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-ipython:
+  variables:
+    PLUGIN_NAME: vdk-ipython
+  extends: .build-plugin
+
+build-py37-vdk-ipython:
+  extends: .build-vdk-ipython
+  image: "python:3.7"
+
+
+build-py38-vdk-ipython:
+  extends: .build-vdk-ipython
+  image: "python:3.8"
+
+build-py39-vdk-ipython:
+  extends: .build-vdk-ipython
+  image: "python:3.9"
+
+build-py310-vdk-ipython:
+  extends: .build-vdk-ipython
+  image: "python:3.10"
+
+build-py311-vdk-ipython:
+  extends: .build-vdk-ipython
+  image: "python:3.11"
+
+release-vdk-ipython:
+  variables:
+    PLUGIN_NAME: vdk-ipython
+  extends: .release-plugin

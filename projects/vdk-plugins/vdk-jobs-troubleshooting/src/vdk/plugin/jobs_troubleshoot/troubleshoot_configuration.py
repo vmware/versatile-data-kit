@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from vdk.internal.core.config import ConfigurationBuilder
 
@@ -13,7 +13,7 @@ def add_definitions(config_builder: ConfigurationBuilder):
     """
     config_builder.add(
         key=TROUBLESHOOT_UTILITIES_TO_USE,
-        default_value=None,
+        default_value="",
         description="""
             An unordered comma-separated list of strings, indicating what
             troubleshooting utilities are to be used. E.g., "utility1,utility2".
