@@ -1,16 +1,18 @@
 import { CommandRegistry } from '@lumino/commands';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import React from 'react';
-import RunJobDialog, { runJobData } from './components/RunJob';
+import RunJobDialog  from './components/RunJob';
 import {
   createJobRequest,
   deleteJobRequest,
   downloadJobRequest,
   jobRunRequest
 } from './serverRequests';
-import CreateJobDialog, { createJobData } from './components/CreateJob';
-import DeleteJobDialog, { deleteJobData } from './components/DeleteJob';
-import DownloadJobDialog, { downloadJobData } from './components/DownloadJob';
+import CreateJobDialog from './components/CreateJob';
+import DeleteJobDialog from './components/DeleteJob';
+import DownloadJobDialog from './components/DownloadJob';
+import { jobData, revertJobDataToDefault } from './dataClasses/jobData';
+
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -31,7 +33,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           jobRunRequest();
         }
-        runJobData.setToDefault();
+        revertJobDataToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to run the job. Error:',
@@ -64,7 +66,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           createJobRequest();
         }
-        createJobData.setToDefault();
+        revertJobDataToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when running the job. Error:',
@@ -93,9 +95,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (result.button.accept) {
           let bodyMessage =
             'Do you really want to delete the job with name ' +
-            deleteJobData.jobName +
+            jobData.jobName +
             ' from ' +
-            deleteJobData.restApiUrl +
+            jobData.restApiUrl +
             '?';
           try {
             const finalResult = await showDialog({
@@ -117,7 +119,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
             );
           }
         }
-        deleteJobData.setToDefault();
+        revertJobDataToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when deleting the job. Error:',
@@ -146,7 +148,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           downloadJobRequest();
         }
-        downloadJobData.setToDefault();
+        revertJobDataToDefault();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to download the job. Error:',

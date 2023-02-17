@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import DownloadJobData from '../dataClasses/downloadJobData';
-
-export var downloadJobData = new DownloadJobData("", "", "", "");
+import { jobData } from '../dataClasses/jobData';
 
 export interface IDownloadJobDialogProps {
     /**
@@ -9,7 +7,6 @@ export interface IDownloadJobDialogProps {
      */
      parentPath: string;
 }
-
 
 export default class DownloadJobDialog extends Component<IDownloadJobDialogProps> {
     /**
@@ -59,7 +56,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-job";
         }
-        downloadJobData.jobName = value;
+        jobData.jobName = value;
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -72,7 +69,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-team";
         }
-        downloadJobData.jobTeam = value;
+        jobData.jobTeam = value;
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -85,7 +82,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-url";
         }
-        downloadJobData.restApiUrl = value;
+        jobData.restApiUrl = value;
     };
      /**
    * Callback invoked upon changing the  job path input.
@@ -98,6 +95,6 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if(!value){
             value = this.props.parentPath;
         }
-        downloadJobData.jobPath = value;
+        jobData.jobPath = value;
     };
 }
