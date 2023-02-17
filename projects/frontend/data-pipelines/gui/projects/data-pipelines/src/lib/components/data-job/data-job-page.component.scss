@@ -1,0 +1,121 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@mixin fill-parent-content() {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #8f9ba3;
+}
+
+.label-link {
+  cursor: pointer;
+}
+
+.label-link-suppress-decoration {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.status-icon-enabled {
+  color: hsl(93, 67%, 38%);
+}
+
+.clr-col-6 {
+  border-right: 1px solid #999999;
+}
+
+.loading-spinner {
+  margin-left: 45%;
+  margin-top: 100px;
+}
+
+:host {
+  @include fill-parent-content();
+  height: 100%;
+}
+
+.data-pipelines-job__page {
+  @include fill-parent-content();
+
+  .data-pipelines-job__actions {
+    display: inline-flex;
+    margin-top: 0.8rem;
+
+    .data-pipelines-job__actions-right {
+      margin-left: auto;
+
+      clr-dropdown {
+        margin-top: var(--clr-btn-vertical-margin, 0.3rem);
+        margin-bottom: var(--clr-btn-vertical-margin, 0.3rem);
+        margin-left: 0;
+      }
+
+      .data-pipelines-job__action-dropdown-trigger {
+        padding-right: 1.5rem;
+
+        clr-icon {
+          transform: translateY(-50%) rotate(180deg);
+          top: 0.85rem;
+        }
+      }
+    }
+
+    &.data-pipelines-job__actions--margin-0 {
+      margin: 0;
+    }
+
+    .data-pipelines-job__navigate-back {
+      margin-right: 10px;
+      margin-top: -1px;
+
+      .redo-icon {
+        color: var(--clr-link-color, #0072a3);
+        height: 25px;
+        width: 25px;
+      }
+    }
+
+    .data-pipelines-job__info {
+      display: inline-flex;
+
+      span {
+        margin-right: 0.5rem;
+      }
+    }
+
+    .page-title {
+      span {
+        font-size: x-large;
+      }
+    }
+  }
+
+  .data-pipelines-job__tabs-navigation {
+    margin-top: 7px;
+
+    .job-details__promotion-icon {
+      margin-top: -0.75rem;
+      margin-left: 0.25rem;
+    }
+
+    .alpha-icon {
+      height: 15px;
+      width: 30px;
+      margin-top: -0.75rem;
+      font-size: 9px;
+    }
+  }
+
+  .data-pipelines-job__router-outlet-container {
+    @include fill-parent-content();
+  }
+}
