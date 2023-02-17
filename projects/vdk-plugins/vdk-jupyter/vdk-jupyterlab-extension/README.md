@@ -116,6 +116,18 @@ All the requests handlers are located in handlers.py file where the communicatio
 
 The connection with VDK is done in the vdk_ui.py file - all the vdk operations are handled there.
 
+### Job data model
+Follows the [data model JSON scheme](src/dataClasses/jobDataModel.json).
+
+In the front-end extension a global variable is introduces (jobData) which holds the information about the current job.
+The values of its properties are meant to be changed during a VDK operation and after the operation ends they need to be set to default.
+For example, you jobData.jobName and jobData.jobArguments would be changed if we want to run a data job with specific name and arguments.
+
+The front-end sends the data from jobData to the server extension in JSON format. 
+In the server extension the JSON is loaded and turned into and Object which allows you to access job data using the object. 
+For example, job_input.jobName would return current job's name. All the property naming follows the [data model JSON scheme](src/dataClasses/jobDataModel.json).
+
+
 ### Testing the extension
 
 #### Server tests
