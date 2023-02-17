@@ -8,6 +8,7 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
 from .vdk_ui import VdkUI
+from .dict_object import DictObj
 
 
 class RunJobHandler(APIHandler):
@@ -17,18 +18,18 @@ class RunJobHandler(APIHandler):
 
     @tornado.web.authenticated
     def post(self):
-        input_data = self.get_json_body()
-        status_code = VdkUI.run_job(input_data["jobPath"], input_data["jobArguments"])
+        job_data = DictObj(self.get_json_body())
+        status_code = VdkUI.run_job(job_data.jobPath, job_data.jobArguments)
         self.finish(json.dumps({"message": f"{status_code}"}))
 
 
 class DeleteJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
-        input_data = self.get_json_body()
+        job_data = DictObj(self.get_json_body())
         try:
             status = VdkUI.delete_job(
-                input_data["jobName"], input_data["jobTeam"], input_data["restApiUrl"]
+                job_data.jobName, job_data.jobTeam, job_data.restApiUrl
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -38,13 +39,13 @@ class DeleteJobHandler(APIHandler):
 class DownloadJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
-        input_data = self.get_json_body()
+        job_data = DictObj(self.get_json_body())
         try:
             status = VdkUI.download_job(
-                input_data["jobName"],
-                input_data["jobTeam"],
-                input_data["restApiUrl"],
-                input_data["jobPath"],
+                job_data.jobName,
+                job_data.jobTeam,
+                job_data.restApiUrl,
+                job_data.jobPath,
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -54,15 +55,15 @@ class DownloadJobHandler(APIHandler):
 class CreateJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
-        input_data = self.get_json_body()
+        job_data = DictObj(self.get_json_body())
         try:
-            local = True if input_data["local"] else False
-            cloud = True if input_data["cloud"] else False
+            local = True if job_data.local else False
+            cloud = True if job_data.cloud else False
             status = VdkUI.create_job(
-                input_data["jobName"],
-                input_data["jobTeam"],
-                input_data["restApiUrl"],
-                input_data["jobPath"],
+                job_data.jobName,
+                job_data.jobTeam,
+                job_data.restApiUrl,
+                job_data.jobPath,
                 local,
                 cloud,
             )
