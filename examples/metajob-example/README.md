@@ -6,8 +6,10 @@ This means that jobs can be configured to run only when a set of previous jobs h
 In this example we will use the Versatile Data Kit to develop four Data jobs - two of these jobs will read data
 from separate json files, and will subsequently insert the data into Trino tables. The third job will read the data
 inserted by the previous two jobs, and will print the data to the terminal. The fourth Data Job will be a Meta Job
-which will manage the other three and ensure that the third job run only when the previous two finish successfully.
+which will manage the other three and ensure that the third job runs only when the previous two finish successfully.
 
+The Meta Job uses a separate job input object separate from the one usually used for job
+operations in VDK Data Jobs and must be imported.
 
 The graph for our Meta Job will look like this:
 ![Meta Job graph](images/metajob-graph.png)
@@ -385,6 +387,9 @@ def run(job_input):
 
 ```
 </details>
+
+Note that the `run_meta_job` method belongs to the `MetaJobInput` object which must be imported
+and instantiated separately from the default `IJobInput` object which is passed to the `run` function by default.
 
 <details>
   <summary>config.ini</summary>
