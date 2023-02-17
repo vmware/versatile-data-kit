@@ -8,7 +8,7 @@ WORKDIR /job
 RUN yum erase toybox -y
 
 # Install python
-RUN yum install python3-3.10.0-9.ph4 python3-pip-3.10.0-9.ph4 shadow -y
+RUN yum install python3-3.10.0-10.ph4 python3-pip-3.10.0-10.ph4 shadow -y
 RUN ln -fs /usr/bin/python3 /usr/local/bin/python
 
 # Install native dependencies so that requirements in requirements.txt can be installed
