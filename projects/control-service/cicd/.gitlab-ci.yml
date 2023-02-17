@@ -156,6 +156,13 @@ control_service_publish_job_base_image-secure:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-base-image-secure
     - export VERSION_TAG="1.$CI_PIPELINE_ID"
+    # Make the docker-slim tool available to the CI job
+    - >
+        apk add -u curl
+        && curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/1.37.3/dist_linux.tar.gz
+        && tar -xvf ds.tar.gz
+        && mv dist_linux/docker-slim /usr/local/bin/
+        && mv dist_linux/docker-slim-sensor /usr/local/bin/
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
