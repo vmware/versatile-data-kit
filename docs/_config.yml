@@ -3,11 +3,16 @@ url: https://tozka.github.io/versatile-data-kit/
 
 plugins:
   - jekyll-sitemap
+  - jekyll-relative-links
 
 exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+
+relative_links:
+  enabled: true
+  collections: true
 
 markdown: kramdown
 kramdown:
