@@ -1,0 +1,24 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<clr-modal class="schema-confirm-to-prod" [(clrModalOpen)]="options.opened" [clrModalClosable]="options.showCloseX"
+           (keyup.enter)="confirm()">
+    <h3 class="modal-title">{{ options.title }}</h3>
+    <div class="modal-body">
+        <p [innerHTML]="options.message"></p>
+        <clr-alert *ngIf="options.infoText" [clrAlertType]="'info'" [clrAlertClosable]="false">
+            <clr-alert-item>
+            <span class="alert-text" [innerHTML]="options.infoText">
+            </span>
+            </clr-alert-item>
+        </clr-alert>
+    </div>
+    <div class="modal-footer">
+        <button data-cy="confirmation-dialog-cancel" *ngIf="options.showCancelBtn" type="button" class="btn btn-outline"
+                (click)="cancel()">{{ options.cancelBtn }}</button>
+        <button data-cy="confirmation-dialog-ok-btn" *ngIf="options.showOkBtn" type="button" class="btn btn-primary"
+                (click)="confirm()">{{ options.okBtn }}</button>
+    </div>
+</clr-modal>

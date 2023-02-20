@@ -1,0 +1,54 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div *ngIf="!loading; else spinner">
+    <div class="gauge-container">
+        <div class="gauge-meta">
+            <ng-content select=".gauge-title"></ng-content>
+            <div class="gauge-title">Job Executions</div>
+            <div class="success-rate-container">
+                <div class="success-rate-div">Success Rate</div>
+                <div class="info-button">
+                    <clr-signpost>
+                        <clr-signpost-content *clrIfOpen>
+                            <p class="success-rate-info-panel">
+                                Success rate is calculated from all executions from the last 14 days (up to 336 for each job)
+                            </p>
+                        </clr-signpost-content>
+                    </clr-signpost>
+                </div>
+            </div>
+            <div class="value-percent"
+                 data-cy="dp-jobs-executions-status-gauge-widget-percentage"
+                 [style.color]="customColors(successRate*100)">{{successRate | percent}}</div> <!-- eslint-disable-line @angular-eslint/template/no-call-expression -->
+            <div class="value-current small-and-up"
+                 data-cy="dp-jobs-executions-status-gauge-widget-failed">{{failedExecutions}} failed
+            </div>
+            <div class="value-limit small-and-up"
+                 data-cy="dp-jobs-executions-status-gauge-widget-total">{{totalExecutions}} total
+            </div>
+        </div>
+        <div class="gauge-chart-container">
+            <div class="gauge-chart" *ngIf="true">
+                <ngx-charts-gauge
+                    [scheme]="{ domain: ['#5AA454'] }"
+                    [customColors]="customColors"
+                    [results]="[{value: successRate*100, name: successRate*100}]"
+                    [min]="0"
+                    [tooltipDisabled]="true"
+                    [angleSpan]="270"
+                    [showAxis]="false"
+                    [startAngle]="-135">
+                </ngx-charts-gauge>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #spinner>
+    <div class="centered">
+        <clr-spinner></clr-spinner>
+    </div>
+</ng-template>

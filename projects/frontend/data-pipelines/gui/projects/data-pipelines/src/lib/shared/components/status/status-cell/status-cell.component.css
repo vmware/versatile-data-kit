@@ -1,0 +1,12 @@
+/*
+ * Copyright 2023-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.status-icon-enabled {
+    color: hsl(93, 67%, 38%);
+}
+
+.status-icon-disabled {
+    color: hsl(32, 95%, 48%);
+}

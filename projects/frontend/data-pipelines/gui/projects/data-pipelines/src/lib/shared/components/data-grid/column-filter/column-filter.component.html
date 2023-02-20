@@ -1,0 +1,27 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<!-- eslint-disable @angular-eslint/template/no-positive-tabindex,@angular-eslint/template/no-call-expression -->
+
+<clr-radio-wrapper *ngFor="let option of listOfOptions">
+    <input type="radio"
+           clrRadio
+           value="{{option}}"
+           name="options"
+           [checked]="isValueSelected(option)"
+           (change)="toggleSelection($event)"/>
+
+    <label>
+        <ng-container *ngIf="optionRenderer; else defaultFilterOption">
+            <ng-container *ngTemplateOutlet="optionRenderer; context: {$implicit: option}"></ng-container>
+        </ng-container>
+        <ng-template #defaultFilterOption>{{ option }}</ng-template>
+    </label>
+</clr-radio-wrapper>
+
+<button id="clean-filter-btn"
+        class="btn btn-link"
+        tabindex="1"
+        (click)="cleanFilter()">Clear Filter</button>

@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -42,6 +42,7 @@ class MetaJobsDag:
 
     def build_dag(self, jobs: List[Dict]):
         for job in jobs:
+            # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             trackable_job = TrackableJob(
                 job["job_name"],
                 job.get("team_name", self._team_name),
