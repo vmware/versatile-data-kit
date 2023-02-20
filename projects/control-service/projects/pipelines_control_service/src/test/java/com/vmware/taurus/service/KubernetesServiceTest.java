@@ -17,9 +17,6 @@ import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import io.kubernetes.client.custom.Quantity;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Assertions;
@@ -479,17 +476,19 @@ public class KubernetesServiceTest {
     Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.of(testDeploymentStatus));
 
     Assertions.assertNotNull(mock.readCronJob(testCronjobName));
-    Assertions.assertEquals(testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
+    Assertions.assertEquals(
+        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
     verify(mock, times(2)).readV1beta1CronJob(testCronjobName);
     verify(mock, times(2)).readV1CronJob(testCronjobName);
 
-
     // Scenario 2: readV1beta1CronJob method should return status.
-    Mockito.when(mock.readV1beta1CronJob(testCronjobName)).thenReturn(Optional.of(testDeploymentStatus));
+    Mockito.when(mock.readV1beta1CronJob(testCronjobName))
+        .thenReturn(Optional.of(testDeploymentStatus));
     Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.empty());
 
     Assertions.assertNotNull(mock.readCronJob(testCronjobName));
-    Assertions.assertEquals(testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
+    Assertions.assertEquals(
+        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
     verify(mock, times(4)).readV1beta1CronJob(testCronjobName);
     verify(mock, times(2)).readV1CronJob(testCronjobName);
   }
