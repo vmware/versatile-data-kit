@@ -7,8 +7,8 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
-from .vdk_ui import VdkUI
 from .dict_object import DictObj
+from .vdk_ui import VdkUI
 
 
 class RunJobHandler(APIHandler):
