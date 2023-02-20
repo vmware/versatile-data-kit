@@ -65,18 +65,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
    */
     private _onLocalClick() {
         return (event: React.MouseEvent) => {
-            let checkbox = document.getElementById("Local");
-            let input = document.getElementById("jobPath");
-            if (checkbox?.classList.contains("checked")) {
-                checkbox.classList.remove("checked");
-                input?.parentElement?.classList.add("hidden");
-                jobData.local = "";
-            }
-            else {
-                checkbox?.classList.add("checked");
-                jobData.local = "1";
-                input?.parentElement?.classList.remove("hidden");
-            }
+            this.setJobFlags("Local", "jobPath");
         }
     }
     /**
@@ -84,20 +73,38 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
   */
     private _onCloudClick() {
         return (event: React.MouseEvent) => {
-            let checkbox = document.getElementById("Cloud");
-            let input = document.getElementById("jobRestApiUrl");
+            this.setJobFlags("Cloud", "jobRestApiUrl");
+        }
+    }
+    /**
+  * Function that sets job's cloud/local flags
+  */
+ private setJobFlags(flag: string, inputId: string){
+    let checkbox = document.getElementById(flag);
+            let input = document.getElementById(inputId);
             if (checkbox?.classList.contains("checked")) {
                 checkbox.classList.remove("checked");
                 input?.parentElement?.classList.add("hidden");
-                jobData.cloud = "";
+                if(flag === "Cloud"){
+                    jobData.cloud = "";
+                }
+                else{
+                    jobData.local = "";
+                }
             }
             else {
                 checkbox?.classList.add("checked");
-                jobData.cloud = "1";
+                if(flag === "Cloud"){
+                    jobData.cloud = "1";
+                }
+                else{
+                    jobData.local = "1";
+                }
                 input?.parentElement?.classList.remove("hidden");
             }
-        }
-    }
+ }
+
+
     /**
    * Callback invoked upon changing the job name input.
    *
