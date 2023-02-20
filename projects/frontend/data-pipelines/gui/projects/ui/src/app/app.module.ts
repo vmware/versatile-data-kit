@@ -65,9 +65,7 @@ export function lottiePlayerLoader() {
             resourceServer: {
                 allowedUrls: [
                     'https://console-stg.cloud.vmware.com/',
-                    'https://console.cloud.vmware.com/',
                     'https://gaz-preview.csp-vidm-prod.com/',
-                    'https://gaz.csp-vidm-prod.com/',
                     '/data-jobs'
                 ],
                 sendAccessToken: true
