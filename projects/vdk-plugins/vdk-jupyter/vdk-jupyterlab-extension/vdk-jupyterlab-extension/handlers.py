@@ -19,7 +19,7 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         job_data = DictObj(self.get_json_body())
-        status_code = VdkUI.run_job(job_data.jobPath, job_data.jobArguments)
+        status_code = VdkUI.run_job(job_data)
         self.finish(json.dumps({"message": f"{status_code}"}))
 
 
@@ -28,9 +28,7 @@ class DeleteJobHandler(APIHandler):
     def post(self):
         job_data = DictObj(self.get_json_body())
         try:
-            status = VdkUI.delete_job(
-                job_data.jobName, job_data.jobTeam, job_data.restApiUrl
-            )
+            status = VdkUI.delete_job(job_data)
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
@@ -41,12 +39,7 @@ class DownloadJobHandler(APIHandler):
     def post(self):
         job_data = DictObj(self.get_json_body())
         try:
-            status = VdkUI.download_job(
-                job_data.jobName,
-                job_data.jobTeam,
-                job_data.restApiUrl,
-                job_data.jobPath,
-            )
+            status = VdkUI.download_job(job_data)
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
@@ -57,16 +50,7 @@ class CreateJobHandler(APIHandler):
     def post(self):
         job_data = DictObj(self.get_json_body())
         try:
-            local = True if job_data.local else False
-            cloud = True if job_data.cloud else False
-            status = VdkUI.create_job(
-                job_data.jobName,
-                job_data.jobTeam,
-                job_data.restApiUrl,
-                job_data.jobPath,
-                local,
-                cloud,
-            )
+            status = VdkUI.create_job(job_data)
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
