@@ -38,7 +38,7 @@ Cypress.Commands.add('login', () => {
                  window.localStorage.setItem('access_token', token);
                  window.localStorage.setItem('id_token', idToken);
 
-                 // Set the CSP token in the session storage to enable the Integration testing against Management UI(TMS STG)
+                 // Set the CSP token in the session storage to enable the Integration testing against Management UI
                  sessionStorage.setItem('expires_at', expiresAt);
                  sessionStorage.setItem('access_token', token);
                  sessionStorage.setItem('id_token', idToken);
