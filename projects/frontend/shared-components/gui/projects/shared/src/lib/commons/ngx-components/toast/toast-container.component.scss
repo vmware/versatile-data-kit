@@ -1,0 +1,32 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@import "../../css/screen-sizes.scss";
+
+:host {
+    display: block;
+    z-index: 1040;
+    position: absolute;
+    right: 0;
+    width: 414px;
+    opacity: 1.0;
+    margin-top: 18px;
+
+    @media screen and(max-width: $xs-width) {
+        max-width: $min-el-size;
+        right: -12px;
+    }
+}
+
+.toast-container {
+    margin-right: 0;
+    > div {
+        margin-left: 0px;
+        margin-right: -12px;
+    }
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+}

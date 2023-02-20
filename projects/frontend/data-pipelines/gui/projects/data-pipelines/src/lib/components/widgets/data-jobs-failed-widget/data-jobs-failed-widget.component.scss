@@ -1,0 +1,57 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.datagrid-failed-executions-widget {
+  height: 300px;
+
+  ::ng-deep .datagrid-table {
+    width: 100%;
+
+    .header-title {
+      .datagrid-column-separator {
+        display: none;
+      }
+    }
+
+    .datagrid-row-scrollable {
+      width: 100%;
+    }
+
+    .job-name-column {
+      width: 70% !important;
+    }
+
+    .center {
+      width: 30% !important;
+      text-align: center
+    }
+
+    clr-dg-cell {
+      .btn {
+        width: 100% !important;
+        text-align: left;
+      }
+    }
+  }
+}
+
+clr-dg-cell .btn {
+  margin: 0 !important;
+  text-transform: none !important;
+  padding: 0.3rem 0.3rem 0.3rem;
+}
+
+.no-padding {
+  padding-bottom: 0px;
+  padding-top: 0px;
+}
+
+.custom-label {
+  width: 50px;
+}
+
+.label-column {
+  display: none;
+}

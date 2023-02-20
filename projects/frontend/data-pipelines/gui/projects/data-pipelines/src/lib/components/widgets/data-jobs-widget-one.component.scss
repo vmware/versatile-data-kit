@@ -1,0 +1,265 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@import 'variables.scss';
+
+::ng-deep
+.fade-to-dark.dark {
+  .widget-card {
+    --label-color-error: #F27963;
+    --label-color-success: #5EB715;
+    --header-background: #28404D;
+    --widget-border: 1px solid #28404D;
+    --widget-clickable-background: #324F62;
+    --widget-details-background: #21333B;
+    --widget-details-hover-background: #1B2A32;
+    --widget-details-color: #B3B3B3;
+    --widget-details-border: 2px solid #28404D;
+    --widget-icon-backgound-color: #194B70;
+  }
+}
+
+.widget-card {
+  --label-color-error: #F35E44;
+  --label-color-success: #5AA220;
+  --header-background: #{$color-white};
+  --widget-border: 1px solid #E3F5FC;
+  --widget-clickable-background: #E8E8E8;
+  --widget-details-background: #{$color-white};
+  --widget-details-hover-background: #D8E3E9;
+  --widget-details-color: #8C8C8C;
+  --widget-details-border: 2px solid #E3F5FC;
+  --widget-icon-backgound-color: #0072A3;
+
+  .label-error {
+    color: var(--label-color-error);
+  }
+
+  .label-success {
+    color: var(--label-color-success);
+  }
+
+  .widget-footer {
+    position: relative;
+    min-height: 25px;
+    margin: 1.3rem -1.2rem -1.2rem;
+    border-top: var(--widget-border);
+
+    a {
+      margin: 0 0 0 0.5rem;
+      padding: 0px;
+    }
+  }
+
+  .widget-header {
+    background: var(--header-background);
+    margin: -1.2rem -1.2rem 0 -1.2rem;
+    padding: .8rem;
+    border-radius: .1rem .1rem 0 0;
+    position: relative;
+    min-height: 96px;
+
+    .header-title {
+      margin-top: 0;
+      font-weight: 200;
+
+      clr-icon {
+        margin-top: -2px;
+      }
+    }
+
+    p {
+      margin-top: .3rem;
+      line-height: .8rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .header-link {
+      position: absolute;
+      top: .4rem;
+      right: .3rem;
+
+      clr-icon {
+        margin-top: -.1rem;
+      }
+    }
+  }
+
+  .widget-container {
+    z-index: 100;
+
+    .widget-values {
+      line-height: 0.8rem;
+      display: grid;
+      grid-template: ". . ." 1fr / 1fr 1fr 1fr;
+      margin-left: -1.2rem;
+      margin-right: -1.2rem;
+      margin-bottom: -1.2rem;
+      row-gap: 1.2rem;
+      border-top: var(--widget-border);
+
+      .widget-value {
+        display: block;
+        text-align: center;
+        background: var(--widget-details-background);
+
+        &:not(:first-child) {
+          border-left: var(--widget-border);
+        }
+
+        &:not(:last-child) {
+          border-right: var(--widget-border);
+        }
+
+        padding: .6rem;
+
+        .widget-title {
+          margin-bottom: .2rem;
+          margin-top: .2rem;
+          font-size: 1.2rem;
+          font-weight: 500;
+          display: block;
+        }
+
+        .widget-text {
+          font-size: .55rem;
+          display: block;
+          line-height: .6rem;
+        }
+
+        &.widget-clickable {
+          cursor: pointer;
+
+          &:hover {
+            background: var(--widget-clickable-background);
+          }
+        }
+
+        &.show-details {
+          background: var(--widget-clickable-background);
+
+          .widget-text {
+            font-weight: bold;
+          }
+
+          position: relative;
+        }
+      }
+    }
+  }
+
+  .widget-details {
+    z-index: 1;
+    height: 0;
+    margin: 1.2rem -1.2rem -1.2rem -1.2rem;
+    transition: height .3s;
+    overflow: hidden;
+    background: var(--widget-details-background);
+
+    &.show-details {
+      height: 240px;
+      border-top: var(--widget-details-border);
+    }
+
+    .no-issues {
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      margin-top: 1.2rem;
+
+      .no-issues-img {
+        display: block;
+        height: 120px;
+        margin: 0 auto;
+      }
+
+      .no-issues-text {
+        color: var(--widget-details-color);
+      }
+    }
+
+    .data-details {
+      height: 240px;
+      position: relative;
+
+      ::ng-deep
+      clr-datagrid {
+        height: 100%;
+
+        .datagrid {
+          margin-top: 0;
+          flex-basis: 0;
+          border: 0;
+
+          .datagrid-row {
+            border-top: none;
+            border-bottom: none;
+          }
+
+          .datagrid-placeholder-container {
+            border-top: none;
+          }
+        }
+
+        .datagrid-footer {
+          padding: 0.1rem 0.5rem;
+          border-right: none;
+          border-left: none;
+          border-bottom: none;
+        }
+      }
+
+      .data-row {
+        display: block;
+        margin-top: 0;
+        position: relative;
+        padding-left: .2rem;
+
+        &.clickable {
+          cursor: pointer;
+        }
+
+        .data-title {
+          line-height: .6rem;
+          font-weight: 500;
+          display: block;
+          margin-top: 0;
+          position: relative;
+
+          .btn {
+            margin: 0;
+          }
+
+          .title-icon {
+            float: left;
+            width: 32px;
+            display: flex;
+            justify-content: center;
+
+            lib-status-cell {
+              width: 15px;
+              display: flex;
+              justify-content: center;
+            }
+          }
+        }
+
+        .data-description {
+          display: block;
+          margin-top: 0;
+          color: var(--widget-details-color);
+          line-height: 1rem;
+
+          clr-icon {
+            margin-top: -2px;
+          }
+        }
+      }
+    }
+  }
+}
