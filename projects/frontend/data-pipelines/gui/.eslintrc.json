@@ -1,0 +1,102 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*",
+    "**/node_modules/*"
+  ],
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx"
+      ]
+    },
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:cypress/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
+        "plugin:ngrx/recommended",
+        "plugin:rxjs/recommended"
+      ],
+      "plugins": [
+        "cypress",
+        "ngrx",
+        "prefer-arrow",
+        "rxjs"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/dot-notation": [
+          "warn",
+          {
+            "allowPrivateClassPropertyAccess": true,
+            "allowProtectedClassPropertyAccess": true,
+            "allowIndexSignaturePropertyAccess": true
+          }
+        ],
+        "@typescript-eslint/unbound-method": "warn",
+        "@typescript-eslint/no-floating-promises": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "@typescript-eslint/no-unsafe-argument": "error",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "argsIgnorePattern": "^_"
+          }
+        ],
+        "ngrx/prefer-effect-callback-in-block-statement": "off",
+        "ngrx/use-consistent-global-store-name": "off",
+        "ngrx/prefer-action-creator": "off",
+        "ngrx/no-typed-global-store": "off",
+        "ngrx/prefer-selector-in-select": "off",
+        "ngrx/avoid-cyclic-effects": "warn",
+        "no-underscore-dangle": "off"
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
+      "rules": {
+        "@angular-eslint/template/conditional-complexity": [
+          "warn",
+          {
+            "maxComplexity": 10
+          }
+        ],
+        "@angular-eslint/template/cyclomatic-complexity": [
+          "warn",
+          {
+            "maxComplexity": 15
+          }
+        ],
+        "@angular-eslint/template/no-positive-tabindex": "warn",
+        "@angular-eslint/template/use-track-by-function": "off",
+        "@angular-eslint/template/no-call-expression": "warn"
+      }
+    }
+  ]
+}

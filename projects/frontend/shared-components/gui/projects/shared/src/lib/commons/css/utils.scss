@@ -1,0 +1,39 @@
+
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * Theme-aware CSS utility
+ * Usage: Invoke mixin, including custom theme-specific CSS properties, inside braces `{ ... }`.
+ * Example:
+ *
+ * ```
+ *   .page-example-image {
+ *       width: 100px;
+ *       height: 100px;
+ *
+ *       @include light-theme {
+ *           background-image: url('icon-light.png');
+ *           border-color: black;
+ *       }
+ *       @include dark-theme {
+ *           background-image: url('icon-dark.png');
+ *           border-color: white;
+ *       }
+ *    }
+ * ```
+ */
+@mixin light-theme {
+    :host-context(body:not([cds-theme])) &,
+    :host-context(body[cds-theme='light']) & {
+        @content;
+    }
+}
+
+@mixin dark-theme {
+    :host-context(body[cds-theme='dark']) & {
+        @content;
+    }
+}

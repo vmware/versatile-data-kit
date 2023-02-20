@@ -1,0 +1,17 @@
+
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:host ::ng-deep {
+
+    .section-title {
+        display: inline-block;
+    }
+}
+
+.csp-edit-button {
+    margin: 0 0;
+    cursor: pointer;
+}

@@ -1,0 +1,52 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<vdk-form-section [focused]="_sectionState === FORM_STATE.EDIT || _sectionState === FORM_STATE.SUBMIT"
+                  (animationDone)="focusEdit()">
+    <div class="form-section-header">
+        <ng-content select=".section-title">
+        </ng-content>
+
+        <button *ngIf="showEditBtn()"
+                class="btn btn-link btn-sm csp-edit-button"
+                type="button"
+                [attr.aria-label]="editBtnAriaLabel"
+                #editButton
+                (click)="clickEdit()">
+            {{editBtn}}
+        </button>
+    </div>
+
+    <div class="form-section-content"
+         *ngIf="_sectionState === FORM_STATE.CAN_EDIT || _sectionState === FORM_STATE.VIEW">
+        <ng-content select=".form-section-readonly">
+        </ng-content>
+    </div>
+
+    <div class="form-section-content"
+         *ngIf="this._sectionState === FORM_STATE.EDIT || this._sectionState === FORM_STATE.SUBMIT">
+        <ng-content select=".form-section-edit">
+        </ng-content>
+    </div>
+
+    <div class="form-section-footer">
+        <button (click)="clickSave()"
+                type="submit"
+                [attr.aria-label]="saveBtnAriaLabel"
+                class="btn btn-sm btn-primary csp-save-button"
+                [disabled]="!isSubmitEnabled || _sectionState === FORM_STATE.SUBMIT "
+                [clrLoading]="_sectionState === FORM_STATE.SUBMIT ? ClrLoadingState.LOADING : ClrLoadingState.DEFAULT">
+
+            <span *ngIf="showSaveBtn()">{{saveBtn}}</span>
+        </button>
+        <button class="btn btn-sm btn-link csp-cancel-button"
+                type="button"
+                [attr.aria-label]="cancelBtnAriaLabel"
+                (click)="clickCancel()"
+                [disabled]="_sectionState === FORM_STATE.SUBMIT">
+            <span>{{cancelBtn}}</span>
+        </button>
+    </div>
+</vdk-form-section>
