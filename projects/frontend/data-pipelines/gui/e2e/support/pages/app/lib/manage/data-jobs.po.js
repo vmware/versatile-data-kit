@@ -63,7 +63,6 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 
@@ -74,7 +73,6 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 

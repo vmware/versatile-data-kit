@@ -485,7 +485,7 @@ describe('Data Jobs Manage Page', { tags: ['@dataPipelines', '@manageDataJobs'] 
             .executeDataJob(jobName);
 
         // TODO better handling toast message. If tests are executed immediately it will return
-        // error 409 conflict and it will say that the job is already executing
+        //  error 409 conflict and it will say that the job is already executing
         dataJobsManagePage
             .getToastTitle(10000) // Wait up to 10 seconds for Toast to show.
             .should('exist')

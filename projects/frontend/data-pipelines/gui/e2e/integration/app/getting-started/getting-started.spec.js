@@ -43,8 +43,6 @@ describe('Getting Started Page', { tags: ['@dataPipelines'] }, () => {
         GettingStartedPage
             .navigateTo()
             .getMainTitle()
-            //TODO : Discuss/agree what should be the assertion strategy of the UI Components.
-            // Do we assert text directly, or use some other form?
             .should('have.text', 'Get Started with Data Pipelines');
     });
 

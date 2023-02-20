@@ -62,7 +62,6 @@ describe('Data Job Explore Details Page', { tags: ['@dataPipelines', '@exploreDa
         dataJobExploreDetailsPage
             .getStatusField()
             .should('be.visible')
-            // TODO: do the right assertion (once it gets implemented)
             .should('have.text', 'Not Deployed');
 
         dataJobExploreDetailsPage
@@ -84,7 +83,6 @@ describe('Data Job Explore Details Page', { tags: ['@dataPipelines', '@exploreDa
         // dataJobExploreDetailsPage
         // .getSourceField()
         // .should('be.visible')
-        // // TODO: do the right assertion (once it gets implemented)
         // .should('contains.text', 'http://host/data-jobs/' + testJobs[0].job_name)
         // .should("have.attr", "href", 'http://host/data-jobs/' + testJobs[0].job_name);
 

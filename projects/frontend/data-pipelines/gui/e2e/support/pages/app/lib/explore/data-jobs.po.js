@@ -34,14 +34,12 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     }
 
     getDataGridNameFilter() {
-        //TODO : Resolve better selectors with custom filter
         return this.getHeaderColumnJobName()
                    .should('exist')
                    .find('clr-dg-filter button');
     }
 
     getDataGridNameFilterInput() {
-        //TODO : Resolve better selectors with custom filter
         return cy.get('div.datagrid-filter input');
     }
 
@@ -66,7 +64,6 @@ export class DataJobsExplorePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 
@@ -77,7 +74,6 @@ export class DataJobsExplorePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 
@@ -88,7 +84,6 @@ export class DataJobsExplorePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 
@@ -99,7 +94,6 @@ export class DataJobsExplorePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 
@@ -117,7 +111,6 @@ export class DataJobsExplorePage extends DataJobsBasePO {
 
         this.waitForBackendRequestCompletion();
 
-        // TODO find better way how to wait DataGrid to be render in DOM.
         this.waitForViewToRender();
     }
 
