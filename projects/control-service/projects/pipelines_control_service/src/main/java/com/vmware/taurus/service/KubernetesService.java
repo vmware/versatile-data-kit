@@ -468,7 +468,7 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Reading k8s V1beta1 cron job: {}", cronJobName);
     V1beta1CronJob cronJob = null;
     try {
-      cronJob = new BatchV1beta1Api(client).readNamespacedCronJob(cronJobName, namespace, null);
+      cronJob = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
       log.warn(
           "Could not read cron job: {}; reason: {}",
@@ -483,7 +483,7 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Reading k8s V1 cron job: {}", cronJobName);
     V1CronJob cronJob = null;
     try {
-      cronJob = new BatchV1Api(client).readNamespacedCronJob(cronJobName, namespace, null);
+      cronJob = initBatchV1Api().readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
       log.warn(
           "Could not read cron job: {}; reason: {}",
@@ -516,7 +516,7 @@ public abstract class KubernetesService implements InitializingBean {
     V1beta1CronJobList cronJobs = null;
     try {
       cronJobs =
-          new BatchV1beta1Api(client)
+          initBatchV1beta1Api()
               .listNamespacedCronJob(
                   namespace, null, null, null, null, null, null, null, null, null, null);
     } catch (ApiException e) {
@@ -536,7 +536,7 @@ public abstract class KubernetesService implements InitializingBean {
     V1CronJobList cronJobs = null;
     try {
       cronJobs =
-          new BatchV1Api(client)
+          initBatchV1Api()
               .listNamespacedCronJob(
                   namespace, null, null, null, null, null, null, null, null, null, null);
     } catch (ApiException e) {
@@ -786,20 +786,18 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Listing k8s cron jobs");
     Set<String> V1CronJobNames = Collections.emptySet();
 
-    if (getK8sSupportsV1CronJob()) {
-      var v1CronJobs =
-          new BatchV1Api(client)
-              .listNamespacedCronJob(
-                  namespace, null, null, null, null, null, null, null, null, null, null);
-      V1CronJobNames =
-          v1CronJobs.getItems().stream()
-              .map(j -> j.getMetadata().getName())
-              .collect(Collectors.toSet());
-      log.debug("K8s V1 cron jobs: {}", V1CronJobNames);
-    }
+    var v1CronJobs =
+        initBatchV1Api()
+            .listNamespacedCronJob(
+                namespace, null, null, null, null, null, null, null, null, null, null);
+    V1CronJobNames =
+        v1CronJobs.getItems().stream()
+            .map(j -> j.getMetadata().getName())
+            .collect(Collectors.toSet());
+    log.debug("K8s V1 cron jobs: {}", V1CronJobNames);
 
     var v1BetaCronJobs =
-        new BatchV1beta1Api(client)
+        initBatchV1beta1Api()
             .listNamespacedCronJob(
                 namespace, null, null, null, null, null, null, null, null, null, null);
     var V1BetaCronJobNames =
