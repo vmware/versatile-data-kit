@@ -78,12 +78,12 @@ public class JobExecutionResultManager {
    * </ul>
    *
    * @param executionSucceeded K8s Job status (true - succeeded, false - failed, null - running)
-   * @param mainContainerTerminationMessage termination status returned from K8S Pod (e.g. "Success", "User
-   *     error", etc.)
+   * @param mainContainerTerminationMessage termination status returned from K8S Pod (e.g.
+   *     "Success", "User error", etc.)
    * @param jobTerminationReason condition reason as reported by K8s Job (e.g. "DeadlineExceeded",
    *     "BackoffLimitExceeded", etc.)
-   * @param mainContainerTerminationReason termination reason for pod container as returned by K8s pod
-   *     container (e.g., "OOMKilled", etc.)
+   * @param mainContainerTerminationReason termination reason for pod container as returned by K8s
+   *     pod container (e.g., "OOMKilled", etc.)
    * @param executionStarTime K8S Job execution start time
    * @return if there is no termination message due to the missing K8S Pod returns execution status
    *     based on K8S Job status otherwise returns execution status based on the K8S Pod termination

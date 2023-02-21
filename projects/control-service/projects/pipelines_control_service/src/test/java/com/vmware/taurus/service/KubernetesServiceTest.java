@@ -89,7 +89,8 @@ public class KubernetesServiceTest {
     V1Job v1Job = new V1Job();
     var mock = Mockito.mock(KubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
-    Mockito.when(mock.getTerminationStatus(v1Job)).thenReturn(ImmutablePair.of(Optional.empty(), Optional.empty()));
+    Mockito.when(mock.getTerminationStatus(v1Job))
+        .thenReturn(ImmutablePair.of(Optional.empty(), Optional.empty()));
     Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();
     Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional =
         mock.getJobExecutionStatus(v1Job, null);
@@ -176,7 +177,10 @@ public class KubernetesServiceTest {
     KubernetesService mock = Mockito.mock(KubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(mock.getTerminationStatus(expectedJob))
-        .thenReturn(ImmutablePair.of(Optional.ofNullable(new V1ContainerStateTerminated().reason("test")), Optional.ofNullable(new V1ContainerStateTerminated().reason("test"))));
+        .thenReturn(
+            ImmutablePair.of(
+                Optional.ofNullable(new V1ContainerStateTerminated().reason("test")),
+                Optional.ofNullable(new V1ContainerStateTerminated().reason("test"))));
     Mockito.when(mock.getJobExecutionStatus(expectedJob, condition)).thenCallRealMethod();
     Optional<KubernetesService.JobExecution> actualJobExecutionStatusOptional =
         mock.getJobExecutionStatus(expectedJob, condition);

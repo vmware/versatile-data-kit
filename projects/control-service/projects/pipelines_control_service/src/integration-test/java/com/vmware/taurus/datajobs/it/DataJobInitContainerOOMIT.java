@@ -19,18 +19,17 @@ import org.springframework.test.context.TestPropertySource;
 
 @Slf4j
 @TestPropertySource(
-        properties = {
-                "datajobs.deployment.initContainer.resources.requests.memory=6Mi",
-                "datajobs.deployment.initContainer.resources.limits.memory=6Mi",
-        })
+    properties = {
+      "datajobs.deployment.initContainer.resources.requests.memory=6Mi",
+      "datajobs.deployment.initContainer.resources.limits.memory=6Mi",
+    })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobInitContainerOOMIT extends BaseIT {
 
   @RegisterExtension
-  static DataJobDeploymentExtension dataJobDeploymentExtension =
-      new DataJobDeploymentExtension();
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @Test
   public void testDataJob_causesOOM_shouldCompleteWithUserError(

@@ -62,7 +62,10 @@ public class JobExecutionResultManagerTest {
   @Test
   public void testGetResult_succeededTrueAndEmptyTerminationMessage_shouldReturnMessage() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(true).mainContainerTerminationMessage("").build();
+        KubernetesService.JobExecution.builder()
+            .succeeded(true)
+            .mainContainerTerminationMessage("")
+            .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
     Assertions.assertEquals(
@@ -73,7 +76,10 @@ public class JobExecutionResultManagerTest {
   @Test
   public void testGetResult_succeededFalseAndEmptyTerminationMessage_shouldReturnMessage() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(false).mainContainerTerminationMessage("").build();
+        KubernetesService.JobExecution.builder()
+            .succeeded(false)
+            .mainContainerTerminationMessage("")
+            .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
     Assertions.assertEquals(
@@ -263,7 +269,10 @@ public class JobExecutionResultManagerTest {
   public void
       testGetResult_emptyTerminationMessageAndExecutionStatusSucceeded_shouldReturnTerminationStatusSuccess() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(true).mainContainerTerminationMessage("").build();
+        KubernetesService.JobExecution.builder()
+            .succeeded(true)
+            .mainContainerTerminationMessage("")
+            .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
     Assertions.assertEquals(ExecutionStatus.SUCCEEDED, actualResult.getExecutionStatus());
@@ -273,7 +282,10 @@ public class JobExecutionResultManagerTest {
   public void
       testGetResult_emptyTerminationMessageAndExecutionStatusFailed_shouldReturnTerminationStatusPlatformError() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(false).mainContainerTerminationMessage("").build();
+        KubernetesService.JobExecution.builder()
+            .succeeded(false)
+            .mainContainerTerminationMessage("")
+            .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
     Assertions.assertEquals(ExecutionStatus.PLATFORM_ERROR, actualResult.getExecutionStatus());
@@ -408,7 +420,8 @@ public class JobExecutionResultManagerTest {
             .mainContainerTerminationMessage(null)
             .succeeded(false)
             .jobTerminationReason("Some Reason")
-            .mainContainerTerminationReason(JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)
+            .mainContainerTerminationReason(
+                JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);

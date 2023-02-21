@@ -1459,7 +1459,8 @@ public abstract class KubernetesService implements InitializingBean {
     return (containers != null && !containers.isEmpty()) ? containers.get(0).getName() : null;
   }
 
-  private static Optional<V1ContainerStateTerminated> getTerminatedState(V1Pod pod, Function<V1PodStatus, List<V1ContainerStatus>> containerStatusFunction) {
+  private static Optional<V1ContainerStateTerminated> getTerminatedState(
+      V1Pod pod, Function<V1PodStatus, List<V1ContainerStatus>> containerStatusFunction) {
     Objects.requireNonNull(pod, "The pod cannot be null");
     var status = pod.getStatus();
     if (status == null
@@ -1486,7 +1487,8 @@ public abstract class KubernetesService implements InitializingBean {
    * @return A {@link V1ContainerStateTerminated} object representing the termination status of the
    *     job.
    */
-  ImmutablePair<Optional<V1ContainerStateTerminated>, Optional<V1ContainerStateTerminated>> getTerminationStatus(V1Job job) {
+  ImmutablePair<Optional<V1ContainerStateTerminated>, Optional<V1ContainerStateTerminated>>
+      getTerminationStatus(V1Job job) {
     List<V1Pod> jobPods;
 
     try {
@@ -1501,12 +1503,16 @@ public abstract class KubernetesService implements InitializingBean {
 
     var lastMainTerminatedPodState =
         jobPods.stream()
-            .map(v1Pod -> getTerminatedState(v1Pod, new Function<V1PodStatus, List<V1ContainerStatus>>() {
-              @Override
-              public List<V1ContainerStatus> apply(V1PodStatus v1PodStatus) {
-                return v1PodStatus.getContainerStatuses();
-              }
-            }))
+            .map(
+                v1Pod ->
+                    getTerminatedState(
+                        v1Pod,
+                        new Function<V1PodStatus, List<V1ContainerStatus>>() {
+                          @Override
+                          public List<V1ContainerStatus> apply(V1PodStatus v1PodStatus) {
+                            return v1PodStatus.getContainerStatuses();
+                          }
+                        }))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .max(Comparator.comparing(V1ContainerStateTerminated::getFinishedAt));
@@ -1516,16 +1522,20 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     var lastInitTerminatedPodState =
-            jobPods.stream()
-                    .map(v1Pod -> getTerminatedState(v1Pod, new Function<V1PodStatus, List<V1ContainerStatus>>() {
-                      @Override
-                      public List<V1ContainerStatus> apply(V1PodStatus v1PodStatus) {
-                        return v1PodStatus.getInitContainerStatuses();
-                      }
-                    }))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .max(Comparator.comparing(V1ContainerStateTerminated::getFinishedAt));
+        jobPods.stream()
+            .map(
+                v1Pod ->
+                    getTerminatedState(
+                        v1Pod,
+                        new Function<V1PodStatus, List<V1ContainerStatus>>() {
+                          @Override
+                          public List<V1ContainerStatus> apply(V1PodStatus v1PodStatus) {
+                            return v1PodStatus.getInitContainerStatuses();
+                          }
+                        }))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .max(Comparator.comparing(V1ContainerStateTerminated::getFinishedAt));
 
     if (lastInitTerminatedPodState.isEmpty()) {
       log.info("Could not find a data job terminated pod for job {}", job.getMetadata().getName());
@@ -1545,17 +1555,20 @@ public abstract class KubernetesService implements InitializingBean {
     // jobCondition = null means that the K8S Job is still running
     if (jobStatusCondition != null) {
       // Job termination status
-      ImmutablePair<Optional<V1ContainerStateTerminated>, Optional<V1ContainerStateTerminated>> podTerminationStatus = getTerminationStatus(job);
+      ImmutablePair<Optional<V1ContainerStateTerminated>, Optional<V1ContainerStateTerminated>>
+          podTerminationStatus = getTerminationStatus(job);
 
-      Optional<V1ContainerStateTerminated> lastInitContainerStateTerminated = podTerminationStatus.getLeft();
+      Optional<V1ContainerStateTerminated> lastInitContainerStateTerminated =
+          podTerminationStatus.getLeft();
       // Termination Reason of the pod init container
       lastInitContainerStateTerminated
-              .map(
-                      v1ContainerStateTerminated ->
-                              StringUtils.trim(v1ContainerStateTerminated.getReason()))
-              .ifPresent(s -> jobExecutionStatusBuilder.initContainerTerminationReason(s));
+          .map(
+              v1ContainerStateTerminated ->
+                  StringUtils.trim(v1ContainerStateTerminated.getReason()))
+          .ifPresent(s -> jobExecutionStatusBuilder.initContainerTerminationReason(s));
 
-      Optional<V1ContainerStateTerminated> lastMainContainerStateTerminated = podTerminationStatus.getRight();
+      Optional<V1ContainerStateTerminated> lastMainContainerStateTerminated =
+          podTerminationStatus.getRight();
       // If the job completed but its pod did not produce a termination message, we infer the
       // termination status later, based on the status of the job itself.
       lastMainContainerStateTerminated
