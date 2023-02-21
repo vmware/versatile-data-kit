@@ -40,7 +40,7 @@
   "description": "Taurus Shared library enables reusability of shared features like: NgRx Redux, Error Handlers, Utils, Generic Components etc.",
   "repository": {
     "type": "git",
-    "url": "-"
+    "url": "https://github.com/vmware/versatile-data-kit.git"
   },
   "keywords": [
     "vdk",

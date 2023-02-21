@@ -1,0 +1,31 @@
+name: Test front end components
+
+on:
+  pull_request:
+    branches: 
+      - main
+    paths:
+      - projects/frontend/data-pipelines/**
+      - projects/frontend/shared-components/**
+
+jobs:
+  build-test-vdk-shared:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        legacy-peer-deps: true
+    
+    - name: Build
+      working-directory: ./projects/frontend/shared-components/gui
+      run: |
+        npm ci --omit=optional
+        npm run build
+    - name: Test
+      working-directory: ./projects/frontend/shared-components/gui
+      run: npm run test

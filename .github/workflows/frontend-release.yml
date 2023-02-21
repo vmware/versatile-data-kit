@@ -1,0 +1,55 @@
+name: Publish frontend components
+
+on:
+  push:
+    branches: 
+      - main
+    paths:
+      - 'projects/frontend/data-pipelines/**'
+      - 'projects/frontend/shared-components/**'
+      - '!projects/frontend/shared-components/gui/package.json'
+      - '!projects/frontend/shared-components/gui/projects/shared/package.json'
+
+jobs:
+  build-test-publish-vdk-shared:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup NodeJS
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        registry-url: 'https://registry.npmjs.org'
+        legacy-peer-deps: true
+
+    - name: Build
+      working-directory: ./projects/frontend/shared-components/gui
+      run: |
+        npm ci --omit=optional
+        npm run build
+
+    - name: Test
+      working-directory: ./projects/frontend/shared-components/gui
+      run: npm run test
+    
+    - name: Publish Shared Components
+      working-directory: ./projects/frontend/shared-components/gui/dist/shared
+      run: npm publish --ignore-scripts
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Bump Patch Version
+      working-directory: ./projects/frontend/shared-components/gui
+      run: |
+        git pull origin main --rebase
+        npm version patch
+        cd projects/shared
+        npm version patch
+        git config --global user.name 'Bump Action'
+        git config --global user.email 'bumpaction@users.noreply.github.com'
+        git commit -am "vdk/frontend: Bump patch version"
+        git push
