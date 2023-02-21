@@ -1,8 +1,11 @@
+# Copyright 2023-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 name: Publish frontend components
 
 on:
   push:
-    branches: 
+    branches:
       - main
     paths:
       - 'projects/frontend/data-pipelines/**'
@@ -35,7 +38,7 @@ jobs:
     - name: Test
       working-directory: ./projects/frontend/shared-components/gui
       run: npm run test
-    
+
     - name: Publish Shared Components
       working-directory: ./projects/frontend/shared-components/gui/dist/shared
       run: npm publish --ignore-scripts

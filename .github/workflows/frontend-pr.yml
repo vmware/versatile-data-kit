@@ -1,8 +1,11 @@
+# Copyright 2023-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 name: Test front end components
 
 on:
   pull_request:
-    branches: 
+    branches:
       - main
     paths:
       - projects/frontend/data-pipelines/**
@@ -20,7 +23,7 @@ jobs:
       with:
         node-version: 18.x
         legacy-peer-deps: true
-    
+
     - name: Build
       working-directory: ./projects/frontend/shared-components/gui
       run: |
