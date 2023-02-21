@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { jobData } from '../dataClasses/jobData';
+import { jobData, JobProperties } from '../jobData';
 
 export interface IDeleteJobDialogProps {
     /**
@@ -57,7 +57,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         if (!value) {
             value = this.props.jobName;
         }
-        jobData.jobName = value;
+        jobData.set(JobProperties.name, value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -70,7 +70,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         if (!value) {
             value = "default-team";
         }
-        jobData.jobTeam = value;
+        jobData.set(JobProperties.team, value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -83,6 +83,6 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         if (!value) {
             value = "default-url";
         }
-        jobData.restApiUrl = value;
+        jobData.set(JobProperties.restApiUrl, value);
     };
 }

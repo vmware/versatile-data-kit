@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { jobData } from '../dataClasses/jobData';
+import { jobData, JobProperties } from '../jobData';
 
 export interface ICreateJobDialogProps {
     /**
@@ -86,19 +86,19 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
                 checkbox.classList.remove("checked");
                 input?.parentElement?.classList.add("hidden");
                 if(flag === "Cloud"){
-                    jobData.cloud = "";
+                    jobData.set(JobProperties.cloud, "");
                 }
                 else{
-                    jobData.local = "";
+                    jobData.set(JobProperties.local, "");
                 }
             }
             else {
                 checkbox?.classList.add("checked");
                 if(flag === "Cloud"){
-                    jobData.cloud = "1";
+                    jobData.set(JobProperties.cloud, "1");
                 }
                 else{
-                    jobData.local = "1";
+                    jobData.set(JobProperties.local, "1");
                 }
                 input?.parentElement?.classList.remove("hidden");
             }
@@ -116,7 +116,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        jobData.jobName = value;
+        jobData.set(JobProperties.name, value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -129,7 +129,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-team";
         }
-        jobData.jobTeam = value;
+        jobData.set(JobProperties.team, value);
     };
     /**
    * Callback invoked upon changing the job path input.
@@ -142,7 +142,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        jobData.jobPath = value;
+        jobData.set(JobProperties.path, value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -155,7 +155,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-url";
         }
-        jobData.restApiUrl = value;
+        jobData.set(JobProperties.restApiUrl, value);
     };
 
 }

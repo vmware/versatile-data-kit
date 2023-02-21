@@ -9,8 +9,6 @@ from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
 
-from .dict_object import DictObj
-
 
 class VdkUI:
     """
@@ -18,22 +16,22 @@ class VdkUI:
     """
 
     @staticmethod
-    def run_job(job_data: DictObj):
+    def run_job(path, arguments=None):
         """
         Execute `run job`.
-        :param job_data: the job data
-        following the projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/src/dataClasses/jobDataModel.json
+        :param path: the directory where the job run will be performed
+        :param arguments: the additional variables for the job run
         :return: response with status code.
         """
-        if not os.path.exists(job_data.jobPath):
-            job_data.jobPath = os.getcwd() + job_data.jobPath
-            if not os.path.exists(job_data.jobPath):
+        if not os.path.exists(path):
+            path = os.getcwd() + path
+            if not os.path.exists(path):
                 return "Incorrect path!"
         with open("vdk_logs.txt", "w+") as log_file:
-            path = shlex.quote(job_data.jobPath)
+            path = shlex.quote(path)
             cmd: list[str] = ["vdk", "run", f"{path}"]
-            if job_data.jobArguments:
-                arguments = shlex.quote(job_data.jobArguments)
+            if arguments:
+                arguments = shlex.quote(arguments)
                 cmd.append("--arguments")
                 cmd.append(f"{arguments}")
             process = subprocess.Popen(
@@ -47,54 +45,52 @@ class VdkUI:
             return f"{process.returncode}"
 
     @staticmethod
-    def delete_job(job_data: DictObj):
+    def delete_job(name: str, team: str, rest_api_url: str):
         """
         Execute `delete job`.
-        :param job_data: the job data
-        following the projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/src/dataClasses/jobDataModel.json
+        :param name: the name of the data job that will be deleted
+        :param team: the team of the data job that will be deleted
+        :param rest_api_url: The base REST API URL.
         :return: message that the job is deleted
         """
-        cmd = JobDelete(job_data.restApiUrl)
-        cmd.delete_job(job_data.jobName, job_data.jobTeam)
-        return f"Deleted the job with name {job_data.jobName} from {job_data.jobTeam} team. "
+        cmd = JobDelete(rest_api_url)
+        cmd.delete_job(name, team)
+        return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
-    def download_job(job_data: DictObj):
+    def download_job(name: str, team: str, rest_api_url: str, path: str):
         """
         Execute `download job`.
-        :param job_data: the job data
-        following the projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/src/dataClasses/jobDataModel.json
+        :param name: the name of the data job that will be downloaded
+        :param team: the team of the data job that will be downloaded
+        :param rest_api_url: The base REST API URL
+        :param path: the path to the directory where the job will be downloaded
         :return: message that the job is downloaded
         """
-        cmd = JobDownloadSource(job_data.restApiUrl)
-        if not os.path.exists(job_data.jobPath):
-            job_data.jobPath = os.getcwd() + job_data.jobPath
-            if not os.path.exists(job_data.jobPath):
-                return "Incorrect path!"
-        cmd.download(job_data.jobTeam, job_data.jobName, job_data.jobPath)
-        return f"Downloaded the job with name {job_data.jobName} to {job_data.jobTeam}. "
+        cmd = JobDownloadSource(rest_api_url)
+        cmd.download(team, name, path)
+        return f"Downloaded the job with name {name} to {path}. "
 
     # TODO: make it work with notebook jobs
     @staticmethod
-    def create_job(job_data: DictObj):
+    def create_job(
+            name: str, team: str, rest_api_url: str, path: str, local: str, cloud: str):
         """
         Execute `create job`.
-        :param job_data: the job data
-        following the projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/src/dataClasses/jobDataModel.json
+        :param name: the name of the data job that will be created
+        :param team: the team of the data job that will be created
+        :param rest_api_url: The base REST API URL
+        :param path: the path to the directory where the job will be created
+        :param local: create sample job on local file system
+        :param cloud: create job in the cloud
         :return: message that the job is created
         """
-        local = True if job_data.local else False
-        cloud = True if job_data.cloud else False
-        cmd = JobCreate(job_data.restApiUrl)
+        cmd = JobCreate(rest_api_url)
         if cloud:
-            cli_utils.check_rest_api_url(job_data.restApiUrl)
+            cli_utils.check_rest_api_url(rest_api_url)
 
         if local:
-            if not os.path.exists(job_data.jobPath):
-                job_data.jobPath = os.getcwd() + job_data.jobPath
-                if not os.path.exists(job_data.jobPath):
-                    return "Incorrect path!"
-            cmd.validate_job_path(job_data.jobPath, job_data.jobName)
+            cmd.validate_job_path(path, name)
 
-        cmd.create_job(job_data.jobName, job_data.jobTeam,  job_data.jobPath, cloud, local)
-        return f"Job with name {job_data.jobName} was created."
+        cmd.create_job(name, team, path, bool(cloud), bool(local))
+        return f"Job with name {name} was created."

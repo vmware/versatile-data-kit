@@ -11,7 +11,7 @@ import {
 import CreateJobDialog from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { jobData, revertJobDataToDefault } from './dataClasses/jobData';
+import { jobData, JobProperties, revertJobDataToDefault } from './jobData';
 
 var runningVdkOperation = false;
 
@@ -118,9 +118,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
           if (result.button.accept) {
             let bodyMessage =
               'Do you really want to delete the job with name ' +
-              jobData.jobName +
+              jobData.get(JobProperties.name) +
               ' from ' +
-              jobData.restApiUrl +
+              jobData.get(JobProperties.restApiUrl) +
               '?';
             try {
               const finalResult = await showDialog({

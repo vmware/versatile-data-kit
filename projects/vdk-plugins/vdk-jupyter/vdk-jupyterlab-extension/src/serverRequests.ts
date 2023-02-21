@@ -5,7 +5,7 @@
 
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
-import { jobData } from './dataClasses/jobData';
+import { getJobDataJsonObject, jobData, JobProperties } from './jobData';
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -30,10 +30,10 @@ export async function getCurrentPathRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function jobRunRequest() {
-  if (jobData.jobPath) {
+  if (jobData.get(JobProperties.path)) {
     try {
       const data = await requestAPI<any>('run', {
-        body: JSON.stringify(jobData),
+        body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
       const message =
@@ -62,10 +62,10 @@ export async function jobRunRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function deleteJobRequest() {
-  if (jobData.jobName && jobData.jobTeam) {
+  if (jobData.get(JobProperties.name) && jobData.get(JobProperties.team)) {
     try {
       const data = await requestAPI<any>('delete', {
-        body: JSON.stringify(jobData),
+        body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
       if (!data['error']) {
@@ -98,10 +98,10 @@ export async function deleteJobRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function downloadJobRequest() {
-  if (jobData.jobName && jobData.jobTeam) {
+  if (jobData.get(JobProperties.name) && jobData.get(JobProperties.team)) {
     try {
       let data = await requestAPI<any>('download', {
-        body: JSON.stringify(jobData),
+        body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
       if (!data['error']) {
@@ -134,10 +134,10 @@ export async function downloadJobRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
  export async function createJobRequest() {
-  if (jobData.jobName && jobData.jobTeam) {
+  if (jobData.get(JobProperties.name) && jobData.get(JobProperties.team)) {
     try {
       const data = await requestAPI<any>('create', {
-        body: JSON.stringify(jobData),
+        body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
       if (!data['error']) {

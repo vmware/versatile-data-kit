@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { jobData } from '../dataClasses/jobData';
+import { jobData, JobProperties } from '../jobData';
 
 export interface IRunJobDialogProps {
     /**
@@ -51,7 +51,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
         if(!value){
             value = this.props.jobPath;
         }
-        jobData.jobPath = value;
+        jobData.set(JobProperties.path, value);
     };
     /**
     * Callback invoked upon  changing the args input
@@ -62,7 +62,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
         const element = event.currentTarget as HTMLInputElement;
         let value = element.value;
         if(value && this._isJSON(value)){
-            jobData.jobArguments = value;
+            jobData.set(JobProperties.arguments, value);
         }
     };
 
