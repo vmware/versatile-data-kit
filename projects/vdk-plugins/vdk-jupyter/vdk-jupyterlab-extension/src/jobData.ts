@@ -4,7 +4,7 @@
  */
 
 /*
- * This enum is automatically generated from the enum from  ../vdk-jupyterlab-extension/ui_job_properties.py 
+ * This enum is automatically generated from the enum from  ../vdk-jupyterlab-extension/ui_job_properties.py
  * Using https://github.com/Syndallic/py-to-ts-interfaces#example
  */
 export enum JobProperties {
@@ -50,7 +50,7 @@ export function revertJobDataToDefault() {
  */
 export function getJobDataJsonObject() {
     const jsObj = {
-        'jobName': jobData.get(JobProperties.name), 
+        'jobName': jobData.get(JobProperties.name),
         'jobTeam': jobData.get(JobProperties.team),
         'restApiUrl': jobData.get(JobProperties.restApiUrl),
         'jobPath': jobData.get(JobProperties.path),

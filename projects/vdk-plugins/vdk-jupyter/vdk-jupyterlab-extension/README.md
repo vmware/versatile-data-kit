@@ -121,15 +121,15 @@ Follows the enum JobProperties from [ui-job-properties.py](vdk-jupyterlab-extens
 
 
 In the front-end extension a global variable is introduces (jobData) which holds the information about the current job.
-All the information about the data job can be accessed using the enum JobProperties from jobData/ts(src/jobData.ts), 
+All the information about the data job can be accessed using the enum JobProperties from jobData/ts(src/jobData.ts),
 which is generated automatically from  [ui-job-properties.py](vdk-jupyterlab-extension/ui_job_properties.py) enum and
 shall not be changed directly in the ts file.
 The values of its properties of jobData are meant to be changed during a VDK operation and after the operation ends they need to be set to default.
-For example, if we want to run a job we would set job path and arguments  as: 
+For example, if we want to run a job we would set job path and arguments  as:
 jobData.set(JobProperties.path, value) and jobData.set(JobProperties.arguments, value)
 
 The front-end sends the data from jobData to the server extension in JSON format.
-In the server extension the JSON is loaded as input_data and the specific data can be accessed 
+In the server extension the JSON is loaded as input_data and the specific data can be accessed
 via the [ui-job-properties.py](vdk-jupyterlab-extension/ui_job_properties.py) enum.
 For example, input_data[JobProperties.name.value] would return current job's name.
 

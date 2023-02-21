@@ -7,8 +7,8 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
-from .vdk_ui import VdkUI
 from .ui_job_properties import JobProperties
+from .vdk_ui import VdkUI
 
 
 class RunJobHandler(APIHandler):
@@ -19,7 +19,10 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        status_code = VdkUI.run_job(input_data[JobProperties.path.value], input_data[JobProperties.arguments.value])
+        status_code = VdkUI.run_job(
+            input_data[JobProperties.path.value],
+            input_data[JobProperties.arguments.value],
+        )
         self.finish(json.dumps({"message": f"{status_code}"}))
 
 
@@ -29,8 +32,9 @@ class DeleteJobHandler(APIHandler):
         input_data = self.get_json_body()
         try:
             status = VdkUI.delete_job(
-                input_data[JobProperties.name.value], input_data[JobProperties.team.value],
-                input_data[JobProperties.restApiUrl.value]
+                input_data[JobProperties.name.value],
+                input_data[JobProperties.team.value],
+                input_data[JobProperties.restApiUrl.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -42,9 +46,12 @@ class DownloadJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
-            status = VdkUI.download_job(input_data[JobProperties.name.value], input_data[JobProperties.team.value],
-                                        input_data[JobProperties.restApiUrl.value],
-                                        input_data[JobProperties.path.value])
+            status = VdkUI.download_job(
+                input_data[JobProperties.name.value],
+                input_data[JobProperties.team.value],
+                input_data[JobProperties.restApiUrl.value],
+                input_data[JobProperties.path.value],
+            )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
@@ -56,9 +63,13 @@ class CreateJobHandler(APIHandler):
         input_data = self.get_json_body()
         try:
             status = VdkUI.create_job(
-                input_data[JobProperties.name.value], input_data[JobProperties.team.value],
-                input_data[JobProperties.restApiUrl.value], input_data[JobProperties.path.value],
-                input_data[JobProperties.local.value], input_data[JobProperties.cloud.value])
+                input_data[JobProperties.name.value],
+                input_data[JobProperties.team.value],
+                input_data[JobProperties.restApiUrl.value],
+                input_data[JobProperties.path.value],
+                input_data[JobProperties.local.value],
+                input_data[JobProperties.cloud.value],
+            )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))

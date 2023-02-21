@@ -74,7 +74,8 @@ class VdkUI:
     # TODO: make it work with notebook jobs
     @staticmethod
     def create_job(
-            name: str, team: str, rest_api_url: str, path: str, local: str, cloud: str):
+        name: str, team: str, rest_api_url: str, path: str, local: str, cloud: str
+    ):
         """
         Execute `create job`.
         :param name: the name of the data job that will be created
