@@ -461,7 +461,7 @@ public class KubernetesServiceTest {
   }
 
   @Test
-  public void testReadCronJob() {
+  public void testReadCronJob_readV1CronJobShouldReturnStatus() {
     String testCronjobName = "testCronjob";
     KubernetesService mock = Mockito.mock(KubernetesService.class);
 
@@ -471,7 +471,6 @@ public class KubernetesServiceTest {
     testDeploymentStatus.setCronJobName(testCronjobName);
     Mockito.when(mock.readCronJob(testCronjobName)).thenCallRealMethod();
 
-    // Scenario 1: readV1CronJob method should return status.
     Mockito.when(mock.readV1beta1CronJob(testCronjobName)).thenReturn(Optional.empty());
     Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.of(testDeploymentStatus));
 
@@ -480,17 +479,28 @@ public class KubernetesServiceTest {
         testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
     verify(mock, times(2)).readV1beta1CronJob(testCronjobName);
     verify(mock, times(2)).readV1CronJob(testCronjobName);
+  }
 
-    // Scenario 2: readV1beta1CronJob method should return status.
+  @Test
+  public void testReadCronJob_readV1beta1CronJobShouldReturnStatus() {
+    String testCronjobName = "testCronjob";
+    KubernetesService mock = Mockito.mock(KubernetesService.class);
+
+    JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
+    testDeploymentStatus.setEnabled(false);
+    testDeploymentStatus.setDataJobName(testCronjobName);
+    testDeploymentStatus.setCronJobName(testCronjobName);
+    Mockito.when(mock.readCronJob(testCronjobName)).thenCallRealMethod();
+
     Mockito.when(mock.readV1beta1CronJob(testCronjobName))
-        .thenReturn(Optional.of(testDeploymentStatus));
+            .thenReturn(Optional.of(testDeploymentStatus));
     Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.empty());
 
     Assertions.assertNotNull(mock.readCronJob(testCronjobName));
     Assertions.assertEquals(
-        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
-    verify(mock, times(4)).readV1beta1CronJob(testCronjobName);
-    verify(mock, times(2)).readV1CronJob(testCronjobName);
+            testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
+    verify(mock, times(2)).readV1beta1CronJob(testCronjobName);
+    verify(mock, times(0)).readV1CronJob(testCronjobName);
   }
 
   @Test

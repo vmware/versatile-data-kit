@@ -85,6 +85,7 @@ public abstract class KubernetesService implements InitializingBean {
   public static final String LABEL_PREFIX = "com.vmware.taurus";
   private static final int WATCH_JOBS_TIMEOUT_SECONDS = 300;
   private static final String K8S_DATA_JOB_TEMPLATE_RESOURCE = "k8s-data-job-template.yaml";
+  private static final String V1_K8S_DATA_JOB_TEMPLATE_RESOURCE = "v1-k8s-data-job-template.yaml";
 
   private static int fromInteger(Integer value) {
     return Optional.ofNullable(value).orElse(0);
@@ -241,7 +242,7 @@ public abstract class KubernetesService implements InitializingBean {
     try {
       if (getK8sSupportsV1CronJob()) {
         loadV1CronjobTemplate(
-            new ClassPathResource("v1-" + K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
+            new ClassPathResource(V1_K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
       } else {
         loadV1beta1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
       }
@@ -315,7 +316,7 @@ public abstract class KubernetesService implements InitializingBean {
   private V1CronJob loadInternalV1CronjobTemplate() {
     try {
       return loadV1CronjobTemplate(
-          new ClassPathResource("v1-" + K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
+          new ClassPathResource(V1_K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
     } catch (Exception e) {
       // This should never happen unless we are testing locally and we've messed up
       // with the internal template resource file.
@@ -449,16 +450,16 @@ public abstract class KubernetesService implements InitializingBean {
     return set;
   }
 
+  /**
+   * Reads the deployment status of a cron job in a Kubernetes cluster. The method first tries to
+   * read the cron job using the V1Beta API, and if it fails, it falls back to reading the cron
+   * job using the V1 API.
+   *
+   * @param cronJobName the name of the cron job to be read
+   * @return an Optional containing the deployment status of the cron job if it exists, or an
+   *     empty Optional if the cron job does not exist or cannot be read
+   */
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
-    /**
-     * Reads the deployment status of a cron job in a Kubernetes cluster. The method first tries to
-     * read the cron job using the V1Beta API, and if it fails, it falls back to reading the cron
-     * job using the V1 API.
-     *
-     * @param cronJobName the name of the cron job to be read
-     * @return an Optional containing the deployment status of the cron job if it exists, or an
-     *     empty Optional if the cron job does not exist or cannot be read
-     */
     var jobStatus = readV1beta1CronJob(cronJobName);
 
     return jobStatus.isPresent() ? jobStatus : readV1CronJob(cronJobName);
@@ -775,37 +776,37 @@ public abstract class KubernetesService implements InitializingBean {
     }
   }
 
+  /**
+   * Returns a set of cron job names for a given namespace in a Kubernetes cluster. The cron jobs
+   * can be of version V1 or V1Beta.
+   *
+   * @return a set of cron job names
+   * @throws ApiException if there is a problem accessing the Kubernetes API
+   */
   public Set<String> listCronJobs() throws ApiException {
-    /**
-     * Returns a set of cron job names for a given namespace in a Kubernetes cluster. The cron jobs
-     * can be of version V1 or V1Beta.
-     *
-     * @return a set of cron job names
-     * @throws ApiException if there is a problem accessing the Kubernetes API
-     */
     log.debug("Listing k8s cron jobs");
-    Set<String> V1CronJobNames = Collections.emptySet();
+    Set<String> v1CronJobNames = Collections.emptySet();
 
     var v1CronJobs =
         initBatchV1Api()
             .listNamespacedCronJob(
                 namespace, null, null, null, null, null, null, null, null, null, null);
-    V1CronJobNames =
+    v1CronJobNames =
         v1CronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s V1 cron jobs: {}", V1CronJobNames);
+    log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
 
     var v1BetaCronJobs =
         initBatchV1beta1Api()
             .listNamespacedCronJob(
                 namespace, null, null, null, null, null, null, null, null, null, null);
-    var V1BetaCronJobNames =
+    var v1BetaCronJobNames =
         v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s V1Beta cron jobs: {}", V1BetaCronJobNames);
-    return Stream.concat(V1CronJobNames.stream(), V1BetaCronJobNames.stream())
+    log.debug("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
+    return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
         .collect(Collectors.toSet());
   }
 
