@@ -15,16 +15,22 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @Slf4j
+@TestPropertySource(
+        properties = {
+                "datajobs.deployment.initContainer.resources.requests.memory=6Mi",
+                "datajobs.deployment.initContainer.resources.limits.memory=6Mi",
+        })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-public class DataJobOOMIT extends BaseIT {
+public class DataJobInitContainerOOMIT extends BaseIT {
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension =
-      new DataJobDeploymentExtension("oom_job.zip");
+      new DataJobDeploymentExtension();
 
   @Test
   public void testDataJob_causesOOM_shouldCompleteWithUserError(
@@ -38,7 +44,7 @@ public class DataJobOOMIT extends BaseIT {
     // Check the data job execution status
     JobExecutionUtil.checkDataJobExecutionStatus(
         executionId,
-        DataJobExecution.StatusEnum.USER_ERROR,
+        DataJobExecution.StatusEnum.PLATFORM_ERROR,
         opId,
         jobName,
         teamName,

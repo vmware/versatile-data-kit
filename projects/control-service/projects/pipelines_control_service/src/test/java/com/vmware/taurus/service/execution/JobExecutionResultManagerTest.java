@@ -15,8 +15,6 @@ import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionResult;
 
-import java.time.OffsetDateTime;
-
 public class JobExecutionResultManagerTest {
 
   @Test
@@ -24,7 +22,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage(null)
+            .mainContainerTerminationMessage(null)
             .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
@@ -38,7 +36,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage(null)
+            .mainContainerTerminationMessage(null)
             .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
@@ -54,7 +52,7 @@ public class JobExecutionResultManagerTest {
         KubernetesService.JobExecution.builder()
             .succeeded(null)
             .startTime(OffsetDateTime.now())
-            .podTerminationMessage(null)
+            .mainContainerTerminationMessage(null)
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -64,7 +62,7 @@ public class JobExecutionResultManagerTest {
   @Test
   public void testGetResult_succeededTrueAndEmptyTerminationMessage_shouldReturnMessage() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(true).podTerminationMessage("").build();
+        KubernetesService.JobExecution.builder().succeeded(true).mainContainerTerminationMessage("").build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
     Assertions.assertEquals(
@@ -75,7 +73,7 @@ public class JobExecutionResultManagerTest {
   @Test
   public void testGetResult_succeededFalseAndEmptyTerminationMessage_shouldReturnMessage() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(false).podTerminationMessage("").build();
+        KubernetesService.JobExecution.builder().succeeded(false).mainContainerTerminationMessage("").build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
     Assertions.assertEquals(
@@ -90,7 +88,7 @@ public class JobExecutionResultManagerTest {
         KubernetesService.JobExecution.builder()
             .succeeded(null)
             .startTime(OffsetDateTime.now())
-            .podTerminationMessage("")
+            .mainContainerTerminationMessage("")
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -102,7 +100,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage("not-existing-termination-message")
+            .mainContainerTerminationMessage("not-existing-termination-message")
             .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
@@ -116,7 +114,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage("not-existing-termination-message")
+            .mainContainerTerminationMessage("not-existing-termination-message")
             .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
@@ -132,7 +130,7 @@ public class JobExecutionResultManagerTest {
         KubernetesService.JobExecution.builder()
             .succeeded(null)
             .startTime(OffsetDateTime.now())
-            .podTerminationMessage("not-existing-termination-message")
+            .mainContainerTerminationMessage("not-existing-termination-message")
             .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
@@ -154,7 +152,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage(expectedTerminationMessage.toString())
+            .mainContainerTerminationMessage(expectedTerminationMessage.toString())
             .build();
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
 
@@ -169,7 +167,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage(expectedTerminationStatus.getPodStatus())
+            .mainContainerTerminationMessage(expectedTerminationStatus.getPodStatus())
             .build();
 
     ExecutionResult actualTerminationMessage = JobExecutionResultManager.getResult(jobExecution);
@@ -184,7 +182,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage(expectedExecutionStatus.getPodStatus())
+            .mainContainerTerminationMessage(expectedExecutionStatus.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -198,7 +196,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage(expectedExecutionStatus.getPodStatus())
+            .mainContainerTerminationMessage(expectedExecutionStatus.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -212,7 +210,7 @@ public class JobExecutionResultManagerTest {
         KubernetesService.JobExecution.builder()
             .succeeded(null)
             .startTime(OffsetDateTime.now())
-            .podTerminationMessage(ExecutionStatus.USER_ERROR.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.USER_ERROR.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -226,7 +224,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage(expectedExecutionStatus.getPodStatus())
+            .mainContainerTerminationMessage(expectedExecutionStatus.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -240,7 +238,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage(expectedExecutionStatus.getPodStatus())
+            .mainContainerTerminationMessage(expectedExecutionStatus.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -254,7 +252,7 @@ public class JobExecutionResultManagerTest {
         KubernetesService.JobExecution.builder()
             .succeeded(null)
             .startTime(OffsetDateTime.now())
-            .podTerminationMessage(ExecutionStatus.PLATFORM_ERROR.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.PLATFORM_ERROR.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -265,7 +263,7 @@ public class JobExecutionResultManagerTest {
   public void
       testGetResult_emptyTerminationMessageAndExecutionStatusSucceeded_shouldReturnTerminationStatusSuccess() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(true).podTerminationMessage("").build();
+        KubernetesService.JobExecution.builder().succeeded(true).mainContainerTerminationMessage("").build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
     Assertions.assertEquals(ExecutionStatus.SUCCEEDED, actualResult.getExecutionStatus());
@@ -275,7 +273,7 @@ public class JobExecutionResultManagerTest {
   public void
       testGetResult_emptyTerminationMessageAndExecutionStatusFailed_shouldReturnTerminationStatusPlatformError() {
     KubernetesService.JobExecution jobExecution =
-        KubernetesService.JobExecution.builder().succeeded(false).podTerminationMessage("").build();
+        KubernetesService.JobExecution.builder().succeeded(false).mainContainerTerminationMessage("").build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
     Assertions.assertEquals(ExecutionStatus.PLATFORM_ERROR, actualResult.getExecutionStatus());
@@ -328,7 +326,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage(ExecutionStatus.USER_ERROR.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.USER_ERROR.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -341,7 +339,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage(ExecutionStatus.SKIPPED.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.SKIPPED.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -354,7 +352,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(true)
-            .podTerminationMessage(ExecutionStatus.PLATFORM_ERROR.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.PLATFORM_ERROR.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -367,7 +365,7 @@ public class JobExecutionResultManagerTest {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
             .succeeded(false)
-            .podTerminationMessage(ExecutionStatus.PLATFORM_ERROR.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.PLATFORM_ERROR.getPodStatus())
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
@@ -379,7 +377,7 @@ public class JobExecutionResultManagerTest {
       testGetResult_terminationMessageNullAndExecutionStatusFailedAndTerminationReasonDeadlineExceeded_shouldReturnTerminationStatusUserError() {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
-            .podTerminationMessage(null)
+            .mainContainerTerminationMessage(null)
             .succeeded(false)
             .jobTerminationReason(JobExecutionResultManager.TERMINATION_REASON_DEADLINE_EXCEEDED)
             .build();
@@ -393,7 +391,7 @@ public class JobExecutionResultManagerTest {
       testGetResult_terminationMessageNullAndExecutionStatusFailedAndTerminationReasonAny_shouldReturnTerminationStatusUserError() {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
-            .podTerminationMessage(null)
+            .mainContainerTerminationMessage(null)
             .succeeded(false)
             .jobTerminationReason("SomeReason")
             .build();
@@ -407,10 +405,10 @@ public class JobExecutionResultManagerTest {
       testGetResult_terminationMessageNullAndExecutionStatusFailedAndTerminationReasonOutOfMemory_shouldReturnTerminationStatusUserError() {
     KubernetesService.JobExecution jobExecution =
         KubernetesService.JobExecution.builder()
-            .podTerminationMessage(null)
+            .mainContainerTerminationMessage(null)
             .succeeded(false)
             .jobTerminationReason("Some Reason")
-            .containerTerminationReason(JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)
+            .mainContainerTerminationReason(JobExecutionResultManager.TERMINATION_REASON_OUT_OF_MEMORY)
             .build();
 
     ExecutionResult actualResult = JobExecutionResultManager.getResult(jobExecution);
