@@ -241,8 +241,7 @@ public abstract class KubernetesService implements InitializingBean {
     // Step 1 - load the internal datajob template in order to validate it.
     try {
       if (getK8sSupportsV1CronJob()) {
-        loadV1CronjobTemplate(
-            new ClassPathResource(V1_K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
+        loadV1CronjobTemplate(new ClassPathResource(V1_K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
       } else {
         loadV1beta1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
       }
@@ -452,12 +451,12 @@ public abstract class KubernetesService implements InitializingBean {
 
   /**
    * Reads the deployment status of a cron job in a Kubernetes cluster. The method first tries to
-   * read the cron job using the V1Beta API, and if it fails, it falls back to reading the cron
-   * job using the V1 API.
+   * read the cron job using the V1Beta API, and if it fails, it falls back to reading the cron job
+   * using the V1 API.
    *
    * @param cronJobName the name of the cron job to be read
-   * @return an Optional containing the deployment status of the cron job if it exists, or an
-   *     empty Optional if the cron job does not exist or cannot be read
+   * @return an Optional containing the deployment status of the cron job if it exists, or an empty
+   *     Optional if the cron job does not exist or cannot be read
    */
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
     var jobStatus = readV1beta1CronJob(cronJobName);

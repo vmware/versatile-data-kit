@@ -493,12 +493,12 @@ public class KubernetesServiceTest {
     Mockito.when(mock.readCronJob(testCronjobName)).thenCallRealMethod();
 
     Mockito.when(mock.readV1beta1CronJob(testCronjobName))
-            .thenReturn(Optional.of(testDeploymentStatus));
+        .thenReturn(Optional.of(testDeploymentStatus));
     Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.empty());
 
     Assertions.assertNotNull(mock.readCronJob(testCronjobName));
     Assertions.assertEquals(
-            testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
+        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
     verify(mock, times(2)).readV1beta1CronJob(testCronjobName);
     verify(mock, times(0)).readV1CronJob(testCronjobName);
   }
