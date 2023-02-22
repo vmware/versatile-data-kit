@@ -327,7 +327,7 @@ public class JobExecutionService {
             .status(executionStatus)
             .message(
                 getJobExecutionApiMessage(
-                    executionStatus, jobExecution.getContainerTerminationReason()))
+                    executionStatus, jobExecution.getMainContainerTerminationReason()))
             .opId(jobExecution.getOpId())
             .endTime(jobExecution.getEndTime())
             .vdkVersion(executionResult.getVdkVersion())
