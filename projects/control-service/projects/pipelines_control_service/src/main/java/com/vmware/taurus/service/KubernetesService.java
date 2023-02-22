@@ -1024,7 +1024,7 @@ public abstract class KubernetesService implements InitializingBean {
       List<V1Volume> volumes,
       Map<String, String> jobDeploymentAnnotations)
       throws ApiException {
-    if (readV1CronJob(name).isPresent()) {
+    if (getK8sSupportsV1CronJob()) {
       updateV1CronJob(
           name,
           image,
@@ -1081,7 +1081,7 @@ public abstract class KubernetesService implements InitializingBean {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    if (readV1CronJob(name).isPresent()) {
+    if (getK8sSupportsV1CronJob()) {
       updateV1CronJob(
           name,
           image,
