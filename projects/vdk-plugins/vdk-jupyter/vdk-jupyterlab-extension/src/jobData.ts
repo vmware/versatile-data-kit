@@ -49,4 +49,3 @@ export function getJobDataJsonObject() {
   };
   return jsObj;
 }
-
