@@ -32,7 +32,7 @@ def run(job_input: IJobInput):
         staging_table_prefix = job_arguments.get("staging_table_prefix", "vdk_check_")
         staging_table_name = f"{staging_table_prefix}{target_table}"
         staging_table = f"{staging_schema}.{staging_table_name}"
-        
+
         align_stg_table_with_target(
             f"{target_schema}.{target_table}", staging_table, job_input
         )
