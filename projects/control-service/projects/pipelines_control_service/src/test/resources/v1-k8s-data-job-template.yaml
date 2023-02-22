@@ -1,0 +1,44 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:                   # merged with additional annotations from TPCS
+    annotation1: valueAnnotation1
+    annotation2: valueAnnotation2
+  name: to-be-tested             # overridden by TPCS
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 2
+  schedule: "to-be-tested"       # overridden by TPCS
+  startingDeadlineSeconds: 1800
+  successfulJobsHistoryLimit: 1
+  suspend: false                 # overridden by TPCS
+  jobTemplate:
+    metadata:
+      annotations: # merged with additional annotations from TPCS
+      labels: # merged with additional labels from TPCS
+    spec:
+      activeDeadlineSeconds: 129600
+      backoffLimit: 3
+      template:
+        metadata:
+          labels:                # merged with additional labels from TPCS
+            label1: valueLabel1
+            label2: valueLabel2
+        spec:
+          containers:            # overridden by TPCS
+          - command:
+            - /bin/sh
+            - -c
+            - date; echo '************** Cronjob Template ******************'
+            name: cronjob-template-container-name
+            image: busybox
+            imagePullPolicy: IfNotPresent
+          restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+      ttlSecondsAfterFinished: 600
