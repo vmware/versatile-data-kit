@@ -5,7 +5,8 @@
 
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
-import { getJobDataJsonObject, jobData, JobProperties } from './jobData';
+import { getJobDataJsonObject, jobData } from './jobData';
+import { VdkOption } from './vdkOptions/vdk_options';
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -30,7 +31,7 @@ export async function getCurrentPathRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function jobRunRequest() {
-  if (jobData.get(JobProperties.path)) {
+  if (jobData.get(VdkOption.PATH)) {
     try {
       const data = await requestAPI<any>('run', {
         body: JSON.stringify(getJobDataJsonObject()),
@@ -62,7 +63,7 @@ export async function jobRunRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function deleteJobRequest() {
-  if (jobData.get(JobProperties.name) && jobData.get(JobProperties.team)) {
+  if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
     try {
       const data = await requestAPI<any>('delete', {
         body: JSON.stringify(getJobDataJsonObject()),
@@ -98,7 +99,7 @@ export async function deleteJobRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
 export async function downloadJobRequest() {
-  if (jobData.get(JobProperties.name) && jobData.get(JobProperties.team)) {
+  if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
     try {
       let data = await requestAPI<any>('download', {
         body: JSON.stringify(getJobDataJsonObject()),
@@ -134,7 +135,7 @@ export async function downloadJobRequest() {
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
  export async function createJobRequest() {
-  if (jobData.get(JobProperties.name) && jobData.get(JobProperties.team)) {
+  if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
     try {
       const data = await requestAPI<any>('create', {
         body: JSON.stringify(getJobDataJsonObject()),

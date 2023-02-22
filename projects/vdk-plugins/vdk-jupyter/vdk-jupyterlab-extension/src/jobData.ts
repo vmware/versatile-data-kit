@@ -4,59 +4,49 @@
  */
 
 /*
- * This enum is automatically generated from the enum from  ../vdk-jupyterlab-extension/ui_job_properties.py
+ * This enum is automatically generated from the enum from  ../vdk-jupyterlab-extension/vdk_options/vdk_options_.py
  * Using https://github.com/Syndallic/py-to-ts-interfaces#example
+ * The enum shall not be modified directly
  */
-export enum JobProperties {
-  name = 'jobName',
-  team = 'jobTeam',
-  restApiUrl = 'restApiUrl',
-  path = 'jobPath',
-  cloud = 'cloud',
-  local = 'local',
-  arguments = 'jobArguments'
-}
+import { VdkOption } from './vdkOptions/vdk_options';
 
 /*
- * In the front-end extension a global variable is introduces (jobData) which holds the information about the current job.
+ * A global variable which holds the information about the current job.
+ * This variable acts like session storage that holds information about the data job for the currently running Jupyter instance
  * The values of its properties are meant to be changed during a VDK operation and after the operation ends they need to be set to default.
  */
-export var jobData = new Map<string, string>([
-  [JobProperties.name, ''],
-  [JobProperties.team, ''],
-  [JobProperties.restApiUrl, ''],
-  [JobProperties.path, ''],
-  [JobProperties.cloud, ''],
-  [JobProperties.local, ''],
-  [JobProperties.arguments, '']
-]);
+
+export var jobData = new Map<string, string>([]);
 
 /*
- * Function responsible for reverting all property values of jobData to default
+ * Function responsible for reverting all vdkOption values of jobData to default
  */
-export function revertJobDataToDefault() {
-    jobData.set(JobProperties.name, '');
-    jobData.set(JobProperties.team, '');
-    jobData.set(JobProperties.restApiUrl, '');
-    jobData.set(JobProperties.path, '');
-    jobData.set(JobProperties.cloud, '');
-    jobData.set(JobProperties.local, '');
-    jobData.set(JobProperties.arguments, '');
+export function setJobDataToDefault() {
+  for (const option of Object.values(VdkOption)) {
+    jobData.set(option as VdkOption, '');
+  }
 }
+
+/*
+ * Sets default VdkOption values to jobData when the extension is firstly loaded
+ */
+setJobDataToDefault();
 
 
 /*
  * Function taht return the JSON object of jobData
+ * TODO: find a better wat to parse the Map into JSON object
  */
 export function getJobDataJsonObject() {
-    const jsObj = {
-        'jobName': jobData.get(JobProperties.name),
-        'jobTeam': jobData.get(JobProperties.team),
-        'restApiUrl': jobData.get(JobProperties.restApiUrl),
-        'jobPath': jobData.get(JobProperties.path),
-        'cloud': jobData.get(JobProperties.cloud),
-        'local': jobData.get(JobProperties.local),
-        'jobArguments': jobData.get(JobProperties.arguments)
-    };
-    return jsObj;
+  const jsObj = {
+    jobName: jobData.get(VdkOption.NAME),
+    jobTeam: jobData.get(VdkOption.TEAM),
+    restApiUrl: jobData.get(VdkOption.REST_API_URL),
+    jobPath: jobData.get(VdkOption.PATH),
+    cloud: jobData.get(VdkOption.CLOUD),
+    local: jobData.get(VdkOption.LOCAL),
+    jobArguments: jobData.get(VdkOption.ARGUMENTS)
+  };
+  return jsObj;
 }
+

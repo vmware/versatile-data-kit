@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { jobData, JobProperties } from '../jobData';
+import { jobData } from '../jobData';
+import { VdkOption } from '../vdkOptions/vdk_options';
 
 export interface IRunJobDialogProps {
     /**
@@ -51,7 +52,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
         if(!value){
             value = this.props.jobPath;
         }
-        jobData.set(JobProperties.path, value);
+        jobData.set(VdkOption.PATH, value);
     };
     /**
     * Callback invoked upon  changing the args input
@@ -62,7 +63,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
         const element = event.currentTarget as HTMLInputElement;
         let value = element.value;
         if(value && this._isJSON(value)){
-            jobData.set(JobProperties.arguments, value);
+            jobData.set(VdkOption.ARGUMENTS, value);
         }
     };
 

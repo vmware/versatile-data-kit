@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { jobData, JobProperties } from '../jobData';
+import { jobData } from '../jobData';
+import { VdkOption } from '../vdkOptions/vdk_options';
 
 export interface IDeleteJobDialogProps {
     /**
@@ -57,7 +58,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         if (!value) {
             value = this.props.jobName;
         }
-        jobData.set(JobProperties.name, value);
+        jobData.set(VdkOption.NAME, value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -70,7 +71,7 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         if (!value) {
             value = "default-team";
         }
-        jobData.set(JobProperties.team, value);
+        jobData.set(VdkOption.TEAM, value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -83,6 +84,6 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         if (!value) {
             value = "default-url";
         }
-        jobData.set(JobProperties.restApiUrl, value);
+        jobData.set(VdkOption.REST_API_URL, value);
     };
 }

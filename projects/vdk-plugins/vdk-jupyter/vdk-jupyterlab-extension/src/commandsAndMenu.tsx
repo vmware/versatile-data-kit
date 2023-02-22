@@ -11,7 +11,8 @@ import {
 import CreateJobDialog from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { jobData, JobProperties, revertJobDataToDefault } from './jobData';
+import { jobData, setJobDataToDefault } from './jobData';
+import { VdkOption } from './vdkOptions/vdk_options';
 
 var runningVdkOperation = false;
 
@@ -36,7 +37,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
           if (resultButtonClicked) {
             await jobRunRequest();
           }
-          revertJobDataToDefault();
+          setJobDataToDefault();
           runningVdkOperation = false;
         } else {
           showErrorMessage(
@@ -79,7 +80,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
           if (resultButtonClicked) {
             await createJobRequest();
           }
-          revertJobDataToDefault();
+          setJobDataToDefault();
           runningVdkOperation = false;
         } else {
           showErrorMessage(
@@ -118,9 +119,9 @@ export function updateVDKMenu(commands: CommandRegistry) {
           if (result.button.accept) {
             let bodyMessage =
               'Do you really want to delete the job with name ' +
-              jobData.get(JobProperties.name) +
+              jobData.get(VdkOption.NAME) +
               ' from ' +
-              jobData.get(JobProperties.restApiUrl) +
+              jobData.get(VdkOption.REST_API_URL) +
               '?';
             try {
               const finalResult = await showDialog({
@@ -142,7 +143,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
               );
             }
           }
-          revertJobDataToDefault();
+          setJobDataToDefault();
           runningVdkOperation = false;
         } else {
           showErrorMessage(
@@ -181,7 +182,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         if (resultButtonClicked) {
           await downloadJobRequest();
         }
-        revertJobDataToDefault();
+        setJobDataToDefault();
         runningVdkOperation = false;
       } else {
         showErrorMessage(

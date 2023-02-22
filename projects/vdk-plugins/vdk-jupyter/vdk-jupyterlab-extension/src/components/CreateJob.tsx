@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { jobData, JobProperties } from '../jobData';
+import { jobData } from '../jobData';
+import { VdkOption } from '../vdkOptions/vdk_options';
 
 export interface ICreateJobDialogProps {
     /**
@@ -86,19 +87,19 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
                 checkbox.classList.remove("checked");
                 input?.parentElement?.classList.add("hidden");
                 if(flag === "Cloud"){
-                    jobData.set(JobProperties.cloud, "");
+                    jobData.set(VdkOption.CLOUD, "");
                 }
                 else{
-                    jobData.set(JobProperties.local, "");
+                    jobData.set(VdkOption.LOCAL, "");
                 }
             }
             else {
                 checkbox?.classList.add("checked");
                 if(flag === "Cloud"){
-                    jobData.set(JobProperties.cloud, "1");
+                    jobData.set(VdkOption.CLOUD, "1");
                 }
                 else{
-                    jobData.set(JobProperties.local, "1");
+                    jobData.set(VdkOption.LOCAL, "1");
                 }
                 input?.parentElement?.classList.remove("hidden");
             }
@@ -116,7 +117,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        jobData.set(JobProperties.name, value);
+        jobData.set(VdkOption.NAME, value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -129,7 +130,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-team";
         }
-        jobData.set(JobProperties.team, value);
+        jobData.set(VdkOption.TEAM, value);
     };
     /**
    * Callback invoked upon changing the job path input.
@@ -142,7 +143,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        jobData.set(JobProperties.path, value);
+        jobData.set(VdkOption.PATH, value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -155,7 +156,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-url";
         }
-        jobData.set(JobProperties.restApiUrl, value);
+        jobData.set(VdkOption.REST_API_URL, value);
     };
 
 }
