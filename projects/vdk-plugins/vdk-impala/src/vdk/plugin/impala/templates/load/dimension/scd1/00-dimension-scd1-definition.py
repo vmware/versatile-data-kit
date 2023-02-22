@@ -17,6 +17,7 @@ class SlowlyChangingDimensionTypeOverwriteParams(BaseModel):
     source_view: str
     check: Optional[Callable[[str], bool]]
     staging_schema: Optional[str]
+    staging_table_prefix: Optional[str]
 
 
 class SlowlyChangingDimensionTypeOverwrite(TemplateArgumentsValidator):

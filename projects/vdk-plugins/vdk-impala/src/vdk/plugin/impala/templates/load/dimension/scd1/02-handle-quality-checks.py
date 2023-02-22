@@ -25,17 +25,14 @@ def run(job_input: IJobInput):
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
-    staging_schema = job_arguments.get("staging_schema", target_schema)
     insert_query = get_query("02-insert-into-target.sql")
-    staging_table_name = f"vdk_check_{target_table}"
 
     if check:
-        if not staging_schema:
-            raise ValueError(
-                "No staging_schema specified to execute the defined data checks against."
-            )
-
+        staging_schema = job_arguments.get("staging_schema", target_schema)
+        staging_table_prefix = job_arguments.get("staging_table_prefix", "vdk_check_")
+        staging_table_name = f"{staging_table_prefix}{target_table}"
         staging_table = f"{staging_schema}.{staging_table_name}"
+        
         align_stg_table_with_target(
             f"{target_schema}.{target_table}", staging_table, job_input
         )
