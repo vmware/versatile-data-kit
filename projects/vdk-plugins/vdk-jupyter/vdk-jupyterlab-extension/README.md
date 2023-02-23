@@ -127,11 +127,11 @@ For example, if we want to run a job we would set job path and arguments  as:
 jobData.set(VdkOption.PATH, value) and jobData.set(VdkOption.ARGUMENTS, value) and after the operation has passed
 the values should be set back to default using setJobDataToDefault() function.
 
-Every Jupyter instance has its own global storage object (jobData) that can only be changed from that instance. 
+Every Jupyter instance has its own global storage object (jobData) that can only be changed from that instance.
 When a new Jupyter instance is loaded its jobData is set to default.
 
 The [enum](src/vdkOptions/vdk_options.ts) is generated automatically from  [the python enum](vdk-jupyterlab-extension/vdk_options/vdk_options.py)
-and shall not be changed directly in the .ts file. All the changes must be done in the python file and the .ts file will be automatically reloaded. 
+and shall not be changed directly in the .ts file. All the changes must be done in the python file and the .ts file will be automatically reloaded.
 
 
 The front-end sends the data from jobData to the server extension in JSON format.
