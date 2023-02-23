@@ -18,7 +18,6 @@ In summary, it overwrites the target table with the source data.
 - source_view          - SC Data Lake view, where source raw data is loaded from
 - check                - (Optional) Callback function responsible for checking the quality of the data
 - staging_schema       - (Optional) Schema where the checks will be executed. If not provided target_schema will be used as default
-- staging_table_prefix - (Optional) Prefix for the staging table. If not provided "vdk_check_" will be used as default
 
 ### Prerequisites:
 
