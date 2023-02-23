@@ -18,8 +18,8 @@
     "strict": true,
     "strictNullChecks": true,
     "target": "es2018",
-    "types": ["jest"],
+    "types": ["jest"]
   },
-  "include": ["src/**/*",
+  "include": ["src/**/*" ,
   "src/**/*.json"]
 }
