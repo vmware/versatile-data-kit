@@ -67,8 +67,8 @@ class CreateJobHandler(APIHandler):
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.REST_API_URL.value],
                 input_data[VdkOption.PATH.value],
-                input_data[VdkOption.LOCAL.value],
-                input_data[VdkOption.CLOUD.value],
+                bool(input_data[VdkOption.LOCAL.value]),
+                bool(input_data[VdkOption.CLOUD.value]),
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:

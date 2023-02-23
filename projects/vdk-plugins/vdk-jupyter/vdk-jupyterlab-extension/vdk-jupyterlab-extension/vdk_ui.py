@@ -74,7 +74,7 @@ class VdkUI:
     # TODO: make it work with notebook jobs
     @staticmethod
     def create_job(
-        name: str, team: str, rest_api_url: str, path: str, local: str, cloud: str
+        name: str, team: str, rest_api_url: str, path: str, local: bool, cloud: bool
     ):
         """
         Execute `create job`.
@@ -93,5 +93,5 @@ class VdkUI:
         if local:
             cmd.validate_job_path(path, name)
 
-        cmd.create_job(name, team, path, bool(cloud), bool(local))
+        cmd.create_job(name, team, path, cloud, local)
         return f"Job with name {name} was created."
