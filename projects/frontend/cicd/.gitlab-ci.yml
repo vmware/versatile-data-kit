@@ -36,8 +36,6 @@ frontend-data-pipelines-build:
       - projects/frontend/data-pipelines/gui/package-lock.json
     expire_in: 1 week
 
-# TODO: frontend-data-pipelines-publish: eval publish_artifact.sh <param>
-
 frontend_publish_test_image:
   image: docker:19.03.15
   variables:
