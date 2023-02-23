@@ -9,6 +9,41 @@
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/data-pipelines/**/*"
 
+image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+
+.frontend_shared_components_changes: &frontend_shared_components_changes_locations
+  - projects/frontend/cicd/**/*
+  - projects/frontend/shared-components/**/*
+
+.frontend_data_pipelines_changes: &frontend_data_pipelines_changes_locations
+  - projects/frontend/cicd/**/*
+  - projects/frontend/data-pipelines/**/*
+
+frontend-data-pipelines-build:
+  stage: build
+  script:
+    - ./cicd/install_data_pipelines.sh
+  coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
+  retry: !reference [ .retry, retry_options ]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - *frontend_shared_components_changes_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - *frontend_data_pipelines_changes_locations
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
+        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
+    paths:
+      - projects/frontend/data-pipelines/gui/package-lock.json
+    expire_in: 1 week
+
+# TODO: frontend-data-pipelines-publish: eval publish_artifact.sh <param>
+
 frontend_publish_test_image:
   image: docker:19.03.15
   variables:
