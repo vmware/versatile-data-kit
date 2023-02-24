@@ -36,7 +36,7 @@ echo "Install Dependencies..."
 npm install
 
 echo "Running linking script..."
-sh "../../cicd/link_data_pipelines.sh"
+sh "../../cicd/build_data_pipelines.sh"
 
 echo "Linting all projects & sub-projects..."
 npm run lint
