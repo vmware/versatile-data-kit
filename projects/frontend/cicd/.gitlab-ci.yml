@@ -11,11 +11,11 @@
 
 image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
 
-.frontend_shared_components_changes: &frontend_shared_components_changes_locations
+.frontend_shared_components_changes: &frontend_shared_components_locations
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/shared-components/**/*"
 
-.frontend_data_pipelines_changes: &frontend_data_pipelines_changes_locations
+.frontend_data_pipelines_changes: &frontend_data_pipelines_locations
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/data-pipelines/**/*"
 
@@ -27,11 +27,9 @@ frontend-data-pipelines-build:
   retry: !reference [ .retry, retry_options ]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - *frontend_shared_components_changes_locations
+      changes: *frontend_shared_components_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - *frontend_data_pipelines_changes_locations
+      changes: *frontend_data_pipelines_locations
   artifacts:
     when: always
     reports:
