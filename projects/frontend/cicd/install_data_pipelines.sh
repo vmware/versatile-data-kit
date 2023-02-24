@@ -11,7 +11,7 @@
 
 if ! which npm >/dev/null 2>&1 ; then
   echo "ERROR:"
-  echo "Please install npm 8.5.5+. Build cannot continue without it."
+  echo "Please install npm 8.5.5+. Install cannot continue without it."
   exit 1
 fi
 echo "Logging npm engines version..."
