@@ -65,10 +65,10 @@ describe('GenericAction', () => {
 					const dateISOSpy = spyOn(CollectionsUtil, 'dateISO').and.returnValue(
 						dateNowISO
 					);
-					const interpolateStringSpy = spyOn(
+					const interpolateStringSpy = spyOn<CollectionsUtil, never>(
 						CollectionsUtil,
-						'interpolateString'
-					).and.returnValue(taskIdentifier);
+						'interpolateString' as never
+					).and.returnValue(taskIdentifier as never);
 
 					// When
 					const instance = GenericAction.of(type, payload, task);
@@ -84,9 +84,9 @@ describe('GenericAction', () => {
 					expect(dateISOSpy).toHaveBeenCalled();
 					// @ts-ignore
 					expect(interpolateStringSpy).toHaveBeenCalledWith(
-						'%s __ %s',
-						task,
-						dateNowISO
+						'%s __ %s' as never,
+						task as never,
+						dateNowISO as never
 					);
 				});
 			});
