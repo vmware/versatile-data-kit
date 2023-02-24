@@ -145,7 +145,7 @@ To make a new public release, follow these steps:
   - Major features include
   - Backwards incompatible changes
   - Removal of features
-- Include Install instructions (link to main install page).
+- Include Install instructions (link to https://github.com/vmware/versatile-data-kit/wiki/Installation).
 - Make sure you have clicked the "Create a discussion for this release" button before publishing the new release
 - Post a tweet on the official VDK Twitter account, and on slack, announcing the new release and linking to it.
 
