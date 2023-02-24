@@ -12,12 +12,12 @@
 image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
 
 .frontend_shared_components_changes: &frontend_shared_components_changes_locations
-  - projects/frontend/cicd/**/*
-  - projects/frontend/shared-components/**/*
+  - "projects/frontend/cicd/**/*"
+  - "projects/frontend/shared-components/**/*"
 
 .frontend_data_pipelines_changes: &frontend_data_pipelines_changes_locations
-  - projects/frontend/cicd/**/*
-  - projects/frontend/data-pipelines/**/*
+  - "projects/frontend/cicd/**/*"
+  - "projects/frontend/data-pipelines/**/*"
 
 frontend-data-pipelines-build:
   stage: build

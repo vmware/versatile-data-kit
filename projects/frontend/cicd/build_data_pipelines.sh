@@ -18,19 +18,19 @@ echo "Logging npm engines version..."
 npm version
 
 cd "$(dirname $0)" || exit 1
-cd ../data-pipelines/gui
+cd "../data-pipelines/gui"
 
 echo "Build the Data Pipelines Library ..."
 npm run build
 
 echo "Going to the dir of the data-pipelines build to create a symlink to the local repo ..."
-cd dist/data-pipelines
+cd "dist/data-pipelines"
 
 echo "Link the library to local npm in order to test it ..."
 npm link
 
 echo "Going to the GUI root ..."
-cd ../../
+cd "../../"
 
 echo "Use the local repo symlink to link it to node_modules ..."
 npm link @vdk/data-pipelines

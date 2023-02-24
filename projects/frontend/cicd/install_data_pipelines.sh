@@ -18,10 +18,10 @@ echo "Logging npm engines version..."
 npm version
 
 cd "$(dirname $0)" || exit 1
-cd ../data-pipelines/gui
+cd "../data-pipelines/gui"
 
 echo "Removing package lock if available..."
-rm -f package-lock.json
+rm -f "package-lock.json"
 
 shared_dist_dir="../../shared-components/gui/dist/shared"
 if [ -d "$shared_dist_dir" ]
@@ -36,7 +36,7 @@ echo "Install Dependencies..."
 npm install
 
 echo "Running linking script..."
-sh ../../cicd/link_data_pipelines.sh
+sh "../../cicd/link_data_pipelines.sh"
 
 echo "Lint all projects & sub-projects..."
 npm run lint
