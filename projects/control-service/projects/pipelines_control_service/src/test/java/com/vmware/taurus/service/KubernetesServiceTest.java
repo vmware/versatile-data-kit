@@ -9,9 +9,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
+import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.models.*;
@@ -27,6 +30,8 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class KubernetesServiceTest {
 
@@ -423,6 +428,79 @@ public class KubernetesServiceTest {
       e.printStackTrace();
       Assertions.fail(e.getMessage());
     }
+  }
+
+  @Test
+  public void testReadJobDeploymentStatuses() {
+    KubernetesService mock = Mockito.mock(KubernetesService.class);
+    List<JobDeploymentStatus> v1TestList = new ArrayList<>();
+    List<JobDeploymentStatus> v1BetaTestList = new ArrayList<>();
+
+    JobDeploymentStatus v1BetaDeploymentStatus = new JobDeploymentStatus();
+    v1BetaDeploymentStatus.setEnabled(false);
+    v1BetaDeploymentStatus.setDataJobName("v1betaTestJob");
+    v1BetaDeploymentStatus.setCronJobName("v1betaTestJob");
+    v1BetaTestList.add(v1BetaDeploymentStatus);
+
+    JobDeploymentStatus v1DeploymentStatus = new JobDeploymentStatus();
+    v1DeploymentStatus.setEnabled(false);
+    v1DeploymentStatus.setDataJobName("v1TestJob");
+    v1DeploymentStatus.setCronJobName("v1TestJob");
+    v1TestList.add(v1DeploymentStatus);
+
+    var mergedTestLists =
+        Stream.concat(v1TestList.stream(), v1BetaTestList.stream()).collect(Collectors.toList());
+
+    Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(true);
+    Mockito.when(mock.readV1CronJobDeploymentStatuses()).thenReturn(v1TestList);
+    Mockito.when(mock.readV1beta1CronJobDeploymentStatuses()).thenReturn(v1BetaTestList);
+    Mockito.when(mock.readJobDeploymentStatuses()).thenCallRealMethod();
+    List<JobDeploymentStatus> resultStatuses = mock.readJobDeploymentStatuses();
+
+    Assertions.assertEquals(mergedTestLists, resultStatuses);
+  }
+
+  @Test
+  public void testReadCronJob_readV1CronJobShouldReturnStatus() {
+    String testCronjobName = "testCronjob";
+    KubernetesService mock = Mockito.mock(KubernetesService.class);
+
+    JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
+    testDeploymentStatus.setEnabled(false);
+    testDeploymentStatus.setDataJobName(testCronjobName);
+    testDeploymentStatus.setCronJobName(testCronjobName);
+    Mockito.when(mock.readCronJob(testCronjobName)).thenCallRealMethod();
+
+    Mockito.when(mock.readV1beta1CronJob(testCronjobName)).thenReturn(Optional.empty());
+    Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.of(testDeploymentStatus));
+
+    Assertions.assertNotNull(mock.readCronJob(testCronjobName));
+    Assertions.assertEquals(
+        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
+    verify(mock, times(2)).readV1beta1CronJob(testCronjobName);
+    verify(mock, times(2)).readV1CronJob(testCronjobName);
+  }
+
+  @Test
+  public void testReadCronJob_readV1beta1CronJobShouldReturnStatus() {
+    String testCronjobName = "testCronjob";
+    KubernetesService mock = Mockito.mock(KubernetesService.class);
+
+    JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
+    testDeploymentStatus.setEnabled(false);
+    testDeploymentStatus.setDataJobName(testCronjobName);
+    testDeploymentStatus.setCronJobName(testCronjobName);
+    Mockito.when(mock.readCronJob(testCronjobName)).thenCallRealMethod();
+
+    Mockito.when(mock.readV1beta1CronJob(testCronjobName))
+        .thenReturn(Optional.of(testDeploymentStatus));
+    Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.empty());
+
+    Assertions.assertNotNull(mock.readCronJob(testCronjobName));
+    Assertions.assertEquals(
+        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
+    verify(mock, times(2)).readV1beta1CronJob(testCronjobName);
+    verify(mock, times(0)).readV1CronJob(testCronjobName);
   }
 
   @Test
