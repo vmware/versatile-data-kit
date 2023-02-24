@@ -21,6 +21,8 @@ image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
 
 frontend-data-pipelines-build:
   stage: build
+  before_script:
+    - cd projects/frontend/
   script:
     - ./cicd/install_data_pipelines.sh
   coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
