@@ -14,7 +14,7 @@
     ]
   },
   "angularCompilerOptions": {
-    "enableIvy": true,
+    "compilationMode": "partial",
     "skipTemplateCodegen": true,
     "strictMetadataEmit": true,
     "enableResourceInlining": true

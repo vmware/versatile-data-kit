@@ -9,7 +9,7 @@
   "scripts": {
     "ng": "node --max_old_space_size=2048 ./node_modules/@angular/cli/bin/ng",
     "start": "npm run ng -- serve",
-    "build": "npm run ng -- build",
+    "build": "npm run ng -- build --configuration=production",
     "build:dev": "npm run build -- --configuration=development",
     "build:watch": "npm run ng -- build --watch",
     "build:ui": "npm run build -- ui --configuration=production",
