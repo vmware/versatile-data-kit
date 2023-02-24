@@ -12,12 +12,49 @@ from typing import Dict
 from typing import List
 
 from taurus_datajob_api import ApiException
+from vdk.internal.core import errors
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.meta import TrackableJob
 from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
 from vdk.plugin.meta_jobs.time_based_queue import TimeBasedQueue
 
 log = logging.getLogger(__name__)
+max_starting_jobs = 15
+
+
+def validate_job_limit(jobs: List[Dict]):
+    in_degree = {job['job_name']: 0 for job in jobs}
+    for job in jobs:
+        for pred in job['depends_on']:
+            in_degree[pred] += 1
+
+    available_jobs = set()
+    for job in jobs:
+        if in_degree[job['job_name']] == 0:
+            available_jobs.add(job['job_name'])
+
+    running_jobs = set()
+    for job in jobs:
+        if job['job_name'] in available_jobs:
+            running_jobs.add(job['job_name'])
+            available_jobs.discard(job['job_name'])
+
+        if len(running_jobs) > max_starting_jobs:
+            errors.log_and_throw(
+                errors.ResolvableBy.USER_ERROR,
+                log,
+                what_happened=f"Failed running {len(jobs)} jobs in parallel.",
+                why_it_happened=f"The number of starting jobs must be less than {max_starting_jobs}.",
+                consequences="The jobs will not be executed and current call will fail with an exception.",
+                countermeasures="Make sure no more than {max_starting_jobs} jobs depend on one other job.",
+            )
+
+        for pred in job['depends_on']:
+            in_degree[pred] -= 1
+            if in_degree[pred] == 0:
+                available_jobs.add(pred)
+
+        running_jobs.discard(job['job_name'])
 
 
 class MetaJobsDag:
@@ -41,6 +78,7 @@ class MetaJobsDag:
         self._job_executor = TrackingDataJobExecutor(RemoteDataJobExecutor())
 
     def build_dag(self, jobs: List[Dict]):
+        validate_job_limit(jobs)
         for job in jobs:
             # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             trackable_job = TrackableJob(
