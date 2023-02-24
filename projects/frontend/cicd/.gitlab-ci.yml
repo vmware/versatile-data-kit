@@ -26,9 +26,9 @@ frontend-data-pipelines-build:
   coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
   retry: !reference [.retry, retry_options]
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_data_pipelines_locations
   artifacts:
     when: always
