@@ -113,10 +113,20 @@ repos:
           - /*| *| */
       - id: insert-license
         files: (\.yaml$|\.yml$)
+        # exclude control service helm chart templates as they require template-style comments
+        exclude: ^projects/control-service/projects/helm_charts/pipelines-control-service/templates
         args:
           - --use-current-year
           - --license-filepath
           - NOTICE.txt
+      - id: insert-license
+        files: (^projects/control-service/projects/helm_charts/pipelines-control-service/templates/.+\.yaml$|^projects/control-service/projects/helm_charts/pipelines-control-service/templates/.+\.yml$)
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - '{{- /*| | */}}'
       - id: insert-license
         files: \.py$
         args:
