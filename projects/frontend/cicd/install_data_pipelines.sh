@@ -38,11 +38,11 @@ npm install
 echo "Running linking script..."
 sh "../../cicd/link_data_pipelines.sh"
 
-echo "Lint all projects & sub-projects..."
+echo "Linting all projects & sub-projects..."
 npm run lint
 
-echo "Build the UI Wrapper Project"
+echo "Building the UI Wrapper Project..."
 npm run build:ui
 
-echo "Test all projects & sub-projects ... (--watch=false to put exit code 0 after finishing)"
+echo "Testing all projects & sub-projects... (--watch=false to put exit code 0 after finishing)"
 npm run test:headless
