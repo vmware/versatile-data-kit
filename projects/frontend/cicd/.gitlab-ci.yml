@@ -2,16 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 .frontend_shared_components_changes: &frontend_shared_components_locations
-  - "projects/frontend/cicd/**/*"
-  - "projects/frontend/shared-components/**/*"
-
-.frontend_data_pipelines_changes: &frontend_data_pipelines_locations
-  - "projects/frontend/cicd/**/*"
-  - "projects/frontend/data-pipelines/**/*"
-
-image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
-
-.frontend_shared_components_changes: &frontend_shared_components_locations
   - projects/frontend/cicd/**/*
   - projects/frontend/shared-components/**/*
 
@@ -20,6 +10,7 @@ image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   - projects/frontend/data-pipelines/**/*
 
 frontend-data-pipelines-build:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   stage: build
   before_script:
     - cd projects/frontend/
