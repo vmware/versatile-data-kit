@@ -30,6 +30,12 @@ def run(job_input: IJobInput):
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
         staging_table_name = f"vdk_check_{target_schema}_{target_table}"
+
+        if len(staging_table_name) > 128:
+            raise ValueError(
+                f"Staging table - {staging_table_name} exceeds the 128 character limit."
+            )
+
         staging_table = f"{staging_schema}.{staging_table_name}"
 
         align_stg_table_with_target(
