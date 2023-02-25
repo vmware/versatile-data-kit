@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -406,7 +406,7 @@ public class DataJobMonitorTest {
         JobExecution.builder()
             .jobName(jobExecutionBeforeUpdate.getDataJob().getName())
             .executionId(jobExecutionBeforeUpdate.getId())
-            .podTerminationMessage(ExecutionStatus.SUCCEEDED.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.SUCCEEDED.getPodStatus())
             .executionType("scheduled")
             .opId("opId")
             .startTime(jobExecutionBeforeUpdate.getStartTime())
@@ -858,7 +858,7 @@ public class DataJobMonitorTest {
     return JobExecution.builder()
         .jobName(jobName)
         .executionId(executionId)
-        .podTerminationMessage(terminationMessage)
+        .mainContainerTerminationMessage(terminationMessage)
         .executionType("scheduled")
         .opId("opId")
         .startTime(startTime)
@@ -923,7 +923,7 @@ public class DataJobMonitorTest {
         actualDataJobExecution.getResourcesMemoryLimit());
     Assertions.assertEquals(
         expectedExecutionMessage == null
-            ? expectedJobExecution.getPodTerminationMessage()
+            ? expectedJobExecution.getMainContainerTerminationMessage()
             : expectedExecutionMessage,
         actualDataJobExecution.getMessage());
     Assertions.assertEquals(

@@ -1,0 +1,84 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div class="grid-actions-container">
+    <div class="btn-actions-container btn-group">
+
+        <ng-content select=".custom-buttons-left"></ng-content>
+
+        <div *ngIf="addLabel || addTooltip"
+             class="tooltip tooltip-sm tooltip-bottom-right"
+             role="tooltip"
+             aria-haspopup="true">
+
+            <button *ngIf="addLabel"
+                    class="btn btn-link btn-sm"
+                    aria-label="add"
+                    [attr.id]="addId"
+                    [disabled]="addDisabled"
+                    (click)="add.next(true)">
+                <span>{{addLabel}}</span>
+            </button>
+
+            <span *ngIf="addTooltip"
+                  class="tooltip-content">{{addTooltip}}</span>
+        </div>
+
+        <div *ngIf="editLabel || editTooltip"
+             class="tooltip tooltip-sm tooltip-bottom-right"
+             role="tooltip"
+             aria-haspopup="true">
+
+            <button *ngIf="editLabel"
+                    class="btn btn-link btn-sm"
+                    aria-label="edit"
+                    [attr.id]="editId"
+                    [disabled]="editDisabled"
+                    (click)="edit.next(selectedValue)">
+                <span>{{editLabel}}</span>
+            </button>
+
+            <span *ngIf="editTooltip"
+                  class="tooltip-content">{{editTooltip}}</span>
+        </div>
+
+        <div *ngIf="removeLabel || removeTooltip"
+             class="tooltip tooltip-sm tooltip-bottom-right"
+             role="tooltip"
+             aria-haspopup="true">
+
+            <button *ngIf="removeLabel"
+                    class="btn btn-link btn-sm btn-link-red"
+                    aria-label="remove"
+                    [attr.id]="removeId"
+                    [disabled]="removeDisabled"
+                    (click)="remove.next(selectedValue)">
+                <span>{{removeLabel}}</span>
+            </button>
+
+            <span *ngIf="removeTooltip"
+                  class="tooltip-content">{{removeTooltip}}</span>
+        </div>
+
+        <ng-content select=".custom-buttons"></ng-content>
+
+    </div>
+
+    <div class="btn-filters-container">
+        <lib-quick-filters [quickFilters]="quickFilters"
+                           [suppressQuickFilterChangeEvent]="suppressQuickFilterChangeEvent"
+                           (quickFilterChange)="quickFilterChange.emit($event)"></lib-quick-filters>
+
+        <ng-content select=".custom-filters"></ng-content>
+    </div>
+
+    <div class="btn-search-container">
+        <vdk-search [attr.id]="id"
+                    (search)="search.next($event)"
+                    [searchQueryValue]="queryValue"></vdk-search>
+
+        <ng-content select=".custom-buttons-search"></ng-content>
+    </div>
+</div>
