@@ -57,7 +57,7 @@ VDK creates data processing workflows to:
     - A plugin framework that allows users to extend the framework according to their specific requirements.
 - Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
 
-A preview of the VDK CLI commands:
+A preview of the VDK CLI commands - `vdk --help`, `vdk create` and `vdk run`:
      <img src="https://github.com/vmware/versatile-data-kit/blob/person/zverulacis/gif/support/images/versatile-data-kit-cli-gif.gif" width="928" height="690" />
 
 # Getting Started
