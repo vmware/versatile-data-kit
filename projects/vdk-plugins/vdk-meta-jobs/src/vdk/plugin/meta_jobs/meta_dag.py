@@ -6,11 +6,11 @@ import os
 import pprint
 import sys
 import time
-from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
 from typing import List
 
+from graphlib import TopologicalSorter
 from taurus_datajob_api import ApiException
 from vdk.internal.core import errors
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
@@ -23,38 +23,39 @@ max_starting_jobs = 15
 
 
 def validate_job_limit(jobs: List[Dict]):
-    in_degree = {job['job_name']: 0 for job in jobs}
+    out_degree = {job["job_name"]: 0 for job in jobs}
     for job in jobs:
-        for pred in job['depends_on']:
-            in_degree[pred] += 1
+        for pred in job["depends_on"]:
+            print(pred)
+            out_degree[pred] += 1
 
     available_jobs = set()
     for job in jobs:
-        if in_degree[job['job_name']] == 0:
-            available_jobs.add(job['job_name'])
+        if out_degree[job["job_name"]] == 0:
+            available_jobs.add(job["job_name"])
 
     running_jobs = set()
     for job in jobs:
-        if job['job_name'] in available_jobs:
-            running_jobs.add(job['job_name'])
-            available_jobs.discard(job['job_name'])
+        if job["job_name"] in available_jobs:
+            running_jobs.add(job["job_name"])
+            available_jobs.discard(job["job_name"])
 
         if len(running_jobs) > max_starting_jobs:
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,
-                what_happened=f"Failed running {len(jobs)} jobs in parallel.",
-                why_it_happened=f"The number of starting jobs must be less than {max_starting_jobs}.",
+                what_happened=f"Meta Job failed due to an exceeded limit of jobs ({len(jobs)}) starting at once.",
+                why_it_happened=f"The number of starting jobs must be less than or equal to {max_starting_jobs}.",
                 consequences="The jobs will not be executed and current call will fail with an exception.",
-                countermeasures="Make sure no more than {max_starting_jobs} jobs depend on one other job.",
+                countermeasures=f"Make sure no more than {max_starting_jobs} jobs depend on one other job.",
             )
 
-        for pred in job['depends_on']:
-            in_degree[pred] -= 1
-            if in_degree[pred] == 0:
+        for pred in job["depends_on"]:
+            out_degree[pred] -= 1
+            if out_degree[pred] == 0:
                 available_jobs.add(pred)
 
-        running_jobs.discard(job['job_name'])
+        running_jobs.discard(job["job_name"])
 
 
 class MetaJobsDag:

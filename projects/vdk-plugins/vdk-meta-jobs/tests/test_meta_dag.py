@@ -4,6 +4,8 @@ import time
 from unittest.mock import call
 from unittest.mock import MagicMock
 
+from pytest import raises
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 
@@ -87,36 +89,71 @@ def test_build_dag_over_max_starting_jobs_sad_case():
     job14 = dict(job_name="job14", depends_on=["job1"])
     job15 = dict(job_name="job15", depends_on=["job1"])
     job16 = dict(job_name="job16", depends_on=["job1"])
-    jobs = [job1, job2, job3, job4, job5, job6, job7, job8, job9, job10, job11, job12, job13, job14, job15, job16]
+    job17 = dict(job_name="job17", depends_on=["job1"])
+    jobs = [
+        job1,
+        job2,
+        job3,
+        job4,
+        job5,
+        job6,
+        job7,
+        job8,
+        job9,
+        job10,
+        job11,
+        job12,
+        job13,
+        job14,
+        job15,
+        job16,
+        job17,
+    ]
 
     dag = MetaJobsDag("team")
     dag.build_dag(jobs)
     dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
     dag._job_executor.get_finished_job_names.side_effect = [
         ["job1"],
-        ["job2", "job3", "job4", "job5", "job6", "job7", "job8", "job9", "job10", "job11", "job12",
-         "job13", "job14", "job15", "job16"],
+        [
+            "job2",
+            "job3",
+            "job4",
+            "job5",
+            "job6",
+            "job7",
+            "job8",
+            "job9",
+            "job10",
+            "job11",
+            "job12",
+            "job13",
+            "job14",
+            "job15",
+            "job16",
+            "job17",
+        ],
     ]
 
-    dag.execute_dag()
+    with raises(UserCodeError):
+        dag.execute_dag()
 
     assert [
-               call("job1"),
-               call("job2"),
-               call("job3"),
-               call("job4"),
-               call("job5"),
-               call("job6"),
-               call("job7"),
-               call("job8"),
-               call("job9"),
-               call("job10"),
-               call("job11"),
-               call("job12"),
-               call("job13"),
-               call("job14"),
-               call("job15"),
-               call("job16"),
-           ] == dag._job_executor.start_job.call_args_list
-
-    # TODO Assert log error
+        call("job1"),
+        call("job2"),
+        call("job3"),
+        call("job4"),
+        call("job5"),
+        call("job6"),
+        call("job7"),
+        call("job8"),
+        call("job9"),
+        call("job10"),
+        call("job11"),
+        call("job12"),
+        call("job13"),
+        call("job14"),
+        call("job15"),
+        call("job16"),
+        call("job17"),
+    ] == dag._job_executor.start_job.call_args_list
