@@ -1,8 +1,0 @@
-# Copyright 2021-2023 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-
-services:
-  trino:
-    image: "trinodb/trino:372"
-    ports:
-      - "8080:8080"
