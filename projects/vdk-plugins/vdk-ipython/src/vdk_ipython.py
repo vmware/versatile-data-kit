@@ -16,13 +16,20 @@ class JobControl:
     Since the user will be using this class
     """
 
-    def __init__(self, path: str = None, name: str = None, arguments: str = None, template: str = None):
+    def __init__(
+        self,
+        path: str = None,
+        name: str = None,
+        arguments: str = None,
+        template: str = None,
+    ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         self.job = standalone_data_job.StandaloneDataJob(
             name=name,
             job_args=arguments,
             template_name=template,
-            data_job_directory=path)
+            data_job_directory=path,
+        )
 
     def get_initialized_job_input(self):
         return self.job.__enter__()
@@ -56,7 +63,7 @@ def magic_load_job(line: str):
 
 
 def load_job(
-        path: str = None, name: str = None, arguments: str = None, template: str = None
+    path: str = None, name: str = None, arguments: str = None, template: str = None
 ):
     job = JobControl(path, name, arguments, template)
     get_ipython().push(variables={"data_job": job})

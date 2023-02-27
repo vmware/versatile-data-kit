@@ -1,14 +1,13 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import asyncio
 import logging
 
 import pytest
 from IPython.core.error import UsageError
 from IPython.testing.globalipapp import start_ipython
 from vdk.api.job_input import IJobInput
-
 from vdk_ipython import JobControl
-import asyncio
 
 
 @pytest.fixture(scope="session")
@@ -38,7 +37,7 @@ def test_load_data_job_with_valid_argument(ip):
 
 def test_load_data_job_with_invalid_argument(ip):
     with pytest.raises(
-            UsageError, match=r"unrecognized arguments: --invalid_arg=dummy"
+        UsageError, match=r"unrecognized arguments: --invalid_arg=dummy"
     ):
         ip.run_line_magic(magic_name="reload_data_job", line="--invalid_arg=dummy")
 
@@ -66,31 +65,39 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
     ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
 
     # execute SQL using job_input
-    ip.get_ipython().run_cell("job_input.execute_query(\"DROP TABLE IF EXISTS rest_target_table;\")")
     ip.get_ipython().run_cell(
-        "job_input.execute_query(\"CREATE TABLE rest_target_table (userId, id, title, completed);\")")
+        'job_input.execute_query("DROP TABLE IF EXISTS rest_target_table;")'
+    )
+    ip.get_ipython().run_cell(
+        'job_input.execute_query("CREATE TABLE rest_target_table (userId, id, title, completed);")'
+    )
 
     # check whether the table was created
     # the output should look like this:
     #  'userId    id    title    completed',
     #  '--------  ----  -------  -----------'
-    assert 'userId    id    title    completed' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM rest_target_table'"))
-    assert '--------  ----  -------  -----------' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM rest_target_table'"))
+    assert "userId    id    title    completed" in (
+        ip.get_ipython().getoutput(
+            "! " "vdk " "sqlite-query -q 'SELECT * FROM rest_target_table'"
+        )
+    )
+    assert "--------  ----  -------  -----------" in (
+        ip.get_ipython().getoutput(
+            "! " "vdk " "sqlite-query -q 'SELECT * FROM rest_target_table'"
+        )
+    )
 
     # get the data that is going to be ingested
     ip.get_ipython().run_cell("import requests")
-    ip.get_ipython().run_cell("response = requests.get(\"https://jsonplaceholder.typicode.com/todos/1\")")
+    ip.get_ipython().run_cell(
+        'response = requests.get("https://jsonplaceholder.typicode.com/todos/1")'
+    )
     ip.get_ipython().run_cell("payload = response.json()")
 
     # send data for ingestion
     ip.get_ipython().run_cell(
-        "job_input.send_object_for_ingestion(payload=payload,destination_table=\"rest_target_table\")")
+        'job_input.send_object_for_ingestion(payload=payload,destination_table="rest_target_table")'
+    )
 
     # wait until the table is populated
     await asyncio.sleep(1)
@@ -100,14 +107,16 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
     # '--------  ----  ------------------  -----------',
     # '       1     1  delectus aut autem            0'
 
-    assert '  userId    id  title                 completed' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM rest_target_table'"))
-    assert '       1     1  delectus aut autem            0' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM rest_target_table'"))
+    assert "  userId    id  title                 completed" in (
+        ip.get_ipython().getoutput(
+            "! " "vdk " "sqlite-query -q 'SELECT * FROM rest_target_table'"
+        )
+    )
+    assert "       1     1  delectus aut autem            0" in (
+        ip.get_ipython().getoutput(
+            "! " "vdk " "sqlite-query -q 'SELECT * FROM rest_target_table'"
+        )
+    )
 
 
 def test_extension_with_pure_sql_job(ip, tmpdir):
@@ -123,25 +132,25 @@ def test_extension_with_pure_sql_job(ip, tmpdir):
     ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
 
     # execute SQL using job_input
-    ip.get_ipython().run_cell("job_input.execute_query(\"CREATE TABLE stocks (date text, symbol text, price real)\")")
+    ip.get_ipython().run_cell(
+        'job_input.execute_query("CREATE TABLE stocks (date text, symbol text, price real)")'
+    )
     ip.get_ipython().run_cell(
         "job_input.execute_query(\"INSERT INTO stocks VALUES ('2020-01-01', 'GOOG', 123.0), ('2021-01-01', 'GOOG', "
-        "123.0)\")")
+        '123.0)")'
+    )
 
     # check whether output contains the table:
     # date        symbol      price
     # ----------  --------  -------
     # 2020-01-01  GOOG          123
     # 2020-01-01  GOOG          123
-    assert 'date        symbol      price' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM stocks'"))
-    assert '2020-01-01  GOOG          123' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM stocks'"))
-    assert '2021-01-01  GOOG          123' in \
-           (ip.get_ipython().getoutput("! "
-                                       "vdk "
-                                       "sqlite-query -q 'SELECT * FROM stocks'"))
+    assert "date        symbol      price" in (
+        ip.get_ipython().getoutput("! " "vdk " "sqlite-query -q 'SELECT * FROM stocks'")
+    )
+    assert "2020-01-01  GOOG          123" in (
+        ip.get_ipython().getoutput("! " "vdk " "sqlite-query -q 'SELECT * FROM stocks'")
+    )
+    assert "2021-01-01  GOOG          123" in (
+        ip.get_ipython().getoutput("! " "vdk " "sqlite-query -q 'SELECT * FROM stocks'")
+    )
