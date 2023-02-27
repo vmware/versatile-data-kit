@@ -111,49 +111,5 @@ def test_build_dag_over_max_starting_jobs_sad_case():
     ]
 
     dag = MetaJobsDag("team")
-    dag.build_dag(jobs)
-    dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
-    dag._job_executor.get_finished_job_names.side_effect = [
-        ["job1"],
-        [
-            "job2",
-            "job3",
-            "job4",
-            "job5",
-            "job6",
-            "job7",
-            "job8",
-            "job9",
-            "job10",
-            "job11",
-            "job12",
-            "job13",
-            "job14",
-            "job15",
-            "job16",
-            "job17",
-        ],
-    ]
-
     with raises(UserCodeError):
-        dag.execute_dag()
-
-    assert [
-        call("job1"),
-        call("job2"),
-        call("job3"),
-        call("job4"),
-        call("job5"),
-        call("job6"),
-        call("job7"),
-        call("job8"),
-        call("job9"),
-        call("job10"),
-        call("job11"),
-        call("job12"),
-        call("job13"),
-        call("job14"),
-        call("job15"),
-        call("job16"),
-        call("job17"),
-    ] == dag._job_executor.start_job.call_args_list
+        dag.build_dag(jobs)

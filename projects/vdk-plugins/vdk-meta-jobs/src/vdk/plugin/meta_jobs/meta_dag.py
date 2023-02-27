@@ -34,13 +34,11 @@ def validate_job_limit(jobs: List[Dict]):
         if out_degree[job["job_name"]] == 0:
             available_jobs.add(job["job_name"])
 
-    running_jobs = set()
     for job in jobs:
         if job["job_name"] in available_jobs:
-            running_jobs.add(job["job_name"])
             available_jobs.discard(job["job_name"])
 
-        if len(running_jobs) > max_starting_jobs:
+        if len(available_jobs) > max_starting_jobs:
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,
@@ -54,8 +52,6 @@ def validate_job_limit(jobs: List[Dict]):
             out_degree[pred] -= 1
             if out_degree[pred] == 0:
                 available_jobs.add(pred)
-
-        running_jobs.discard(job["job_name"])
 
 
 class MetaJobsDag:
