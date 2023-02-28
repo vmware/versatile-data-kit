@@ -23,26 +23,36 @@ max_starting_jobs = 15
 
 
 def validate_job_limit(jobs: List[Dict]):
-    out_degree = {job["job_name"]: 0 for job in jobs}
+    topo_sorter = TopologicalSorter()
     for job in jobs:
+        topo_sorter.add(job["job_name"], *job["depends_on"])
+
+    sorted_jobs = []
+    for job_name in topo_sorter.static_order():
+        job = next((j for j in jobs if j["job_name"] == job_name), None)
+        if job:
+            sorted_jobs.append(job)
+
+    out_degree = {job["job_name"]: 0 for job in jobs}
+    for job in sorted_jobs:
         for pred in job["depends_on"]:
             print(pred)
             out_degree[pred] += 1
 
-    available_jobs = set()
-    for job in jobs:
+    ready_jobs = set()
+    for job in sorted_jobs:
         if out_degree[job["job_name"]] == 0:
-            available_jobs.add(job["job_name"])
+            ready_jobs.add(job["job_name"])
 
-    for job in jobs:
-        if job["job_name"] in available_jobs:
-            available_jobs.discard(job["job_name"])
+    for job in sorted_jobs:
+        if job["job_name"] in ready_jobs:
+            ready_jobs.discard(job["job_name"])
 
-        if len(available_jobs) > max_starting_jobs:
+        if len(ready_jobs) > max_starting_jobs:
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,
-                what_happened=f"Meta Job failed due to an exceeded limit of jobs ({len(jobs)}) starting at once.",
+                what_happened=f"Meta Job failed due to an exceeded limit of jobs ({len(ready_jobs)}) starting at once.",
                 why_it_happened=f"The number of starting jobs must be less than or equal to {max_starting_jobs}.",
                 consequences="The jobs will not be executed and current call will fail with an exception.",
                 countermeasures=f"Make sure no more than {max_starting_jobs} jobs depend on one other job.",
@@ -51,7 +61,7 @@ def validate_job_limit(jobs: List[Dict]):
         for pred in job["depends_on"]:
             out_degree[pred] -= 1
             if out_degree[pred] == 0:
-                available_jobs.add(pred)
+                ready_jobs.add(pred)
 
 
 class MetaJobsDag:
