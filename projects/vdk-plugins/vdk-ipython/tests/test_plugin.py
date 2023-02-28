@@ -21,46 +21,46 @@ def ip(session_ip):
     session_ip.run_line_magic(magic_name="reset", line="-f")
 
 
-def test_load_data_job_with_no_arguments(ip):
-    ip.run_line_magic(magic_name="reload_data_job", line="")
-    assert ip.user_global_ns["data_job"] is not None
-    assert isinstance(ip.user_global_ns["data_job"], JobControl)
+def test_load_vdk_with_no_arguments(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    assert ip.user_global_ns["VDK"] is not None
+    assert isinstance(ip.user_global_ns["VDK"], JobControl)
 
 
-def test_load_data_job_with_valid_argument(ip):
-    ip.run_line_magic(magic_name="reload_data_job", line="--name=test")
-    assert ip.user_global_ns["data_job"] is not None
-    assert isinstance(ip.user_global_ns["data_job"], JobControl)
-    assert ip.user_global_ns["data_job"].job._name == "test"
+def test_load_vdk_with_valid_argument(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="--name=test")
+    assert ip.user_global_ns["VDK"] is not None
+    assert isinstance(ip.user_global_ns["VDK"], JobControl)
+    assert ip.user_global_ns["VDK"].job._name == "test"
 
 
-def test_load_data_job_with_invalid_argument(ip):
+def test_load_vdk_with_invalid_argument(ip):
     with pytest.raises(
         UsageError, match=r"unrecognized arguments: --invalid_arg=dummy"
     ):
-        ip.run_line_magic(magic_name="reload_data_job", line="--invalid_arg=dummy")
+        ip.run_line_magic(magic_name="reload_VDK", line="--invalid_arg=dummy")
 
 
 def test_get_initialized_job_input(ip):
-    ip.run_line_magic(magic_name="reload_data_job", line="")
-    assert ip.user_global_ns["data_job"] is not None
-    assert isinstance(ip.user_global_ns["data_job"], JobControl)
-    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    assert ip.user_global_ns["VDK"] is not None
+    assert isinstance(ip.user_global_ns["VDK"], JobControl)
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     assert ip.user_global_ns["job_input"] is not None
     assert isinstance(ip.user_global_ns["job_input"], IJobInput)
 
 
 def test_calling_get_initialise_job_input_multiple_times(ip, tmpdir):
-    ip.run_line_magic(magic_name="reload_data_job", line="")
-    assert ip.user_global_ns["data_job"] is not None
-    assert isinstance(ip.user_global_ns["data_job"], JobControl)
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    assert ip.user_global_ns["VDK"] is not None
+    assert isinstance(ip.user_global_ns["VDK"], JobControl)
     # first call
-    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     result_job_input = ip.get_ipython().getoutput("job_input")
     assert ip.user_global_ns["job_input"] is not None
     assert isinstance(ip.user_global_ns["job_input"], IJobInput)
     # second call
-    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     assert ip.user_global_ns["job_input"] is not None
     assert isinstance(ip.user_global_ns["job_input"], IJobInput)
     assert result_job_input == ip.get_ipython().getoutput("job_input")
@@ -74,10 +74,10 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
 
-    ip.run_line_magic(magic_name="reload_data_job", line="")
+    ip.run_line_magic(magic_name="reload_VDK", line="")
 
     # get the job_input
-    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
 
     # execute SQL using job_input
     ip.get_ipython().run_cell(
@@ -141,10 +141,10 @@ def test_extension_with_pure_sql_job(ip, tmpdir):
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
 
-    ip.run_line_magic(magic_name="reload_data_job", line="")
+    ip.run_line_magic(magic_name="reload_VDK", line="")
 
     # get the job_input
-    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
 
     # execute SQL using job_input
     ip.get_ipython().run_cell(

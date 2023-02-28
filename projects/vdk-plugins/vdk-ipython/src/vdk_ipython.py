@@ -53,18 +53,18 @@ class JobControl:
         return self.job_input
 
     # TODO: should automate calling finalize (if it is not called explicitly)
-    def finalise(self):
+    def finalize(self):
         self.job.__exit__(None, None, None)
         self.job_input = None
 
 
 def load_ipython_extension(ipython):
     """
-    Function that registers %reload_data_job magic
+    Function that registers %reload_VDK magic
     IPython will look for this function specifically.
     See https://ipython.readthedocs.io/en/stable/config/extensions/index.html
     """
-    ipython.register_magic_function(magic_load_job, magic_name="reload_data_job")
+    ipython.register_magic_function(magic_load_job, magic_name="reload_VDK")
 
 
 # TODO: add extra-plugins option
@@ -89,4 +89,4 @@ def load_job(
     path: str = None, name: str = None, arguments: str = None, template: str = None
 ):
     job = JobControl(path, name, arguments, template)
-    get_ipython().push(variables={"data_job": job})
+    get_ipython().push(variables={"VDK": job})
