@@ -143,4 +143,4 @@ repos:
     rev: v2.7.1
     hooks:
       - id: prettier
-        types_or: [scss, css, javascript, ts, html, xhtml]
+        types_or: [scss, css, javascript, ts, html]
