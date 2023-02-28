@@ -5,4 +5,6 @@ IPython
 
 pytest
 vdk-core
+vdk-sqlite
 vdk-test-utils
+asyncio
