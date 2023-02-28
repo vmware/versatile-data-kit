@@ -12,11 +12,15 @@ import cronstrue from 'cronstrue';
 import { CollectionsUtil } from '@vdk/shared';
 
 @Pipe({
-    name: 'formatSchedule'
+    name: 'formatSchedule',
 })
 export class FormatSchedulePipe implements PipeTransform {
     private static _fallbackTransformNonStandardCron(cron: string): string {
-        const match = `${ cron }`.trim().match(/^@hourly|@daily|@midnight|@weekly|@monthly|@yearly|@annually$/);
+        const match = `${cron}`
+            .trim()
+            .match(
+                /^@hourly|@daily|@midnight|@weekly|@monthly|@yearly|@annually$/
+            );
 
         if (CollectionsUtil.isNil(match)) {
             throw new Error('Cron expression cannot be null or undefined.');
@@ -36,7 +40,9 @@ export class FormatSchedulePipe implements PipeTransform {
             case '@annually':
                 return 'Run once a year at midnight of 1 January';
             default:
-                throw new Error('Cron expression is NOT nonstandard predefined scheduling definition.');
+                throw new Error(
+                    'Cron expression is NOT nonstandard predefined scheduling definition.'
+                );
         }
     }
 
@@ -56,20 +62,21 @@ export class FormatSchedulePipe implements PipeTransform {
 
             //TODO : https://github.com/bradymholt/cRonstrue/issues/94
             // cronstrue doesn't support timezones. Need to use another library
-            return cronstrue.toString(
-                cronSchedule,
-                {
-                    monthStartIndexZero: false,
-                    dayOfWeekStartIndexZero: true
-                }
-            );
+            return cronstrue.toString(cronSchedule, {
+                monthStartIndexZero: false,
+                dayOfWeekStartIndexZero: true,
+            });
         } catch (e) {
             try {
-                return FormatSchedulePipe._fallbackTransformNonStandardCron(cronSchedule);
+                return FormatSchedulePipe._fallbackTransformNonStandardCron(
+                    cronSchedule
+                );
             } catch (_e) {
-                console.error(`Parsing error. Cron expression "${ cronSchedule }"`);
+                console.error(
+                    `Parsing error. Cron expression "${cronSchedule}"`
+                );
 
-                return `Invalid Cron expression "${ cronSchedule }"`;
+                return `Invalid Cron expression "${cronSchedule}"`;
             }
         }
     }

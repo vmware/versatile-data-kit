@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -7,11 +5,24 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ApiPredicate, extractTaskFromIdentifier, RequestFilterImpl, RequestPageImpl } from '../../../common';
+import {
+	ApiPredicate,
+	extractTaskFromIdentifier,
+	RequestFilterImpl,
+	RequestPageImpl
+} from '../../../common';
 
 import { RouterState } from '../../router';
 
-import { ComponentState, ComponentStateImpl, FAILED, IDLE, LOADED, LOADING, StatusType } from './state';
+import {
+	ComponentState,
+	ComponentStateImpl,
+	FAILED,
+	IDLE,
+	LOADED,
+	LOADING,
+	StatusType
+} from './state';
 
 import { ComponentModelComparable } from './component-model.comparable';
 
@@ -23,228 +34,225 @@ import { AbstractComponentModel } from './component.model.interface';
  *
  */
 export class ComponentModel extends AbstractComponentModel {
-    /**
-     * ** Constructor.
-     */
-    constructor(protected _componentState: ComponentState,
-                protected _routerState: RouterState) {
-        super();
-    }
+	/**
+	 * ** Constructor.
+	 */
+	constructor(
+		protected _componentState: ComponentState,
+		protected _routerState: RouterState
+	) {
+		super();
+	}
 
-    /**
-     * ** Factory method.
-     */
-    static of(componentState: ComponentState, routerState: RouterState) {
-        return new ComponentModel(componentState, routerState);
-    }
+	/**
+	 * ** Factory method.
+	 */
+	static of(componentState: ComponentState, routerState: RouterState) {
+		return new ComponentModel(componentState, routerState);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    get routerState(): RouterState {
-        return this._routerState;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	get routerState(): RouterState {
+		return this._routerState;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    get status(): StatusType {
-        return this.getComponentState().status;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	get status(): StatusType {
+		return this.getComponentState().status;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    get routePath(): string {
-        return this.getComponentState().routePath ||
-            this.routerState.state.routeSegments.routePath;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	get routePath(): string {
+		return (
+			this.getComponentState().routePath ||
+			this.routerState.state.routeSegments.routePath
+		);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    getComponentState(): ComponentState {
-        return this._componentState;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	getComponentState(): ComponentState {
+		return this._componentState;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withSearch(search: string) {
-        this.updateComponentState({
-            search
-        });
+	/**
+	 * @inheritDoc
+	 */
+	withSearch(search: string) {
+		this.updateComponentState({
+			search
+		});
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withPage(page: number, size: number) {
-        this.updateComponentState({
-            page: RequestPageImpl.of(page, size)
-        });
+	/**
+	 * @inheritDoc
+	 */
+	withPage(page: number, size: number) {
+		this.updateComponentState({
+			page: RequestPageImpl.of(page, size)
+		});
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withFilter(filterPredicates: ApiPredicate[]) {
-        this.updateComponentState({
-            filter: RequestFilterImpl.of(...filterPredicates)
-        });
+	/**
+	 * @inheritDoc
+	 */
+	withFilter(filterPredicates: ApiPredicate[]) {
+		this.updateComponentState({
+			filter: RequestFilterImpl.of(...filterPredicates)
+		});
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withRequestParam(key: string, value: any) {
-        this.getComponentState()
-            .requestParams
-            .set(key, value);
+	/**
+	 * @inheritDoc
+	 */
+	withRequestParam(key: string, value: any) {
+		this.getComponentState().requestParams.set(key, value);
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withData(key: string, data: any) {
-        this.getComponentState()
-            .data
-            .set(key, data);
+	/**
+	 * @inheritDoc
+	 */
+	withData(key: string, data: any) {
+		this.getComponentState().data.set(key, data);
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withTask(taskIdentifier: string) {
-        this.updateComponentState({ task: taskIdentifier });
+	/**
+	 * @inheritDoc
+	 */
+	withTask(taskIdentifier: string) {
+		this.updateComponentState({ task: taskIdentifier });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    clearTask() {
-        this.updateComponentState({ task: null });
+	/**
+	 * @inheritDoc
+	 */
+	clearTask() {
+		this.updateComponentState({ task: null });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    getTask(): string {
-        return extractTaskFromIdentifier(this.getComponentState().task);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	getTask(): string {
+		return extractTaskFromIdentifier(this.getComponentState().task);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    getTaskUniqueIdentifier(): string {
-        return this.getComponentState().task;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	getTaskUniqueIdentifier(): string {
+		return this.getComponentState().task;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withError(error: Error) {
-        this.updateComponentState({ error });
+	/**
+	 * @inheritDoc
+	 */
+	withError(error: Error) {
+		this.updateComponentState({ error });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    clearError() {
-        this.updateComponentState({ error: null });
+	/**
+	 * @inheritDoc
+	 */
+	clearError() {
+		this.updateComponentState({ error: null });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withUiState(key: string, value: any) {
-        this.getComponentState()
-            .uiState
-            .set(key, value);
+	/**
+	 * @inheritDoc
+	 */
+	withUiState(key: string, value: any) {
+		this.getComponentState().uiState.set(key, value);
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    getUiState<T>(key: string): T {
-        return this.getComponentState()
-                   .uiState
-                   .get(key) as T;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	getUiState<T>(key: string): T {
+		return this.getComponentState().uiState.get(key) as T;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withStatusIdle() {
-        this.updateComponentState({ status: IDLE });
+	/**
+	 * @inheritDoc
+	 */
+	withStatusIdle() {
+		this.updateComponentState({ status: IDLE });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withStatusLoading() {
-        this.updateComponentState({ status: LOADING });
+	/**
+	 * @inheritDoc
+	 */
+	withStatusLoading() {
+		this.updateComponentState({ status: LOADING });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withStatusLoaded() {
-        this.updateComponentState({ status: LOADED });
+	/**
+	 * @inheritDoc
+	 */
+	withStatusLoaded() {
+		this.updateComponentState({ status: LOADED });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    withStatusFailed() {
-        this.updateComponentState({ status: FAILED });
+	/**
+	 * @inheritDoc
+	 */
+	withStatusFailed() {
+		this.updateComponentState({ status: FAILED });
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    updateComponentState(patchState: Partial<ComponentState>) {
-        this._componentState = ComponentStateImpl.of({
-            ...this.getComponentState(),
-            ...patchState
-        });
+	/**
+	 * @inheritDoc
+	 */
+	updateComponentState(patchState: Partial<ComponentState>) {
+		this._componentState = ComponentStateImpl.of({
+			...this.getComponentState(),
+			...patchState
+		});
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    isModified(model: ComponentModel): boolean {
-        return ComponentModelComparable.of(this)
-                                       .notEqual(ComponentModelComparable.of(model));
-    }
+	/**
+	 * @inheritDoc
+	 */
+	isModified(model: ComponentModel): boolean {
+		return ComponentModelComparable.of(this).notEqual(
+			ComponentModelComparable.of(model)
+		);
+	}
 }

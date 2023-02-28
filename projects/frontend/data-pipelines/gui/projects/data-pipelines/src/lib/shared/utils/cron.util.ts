@@ -15,7 +15,7 @@ export class CronUtil {
             return null; // parsing successful, reset flag
         } catch (e: unknown) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            return `Could not extract next executions from the cron expression: ${ e }`;
+            return `Could not extract next executions from the cron expression: ${e}`;
         }
     }
 }

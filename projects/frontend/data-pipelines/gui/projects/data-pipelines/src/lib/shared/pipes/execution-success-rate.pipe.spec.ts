@@ -18,8 +18,8 @@ describe('ExecutionSuccessRatePipe', () => {
         deployments = [
             {
                 successfulExecutions: 20,
-                failedExecutions: 5
-            } as DataJobDeployment
+                failedExecutions: 5,
+            } as DataJobDeployment,
         ];
     });
 

@@ -52,10 +52,11 @@ describe('ParseNextRunPipe', () => {
 
                 if (expected.getUTCHours() >= 12) {
                     expected.setUTCDate(expected.getUTCDate() + 1);
-                } else if (expected.getUTCHours() === 11 &&
+                } else if (
+                    expected.getUTCHours() === 11 &&
                     expected.getUTCMinutes() === 59 &&
-                    expected.getUTCSeconds() === 59) {
-
+                    expected.getUTCSeconds() === 59
+                ) {
                     useTimeout = true;
                     expected.setUTCDate(expected.getUTCDate() + 1);
                 }
@@ -64,15 +65,15 @@ describe('ParseNextRunPipe', () => {
                 const _m: number = expected.getUTCMonth() + 1;
                 const _d: number = expected.getUTCDate();
 
-                let m = `${ _m }`;
-                let d = `${ _d }`;
+                let m = `${_m}`;
+                let d = `${_d}`;
 
                 if (_m < 10) {
-                    m = `0${ _m }`;
+                    m = `0${_m}`;
                 }
 
                 if (_d < 10) {
-                    d = `0${ _d }`;
+                    d = `0${_d}`;
                 }
 
                 if (useTimeout) {
@@ -82,7 +83,9 @@ describe('ParseNextRunPipe', () => {
 
                         // Then
                         console.log(date.toISOString());
-                        expect(date.toISOString()).toEqual(`${ y }-${ m }-${ d }T12:00:00.000Z`);
+                        expect(date.toISOString()).toEqual(
+                            `${y}-${m}-${d}T12:00:00.000Z`
+                        );
 
                         done();
                     });
@@ -92,7 +95,9 @@ describe('ParseNextRunPipe', () => {
 
                     // Then
                     console.log(date.toISOString());
-                    expect(date.toISOString()).toEqual(`${ y }-${ m }-${ d }T12:00:00.000Z`);
+                    expect(date.toISOString()).toEqual(
+                        `${y}-${m}-${d}T12:00:00.000Z`
+                    );
 
                     done();
                 }
@@ -112,10 +117,11 @@ describe('ParseNextRunPipe', () => {
 
                 if (expected.getUTCHours() > 12) {
                     lunchTime = true;
-                } else if (expected.getUTCHours() === 12 &&
+                } else if (
+                    expected.getUTCHours() === 12 &&
                     expected.getUTCMinutes() === 44 &&
-                    expected.getUTCSeconds() === 59) {
-
+                    expected.getUTCSeconds() === 59
+                ) {
                     lunchTime = true;
                     useTimeout = true;
                 }
@@ -124,15 +130,15 @@ describe('ParseNextRunPipe', () => {
                 const _m: number = expected.getUTCMonth() + 1;
                 const _d: number = expected.getUTCDate();
 
-                let m = `${ _m }`;
-                let d = `${ _d }`;
+                let m = `${_m}`;
+                let d = `${_d}`;
 
                 if (_m < 10) {
-                    m = `0${ m }`;
+                    m = `0${m}`;
                 }
 
                 if (_d < 10) {
-                    d = `0${ d }`;
+                    d = `0${d}`;
                 }
 
                 if (lunchTime) {
@@ -150,7 +156,9 @@ describe('ParseNextRunPipe', () => {
 
                         // Then
                         console.log(date.toISOString());
-                        expect(date.toISOString()).toEqual(`${ y }-${ m }-${ d }T${ hh }:${ mm }:00.000Z`);
+                        expect(date.toISOString()).toEqual(
+                            `${y}-${m}-${d}T${hh}:${mm}:00.000Z`
+                        );
 
                         done();
                     });
@@ -160,7 +168,9 @@ describe('ParseNextRunPipe', () => {
 
                     // Then
                     console.log(date.toISOString());
-                    expect(date.toISOString()).toEqual(`${ y }-${ m }-${ d }T${ hh }:${ mm }:00.000Z`);
+                    expect(date.toISOString()).toEqual(
+                        `${y}-${m}-${d}T${hh}:${mm}:00.000Z`
+                    );
 
                     done();
                 }

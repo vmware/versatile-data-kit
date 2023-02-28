@@ -19,34 +19,41 @@ export class DataJobsPublicApiService {
     /**
      * ** Constructor.
      */
-    constructor(private readonly dataJobsBaseService: DataJobsBaseApiService) {
-    }
+    constructor(private readonly dataJobsBaseService: DataJobsBaseApiService) {}
 
     /**
      * ** Retrieve all DataJobs for Team.
      */
-    getAllDataJobs(team: string): Observable<Array<{ jobName?: string; config?: { team?: string; description?: string; sourceUrl?: string } }>> {
+    getAllDataJobs(team: string): Observable<
+        Array<{
+            jobName?: string;
+            config?: {
+                team?: string;
+                description?: string;
+                sourceUrl?: string;
+            };
+        }>
+    > {
         const pageSize = 1000;
         let pageNumber = 1;
         let dataJobs: DataJob[] = [];
 
-        return this._getDataJobsPage(team, pageNumber, pageSize)
-                   .pipe(
-                       expand((dataJobPage) => {
-                           if (dataJobPage.totalPages <= pageNumber) {
-                               return EMPTY;
-                           } else {
-                               return this._getDataJobsPage(team, ++pageNumber, pageSize);
-                           }
-                       }),
-                       map((dataJobPage) => {
-                           dataJobs = dataJobs.concat(
-                               (dataJobPage.content as unknown) as DataJob[]
-                           );
+        return this._getDataJobsPage(team, pageNumber, pageSize).pipe(
+            expand((dataJobPage) => {
+                if (dataJobPage.totalPages <= pageNumber) {
+                    return EMPTY;
+                } else {
+                    return this._getDataJobsPage(team, ++pageNumber, pageSize);
+                }
+            }),
+            map((dataJobPage) => {
+                dataJobs = dataJobs.concat(
+                    dataJobPage.content as unknown as DataJob[]
+                );
 
-                           return dataJobs;
-                       })
-                   );
+                return dataJobs;
+            })
+        );
     }
 
     /**
@@ -57,14 +64,14 @@ export class DataJobsPublicApiService {
             {
                 property: 'config.team',
                 pattern: team,
-                sort: null
-            }
+                sort: null,
+            },
         ];
 
         return this.dataJobsBaseService
-                   .getJobs(
-                       team,
-                       `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
+            .getJobs(
+                team,
+                `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
 						{
 						  jobs(filter: $filter, search: $search, pageNumber: $pageNumber, pageSize: $pageSize) {
 						    content {
@@ -77,16 +84,14 @@ export class DataJobsPublicApiService {
 						    totalItems
 						  }
 						}`,
-                       {
-                           filter: filters,
-                           search: null,
-                           pageNumber: 1,
-                           pageSize: 1
-                       }
-                   )
-                   .pipe(
-                       map((response) => response?.data?.totalItems ?? 0)
-                   );
+                {
+                    filter: filters,
+                    search: null,
+                    pageNumber: 1,
+                    pageSize: 1,
+                }
+            )
+            .pipe(map((response) => response?.data?.totalItems ?? 0));
     }
 
     /**
@@ -100,9 +105,9 @@ export class DataJobsPublicApiService {
         searchQueryValue: string = null
     ): Observable<DataJobPage> {
         return this.dataJobsBaseService
-                   .getJobs(
-                       team,
-                       `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
+            .getJobs(
+                team,
+                `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
 						{
 						  jobs(filter: $filter, search: $search, pageNumber: $pageNumber, pageSize: $pageSize) {
 						    content {
@@ -117,15 +122,13 @@ export class DataJobsPublicApiService {
 						    totalItems
 						  }
 						}`,
-                       {
-                           filter: filters,
-                           search: searchQueryValue,
-                           pageNumber,
-                           pageSize
-                       }
-                   )
-                   .pipe(
-                       map((response) => response.data)
-                   );
+                {
+                    filter: filters,
+                    search: searchQueryValue,
+                    pageNumber,
+                    pageSize,
+                }
+            )
+            .pipe(map((response) => response.data));
     }
 }
