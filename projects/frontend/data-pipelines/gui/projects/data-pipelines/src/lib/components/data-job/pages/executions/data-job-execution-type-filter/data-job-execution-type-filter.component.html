@@ -4,12 +4,14 @@
   -->
 
 <clr-checkbox-wrapper *ngFor="let type of allTypes">
+    <input
+        clrCheckbox
+        type="checkbox"
+        [value]="type"
+        (change)="toggleCheckbox($event)"
+    />
 
-    <input clrCheckbox
-           type="checkbox"
-           [value]="type"
-           (change)="toggleCheckbox($event)"/>
-
-    <label data-cy="data-pipelines-job-executions-type-filters"> {{type | titlecase}}</label>
-
+    <label data-cy="data-pipelines-job-executions-type-filters">
+        {{ type | titlecase }}</label
+    >
 </clr-checkbox-wrapper>
