@@ -1,0 +1,56 @@
+[
+  {
+    "config": {
+      "contacts": {
+        "notified_on_job_deploy": [
+          "auserov1@vmware.com"
+        ],
+        "notified_on_job_failure_platform_error": [
+          "buserov1@vmware.com"
+        ],
+        "notified_on_job_failure_user_error": [
+          "cuserov1@vmware.com"
+        ],
+        "notified_on_job_success": [
+          "duserov1@vmware.com"
+        ]
+      },
+      "db_default_type": "IMPALA",
+      "generate_keytab": false,
+      "schedule": {
+        "schedule_cron": "0 0 01 * 5"
+      }
+    },
+    "description": "Test description 1 with a long text on the line",
+    "job_name": "e2e-cp-$env-placeholder$-a-test-job-1",
+    "status": "disabled",
+    "team": "e2e-cp-$env-placeholder$-a-test-team-1"
+  },
+  {
+    "config": {
+      "contacts": {
+        "notified_on_job_deploy": [
+          "auserov2@vmware.com"
+        ],
+        "notified_on_job_failure_platform_error": [
+          "buserov2@vmware.com"
+        ],
+        "notified_on_job_failure_user_error": [
+          "cuserov2@vmware.com"
+        ],
+        "notified_on_job_success": [
+          "duserov2@vmware.com"
+        ]
+      },
+      "db_default_type": "IMPALA",
+      "generate_keytab": false,
+      "schedule": {
+        "schedule_cron": "0 0 02 * 5"
+      }
+    },
+    "description": "Test description 2 with a long text on the line",
+    "job_name": "e2e-cp-$env-placeholder$-a-test-job-2",
+    "status": "disabled",
+    "team": "e2e-cp-$env-placeholder$-a-test-team-2"
+  }
+]
