@@ -50,6 +50,22 @@ def test_get_initialized_job_input(ip):
     assert isinstance(ip.user_global_ns["job_input"], IJobInput)
 
 
+def test_calling_get_initialise_job_input_multiple_times(ip, tmpdir):
+    ip.run_line_magic(magic_name="reload_data_job", line="")
+    assert ip.user_global_ns["data_job"] is not None
+    assert isinstance(ip.user_global_ns["data_job"], JobControl)
+    # first call
+    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    result_job_input = ip.get_ipython().getoutput("job_input")
+    assert ip.user_global_ns["job_input"] is not None
+    assert isinstance(ip.user_global_ns["job_input"], IJobInput)
+    # second call
+    ip.get_ipython().run_cell("job_input = data_job.get_initialized_job_input()")
+    assert ip.user_global_ns["job_input"] is not None
+    assert isinstance(ip.user_global_ns["job_input"], IJobInput)
+    assert result_job_input == ip.get_ipython().getoutput("job_input")
+
+
 # uses the pytest tmpdir fixture - https://docs.pytest.org/en/6.2.x/tmpdir.html#the-tmpdir-fixture
 async def test_extension_with_ingestion_job(ip, tmpdir):
     # set environmental variables via Jupyter notebook
