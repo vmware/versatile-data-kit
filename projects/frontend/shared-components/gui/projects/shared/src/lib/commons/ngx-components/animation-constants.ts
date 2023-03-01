@@ -17,7 +17,6 @@ export const atomicSecondaryEnterTiming = 400;
 export const atomicSecondaryLeaveCurve = 'cubic-bezier(0, 1.5, 0.5, 1)';
 export const atomicSecondaryLeaveTiming = 100;
 
-
 // COMPONENT Animations
 // primary
 export const componentPrimaryEnterCurve = 'cubic-bezier(0,.99,0,.99)';
@@ -32,11 +31,10 @@ export const pagePrimaryEnterTiming = 250;
 export const pagePrimaryLeaveCurve = 'cubic-bezier(0,.99,0,.99)';
 export const pagePrimaryLeaveTiming = 200;
 
-
 // PROGRESS Animations
 // primary
 export const progressPrimaryCurve = 'cubic-bezier(.17,.4,.8,.79)';
-export const progressPrimaryTiming =  790;
+export const progressPrimaryTiming = 790;
 
 // secondary
 export const progressSecondaryCurve = 'cubic-bezier(.34,.01,.39,1)';
@@ -67,5 +65,5 @@ export const STAGGER_DURATION = 200;
 const ANIMATION_MULTIPLIER = 1;
 
 export function multiply(value: number) {
-    return value * ANIMATION_MULTIPLIER;
+	return value * ANIMATION_MULTIPLIER;
 }

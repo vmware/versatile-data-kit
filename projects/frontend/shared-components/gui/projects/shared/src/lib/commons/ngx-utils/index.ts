@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from "./simple-translate-service/index";
+export * from './simple-translate-service/index';

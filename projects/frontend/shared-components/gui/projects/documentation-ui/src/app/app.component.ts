@@ -8,30 +8,32 @@ import { OAuthService } from 'angular-oauth2-oidc';
 import { authCodeFlowConfig } from './auth';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss']
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    constructor(private oauthService: OAuthService) {
-        this.oauthService.configure(authCodeFlowConfig);
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.oauthService.loadDiscoveryDocumentAndLogin();
-    }
+	constructor(private oauthService: OAuthService) {
+		this.oauthService.configure(authCodeFlowConfig);
+		// eslint-disable-next-line @typescript-eslint/no-floating-promises
+		this.oauthService.loadDiscoveryDocumentAndLogin();
+	}
 
-    logout(): void {
-        this.oauthService.logOut();
-    }
+	logout(): void {
+		this.oauthService.logOut();
+	}
 
-    get idToken(): string {
-        return this.oauthService.getIdToken();
-    }
+	get idToken(): string {
+		return this.oauthService.getIdToken();
+	}
 
-    get userName(): string {
-        return (this.oauthService.getIdentityClaims()) ? this.getIdentityClaim('username') : 'N/A';
-    }
+	get userName(): string {
+		return this.oauthService.getIdentityClaims()
+			? this.getIdentityClaim('username')
+			: 'N/A';
+	}
 
-    private getIdentityClaim(userNamePropName: string): string {
-        return this.oauthService.getIdentityClaims()[userNamePropName] as string;
-    }
+	private getIdentityClaim(userNamePropName: string): string {
+		return this.oauthService.getIdentityClaims()[userNamePropName] as string;
+	}
 }

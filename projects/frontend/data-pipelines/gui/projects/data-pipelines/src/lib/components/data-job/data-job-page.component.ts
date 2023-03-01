@@ -10,7 +10,17 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { interval, of, Subject, timer } from 'rxjs';
-import { catchError, filter, finalize, map, switchMap, take, takeUntil, takeWhile, tap } from 'rxjs/operators';
+import {
+    catchError,
+    filter,
+    finalize,
+    map,
+    switchMap,
+    take,
+    takeUntil,
+    takeWhile,
+    tap,
+} from 'rxjs/operators';
 
 import { ClrLoadingState } from '@clr/angular';
 
@@ -30,12 +40,16 @@ import {
     RouterService,
     RouteState,
     TaurusBaseComponent,
-    ToastService
+    ToastService,
 } from '@vdk/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../shared/utils';
 import { ExtractJobStatusPipe } from '../../shared/pipes';
-import { ConfirmationModalOptions, DeleteModalOptions, ModalOptions } from '../../shared/model';
+import {
+    ConfirmationModalOptions,
+    DeleteModalOptions,
+    ModalOptions,
+} from '../../shared/model';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -46,7 +60,7 @@ import {
     DataJobExecutionsPage,
     DataJobStatus,
     DataPipelinesConfig,
-    ToastDefinitions
+    ToastDefinitions,
 } from '../../model';
 
 import { DataJobsApiService, DataJobsService } from '../../services';
@@ -59,15 +73,18 @@ enum TypeButtonState {
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
     DELETE,
     /* eslint-disabe-next-line @typescript-eslint/naming-convention */
-    STOP
+    STOP,
 }
 
 @Component({
     selector: 'lib-data-job-page',
     templateUrl: './data-job-page.component.html',
-    styleUrls: ['./data-job-page.component.scss']
+    styleUrls: ['./data-job-page.component.scss'],
 })
-export class DataJobPageComponent extends TaurusBaseComponent implements OnInit, OnTaurusModelInit, OnTaurusModelError {
+export class DataJobPageComponent
+    extends TaurusBaseComponent
+    implements OnInit, OnTaurusModelInit, OnTaurusModelError
+{
     readonly uuid = 'DataJobPageComponent';
 
     teamName = '';
@@ -103,18 +120,22 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
 
     private _nonExistingJobMsgShowed = false;
 
-    constructor(componentService: ComponentService, // NOSONAR
-                navigationService: NavigationService,
-                activatedRoute: ActivatedRoute,
-                private readonly routerService: RouterService,
-                private readonly dataJobsService: DataJobsService,
-                private readonly dataJobsApiService: DataJobsApiService,
-                private readonly toastService: ToastService,
-                private readonly errorHandlerService: ErrorHandlerService,
-                @Inject(DATA_PIPELINES_CONFIGS) public readonly dataPipelinesModuleConfig: DataPipelinesConfig) {
+    constructor(
+        componentService: ComponentService, // NOSONAR
+        navigationService: NavigationService,
+        activatedRoute: ActivatedRoute,
+        private readonly routerService: RouterService,
+        private readonly dataJobsService: DataJobsService,
+        private readonly dataJobsApiService: DataJobsApiService,
+        private readonly toastService: ToastService,
+        private readonly errorHandlerService: ErrorHandlerService,
+        @Inject(DATA_PIPELINES_CONFIGS)
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
+    ) {
         super(componentService, navigationService, activatedRoute);
 
-        this.isSubpageNavigation = !!activatedRoute.snapshot.data['activateSubpageNavigation'];
+        this.isSubpageNavigation =
+            !!activatedRoute.snapshot.data['activateSubpageNavigation'];
 
         this.deleteOptions = new DeleteModalOptions();
         this.executeNowOptions = new ConfirmationModalOptions();
@@ -128,8 +149,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
         $event?.preventDefault();
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.navigateBack({ '$.team': this.teamName })
-            .then();
+        this.navigateBack({ '$.team': this.teamName }).then();
     }
 
     /**
@@ -143,8 +163,8 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
      * ** Show confirmation dialog for Job execution.
      */
     executeJob() {
-        this.executeNowOptions.title = `Execute ${ this.jobName } now?`;
-        this.executeNowOptions.message = `Job <strong>${ this.jobName }</strong> will be queued for execution.`;
+        this.executeNowOptions.title = `Execute ${this.jobName} now?`;
+        this.executeNowOptions.message = `Job <strong>${this.jobName}</strong> will be queued for execution.`;
         this.executeNowOptions.infoText = `Confirming will result in immediate data job execution.`;
         this.executeNowOptions.opened = true;
     }
@@ -169,7 +189,9 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                 )
                 .subscribe({
                     next: () => {
-                        this.toastService.show(ToastDefinitions.successfullyRanJob(this.jobName));
+                        this.toastService.show(
+                            ToastDefinitions.successfullyRanJob(this.jobName)
+                        );
 
                         let previousReqFinished = true;
 
@@ -181,26 +203,33 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                                     // eslint-disable-next-line rxjs/no-unsafe-takeuntil
                                     takeUntil(timer(30000)), // Timer limit when polling to stop = 30s
                                     filter(() => previousReqFinished),
-                                    tap(() => previousReqFinished = false),
+                                    tap(() => (previousReqFinished = false)),
                                     switchMap(() =>
-                                        this.dataJobsApiService.getJobExecutions(
-                                            this.teamName,
-                                            this.jobName,
-                                            true,
-                                            null,
-                                            { property: 'startTime', direction: ASC }
-                                        ).pipe(
-                                            catchError((error: unknown) => {
-                                                this.errorHandlerService.processError(
-                                                    ErrorUtil.extractError(error as Error)
-                                                );
+                                        this.dataJobsApiService
+                                            .getJobExecutions(
+                                                this.teamName,
+                                                this.jobName,
+                                                true,
+                                                null,
+                                                {
+                                                    property: 'startTime',
+                                                    direction: ASC,
+                                                }
+                                            )
+                                            .pipe(
+                                                catchError((error: unknown) => {
+                                                    this.errorHandlerService.processError(
+                                                        ErrorUtil.extractError(
+                                                            error as Error
+                                                        )
+                                                    );
 
-                                                return of([]);
-                                            }),
-                                            finalize(() => {
-                                                previousReqFinished = true;
-                                            })
-                                        )
+                                                    return of([]);
+                                                }),
+                                                finalize(() => {
+                                                    previousReqFinished = true;
+                                                })
+                                            )
                                     ),
                                     map((executions: DataJobExecutionsPage) =>
                                         executions.content
@@ -208,7 +237,13 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                                             : []
                                     ),
                                     takeWhile((executions) => {
-                                        if (CollectionsUtil.isArrayEmpty(executions) || executions.length <= this.jobExecutions.length) {
+                                        if (
+                                            CollectionsUtil.isArrayEmpty(
+                                                executions
+                                            ) ||
+                                            executions.length <=
+                                                this.jobExecutions.length
+                                        ) {
                                             return true;
                                         }
 
@@ -216,13 +251,22 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
 
                                         this.areJobExecutionsLoaded = true;
 
-                                        const lastExecution = executions[executions.length - 1];
-                                        if (!DataJobUtil.isJobRunningPredicate(lastExecution)) {
+                                        const lastExecution =
+                                            executions[executions.length - 1];
+                                        if (
+                                            !DataJobUtil.isJobRunningPredicate(
+                                                lastExecution
+                                            )
+                                        ) {
                                             return true;
                                         }
 
-                                        this.dataJobsService.notifyForJobExecutions(executions);
-                                        this.dataJobsService.notifyForRunningJobExecutionId(lastExecution.id);
+                                        this.dataJobsService.notifyForJobExecutions(
+                                            executions
+                                        );
+                                        this.dataJobsService.notifyForRunningJobExecutionId(
+                                            lastExecution.id
+                                        );
 
                                         return false; // Stop polling if above condition is met.
                                     })
@@ -234,12 +278,13 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                         this.errorHandlerService.processError(
                             ErrorUtil.extractError(error as Error),
                             {
-                                title: (error as HttpErrorResponse)?.status === 409
-                                    ? 'Failed, Data job is already executing'
-                                    : 'Failed to queue Data job for execution'
+                                title:
+                                    (error as HttpErrorResponse)?.status === 409
+                                        ? 'Failed, Data job is already executing'
+                                        : 'Failed to queue Data job for execution',
                             }
                         );
-                    }
+                    },
                 })
         );
     }
@@ -251,10 +296,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
         this._submitOperationStarted(TypeButtonState.DOWNLOAD);
 
         this.dataJobsApiService
-            .downloadFile(
-                this.teamName,
-                this.jobName
-            )
+            .downloadFile(this.teamName, this.jobName)
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
@@ -262,28 +304,31 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
             )
             .subscribe({
                 next: (response: Blob) => {
-                    const blob: Blob = new Blob([response], { type: 'application/octet-stream' });
+                    const blob: Blob = new Blob([response], {
+                        type: 'application/octet-stream',
+                    });
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                    fileSaver.saveAs(blob, `${ this.jobName }.keytab`);
+                    fileSaver.saveAs(blob, `${this.jobName}.keytab`);
 
                     this.toastService.show({
                         type: VmwToastType.INFO,
                         title: `Download completed`,
-                        description: `Data job keytab "${ this.jobName }.keytab" successfully downloaded`
+                        description: `Data job keytab "${this.jobName}.keytab" successfully downloaded`,
                     });
                 },
                 error: (error: unknown) => {
-                    const errorDescription = (error as HttpErrorResponse)?.status === 404
-                        ? `Download failed. Keytab file doesn't exist for this job.`
-                        : `Download failed. Keytab file failed to download.`;
+                    const errorDescription =
+                        (error as HttpErrorResponse)?.status === 404
+                            ? `Download failed. Keytab file doesn't exist for this job.`
+                            : `Download failed. Keytab file failed to download.`;
 
                     this.errorHandlerService.processError(
                         ErrorUtil.extractError(error as Error),
                         {
-                            description: errorDescription
+                            description: errorDescription,
                         }
                     );
-                }
+                },
             });
     }
 
@@ -291,7 +336,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
      * ** Show confirmation dialog for Job Remove (Delete).
      */
     removeJob() {
-        this.deleteOptions.message = `Job <strong>${ this.jobName }</strong> will be deleted.
+        this.deleteOptions.message = `Job <strong>${this.jobName}</strong> will be deleted.
     Currently executing Data Jobs will be left to finish but the credentials will be revoked.`;
         this.deleteOptions.infoText = `Deleting this job means that <strong> it will be permanently removed from the system</strong>
     including all its state (properties), source code and any deployments.`;
@@ -318,7 +363,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                     this.toastService.show({
                         type: VmwToastType.INFO,
                         title: `Data job delete completed`,
-                        description: `Data job "${ this.jobName }" successfully deleted`
+                        description: `Data job "${this.jobName}" successfully deleted`,
                     });
 
                     this.doNavigateBack();
@@ -327,16 +372,21 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                     this.errorHandlerService.processError(
                         ErrorUtil.extractError(error as Error),
                         {
-                            title: `Data job delete failed`
+                            title: `Data job delete failed`,
                         }
                     );
-                }
+                },
             });
     }
 
     confirmCancelDataJob() {
         this._submitOperationStarted(TypeButtonState.STOP);
-        this.dataJobsApiService.cancelDataJobExecution(this.teamName, this.jobName, this.lastExecution()?.id)
+        this.dataJobsApiService
+            .cancelDataJobExecution(
+                this.teamName,
+                this.jobName,
+                this.lastExecution()?.id
+            )
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
@@ -348,17 +398,17 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                     this.toastService.show({
                         type: VmwToastType.INFO,
                         title: `Data job execution cancellation completed`,
-                        description: `Data job "${ this.jobName }" successfully canceled`
+                        description: `Data job "${this.jobName}" successfully canceled`,
                     });
                 },
                 error: (error: unknown) => {
                     this.errorHandlerService.processError(
                         ErrorUtil.extractError(error as Error),
                         {
-                            title: `Data job cancellation failed`
+                            title: `Data job cancellation failed`,
                         }
                     );
-                }
+                },
             });
     }
 
@@ -366,8 +416,10 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
      * ** Show confirmation dialog for Job execution cancellation.
      */
     cancelExecution() {
-        this.cancelNowOptions.title = `Cancel ${ this.lastExecution()?.id } now?`;
-        this.cancelNowOptions.message = `Execution <strong>${ this.lastExecution()?.id }</strong> will be canceled.`;
+        this.cancelNowOptions.title = `Cancel ${this.lastExecution()?.id} now?`;
+        this.cancelNowOptions.message = `Execution <strong>${
+            this.lastExecution()?.id
+        }</strong> will be canceled.`;
         this.cancelNowOptions.infoText = `Confirming will result in immediate data job execution cancellation.`;
         this.cancelNowOptions.opened = true;
     }
@@ -386,9 +438,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
     onModelInit(): void {
         this.routerService
             .getState()
-            .pipe(
-                take(1)
-            )
+            .pipe(take(1))
             .subscribe((state) => this._initialize(state));
     }
 
@@ -396,9 +446,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
      * @inheritDoc
      */
     onModelError(model?: ComponentModel) {
-        const error = ErrorUtil.extractError(
-            model.getComponentState().error
-        );
+        const error = ErrorUtil.extractError(model.getComponentState().error);
 
         this.errorHandlerService.processError(error);
     }
@@ -407,7 +455,10 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
         const teamParamKey = state.getData<string>('teamParamKey');
         this.teamName = state.getParam(teamParamKey);
 
-        if (CollectionsUtil.isNil(teamParamKey) || CollectionsUtil.isNil(this.teamName)) {
+        if (
+            CollectionsUtil.isNil(teamParamKey) ||
+            CollectionsUtil.isNil(this.teamName)
+        ) {
             this._subscribeForImplicitTeam();
         }
 
@@ -418,8 +469,9 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
 
         this.queryParams = state.queryParams;
 
-        this.isDownloadJobKeyAllowed = this.dataPipelinesModuleConfig.manageConfig?.allowKeyTabDownloads
-            && this.isJobEditable;
+        this.isDownloadJobKeyAllowed =
+            this.dataPipelinesModuleConfig.manageConfig?.allowKeyTabDownloads &&
+            this.isJobEditable;
 
         this._subscribeForTeamChange(state);
         this._subscribeForExecutionsChange();
@@ -431,27 +483,30 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
     private _subscribeForImplicitTeam(): void {
         this.dataJobsService
             .getNotifiedForTeamImplicitly()
-            .pipe(
-                take(1)
-            )
-            .subscribe((teamName) => this.teamName = teamName);
+            .pipe(take(1))
+            .subscribe((teamName) => (this.teamName = teamName));
     }
 
     private _subscribeForTeamChange(state: RouteState): void {
-        const shouldActivateListener = !!state.getData<boolean>('activateListenerForTeamChange');
+        const shouldActivateListener = !!state.getData<boolean>(
+            'activateListenerForTeamChange'
+        );
 
-        if (shouldActivateListener && this.dataPipelinesModuleConfig?.manageConfig?.selectedTeamNameObservable) {
+        if (
+            shouldActivateListener &&
+            this.dataPipelinesModuleConfig?.manageConfig
+                ?.selectedTeamNameObservable
+        ) {
             this.subscriptions.push(
-                this.dataPipelinesModuleConfig
-                    .manageConfig
-                    .selectedTeamNameObservable
-                    .subscribe((newTeam) => {
+                this.dataPipelinesModuleConfig.manageConfig.selectedTeamNameObservable.subscribe(
+                    (newTeam) => {
                         if (this.teamName !== newTeam) {
                             this.teamName = newTeam;
 
                             this.doNavigateBack();
                         }
-                    })
+                    }
+                )
             );
         }
     }
@@ -475,28 +530,39 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                     switchMap((id) =>
                         interval(5000).pipe(
                             switchMap(() =>
-                                this.dataJobsApiService.getJobExecution(
-                                    this.teamName,
-                                    this.jobName,
-                                    id
-                                ).pipe(
-                                    catchError((error: unknown) => {
-                                        this.errorHandlerService.processError(
-                                            ErrorUtil.extractError(error as Error)
-                                        );
+                                this.dataJobsApiService
+                                    .getJobExecution(
+                                        this.teamName,
+                                        this.jobName,
+                                        id
+                                    )
+                                    .pipe(
+                                        catchError((error: unknown) => {
+                                            this.errorHandlerService.processError(
+                                                ErrorUtil.extractError(
+                                                    error as Error
+                                                )
+                                            );
 
-                                        return of(null);
-                                    })
+                                            return of(null);
+                                        })
+                                    )
+                            ),
+                            tap((executionDetails) =>
+                                this._replaceRunningExecutionAndNotify(
+                                    executionDetails
                                 )
                             ),
-                            tap((executionDetails) => this._replaceRunningExecutionAndNotify(executionDetails)),
                             takeWhile((executionDetails) => {
-                                const isRunning = CollectionsUtil.isNil(executionDetails) ||
-                                    DataJobUtil.isJobRunningPredicate(executionDetails);
+                                const isRunning =
+                                    CollectionsUtil.isNil(executionDetails) ||
+                                    DataJobUtil.isJobRunningPredicate(
+                                        executionDetails
+                                    );
                                 if (!isRunning) {
                                     this.isDataJobRunning = false;
                                 }
-                                return isRunning
+                                return isRunning;
                             })
                         )
                     )
@@ -509,29 +575,40 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                 .getNotifiedForRunningJobExecutionId()
                 .pipe(
                     switchMap((executionId: string) =>
-                        this.dataJobsApiService.getJobExecution(
-                            this.teamName,
-                            this.jobName,
-                            executionId
-                        ).pipe(
-                            map((executionDetails) => [executionId, executionDetails]),
-                            catchError((error: unknown) => {
-                                this.errorHandlerService.processError(
-                                    ErrorUtil.extractError(error as Error)
-                                );
+                        this.dataJobsApiService
+                            .getJobExecution(
+                                this.teamName,
+                                this.jobName,
+                                executionId
+                            )
+                            .pipe(
+                                map((executionDetails) => [
+                                    executionId,
+                                    executionDetails,
+                                ]),
+                                catchError((error: unknown) => {
+                                    this.errorHandlerService.processError(
+                                        ErrorUtil.extractError(error as Error)
+                                    );
 
-                                return of([executionId]);
-                            })
-                        )
+                                    return of([executionId]);
+                                })
+                            )
                     )
                 )
-                .subscribe(([executionId, executionDetails]: [string, DataJobExecutionDetails]) => {
-
-                    this.isDataJobRunning = true;
-                    this.cancelDataJobDisabled = false;
-                    this._replaceRunningExecutionAndNotify(executionDetails);
-                    scheduleLastExecutionPolling.next(executionId);
-                })
+                .subscribe(
+                    ([executionId, executionDetails]: [
+                        string,
+                        DataJobExecutionDetails
+                    ]) => {
+                        this.isDataJobRunning = true;
+                        this.cancelDataJobDisabled = false;
+                        this._replaceRunningExecutionAndNotify(
+                            executionDetails
+                        );
+                        scheduleLastExecutionPolling.next(executionId);
+                    }
+                )
         );
     }
 
@@ -549,7 +626,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
 
                             console.error('Error loading jobDetails', error);
                         }
-                    }
+                    },
                 })
         );
         this.subscriptions.push(
@@ -561,8 +638,10 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                             this.isJobAvailable = true;
 
                             this.jobDeployments = job.deployments;
-                            this.isExecuteJobAllowed = ExtractJobStatusPipe
-                                .transform(this.jobDeployments) !== DataJobStatus.NOT_DEPLOYED;
+                            this.isExecuteJobAllowed =
+                                ExtractJobStatusPipe.transform(
+                                    this.jobDeployments
+                                ) !== DataJobStatus.NOT_DEPLOYED;
 
                             return;
                         }
@@ -574,10 +653,10 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                         this.errorHandlerService.processError(
                             ErrorUtil.extractError(error as Error),
                             {
-                                title: `Loading Data job "${ this.jobName }" failed`
+                                title: `Loading Data job "${this.jobName}" failed`,
                             }
                         );
-                    }
+                    },
                 })
         );
     }
@@ -585,16 +664,25 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
     private _loadJobExecutions(): void {
         this.subscriptions.push(
             this.dataJobsApiService
-                .getJobExecutions(this.teamName, this.jobName, true, null, { property: 'startTime', direction: ASC })
+                .getJobExecutions(this.teamName, this.jobName, true, null, {
+                    property: 'startTime',
+                    direction: ASC,
+                })
                 .subscribe({
                     next: (value) => {
                         if (value?.content) {
-                            this.dataJobsService.notifyForJobExecutions([...value.content]);
+                            this.dataJobsService.notifyForJobExecutions([
+                                ...value.content,
+                            ]);
 
                             // eslint-disable-next-line @typescript-eslint/unbound-method
-                            const runningExecution = value.content.find(DataJobUtil.isJobRunningPredicate);
+                            const runningExecution = value.content.find(
+                                DataJobUtil.isJobRunningPredicate
+                            );
                             if (runningExecution) {
-                                this.dataJobsService.notifyForRunningJobExecutionId(runningExecution.id);
+                                this.dataJobsService.notifyForRunningJobExecutionId(
+                                    runningExecution.id
+                                );
                             }
                         }
 
@@ -604,25 +692,28 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
                         this.errorHandlerService.processError(
                             ErrorUtil.extractError(error as Error)
                         );
-                    }
+                    },
                 })
         );
     }
 
-    private _replaceRunningExecutionAndNotify(executionDetails: DataJobExecutionDetails): void {
+    private _replaceRunningExecutionAndNotify(
+        executionDetails: DataJobExecutionDetails
+    ): void {
         if (CollectionsUtil.isNil(executionDetails)) {
             return;
         }
 
-        const convertedExecution = DataJobUtil.convertFromExecutionDetailsToExecutionState(executionDetails);
-        const foundIndex = this.jobExecutions.findIndex((ex) => ex.id === convertedExecution.id);
+        const convertedExecution =
+            DataJobUtil.convertFromExecutionDetailsToExecutionState(
+                executionDetails
+            );
+        const foundIndex = this.jobExecutions.findIndex(
+            (ex) => ex.id === convertedExecution.id
+        );
 
         if (foundIndex !== -1) {
-            this.jobExecutions.splice(
-                foundIndex,
-                1,
-                convertedExecution
-            );
+            this.jobExecutions.splice(foundIndex, 1, convertedExecution);
         } else {
             this.jobExecutions.push(convertedExecution);
         }
@@ -672,8 +763,8 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
 
             this.toastService.show({
                 type: VmwToastType.FAILURE,
-                title: `Job "${ this.jobName }" doesn't exist`,
-                description: `Data Job "${ this.jobName }" for Team "${ this.teamName }" doesn't exist, will load Data Jobs list`
+                title: `Job "${this.jobName}" doesn't exist`,
+                description: `Data Job "${this.jobName}" for Team "${this.teamName}" doesn't exist, will load Data Jobs list`,
             });
         }
     }
