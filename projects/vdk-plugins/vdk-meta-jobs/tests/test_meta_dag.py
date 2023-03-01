@@ -73,43 +73,39 @@ def test_execute_dag_busyloop():
 
 
 def test_build_dag_over_max_starting_jobs_sad_case():
-    job1 = dict(job_name="job1", depends_on=[])
-    job2 = dict(job_name="job2", depends_on=["job1"])
-    job3 = dict(job_name="job3", depends_on=["job1"])
-    job4 = dict(job_name="job4", depends_on=["job1"])
-    job5 = dict(job_name="job5", depends_on=["job1"])
-    job6 = dict(job_name="job6", depends_on=["job1"])
-    job7 = dict(job_name="job7", depends_on=["job1"])
-    job8 = dict(job_name="job8", depends_on=["job1"])
-    job9 = dict(job_name="job9", depends_on=["job1"])
-    job10 = dict(job_name="job10", depends_on=["job1"])
-    job11 = dict(job_name="job11", depends_on=["job1"])
-    job12 = dict(job_name="job12", depends_on=["job1"])
-    job13 = dict(job_name="job13", depends_on=["job1"])
-    job14 = dict(job_name="job14", depends_on=["job1"])
-    job15 = dict(job_name="job15", depends_on=["job1"])
-    job16 = dict(job_name="job16", depends_on=["job1"])
-    job17 = dict(job_name="job17", depends_on=["job1"])
     jobs = [
-        job1,
-        job2,
-        job3,
-        job4,
-        job5,
-        job6,
-        job7,
-        job8,
-        job9,
-        job10,
-        job11,
-        job12,
-        job13,
-        job14,
-        job15,
-        job16,
-        job17,
+        {"job_name": f"job{i}", "depends_on": [] if i == 1 else [f"job1"]}
+        for i in range(1, 18)
     ]
 
     dag = MetaJobsDag("team")
-    with raises(UserCodeError):
-        dag.build_dag(jobs)
+    dag.build_dag(jobs)
+
+    dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
+    dag._job_executor.get_finished_job_names.side_effect = [
+        ["job1"],
+        [
+            "job2",
+            "job3",
+            "job4",
+            "job5",
+            "job6",
+            "job7",
+            "job8",
+            "job9",
+            "job10",
+            "job11",
+            "job12",
+            "job13",
+            "job14",
+            "job15",
+            "job16",
+            "job17",
+        ],
+    ]
+
+    dag.execute_dag()
+
+    assert [
+        call(job["job_name"]) for job in jobs[:17]
+    ] == dag._job_executor.start_job.call_args_list

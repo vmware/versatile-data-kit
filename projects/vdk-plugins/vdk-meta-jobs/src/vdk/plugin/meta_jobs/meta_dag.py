@@ -19,50 +19,6 @@ from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
 from vdk.plugin.meta_jobs.time_based_queue import TimeBasedQueue
 
 log = logging.getLogger(__name__)
-max_starting_jobs = 15
-
-
-def topo_sort(jobs: List[Dict]):
-    topo_sorter = TopologicalSorter()
-    for job in jobs:
-        topo_sorter.add(job["job_name"], *job["depends_on"])
-
-    sorted_jobs = []
-    for job_name in topo_sorter.static_order():
-        job = next((j for j in jobs if j["job_name"] == job_name), None)
-        if job:
-            sorted_jobs.append(job)
-    return sorted_jobs
-
-
-def validate_job_limit(jobs: List[Dict]):
-    sorted_jobs = topo_sort(jobs)
-
-    out_degree = {job["job_name"]: 0 for job in jobs}
-    for job in sorted_jobs:
-        for pred in job["depends_on"]:
-            out_degree[pred] += 1
-
-    ready_jobs = {job["job_name"] for job in jobs if out_degree[job["job_name"]] == 0}
-
-    for job in sorted_jobs:
-        if job["job_name"] in ready_jobs:
-            ready_jobs.discard(job["job_name"])
-
-        if len(ready_jobs) > max_starting_jobs:
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                what_happened=f"Meta Job failed due to an exceeded limit of jobs ({len(ready_jobs)}) starting at once.",
-                why_it_happened=f"The number of starting jobs must be less than or equal to {max_starting_jobs}.",
-                consequences="The jobs will not be executed and current call will fail with an exception.",
-                countermeasures=f"Make sure no more than {max_starting_jobs} jobs depend on one other job.",
-            )
-
-        for pred in job["depends_on"]:
-            out_degree[pred] -= 1
-            if out_degree[pred] == 0:
-                ready_jobs.add(pred)
 
 
 class MetaJobsDag:
@@ -79,14 +35,20 @@ class MetaJobsDag:
                 )
             ),
         )
+        self._max_concurrent_starting_jobs = int(
+            os.environ.get("VDK_META_JOBS_MAX_CONCURRENT_STARTING_JOBS", "15")
+        )
         self._finished_jobs = []
         self._dag_execution_check_time_period_seconds = int(
             os.environ.get("VDK_META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS", 10)
         )
         self._job_executor = TrackingDataJobExecutor(RemoteDataJobExecutor())
 
+    @property
+    def max_concurrent_starting_jobs(self):
+        return self._max_concurrent_starting_jobs
+
     def build_dag(self, jobs: List[Dict]):
-        validate_job_limit(jobs)
         for job in jobs:
             # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             trackable_job = TrackableJob(
@@ -155,7 +117,16 @@ class MetaJobsDag:
 
     def _start_job(self, node):
         try:
-            self._job_executor.start_job(node)
+            if (
+                len(self._job_executor.get_currently_running_jobs())
+                > self.max_concurrent_starting_jobs
+            ):
+                log.info(
+                    f"Starting job fail - too many concurrently running jobs. Will be re-tried later"
+                )
+                self._delayed_starting_jobs.enqueue(node)
+            else:
+                self._job_executor.start_job(node)
         except ApiException as e:
             if e.status == 409:
                 log.info(
