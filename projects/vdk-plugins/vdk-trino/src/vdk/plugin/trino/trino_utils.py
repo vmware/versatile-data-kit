@@ -203,7 +203,7 @@ class TrinoTemplateQueries:
                         "Then try to rerun the data job OR\n"
                         "3. Report the issue to support team.""",
                 )
-        if result:
+        if result is not None:
             log.debug("Target table was successfully created, and we can drop backup")
             self.drop_table(to_db, backup_table_name)
 
