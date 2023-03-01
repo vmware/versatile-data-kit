@@ -1,0 +1,247 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* You can add global styles to this file, and also import other style files */
+
+/**
+ Placeholder
+ **/
+
+:root {
+    --taurus-placeholder-color: var(--clr-color-neutral-500, #b3b3b3);
+}
+
+/* _normalize overwrite */
+::-webkit-input-placeholder {
+    /* clr-forms-placeholder-color */
+    color: var(--taurus-placeholder-color) !important;
+}
+
+/* Internet Explorer 10-11 */
+:-ms-input-placeholder {
+    /* clr-forms-placeholder-color */
+    color: var(--taurus-placeholder-color) !important;
+}
+
+/* Microsoft Edge */
+::-ms-input-placeholder {
+    /* clr-forms-placeholder-color */
+    color: var(--taurus-placeholder-color) !important;
+}
+
+/* Chrome, Firefox, Opera, Safari 10.1+ */
+::placeholder {
+    /* clr-forms-placeholder-color */
+    color: var(--taurus-placeholder-color) !important;
+}
+
+.fade-to-dark.dark {
+    --taurus-placeholder-color: #b3b3b3;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.content-container.switch-btn-bottom .nav-content {
+    margin-bottom: 1.5rem;
+}
+
+/* combo box */
+.clr-popover-content {
+    margin-top: 10px;
+}
+
+/* vmw search component */
+vmw-search .search-container cds-icon[shape="search"] {
+    top: 2px !important;
+}
+
+/* forms */
+.destination-modal-body .custom-header-item .custom-header-input {
+    display: inline-block;
+    max-width: 10rem;
+}
+
+.modal-submit {
+    position: absolute;
+    left: -9999px;
+    z-index: -9999;
+    visibility: hidden;
+}
+
+vmw-form-section-container.p-header-section .form-header {
+    padding-bottom: 0 !important;
+    margin-top: 0;
+}
+
+vmw-form-section-container.p-header-section .form-header .section-title {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+vmw-form-section-container.p-header-section .vmw-vertical-line {
+    margin-top: 0 !important;
+}
+
+vmw-form-section-container.p-header-section .csp-edit-button {
+    margin-left: 1rem !important;
+}
+
+/* links */
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
+}
+
+/* theme */
+.toogle-theme {
+    position: absolute;
+    bottom: 0;
+    background-color: transparent !important;
+    padding-left: 0 !important;
+}
+
+.toogle-theme:hover {
+    background-color: transparent !important;
+}
+
+.toogle-theme .nav-link {
+    background-color: transparent !important;
+}
+
+.page-title {
+    margin-top: 0;
+}
+
+.tc {
+    text-align: center !important;
+}
+
+/* margins */
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-0 {
+    margin-top: 0 !important;
+}
+
+.mb-12 {
+    margin-bottom: 12px !important;
+}
+
+.pl-35 {
+    padding-left: 35px !important;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+/* modals */
+.modal-body > :first-child {
+    margin-top: 0;
+}
+
+input.modal-form-control {
+    width: 12rem;
+}
+
+select.modal-form-control {
+    width: 8rem;
+}
+
+.modal-actions {
+    margin-top: -20px !important;
+}
+
+/* color styles */
+.red {
+    color: #eb5757;
+}
+
+/* position */
+.right {
+    float: right;
+}
+
+.left {
+    float: left;
+}
+
+/* lists */
+ul.idented {
+    text-indent: 2em;
+}
+
+/* media */
+@media (max-width: 600px) {
+    .right {
+        float: none !important;
+    }
+}
+
+/* datagrid cells */
+.cell-img-container {
+    min-width: 30px !important;
+    width: 60px !important;
+    text-align: center !important;
+}
+
+.cell-center {
+    margin: auto !important;
+}
+
+.enabled-column {
+    width: 6rem !important;
+}
+
+/* limit-height */
+.limit-height {
+    height: 50vh;
+}
+
+.limit-height clr-datagrid {
+    height: 50vh !important;
+}
+
+.limit-height clr-datagrid .datagrid {
+    margin-top: 0;
+}
+
+.limit-height clr-datagrid clr-dg-cell {
+    margin: auto;
+}
+
+/* team-list-component */
+.team-list-container .clr-form-control {
+    margin-top: 0 !important;
+}
+
+/* CSP-HEADER */
+/* Hide header assets */
+.header .header-actions .nav-icon.app-switcher {
+    width: 0;
+}
+
+.header .header-actions .nav-icon.app-switcher cds-icon {
+    display: none !important;
+}
+
+.header .header-actions .nav-icon.user-menu span.org-name {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .header .header-actions .nav-icon.user-menu div {
+        margin-top: 0.5rem;
+    }
+}
+
+.cdk-overlay-container {
+    z-index: 1100;
+}

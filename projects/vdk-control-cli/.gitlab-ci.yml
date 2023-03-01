@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 image: "python:3.9"
@@ -84,7 +84,8 @@ vdk-control-cli-release:
     - pip install -U pip setuptools wheel twine
     - python setup.py sdist --formats=gztar
     - twine upload --repository-url "$PIP_REPO_UPLOAD_URL" -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
-  only:
-    refs:
-      - main
-    changes: *vdk_control_cli_changes_locations
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *vdk_control_cli_changes_locations

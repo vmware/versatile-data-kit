@@ -1,12 +1,14 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 image: "python:3.7"
 
 .build-vdk-trino:
-  image: docker:19.03.8
+  image: docker:23.0.1
   services:
-    - docker:19.03.8-dind
+    - name: docker:23.0.1-dind
+      # explicitly disable tls to avoid docker startup interruption
+      command: ["--tls=false"]
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2

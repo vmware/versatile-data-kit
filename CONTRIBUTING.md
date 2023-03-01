@@ -52,6 +52,7 @@ We follow the GitHub workflow and you can find more details on the [GitHub flow 
   * vdk-heartbeat - tool for verifying the deployed SDK and Control Service are functional and working correctly;
   * vdk-control-cli - User friendly CLI interface over Control Service operations including login/logout;
   * vdk-plugins - Set of plugins that we maintain and provide for different use-cases like lineage, database support, etc.;
+  * frontend - Angular web UI for creating, deploying and managing jobs.
 * support - helper scripts used by developers of the project during their workday;
 * cicd - build and ci cd related scripts common across all projects. Each project also has its own cicd folder;
 * examples - list of example use-cases. Each example directory has its README with detailed explanations;
@@ -111,21 +112,13 @@ Familiarize with [recommendations written here](https://github.com/vmware/versat
 We prefer maintaining a straight branch history by rebasing before merging. Fast-forward merges should not create merge commits.
 
 ## Changelog
-It's important to update CHANGELOG.md with any adjustments to the project.
 Versioning of all components follows https://semver.org
 
-Changelog has the following sections:
-- New feature: significant additions to the project. This usually requires bumping at least a minor version;
-- Improvements - an enhancement to existing functionality and minor additions;
-- Bug Fixes - Fixes of bugs/regressions;
-- Breaking Changes: any changes that break Versatile Data Kit's backward-compatibility.
+For generating release notes (changelog) we rely on good commit titles and commit descriptions (see above section).
 
-Each component project maintains its own CHANGELOG.
-Go to projects/component-name/CHANGELOG.md to see the changelog of the component
-
+## Pull Request Checklist
 
 Before submitting your pull request, we advise you to use the following:
-## Pull Request Checklist
 
 1. Check if your code changes will pass both code linting checks and unit tests.
 2. Ensure your commit messages are descriptive. Be sure to include any related GitHub issue references in the commit message. See [GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) for referencing issues and commits.
@@ -152,10 +145,7 @@ To make a new public release, follow these steps:
   - Major features include
   - Backwards incompatible changes
   - Removal of features
-- Review which components have received changes since the previous release - this should be apparent from the changelog;
-- Record the latest versions of the components included in the release (from the auto generated notes) and list them in the Release description;
-    - You can see the current version (as of time of release) of a Python package in https://pypi.org/search/?q=
-    - You can see the current version (as of time of release) of the Control Service in [the helm repo here](https://gitlab.com/vmware-analytics/versatile-data-kit-helm-registry/-/packages)
+- Include Install instructions (link to https://github.com/vmware/versatile-data-kit/wiki/Installation).
 - Make sure you have clicked the "Create a discussion for this release" button before publishing the new release
 - Post a tweet on the official VDK Twitter account, and on slack, announcing the new release and linking to it.
 

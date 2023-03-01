@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -46,7 +46,6 @@ public class DiagnosticsPublisher implements Consumer<DiagnosticsContext> {
 
   @Override
   public void accept(DiagnosticsContext context) {
-
     Map<Metrics, Object> metrics = contextToMetrics(context);
     String opId = "" + metrics.get(Metrics.op_id);
     try {
@@ -69,7 +68,6 @@ public class DiagnosticsPublisher implements Consumer<DiagnosticsContext> {
       String json = node.toPrettyString();
       log.trace("Sending telemetry: {}", json);
       this.telemetryClient.sendAsync(json);
-
     } catch (Exception e) {
       log.warn("Could not send telemetry.\n" + "Data was " + metrics, e);
     }

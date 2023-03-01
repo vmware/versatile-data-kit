@@ -1,15 +1,10 @@
 Changelog
 =========
 
-MAJOR.MINOR - dd.MM.yyyy
-----
-* **New feature**
+ChangeLog is no longer updated.
+Release notes are generated automatically through [VDK release process](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md#how-to-make-a-new-vdk-release)
 
-* **Improvement**
-
-* **Bug Fixes**
-
-* **Breaking Changes**
+The file is kept for historical purposes to show the evolution of the Control Service before release process was in place.
 
 1.3 - 09.03.2022
 ----

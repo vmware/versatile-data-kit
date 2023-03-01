@@ -1,3 +1,6 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 ## Current available global Docker image parameter(s): imageRegistry
@@ -924,6 +927,17 @@ dataJob:
       # In case of negative number it will be subtracted from the {{end_time}}.
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
+  deployment:
+    initContainer:
+      ## Resources set on Data Job initContainer
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+        requests:
+          cpu: 100m
+          memory: 100Mi
+
   # configuration for the fluentd data collector (https://github.com/vmware/kube-fluentd-operator),
   # which is currently used for collecting Data Job logs;
   # filter and match refer to the fluentd config directives, see here https://docs.fluentd.org/configuration/config-file;

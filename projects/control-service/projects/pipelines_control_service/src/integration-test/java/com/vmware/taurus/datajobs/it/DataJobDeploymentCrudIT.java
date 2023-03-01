@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,6 +28,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.format.DateTimeFormatter;
@@ -42,6 +43,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
+@TestPropertySource(
+    properties = {
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+    })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
@@ -92,7 +97,8 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
     // Take the job zip as byte array
     byte[] jobZipBinary =
-        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("simple_job.zip"));
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     // Execute job upload with no user
     mockMvc
@@ -376,7 +382,8 @@ public class DataJobDeploymentCrudIT extends BaseIT {
   @Test
   public void testDataJobDeleteSource() throws Exception {
     byte[] jobZipBinary =
-        IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("simple_job.zip"));
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     mockMvc
         .perform(

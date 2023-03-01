@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,6 +11,7 @@ import com.vmware.taurus.service.graphql.model.V2DataJob;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import java.util.Comparator;
 import java.util.function.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,6 @@ public class JobFieldStrategyByName extends FieldStrategy<V2DataJob> {
 
   @Override
   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
-    return dataJob -> checkMatch(dataJob.getJobName(), searchStr);
+    return dataJob -> StringUtils.containsIgnoreCase(dataJob.getJobName(), searchStr);
   }
 }

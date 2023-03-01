@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -57,12 +57,12 @@ public class KerberosCredentialsRepository implements CredentialsRepository {
       ProcessExecutor executor = new ProcessExecutor();
       executor.readOutput(true);
       ProcessResult result = executor.command("/bin/sh", "-c", "which kadmin").execute();
-      if (result.getExitValue() != 0) {
+      if (result == null || result.getExitValue() != 0) {
         log.error(
             "Missing required dependencies. "
                 + " kadmin are missing or are not found on PATH."
                 + "Possible reason: "
-                + result.getOutput().getUTF8()
+                + (result != null ? result.getOutput().getUTF8() : "")
                 + "Without those credential management will not work. ");
       }
       var krbConf = System.getenv().getOrDefault("KRB5_CONFIG", "/etc/krb5.conf");

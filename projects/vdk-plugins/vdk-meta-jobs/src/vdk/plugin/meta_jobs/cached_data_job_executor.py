@@ -1,11 +1,13 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
 import os
 import time
 from typing import Dict
+from typing import Optional
 
+import urllib3.exceptions as url_exception
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.meta import IDataJobExecutor
@@ -15,6 +17,8 @@ from vdk.plugin.meta_jobs.remote_data_job import JobStatus
 log = logging.getLogger(__name__)
 
 ACTIVE_JOB_STATUSES = [JobStatus.SUBMITTED.value, JobStatus.RUNNING.value]
+SLEEP_TIME = 10
+ALLOWED_RETRIES = 3
 
 
 class TrackingDataJobExecutor:
@@ -39,7 +43,9 @@ class TrackingDataJobExecutor:
         """
         job = self.__get_job(job_name)
         job.start_attempt += 1
-        execution_id = self._executor.start_job(job.job_name, job.team_name)
+        execution_id = self.start_new_job_execution(
+            job_name=job.job_name, team_name=job.team_name
+        )
         log.info(f"Starting new data job execution with id {execution_id}")
         job.execution_id = execution_id
         job.status = JobStatus.SUBMITTED.value
@@ -85,6 +91,7 @@ class TrackingDataJobExecutor:
         if job is None:
             raise IndexError(
                 f"The job {job_name} has not been registered. Use register_job first. "
+                "Alternatively, verify that all of the job names in your job list are spelled correctly."
             )
         return job
 
@@ -127,3 +134,76 @@ class TrackingDataJobExecutor:
 
     def get_currently_running_jobs(self):
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
+
+    def start_new_job_execution(self, job_name: str, team_name: str) -> str:
+        """
+        Start a new data job execution.
+        The stages of the process are:
+            1) Get the latest available execution_id before any new
+               executions have been started.
+            2) Start a new execution.
+            3) In case of a Timeout exception, check if a new execution
+               has been started and re-try step 2 if needed.
+
+        NOTE: A loop is used to handle situations, where due to some
+        network instability, a socket timeout happens. The execution of
+        the data job may have started, but we don't know because an execution
+        id was not returned due to the exception.
+
+        :param job_name: name of the data job to be executed
+        :param team_name: name of the owning team
+        :return: id of the started job execution
+        """
+        current_retries = 0
+        execution_id = None
+
+        latest_available_execution_id = self.get_latest_available_execution_id(
+            job_name=job_name, team=team_name
+        )
+
+        while current_retries < ALLOWED_RETRIES:
+            try:
+                execution_id = self._executor.start_job(job_name, team_name)
+                return execution_id
+            except url_exception.TimeoutError as e:
+                log.info(
+                    f"A timeout exception occurred while starting the {job_name} data job. "
+                    f"Exception was: {e}"
+                )
+
+                execution_id = self.get_latest_available_execution_id(
+                    job_name=job_name, team=team_name
+                )
+                if execution_id and execution_id != latest_available_execution_id:
+                    return execution_id
+                else:
+                    current_retries += 1
+                    time.sleep(SLEEP_TIME)  # Sleep for 10 seconds before re-try.
+
+        # If the execution reaches this point, then something has happened,
+        # and the state of the data job that has been started cannot be determined.
+        raise RuntimeError(
+            "Bug, fix me! Something wrong has happened and I cannot recover!"
+        )
+
+    def get_latest_available_execution_id(
+        self, job_name: str, team: str
+    ) -> Optional[str]:
+        """
+        Get the latest execution_id from the list of all executions for a
+        given data job.
+
+        :param job_name: name of data job for which an execution_id is needed
+        :param team: name of the team owning the data job
+        :return: The execution_id of the latest job execution or None if no
+                 executions are available.
+        """
+        latest_execution_id = None
+        executions_list = self._executor.job_executions_list(
+            job_name=job_name, team_name=team
+        )
+
+        if executions_list:
+            # We need only the latest execution which is the last element of the list
+            latest_execution_id = executions_list[-1].id
+        return latest_execution_id

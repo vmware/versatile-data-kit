@@ -1,0 +1,22 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@import "variables.scss";
+
+.widget {
+    position: relative;
+    height: 100%;
+
+    .widget-section-container {
+        padding: 1.2rem;
+        height: 100%;
+        border-radius: 0.2rem;
+        border: none;
+        box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.1),
+            0 3px 5px 0 rgba(0, 0, 0, 0.09);
+        position: relative;
+        overflow: hidden;
+    }
+}

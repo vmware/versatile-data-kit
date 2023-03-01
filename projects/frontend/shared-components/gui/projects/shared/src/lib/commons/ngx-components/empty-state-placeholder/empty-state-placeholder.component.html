@@ -1,0 +1,23 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<cds-icon *ngIf="icon" [attr.shape]="icon" size="64"></cds-icon>
+
+<ng-content select="img"></ng-content>
+<ng-content select="ng-lottie"></ng-content>
+
+<div
+	[attr.aria-level]="headingLevel"
+	class="empty-placeholder-heading"
+	role="heading"
+>
+	{{title}}
+</div>
+
+<div *ngIf="description" class="empty-placeholder-description">
+	{{description}}
+</div>
+
+<ng-content select="button"></ng-content>

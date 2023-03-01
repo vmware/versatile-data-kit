@@ -76,7 +76,7 @@ For the proposed design, a vdk-jobs-troubleshooting plugin will be introduced. T
 
 -----
 
-No changes to the public API.
+There would be no changes to the API used by Data Job developers. The jobs troubleshooting plugin would have its own API, which would be used by developers that want to create data job troubleshooting utilities and which would be independent of the APIs of other major Versatile Data Kit components like vdk-core. For more details, check the [Detailed design](#detailed-design) section below.
 
 
 ## Detailed design
@@ -84,16 +84,37 @@ No changes to the public API.
 -----
 
 ### vdk-jobs-troubleshooting Plugin
-The plugin will act as a toolbox, where data job troubleshooting tools will be implemented. As part of this proposal, only a thread-dump utility will be implemented. It will start a local web server, which will attach to port 8080 and, depending on configuration, will allow for the dump to be logged as part of normal logging processes, or a user can do port-forwarding to the data job pod and examine the contents of the thread data.
+The plugin will act as a toolbox, where data job troubleshooting tools will be implemented. As part of this proposal, only a thread-dump utility will be implemented. It will start a local web server, which will attach itself to a free port and, depending on configuration, will allow administrators to do port-forwarding to the data job pod and trigger a thread dump. The contents of the dump would be logged and would be available for examination.
 
 ![plugin_details.png](diagrams/plugin_details.png)
 
+In this context, the term "utility" refers to python classes that inherit from a base `ITroubleshootUtility` class and contain logic which is to be used for troubleshooting of deployed data jobs. All troubleshoot utility classes would need to implement two methods from the parent class, `start()` and `stop()`.
+
+The `start()` method of the utility should start the execution of the said utility, and would be called when the data job is initialized, while the `stop()` method would be called at the end of the data job execution and would need to implement everything that's needed for the clean termination of the utility.
+
+![utility_class_diagram](diagrams/utility_class_diagram.png)
+
 The main configuration variable for this plugin would be:
-* VDK_TROUBLESHOOT_UTILITIES_TO_USE, which will accept a comma-separated list of string literals with the troubleshooting utilities that will be used, e.g., `"utility1,utility2,..."`.
+* __VDK_TROUBLESHOOT_UTILITIES_TO_USE__ - which will accept a comma-separated list of string literals with the troubleshooting utilities that will be used, e.g., `"utility1,utility2,..."`.
+
+Another configuration variable that would be used the thread dump utility would be:
+* __VDK_TROUBLESHOOT_PORT_TO_USE__ - which would specify the internal port to be used by the local http server. This port can then be accessed by administrators through port-forwarding.
+
+### HTTP Server
+The HTTP server would be started by the vdk-jobs-troubleshooting plugin as a stand-alone process. As for the purpose of the thread dump utility, the server would accept only simple GET requests, the [HTTPServer](https://docs.python.org/3/library/http.server.html#http.server.HTTPServer) from the python standard library would be used.
+
+When the server is started, it would search for a free port on the localhost, and bind itself to it, sending a log message which port is to be accessed by the administrator.
+
+As mentioned in the [Security and Permissions](#security-and-permissions) section below, the server would NOT be accessible outside the kubernetes pod, and only administrators with access to the kubernetes cluster would be able to use it.
+
+In case future troubleshooting utilities are to use the server, the developers of the utilities could do that by implementing a custom request handler. This can be done by inheriting from python's built-in [BaseHTTPRequestHandler](https://docs.python.org/3/library/http.server.html#http.server.BaseHTTPRequestHandler) and passing the handler to the server object.
 
 
 ### Availability
 The plugin will be part of the vdk installation, so the same availability constraints apply. The http server will be running in a separate process, but it will still be available as long as the data job pod is running. In case of issues with the logging service, the http server would still be able to log the thread-dump locally in the data job pod.
+
+### Test Plan
+Unit and functional tests would be introduced as part the jobs troubleshooting plugin.
 
 ### Security and Permissions
 As the http server will run locally within the data job pod, no ports would be exposed externally. This means that only users who have the necessary permissions to connect to the kubernetes cluster would be able to connect to the server itself.

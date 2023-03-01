@@ -1,9 +1,19 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 .control_service_retry:
   retry_options:
     max: 1
     when:
       - always
 
+.images:dind:
+  image: docker:20.10.22
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+  services:
+    - docker:20.10.22-dind
 
 # This grouping listens on changes to all code of control service
 # Changes to this group should trigger runs of runs of unit and integration tests.
@@ -22,24 +32,20 @@
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
-  image: docker:19.03.15
+  image: docker:20.10.22
   variables:
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
-    - apk --no-cache add git zip openjdk11-jdk curl zip python3 py3-pip  --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-    - pip3 install --upgrade pip && pip3 install awscli
+    - apk --no-cache add openjdk17-jdk git zip curl zip py-pip
+    - pip install --upgrade pip && pip install awscli
 
 control_service_build_image:
-  extends: .control_service_base_build
-  services:
-    - docker:19.03.15-dind
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+  extends:
+    - .control_service_base_build
+    - .images:dind
   stage: build
   script:
-    - apk --no-cache add git openjdk11-jdk --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    - apk --no-cache add git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
@@ -57,7 +63,6 @@ control_service_build_image:
   only:
     refs:
       - external_pull_requests
-      - main
     changes: *control_service_code_change_locations
 
 control_service_integration_test:
@@ -95,7 +100,6 @@ control_service_integration_test:
   only:
     refs:
       - external_pull_requests
-      - main
     changes: *control_service_code_change_locations
   except:
     changes:
@@ -104,7 +108,7 @@ control_service_integration_test:
 control_service_test_helm_chart:
   stage: build
   script:
-    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - cd projects/control-service/projects/helm_charts/pipelines-control-service
     - helm dependency update
@@ -119,12 +123,11 @@ control_service_test_helm_chart:
 
 control_service_publish_job_base_image:
   image: docker:19.03.15
-  services:
-    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:19.03.15-dind
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
@@ -133,25 +136,49 @@ control_service_publish_job_base_image:
     - export VERSION_TAG="1.$CI_PIPELINE_ID"
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-      - external_pull_requests
-    changes:
-      - projects/control-service/projects/job-base-image/**/*
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image/**/*
 
-
-control_service_publish_job_builder_image:
+control_service_publish_job_base_image-secure:
   image: docker:19.03.15
-  services:
-    - docker:19.03.15-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:19.03.15-dind
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/job-base-image-secure
+    - export VERSION_TAG="1.$CI_PIPELINE_ID"
+    # Make the docker-slim tool available to the CI job
+    - >
+        apk add -u curl
+        && curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/1.37.3/dist_linux.tar.gz
+        && tar -xvf ds.tar.gz
+        && mv dist_linux/docker-slim /usr/local/bin/
+        && mv dist_linux/docker-slim-sensor /usr/local/bin/
+    - bash -ex ./publish-job-base.sh
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image-secure/**/*
+
+control_service_publish_job_builder_image:
+  image: docker:19.03.15
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_DRIVER: overlay2
+  services:
+    - docker:19.03.15-dind
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
@@ -159,14 +186,12 @@ control_service_publish_job_builder_image:
     - cd projects/control-service/projects/job-builder
     - bash -ex ./publish-vdk-job-builder.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes:
-      - projects/control-service/projects/job-builder/version.txt
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-builder/version.txt
 
 
 control_service_publish_job_builder_secure_image:
@@ -176,27 +201,25 @@ control_service_publish_job_builder_secure_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
     - bash -ex ./publish-vdk-job-builder-secure.sh
-  only:
-    changes:
-      - projects/control-service/projects/job-builder-secure/version.txt
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-builder-secure/version.txt
 
 
 control_service_publish_image:
-  image: docker:19.03.15
-  services:
-    - docker:19.03.15-dind
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+  extends: .images:dind
   stage: publish_artifacts
   script:
-    - apk add --no-cache git openjdk11-jdk
+    - apk add --no-cache git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - docker login -u $VDK_DOCKER_REGISTRY_USERNAME -p $VDK_DOCKER_REGISTRY_PASSWORD
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
-    - ./gradlew build --info --stacktrace
+    - ./gradlew build -x test --info --stacktrace
     - ./gradlew :pipelines_control_service:dockerPush --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
@@ -204,6 +227,8 @@ control_service_publish_image:
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
       when: never
@@ -213,10 +238,10 @@ control_service_publish_image:
       changes: *control_service_helm_change_locations
 
 control_service_publish_api_client:
-  image: docker:19.03.15
+  image: docker:20.10.22
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip openjdk11-jdk git python
+    - apk add --no-cache py-pip openjdk17-jdk git python
     - pip install -U pip setuptools wheel twine
     - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
     - cd projects/control-service/projects/model/apidefs/datajob-api/build
@@ -224,25 +249,23 @@ control_service_publish_api_client:
     - python setup.py sdist --formats=gztar
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - main
-    changes:
-      - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
-  except:
-    changes:
-      - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
 # Go to the namespace -> StorageClass
 control_service_deploy_testing_data_pipelines:
   stage: pre_release
-  image: proum/aws-iam-authenticator
+  image: docker:20.10.22
   script:
-    - apk --no-cache add bash openssl curl git gettext zip python3 py3-pip
-    - pip3 install --upgrade pip && pip3 install awscli
-    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - apk --no-cache add bash openssl curl git gettext zip py-pip
+    - pip install --upgrade pip && pip install awscli
+    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
@@ -278,12 +301,12 @@ control_service_post_deployment_test:
       changes: *control_service_helm_change_locations
 
 control_service_release:
-  image: docker:19.03.15
+  image: docker:20.10.22
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
     - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-    - export DESIRED_VERSION=v3.6.3 # helm version 3.6.3
+    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -293,12 +316,15 @@ control_service_release:
     - bash -ex ../../cicd/release-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_helm_change_locations
 
 # TODO: automatically rebuild image on vdk-heartbeat change
+# We are using an old version of docker here because we get error on the newest version which at the time was tag=20.10.22
 control_service_vdk_heartbeat_release:
   image: docker:19.03.15
   services:
@@ -319,6 +345,8 @@ control_service_vdk_heartbeat_release:
     - docker push $VDK_HEARTBEAT_IMAGE_NAME
   retry: !reference [.control_service_retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'

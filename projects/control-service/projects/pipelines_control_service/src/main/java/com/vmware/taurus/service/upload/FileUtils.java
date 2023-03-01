@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -100,14 +100,17 @@ public class FileUtils {
     File jobZipFile = new File(tempDir, "job_zip.zip");
     File jobTempDir = new File(tempDir, "job_dir");
     org.apache.commons.io.FileUtils.copyInputStreamToFile(resource.getInputStream(), jobZipFile);
-    new ZipFile(jobZipFile).extractAll(jobTempDir.getAbsolutePath());
+    try (ZipFile theZipFile = new ZipFile(jobZipFile)) {
+      theZipFile.extractAll(jobTempDir.getAbsolutePath());
+    }
     List<Path> paths = Files.list(jobTempDir.toPath()).collect(Collectors.toList());
     return paths.get(0).toFile();
   }
 
   public static void zipDataJob(File fromDataJobDirectory, File intoNewZipFile) throws IOException {
-    ZipFile theZipFile = new ZipFile(intoNewZipFile);
-    theZipFile.addFolder(fromDataJobDirectory);
+    try (ZipFile theZipFile = new ZipFile(intoNewZipFile)) {
+      theZipFile.addFolder(fromDataJobDirectory);
+    }
   }
 
   public static File renameFile(String oldPath, String newPath) throws IOException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -48,13 +48,13 @@ public class JobExecutionResultManager {
    */
   public static ExecutionResult getResult(KubernetesService.JobExecution jobExecution) {
     PodTerminationMessage podTerminationMessage =
-        parsePodTerminationMessage(jobExecution.getPodTerminationMessage());
+        parsePodTerminationMessage(jobExecution.getMainContainerTerminationMessage());
     ExecutionStatus executionStatus =
         getExecutionStatus(
             jobExecution.getSucceeded(),
             podTerminationMessage.getStatus(),
             jobExecution.getJobTerminationReason(),
-            jobExecution.getContainerTerminationReason(),
+            jobExecution.getMainContainerTerminationReason(),
             jobExecution.getStartTime());
 
     return ExecutionResult.builder()
@@ -78,12 +78,12 @@ public class JobExecutionResultManager {
    * </ul>
    *
    * @param executionSucceeded K8s Job status (true - succeeded, false - failed, null - running)
-   * @param podTerminationStatus termination status returned from K8S Pod (e.g. "Success", "User
-   *     error", etc.)
+   * @param mainContainerTerminationMessage termination status returned from K8S Pod (e.g.
+   *     "Success", "User error", etc.)
    * @param jobTerminationReason condition reason as reported by K8s Job (e.g. "DeadlineExceeded",
    *     "BackoffLimitExceeded", etc.)
-   * @param containerTerminationReason termination reason for pod container as returned by K8s pod
-   *     container (e.g., "OOMKilled", etc.)
+   * @param mainContainerTerminationReason termination reason for pod container as returned by K8s
+   *     pod container (e.g., "OOMKilled", etc.)
    * @param executionStarTime K8S Job execution start time
    * @return if there is no termination message due to the missing K8S Pod returns execution status
    *     based on K8S Job status otherwise returns execution status based on the K8S Pod termination
@@ -91,9 +91,9 @@ public class JobExecutionResultManager {
    */
   private static ExecutionStatus getExecutionStatus(
       Boolean executionSucceeded,
-      String podTerminationStatus,
+      String mainContainerTerminationMessage,
       String jobTerminationReason,
-      String containerTerminationReason,
+      String mainContainerTerminationReason,
       OffsetDateTime executionStarTime) {
 
     ExecutionStatus executionStatus;
@@ -101,14 +101,14 @@ public class JobExecutionResultManager {
     if (executionSucceeded == null) {
       executionStatus =
           executionStarTime == null ? ExecutionStatus.SUBMITTED : ExecutionStatus.RUNNING;
-    } else if (executionSucceeded && StringUtils.isEmpty(podTerminationStatus)) {
+    } else if (executionSucceeded && StringUtils.isEmpty(mainContainerTerminationMessage)) {
       executionStatus = ExecutionStatus.SUCCEEDED;
-    } else if (!executionSucceeded && StringUtils.isEmpty(podTerminationStatus)) {
-      executionStatus = inferError(jobTerminationReason, containerTerminationReason);
+    } else if (!executionSucceeded && StringUtils.isEmpty(mainContainerTerminationMessage)) {
+      executionStatus = inferError(jobTerminationReason, mainContainerTerminationReason);
     } else {
       executionStatus =
           Arrays.stream(ExecutionStatus.values())
-              .filter(status -> status.getPodStatus().equals(podTerminationStatus))
+              .filter(status -> status.getPodStatus().equals(mainContainerTerminationMessage))
               .findAny()
               .orElse(ExecutionStatus.PLATFORM_ERROR);
     }
@@ -147,17 +147,19 @@ public class JobExecutionResultManager {
    * @return returns parsed termination message
    */
   private static PodTerminationMessage parsePodTerminationMessage(String podTerminationMessage) {
-    String status = "";
+    String status = StringUtils.isEmpty(podTerminationMessage) ? "" : podTerminationMessage;
     String vdkVersion = "";
 
     if (!StringUtils.isEmpty(podTerminationMessage)) {
       try {
         Map<String, String> obj = new Gson().fromJson(podTerminationMessage, Map.class);
-        status = obj.get(TERMINATION_MESSAGE_ATTRIBUTE_STATUS);
-        vdkVersion = obj.getOrDefault(TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, "");
+        if (obj != null) {
+          status = obj.get(TERMINATION_MESSAGE_ATTRIBUTE_STATUS);
+          vdkVersion = obj.getOrDefault(TERMINATION_MESSAGE_ATTRIBUTE_VDK_VERSION, "");
+        }
       } catch (com.google.gson.JsonSyntaxException ex) {
         // Fallback to the old plain text format
-        status = podTerminationMessage;
+        log.debug("Unable to parse podTerminationMessage");
       }
     }
 

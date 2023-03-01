@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,14 +11,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.vmware.taurus.datajobs.it.common.BaseDataJobDeploymentIT;
 import com.vmware.taurus.service.JobExecutionRepository;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
@@ -26,11 +31,17 @@ import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 
-public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT {
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
+public class GraphQLJobExecutionsSortByEndTimeIT extends BaseIT {
 
   @Autowired JobExecutionRepository jobExecutionRepository;
 
   @Autowired JobsRepository jobsRepository;
+
+  @RegisterExtension
+  static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @BeforeEach
   public void cleanup() {
@@ -95,7 +106,7 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTime.toString()));
+                .value(roundDateTimeToMicros(expectedEndTime)));
   }
 
   @Test
@@ -120,11 +131,11 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId2))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTimeSmaller.toString()))
+                .value(roundDateTimeToMicros(expectedEndTimeSmaller)))
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].id").value(expectedId1))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[1].endTime")
-                .value(expectedEndTimeLarger.toString()));
+                .value(roundDateTimeToMicros(expectedEndTimeLarger)));
   }
 
   @Test
@@ -149,11 +160,11 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[0].id").value(expectedId1))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[0].endTime")
-                .value(expectedEndTimeLarger.toString()))
+                .value(roundDateTimeToMicros(expectedEndTimeLarger)))
         .andExpect(jsonPath("$.data.content[0].deployments[0].executions[1].id").value(expectedId2))
         .andExpect(
             jsonPath("$.data.content[0].deployments[0].executions[1].endTime")
-                .value(expectedEndTimeSmaller.toString()));
+                .value(roundDateTimeToMicros(expectedEndTimeSmaller)));
   }
 
   @Test
@@ -199,5 +210,9 @@ public class GraphQLJobExecutionsSortByEndTimeIT extends BaseDataJobDeploymentIT
             .build();
 
     jobExecutionRepository.save(jobExecution);
+  }
+
+  private static String roundDateTimeToMicros(OffsetDateTime dateTime) {
+    return dateTime.plusNanos(500).truncatedTo(ChronoUnit.MICROS).toString();
   }
 }

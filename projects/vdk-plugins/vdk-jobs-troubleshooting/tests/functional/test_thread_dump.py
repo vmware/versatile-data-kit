@@ -1,9 +1,10 @@
-# Copyright 2021 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-# Copyright 2023 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
+from http.server import HTTPServer
+from http.server import SimpleHTTPRequestHandler
+from threading import Thread
 from unittest import mock
 
 from click.testing import Result
@@ -19,7 +20,7 @@ def job_path(job_name: str):
     )
 
 
-def test_http_ingestion():
+def test_thread_dump():
     with mock.patch.dict(
         os.environ,
         {
@@ -33,3 +34,29 @@ def test_http_ingestion():
         result: Result = runner.invoke(["run", job_path("request-thread-dump")])
         cli_assert_equal(0, result)
         assert "Dumping threads stacks" in result.stdout
+
+
+def test_thread_dump_used_port():
+    port = 8783
+    server = HTTPServer(("", port), SimpleHTTPRequestHandler)
+    thread = Thread(target=server.serve_forever)
+
+    try:
+        thread.start()
+        with mock.patch.dict(
+            os.environ,
+            {
+                "VDK_TROUBLESHOOT_UTILITIES_TO_USE": "thread-dump",
+                "VDK_PORT_TO_USE": f"{port}",
+            },
+        ):
+            # create table first, as the ingestion fails otherwise
+            runner = CliEntryBasedTestRunner(jobs_troubleshoot_plugin)
+
+            result: Result = runner.invoke(["run", job_path("request-thread-dump")])
+            cli_assert_equal(0, result)
+            assert "Dumping threads stacks" in result.stdout
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()

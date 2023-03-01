@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import unittest
@@ -49,16 +49,8 @@ class JupyterTests(unittest.TestCase):
         )
         cli_assert_equal(2, result)
 
-    def test_successful_job_with_multiple_run_methods(self) -> None:
+    def test_failing_job_with_sql_error(self) -> None:
         result: Result = self.__runner.invoke(
-            ["run", jobs_path_from_caller_directory("rest-api-multiple-run-methods")]
+            ["run", jobs_path_from_caller_directory("rest-api-job-sql-error")]
         )
-        cli_assert_equal(0, result)
-        actual_rs: Result = self.__runner.invoke(
-            ["sqlite-query", "--query", "SELECT * FROM rest_target_table_copy"]
-        )
-        assert actual_rs.stdout == (
-            "  userId    id  title                 completed\n"
-            "--------  ----  ------------------  -----------\n"
-            "       1     1  delectus aut autem            0\n"
-        )
+        cli_assert_equal(1, result)

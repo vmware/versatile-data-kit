@@ -1,0 +1,36 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<vdk-toast-container class="toast-container">
+	<vdk-toast
+		*ngFor="let toast of toasts; let i = index; trackBy: trackByRendering"
+		[type]="toast.type"
+		[timeoutSeconds]="getTimeout(toast)"
+		[primaryButtonText]="getCopyToClipboardBtnText(toast)"
+		[secondaryButtonText]="getExpandBtnText(toast, i)"
+		(dismissed)="removeToast(i)"
+		(primaryButtonClick)="copyToClipboard(toast)"
+		(secondaryButtonClick)="toggleToastExpandDetails(i)"
+	>
+		<div class="toast-title">{{toast.title}}</div>
+
+		<p class="toast-description">{{toast.description}}</p>
+		<p
+			*ngIf="isToastExpanded(i) && toast.error?.consequences"
+			class="toast-description"
+		>
+			<strong>consequences:</strong> {{toast.error?.consequences}}
+		</p>
+		<p
+			*ngIf="isToastExpanded(i) && toast.error?.countermeasures"
+			class="toast-description"
+		>
+			<strong>countermeasures:</strong> {{toast.error?.countermeasures}}
+		</p>
+		<p *ngIf="isReportRecommendationVisible(toast,i)" class="toast-description">
+			Please copy the details and report the error.
+		</p>
+	</vdk-toast>
+</vdk-toast-container>

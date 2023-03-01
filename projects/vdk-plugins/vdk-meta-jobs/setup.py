@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -23,6 +23,7 @@ setuptools.setup(
         "vdk-control-api-auth",
         "vdk-plugin-control-cli",
         "vdk-control-service-api",
+        "urllib3",
     ],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),

@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 image: "python:3.7"
@@ -110,3 +110,6 @@ release-vdk-image-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never

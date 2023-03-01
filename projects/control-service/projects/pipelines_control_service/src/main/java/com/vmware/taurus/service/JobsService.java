@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -138,10 +138,11 @@ public class JobsService {
    * @return if the job existed
    */
   public boolean updateJob(DataJob jobInfo) {
-    var dataJob =
-        jobsRepository.existsById(jobInfo.getName()) ? jobsRepository.save(jobInfo) : null;
-    dataJobMetrics.updateInfoGauges(dataJob);
-    return dataJob != null;
+    if (jobsRepository.existsById(jobInfo.getName())) {
+      dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
+      return true;
+    }
+    return false;
   }
 
   /**

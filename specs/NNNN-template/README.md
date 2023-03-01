@@ -4,11 +4,6 @@
 * **Author(s):** Name (mail), ...
 * **Status:** draft | implementable | implemented | rejected | withdrawn | replaced
 
-<!--
-**Note:** Any PRs to move a VEP to `implementable`, or significant changes once
-it is marked `implementable`, must be approved by at least 2 maintainers .
-
--->
 
 To get started with this template:
 

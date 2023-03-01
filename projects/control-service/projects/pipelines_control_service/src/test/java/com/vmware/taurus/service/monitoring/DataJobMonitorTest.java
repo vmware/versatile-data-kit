@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -405,7 +406,7 @@ public class DataJobMonitorTest {
         JobExecution.builder()
             .jobName(jobExecutionBeforeUpdate.getDataJob().getName())
             .executionId(jobExecutionBeforeUpdate.getId())
-            .podTerminationMessage(ExecutionStatus.SUCCEEDED.getPodStatus())
+            .mainContainerTerminationMessage(ExecutionStatus.SUCCEEDED.getPodStatus())
             .executionType("scheduled")
             .opId("opId")
             .startTime(jobExecutionBeforeUpdate.getStartTime())
@@ -843,8 +844,8 @@ public class DataJobMonitorTest {
         executionId,
         terminationMessage,
         executionSucceeded,
-        OffsetDateTime.now(),
-        OffsetDateTime.now());
+        getTimeAccurateToMicroSecond(),
+        getTimeAccurateToMicroSecond());
   }
 
   private static JobExecution buildJobExecutionStatus(
@@ -857,7 +858,7 @@ public class DataJobMonitorTest {
     return JobExecution.builder()
         .jobName(jobName)
         .executionId(executionId)
-        .podTerminationMessage(terminationMessage)
+        .mainContainerTerminationMessage(terminationMessage)
         .executionType("scheduled")
         .opId("opId")
         .startTime(startTime)
@@ -868,7 +869,7 @@ public class DataJobMonitorTest {
         .resourcesCpuLimit(2F)
         .resourcesMemoryRequest(500)
         .resourcesMemoryLimit(1000)
-        .deployedDate(OffsetDateTime.now())
+        .deployedDate(getTimeAccurateToMicroSecond())
         .deployedBy("lastDeployedBy")
         .succeeded(executionSucceeded)
         .build();
@@ -922,7 +923,7 @@ public class DataJobMonitorTest {
         actualDataJobExecution.getResourcesMemoryLimit());
     Assertions.assertEquals(
         expectedExecutionMessage == null
-            ? expectedJobExecution.getPodTerminationMessage()
+            ? expectedJobExecution.getMainContainerTerminationMessage()
             : expectedExecutionMessage,
         actualDataJobExecution.getMessage());
     Assertions.assertEquals(

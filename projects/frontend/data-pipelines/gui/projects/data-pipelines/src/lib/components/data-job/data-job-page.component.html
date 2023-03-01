@@ -1,0 +1,237 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<!-- eslint-disable @angular-eslint/template/no-call-expression -->
+
+<div
+    id="data-job-page"
+    class="page-container data-pipelines-job__page"
+    data-cy="data-pipelines-job-page"
+>
+    <div
+        class="data-pipelines-job__actions"
+        [ngClass]="{
+            'data-pipelines-job__actions--margin-0': !isSubpageNavigation
+        }"
+    >
+        <div class="data-pipelines-job__actions-left">
+            <div
+                *ngIf="isSubpageNavigation; else rootPageNavigation"
+                class="data-pipelines-job__subpage-navigation"
+            >
+                <h2
+                    class="m-0 page-title"
+                    data-cy="data-pipelines-job-main-title"
+                >
+                    <a
+                        class="label-link data-pipelines-job__navigate-back"
+                        href="javascript:;"
+                        data-cy="data-pipelines-job-navigate-back"
+                        (click)="doNavigateBack($event)"
+                    >
+                        <clr-icon
+                            shape="redo"
+                            flip="horizontal"
+                            class="redo-icon"
+                            size="25"
+                            role="none"
+                        ></clr-icon>
+                    </a>
+                    <span data-cy="dp-main-title"
+                        ><strong>Data Job:</strong> {{ jobName }}</span
+                    >
+                </h2>
+            </div>
+            <ng-template #rootPageNavigation>
+                <div class="data-pipelines-job__root-page-navigation">
+                    <h1
+                        class="m-0 page-title"
+                        data-cy="data-pipelines-job-main-title"
+                    >
+                        <a
+                            class="label-link data-pipelines-job__navigate-back"
+                            href="javascript:;"
+                            data-cy="data-pipelines-job-navigate-back"
+                            (click)="doNavigateBack($event)"
+                        >
+                            <clr-icon
+                                shape="redo"
+                                flip="horizontal"
+                                class="redo-icon"
+                                size="25"
+                                role="none"
+                            ></clr-icon>
+                        </a>
+                        <span>Data Job: {{ jobName }}</span>
+                    </h1>
+                </div>
+            </ng-template>
+        </div>
+
+        <div *ngIf="isJobEditable" class="data-pipelines-job__actions-right">
+            <button
+                *ngIf="isDataJobRunning && isJobWithRunningStatus()"
+                class="btn btn-secondary"
+                data-cy="data-pipelines-job-cancel-execution-btn"
+                [clrLoading]="stopButtonsState"
+                [disabled]="cancelDataJobDisabled"
+                (click)="cancelExecution()"
+            >
+                Cancel Execution
+            </button>
+            <button
+                *ngIf="
+                    isJobAvailable && isExecuteJobAllowed && !isDataJobRunning
+                "
+                class="btn btn-secondary"
+                data-cy="data-pipelines-job-execute-btn"
+                aria-label="Execute now"
+                [disabled]="
+                    !areJobExecutionsLoaded ||
+                    loadingInProgress ||
+                    isExecutionInProgress()
+                "
+                [clrLoading]="executeButtonsState"
+                (click)="executeJob()"
+            >
+                Execute
+            </button>
+
+            <clr-dropdown>
+                <button
+                    clrDropdownTrigger
+                    class="btn btn-secondary data-pipelines-job__action-dropdown-trigger"
+                    data-cy="data-pipelines-job-action-dropdown-btn"
+                >
+                    Actions
+                    <clr-icon
+                        title="Actions"
+                        shape="caret"
+                        [attr.size]="15"
+                    ></clr-icon>
+                </button>
+
+                <clr-dropdown-menu clrPosition="bottom-right">
+                    <button
+                        *ngIf="isJobAvailable && isDownloadJobKeyAllowed"
+                        clrDropdownItem
+                        class="btn btn-secondary"
+                        aria-label="Download Key"
+                        data-cy="data-pipelines-job-download-btn"
+                        [disabled]="loadingInProgress"
+                        [clrLoading]="downloadButtonsState"
+                        (click)="downloadJobKey()"
+                    >
+                        Download key
+                    </button>
+
+                    <button
+                        *ngIf="isJobAvailable"
+                        clrDropdownItem
+                        class="btn btn-secondary"
+                        aria-label="Delete Job"
+                        data-cy="data-pipelines-job-delete-btn"
+                        [disabled]="
+                            !areJobExecutionsLoaded ||
+                            loadingInProgress ||
+                            isExecutionInProgress()
+                        "
+                        [clrLoading]="deleteButtonsState"
+                        (click)="removeJob()"
+                    >
+                        Delete
+                    </button>
+                </clr-dropdown-menu>
+            </clr-dropdown>
+        </div>
+
+        <lib-delete-modal
+            [options]="deleteOptions"
+            (delete)="confirmRemoveJob()"
+        ></lib-delete-modal>
+
+        <lib-confirmation-dialog-modal
+            [options]="executeNowOptions"
+            (changeStatus)="confirmExecuteJob()"
+        ></lib-confirmation-dialog-modal>
+
+        <lib-confirmation-dialog-modal
+            [options]="cancelNowOptions"
+            (changeStatus)="confirmCancelDataJob()"
+        ></lib-confirmation-dialog-modal>
+    </div>
+
+    <ul
+        class="nav data-pipelines-job__tabs-navigation"
+        role="tablist"
+        aria-owns="dataPipelinesJobDetails dataPipelinesJobExecutions dataPipelinesJobLineage"
+    >
+        <li role="presentation" class="nav-item">
+            <a
+                id="dataPipelinesJobDetails"
+                class="nav-link"
+                role="tab"
+                aria-hidden="false"
+                data-cy="data-pipelines-job-details-tab"
+                [attr.aria-selected]="detailsLink.isActive"
+                [routerLink]="['details']"
+                [queryParams]="queryParams"
+                routerLinkActive="active"
+                #detailsLink="routerLinkActive"
+                >Details</a
+            >
+        </li>
+        <li
+            *ngIf="
+                dataPipelinesModuleConfig.showExecutionsPage && isJobEditable
+            "
+            role="presentation"
+            class="nav-item"
+        >
+            <a
+                id="dataPipelinesJobExecutions"
+                class="nav-link"
+                role="tab"
+                aria-hidden="false"
+                data-cy="data-pipelines-job-executions-tab"
+                [attr.aria-selected]="executionsLink.isActive"
+                [routerLink]="['executions']"
+                [queryParams]="queryParams"
+                routerLinkActive="active"
+                #executionsLink="routerLinkActive"
+                >Executions
+                <clr-icon
+                    class="job-details__promotion-icon is-solid is-info"
+                    shape="new"
+                    size="28"
+                ></clr-icon>
+            </a>
+        </li>
+        <li
+            *ngIf="dataPipelinesModuleConfig.showLineagePage"
+            role="presentation"
+            class="nav-item"
+        >
+            <a
+                id="dataPipelinesJobLineage"
+                class="nav-link"
+                role="tab"
+                aria-hidden="false"
+                data-cy="data-pipelines-job-lineage-tab"
+                [attr.aria-selected]="lineage.isActive"
+                [routerLink]="['lineage']"
+                [queryParams]="queryParams"
+                routerLinkActive="active"
+                #lineage="routerLinkActive"
+                >Lineage
+                <span class="alpha-icon badge badge-info">Alpha</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="data-pipelines-job__router-outlet-container">
+        <router-outlet></router-outlet>
+    </div>
+</div>

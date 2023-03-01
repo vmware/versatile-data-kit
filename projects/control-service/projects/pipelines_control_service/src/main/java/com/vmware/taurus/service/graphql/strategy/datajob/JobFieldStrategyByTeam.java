@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,6 +12,7 @@ import com.vmware.taurus.service.graphql.model.V2DataJobConfig;
 import com.vmware.taurus.service.graphql.strategy.FieldStrategy;
 import java.util.Comparator;
 import java.util.function.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +42,8 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
                 part = part.replace("%", ".*").trim();
                 var configTeamLower = config.getTeam().toLowerCase();
                 var partLower = part.toLowerCase();
-                return checkMatch(configTeamLower, partLower);
+                return configTeamLower.matches(partLower)
+                    || configTeamLower.trim().equals(partLower.trim());
               });
     }
 
@@ -51,7 +53,8 @@ public class JobFieldStrategyByTeam extends FieldStrategy<V2DataJob> {
   @Override
   public Predicate<V2DataJob> computeSearchCriteria(@NonNull String searchStr) {
     return dataJob ->
-        dataJob.getConfig() != null && checkMatch(dataJob.getConfig().getTeam(), searchStr);
+        dataJob.getConfig() != null
+            && StringUtils.containsIgnoreCase(dataJob.getConfig().getTeam(), searchStr);
   }
 
   @Override

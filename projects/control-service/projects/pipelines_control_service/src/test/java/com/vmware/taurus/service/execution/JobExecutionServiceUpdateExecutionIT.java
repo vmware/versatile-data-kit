@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,6 +28,8 @@ import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionResult;
+
+import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ControlplaneApplication.class)
@@ -233,9 +235,9 @@ public class JobExecutionServiceUpdateExecutionIT {
             .resourcesMemoryLimit(1)
             .resourcesMemoryRequest(1)
             .deployedBy("test_deployed_by")
-            .deployedDate(OffsetDateTime.now())
-            .podTerminationMessage(terminationMessage)
-            .containerTerminationReason(containerTerminationMessage)
+            .deployedDate(getTimeAccurateToMicroSecond())
+            .mainContainerTerminationMessage(terminationMessage)
+            .mainContainerTerminationReason(containerTerminationMessage)
             .build();
     ExecutionResult executionResult = JobExecutionResultManager.getResult(jobExecution);
     jobExecutionService.updateJobExecution(dataJob, jobExecution, executionResult);
@@ -256,8 +258,8 @@ public class JobExecutionServiceUpdateExecutionIT {
             actualDataJob,
             actualExecutionSucceeded,
             actualTerminationMessage,
-            OffsetDateTime.now(),
-            OffsetDateTime.now(),
+            getTimeAccurateToMicroSecond(),
+            getTimeAccurateToMicroSecond(),
             "");
     DataJobExecution actualJobExecution =
         jobExecutionService.readJobExecution(
@@ -270,7 +272,7 @@ public class JobExecutionServiceUpdateExecutionIT {
         expectedJobExecutionStatus,
         expectedJobExecutionMessage != null
             ? expectedJobExecutionMessage
-            : expectedJobExecution.getPodTerminationMessage(),
+            : expectedJobExecution.getMainContainerTerminationMessage(),
         actualJobExecution,
         expectedVdkVersion);
   }
@@ -396,7 +398,7 @@ public class JobExecutionServiceUpdateExecutionIT {
             .resourcesMemoryRequest(1)
             .deployedBy("test_deployed_by")
             .deployedDate(OffsetDateTime.now())
-            .podTerminationMessage(expectedStatus.getPodStatus())
+            .mainContainerTerminationMessage(expectedStatus.getPodStatus())
             .build();
     ExecutionResult executionResult = JobExecutionResultManager.getResult(attemptedExecutionUpdate);
     jobExecutionService.updateJobExecution(

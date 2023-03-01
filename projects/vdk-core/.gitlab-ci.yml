@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -108,7 +108,8 @@ vdk-core-release:
     - ./cicd/set-patch-version.sh "$VDK_RELEASE_OVERRIDE_PATCH_VERSION"
     - ./cicd/release-vdk-core.sh
   retry: !reference [.retry, retry_options]
-  only:
-    refs:
-      - main
-    changes: *vdk_core_locations
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *vdk_core_locations
