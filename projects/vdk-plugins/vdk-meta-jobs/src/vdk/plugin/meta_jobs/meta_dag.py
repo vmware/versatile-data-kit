@@ -6,11 +6,11 @@ import os
 import pprint
 import sys
 import time
-from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
 from typing import List
 
+from graphlib import TopologicalSorter
 from taurus_datajob_api import ApiException
 from vdk.internal.core import errors
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 max_starting_jobs = 15
 
 
-def validate_job_limit(jobs: List[Dict]):
+def topo_sort(jobs: List[Dict]):
     topo_sorter = TopologicalSorter()
     for job in jobs:
         topo_sorter.add(job["job_name"], *job["depends_on"])
@@ -32,17 +32,18 @@ def validate_job_limit(jobs: List[Dict]):
         job = next((j for j in jobs if j["job_name"] == job_name), None)
         if job:
             sorted_jobs.append(job)
+    return sorted_jobs
+
+
+def validate_job_limit(jobs: List[Dict]):
+    sorted_jobs = topo_sort(jobs)
 
     out_degree = {job["job_name"]: 0 for job in jobs}
     for job in sorted_jobs:
         for pred in job["depends_on"]:
-            print(pred)
             out_degree[pred] += 1
 
-    ready_jobs = set()
-    for job in sorted_jobs:
-        if out_degree[job["job_name"]] == 0:
-            ready_jobs.add(job["job_name"])
+    ready_jobs = {job["job_name"] for job in jobs if out_degree[job["job_name"]] == 0}
 
     for job in sorted_jobs:
         if job["job_name"] in ready_jobs:
