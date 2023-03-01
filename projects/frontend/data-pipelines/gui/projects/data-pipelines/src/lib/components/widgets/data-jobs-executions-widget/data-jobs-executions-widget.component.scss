@@ -4,56 +4,56 @@
  */
 
 .datagrid-executions-widget-table {
-  height: 300px;
+    height: 300px;
 
-  ::ng-deep .datagrid-table {
-    width: 100%;
+    ::ng-deep .datagrid-table {
+        width: 100%;
 
-    .header-title {
-       .datagrid-column-separator {
-          display: none;
-       }
+        .header-title {
+            .datagrid-column-separator {
+                display: none;
+            }
+        }
+
+        .datagrid-row-scrollable {
+            width: 100%;
+        }
+
+        .job-name-column {
+            width: 60% !important;
+        }
+
+        .status-column {
+            width: 20% !important;
+            padding-left: 0px !important;
+            white-space: nowrap;
+        }
+
+        .time-column {
+            width: 20% !important;
+            min-width: 120px;
+        }
+
+        clr-dg-cell {
+            .btn {
+                width: 100% !important;
+                text-align: left;
+            }
+        }
     }
-
-    .datagrid-row-scrollable {
-      width: 100%;
-    }
-
-    .job-name-column {
-      width: 60% !important;
-    }
-
-    .status-column {
-      width: 20% !important;
-      padding-left: 0px !important;
-      white-space: nowrap;
-    }
-
-   .time-column {
-      width: 20% !important;
-      min-width: 120px;
-    }
-
-    clr-dg-cell {
-      .btn {
-        width: 100% !important;
-        text-align: left;
-      }
-    }
-  }
 }
 
 clr-dg-cell .btn {
-  margin: 0 !important;
-  text-transform: none !important;
-  padding: 0.3rem 0.3rem 0.3rem;
+    margin: 0 !important;
+    text-transform: none !important;
+    padding: 0.3rem 0.3rem 0.3rem;
 }
 
 .no-padding {
-  padding-bottom: 0px;
-  padding-top: 0px;
+    padding-bottom: 0px;
+    padding-top: 0px;
 }
 
 .hide {
-  display: none;
+    display: none;
 }

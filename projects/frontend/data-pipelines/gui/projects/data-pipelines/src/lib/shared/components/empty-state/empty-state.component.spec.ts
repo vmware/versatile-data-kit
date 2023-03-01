@@ -17,13 +17,11 @@ describe('EmptyStateComponent', () => {
     let component: EmptyStateComponent;
     let fixture: ComponentFixture<EmptyStateComponent>;
 
-    beforeEach(
-        waitForAsync(() => {
-            TestBed.configureTestingModule({
-                declarations: [EmptyStateComponent]
-            }).compileComponents();
-        })
-    );
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [EmptyStateComponent],
+        }).compileComponents();
+    }));
 
     beforeEach(() => {
         fixture = TestBed.createComponent(EmptyStateComponent);

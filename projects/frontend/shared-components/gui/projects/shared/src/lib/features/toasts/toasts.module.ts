@@ -15,18 +15,8 @@ import { VdkComponentsModule } from '../../commons';
 import { ToastsComponent } from './widget';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        ClarityModule,
-        VdkComponentsModule,
-        ClipboardModule
-    ],
-    declarations: [
-        ToastsComponent
-    ],
-    exports: [
-        ToastsComponent
-    ]
+	imports: [CommonModule, ClarityModule, VdkComponentsModule, ClipboardModule],
+	declarations: [ToastsComponent],
+	exports: [ToastsComponent]
 })
-export class ToastsModule {
-}
+export class ToastsModule {}

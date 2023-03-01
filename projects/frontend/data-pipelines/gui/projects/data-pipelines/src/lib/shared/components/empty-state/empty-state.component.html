@@ -20,10 +20,10 @@
         />
 
         <ng-template #lottieAnimationTemplate>
-			<ng-lottie
-				*ngIf="animSrc"
-                       width="{{width}}px"
-                       [options]="{ path: animSrc }"
+            <ng-lottie
+                *ngIf="animSrc"
+                width="{{ width }}px"
+                [options]="{ path: animSrc }"
             >
             </ng-lottie>
         </ng-template>

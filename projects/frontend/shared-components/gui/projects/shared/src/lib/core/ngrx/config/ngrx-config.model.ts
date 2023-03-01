@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -14,12 +12,11 @@ import { StoreDevtoolsConfig } from '@ngrx/store-devtools';
  *
  */
 export const NGRX_STORE_DEVTOOLS_CONFIG: StoreDevtoolsConfig = {
-    maxAge: 100,
-    serialize: true,
-    logOnly: false,
-    name: 'Taurus NgRx Store'
+	maxAge: 100,
+	serialize: true,
+	logOnly: false,
+	name: 'Taurus NgRx Store'
 };
-
 
 /**
  * ** Configuration for NgRx Store.
@@ -28,10 +25,10 @@ export const NGRX_STORE_DEVTOOLS_CONFIG: StoreDevtoolsConfig = {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const NGRX_STORE_CONFIG: RootStoreConfig<any> = {
-    runtimeChecks: {
-        strictActionImmutability: true,
-        strictStateImmutability: true
-    }
+	runtimeChecks: {
+		strictActionImmutability: true,
+		strictStateImmutability: true
+	}
 };
 
 /**
@@ -40,9 +37,9 @@ export const NGRX_STORE_CONFIG: RootStoreConfig<any> = {
  *
  */
 export interface TaurusNgRxConfig {
-    /**
-     * ** StoreDevTools configuration replica.
-     * <p>see {@link https://ngrx.io/guide/store-devtools/config}</p>
-     */
-    storeDevToolsConfig?: StoreDevtoolsConfig;
+	/**
+	 * ** StoreDevTools configuration replica.
+	 * <p>see {@link https://ngrx.io/guide/store-devtools/config}</p>
+	 */
+	storeDevToolsConfig?: StoreDevtoolsConfig;
 }

@@ -4,9 +4,21 @@
  */
 
 import { DatePipe, formatDate } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 
-import { Chart, ChartData, registerables, ScatterDataPoint, TimeUnit } from 'chart.js';
+import {
+    Chart,
+    ChartData,
+    registerables,
+    ScatterDataPoint,
+    TimeUnit,
+} from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import 'chartjs-adapter-date-fns';
@@ -17,20 +29,26 @@ import { DateUtil } from '../../../../../shared/utils';
 
 import { DataJobExecutionStatus } from '../../../../../model';
 
-import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../model';
+import {
+    DataJobExecutionToGridDataJobExecution,
+    GridDataJobExecution,
+} from '../model';
 
-type CustomChartData =
-    ScatterDataPoint
-    & { startTime: number; duration: number; endTime: number; status: DataJobExecutionStatus; opId: string };
+type CustomChartData = ScatterDataPoint & {
+    startTime: number;
+    duration: number;
+    endTime: number;
+    status: DataJobExecutionStatus;
+    opId: string;
+};
 
 @Component({
     selector: 'lib-execution-duration-chart',
     templateUrl: './execution-duration-chart.component.html',
     styleUrls: ['./execution-duration-chart.component.scss'],
-    providers: [DatePipe]
+    providers: [DatePipe],
 })
 export class ExecutionDurationChartComponent implements OnInit, OnChanges {
-
     @Input() jobExecutions: GridDataJobExecution[] = [];
 
     chartZoomed = false;
@@ -43,48 +61,55 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
     }
 
     getChartLabels(): number[] {
-        return this.jobExecutions
-                   .map((execution) => DateUtil.normalizeToUTC(execution.startTime).getTime());
+        return this.jobExecutions.map((execution) =>
+            DateUtil.normalizeToUTC(execution.startTime).getTime()
+        );
     }
 
     getData(min?: number, max?: number): CustomChartData[] {
         const divider = this.getDurationUnit().divider;
         const executions = CollectionsUtil.isDefined(min)
             ? this.jobExecutions.filter((ex) => {
-                const startTime = DateUtil.normalizeToUTC(ex.startTime).getTime();
+                  const startTime = DateUtil.normalizeToUTC(
+                      ex.startTime
+                  ).getTime();
 
-                return startTime >= min && startTime <= max;
-            })
-            : this.jobExecutions
+                  return startTime >= min && startTime <= max;
+              })
+            : this.jobExecutions;
 
-        return executions
-            .map((execution) => {
-                return {
-                    startTime: DateUtil.normalizeToUTC(execution.startTime).getTime(),
-                    duration: Math.round((this.getJobDurationSeconds(execution) / divider) * 100) / 100,
-                    endTime: execution.endTime
-                        ? new Date(execution.endTime)
-                        : undefined,
-                    status: execution.status,
-                    opId: execution.opId
-                } as unknown as CustomChartData;
-            });
+        return executions.map((execution) => {
+            return {
+                startTime: DateUtil.normalizeToUTC(
+                    execution.startTime
+                ).getTime(),
+                duration:
+                    Math.round(
+                        (this.getJobDurationSeconds(execution) / divider) * 100
+                    ) / 100,
+                endTime: execution.endTime
+                    ? new Date(execution.endTime)
+                    : undefined,
+                status: execution.status,
+                opId: execution.opId,
+            } as unknown as CustomChartData;
+        });
     }
 
     getMaxDurationSeconds(): number {
         return this.jobExecutions
-                   .map((execution) => this.getJobDurationSeconds(execution))
-                   .reduce((prev, current) => prev > current ? prev : current);
+            .map((execution) => this.getJobDurationSeconds(execution))
+            .reduce((prev, current) => (prev > current ? prev : current));
     }
 
     getJobDurationSeconds(execution: GridDataJobExecution) {
         return (
-            (
-                execution.endTime
-                    ? new Date(execution.endTime).getTime()
-                    : new Date(Date.now()).getTime()
-            ) - new Date(execution.startTime).getTime()
-        ) / 1000;
+            ((execution.endTime
+                ? new Date(execution.endTime).getTime()
+                : new Date(Date.now()).getTime()) -
+                new Date(execution.startTime).getTime()) /
+            1000
+        );
     }
 
     getDurationUnit(): { name: string; divider: number } {
@@ -131,79 +156,90 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                     data: this.getData(),
                     fill: false,
                     pointRadius: 3,
-                    pointBorderColor: (context) => DataJobExecutionToGridDataJobExecution
-                        .resolveColor((context.raw as { status: string }).status),
-                    pointBackgroundColor: (context) => DataJobExecutionToGridDataJobExecution
-                        .resolveColor((context.raw as { status: string }).status),
+                    pointBorderColor: (context) =>
+                        DataJobExecutionToGridDataJobExecution.resolveColor(
+                            (context.raw as { status: string }).status
+                        ),
+                    pointBackgroundColor: (context) =>
+                        DataJobExecutionToGridDataJobExecution.resolveColor(
+                            (context.raw as { status: string }).status
+                        ),
                     pointBorderWidth: 3,
                     parsing: {
                         xAxisKey: 'startTime',
-                        yAxisKey: 'duration'
-                    }
-                }
-            ]
+                        yAxisKey: 'duration',
+                    },
+                },
+            ],
         };
 
-        this.chart = new Chart<'line'>(
-            'durationChart',
-            {
-                type: 'line',
-                data,
-                options: {
-                    showLine: false,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: this._getTimeScaleUnit(...this._getMinMaxExecutionTuple())
-                            }
+        this.chart = new Chart<'line'>('durationChart', {
+            type: 'line',
+            data,
+            options: {
+                showLine: false,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: this._getTimeScaleUnit(
+                                ...this._getMinMaxExecutionTuple()
+                            ),
                         },
-                        y: {
-                            title: {
-                                display: true,
-                                text: `Duration ${ this.getDurationUnit().name }`
-                            }
-                        }
                     },
-                    maintainAspectRatio: false,
-                    plugins: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: `Duration ${this.getDurationUnit().name}`,
+                        },
+                    },
+                },
+                maintainAspectRatio: false,
+                plugins: {
+                    zoom: {
                         zoom: {
-                            zoom: {
-                                drag: {
-                                    enabled: true
-                                },
-                                mode: 'x',
-                                onZoomComplete: (context) => {
-                                    this._adjustTimeScaleUnit(context.chart);
-                                    this.chartZoomed = true;
-                                }
-                            }
-                        }
-                        ,
-                        datalabels: {
-                            display: false
+                            drag: {
+                                enabled: true,
+                            },
+                            mode: 'x',
+                            onZoomComplete: (context) => {
+                                this._adjustTimeScaleUnit(context.chart);
+                                this.chartZoomed = true;
+                            },
                         },
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => {
-                                    const rawValues = context.raw as { status: string; endTime: Date };
+                    },
+                    datalabels: {
+                        display: false,
+                    },
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const rawValues = context.raw as {
+                                    status: string;
+                                    endTime: Date;
+                                };
 
-                                    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-                                    return `Duration: ${ context.parsed.y }|${ rawValues.status }` +
-                                        (
-                                            rawValues.endTime
-                                                ? `|End: ${ formatDate(rawValues.endTime, 'MMM d, y, hh:mm:ss a', 'en-US', 'UTC') }`
-                                                : ''
-                                        );
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+                                return (
+                                    `Duration: ${context.parsed.y}|${rawValues.status}` +
+                                    (rawValues.endTime
+                                        ? `|End: ${formatDate(
+                                              rawValues.endTime,
+                                              'MMM d, y, hh:mm:ss a',
+                                              'en-US',
+                                              'UTC'
+                                          )}`
+                                        : '')
+                                );
+                            },
+                        },
+                    },
+                },
+            },
+        });
     }
 
     private _adjustTimeScaleUnit(chart: Chart): void {
@@ -217,16 +253,16 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
 
             unit = this._getTimeScaleUnit(min, max);
         } else {
-            unit = this._getTimeScaleUnit(...this._getMinMaxExecutionTuple())
+            unit = this._getTimeScaleUnit(...this._getMinMaxExecutionTuple());
         }
 
         this.chart.options.scales['x'] = {
             type: 'time',
             time: {
-                unit
+                unit,
             },
             min,
-            max
+            max,
         };
 
         this.chart.data.datasets[0].data = this.getData(min, max);
@@ -241,10 +277,16 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             return [null, null];
         }
 
-        return [executions[0].startTime, executions[executions.length - 1].startTime]
+        return [
+            executions[0].startTime,
+            executions[executions.length - 1].startTime,
+        ];
     }
 
-    private _getTimeScaleUnit(min: number | string, max: number | string): TimeUnit {
+    private _getTimeScaleUnit(
+        min: number | string,
+        max: number | string
+    ): TimeUnit {
         if (CollectionsUtil.isNil(min) || CollectionsUtil.isNil(max)) {
             return 'day';
         }
@@ -257,38 +299,72 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             : new Date(max).getTime();
         const diff = _max - _min;
 
-        if (diff > (this._getTimeUnitMilliseconds('year') + this._getTimeUnitMilliseconds('second'))) {
+        if (
+            diff >
+            this._getTimeUnitMilliseconds('year') +
+                this._getTimeUnitMilliseconds('second')
+        ) {
             return 'year';
         }
 
-        if (diff > (this._getTimeUnitMilliseconds('month') + this._getTimeUnitMilliseconds('second'))) {
+        if (
+            diff >
+            this._getTimeUnitMilliseconds('month') +
+                this._getTimeUnitMilliseconds('second')
+        ) {
             return 'month';
         }
 
-        if (diff > (2 * this._getTimeUnitMilliseconds('week'))) {
+        if (diff > 2 * this._getTimeUnitMilliseconds('week')) {
             return 'week';
         }
 
-        if (diff > (this._getTimeUnitMilliseconds('day') + this._getTimeUnitMilliseconds('second'))) {
+        if (
+            diff >
+            this._getTimeUnitMilliseconds('day') +
+                this._getTimeUnitMilliseconds('second')
+        ) {
             return 'day';
         }
 
-        if (diff > (this._getTimeUnitMilliseconds('hour') + this._getTimeUnitMilliseconds('second'))) {
+        if (
+            diff >
+            this._getTimeUnitMilliseconds('hour') +
+                this._getTimeUnitMilliseconds('second')
+        ) {
             return 'hour';
         }
 
-        if (diff > (this._getTimeUnitMilliseconds('minute') + this._getTimeUnitMilliseconds('millisecond'))) {
+        if (
+            diff >
+            this._getTimeUnitMilliseconds('minute') +
+                this._getTimeUnitMilliseconds('millisecond')
+        ) {
             return 'minute';
         }
 
-        if (diff > (this._getTimeUnitMilliseconds('second') + this._getTimeUnitMilliseconds('millisecond'))) {
+        if (
+            diff >
+            this._getTimeUnitMilliseconds('second') +
+                this._getTimeUnitMilliseconds('millisecond')
+        ) {
             return 'second';
         }
 
         return 'millisecond';
     }
 
-    private _getTimeUnitMilliseconds(unit: 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'): number {
+    private _getTimeUnitMilliseconds(
+        unit:
+            | 'millisecond'
+            | 'second'
+            | 'minute'
+            | 'hour'
+            | 'day'
+            | 'week'
+            | 'month'
+            | 'year'
+    ): number {
         switch (unit) {
             case 'millisecond':
                 return 1;
@@ -308,7 +384,9 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                 return 1000 * 60 * 60 * 24 * 365;
             default:
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                console.error(`Taurus DataPipelines ExecutionDurationChartComponent unsupported time format unit ${ unit }`);
+                console.error(
+                    `Taurus DataPipelines ExecutionDurationChartComponent unsupported time format unit ${unit}`
+                );
 
                 return 0;
         }

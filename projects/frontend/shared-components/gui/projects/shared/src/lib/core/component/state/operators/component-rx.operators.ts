@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -22,12 +20,15 @@ import { ComponentFailed } from '../actions';
  *
  *
  */
-export const getModel = (componentService: ComponentService) =>
-    (source$: Observable<BaseActionWithPayload<ComponentState>>): Observable<ComponentModel> =>
-        source$.pipe(
-            extractAction,
-            switchMap((action) => subscribeForModel(action, componentService))
-        );
+export const getModel =
+	(componentService: ComponentService) =>
+	(
+		source$: Observable<BaseActionWithPayload<ComponentState>>
+	): Observable<ComponentModel> =>
+		source$.pipe(
+			extractAction,
+			switchMap((action) => subscribeForModel(action, componentService))
+		);
 
 /**
  * ** RXJS Operator that fetch Component Model from Store using provided ComponentService and consume task from Action.
@@ -36,16 +37,19 @@ export const getModel = (componentService: ComponentService) =>
  *
  *
  */
-export const getModelAndTask = (componentService: ComponentService) =>
-    (source$: Observable<BaseActionWithPayload<ComponentState>>): Observable<[ComponentModel, string]> =>
-        source$.pipe(
-            extractAction,
-            switchMap((action) =>
-                subscribeForModel(action, componentService).pipe(
-                    map((model) => [model, action.task] as [ComponentModel, string])
-                )
-            )
-        );
+export const getModelAndTask =
+	(componentService: ComponentService) =>
+	(
+		source$: Observable<BaseActionWithPayload<ComponentState>>
+	): Observable<[ComponentModel, string]> =>
+		source$.pipe(
+			extractAction,
+			switchMap((action) =>
+				subscribeForModel(action, componentService).pipe(
+					map((model) => [model, action.task] as [ComponentModel, string])
+				)
+			)
+		);
 
 /**
  * ** Handle Error from some Action, ideal to use for API response.
@@ -55,45 +59,55 @@ export const getModelAndTask = (componentService: ComponentService) =>
  *
  *
  */
-export const handleActionError = (model: ComponentModel) =>
-    (source$: Observable<BaseActionWithPayload<ComponentState>>): Observable<BaseActionWithPayload<ComponentState>> =>
-        source$.pipe(
-            catchError((error: unknown) => of(
-                ComponentFailed.of(
-                    model
-                        .withError(error as Error)
-                        .withStatusFailed()
-                        .getComponentState()
-                )
-            ))
-        );
+export const handleActionError =
+	(model: ComponentModel) =>
+	(
+		source$: Observable<BaseActionWithPayload<ComponentState>>
+	): Observable<BaseActionWithPayload<ComponentState>> =>
+		source$.pipe(
+			catchError((error: unknown) =>
+				of(
+					ComponentFailed.of(
+						model
+							.withError(error as Error)
+							.withStatusFailed()
+							.getComponentState()
+					)
+				)
+			)
+		);
 
 /**
  * ** Validate if Action is instance of {@link BaseActionWithPayload} and pass down the stream.
  *
  *
  */
-const extractAction = (source$: Observable<BaseActionWithPayload<ComponentState>>) =>
-    source$.pipe(
-        mergeMap((action) =>
-            iif(
-                () => action instanceof BaseActionWithPayload,
-                of(action),
-                throwError(
-                    new Error('Unsupported Action type. It should be subclass of BaseActionWithPayload')
-                )
-            )
-        )
-    );
+const extractAction = (
+	source$: Observable<BaseActionWithPayload<ComponentState>>
+) =>
+	source$.pipe(
+		mergeMap((action) =>
+			iif(
+				() => action instanceof BaseActionWithPayload,
+				of(action),
+				throwError(
+					new Error(
+						'Unsupported Action type. It should be subclass of BaseActionWithPayload'
+					)
+				)
+			)
+		)
+	);
 
 /**
  * ** Make actual subscription to Store for ComponentModel.
  *
  *
  */
-const subscribeForModel = (action: BaseActionWithPayload<ComponentState>, componentService: ComponentService) =>
-    componentService
-        .getModel(action.payload.id, action.payload.routePathSegments, ['*'])
-        .pipe(
-            take(1)
-        );
+const subscribeForModel = (
+	action: BaseActionWithPayload<ComponentState>,
+	componentService: ComponentService
+) =>
+	componentService
+		.getModel(action.payload.id, action.payload.routePathSegments, ['*'])
+		.pipe(take(1));

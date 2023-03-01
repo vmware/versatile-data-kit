@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { EditModalOptions, ConfirmationModalOptions, DeleteModalOptions } from './modal-options';
+import {
+    EditModalOptions,
+    ConfirmationModalOptions,
+    DeleteModalOptions,
+} from './modal-options';
 
 describe('ModalOptions', () => {
-
     it('DeleteModalOptions have initial values', () => {
         const deleteModalOptions = new DeleteModalOptions();
         expect(deleteModalOptions.opened).toBeFalse();
@@ -42,5 +45,4 @@ describe('ModalOptions', () => {
         expect(confirmationModalOptions.showOkBtn).toBeTrue();
         expect(confirmationModalOptions.showCloseX).toBeTrue();
     });
-
 });

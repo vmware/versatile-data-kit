@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+} from '@angular/core';
 
 import { ClrDatagridSortOrder } from '@clr/angular';
 
@@ -17,10 +22,9 @@ import { DataJobExecutionDurationComparator } from './comparators/execution-dura
     selector: 'lib-data-job-executions-grid',
     templateUrl: './data-job-executions-grid.component.html',
     styleUrls: ['./data-job-executions-grid.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataJobExecutionsGridComponent {
-
     @Input() jobExecutions: GridDataJobExecution[];
     @Input() loading = false;
 
@@ -34,14 +38,13 @@ export class DataJobExecutionsGridComponent {
     /**
      * ** Constructor.
      */
-    constructor(private readonly changeDetectorRef: ChangeDetectorRef) {
-    }
+    constructor(private readonly changeDetectorRef: ChangeDetectorRef) {}
 
     /**
      * ** NgFor elements tracking function.
      */
     trackByFn(index: number, execution: GridDataJobExecution): string {
-        return `${ index }|${ execution?.id }`;
+        return `${index}|${execution?.id}`;
     }
 
     showDeploymentDetails(jobExecution: GridDataJobExecution) {

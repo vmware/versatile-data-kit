@@ -17,9 +17,12 @@ describe('AttributesDirective', () => {
     beforeEach(() => {
         nativeElementStub = {};
         elementRefStub = {
-            nativeElement: nativeElementStub
+            nativeElement: nativeElementStub,
         };
-        rendererStub = jasmine.createSpyObj<Renderer2>('renderer2', ['setAttribute', 'removeAttribute']);
+        rendererStub = jasmine.createSpyObj<Renderer2>('renderer2', [
+            'setAttribute',
+            'removeAttribute',
+        ]);
 
         directive = new AttributesDirective(elementRefStub, rendererStub);
     });
@@ -69,7 +72,7 @@ describe('AttributesDirective', () => {
             shape: 'square',
             class: 'css-class-1, css-class-2, css-class-3',
             tabIndex: 0,
-            'data-cy': 'cypress-selector'
+            'data-cy': 'cypress-selector',
         };
         directive.ngOnInit();
 
@@ -84,7 +87,7 @@ describe('AttributesDirective', () => {
             shape: 'square',
             class: 'css-class-1, css-class-2, css-class-3',
             tabIndex: 0,
-            'data-cy': 'cypress-selector'
+            'data-cy': 'cypress-selector',
         };
         directive.ngOnChanges({});
 
@@ -102,7 +105,7 @@ describe('AttributesDirective', () => {
             class: 'css-class-1, css-class-2, css-class-3',
             'aria-label': 'aria-element-title',
             tabIndex: 0,
-            'data-cy': 'cypress-selector'
+            'data-cy': 'cypress-selector',
         };
         directive.ngOnInit();
 
@@ -124,7 +127,7 @@ describe('AttributesDirective', () => {
             'data-index': false,
             'data-attribute': 'delete',
             'data-btn': 'false',
-            'data-attr': ''
+            'data-attr': '',
         };
         directive.ngOnInit();
 
@@ -141,7 +144,7 @@ describe('AttributesDirective', () => {
             shape: 'square',
             class: 'css-class-1, css-class-2, css-class-3',
             tabIndex: 0,
-            'data-cy': 'cypress-selector'
+            'data-cy': 'cypress-selector',
         };
         directive.ngOnInit();
 

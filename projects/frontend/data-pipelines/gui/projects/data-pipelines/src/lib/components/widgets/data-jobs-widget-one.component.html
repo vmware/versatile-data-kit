@@ -5,65 +5,104 @@
 
 <div class="get-started-jobs widget">
     <section class="widget-section-container widget-card">
-
         <div class="widget-header">
             <h3 class="header-title">Data Jobs</h3>
-            <p>Data Jobs help Data Engineers develop, deploy, run, and manage data processing workloads</p>
+            <p>
+                Data Jobs help Data Engineers develop, deploy, run, and manage
+                data processing workloads
+            </p>
         </div>
 
         <div class="widget-container">
             <div class="widget-values">
-                <div #widgetTabDiv class="widget-value widget-clickable"
-                     [ngClass]="{'show-details': selectedTab === widgetTab.DATAJOBS}"
-                     (click)="switchTab(widgetTab.DATAJOBS)">
+                <div
+                    #widgetTabDiv
+                    class="widget-value widget-clickable"
+                    [ngClass]="{
+                        'show-details': selectedTab === widgetTab.DATAJOBS
+                    }"
+                    (click)="switchTab(widgetTab.DATAJOBS)"
+                >
                     <div class="widget-value-wrapper">
-            <span class="widget-title">
-              <lib-widget-value [observable$]="jobs$" prop="totalItems" [showErrorState]="errorJobs"></lib-widget-value>
-            </span>
+                        <span class="widget-title">
+                            <lib-widget-value
+                                [observable$]="jobs$"
+                                prop="totalItems"
+                                [showErrorState]="errorJobs"
+                            ></lib-widget-value>
+                        </span>
                         <span class="widget-text">Data Jobs</span>
                         <span class="widget-text"></span>
                     </div>
                 </div>
-                <div class="widget-value widget-clickable "
-                     [ngClass]="{'show-details': selectedTab === widgetTab.EXECUTIONS}"
-                     (click)="switchTab(widgetTab.EXECUTIONS)">
-          <span class="widget-title">
-            <lib-widget-value [observable$]="executions$" prop="totalItems"></lib-widget-value>
-          </span>
+                <div
+                    class="widget-value widget-clickable"
+                    [ngClass]="{
+                        'show-details': selectedTab === widgetTab.EXECUTIONS
+                    }"
+                    (click)="switchTab(widgetTab.EXECUTIONS)"
+                >
+                    <span class="widget-title">
+                        <lib-widget-value
+                            [observable$]="executions$"
+                            prop="totalItems"
+                        ></lib-widget-value>
+                    </span>
                     <span class="widget-text">Job Executions</span>
                     <span class="widget-text">last 24 hours</span>
                 </div>
-                <div class="widget-value widget-clickable "
-                     [ngClass]="{'show-details': selectedTab === widgetTab.FAILURES}"
-                     (click)="switchTab(widgetTab.FAILURES)">
-          <span class="widget-title label-success">
-            <lib-widget-value [observable$]="failures$" prop="totalItems"></lib-widget-value>
-          </span>
+                <div
+                    class="widget-value widget-clickable"
+                    [ngClass]="{
+                        'show-details': selectedTab === widgetTab.FAILURES
+                    }"
+                    (click)="switchTab(widgetTab.FAILURES)"
+                >
+                    <span class="widget-title label-success">
+                        <lib-widget-value
+                            [observable$]="failures$"
+                            prop="totalItems"
+                        ></lib-widget-value>
+                    </span>
                     <span class="widget-text">Failures</span>
                     <span class="widget-text">last 24 hours</span>
                 </div>
             </div>
         </div>
 
-        <div class="widget-details" [ngClass]="{'show-details': selectedTab !== widgetTab.NONE}">
+        <div
+            class="widget-details"
+            [ngClass]="{ 'show-details': selectedTab !== widgetTab.NONE }"
+        >
             <div [ngSwitch]="selectedTab">
                 <div *ngSwitchCase="widgetTab.DATAJOBS">
-                    <ng-container *ngTemplateOutlet="dataJobsTemplate"></ng-container>
+                    <ng-container
+                        *ngTemplateOutlet="dataJobsTemplate"
+                    ></ng-container>
                 </div>
                 <div *ngSwitchCase="widgetTab.EXECUTIONS">
-                    <ng-container *ngTemplateOutlet="executionsTemplate"></ng-container>
+                    <ng-container
+                        *ngTemplateOutlet="executionsTemplate"
+                    ></ng-container>
                 </div>
                 <div *ngSwitchCase="widgetTab.FAILURES">
-                    <ng-container *ngTemplateOutlet="failuresTemplate"></ng-container>
+                    <ng-container
+                        *ngTemplateOutlet="failuresTemplate"
+                    ></ng-container>
                 </div>
-                <div *ngSwitchDefault>
-                </div>
+                <div *ngSwitchDefault></div>
             </div>
         </div>
 
         <div class="widget-footer">
-            <a id="data-jobs-widget-manage-link" class="btn btn-link" alt="Navigate to Manage Data jobs"
-               [routerLink]="manageLink" routerLinkActive="active" href="">
+            <a
+                id="data-jobs-widget-manage-link"
+                class="btn btn-link"
+                alt="Navigate to Manage Data jobs"
+                [routerLink]="manageLink"
+                routerLinkActive="active"
+                href=""
+            >
                 Manage
             </a>
         </div>
@@ -71,21 +110,31 @@
 </div>
 
 <ng-template #failuresTemplate>
-    <div class="data-details" *ngIf="failures$ | async as data; else loadingTemplate">
+    <div
+        class="data-details"
+        *ngIf="failures$ | async as data; else loadingTemplate"
+    >
         <clr-datagrid class="datagrid-compact">
             <clr-dg-row *ngFor="let item of data?.content">
                 <clr-dg-cell>
                     <div class="data-row">
-                        <span class="p5 data-title">{{item.jobName}}</span>
-                        <span class="p7 data-description">{{ item.startTime | date: 'MMM d, y, hh:mm a' }}
-                            , took 12min, {{item.status}}</span>
+                        <span class="p5 data-title">{{ item.jobName }}</span>
+                        <span class="p7 data-description"
+                            >{{ item.startTime | date: "MMM d, y, hh:mm a" }} ,
+                            took 12min, {{ item.status }}</span
+                        >
                     </div>
                 </clr-dg-cell>
             </clr-dg-row>
             <clr-dg-placeholder>Coming Soon!</clr-dg-placeholder>
             <clr-dg-footer>
-                <clr-dg-pagination #pagination [clrDgTotalItems]="data.totalItems" [clrDgPageSize]="pageSize"
-                                   [clrDgPage]="currentPage" (clrDgPageChange)="refresh($event, widgetTab.FAILURES)">
+                <clr-dg-pagination
+                    #pagination
+                    [clrDgTotalItems]="data.totalItems"
+                    [clrDgPageSize]="pageSize"
+                    [clrDgPage]="currentPage"
+                    (clrDgPageChange)="refresh($event, widgetTab.FAILURES)"
+                >
                 </clr-dg-pagination>
             </clr-dg-footer>
         </clr-datagrid>
@@ -93,22 +142,32 @@
 </ng-template>
 
 <ng-template #executionsTemplate>
-    <div class="data-details" *ngIf="executions$ | async as data; else loadingTemplate">
+    <div
+        class="data-details"
+        *ngIf="executions$ | async as data; else loadingTemplate"
+    >
         <clr-datagrid class="datagrid-compact">
             <clr-dg-row *ngFor="let item of data?.content">
                 <clr-dg-cell>
                     <div class="data-row">
-                        <span class="p5 data-title">{{item.jobName}}</span>
-                        <span class="p7 data-description">{{ item.startTime | date: 'MMM d, y, hh:mm a' }}
-                            , took 12min, {{item.status}}</span>
+                        <span class="p5 data-title">{{ item.jobName }}</span>
+                        <span class="p7 data-description"
+                            >{{ item.startTime | date: "MMM d, y, hh:mm a" }} ,
+                            took 12min, {{ item.status }}</span
+                        >
                     </div>
                 </clr-dg-cell>
             </clr-dg-row>
             <clr-dg-placeholder>Coming Soon!</clr-dg-placeholder>
 
             <clr-dg-footer>
-                <clr-dg-pagination #pagination [clrDgTotalItems]="data.totalItems" [clrDgPageSize]="pageSize"
-                                   [clrDgPage]="currentPage" (clrDgPageChange)="refresh($event, widgetTab.FAILURES)">
+                <clr-dg-pagination
+                    #pagination
+                    [clrDgTotalItems]="data.totalItems"
+                    [clrDgPageSize]="pageSize"
+                    [clrDgPage]="currentPage"
+                    (clrDgPageChange)="refresh($event, widgetTab.FAILURES)"
+                >
                 </clr-dg-pagination>
             </clr-dg-footer>
         </clr-datagrid>
@@ -116,25 +175,45 @@
 </ng-template>
 
 <ng-template #dataJobsTemplate>
-    <div class="data-details" *ngIf="jobs$ | async as data; else loadingTemplate">
+    <div
+        class="data-details"
+        *ngIf="jobs$ | async as data; else loadingTemplate"
+    >
         <clr-datagrid class="datagrid-compact">
-            <clr-dg-column [style.width.px]="widgetTabDiv.offsetWidth">Job</clr-dg-column>
+            <clr-dg-column [style.width.px]="widgetTabDiv.offsetWidth"
+                >Job</clr-dg-column
+            >
             <clr-dg-column>Schedule (in UTC)</clr-dg-column>
             <clr-dg-row *ngFor="let item of data?.content">
                 <clr-dg-cell [style.width.px]="widgetTabDiv.offsetWidth">
-                    <div class="data-row clickable" [routerLink]="manageLink" [queryParams]="{ search: item.jobName}">
-                        <span class="p3 data-title">{{item.jobName}}</span>
+                    <div
+                        class="data-row clickable"
+                        [routerLink]="manageLink"
+                        [queryParams]="{ search: item.jobName }"
+                    >
+                        <span class="p3 data-title">{{ item.jobName }}</span>
                     </div>
                 </clr-dg-cell>
-                <clr-dg-cell
-                    [style.font-size.rem]="0.6"> {{item.config?.schedule?.scheduleCron | formatSchedule: 'Not scheduled'}}
+                <clr-dg-cell [style.font-size.rem]="0.6">
+                    {{
+                        item.config?.schedule?.scheduleCron
+                            | formatSchedule: "Not scheduled"
+                    }}
                 </clr-dg-cell>
             </clr-dg-row>
-            <clr-dg-placeholder>We couldn't find any data jobs, but you can always create one!</clr-dg-placeholder>
+            <clr-dg-placeholder
+                >We couldn't find any data jobs, but you can always create
+                one!</clr-dg-placeholder
+            >
 
             <clr-dg-footer>
-                <clr-dg-pagination #pagination [clrDgTotalItems]="data.totalItems" [clrDgPageSize]="pageSize"
-                                   [clrDgPage]="currentPage" (clrDgPageChange)="refresh($event, widgetTab.DATAJOBS)">
+                <clr-dg-pagination
+                    #pagination
+                    [clrDgTotalItems]="data.totalItems"
+                    [clrDgPageSize]="pageSize"
+                    [clrDgPage]="currentPage"
+                    (clrDgPageChange)="refresh($event, widgetTab.DATAJOBS)"
+                >
                 </clr-dg-pagination>
             </clr-dg-footer>
         </clr-datagrid>

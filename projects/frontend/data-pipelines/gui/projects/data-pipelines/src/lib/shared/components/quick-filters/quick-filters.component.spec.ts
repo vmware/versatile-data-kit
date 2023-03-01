@@ -13,9 +13,8 @@ describe('QuickFiltersComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [QuickFiltersComponent]
-        })
-                     .compileComponents();
+            declarations: [QuickFiltersComponent],
+        }).compileComponents();
     });
 
     beforeEach(() => {

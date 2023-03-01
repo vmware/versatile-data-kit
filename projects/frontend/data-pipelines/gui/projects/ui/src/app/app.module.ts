@@ -19,7 +19,11 @@ import { ClarityModule } from '@clr/angular';
 
 import { VmwComponentsModule } from '@vdk/shared';
 
-import { TaurusSharedCoreModule, TaurusSharedFeaturesModule, TaurusSharedNgRxModule } from '@vdk/shared';
+import {
+    TaurusSharedCoreModule,
+    TaurusSharedFeaturesModule,
+    TaurusSharedNgRxModule,
+} from '@vdk/shared';
 
 import { DataPipelinesModule } from '@vdk/data-pipelines';
 
@@ -51,14 +55,14 @@ export function lottiePlayerLoader() {
         DataPipelinesModule.forRoot({
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
-                allowKeyTabDownloads: true
+                allowKeyTabDownloads: true,
             },
             exploreConfig: {
-                showTeamsColumn: true
+                showTeamsColumn: true,
             },
             healthStatusUrl: '/explore/data-jobs?search={0}',
             showExecutionsPage: true,
-            showLineagePage: false
+            showLineagePage: false,
         }),
         HttpClientModule,
         OAuthModule.forRoot({
@@ -66,28 +70,27 @@ export function lottiePlayerLoader() {
                 allowedUrls: [
                     'https://console-stg.cloud.vmware.com/',
                     'https://gaz-preview.csp-vidm-prod.com/',
-                    '/data-jobs'
+                    '/data-jobs',
                 ],
-                sendAccessToken: true
-            }
-        })
+                sendAccessToken: true,
+            },
+        }),
     ],
     providers: [
         {
             provide: OAuthStorage,
-            useValue: localStorage
+            useValue: localStorage,
         },
         {
             provide: AuthConfig,
-            useValue: authCodeFlowConfig
+            useValue: authCodeFlowConfig,
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthorizationInterceptor,
-            multi: true
-        }
+            multi: true,
+        },
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}
