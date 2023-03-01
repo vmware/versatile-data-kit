@@ -22,12 +22,12 @@ ALLOWED_RETRIES = 3
 
 
 class TrackingDataJobExecutor:
-    def __init__(self, executor: IDataJobExecutor):
+    def __init__(
+        self, executor: IDataJobExecutor, time_between_status_check_seconds: int
+    ):
         self._executor = executor
         self._jobs_cache: Dict[str, TrackableJob] = dict()
-        self._time_between_status_check_seconds = int(
-            os.environ.get("VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS", "40")
-        )
+        self._time_between_status_check_seconds = time_between_status_check_seconds
 
     def register_job(self, job: TrackableJob):
         if job.job_name in self._jobs_cache:
