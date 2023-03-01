@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -15,17 +13,17 @@ import { createTaskIdentifier } from '../../../common';
  *
  */
 export abstract class BaseAction implements Action {
-    /**
-     * ** Type of Action.
-     */
-    readonly type: string;
+	/**
+	 * ** Type of Action.
+	 */
+	readonly type: string;
 
-    /**
-     * ** Constructor.
-     */
-    protected constructor(type: string) {
-        this.type = type;
-    }
+	/**
+	 * ** Constructor.
+	 */
+	protected constructor(type: string) {
+		this.type = type;
+	}
 }
 
 /**
@@ -34,35 +32,32 @@ export abstract class BaseAction implements Action {
  *
  */
 export abstract class BaseActionWithPayload<T> extends BaseAction {
+	/**
+	 * ** Action payload data.
+	 */
+	readonly payload: T;
 
-    /**
-     * ** Action payload data.
-     */
-    readonly payload: T;
+	/**
+	 * ** Action Task.
+	 */
+	readonly task: string;
 
-    /**
-     * ** Action Task.
-     */
-    readonly task: string;
+	/**
+	 * ** Constructor.
+	 */
+	protected constructor(type: string, payload: T, task?: string) {
+		super(type);
 
-    /**
-     * ** Constructor.
-     */
-    protected constructor(type: string,
-                          payload: T,
-                          task?: string) {
-        super(type);
+		this.payload = payload;
+		this.task = createTaskIdentifier(task);
+	}
 
-        this.payload = payload;
-        this.task = createTaskIdentifier(task);
-    }
-
-    /**
-     * ** Factory method that have to be overridden in Subclasses.
-     */
-    static of(..._args: unknown[]): BaseActionWithPayload<unknown> {
-        throw new Error('Method have to be overridden in Subclasses.');
-    }
+	/**
+	 * ** Factory method that have to be overridden in Subclasses.
+	 */
+	static of(..._args: unknown[]): BaseActionWithPayload<unknown> {
+		throw new Error('Method have to be overridden in Subclasses.');
+	}
 }
 
 /**
@@ -73,19 +68,21 @@ export abstract class BaseActionWithPayload<T> extends BaseAction {
  *
  */
 export class GenericAction<T> extends BaseActionWithPayload<T> {
-    /**
-     * ** Constructor.
-     */
-    constructor(type: string,
-                payload: T,
-                task?: string) {
-        super(type, payload, task);
-    }
+	/**
+	 * ** Constructor.
+	 */
+	constructor(type: string, payload: T, task?: string) {
+		super(type, payload, task);
+	}
 
-    /**
-     * ** Factory method for Generic Action with type and payload in Constructor.
-     */
-    static override of<K>(type: string, payload: K, task?: string): GenericAction<K> {
-        return new GenericAction<K>(type, payload, task);
-    }
+	/**
+	 * ** Factory method for Generic Action with type and payload in Constructor.
+	 */
+	static override of<K>(
+		type: string,
+		payload: K,
+		task?: string
+	): GenericAction<K> {
+		return new GenericAction<K>(type, payload, task);
+	}
 }

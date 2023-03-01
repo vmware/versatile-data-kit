@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataPipelinesBasePO } from './data-pipelines-base.po';
+import { DataPipelinesBasePO } from "./data-pipelines-base.po";
 
 export class DataJobBasePO extends DataPipelinesBasePO {
     static getPage() {
@@ -35,35 +35,38 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     }
 
     waitForDataJobStartExecute() {
-        cy.waitForInterceptor('@getExecutionsRequest', 20, (response) => {
+        cy.waitForInterceptor("@getExecutionsRequest", 20, (response) => {
             return response?.data?.content?.findIndex((e) => {
-                return e.status?.toLowerCase() === 'running' || e.status?.toLowerCase() === 'submitted'
+                return (
+                    e.status?.toLowerCase() === "running" ||
+                    e.status?.toLowerCase() === "submitted"
+                );
             });
         });
     }
 
     waitForDataJobStopExecute() {
-        cy.waitForInterceptor('@getExecutionRequest', 20, (response) => {
-            return response?.status === 'cancelled';
+        cy.waitForInterceptor("@getExecutionRequest", 20, (response) => {
+            return response?.status === "cancelled";
         });
     }
 
     /* Selectors */
 
     getNavigateBackBtn() {
-        return cy.get('[data-cy=data-pipelines-job-navigate-back]');
+        return cy.get("[data-cy=data-pipelines-job-navigate-back]");
     }
 
     getMainTitle() {
-        return cy.get('[data-cy=data-pipelines-job-main-title]');
+        return cy.get("[data-cy=data-pipelines-job-main-title]");
     }
 
     getExecuteNowButton() {
-        return cy.get('[data-cy=data-pipelines-job-execute-btn]');
+        return cy.get("[data-cy=data-pipelines-job-execute-btn]");
     }
 
     getCancelExecutionButton() {
-        return cy.get('[data-cy=data-pipelines-job-cancel-execution-btn]');
+        return cy.get("[data-cy=data-pipelines-job-cancel-execution-btn]");
     }
 
     getConfirmDialogButton() {
@@ -71,27 +74,27 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     }
 
     getActionDropdownBtn() {
-        return cy.get('[data-cy=data-pipelines-job-action-dropdown-btn]');
+        return cy.get("[data-cy=data-pipelines-job-action-dropdown-btn]");
     }
 
     getDownloadKeyBtn() {
-        return cy.get('[data-cy=data-pipelines-job-download-btn]');
+        return cy.get("[data-cy=data-pipelines-job-download-btn]");
     }
 
     getDeleteJobBtn() {
-        return cy.get('[data-cy=data-pipelines-job-delete-btn]');
+        return cy.get("[data-cy=data-pipelines-job-delete-btn]");
     }
 
     getConfirmDeleteBtn() {
-        return cy.get('#removeBtn');
+        return cy.get("#removeBtn");
     }
 
     getDetailsTab() {
-        return cy.get('[data-cy=data-pipelines-job-details-tab]');
+        return cy.get("[data-cy=data-pipelines-job-details-tab]");
     }
 
     getExecutionsTab() {
-        return cy.get('[data-cy=data-pipelines-job-executions-tab]');
+        return cy.get("[data-cy=data-pipelines-job-executions-tab]");
     }
 
     getExecutionStatus() {
@@ -101,15 +104,13 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     /* Actions */
 
     executeNow() {
-        this.getExecuteNowButton()
-            .scrollIntoView()
-            .click({ force: true });
+        this.getExecuteNowButton().scrollIntoView().click({ force: true });
     }
 
     openActionDropdown() {
         this.getActionDropdownBtn()
             .scrollIntoView()
-            .should('be.visible')
+            .should("be.visible")
             .click({ force: true });
 
         this.waitForClickThinkingTime();
@@ -118,7 +119,7 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     downloadJobKey() {
         this.getDownloadKeyBtn()
             .scrollIntoView()
-            .should('be.visible')
+            .should("be.visible")
             .click({ force: true });
 
         this.waitForBackendRequestCompletion();
@@ -127,37 +128,31 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     deleteJob() {
         this.getDeleteJobBtn()
             .scrollIntoView()
-            .should('be.visible')
+            .should("be.visible")
             .click({ force: true });
     }
 
     confirmDeleteJob() {
         this.getConfirmDeleteBtn()
             .scrollIntoView()
-            .should('be.visible')
+            .should("be.visible")
             .click({ force: true });
     }
 
     navigateBackToDataJobs() {
-        this.getNavigateBackBtn()
-            .should('be.visible')
-            .click({ force: true });
+        this.getNavigateBackBtn().should("be.visible").click({ force: true });
 
         this.waitForBackendRequestCompletion();
     }
 
     openDetailsTab() {
-        this.getDetailsTab()
-            .should('exist')
-            .click({ force: true });
+        this.getDetailsTab().should("exist").click({ force: true });
 
         this.waitForBackendRequestCompletion();
     }
 
     openExecutionsTab() {
-        this.getExecutionsTab()
-            .should('exist')
-            .click({ force: true });
+        this.getExecutionsTab().should("exist").click({ force: true });
 
         this.waitForBackendRequestCompletion();
     }

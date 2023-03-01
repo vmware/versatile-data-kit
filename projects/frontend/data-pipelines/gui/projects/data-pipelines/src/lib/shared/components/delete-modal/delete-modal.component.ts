@@ -12,10 +12,9 @@ import { ModalComponentDirective } from '../modal';
 @Component({
     selector: 'lib-delete-modal',
     templateUrl: './delete-modal.component.html',
-    styleUrls: ['./delete-modal.component.css']
+    styleUrls: ['./delete-modal.component.css'],
 })
 export class DeleteModalComponent extends ModalComponentDirective {
-
     @Output() delete: EventEmitter<undefined> = new EventEmitter<undefined>();
 
     constructor() {

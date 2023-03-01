@@ -6,7 +6,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'parseEpoch'
+    name: 'parseEpoch',
 })
 export class ParseEpochPipe implements PipeTransform {
     /**

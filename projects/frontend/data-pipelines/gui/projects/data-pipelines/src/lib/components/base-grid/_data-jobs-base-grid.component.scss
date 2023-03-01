@@ -4,116 +4,116 @@
  */
 
 :host {
-  .label-link {
-    cursor: pointer;
-  }
-
-  ::ng-deep {
-    lib-grid-action {
-      display: flex;
-      flex-direction: column;
-
-      lib-quick-filters {
-        clr-icon {
-          margin-left: -5px;
-          margin-right: 3px;
-          margin-top: 1px;
-
-          &.status-icon-enabled {
-            color: #5aa220;
-          }
-
-          &.status-icon-disabled {
-            color: var(--clr-color-neutral-600);
-          }
-        }
-      }
+    .label-link {
+        cursor: pointer;
     }
 
-    clr-datagrid {
-      height: 100%;
+    ::ng-deep {
+        lib-grid-action {
+            display: flex;
+            flex-direction: column;
 
-      .datagrid-column,
-      .datagrid-cell {
-        &.column__min-width--xs {
-          min-width: 3.25rem;
+            lib-quick-filters {
+                clr-icon {
+                    margin-left: -5px;
+                    margin-right: 3px;
+                    margin-top: 1px;
+
+                    &.status-icon-enabled {
+                        color: #5aa220;
+                    }
+
+                    &.status-icon-disabled {
+                        color: var(--clr-color-neutral-600);
+                    }
+                }
+            }
         }
 
-        &.column__min-width--s {
-          min-width: 4.25rem;
-        }
-
-        &.column__min-width--m {
-          min-width: 4.8rem;
-        }
-
-        &.column__min-width--l {
-          min-width: 5.5rem;
-        }
-
-        &.column__min-width--xl {
-          min-width: 6.5rem;
-        }
-
-        &.column__max-width--xs {
-          max-width: 5rem;
-        }
-
-        &.column__max-width--s {
-          max-width: 6rem;
-        }
-
-        &.column__max-width--m {
-          max-width: 7rem;
-        }
-
-        &.column__max-width--l {
-          max-width: 8.5rem;
-        }
-
-        &.column__max-width--xl {
-          max-width: 10rem;
-        }
-
-        &.jobs-list__column-opener {
-          min-width: 75px;
-          width: 75px;
-        }
-      }
-
-      .datagrid-outer-wrapper {
-        .datagrid-inner-wrapper {
-          .datagrid {
-            flex-basis: 0;
-            margin-top: 0;
-          }
-
-          .datagrid-spinner {
-            top: 0;
+        clr-datagrid {
             height: 100%;
-          }
+
+            .datagrid-column,
+            .datagrid-cell {
+                &.column__min-width--xs {
+                    min-width: 3.25rem;
+                }
+
+                &.column__min-width--s {
+                    min-width: 4.25rem;
+                }
+
+                &.column__min-width--m {
+                    min-width: 4.8rem;
+                }
+
+                &.column__min-width--l {
+                    min-width: 5.5rem;
+                }
+
+                &.column__min-width--xl {
+                    min-width: 6.5rem;
+                }
+
+                &.column__max-width--xs {
+                    max-width: 5rem;
+                }
+
+                &.column__max-width--s {
+                    max-width: 6rem;
+                }
+
+                &.column__max-width--m {
+                    max-width: 7rem;
+                }
+
+                &.column__max-width--l {
+                    max-width: 8.5rem;
+                }
+
+                &.column__max-width--xl {
+                    max-width: 10rem;
+                }
+
+                &.jobs-list__column-opener {
+                    min-width: 75px;
+                    width: 75px;
+                }
+            }
+
+            .datagrid-outer-wrapper {
+                .datagrid-inner-wrapper {
+                    .datagrid {
+                        flex-basis: 0;
+                        margin-top: 0;
+                    }
+
+                    .datagrid-spinner {
+                        top: 0;
+                        height: 100%;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
-  .grid-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    .grid-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
 
-    .container {
-      height: 100%;
+        .container {
+            height: 100%;
+        }
     }
-  }
 
-  .grid-container-compact {
-    height: auto;
-    display: flex;
-    flex-direction: column;
+    .grid-container-compact {
+        height: auto;
+        display: flex;
+        flex-direction: column;
 
-    .container-compact {
-      height: 50vh;
+        .container-compact {
+            height: 50vh;
+        }
     }
-  }
 }

@@ -9,7 +9,7 @@ import { DataJobStatus, StatusDetails } from '../../model';
 
 @Pipe({
     name: 'extractJobStatus',
-    pure: false
+    pure: false,
 })
 export class ExtractJobStatusPipe implements PipeTransform {
     /**

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataPipelinesBasePO } from '../../application/data-pipelines-base.po';
+import { DataPipelinesBasePO } from "../../application/data-pipelines-base.po";
 
 export class AppPage extends DataPipelinesBasePO {
     static getPage() {
@@ -11,10 +11,10 @@ export class AppPage extends DataPipelinesBasePO {
     }
 
     static navigateTo() {
-        cy.visit('/');
+        cy.visit("/");
     }
 
     getMainTitle() {
-        return cy.get('[data-cy=app-main-title]');
+        return cy.get("[data-cy=app-main-title]");
     }
 }
