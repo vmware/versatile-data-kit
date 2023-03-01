@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 
 import { CollectionsUtil } from '@vdk/shared';
 
@@ -12,16 +19,14 @@ import { QuickFilter, QuickFilterChangeEvent, QuickFilters } from './model';
 @Component({
     selector: 'lib-quick-filters',
     templateUrl: './quick-filters.component.html',
-    styleUrls: ['./quick-filters.component.scss']
+    styleUrls: ['./quick-filters.component.scss'],
 })
 export class QuickFiltersComponent implements OnChanges {
     /**
      * ** Quick Filters array config.
      */
     @Input() set quickFilters(filters: QuickFilters) {
-        this._quickFilters = CollectionsUtil.isArray(filters)
-            ? filters
-            : [];
+        this._quickFilters = CollectionsUtil.isArray(filters) ? filters : [];
     }
 
     get quickFilters(): QuickFilters {
@@ -58,7 +63,7 @@ export class QuickFiltersComponent implements OnChanges {
      * ** NgFor elements tracking function.
      */
     trackByFn(index: number, filter: QuickFilter): string {
-        return `${ index }|${ filter.id }`;
+        return `${index}|${filter.id}`;
     }
 
     /**
@@ -69,10 +74,11 @@ export class QuickFiltersComponent implements OnChanges {
      */
     changeFilter(filter: QuickFilter): void {
         const executeOnDeactivate = (dFilter: QuickFilter) => {
-            if (this.suppressQuickFilterChangeEvent
-                && CollectionsUtil.isDefined(dFilter)
-                && CollectionsUtil.isFunction(dFilter.onDeactivate)) {
-
+            if (
+                this.suppressQuickFilterChangeEvent &&
+                CollectionsUtil.isDefined(dFilter) &&
+                CollectionsUtil.isFunction(dFilter.onDeactivate)
+            ) {
                 dFilter.onDeactivate();
             }
         };
@@ -90,17 +96,20 @@ export class QuickFiltersComponent implements OnChanges {
         }
 
         if (this.suppressQuickFilterChangeEvent) {
-            if (CollectionsUtil.isDefined(this.activatedFilter)
-                && CollectionsUtil.isFunction(this.activatedFilter.onActivate)) {
-
+            if (
+                CollectionsUtil.isDefined(this.activatedFilter) &&
+                CollectionsUtil.isFunction(this.activatedFilter.onActivate)
+            ) {
                 this.activatedFilter.onActivate();
             } else {
-                console.warn('QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.');
+                console.warn(
+                    'QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.'
+                );
             }
         } else {
             this.quickFilterChange.emit({
                 activatedFilter: this.activatedFilter,
-                deactivatedFilter: this._deactivatedFilter
+                deactivatedFilter: this._deactivatedFilter,
             });
         }
     }

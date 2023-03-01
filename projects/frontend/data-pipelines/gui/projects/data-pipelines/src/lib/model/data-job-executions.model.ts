@@ -7,7 +7,11 @@
 
 import { DirectionType } from '@vdk/shared';
 
-import { DataJobExecution, DataJobExecutionStatus, GraphQLResponsePage } from './data-job-base.model';
+import {
+    DataJobExecution,
+    DataJobExecutionStatus,
+    GraphQLResponsePage,
+} from './data-job-base.model';
 
 export type DataJobExecutions = DataJobExecution[];
 
@@ -26,7 +30,7 @@ export enum DataJobExecutionStatusDeprecated {
     SKIPPED = 'skipped',
     FAILED = 'failed', // Keep for backward compatibility
     USER_ERROR = 'user_error',
-    PLATFORM_ERROR = 'platform_error'
+    PLATFORM_ERROR = 'platform_error',
 }
 
 /**

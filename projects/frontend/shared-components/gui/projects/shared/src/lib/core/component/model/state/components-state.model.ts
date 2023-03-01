@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -8,11 +6,15 @@
 import { CollectionsUtil } from '../../../../utils';
 
 import { IDLE } from './component-status.model';
-import { ComponentState, ComponentStateImpl, LiteralComponentState } from './component-state.model';
+import {
+	ComponentState,
+	ComponentStateImpl,
+	LiteralComponentState
+} from './component-state.model';
 
 export interface LiteralComponentsState {
-    readonly components: { [name: string]: LiteralComponentState };
-    readonly routePathSegments: { [segmentId: string]: LiteralComponentsState };
+	readonly components: { [name: string]: LiteralComponentState };
+	readonly routePathSegments: { [segmentId: string]: LiteralComponentsState };
 }
 
 /**
@@ -21,263 +23,293 @@ export interface LiteralComponentsState {
  *
  */
 export class ComponentsStateHelper {
-    private _literalComponentsState: LiteralComponentsState;
+	private _literalComponentsState: LiteralComponentsState;
 
-    constructor() {
-        this._literalComponentsState = {
-            components: {},
-            routePathSegments: {}
-        };
-    }
+	constructor() {
+		this._literalComponentsState = {
+			components: {},
+			routePathSegments: {}
+		};
+	}
 
-    /**
-     * ** Returns LiteralComponentsState from Helper.
-     */
-    getState(): LiteralComponentsState {
-        return {
-            ...this._literalComponentsState
-        };
-    }
+	/**
+	 * ** Returns LiteralComponentsState from Helper.
+	 */
+	getState(): LiteralComponentsState {
+		return {
+			...this._literalComponentsState
+		};
+	}
 
-    /**
-     * ** Will set state to the local Helper state.
-     */
-    setState(literalComponentsState: LiteralComponentsState) {
-        this._literalComponentsState = this._shallowCloneComponentsState(literalComponentsState);
+	/**
+	 * ** Will set state to the local Helper state.
+	 */
+	setState(literalComponentsState: LiteralComponentsState) {
+		this._literalComponentsState = this._shallowCloneComponentsState(
+			literalComponentsState
+		);
 
-        return this;
-    }
+		return this;
+	}
 
-    /**
-     * ** Will return LiteralComponentState for given id and routePathSegments.
-     */
-    getLiteralComponentState(id: string, routePathSegments?: string[]): LiteralComponentState {
-        return this._getLiteralComponentState(
-            id,
-            CollectionsUtil.isArray(routePathSegments)
-                ? [...routePathSegments]
-                : [],
-            this._literalComponentsState
-        );
-    }
+	/**
+	 * ** Will return LiteralComponentState for given id and routePathSegments.
+	 */
+	getLiteralComponentState(
+		id: string,
+		routePathSegments?: string[]
+	): LiteralComponentState {
+		return this._getLiteralComponentState(
+			id,
+			CollectionsUtil.isArray(routePathSegments) ? [...routePathSegments] : [],
+			this._literalComponentsState
+		);
+	}
 
-    /**
-     * ** Get ComponentState for given id and routePathSegments.
-     */
-    getComponentState(id: string, routePathSegments?: string[]): ComponentState {
-        const literalComponentState = this._getLiteralComponentState(
-            id,
-            CollectionsUtil.isArray(routePathSegments)
-                ? [...routePathSegments]
-                : [],
-            this._literalComponentsState
-        );
+	/**
+	 * ** Get ComponentState for given id and routePathSegments.
+	 */
+	getComponentState(id: string, routePathSegments?: string[]): ComponentState {
+		const literalComponentState = this._getLiteralComponentState(
+			id,
+			CollectionsUtil.isArray(routePathSegments) ? [...routePathSegments] : [],
+			this._literalComponentsState
+		);
 
-        return CollectionsUtil.isDefined(literalComponentState)
-            ? ComponentStateImpl.fromLiteralComponentState(literalComponentState)
-            : null;
-    }
+		return CollectionsUtil.isDefined(literalComponentState)
+			? ComponentStateImpl.fromLiteralComponentState(literalComponentState)
+			: null;
+	}
 
-    /**
-     * ** Get all ComponentState for given routePathSegments.
-     */
-    getAllComponentState(routePathSegments: string[]): ComponentState[] {
-        return this._getAllComponentState(
-            CollectionsUtil.isArray(routePathSegments)
-                ? [...routePathSegments]
-                : [],
-            this._literalComponentsState
-        );
-    }
+	/**
+	 * ** Get all ComponentState for given routePathSegments.
+	 */
+	getAllComponentState(routePathSegments: string[]): ComponentState[] {
+		return this._getAllComponentState(
+			CollectionsUtil.isArray(routePathSegments) ? [...routePathSegments] : [],
+			this._literalComponentsState
+		);
+	}
 
-    /**
-     * ** Update LiteralComponentState.
-     */
-    updateLiteralComponentState(literalComponentState: LiteralComponentState): void {
-        return this._updateLiteralComponentState(
-            literalComponentState,
-            [...literalComponentState.routePathSegments],
-            this._literalComponentsState
-        );
-    }
+	/**
+	 * ** Update LiteralComponentState.
+	 */
+	updateLiteralComponentState(
+		literalComponentState: LiteralComponentState
+	): void {
+		return this._updateLiteralComponentState(
+			literalComponentState,
+			[...literalComponentState.routePathSegments],
+			this._literalComponentsState
+		);
+	}
 
-    /**
-     * ** Reset component status to NOT_LOADED for all ComponentState in a given routePathSegment.
-     */
-    resetComponentStates(routePathSegments: string[]): void {
-        this._resetComponentStates(
-            CollectionsUtil.isArray(routePathSegments)
-                ? [...routePathSegments]
-                : [],
-            this._literalComponentsState
-        );
-    }
+	/**
+	 * ** Reset component status to NOT_LOADED for all ComponentState in a given routePathSegment.
+	 */
+	resetComponentStates(routePathSegments: string[]): void {
+		this._resetComponentStates(
+			CollectionsUtil.isArray(routePathSegments) ? [...routePathSegments] : [],
+			this._literalComponentsState
+		);
+	}
 
-    /**
-     * ** Delete all ComponentState for given routePathSegment.
-     */
-    deleteRoutePathSegments(routePathSegments: string[]): void {
-        this._deleteRoutePathSegments(
-            CollectionsUtil.isArray(routePathSegments)
-                ? [...routePathSegments]
-                : [],
-            this._literalComponentsState
-        );
-    }
+	/**
+	 * ** Delete all ComponentState for given routePathSegment.
+	 */
+	deleteRoutePathSegments(routePathSegments: string[]): void {
+		this._deleteRoutePathSegments(
+			CollectionsUtil.isArray(routePathSegments) ? [...routePathSegments] : [],
+			this._literalComponentsState
+		);
+	}
 
-    /**
-     * ** Update ComponentState.
-     */
-    private _updateLiteralComponentState(
-        literalComponentState: LiteralComponentState,
-        routePathSegments: string[],
-        state: LiteralComponentsState): void {
+	/**
+	 * ** Update ComponentState.
+	 */
+	private _updateLiteralComponentState(
+		literalComponentState: LiteralComponentState,
+		routePathSegments: string[],
+		state: LiteralComponentsState
+	): void {
+		if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
+			state.components[literalComponentState.id] = literalComponentState;
 
-        if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
-            state.components[literalComponentState.id] = literalComponentState;
+			return;
+		}
 
-            return;
-        }
+		const routePathSegment = routePathSegments.shift();
 
-        const routePathSegment = routePathSegments.shift();
+		this._updateLiteralComponentState(
+			literalComponentState,
+			routePathSegments,
+			this._normalizeRoutePathSegments(
+				state.routePathSegments,
+				routePathSegment
+			)
+		);
+	}
 
-        this._updateLiteralComponentState(
-            literalComponentState,
-            routePathSegments,
-            this._normalizeRoutePathSegments(state.routePathSegments, routePathSegment)
-        );
-    }
+	/**
+	 * ** Get ComponentState.
+	 */
+	private _getLiteralComponentState(
+		id: string,
+		routePathSegments: string[],
+		state: LiteralComponentsState
+	): LiteralComponentState | null {
+		if (!state) {
+			return null;
+		}
 
-    /**
-     * ** Get ComponentState.
-     */
-    private _getLiteralComponentState(
-        id: string,
-        routePathSegments: string[],
-        state: LiteralComponentsState): LiteralComponentState | null {
+		if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
+			if (state.components[id]) {
+				return ComponentStateImpl.cloneDeepLiteral(state.components[id]);
+			}
 
-        if (!state) {
-            return null;
-        }
+			return null;
+		}
 
-        if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
-            if (state.components[id]) {
-                return ComponentStateImpl.cloneDeepLiteral(state.components[id]);
-            }
+		const routePathSegment = routePathSegments.shift();
 
-            return null;
-        }
+		return this._getLiteralComponentState(
+			id,
+			routePathSegments,
+			state.routePathSegments[routePathSegment]
+		);
+	}
 
-        const routePathSegment = routePathSegments.shift();
+	/**
+	 * ** Get all components for given routePathSegments.
+	 */
+	private _getAllComponentState(
+		routePathSegments: string[],
+		state: LiteralComponentsState
+	): ComponentState[] {
+		if (!state) {
+			return [];
+		}
 
-        return this._getLiteralComponentState(
-            id,
-            routePathSegments,
-            state.routePathSegments[routePathSegment]
-        );
-    }
+		const components: ComponentState[] = CollectionsUtil.objectValues(
+			state.components
+		).map((c) =>
+			ComponentStateImpl.fromLiteralComponentState(
+				ComponentStateImpl.cloneDeepLiteral(c)
+			)
+		);
 
-    /**
-     * ** Get all components for given routePathSegments.
-     */
-    private _getAllComponentState(routePathSegments: string[], state: LiteralComponentsState): ComponentState[] {
-        if (!state) {
-            return [];
-        }
+		if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
+			return components;
+		}
 
-        const components: ComponentState[] = CollectionsUtil.objectValues(state.components)
-                                                            .map((c) => ComponentStateImpl.fromLiteralComponentState(
-                                                                ComponentStateImpl.cloneDeepLiteral(c)
-                                                            ));
+		const routePathSegment = routePathSegments.shift();
 
-        if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
-            return components;
-        }
+		return [
+			...components,
+			...this._getAllComponentState(
+				routePathSegments,
+				state.routePathSegments[routePathSegment]
+			)
+		];
+	}
 
-        const routePathSegment = routePathSegments.shift();
+	/**
+	 * ** Reset component status to NOT_LOADED for all component in a given context.
+	 */
+	private _resetComponentStates(
+		routePathSegments: string[],
+		state: LiteralComponentsState
+	): void {
+		CollectionsUtil.iterateObject(state.components, (componentState, id) => {
+			state.components[id] = { ...componentState, status: IDLE };
+		});
 
-        return [
-            ...components,
-            ...this._getAllComponentState(routePathSegments, state.routePathSegments[routePathSegment])
-        ];
-    }
+		if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
+			return;
+		}
 
-    /**
-     * ** Reset component status to NOT_LOADED for all component in a given context.
-     */
-    private _resetComponentStates(routePathSegments: string[], state: LiteralComponentsState): void {
-        CollectionsUtil.iterateObject(state.components, (componentState, id) => {
-            state.components[id] = { ...componentState, status: IDLE };
-        });
+		const routePathSegment = routePathSegments.shift();
 
-        if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
-            return;
-        }
+		this._resetComponentStates(
+			routePathSegments,
+			this._normalizeRoutePathSegments(
+				state.routePathSegments,
+				routePathSegment
+			)
+		);
+	}
 
-        const routePathSegment = routePathSegments.shift();
+	/**
+	 * ** Delete all components state for a given route path segment.
+	 */
+	private _deleteRoutePathSegments(
+		routePathSegments: string[],
+		state: LiteralComponentsState
+	): void {
+		const routePathSegment = routePathSegments.shift();
 
-        this._resetComponentStates(
-            routePathSegments,
-            this._normalizeRoutePathSegments(state.routePathSegments, routePathSegment)
-        );
-    }
+		if (!routePathSegment) {
+			return;
+		}
 
-    /**
-     * ** Delete all components state for a given route path segment.
-     */
-    private _deleteRoutePathSegments(routePathSegments: string[], state: LiteralComponentsState): void {
-        const routePathSegment = routePathSegments.shift();
+		if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
+			delete state.routePathSegments[routePathSegment];
 
-        if (!routePathSegment) {
-            return;
-        }
+			return;
+		}
 
-        if (CollectionsUtil.isArrayEmpty(routePathSegments)) {
-            delete state.routePathSegments[routePathSegment];
+		this._deleteRoutePathSegments(
+			routePathSegments,
+			this._normalizeRoutePathSegments(
+				state.routePathSegments,
+				routePathSegment
+			)
+		);
+	}
 
-            return;
-        }
+	/**
+	 * ** Normalize Route path segments.
+	 */
+	private _normalizeRoutePathSegments(
+		urlSegments: { [segmentId: string]: LiteralComponentsState },
+		urlSegmentName: string
+	): LiteralComponentsState {
+		if (CollectionsUtil.isNil(urlSegments[urlSegmentName])) {
+			urlSegments[urlSegmentName] = {
+				components: {},
+				routePathSegments: {}
+			};
+		}
 
-        this._deleteRoutePathSegments(
-            routePathSegments,
-            this._normalizeRoutePathSegments(state.routePathSegments, routePathSegment)
-        );
-    }
+		return urlSegments[urlSegmentName];
+	}
 
-    /**
-     * ** Normalize Route path segments.
-     */
-    private _normalizeRoutePathSegments(
-        urlSegments: { [segmentId: string]: LiteralComponentsState },
-        urlSegmentName: string): LiteralComponentsState {
+	private _shallowCloneComponentsState(
+		source: LiteralComponentsState,
+		target?: LiteralComponentsState
+	): LiteralComponentsState {
+		const _source: LiteralComponentsState = source ?? {
+			components: {},
+			routePathSegments: {}
+		};
+		const _target: LiteralComponentsState = target ?? {
+			components: {},
+			routePathSegments: {}
+		};
 
-        if (CollectionsUtil.isNil(urlSegments[urlSegmentName])) {
-            urlSegments[urlSegmentName] = {
-                components: {},
-                routePathSegments: {}
-            };
-        }
+		CollectionsUtil.iterateObject(_source.components, (value, key) => {
+			_target.components[key] = value;
+		});
 
-        return urlSegments[urlSegmentName];
-    }
+		CollectionsUtil.iterateObject(_source.routePathSegments, (value, key) => {
+			_target.routePathSegments[key] = {
+				components: {},
+				routePathSegments: {}
+			};
 
-    private _shallowCloneComponentsState(source: LiteralComponentsState, target?: LiteralComponentsState): LiteralComponentsState {
-        const _source: LiteralComponentsState = source ?? { components: {}, routePathSegments: {} };
-        const _target: LiteralComponentsState = target ?? { components: {}, routePathSegments: {} };
+			this._shallowCloneComponentsState(value, _target.routePathSegments[key]);
+		});
 
-        CollectionsUtil.iterateObject(_source.components, (value, key) => {
-            _target.components[key] = value;
-        });
-
-        CollectionsUtil.iterateObject(_source.routePathSegments, (value, key) => {
-            _target.routePathSegments[key] = {
-                components: {},
-                routePathSegments: {}
-            };
-
-            this._shallowCloneComponentsState(value, _target.routePathSegments[key]);
-        });
-
-        return _target;
-    }
+		return _target;
+	}
 }

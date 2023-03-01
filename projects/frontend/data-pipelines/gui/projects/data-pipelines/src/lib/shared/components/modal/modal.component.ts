@@ -13,9 +13,11 @@ import { ModalOptions } from '../../model';
 export abstract class ModalComponentDirective extends TaurusObject {
     @Input() options: ModalOptions;
 
-    @Output() optionsChange: EventEmitter<ModalOptions> = new EventEmitter<ModalOptions>();
+    @Output() optionsChange: EventEmitter<ModalOptions> =
+        new EventEmitter<ModalOptions>();
 
-    @Output() cancelAction: EventEmitter<undefined> = new EventEmitter<undefined>();
+    @Output() cancelAction: EventEmitter<undefined> =
+        new EventEmitter<undefined>();
 
     constructor() {
         super();

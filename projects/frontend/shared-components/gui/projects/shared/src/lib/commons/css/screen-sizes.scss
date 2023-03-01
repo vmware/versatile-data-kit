@@ -25,25 +25,25 @@ $xxl-min-width: 1919px;
 $min-el-size: 310px;
 
 .medium-and-up {
-    @media screen and (max-width: $medium-width2) {
-        display: none !important;
-    }
+	@media screen and (max-width: $medium-width2) {
+		display: none !important;
+	}
 }
 
 .small-and-up {
-    @media screen and (max-width: $xs-max) {
-        display: none !important;
-    }
+	@media screen and (max-width: $xs-max) {
+		display: none !important;
+	}
 }
 
 .medium-and-down {
-    @media screen and (min-width: $medium-width) {
-        display: none !important;
-    }
+	@media screen and (min-width: $medium-width) {
+		display: none !important;
+	}
 }
 
 .small-and-down {
-    @media screen and (min-width: $small-width) {
-        display: none !important;
-    }
+	@media screen and (min-width: $small-width) {
+		display: none !important;
+	}
 }

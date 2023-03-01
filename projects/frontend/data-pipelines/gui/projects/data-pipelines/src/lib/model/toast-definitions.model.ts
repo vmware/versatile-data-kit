@@ -12,7 +12,7 @@ export class ToastDefinitions {
         return {
             type: VmwToastType.INFO,
             title: `Data job Queued for execution`,
-            description: `Data job "${ jobName }" successfully queued for execution.`
+            description: `Data job "${jobName}" successfully queued for execution.`,
         };
     }
 }

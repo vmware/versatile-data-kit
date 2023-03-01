@@ -32,7 +32,6 @@ export function setJobDataToDefault() {
  */
 setJobDataToDefault();
 
-
 /*
  * Function taht return the JSON object of jobData
  * TODO: find a better wat to parse the Map into JSON object
