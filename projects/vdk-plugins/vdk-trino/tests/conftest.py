@@ -5,29 +5,15 @@ import time
 from unittest import mock
 
 import pytest
-from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.plugin.trino import trino_plugin
+from testcontainers.core.container import DockerContainer
+from testcontainers.core.waiting_utils import wait_for_logs
+
+TRINO_IMAGE = "trinodb/trino:latest"
 
 VDK_TRINO_HOST = "VDK_TRINO_HOST"
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
-
-
-def is_responsive(runner):
-    try:
-        result = runner.invoke(["trino-query", "--query", "SELECT 1"])
-        if result.exit_code == 0:
-            return True
-    except:
-        return False
-
-
-@pytest.fixture(scope="session")
-def docker_compose_file(pytestconfig):
-    return os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "docker-compose.yml"
-    )
 
 
 @pytest.fixture(scope="session")
@@ -40,19 +26,32 @@ def docker_compose_file(pytestconfig):
         VDK_TRINO_USE_SSL: "False",
     },
 )
-def trino_service(docker_ip, docker_services):
+def trino_service(request):
     """Ensure that Trino service is up and responsive."""
     # os.system("echo Check open ports:")
     # os.system("ss -lntu")
-    runner = CliEntryBasedTestRunner(trino_plugin)
+    port = int(os.environ[VDK_TRINO_PORT])
+    container = DockerContainer(TRINO_IMAGE).with_bind_ports(port, port)
+    try:
+        container.start()
+        # following instructions in https://hub.docker.com/r/trinodb/trino
+        # Wait for the following message log line:
+        wait_for_logs(container, "SERVER STARTED", timeout=120)
+        # wait 2 seconds to make sure the service is up and responsive
+        # might be unnecessary but it's out of abundance of caution
+        time.sleep(2)
+        print(
+            f"Trino service started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
+        )
+    except Exception as e:
+        print(f"Failed to start Trino service: {e}")
+        print(f"Container logs: {container.get_logs()}")
+        raise e
 
-    # give the server some time to start before checking if it is ready
-    # before adding this sleep there were intermittent fails of the CI/CD with error:
-    # requests.exceptions.ConnectionError:
-    #   ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
-    # More info: https://stackoverflow.com/questions/383738/104-connection-reset-by-peer-socket-error-or-when-does-closing-a-socket-resu
-    time.sleep(3)
+    def stop_container():
+        container.stop()
+        print("Trino service stopped")
 
-    docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.3, check=lambda: is_responsive(runner)
-    )
+    request.addfinalizer(stop_container)
+
+    return container
