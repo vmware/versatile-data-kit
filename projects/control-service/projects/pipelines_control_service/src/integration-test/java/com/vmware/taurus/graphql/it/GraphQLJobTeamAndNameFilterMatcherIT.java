@@ -1,9 +1,9 @@
-package com.vmware.taurus.graphql.it;
-
 /*
- * Copyright 2021 VMware, Inc.
+ * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
+
+package com.vmware.taurus.graphql.it;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
@@ -131,22 +131,6 @@ public class GraphQLJobTeamAndNameFilterMatcherIT extends BaseIT {
     createJobWithTeam("another-team", "another-job");
     testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
         "test-team", "unrelated-*", "\"jobName\"");
-  }
-
-  @Test
-  public void testFilterByTeamNameWildcardMatch_multipleJobs_shouldRetrieve() throws Exception {
-    createJobWithTeam("test-team", "test-job");
-    createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(
-        "test-team", "test-*", "\"config.team\"");
-  }
-
-  @Test
-  public void testFilterByTeamNameWildcardMatch_multipleJobs_shouldNotRetrieve() throws Exception {
-    createJobWithTeam("test-team", "test-job");
-    createJobWithTeam("another-team", "another-job");
-    testJobApiRetrievalWithTeamNameAndSearchString_retrieveNotExpected(
-        "test-team", "unrelated-*", "\"config.team\"");
   }
 
   private void testJobApiRetrievalWithTeamNameAndSearchString_retrieveExpected(

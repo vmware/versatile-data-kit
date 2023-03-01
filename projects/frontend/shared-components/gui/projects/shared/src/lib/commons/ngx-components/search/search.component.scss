@@ -1,0 +1,95 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:host {
+	width: 200px;
+	display: block;
+}
+
+.search-container {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	width: 100%;
+	margin-bottom: 0;
+	margin: 0.5rem 0;
+
+	&.disabled {
+		cursor: not-allowed;
+
+		* {
+			pointer-events: none;
+		}
+
+		input {
+			color: #888888;
+		}
+
+		cds-icon[shape='search'] {
+			fill: #888888;
+		}
+
+		.clear-search-btn {
+			cds-icon[shape='times-circle'] {
+				fill: #888888;
+			}
+		}
+	}
+
+	cds-icon[shape='search'] {
+		height: 18px;
+		position: absolute;
+		top: 3px;
+		left: 0;
+	}
+
+	&.focused {
+		cds-icon[shape='search'] {
+			fill: var(--clr-forms-focused-color);
+			stroke: var(--clr-forms-focused-color);
+			stroke-width: 0.75px;
+		}
+	}
+
+	.clear-search-btn {
+		position: absolute;
+		top: -1px;
+		right: 0;
+		padding: 0;
+		border: transparent;
+		background-color: transparent;
+
+		cds-icon[shape='times-circle'] {
+			fill: #565656;
+			opacity: 0.8;
+			&:hover {
+				cursor: pointer;
+				opacity: 1;
+			}
+		}
+	}
+
+	.btn-link {
+		position: absolute;
+		right: 0;
+		top: -6px;
+		margin: 0;
+	}
+
+	input {
+		padding: 0 24px;
+		flex: 1 1 24px;
+	}
+}
+
+:host-context(.dark) {
+	.clear-search-btn {
+		color: #d3d3d3;
+
+		cds-icon[shape='times-circle'] {
+			fill: #acbac3;
+		}
+	}
+}

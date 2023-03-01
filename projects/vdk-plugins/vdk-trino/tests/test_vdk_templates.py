@@ -1,9 +1,10 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
 import pathlib
 import unittest
+import uuid
 from unittest import mock
 
 import pytest
@@ -27,7 +28,9 @@ org_move_data_to_table = TrinoTemplateQueries.move_data_to_table
 def trino_move_data_to_table_break_tmp_to_target(
     obj, from_db: str, from_table_name: str, to_db: str, to_table_name: str
 ):
-    if from_table_name == "tmp_dw_scmdb_people" and to_table_name == "dw_scmdb_people":
+    if from_table_name.startswith("tmp_dw_people") and to_table_name.startswith(
+        "dw_people"
+    ):
         obj.drop_table(from_db, from_table_name)
     return org_move_data_to_table(obj, from_db, from_table_name, to_db, to_table_name)
 
@@ -35,34 +38,44 @@ def trino_move_data_to_table_break_tmp_to_target(
 def trino_move_data_to_table_break_tmp_to_target_and_restore(
     obj, from_db: str, from_table_name: str, to_db: str, to_table_name: str
 ):
-    if from_table_name == "tmp_dw_scmdb_people" and to_table_name == "dw_scmdb_people":
-        obj.drop_table(from_db, from_table_name)
-    if (
-        from_table_name == "backup_dw_scmdb_people"
-        and to_table_name == "dw_scmdb_people"
+    if from_table_name.startswith("tmp_dw_people") and to_table_name.startswith(
+        "dw_people"
     ):
         obj.drop_table(from_db, from_table_name)
+
+    if from_table_name.startswith("backup_dw_people") and to_table_name.startswith(
+        "dw_people"
+    ):
+        obj.drop_table(from_db, from_table_name)
+
     return org_move_data_to_table(obj, from_db, from_table_name, to_db, to_table_name)
 
 
+@pytest.fixture(autouse=True)
+def mock_os_environ():
+    with mock.patch.dict(
+        os.environ,
+        {
+            VDK_DB_DEFAULT_TYPE: "TRINO",
+            VDK_TRINO_PORT: "8080",
+            VDK_TRINO_USE_SSL: "False",
+            VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "INSERT_SELECT",
+        },
+    ):
+        yield
+
+
 @pytest.mark.usefixtures("trino_service")
-@mock.patch.dict(
-    os.environ,
-    {
-        VDK_DB_DEFAULT_TYPE: "TRINO",
-        VDK_TRINO_PORT: "8080",
-        VDK_TRINO_USE_SSL: "False",
-        VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "INSERT_SELECT",
-    },
-)
-class TemplateRegressionTests(unittest.TestCase):
+class TestTemplates(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(trino_plugin)
+        self.__schema = f"source_{uuid.uuid4().hex[:10]}"
+        self.__trino_query("create schema " + self.__schema)
 
     def test_scd1_template(self) -> None:
-        source_schema = "default"
+        source_schema = self.__schema
         source_view = "vw_dim_org"
-        target_schema = "default"
+        target_schema = self.__schema
         target_table = "dw_dim_org"
 
         result: Result = self.__runner.invoke(
@@ -86,6 +99,7 @@ class TemplateRegressionTests(unittest.TestCase):
 
         cli_assert_equal(0, result)
 
+        # refactor below to use vdk-trino-query
         actual_rs: Result = self.__runner.invoke(
             [
                 "trino-query",
@@ -112,10 +126,17 @@ class TemplateRegressionTests(unittest.TestCase):
             actual_rs.output == expected_rs.output
         ), f"Elements in {source_view} and {target_table} differ."
 
+    def test_scd1_template_using_rename_strategy(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "RENAME"},
+        ):
+            self.test_scd1_template()
+
     def test_scd1_template_reserved_args(self) -> None:
-        source_schema = "default"
+        source_schema = self.__schema
         source_view = "alter"
-        target_schema = "default"
+        target_schema = self.__schema
         target_table = "table"
 
         result: Result = self.__runner.invoke(
@@ -166,10 +187,10 @@ class TemplateRegressionTests(unittest.TestCase):
         ), f"Elements in {source_view} and {target_table} differ."
 
     def test_scd2_template(self) -> None:
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people_scd2"
+        target_table = "dw_people_scd2"
+        expect_table = "ex_people_scd2"
 
         result: Result = self.__scd2_template_execute(
             test_schema, source_view, target_table, expect_table
@@ -182,8 +203,15 @@ class TemplateRegressionTests(unittest.TestCase):
             1, self.__template_table_exists(test_schema, "backup_" + target_table)
         )
 
+    def test_scd2_template_using_rename_strategy(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "RENAME"},
+        ):
+            self.test_scd2_template()
+
     def test_scd2_template_reserved_args(self) -> None:
-        test_schema = "default"
+        test_schema = self.__schema
         source_view = "alter"
         target_table = "table"
         expect_table = "between"
@@ -202,10 +230,10 @@ class TemplateRegressionTests(unittest.TestCase):
         )
 
     def test_scd2_template_restore_target_from_backup_on_start(self) -> None:
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people_scd2_restore"
+        target_table = "dw_people_scd2_restore"
+        expect_table = "ex_people_scd2_restore"
 
         result: Result = self.__scd2_template_execute(
             test_schema, source_view, target_table, expect_table, True
@@ -224,10 +252,10 @@ class TemplateRegressionTests(unittest.TestCase):
         new=trino_move_data_to_table_break_tmp_to_target,
     )
     def test_scd2_template_fail_last_step_and_restore_target(self):
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people"
+        target_table = "dw_people_scd2_fail_restore"
+        expect_table = "ex_people_scd2_fail_restore"
 
         result: Result = self.__scd2_template_execute(
             test_schema, source_view, target_table, expect_table
@@ -243,10 +271,10 @@ class TemplateRegressionTests(unittest.TestCase):
         new=trino_move_data_to_table_break_tmp_to_target_and_restore,
     )
     def test_scd2_template_fail_last_step_and_fail_restore_target(self):
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people_scd2_fail_fail_restore"
+        target_table = "dw_people_scd2_fail_fail_restore"
+        expect_table = "ex_people_scd2_fail_fail_restore"
 
         result: Result = self.__scd2_template_execute(
             test_schema, source_view, target_table, expect_table
@@ -261,7 +289,7 @@ class TemplateRegressionTests(unittest.TestCase):
         ), "Missing log for losing target schema."
 
     def test_fact_periodic_snapshot_template(self) -> None:
-        test_schema = "default"
+        test_schema = self.__schema
         source_view = "vw_fact_sddc_daily"
         target_table = "dw_fact_sddc_daily"
         expect_table = "ex_fact_sddc_daily"
@@ -275,8 +303,15 @@ class TemplateRegressionTests(unittest.TestCase):
             test_schema, target_table, expect_table
         )
 
+    def test_fact_periodic_snapshot_template_using_rename_strategy(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "RENAME"},
+        ):
+            self.test_fact_periodic_snapshot_template()
+
     def test_fact_periodic_snapshot_template_reserved_args(self) -> None:
-        test_schema = "default"
+        test_schema = self.__schema
         source_view = "alter"
         target_table = "table"
         expect_table = "between"
@@ -291,10 +326,10 @@ class TemplateRegressionTests(unittest.TestCase):
         )
 
     def test_fact_periodic_snapshot_empty_source(self) -> None:
-        test_schema = "default"
-        source_view = "vw_fact_sddc_daily"
-        target_table = "dw_fact_sddc_daily"
-        expect_table = "ex_fact_sddc_daily"
+        test_schema = self.__schema
+        source_view = "vw_fact_sddc_daily_empty_source"
+        target_table = "dw_fact_sddc_daily_empty_source"
+        expect_table = "ex_fact_sddc_daily_empty_source"
 
         result: Result = self.__runner.invoke(
             [
@@ -331,10 +366,10 @@ class TemplateRegressionTests(unittest.TestCase):
     def test_fact_periodic_snapshot_template_restore_target_from_backup_on_start(
         self,
     ) -> None:
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people_fact_restore"
+        target_table = "dw_people_fact_restore"
+        expect_table = "ex_people_fact_restore"
 
         result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table, True
@@ -355,10 +390,10 @@ class TemplateRegressionTests(unittest.TestCase):
         new=trino_move_data_to_table_break_tmp_to_target,
     )
     def test_fact_periodic_snapshot_template_fail_last_step_and_restore_target(self):
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people_fact_fail_restore"
+        target_table = "dw_people_fact_fail_restore"
+        expect_table = "ex_people_fact_fail_restore"
 
         result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table
@@ -376,10 +411,10 @@ class TemplateRegressionTests(unittest.TestCase):
     def test_fact_periodic_snapshot_template_fail_last_step_and_fail_restore_target(
         self,
     ):
-        test_schema = "default"
-        source_view = "vw_scmdb_people"
-        target_table = "dw_scmdb_people"
-        expect_table = "ex_scmdb_people"
+        test_schema = self.__schema
+        source_view = "vw_people_fact_fail_fail_restore"
+        target_table = "dw_people_fact_fail_fail_restore"
+        expect_table = "ex_people_fact_fail_fail_restore"
 
         result: Result = self.__fact_periodic_snapshot_template_execute(
             test_schema, source_view, target_table, expect_table
@@ -570,15 +605,11 @@ class TemplateRegressionTests(unittest.TestCase):
             ]
         )
 
-
-@mock.patch.dict(
-    os.environ,
-    {
-        VDK_DB_DEFAULT_TYPE: "TRINO",
-        VDK_TRINO_PORT: "8080",
-        VDK_TRINO_USE_SSL: "False",
-        VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "RENAME",
-    },
-)
-class TemplateRegressionTestsRenameStrategy(TemplateRegressionTests):
-    pass
+    def __trino_query(self, query: str) -> Result:
+        return self.__runner.invoke(
+            [
+                "trino-query",
+                "--query",
+                query,
+            ]
+        )

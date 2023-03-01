@@ -1,0 +1,113 @@
+{
+  "extends": "../../.eslintrc.json",
+  "ignorePatterns": [
+    "!**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "projects/data-pipelines/tsconfig.lib.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "rules": {
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "lib",
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "lib",
+            "style": "camelCase"
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": "property",
+            "format": [
+              "camelCase"
+            ],
+            "leadingUnderscore": "allow",
+            "filter": {
+              // you can expand this regex to add more allowed names
+              "regex": "^((\\$\\..+))$",
+              "match": false
+            }
+          },
+          {
+            "selector": "classProperty",
+            "modifiers": [
+              "static"
+            ],
+            "format": [
+              "camelCase",
+              "UPPER_CASE"
+            ],
+            "leadingUnderscore": "allow"
+          }
+        ],
+        "@typescript-eslint/no-shadow": "error",
+        "no-shadow": "off"
+      }
+    },
+    {
+      "files": [
+        "*.spec.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "projects/data-pipelines/tsconfig.spec.json"
+        ]
+      },
+      "rules": {
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": "objectLiteralProperty",
+            "format": [
+              "camelCase"
+            ],
+            "leadingUnderscore": "allow",
+            "filter": {
+              // you can expand this regex to add more allowed names
+              "regex": "^((\\$\\..+)|(test_)|(data-)|(aria-))",
+              "match": false
+            }
+          },
+          {
+            "selector": "classProperty",
+            "modifiers": [
+              "static"
+            ],
+            "format": [
+              "camelCase",
+              "UPPER_CASE"
+            ],
+            "leadingUnderscore": "allow"
+          }
+        ],
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-floating-promises": "off",
+        "@typescript-eslint/unbound-method": "off"
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "rules": {}
+    }
+  ]
+}

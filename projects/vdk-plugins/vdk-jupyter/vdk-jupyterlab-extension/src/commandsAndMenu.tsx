@@ -11,7 +11,10 @@ import {
 import CreateJobDialog from './components/CreateJob';
 import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
-import { removeCreateJobDataFromSessionStorage } from './utils';
+import { jobData, setJobDataToDefault } from './jobData';
+import { VdkOption } from './vdkOptions/vdk_options';
+
+var runningVdkOperation = false;
 
 export function updateVDKMenu(commands: CommandRegistry) {
   commands.addCommand('jp-vdk:menu-run', {
@@ -19,19 +22,29 @@ export function updateVDKMenu(commands: CommandRegistry) {
     caption: 'Execute VDK Run Command',
     execute: async () => {
       try {
-        const result = await showDialog({
-          title: 'Run Job',
-          body: (
-            <RunJobDialog
-              jobPath={sessionStorage.getItem('current-path')!}
-            ></RunJobDialog>
-          ),
-          buttons: [Dialog.okButton(), Dialog.cancelButton()]
-        });
-        if (!result.value) {
-          if (result.button.accept) {
-            jobRunRequest();
+        if (!runningVdkOperation) {
+          runningVdkOperation = true;
+          const result = await showDialog({
+            title: 'Run Job',
+            body: (
+              <RunJobDialog
+                jobPath={sessionStorage.getItem('current-path')!}
+              ></RunJobDialog>
+            ),
+            buttons: [Dialog.okButton(), Dialog.cancelButton()]
+          });
+          const resultButtonClicked = !result.value && result.button.accept;
+          if (resultButtonClicked) {
+            await jobRunRequest();
           }
+          setJobDataToDefault();
+          runningVdkOperation = false;
+        } else {
+          showErrorMessage(
+            'Another VDK operation is currently running!',
+            'Please wait until the operation ends!',
+            [Dialog.okButton()]
+          );
         }
       } catch (error) {
         await showErrorMessage(
@@ -51,20 +64,31 @@ export function updateVDKMenu(commands: CommandRegistry) {
         .getItem('current-path')!
         .substring(sessionStorage.getItem('current-path')!.lastIndexOf('/'));
       try {
-        const result = await showDialog({
-          title: 'Create Job',
-          body: (
-            <CreateJobDialog
-              jobPath={sessionStorage.getItem('current-path')!}
-              jobName={defaultJobName}
-            ></CreateJobDialog>
-          ),
-          buttons: [Dialog.okButton(), Dialog.cancelButton()]
-        });
-        if (!result.value) {
-          createJobRequest();
+        if (!runningVdkOperation) {
+          runningVdkOperation = true;
+          const result = await showDialog({
+            title: 'Create Job',
+            body: (
+              <CreateJobDialog
+                jobPath={sessionStorage.getItem('current-path')!}
+                jobName={defaultJobName}
+              ></CreateJobDialog>
+            ),
+            buttons: [Dialog.okButton(), Dialog.cancelButton()]
+          });
+          const resultButtonClicked = !result.value && result.button.accept;
+          if (resultButtonClicked) {
+            await createJobRequest();
+          }
+          setJobDataToDefault();
+          runningVdkOperation = false;
+        } else {
+          showErrorMessage(
+            'Another VDK operation is currently running!',
+            'Please wait until the operation ends!',
+            [Dialog.okButton()]
+          );
         }
-        removeCreateJobDataFromSessionStorage();
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when running the job. Error:',
@@ -75,51 +99,58 @@ export function updateVDKMenu(commands: CommandRegistry) {
     }
   });
 
-  sessionStorage.setItem('delete-job-team', 'default-team');
   commands.addCommand('jp-vdk:menu-delete', {
     label: 'Delete',
     caption: 'Execute VDK Delete Command',
     execute: async () => {
-      let defaultJobName = sessionStorage
-        .getItem('current-path')!
-        .substring(sessionStorage.getItem('current-path')!.lastIndexOf('/'));
       try {
-        const result = await showDialog({
-          title: 'Delete Job',
-          body: (
-            <DeleteJobDialog
-              jobName={defaultJobName}
-              jobTeam={sessionStorage.getItem('delete-job-team')!}
-            ></DeleteJobDialog>
-          ),
-          buttons: [Dialog.okButton(), Dialog.cancelButton()]
-        });
-        if (result.button.accept) {
-          let bodyMessage =
-            'Do you really want to delete the job with name ' +
-            sessionStorage.getItem('delete-job-name') +
-            ' from ' +
-            sessionStorage.getItem('delete-job-rest-api-url') +
-            '?';
-          try {
-            const finalResult = await showDialog({
-              title: 'Delete a data job',
-              body: bodyMessage,
-              buttons: [
-                Dialog.cancelButton({ label: 'Cancel' }),
-                Dialog.warnButton({ label: 'Yes' })
-              ]
-            });
-            if (finalResult.button.accept) {
-              deleteJobRequest();
+        if (!runningVdkOperation) {
+          runningVdkOperation = true;
+          const result = await showDialog({
+            title: 'Delete Job',
+            body: (
+              <DeleteJobDialog
+                jobName="job-to-delete"
+                jobTeam="default-team"
+              ></DeleteJobDialog>
+            ),
+            buttons: [Dialog.okButton(), Dialog.cancelButton()]
+          });
+          if (result.button.accept) {
+            let bodyMessage =
+              'Do you really want to delete the job with name ' +
+              jobData.get(VdkOption.NAME) +
+              ' from ' +
+              jobData.get(VdkOption.REST_API_URL) +
+              '?';
+            try {
+              const finalResult = await showDialog({
+                title: 'Delete a data job',
+                body: bodyMessage,
+                buttons: [
+                  Dialog.cancelButton({ label: 'Cancel' }),
+                  Dialog.okButton({ label: 'Yes' })
+                ]
+              });
+              if (finalResult.button.accept) {
+                await deleteJobRequest();
+              }
+            } catch (error) {
+              await showErrorMessage(
+                'Encountered an error when deleting the job. Error:',
+                error,
+                [Dialog.okButton()]
+              );
             }
-          } catch (error) {
-            await showErrorMessage(
-              'Encountered an error when deleting the job. Error:',
-              error,
-              [Dialog.okButton()]
-            );
           }
+          setJobDataToDefault();
+          runningVdkOperation = false;
+        } else {
+          showErrorMessage(
+            'Another VDK operation is currently running!',
+            'Please wait until the operation ends!',
+            [Dialog.okButton()]
+          );
         }
       } catch (error) {
         await showErrorMessage(
@@ -136,6 +167,8 @@ export function updateVDKMenu(commands: CommandRegistry) {
     caption: 'Execute VDK Download Command',
     execute: async () => {
       try {
+        if (!runningVdkOperation) {
+          runningVdkOperation = true;
         const result = await showDialog({
           title: 'Download Job',
           body: (
@@ -145,11 +178,19 @@ export function updateVDKMenu(commands: CommandRegistry) {
           ),
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
-        if (!result.value) {
-          if (result.button.accept) {
-            downloadJobRequest();
-          }
+        const resultButtonClicked = !result.value && result.button.accept;
+        if (resultButtonClicked) {
+          await downloadJobRequest();
         }
+        setJobDataToDefault();
+        runningVdkOperation = false;
+      } else {
+        showErrorMessage(
+          'Another VDK operation is currently running!',
+          'Please wait until the operation ends!',
+          [Dialog.okButton()]
+        );
+      }
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to download the job. Error:',

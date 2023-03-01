@@ -1,0 +1,48 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<clr-datagrid
+    class="datagrid-failed-executions-widget"
+    data-cy="data-pipelines-job-failed-widget-datagrid"
+    [clrDgLoading]="loading"
+>
+    <clr-dg-placeholder>We couldn't find any failed jobs!</clr-dg-placeholder>
+
+    <clr-dg-column
+        class="header-title"
+        data-cy="data-pipelines-job-failed-widget-job-name"
+        [clrDgSortBy]="'jobName'"
+        >Jobs with Failing executions - Last 24h
+    </clr-dg-column>
+
+    <clr-dg-column
+        data-cy="data-pipelines-job-failed-widget-failed-executions"
+        class="label-column"
+        [clrDgSortBy]="'failedTotal'"
+        >Failed executions
+    </clr-dg-column>
+
+    <clr-dg-row
+        *clrDgItems="let dataJob of dataJobs; trackBy: trackByFn"
+        [clrDgItem]="dataJob"
+    >
+        <clr-dg-cell class="no-padding job-name-column">
+            <a
+                class="btn btn-link job-name-column"
+                alt="Navigate to Manage Data jobs"
+                data-cy="dp-failed-data-jobs-widget-job-name-link"
+                (click)="navigateToJobDetails(dataJob)"
+            >
+                {{ dataJob.jobName }}
+            </a>
+        </clr-dg-cell>
+
+        <clr-dg-cell class="center">
+            <span class="label label-danger custom-label">{{
+                dataJob.failedTotal
+            }}</span>
+        </clr-dg-cell>
+    </clr-dg-row>
+</clr-datagrid>

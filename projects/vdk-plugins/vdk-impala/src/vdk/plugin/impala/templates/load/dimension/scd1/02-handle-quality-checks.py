@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
@@ -25,17 +25,19 @@ def run(job_input: IJobInput):
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
-    staging_schema = job_arguments.get("staging_schema", target_schema)
     insert_query = get_query("02-insert-into-target.sql")
-    staging_table_name = f"vdk_check_{target_table}"
 
     if check:
-        if not staging_schema:
+        staging_schema = job_arguments.get("staging_schema", target_schema)
+        staging_table_name = f"vdk_check_{target_schema}_{target_table}"
+
+        if len(staging_table_name) > 128:
             raise ValueError(
-                "No staging_schema specified to execute the defined data checks against."
+                f"Staging table - {staging_table_name} exceeds the 128 character limit."
             )
 
         staging_table = f"{staging_schema}.{staging_table_name}"
+
         align_stg_table_with_target(
             f"{target_schema}.{target_table}", staging_table, job_input
         )

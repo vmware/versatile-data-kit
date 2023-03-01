@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -7,6 +7,7 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
+from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
 
@@ -18,7 +19,10 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        status_code = VdkUI.run_job(input_data["jobPath"], input_data["jobArguments"])
+        status_code = VdkUI.run_job(
+            input_data[VdkOption.PATH.value],
+            input_data[VdkOption.ARGUMENTS.value],
+        )
         self.finish(json.dumps({"message": f"{status_code}"}))
 
 
@@ -28,7 +32,9 @@ class DeleteJobHandler(APIHandler):
         input_data = self.get_json_body()
         try:
             status = VdkUI.delete_job(
-                input_data["jobName"], input_data["jobTeam"], input_data["restApiUrl"]
+                input_data[VdkOption.NAME.value],
+                input_data[VdkOption.TEAM.value],
+                input_data[VdkOption.REST_API_URL.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -41,10 +47,10 @@ class DownloadJobHandler(APIHandler):
         input_data = self.get_json_body()
         try:
             status = VdkUI.download_job(
-                input_data["jobName"],
-                input_data["jobTeam"],
-                input_data["restApiUrl"],
-                input_data["parentPath"],
+                input_data[VdkOption.NAME.value],
+                input_data[VdkOption.TEAM.value],
+                input_data[VdkOption.REST_API_URL.value],
+                input_data[VdkOption.PATH.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -56,15 +62,13 @@ class CreateJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
-            local = True if input_data["isLocal"] else False
-            cloud = True if input_data["isCloud"] else False
             status = VdkUI.create_job(
-                input_data["jobName"],
-                input_data["jobTeam"],
-                input_data["restApiUrl"],
-                input_data["jobPath"],
-                local,
-                cloud,
+                input_data[VdkOption.NAME.value],
+                input_data[VdkOption.TEAM.value],
+                input_data[VdkOption.REST_API_URL.value],
+                input_data[VdkOption.PATH.value],
+                bool(input_data[VdkOption.LOCAL.value]),
+                bool(input_data[VdkOption.CLOUD.value]),
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:

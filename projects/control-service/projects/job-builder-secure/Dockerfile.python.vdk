@@ -35,6 +35,10 @@ ENV VDK_JOB_GITHASH $job_githash
 # Delete system executables
 RUN rm /usr/bin/chmod
 RUN rm /usr/bin/chown
+RUN rm /usr/sbin/groupadd
+RUN rm /usr/sbin/groupdel
+RUN rm /usr/sbin/useradd
+RUN rm /usr/sbin/userdel
 RUN rm /usr/bin/uname
 RUN python -m pip uninstall pip -y
 

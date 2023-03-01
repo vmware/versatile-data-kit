@@ -1,0 +1,49 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+$text-dark: #919fa8;
+$text-light: #67747d;
+
+:host {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	margin: 1rem 0;
+
+	cds-icon {
+		fill: #ccc;
+	}
+
+	.empty-placeholder-heading {
+		font-size: 18px;
+		color: $text-light;
+		margin-top: 18px;
+		line-height: 48px;
+		font-weight: 200;
+	}
+
+	.empty-placeholder-description {
+		margin-top: 0;
+		font-size: 13px;
+		color: $text-light;
+		margin-bottom: 18px;
+		font-weight: 200;
+	}
+}
+
+:host ::ng-deep button:last-child {
+	margin-right: 0 !important;
+}
+
+:host ::ng-deep button.btn-link {
+	margin-top: 0 !important;
+}
+
+:host-context(.dark) {
+	h2,
+	h3 {
+		color: $text-dark;
+	}
+}

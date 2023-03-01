@@ -1,0 +1,68 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<clr-datagrid
+    class="datagrid-executions-widget-table"
+    data-cy="data-pipelines-job-executions-datagrid-widget"
+    [clrDgLoading]="loading"
+>
+    <clr-dg-placeholder
+        >We couldn't find any failed executions!</clr-dg-placeholder
+    >
+
+    <clr-dg-column
+        class="header-title"
+        data-cy="data-pipelines-job-executions-widget-job-name"
+        [clrDgSortBy]="'endTime'"
+        >Most recent failed executions - Last 24h (UTC time)
+    </clr-dg-column>
+
+    <clr-dg-column
+        data-cy="data-pipelines-job-executions-widget-status-header"
+        class="hide"
+        [clrDgField]="'status'"
+        >Status
+        <clr-dg-filter [clrDgFilter]="statusFilter">
+            <lib-data-job-execution-status-filter
+                #statusFilter
+            ></lib-data-job-execution-status-filter>
+        </clr-dg-filter>
+    </clr-dg-column>
+
+    <clr-dg-column
+        data-cy="data-pipelines-job-executions-widget-end-header"
+        class="hide"
+        [clrDgSortBy]="'endTime'"
+        >End (UTC)
+    </clr-dg-column>
+
+    <clr-dg-row
+        *clrDgItems="let jobExecution of jobExecutions; trackBy: trackByFn"
+        [clrDgItem]="jobExecution"
+    >
+        <clr-dg-cell class="no-padding job-name-column">
+            <a
+                class="btn btn-link job-name-column-a"
+                alt="Navigate to Manage Data jobs"
+                data-cy="dp-failed-data-jobs-executions-widget-job-name-link"
+                (click)="navigateToJobExecutions(jobExecution)"
+            >
+                {{ jobExecution.id }}
+            </a>
+        </clr-dg-cell>
+        <clr-dg-cell class="status-column">
+            <lib-data-job-execution-status
+                [jobStatus]="jobExecution.status"
+            ></lib-data-job-execution-status>
+        </clr-dg-cell>
+        <clr-dg-cell
+            class="time-column"
+            data-cy="data-pipelines-job-executions-widget-end-cell"
+            >{{
+                jobExecution.endTime | date: "MMM d, y, hh:mm:ss a":"UTC"
+            }}</clr-dg-cell
+        >
+    </clr-dg-row>
+</clr-datagrid>

@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -15,7 +20,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'vdk-jupyterlab-extension:plugin',
   autoStart: true,
   optional: [ISettingRegistry],
-  activate: async (app: JupyterFrontEnd, settingRegistry: ISettingRegistry | null) => {
+  activate: async (
+    app: JupyterFrontEnd,
+    settingRegistry: ISettingRegistry | null
+  ) => {
     console.log('JupyterLab extension vdk-jupyterlab-extension is activated!');
     await getCurrentPathRequest();
     const { commands } = app;

@@ -1,0 +1,497 @@
+<!--
+   ~ Copyright 2021-2023 VMware, Inc.
+   ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<!-- eslint-disable @angular-eslint/template/no-call-expression,@angular-eslint/template/cyclomatic-complexity -->
+
+<div
+    [ngClass]="
+        isStandardDisplayMode() ? 'grid-container' : 'grid-container-compact'
+    "
+>
+    <lib-grid-action
+        [searchQueryValue]="searchQueryValue"
+        [selectedValue]="selectedJob"
+        [quickFilters]="quickFilters"
+        [suppressQuickFilterChangeEvent]="true"
+        (search)="search($event)"
+    >
+        <div *ngIf="isStandardDisplayMode()" class="custom-buttons-left">
+            <button
+                class="btn btn-link btn-sm"
+                aria-label="refresh"
+                data-cy="data-pipelines-explore-refresh-btn"
+                [disabled]="loading"
+                (click)="refresh()"
+            >
+                <clr-icon shape="refresh" size="14"></clr-icon>
+                Refresh
+            </button>
+        </div>
+    </lib-grid-action>
+
+    <div
+        [ngClass]="isStandardDisplayMode() ? 'container' : 'container-compact'"
+    >
+        <clr-datagrid
+            id="dataJobsDataGrid"
+            data-cy="data-pipelines-explore-grid"
+            [clrDgLoading]="loading"
+            (clrDgRefresh)="loadDataWithState($event)"
+        >
+            <clr-dg-column
+                class="column__min-width--l"
+                data-cy="data-pipelines-jobs-name-column"
+                [clrDgField]="'jobName'"
+                [(clrDgSortOrder)]="clrGridUIState.sort['jobName']"
+                [(clrFilterValue)]="clrGridUIState.filter['jobName']"
+                >Job name
+            </clr-dg-column>
+
+            <clr-dg-column
+                *ngIf="showTeamsColumn() && isStandardDisplayMode()"
+                class="column__min-width--l"
+                [clrDgField]="'config.team'"
+                [(clrDgSortOrder)]="clrGridUIState.sort['config.team']"
+                [(clrFilterValue)]="clrGridUIState.filter['config.team']"
+                >Team name
+            </clr-dg-column>
+
+            <clr-dg-column
+                class="column__min-width--xl"
+                [clrDgField]="'config.description'"
+                [(clrDgSortOrder)]="clrGridUIState.sort['config.description']"
+                [(clrFilterValue)]="clrGridUIState.filter['config.description']"
+            >
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'description'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('description', $event)
+                    "
+                >
+                    Description
+                </ng-template>
+            </clr-dg-column>
+
+            <clr-dg-column
+                class="column__min-width--l column__max-width--l"
+                [clrDgField]="'deployments.enabled'"
+                [(clrDgSortOrder)]="clrGridUIState.sort['deployments.enabled']"
+            >
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'deploymentStatus'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('deploymentStatus', $event)
+                    "
+                >
+                    Deployment Status
+                </ng-template>
+                <clr-dg-filter [clrDgFilter]="statusFilter">
+                    <lib-column-filter
+                        #statusFilter
+                        [property]="'deployments.enabled'"
+                        [listOfOptions]="deploymentStatuses"
+                        [(value)]="clrGridUIState.filter['deployments.enabled']"
+                    ></lib-column-filter>
+                </clr-dg-filter>
+            </clr-dg-column>
+
+            <clr-dg-column
+                class="column__min-width--l"
+                [clrDgSortBy]="'deployments.lastExecutionTime'"
+                [(clrDgSortOrder)]="
+                    clrGridUIState.sort['deployments.lastExecutionTime']
+                "
+            >
+                Last Execution End (UTC)
+            </clr-dg-column>
+
+            <clr-dg-column
+                class="column__min-width--xs column__max-width--l"
+                [clrDgSortBy]="'deployments.lastExecutionDuration'"
+                [(clrDgSortOrder)]="
+                    clrGridUIState.sort['deployments.lastExecutionDuration']
+                "
+            >
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'lastExecutionDuration'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('lastExecutionDuration', $event)
+                    "
+                    >Last Execution Duration
+                </ng-template>
+            </clr-dg-column>
+            <clr-dg-column
+                class="column__min-width--m column__max-width--l"
+                [clrDgSortBy]="'deployments.lastExecutionStatus'"
+                [(clrDgSortOrder)]="
+                    clrGridUIState.sort['deployments.lastExecutionStatus']
+                "
+            >
+                Last Execution Status
+                <clr-dg-filter [clrDgFilter]="executionStatusFilter">
+                    <lib-column-filter
+                        #executionStatusFilter
+                        property="deployments.lastExecutionStatus"
+                        [optionRenderer]="executionFilterOption"
+                        [listOfOptions]="executionStatuses"
+                        [(value)]="
+                            clrGridUIState.filter[
+                                'deployments.lastExecutionStatus'
+                            ]
+                        "
+                    >
+                        <ng-template #executionFilterOption let-option>
+                            <lib-data-job-execution-status
+                                [jobStatus]="option"
+                            ></lib-data-job-execution-status>
+                        </ng-template>
+                    </lib-column-filter>
+                </clr-dg-filter>
+            </clr-dg-column>
+
+            <clr-dg-column class="column__min-width--l">
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'successRate'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('successRate', $event)
+                    "
+                >
+                    Success rate
+                </ng-template>
+                <clr-signpost>
+                    <button
+                        class="btn btn-link btn-icon btn-sm"
+                        style="padding: 0"
+                        clrSignpostTrigger
+                    >
+                        <clr-icon shape="info-circle"></clr-icon>
+                    </button>
+                    <clr-signpost-content
+                        *clrIfOpen
+                        [clrPosition]="'bottom-middle'"
+                    >
+                        Calculating up to 336 executions from last 14 days
+                    </clr-signpost-content>
+                </clr-signpost>
+            </clr-dg-column>
+
+            <clr-dg-column class="column__min-width--xl"
+                >Schedule (UTC)</clr-dg-column
+            >
+
+            <clr-dg-column>
+                <ng-template
+                    class="column__min-width--xl"
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns['nextRun']
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('nextRun', $event)
+                    "
+                    >Next run (UTC)
+                </ng-template>
+            </clr-dg-column>
+
+            <clr-dg-column class="column__min-width--l">
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'lastDeployedDate'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('lastDeployedDate', $event)
+                    "
+                    >Last Deployed (UTC)
+                </ng-template>
+            </clr-dg-column>
+            <clr-dg-column>
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'lastDeployedBy'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('lastDeployedBy', $event)
+                    "
+                    >Last Deployed By
+                </ng-template>
+            </clr-dg-column>
+
+            <clr-dg-column
+                *ngIf="isStandardDisplayMode()"
+                class="jobs-list__column-opener"
+            >
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns['source']
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('source', $event)
+                    "
+                    >Source
+                </ng-template>
+            </clr-dg-column>
+
+            <clr-dg-column class="jobs-list__column-opener">
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns['logsUrl']
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('logsUrl', $event)
+                    "
+                    >Logs
+                </ng-template>
+            </clr-dg-column>
+
+            <clr-dg-column
+                *ngIf="isStandardDisplayMode()"
+                class="jobs-list__column-opener"
+                >View
+            </clr-dg-column>
+
+            <clr-dg-row *ngFor="let job of dataJobs; trackBy: trackByFn">
+                <clr-dg-cell class="column__min-width--l">
+                    <span
+                        *ngIf="!isStandardDisplayMode()"
+                        [routerLink]="[
+                            '/explore/data-jobs',
+                            job?.config?.team,
+                            job?.jobName,
+                            'details'
+                        ]"
+                        class="label label-light-blue tag"
+                    >
+                        <a class="label-link">{{ job.jobName }}</a>
+                    </span>
+
+                    <span *ngIf="isStandardDisplayMode()">{{
+                        job.jobName
+                    }}</span>
+                </clr-dg-cell>
+
+                <clr-dg-cell
+                    *ngIf="showTeamsColumn() && isStandardDisplayMode()"
+                    class="column__min-width--l"
+                >
+                    <span
+                        *ngIf="job.config?.team"
+                        class="label label-light-blue tag"
+                        [routerLink]="['/explore/teams', job.config.team]"
+                    >
+                        <a class="label-link label-link-suppress-decoration">{{
+                            job.config.team
+                        }}</a>
+                    </span>
+                </clr-dg-cell>
+
+                <clr-dg-cell
+                    class="column__min-width--xl"
+                    title="{{ job.config?.description }}"
+                    >{{ job.config?.description | words: 8 }}</clr-dg-cell
+                >
+
+                <clr-dg-cell
+                    class="column__min-width--l column__max-width--l text-center"
+                >
+                    <lib-status-cell [dataJob]="job"></lib-status-cell>
+                </clr-dg-cell>
+
+                <clr-dg-cell class="column__min-width--l">
+                    {{
+                        job.deployments
+                            ? (job.deployments[0]?.lastExecutionTime
+                              | date: "MMM d, y, hh:mm a":"utc")
+                            : null
+                    }}
+                </clr-dg-cell>
+
+                <clr-dg-cell class="column__min-width--xs column__max-width--l">
+                    {{
+                        job.deployments
+                            ? (job.deployments[0]?.lastExecutionDuration
+                              | formatDuration)
+                            : null
+                    }}
+                </clr-dg-cell>
+
+                <clr-dg-cell class="column__min-width--m column__max-width--l">
+                    <lib-data-job-execution-status
+                        *ngIf="getJobStatus(job)"
+                        [jobStatus]="getJobStatus(job)"
+                    ></lib-data-job-execution-status>
+                </clr-dg-cell>
+
+                <clr-dg-cell
+                    class="column__min-width--l"
+                    [title]="getJobSuccessRateTitle(job)"
+                    >{{ job.deployments | executionSuccessRate }}</clr-dg-cell
+                >
+
+                <clr-dg-cell class="column__min-width--xl">{{
+                    job.config?.schedule?.scheduleCron | formatSchedule: ""
+                }}</clr-dg-cell>
+
+                <clr-dg-cell
+                    class="column__min-width--xl"
+                    title="{{
+                        (job.deployments | extractJobStatus) ===
+                        dataJobStatus.ENABLED
+                            ? 'Next job run:' +
+                              (job.config?.schedule?.nextRunEpochSeconds
+                                  | parseEpoch
+                                  | date: 'MMM d, y, hh:mm a':'UTC')
+                            : ''
+                    }}"
+                >
+                    <span
+                        *ngIf="
+                            (job.deployments | extractJobStatus) ===
+                            dataJobStatus.ENABLED
+                        "
+                    >
+                        {{
+                            job.config?.schedule?.nextRunEpochSeconds
+                                | parseEpoch
+                                | date: "MMM d, y, hh:mm a":"UTC"
+                        }}
+                    </span>
+                </clr-dg-cell>
+
+                <clr-dg-cell
+                    class="column__min-width--l"
+                    [attr.title]="
+                        job.deployments && job.deployments[0]?.lastDeployedDate
+                            ? 'Last job deployed: ' +
+                              (job.deployments[0]?.lastDeployedDate
+                                  | date: 'MMM d, y, hh:mm a':'UTC')
+                            : null
+                    "
+                >
+                    {{
+                        job.deployments && job.deployments[0]?.lastDeployedDate
+                            ? (job.deployments[0]?.lastDeployedDate
+                              | date: "MMM d, y, hh:mm a":"UTC")
+                            : null
+                    }}
+                </clr-dg-cell>
+
+                <clr-dg-cell>
+                    {{
+                        job.deployments
+                            ? job.deployments[0]?.lastDeployedBy
+                            : null
+                    }}
+                </clr-dg-cell>
+
+                <clr-dg-cell
+                    *ngIf="isStandardDisplayMode()"
+                    class="jobs-list__column-opener text-center"
+                >
+                    <div [ngSwitch]="job.deployments | extractJobStatus">
+                        <div *ngSwitchCase="dataJobStatus.NOT_DEPLOYED"></div>
+                        <div *ngSwitchDefault>
+                            <a
+                                class="label-link"
+                                href="{{ job.config?.sourceUrl }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                <clr-icon
+                                    *ngIf="job.config?.sourceUrl"
+                                    shape="pop-out"
+                                    size="15"
+                                    title="{{ job.config?.sourceUrl }}"
+                                ></clr-icon>
+                            </a>
+                        </div>
+                    </div>
+                </clr-dg-cell>
+
+                <clr-dg-cell class="jobs-list__column-opener text-center">
+                    <a
+                        *ngIf="resolveLogsUrl(job)"
+                        class="label-link"
+                        [attr.href]="resolveLogsUrl(job)"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <clr-icon
+                            shape="pop-out"
+                            size="15"
+                            [attr.title]="resolveLogsUrl(job)"
+                        ></clr-icon>
+                    </a>
+                </clr-dg-cell>
+
+                <clr-dg-cell
+                    *ngIf="isStandardDisplayMode()"
+                    class="jobs-list__column-opener text-center"
+                >
+                    <a
+                        class="label-link"
+                        aria-label="View job details"
+                        title="View job details"
+                        data-cy="data-pipelines-explore-grid-details-link"
+                        [attr.data-job-params]="
+                            job?.config?.team + ';' + job?.jobName
+                        "
+                        (click)="navigateToJobDetails(job)"
+                    >
+                        <clr-icon
+                            shape="bars"
+                            size="18"
+                            style="color: var(--clr-color-action-600)"
+                        ></clr-icon>
+                    </a>
+                </clr-dg-cell>
+            </clr-dg-row>
+
+            <clr-dg-placeholder>
+                <div *ngIf="!searchQueryValue">No data jobs created!</div>
+                <div *ngIf="searchQueryValue">
+                    <span
+                        >No data jobs that match with
+                        <strong>{{ searchQueryValue }}</strong> criteria</span
+                    >
+                </div>
+            </clr-dg-placeholder>
+
+            <clr-dg-footer>
+                <clr-dg-pagination
+                    #pagination
+                    [clrDgTotalItems]="clrGridUIState.totalItems"
+                    [clrDgPageSize]="clrGridUIState.pageSize"
+                    [(clrDgPage)]="clrGridCurrentPage"
+                >
+                    <clr-dg-page-size [clrPageSizeOptions]="[25, 50, 100]"
+                        >Data Jobs per page</clr-dg-page-size
+                    >
+                    {{ pagination.firstItem + 1 }} -
+                    {{ pagination.lastItem + 1 }} of
+                    {{ pagination.totalItems }} Data Jobs
+                </clr-dg-pagination>
+            </clr-dg-footer>
+        </clr-datagrid>
+    </div>
+</div>
