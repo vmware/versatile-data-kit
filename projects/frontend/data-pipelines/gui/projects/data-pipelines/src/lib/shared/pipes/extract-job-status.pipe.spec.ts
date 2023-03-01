@@ -23,8 +23,8 @@ const TEST_JOB_DEPLOYMENT_DETAILS: DataJobDeploymentDetails = {
         memory_limit: 1000,
         memory_request: 1000,
         cpu_limit: 0.5,
-        cpu_request: 0.5
-    }
+        cpu_request: 0.5,
+    },
     /* eslint-enable @typescript-eslint/naming-convention */
 };
 

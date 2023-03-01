@@ -63,3 +63,6 @@ tests.xml
 temp
 gradlew
 gradlew.bat
+
+# Ignore downloaded helm charts
+projects/control-service/projects/helm_charts/pipelines-control-service/charts/*

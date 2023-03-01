@@ -4,21 +4,22 @@
   -->
 
 <ng-container *ngIf="!initialLoading">
-
-    <div *ngIf="minJobExecutionTime"
-         class="time-filter__container">
-
+    <div *ngIf="minJobExecutionTime" class="time-filter__container">
         <div>
-            <lib-time-period-filter [loading]="loading"
-                                    [minTime]="minJobExecutionTime"
-                                    (filterChanged)="onTimeFilterChange($event)"></lib-time-period-filter>
+            <lib-time-period-filter
+                [loading]="loading"
+                [minTime]="minJobExecutionTime"
+                (filterChanged)="onTimeFilterChange($event)"
+            ></lib-time-period-filter>
         </div>
         <div>
-            <button *ngIf="!loading"
-                    class="btn btn-icon btn-link refresh"
-                    data-cy="data-pipelines-job-executions-refresh-btn"
-                    aria-label="refresh"
-                    (click)="fetchDataJobExecutions()">
+            <button
+                *ngIf="!loading"
+                class="btn btn-icon btn-link refresh"
+                data-cy="data-pipelines-job-executions-refresh-btn"
+                aria-label="refresh"
+                (click)="fetchDataJobExecutions()"
+            >
                 <clr-icon shape="refresh" size="14"></clr-icon>
             </button>
         </div>
@@ -27,21 +28,26 @@
     <ng-container *ngIf="jobExecutions?.length > 0">
         <div class="clr-row">
             <div class="clr-col-2 execution-statuses-chart">
-                <lib-execution-status-chart *ngIf="!loading"
-                                            [jobExecutions]="jobExecutions">
+                <lib-execution-status-chart
+                    *ngIf="!loading"
+                    [jobExecutions]="jobExecutions"
+                >
                 </lib-execution-status-chart>
             </div>
             <div class="clr-col-10">
-                <lib-execution-duration-chart *ngIf="!loading"
-                                              [jobExecutions]="jobExecutions">
+                <lib-execution-duration-chart
+                    *ngIf="!loading"
+                    [jobExecutions]="jobExecutions"
+                >
                 </lib-execution-duration-chart>
             </div>
-
         </div>
         <div class="clr-row">
             <div class="clr-col-12">
-                <lib-data-job-executions-grid [jobExecutions]="jobExecutions"
-                                              [loading]="loading">
+                <lib-data-job-executions-grid
+                    [jobExecutions]="jobExecutions"
+                    [loading]="loading"
+                >
                 </lib-data-job-executions-grid>
             </div>
         </div>

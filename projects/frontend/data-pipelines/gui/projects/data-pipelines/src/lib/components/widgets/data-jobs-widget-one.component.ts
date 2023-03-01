@@ -24,7 +24,7 @@ export enum WidgetTab {
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
     FAILURES,
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
-    NONE
+    NONE,
 }
 
 // TODO: Remove when consume data from API
@@ -34,70 +34,70 @@ const executionsMock = [
         status: DataJobExecutionStatus.FINISHED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'auserov'
+        startedBy: 'auserov',
     },
     {
         jobName: 'data-job-2',
         status: DataJobExecutionStatus.FAILED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'buserov'
+        startedBy: 'buserov',
     },
     {
         jobName: 'data-job-3',
         status: DataJobExecutionStatus.FINISHED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'cuserov'
+        startedBy: 'cuserov',
     },
     {
         jobName: 'data-job-long-name-test-1',
         status: DataJobExecutionStatus.FINISHED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'duserov'
+        startedBy: 'duserov',
     },
     {
         jobName: 'data-job-long-name-test-2',
         status: DataJobExecutionStatus.FAILED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'euserov'
+        startedBy: 'euserov',
     },
     {
         jobName: 'data-job-long-name-test-3',
         status: DataJobExecutionStatus.SUBMITTED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'fuserov'
+        startedBy: 'fuserov',
     },
     {
         jobName: 'data-job-long-name-test-4',
         status: DataJobExecutionStatus.PLATFORM_ERROR,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'guserov'
+        startedBy: 'guserov',
     },
     {
         jobName: 'data-job-long-name-test-5',
         status: DataJobExecutionStatus.USER_ERROR,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'huserov'
+        startedBy: 'huserov',
     },
     {
         jobName: 'data-job-a-very-long-name-listed-here-test-1',
         status: DataJobExecutionStatus.FINISHED,
         startTime: Date.now(),
         endTime: Date.now(),
-        startedBy: 'fuserov'
-    }
+        startedBy: 'fuserov',
+    },
 ];
 
 @Component({
     selector: 'lib-data-jobs-widget-one',
     templateUrl: './data-jobs-widget-one.component.html',
-    styleUrls: ['./data-jobs-widget-one.component.scss', './widget.scss']
+    styleUrls: ['./data-jobs-widget-one.component.scss', './widget.scss'],
 })
 export class DataJobsWidgetOneComponent implements OnInit {
     @Input() manageLink: string;
@@ -114,9 +114,10 @@ export class DataJobsWidgetOneComponent implements OnInit {
 
     errorJobs: boolean;
 
-    constructor(private readonly dataJobsService: DataJobsApiService,
-                private readonly errorHandlerService: ErrorHandlerService) {
-    }
+    constructor(
+        private readonly dataJobsService: DataJobsApiService,
+        private readonly errorHandlerService: ErrorHandlerService
+    ) {}
 
     @HostListener('window:resize')
     onWindowResize() {
@@ -147,31 +148,47 @@ export class DataJobsWidgetOneComponent implements OnInit {
         switch (tab) {
             case WidgetTab.DATAJOBS:
                 this.errorJobs = false;
-                this.jobs$ = this.dataJobsService.getJobs([], '', this.currentPage, this.pageSize).pipe(
-                    map(result => result?.data),
-                    catchError((error: unknown) => {
-                        this.errorJobs = !!error;
+                this.jobs$ = this.dataJobsService
+                    .getJobs([], '', this.currentPage, this.pageSize)
+                    .pipe(
+                        map((result) => result?.data),
+                        catchError((error: unknown) => {
+                            this.errorJobs = !!error;
 
-                        this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error)
-                        );
+                            this.errorHandlerService.processError(
+                                ErrorUtil.extractError(error as Error)
+                            );
 
-                        return throwError(() => error);
-                    })
-                );
+                            return throwError(() => error);
+                        })
+                    );
                 break;
             case WidgetTab.EXECUTIONS:
                 // TODO: Consume data from API
-                this.executions$ = of({ data: { totalItems: 0, totalPages: executionsMock.length / this.pageSize, content: [] } }).pipe(
-                    map(result => result?.data),
+                this.executions$ = of({
+                    data: {
+                        totalItems: 0,
+                        totalPages: executionsMock.length / this.pageSize,
+                        content: [],
+                    },
+                }).pipe(
+                    map((result) => result?.data),
                     delay(1200) // TODO: Remove delay when consume data from API
                 );
                 break;
             case WidgetTab.FAILURES:
                 // TODO: Consume data from API
-                const failuresMock = executionsMock.filter(e => e.status === DataJobExecutionStatus.FAILED);
-                this.failures$ = of({ data: { totalItems: 0, totalPages: failuresMock.length / this.pageSize, content: [] } }).pipe(
-                    map(result => result?.data),
+                const failuresMock = executionsMock.filter(
+                    (e) => e.status === DataJobExecutionStatus.FAILED
+                );
+                this.failures$ = of({
+                    data: {
+                        totalItems: 0,
+                        totalPages: failuresMock.length / this.pageSize,
+                        content: [],
+                    },
+                }).pipe(
+                    map((result) => result?.data),
                     delay(1800) // TODO: Remove delay when consume data from API
                 );
                 break;

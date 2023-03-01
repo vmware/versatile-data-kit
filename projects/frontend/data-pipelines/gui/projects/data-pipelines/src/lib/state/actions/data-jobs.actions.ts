@@ -16,7 +16,8 @@ export const FETCH_DATA_JOB = '[feature::data-pipelines] Fetch Data Job';
 /**
  * ** Action type Fetch Data Job executions.
  */
-export const FETCH_DATA_JOB_EXECUTIONS = '[feature::data-pipelines] Fetch Data Job Executions';
+export const FETCH_DATA_JOB_EXECUTIONS =
+    '[feature::data-pipelines] Fetch Data Job Executions';
 
 /**
  * ** Action type Update Data job.

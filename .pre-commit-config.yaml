@@ -113,10 +113,20 @@ repos:
           - /*| *| */
       - id: insert-license
         files: (\.yaml$|\.yml$)
+        # exclude control service helm chart templates as they require template-style comments
+        exclude: ^projects/control-service/projects/helm_charts/pipelines-control-service/templates
         args:
           - --use-current-year
           - --license-filepath
           - NOTICE.txt
+      - id: insert-license
+        files: (^projects/control-service/projects/helm_charts/pipelines-control-service/templates/.+\.yaml$|^projects/control-service/projects/helm_charts/pipelines-control-service/templates/.+\.yml$)
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - '{{- /*| | */}}'
       - id: insert-license
         files: \.py$
         args:
@@ -129,15 +139,8 @@ repos:
           - --use-current-year
           - --license-filepath
           - NOTICE.txt
-# License header create issues in helm chart yaml files
-# https://github.com/helm/helm/issues/4409
-#    - id: insert-license
-#      files: \.yml$
-#      args:
-#        - --license-filepath
-#        - NOTICE.txt
-#    - id: insert-license
-#      files: \.yaml$
-#      args:
-#          - --license-filepath
-#          - NOTICE.txt
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.7.1
+    hooks:
+      - id: prettier
+        types_or: [scss, css, javascript, ts, html]

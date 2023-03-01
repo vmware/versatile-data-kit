@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { jobData } from '../jobData';
+import { VdkOption } from '../vdkOptions/vdk_options';
 
 export interface ICreateJobDialogProps {
     /**
@@ -64,7 +66,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
    */
     private _onLocalClick() {
         return (event: React.MouseEvent) => {
-            this._handleCheckboxEvent("Local", "jobPath", "local")
+            this.setJobFlags("Local", "jobPath");
         }
     }
     /**
@@ -72,26 +74,38 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
   */
     private _onCloudClick() {
         return (event: React.MouseEvent) => {
-            this._handleCheckboxEvent("Cloud", "jobRestApiUrl", "cloud")
+            this.setJobFlags("Cloud", "jobRestApiUrl");
         }
     }
     /**
-    * Helper method for checkbox click events which include removing/adding visibility of input element to the dialog
-    */
-   private _handleCheckboxEvent(checkboxId: string, inputId: string, createJobType: string){
-    let checkbox = document.getElementById(checkboxId);
-    let input = document.getElementById(inputId);
-    if (checkbox?.classList.contains("checked")) {
-        checkbox.classList.remove("checked");
-        input?.parentElement?.classList.add("hidden");
-        sessionStorage.removeItem(createJobType);
-    }
-    else {
-        checkbox?.classList.add("checked");
-        sessionStorage.setItem(createJobType, "1");
-        input?.parentElement?.classList.remove("hidden");
-    }
-   }
+  * Function that sets job's cloud/local flags
+  */
+ private setJobFlags(flag: string, inputId: string){
+    let checkbox = document.getElementById(flag);
+            let input = document.getElementById(inputId);
+            if (checkbox?.classList.contains("checked")) {
+                checkbox.classList.remove("checked");
+                input?.parentElement?.classList.add("hidden");
+                if(flag === "Cloud"){
+                    jobData.set(VdkOption.CLOUD, "");
+                }
+                else{
+                    jobData.set(VdkOption.LOCAL, "");
+                }
+            }
+            else {
+                checkbox?.classList.add("checked");
+                if(flag === "Cloud"){
+                    jobData.set(VdkOption.CLOUD, "1");
+                }
+                else{
+                    jobData.set(VdkOption.LOCAL, "1");
+                }
+                input?.parentElement?.classList.remove("hidden");
+            }
+ }
+
+
     /**
    * Callback invoked upon changing the job name input.
    *
@@ -103,7 +117,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        sessionStorage.setItem("create-job-name", value);
+        jobData.set(VdkOption.NAME, value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -116,7 +130,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-team";
         }
-        sessionStorage.setItem("create-job-team", value);
+        jobData.set(VdkOption.TEAM, value);
     };
     /**
    * Callback invoked upon changing the job path input.
@@ -129,7 +143,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = this.props.jobPath;
         }
-        sessionStorage.setItem("create-job-path", value);
+        jobData.set(VdkOption.PATH, value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -142,7 +156,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         if (!value) {
             value = "default-url";
         }
-        sessionStorage.setItem("create-job-rest-api-url", value);
+        jobData.set(VdkOption.REST_API_URL, value);
     };
 
 }

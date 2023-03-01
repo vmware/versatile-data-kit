@@ -11,7 +11,7 @@ import { CollectionsUtil } from '@vdk/shared';
 import { DataJobDeployment } from '../../model';
 
 @Pipe({
-    name: 'executionSuccessRate'
+    name: 'executionSuccessRate',
 })
 export class ExecutionSuccessRatePipe implements PipeTransform {
     private readonly _percentPipe: PercentPipe;
@@ -34,16 +34,21 @@ export class ExecutionSuccessRatePipe implements PipeTransform {
         }
 
         const firstDeployment = deployments[0];
-        const allExecutions = firstDeployment.successfulExecutions + firstDeployment.failedExecutions;
+        const allExecutions =
+            firstDeployment.successfulExecutions +
+            firstDeployment.failedExecutions;
 
         if (allExecutions === 0) {
             return result;
         }
 
-        result += this._percentPipe.transform(firstDeployment.successfulExecutions / allExecutions, '1.2-2');
+        result += this._percentPipe.transform(
+            firstDeployment.successfulExecutions / allExecutions,
+            '1.2-2'
+        );
 
         if (firstDeployment.failedExecutions > 0) {
-            result += ` (${ firstDeployment.failedExecutions } failed)`;
+            result += ` (${firstDeployment.failedExecutions} failed)`;
         }
 
         return result;

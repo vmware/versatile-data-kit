@@ -3,8 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataJobExecution, DataJobExecutionStatus, DataJobExecutionType } from '../../../../../model';
-import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from './data-job-execution';
+import {
+    DataJobExecution,
+    DataJobExecutionStatus,
+    DataJobExecutionType,
+} from '../../../../../model';
+import {
+    DataJobExecutionToGridDataJobExecution,
+    GridDataJobExecution,
+} from './data-job-execution';
 
 describe('Test DataJobExecutionToGridDataJobExecution', () => {
     it('Convert object', () => {
@@ -33,12 +40,11 @@ describe('Test DataJobExecutionToGridDataJobExecution', () => {
                     memoryLimit: 1000,
                     memoryRequest: 1000,
                     cpuLimit: 0.5,
-                    cpuRequest: 0.5
+                    cpuRequest: 0.5,
                 },
                 enabled: true,
-                schedule: { scheduleCron: '12 * * * *' }
-
-            }
+                schedule: { scheduleCron: '12 * * * *' },
+            },
         };
 
         const dataJobExecution: DataJobExecution = {
@@ -63,15 +69,18 @@ describe('Test DataJobExecutionToGridDataJobExecution', () => {
                     memoryLimit: 1000,
                     memoryRequest: 1000,
                     cpuLimit: 0.5,
-                    cpuRequest: 0.5
+                    cpuRequest: 0.5,
                 },
                 enabled: true,
-                schedule: { scheduleCron: '12 * * * *' }
-            }
+                schedule: { scheduleCron: '12 * * * *' },
+            },
         };
         /* eslint-enable @typescript-eslint/naming-convention */
 
-        const convertedJobExecution = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution([dataJobExecution]);
+        const convertedJobExecution =
+            DataJobExecutionToGridDataJobExecution.convertToDataJobExecution([
+                dataJobExecution,
+            ]);
 
         expect(convertedJobExecution.length).toEqual(1);
         expect(convertedJobExecution[0]).toEqual(expectedObject);

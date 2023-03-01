@@ -2,7 +2,7 @@ project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
             'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
-            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.30.1',
+            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.30.2',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.10.4',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.5',
@@ -16,7 +16,7 @@ project.ext {
             'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.9.2',
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
             'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.1.1',
-            'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.13.0',
+            'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.14.0',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.14.2',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2',
             'org.json:json'                                                      : 'org.json:json:20220924',
@@ -48,7 +48,7 @@ project.ext {
             'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.9.2',
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.8',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.8',
-            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.10.3',
+            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.10.4',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.3.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.22',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.1.Final'

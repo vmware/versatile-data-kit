@@ -8,7 +8,6 @@ import { Component } from '@angular/core';
 @Component({
     selector: 'lib-data-jobs-manage',
     templateUrl: './data-jobs-manage-page.component.html',
-    styleUrls: ['./data-jobs-manage-page.component.css']
+    styleUrls: ['./data-jobs-manage-page.component.css'],
 })
-export class DataJobsManagePageComponent {
-}
+export class DataJobsManagePageComponent {}
