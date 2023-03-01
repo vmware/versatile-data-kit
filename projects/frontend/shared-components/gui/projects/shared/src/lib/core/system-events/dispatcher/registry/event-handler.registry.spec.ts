@@ -29,12 +29,12 @@ describe('SystemEventHandlerRegistry', () => {
 				it('should verify will execute register and execute methods in Registry instance', () => {
 					// Given
 					// @ts-ignore
-					const spyRegister = spyOn(
+					const spyRegister = spyOn<SystemEventHandlerRegistry, any>(
 						SystemEventHandlerRegistry.instance,
 						'register'
 					).and.callThrough();
 					// @ts-ignore
-					const spyExecute = spyOn(
+					const spyExecute = spyOn<SystemEventHandlerRegistry, any>(
 						SystemEventHandlerRegistry.instance,
 						'execute'
 					).and.callThrough();
@@ -91,12 +91,12 @@ describe('SystemEventHandlerRegistry', () => {
 				it('should verify will execute unregister and execute methods in Registry instance', () => {
 					// Given
 					// @ts-ignore
-					const spyUnregister = spyOn(
+					const spyUnregister = spyOn<SystemEventHandlerRegistry, any>(
 						SystemEventHandlerRegistry.instance,
 						'unregister'
 					).and.callThrough();
 					// @ts-ignore
-					const spyExecute = spyOn(
+					const spyExecute = spyOn<SystemEventHandlerRegistry, any>(
 						SystemEventHandlerRegistry.instance,
 						'execute'
 					).and.callThrough();
