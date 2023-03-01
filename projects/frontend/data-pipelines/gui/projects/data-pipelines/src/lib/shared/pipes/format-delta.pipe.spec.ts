@@ -5,7 +5,11 @@
 
 import { TestBed } from '@angular/core/testing';
 
-import { DataJobExecution, DataJobExecutionStatus, DataJobExecutionType } from '../../model';
+import {
+    DataJobExecution,
+    DataJobExecutionStatus,
+    DataJobExecutionType,
+} from '../../model';
 
 import { FormatDeltaPipe } from './format-delta.pipe';
 
@@ -18,7 +22,7 @@ const TEST_JOBS_EXECUTIONS = {
     type: DataJobExecutionType.SCHEDULED,
     endTime: new Date().toISOString(),
     opId: 'op001',
-    message: 'Message 001'
+    message: 'Message 001',
 } as DataJobExecution;
 
 describe('FormatDeltaPipe', () => {
@@ -85,7 +89,7 @@ describe('FormatDeltaPipe', () => {
     const substract = (date: string, secondsToSubstract: number) => {
         const d = new Date(date);
         const result = d;
-        result.setTime(d.getTime() - (1000 * secondsToSubstract));
+        result.setTime(d.getTime() - 1000 * secondsToSubstract);
 
         return result.toISOString();
     };

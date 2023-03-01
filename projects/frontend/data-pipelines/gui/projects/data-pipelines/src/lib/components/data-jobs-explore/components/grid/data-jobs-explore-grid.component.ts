@@ -7,9 +7,18 @@ import { Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ComponentService, ErrorHandlerService, NavigationService, RouterService } from '@vdk/shared';
+import {
+    ComponentService,
+    ErrorHandlerService,
+    NavigationService,
+    RouterService,
+} from '@vdk/shared';
 
-import { DATA_PIPELINES_CONFIGS, DataPipelinesConfig, DisplayMode } from '../../../../model';
+import {
+    DATA_PIPELINES_CONFIGS,
+    DataPipelinesConfig,
+    DisplayMode,
+} from '../../../../model';
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
 import { DataJobsBaseGridComponent } from '../../../base-grid/data-jobs-base-grid.component';
@@ -17,16 +26,20 @@ import { DataJobsBaseGridComponent } from '../../../base-grid/data-jobs-base-gri
 @Component({
     selector: 'lib-data-jobs-explore-grid',
     templateUrl: './data-jobs-explore-grid.component.html',
-    styleUrls: ['./data-jobs-explore-grid.component.scss']
+    styleUrls: ['./data-jobs-explore-grid.component.scss'],
 })
-export class DataJobsExploreGridComponent extends DataJobsBaseGridComponent implements OnInit {
+export class DataJobsExploreGridComponent
+    extends DataJobsBaseGridComponent
+    implements OnInit
+{
     //Decorators are not inherited in Angular. If we need @Input() we need to declare it here
     @Input() override teamNameFilter: string;
     @Input() override displayMode: DisplayMode;
 
     readonly uuid = 'DataJobsExploreGridComponent';
 
-    constructor( // NOSONAR
+    constructor(
+        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
@@ -38,9 +51,9 @@ export class DataJobsExploreGridComponent extends DataJobsBaseGridComponent impl
         router: Router,
         elementRef: ElementRef<HTMLElement>,
         @Inject(DOCUMENT) document: Document,
-        @Inject(DATA_PIPELINES_CONFIGS) dataPipelinesModuleConfig: DataPipelinesConfig
+        @Inject(DATA_PIPELINES_CONFIGS)
+        dataPipelinesModuleConfig: DataPipelinesConfig
     ) {
-
         super(
             componentService,
             navigationService,
@@ -64,12 +77,13 @@ export class DataJobsExploreGridComponent extends DataJobsBaseGridComponent impl
                     lastDeployedDate: true,
                     lastDeployedBy: true,
                     source: true,
-                    logsUrl: true
-                }
-            });
+                    logsUrl: true,
+                },
+            }
+        );
     }
 
     showTeamsColumn() {
-        return (this.dataPipelinesModuleConfig?.exploreConfig?.showTeamsColumn);
+        return this.dataPipelinesModuleConfig?.exploreConfig?.showTeamsColumn;
     }
 }

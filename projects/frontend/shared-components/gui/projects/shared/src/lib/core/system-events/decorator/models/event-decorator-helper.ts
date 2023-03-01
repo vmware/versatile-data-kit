@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -10,4 +8,5 @@
  *
  *
  */
-export const SYSTEM_EVENTS_METADATA_KEY = '__taurus::shared::system::events::metadata__';
+export const SYSTEM_EVENTS_METADATA_KEY =
+	'__taurus::shared::system::events::metadata__';

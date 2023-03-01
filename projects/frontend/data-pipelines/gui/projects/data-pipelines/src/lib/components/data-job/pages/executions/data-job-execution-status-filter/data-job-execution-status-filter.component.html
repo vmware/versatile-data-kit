@@ -4,11 +4,15 @@
   -->
 
 <clr-checkbox-wrapper *ngFor="let status of allStatuses">
-    <input type="checkbox"
-           clrCheckbox
-           [value]="status"
-           (change)="toggleCheckbox($event)"/>
+    <input
+        type="checkbox"
+        clrCheckbox
+        [value]="status"
+        (change)="toggleCheckbox($event)"
+    />
     <label>
-        <lib-data-job-execution-status [jobStatus]="status"></lib-data-job-execution-status>
+        <lib-data-job-execution-status
+            [jobStatus]="status"
+        ></lib-data-job-execution-status>
     </label>
 </clr-checkbox-wrapper>

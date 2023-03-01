@@ -3,10 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
-import { CalendarValue, DatePickerDirective, IDatePickerDirectiveConfig } from 'ng2-date-picker';
+import {
+    CalendarValue,
+    DatePickerDirective,
+    IDatePickerDirectiveConfig,
+} from 'ng2-date-picker';
 
 // TODO [import dayjs from 'dayjs'] used in ng2-date-picker v13+ instead of moment
 import moment from 'moment';
@@ -18,7 +30,7 @@ type CustomFormGroup = FormGroup & { controls: { [key: string]: FormControl } };
 @Component({
     selector: 'lib-time-period-filter',
     templateUrl: './time-period-filter.component.html',
-    styleUrls: ['./time-period-filter.component.scss']
+    styleUrls: ['./time-period-filter.component.scss'],
 })
 export class TimePeriodFilterComponent implements OnInit, OnDestroy {
     @ViewChild('fromPicker') fromPicker: DatePickerDirective;
@@ -32,7 +44,8 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         return this._loading;
     }
 
-    @Output() filterChanged: EventEmitter<{ fromTime: Date; toTime: Date }> = new EventEmitter<{ fromTime: Date; toTime: Date }>();
+    @Output() filterChanged: EventEmitter<{ fromTime: Date; toTime: Date }> =
+        new EventEmitter<{ fromTime: Date; toTime: Date }>();
 
     pickerConfig: IDatePickerDirectiveConfig = {
         // TODO [format: 'MMM DD, YYYY, hh:mm:ss A',] dayjs
@@ -42,13 +55,13 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         showSeconds: true,
         weekDayFormat: 'dd',
         numOfMonthRows: 6,
-        monthBtnFormat: 'MMMM'
+        monthBtnFormat: 'MMMM',
     };
     fromPickerConfig: IDatePickerDirectiveConfig = {
-        ...this.pickerConfig
+        ...this.pickerConfig,
     };
     toPickerConfig: IDatePickerDirectiveConfig = {
-        ...this.pickerConfig
+        ...this.pickerConfig,
     };
 
     fromTime: Date;
@@ -78,21 +91,22 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             this.fromTimeMin = minDateTime;
             this.fromPickerConfig = {
                 ...this.fromPickerConfig,
-                min: this.fromTimeMin
+                min: this.fromTimeMin,
             };
 
             this.toTimeMin = minDateTime;
             this.toPickerConfig = {
                 ...this.toPickerConfig,
-                min: this.toTimeMin
+                min: this.toTimeMin,
             };
 
             if (!this._isFromPickerOpened) {
                 this.tmForm
                     .get('fromDate')
                     .patchValue(
-                        this._normalizeDateTime(date, 'from', 'utc')
-                            .format(this.fromPickerConfig.format)
+                        this._normalizeDateTime(date, 'from', 'utc').format(
+                            this.fromPickerConfig.format
+                        )
                     );
             }
         }
@@ -116,7 +130,7 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
     constructor(private readonly formBuilder: FormBuilder) {
         this.tmForm = this.formBuilder.group({
             fromDate: '',
-            toDate: ''
+            toDate: '',
         }) as CustomFormGroup;
     }
 
@@ -128,29 +142,47 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         const emittedDate = $event as moment.Moment;
 
         if (type === 'from') {
-            const origMinTimeUtc = this._normalizeDateTime(this._minTimeOrig, 'from', 'utc');
-            if (emittedDate.isBefore(origMinTimeUtc) || emittedDate.isAfter(this.fromTimeMax)) {
+            const origMinTimeUtc = this._normalizeDateTime(
+                this._minTimeOrig,
+                'from',
+                'utc'
+            );
+            if (
+                emittedDate.isBefore(origMinTimeUtc) ||
+                emittedDate.isAfter(this.fromTimeMax)
+            ) {
                 return;
             }
 
-            this.fromTime = new Date(this._normalizeDateTime(emittedDate, 'from', 'timezone').valueOf());
+            this.fromTime = new Date(
+                this._normalizeDateTime(
+                    emittedDate,
+                    'from',
+                    'timezone'
+                ).valueOf()
+            );
 
             this.toTimeMin = this._normalizeDateTime(emittedDate, 'min');
             this.toPickerConfig = {
                 ...this.toPickerConfig,
-                min: this.toTimeMin
+                min: this.toTimeMin,
             };
         } else {
-            if (emittedDate.isBefore(this.toTimeMin) || emittedDate.isAfter(this.toTimeMax)) {
+            if (
+                emittedDate.isBefore(this.toTimeMin) ||
+                emittedDate.isAfter(this.toTimeMax)
+            ) {
                 return;
             }
 
-            this.toTime = new Date(this._normalizeDateTime(emittedDate, 'to', 'timezone').valueOf());
+            this.toTime = new Date(
+                this._normalizeDateTime(emittedDate, 'to', 'timezone').valueOf()
+            );
 
             this.fromTimeMax = this._normalizeDateTime(emittedDate, 'max');
             this.fromPickerConfig = {
                 ...this.fromPickerConfig,
-                max: this.fromTimeMax
+                max: this.fromTimeMax,
             };
         }
     }
@@ -206,7 +238,10 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
      */
     ngOnInit(): void {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        this._refreshIntervalRef = setInterval(this._refreshMaxTime.bind(this), 15 * 1000); // Update max time every 15s
+        this._refreshIntervalRef = setInterval(
+            this._refreshMaxTime.bind(this),
+            15 * 1000
+        ); // Update max time every 15s
     }
 
     /**
@@ -224,7 +259,7 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         this.toTimeMax = this._normalizeDateTime(date, 'max', 'utc');
         this.toPickerConfig = {
             ...this.toPickerConfig,
-            max: this.toTimeMax
+            max: this.toTimeMax,
         };
 
         if (!this._initiallySetMax) {
@@ -235,37 +270,41 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             this.fromTimeMax = this._normalizeDateTime(date, 'max', 'utc');
             this.fromPickerConfig = {
                 ...this.fromPickerConfig,
-                max: this.fromTimeMax
+                max: this.fromTimeMax,
             };
 
             if (!this._isToPickerOpened) {
                 this.tmForm
                     .get('toDate')
                     .patchValue(
-                        this._normalizeDateTime(date, 'to', 'utc')
-                            .format(this.toPickerConfig.format)
+                        this._normalizeDateTime(date, 'to', 'utc').format(
+                            this.toPickerConfig.format
+                        )
                     );
             }
         }
     }
 
-    private _normalizeDateTime(date: Date | moment.Moment,
-                               type: 'min' | 'max' | 'from' | 'to',
-                               travel: 'utc' | 'timezone' = null): moment.Moment {
-
+    private _normalizeDateTime(
+        date: Date | moment.Moment,
+        type: 'min' | 'max' | 'from' | 'to',
+        travel: 'utc' | 'timezone' = null
+    ): moment.Moment {
         const offset = moment().utcOffset();
 
         let dtInstance = moment(date).millisecond(0);
 
         if (travel) {
             if (offset > 0) {
-                dtInstance = travel === 'utc'
-                    ? dtInstance.subtract(offset, 'm')
-                    : dtInstance.add(offset, 'm');
+                dtInstance =
+                    travel === 'utc'
+                        ? dtInstance.subtract(offset, 'm')
+                        : dtInstance.add(offset, 'm');
             } else if (offset < 0) {
-                dtInstance = travel === 'utc'
-                    ? dtInstance.add(-offset, 'm')
-                    : dtInstance.subtract(-offset, 'm');
+                dtInstance =
+                    travel === 'utc'
+                        ? dtInstance.add(-offset, 'm')
+                        : dtInstance.subtract(-offset, 'm');
             }
         }
 
@@ -283,7 +322,7 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
     private _emitChanges(): void {
         this.filterChanged.emit({
             fromTime: this.fromTime,
-            toTime: this.toTime
+            toTime: this.toTime,
         });
     }
 }

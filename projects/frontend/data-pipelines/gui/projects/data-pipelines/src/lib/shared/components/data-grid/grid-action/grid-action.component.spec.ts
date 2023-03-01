@@ -14,7 +14,7 @@ describe('GridActionComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
-            declarations: [GridActionComponent]
+            declarations: [GridActionComponent],
         });
         fixture = TestBed.createComponent(GridActionComponent);
         component = fixture.componentInstance;
