@@ -6,11 +6,11 @@ import os
 import pprint
 import sys
 import time
+from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
 from typing import List
 
-from graphlib import TopologicalSorter
 from taurus_datajob_api import ApiException
 from vdk.internal.core import errors
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
