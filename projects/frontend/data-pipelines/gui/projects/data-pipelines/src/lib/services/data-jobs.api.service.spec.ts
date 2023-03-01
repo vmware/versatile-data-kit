@@ -14,7 +14,11 @@ import { DATA_PIPELINES_CONFIGS, DataJob, DataJobPage } from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 
-import { DataJobsApiService, MISSING_DEFAULT_TEAM_MESSAGE, RESERVED_DEFAULT_TEAM_NAME_MESSAGE } from './data-jobs.api.service';
+import {
+    DataJobsApiService,
+    MISSING_DEFAULT_TEAM_MESSAGE,
+    RESERVED_DEFAULT_TEAM_NAME_MESSAGE,
+} from './data-jobs.api.service';
 
 describe('DataJobsApiService', () => {
     let service: DataJobsApiService;
@@ -25,12 +29,21 @@ describe('DataJobsApiService', () => {
         /* eslint-disable-next-line @typescript-eslint/naming-convention */
         job_name: 'job001',
         team: 'taurus',
-        description: 'descpription001'
+        description: 'descpription001',
     };
 
     beforeEach(() => {
-        dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>('dataJobsBaseService', ['getJobs']);
-        httpClientStub = jasmine.createSpyObj<HttpClient>('httpClient', ['get', 'post', 'patch', 'put', 'delete']);
+        dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>(
+            'dataJobsBaseService',
+            ['getJobs']
+        );
+        httpClientStub = jasmine.createSpyObj<HttpClient>('httpClient', [
+            'get',
+            'post',
+            'patch',
+            'put',
+            'delete',
+        ]);
 
         httpClientStub.get.and.returnValue(of({}));
         httpClientStub.post.and.returnValue(of({}));
@@ -42,14 +55,17 @@ describe('DataJobsApiService', () => {
             providers: [
                 DataJobsApiService,
                 { provide: HttpClient, useValue: httpClientStub },
-                { provide: DataJobsBaseApiService, useValue: dataJobsBaseServiceStub },
+                {
+                    provide: DataJobsBaseApiService,
+                    useValue: dataJobsBaseServiceStub,
+                },
                 {
                     provide: DATA_PIPELINES_CONFIGS,
                     useFactory: () => ({
-                        defaultOwnerTeamName: 'all'
-                    })
-                }
-            ]
+                        defaultOwnerTeamName: 'all',
+                    }),
+                },
+            ],
         });
 
         service = TestBed.inject(DataJobsApiService);
@@ -67,10 +83,10 @@ describe('DataJobsApiService', () => {
                     data: {
                         content: [{}],
                         totalItems: 1,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const apolloQueryRef = of(apolloQueryResult);
 
@@ -127,7 +143,7 @@ describe('DataJobsApiService', () => {
                         pageNumber: 1,
                         pageSize: 1,
                         filter: [],
-                        search: 'searchQueryValue'
+                        search: 'searchQueryValue',
                     }
                 );
             });
@@ -140,12 +156,14 @@ describe('DataJobsApiService', () => {
                     data: {
                         content: [{}],
                         totalItems: 1,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
-                dataJobsBaseServiceStub.getJobs.and.returnValue(of(apolloQueryResult));
+                dataJobsBaseServiceStub.getJobs.and.returnValue(
+                    of(apolloQueryResult)
+                );
 
                 // When
                 service.getJob('supercollider_demo', 'test-job-taur');
@@ -192,9 +210,17 @@ describe('DataJobsApiService', () => {
               }`,
                     {
                         filter: [
-                            { property: 'config.team', pattern: 'supercollider_demo', sort: null },
-                            { property: 'jobName', pattern: 'test-job-taur', sort: null }
-                        ]
+                            {
+                                property: 'config.team',
+                                pattern: 'supercollider_demo',
+                                sort: null,
+                            },
+                            {
+                                property: 'jobName',
+                                pattern: 'test-job-taur',
+                                sort: null,
+                            },
+                        ],
                     }
                 );
             });
@@ -202,34 +228,35 @@ describe('DataJobsApiService', () => {
             it('should verify will return expected data for given response', (done) => {
                 // Given
                 const dataJob: DataJob = {};
-                const apolloQueryResult1: ApolloQueryResult<DataJobPage> = undefined;
+                const apolloQueryResult1: ApolloQueryResult<DataJobPage> =
+                    undefined;
                 const apolloQueryResult2: ApolloQueryResult<DataJobPage> = {
                     data: undefined,
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const apolloQueryResult3: ApolloQueryResult<DataJobPage> = {
                     data: {
-                        content: undefined
+                        content: undefined,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const apolloQueryResult4: ApolloQueryResult<DataJobPage> = {
                     data: {
-                        content: []
+                        content: [],
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const apolloQueryResult5: ApolloQueryResult<DataJobPage> = {
                     data: {
                         content: [dataJob],
                         totalItems: 1,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 dataJobsBaseServiceStub.getJobs.and.returnValues(
                     of(apolloQueryResult1),
@@ -241,17 +268,19 @@ describe('DataJobsApiService', () => {
 
                 const executeNextCall = (executionId) => {
                     if (executionId === 4) {
-                        service.getJob('supercollider_demo', 'test-job-taur')
-                               .subscribe((value) => {
-                                   expect(value).toBe(dataJob);
-                                   done();
-                               });
+                        service
+                            .getJob('supercollider_demo', 'test-job-taur')
+                            .subscribe((value) => {
+                                expect(value).toBe(dataJob);
+                                done();
+                            });
                     } else {
-                        service.getJob('supercollider_demo', 'test-job-taur')
-                               .subscribe((value) => {
-                                   expect(value).toBeNull();
-                                   executeNextCall(++executionId);
-                               });
+                        service
+                            .getJob('supercollider_demo', 'test-job-taur')
+                            .subscribe((value) => {
+                                expect(value).toBeNull();
+                                executeNextCall(++executionId);
+                            });
                     }
                 };
 
@@ -268,12 +297,16 @@ describe('DataJobsApiService', () => {
                 const executionId = 'executionA';
 
                 // When
-                const response = service.getJobExecution(teamName, jobName, executionId);
+                const response = service.getJobExecution(
+                    teamName,
+                    jobName,
+                    executionId
+                );
 
                 // Then
                 expect(response).toBeDefined();
                 expect(httpClientStub.get).toHaveBeenCalledWith(
-                    `/data-jobs/for-team/${ teamName }/jobs/${ jobName }/executions/${ executionId }`
+                    `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
                 );
             });
         });
@@ -282,22 +315,29 @@ describe('DataJobsApiService', () => {
     describe('validateModuleConfig', () => {
         it('validates dataPipelinesModuleConfig with empty defaultOwnerTeamName', () => {
             // @ts-ignore
-            expect(() => service._validateModuleConfig({
-                defaultOwnerTeamName: ''
-            })).toThrow(new Error(MISSING_DEFAULT_TEAM_MESSAGE));
+            expect(() =>
+                service._validateModuleConfig({
+                    defaultOwnerTeamName: '',
+                })
+            ).toThrow(new Error(MISSING_DEFAULT_TEAM_MESSAGE));
         });
 
         it('validates dataPipelinesModuleConfig with reserved defaultOwnerTeamName', () => {
             // @ts-ignore
-            expect(() => service._validateModuleConfig({
-                defaultOwnerTeamName: 'default'
-            })).toThrow(new Error(RESERVED_DEFAULT_TEAM_NAME_MESSAGE));
+            expect(() =>
+                service._validateModuleConfig({
+                    defaultOwnerTeamName: 'default',
+                })
+            ).toThrow(new Error(RESERVED_DEFAULT_TEAM_NAME_MESSAGE));
         });
     });
 
     describe('getJobDetails', () => {
         it('returs observable', () => {
-            const jobDetailsObservable = service.getJobDetails('team001', 'job001');
+            const jobDetailsObservable = service.getJobDetails(
+                'team001',
+                'job001'
+            );
             expect(jobDetailsObservable).toBeDefined();
         });
     });
@@ -311,42 +351,65 @@ describe('DataJobsApiService', () => {
 
     describe('downloadFile', () => {
         it('returs observable', () => {
-            const downloadFileObservable = service.downloadFile('team001', 'job001');
+            const downloadFileObservable = service.downloadFile(
+                'team001',
+                'job001'
+            );
             expect(downloadFileObservable).toBeDefined();
         });
     });
 
     describe('getJobDeployments', () => {
         it('returs observable', () => {
-            const getJobDeploymentsObservable = service.getJobDeployments('team001', 'job001');
+            const getJobDeploymentsObservable = service.getJobDeployments(
+                'team001',
+                'job001'
+            );
             expect(getJobDeploymentsObservable).toBeDefined();
         });
     });
 
     describe('updateDataJobStatus', () => {
         it('returs observable', () => {
-            const updateDataJobStatusObservable = service.updateDataJobStatus('team001', 'job001', 'deploy001', false);
+            const updateDataJobStatusObservable = service.updateDataJobStatus(
+                'team001',
+                'job001',
+                'deploy001',
+                false
+            );
             expect(updateDataJobStatusObservable).toBeDefined();
         });
     });
 
     describe('updateDataJobStatus', () => {
         it('returs observable', () => {
-            const updateDataJobStatusObservable = service.updateDataJobStatus('team001', 'job001', null, false);
+            const updateDataJobStatusObservable = service.updateDataJobStatus(
+                'team001',
+                'job001',
+                null,
+                false
+            );
             expect(updateDataJobStatusObservable).toBeDefined();
         });
     });
 
     describe('updateDataJob', () => {
         it('returs observable', () => {
-            const updateDataJobStatusObservable = service.updateDataJob('team001', 'job001', TEST_JOB_DETAILS);
+            const updateDataJobStatusObservable = service.updateDataJob(
+                'team001',
+                'job001',
+                TEST_JOB_DETAILS
+            );
             expect(updateDataJobStatusObservable).toBeDefined();
         });
     });
 
     describe('getJobExecutions', () => {
         it('returs observable', () => {
-            const jobExecutionsObservable = service.getJobExecutions('team001', 'job001');
+            const jobExecutionsObservable = service.getJobExecutions(
+                'team001',
+                'job001'
+            );
             expect(jobExecutionsObservable).toBeDefined();
         });
     });
@@ -357,32 +420,43 @@ describe('DataJobsApiService', () => {
             const jobName = 'job001';
             const deploymentId = 'hhw-dff-fgg-100';
 
-            const executeDataJobObservable = service.executeDataJob(teamName, jobName, deploymentId);
+            const executeDataJobObservable = service.executeDataJob(
+                teamName,
+                jobName,
+                deploymentId
+            );
             expect(executeDataJobObservable).toBeDefined();
-            expect(httpClientStub.post)
-                .toHaveBeenCalledWith(`/data-jobs/for-team/${ teamName }/jobs/${ jobName }/deployments/${ deploymentId }/executions`, {})
-
+            expect(httpClientStub.post).toHaveBeenCalledWith(
+                `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
+                {}
+            );
         });
     });
 
     describe('cancelDataJob', () => {
         it('returns observable', () => {
-
             const teamName = 'team001';
             const jobName = 'job001';
             const deploymentId = 'hhw-dff-fgg-100';
             const executionId = 'hhw-dff-fgg-100';
 
-            const executeDataJobObservable = service.executeDataJob(teamName, jobName, deploymentId);
+            const executeDataJobObservable = service.executeDataJob(
+                teamName,
+                jobName,
+                deploymentId
+            );
             expect(executeDataJobObservable).toBeDefined();
-            expect(httpClientStub.post)
-                .toHaveBeenCalledWith(`/data-jobs/for-team/${ teamName }/jobs/${ jobName }/deployments/${ deploymentId }/executions`, {})
+            expect(httpClientStub.post).toHaveBeenCalledWith(
+                `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
+                {}
+            );
 
-            const cancelExecutionDataJobObservable = service.cancelDataJobExecution(teamName, jobName, executionId);
+            const cancelExecutionDataJobObservable =
+                service.cancelDataJobExecution(teamName, jobName, executionId);
             expect(cancelExecutionDataJobObservable).toBeDefined();
-            expect(httpClientStub.delete)
-                .toHaveBeenCalledWith(`/data-jobs/for-team/${ teamName }/jobs/${ jobName }/executions/${ executionId }`)
-
+            expect(httpClientStub.delete).toHaveBeenCalledWith(
+                `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+            );
         });
     });
 });

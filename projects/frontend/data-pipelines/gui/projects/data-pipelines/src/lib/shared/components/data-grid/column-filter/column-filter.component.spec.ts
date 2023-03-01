@@ -17,14 +17,15 @@ describe('ColumnFilterComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ColumnFilterComponent],
-            providers: [{
-                provide: ClrDatagridFilter,
-                useFactory: () => ({
-                    setFilter: () => ({})
-                })
-            }]
-        })
-                     .compileComponents();
+            providers: [
+                {
+                    provide: ClrDatagridFilter,
+                    useFactory: () => ({
+                        setFilter: () => ({}),
+                    }),
+                },
+            ],
+        }).compileComponents();
     });
 
     beforeEach(() => {
@@ -39,7 +40,9 @@ describe('ColumnFilterComponent', () => {
 
     describe('toggle selection', () => {
         it('change value', () => {
-            component.toggleSelection({ target: ({ value: TEST_VALUE } as unknown) as EventTarget } as Event);
+            component.toggleSelection({
+                target: { value: TEST_VALUE } as unknown as EventTarget,
+            } as Event);
             expect(component.value).toBe(TEST_VALUE);
         });
     });

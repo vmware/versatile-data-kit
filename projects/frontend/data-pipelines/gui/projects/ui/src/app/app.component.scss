@@ -4,26 +4,26 @@
  */
 
 .small-text {
-  font-size: smaller;
+    font-size: smaller;
 }
 
 .checking-user {
-  display: table;
-  height: 28rem;
-  width: 100%;
+    display: table;
+    height: 28rem;
+    width: 100%;
 
-  .loading-spinner {
-    text-align: center;
-    display: table-cell;
-    vertical-align: middle;
+    .loading-spinner {
+        text-align: center;
+        display: table-cell;
+        vertical-align: middle;
 
-    .loading-title {
-      margin-bottom: .6rem;
+        .loading-title {
+            margin-bottom: 0.6rem;
+        }
     }
-  }
 }
 
 .nav-right {
-  float: right;
-  display: contents;
+    float: right;
+    display: contents;
 }

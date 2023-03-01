@@ -4,18 +4,17 @@
  */
 
 .schema-confirm-to-prod {
-  .modal-title {
-    margin-bottom: .5rem;
-  }
-
-  .signpostBtn {
-    height: 0rem;
-
-    .btn-info {
-      margin-top: -.65rem;
-      border: 0;
-      height: 1.2rem;
+    .modal-title {
+        margin-bottom: 0.5rem;
     }
-  }
 
+    .signpostBtn {
+        height: 0rem;
+
+        .btn-info {
+            margin-top: -0.65rem;
+            border: 0;
+            height: 1.2rem;
+        }
+    }
 }

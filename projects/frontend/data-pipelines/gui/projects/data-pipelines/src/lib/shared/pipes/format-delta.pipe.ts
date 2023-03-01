@@ -24,29 +24,29 @@ import { DataJobExecution } from '../../model';
  *   4: If the duration is more than 1 day, the format is `${days}d ${hours}h`
  */
 @Pipe({
-    name: 'formatDelta'
+    name: 'formatDelta',
 })
 export class FormatDeltaPipe implements PipeTransform {
     static formatDelta(delta: number): string {
         if (delta < 0) {
             return 'N/A';
         } else if (delta < 60) {
-            return `${ Math.ceil(delta) }s`;
+            return `${Math.ceil(delta)}s`;
         } else if (delta < 3600) {
-            const minute = Math.floor((delta / (60) % 60));
+            const minute = Math.floor((delta / 60) % 60);
             const seconds = Math.floor(delta % 60);
 
-            return `${ minute }m ${ seconds }s`;
+            return `${minute}m ${seconds}s`;
         } else if (delta < 86400) {
-            const hours = Math.floor((delta / (60 * 60) % 24));
-            const minutes = Math.floor((delta / (60) % 60));
+            const hours = Math.floor((delta / (60 * 60)) % 24);
+            const minutes = Math.floor((delta / 60) % 60);
 
-            return `${ hours }h ${ minutes }m`;
+            return `${hours}h ${minutes}m`;
         } else {
-            const days = Math.floor((delta / (60 * 60 * 24)));
-            const hours = Math.floor((delta / (60 * 60) % 24));
+            const days = Math.floor(delta / (60 * 60 * 24));
+            const hours = Math.floor((delta / (60 * 60)) % 24);
 
-            return `${ days }d ${ hours }h`;
+            return `${days}d ${hours}h`;
         }
     }
 
@@ -58,7 +58,10 @@ export class FormatDeltaPipe implements PipeTransform {
             return '';
         }
 
-        const delta = (FormatDeltaPipe._getEndTime(execution) - FormatDeltaPipe._getStartTime(execution)) / 1000;
+        const delta =
+            (FormatDeltaPipe._getEndTime(execution) -
+                FormatDeltaPipe._getStartTime(execution)) /
+            1000;
 
         return FormatDeltaPipe.formatDelta(delta);
     }
