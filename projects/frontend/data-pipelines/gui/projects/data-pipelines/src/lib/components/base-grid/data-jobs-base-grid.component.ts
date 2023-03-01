@@ -32,7 +32,7 @@ import {
     RouterState,
     RouteState,
     TaurusBaseComponent,
-    URLStateManager
+    URLStateManager,
 } from '@vdk/shared';
 
 import { ErrorUtil } from '../../shared/utils';
@@ -46,7 +46,7 @@ import {
     DataPipelinesConfig,
     DataPipelinesRestoreUI,
     DisplayMode,
-    JOBS_DATA_KEY
+    JOBS_DATA_KEY,
 } from '../../model';
 import { DataJobsApiService, DataJobsService } from '../../services';
 
@@ -69,8 +69,14 @@ export type DataJobsLocalStorageUserConfig = {
 @Directive()
 export abstract class DataJobsBaseGridComponent
     extends TaurusBaseComponent
-    implements OnInit, OnTaurusModelInit, OnTaurusModelInitialLoad, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError {
-
+    implements
+        OnInit,
+        OnTaurusModelInit,
+        OnTaurusModelInitialLoad,
+        OnTaurusModelLoad,
+        OnTaurusModelChange,
+        OnTaurusModelError
+{
     static readonly UI_KEY_PAGE_OFFSET = 'pageOffset';
     static readonly UI_KEY_GRID_OFFSET = 'gridOffset';
     static readonly UI_KEY_GRID_UI_STATE = 'gridUIState';
@@ -78,7 +84,8 @@ export abstract class DataJobsBaseGridComponent
     static readonly CONTENT_AREA_SELECTOR = '.content-area';
     static readonly DATA_GRID_SELECTOR = '.datagrid';
 
-    @Input() urlUpdateStrategy: 'updateLocation' | 'updateRouter' = 'updateRouter';
+    @Input() urlUpdateStrategy: 'updateLocation' | 'updateRouter' =
+        'updateRouter';
     @Input() searchParam: string = QUERY_PARAM_SEARCH;
 
     @Input() set urlStateManager(value: URLStateManager) {
@@ -111,14 +118,14 @@ export abstract class DataJobsBaseGridComponent
     deploymentStatuses = [
         DataJobStatus.ENABLED,
         DataJobStatus.DISABLED,
-        DataJobStatus.NOT_DEPLOYED
+        DataJobStatus.NOT_DEPLOYED,
     ];
     executionStatuses = [
         DataJobExecutionStatus.SUCCEEDED,
         DataJobExecutionStatus.PLATFORM_ERROR,
         DataJobExecutionStatus.USER_ERROR,
         DataJobExecutionStatus.SKIPPED,
-        DataJobExecutionStatus.CANCELLED
+        DataJobExecutionStatus.CANCELLED,
     ];
 
     clrGridCurrentPage = 1;
@@ -136,7 +143,8 @@ export abstract class DataJobsBaseGridComponent
     protected _urlStateManager: URLStateManager;
     private _isUrlStateManagerExternalDependency = false;
 
-    protected constructor( // NOSONAR
+    protected constructor(
+        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
@@ -164,11 +172,14 @@ export abstract class DataJobsBaseGridComponent
      * ** NgFor elements tracking function.
      */
     trackByFn(index: number, dataJob: DataJob): string {
-        return `${ index }|${ dataJob?.config?.team }|${ dataJob?.jobName }`;
+        return `${index}|${dataJob?.config?.team}|${dataJob?.jobName}`;
     }
 
     resolveLogsUrl(job: DataJob): string {
-        if (CollectionsUtil.isNil(job) || CollectionsUtil.isArrayEmpty(job.deployments)) {
+        if (
+            CollectionsUtil.isNil(job) ||
+            CollectionsUtil.isArrayEmpty(job.deployments)
+        ) {
             return null;
         }
 
@@ -181,7 +192,10 @@ export abstract class DataJobsBaseGridComponent
 
     showOrHideColumnChange(columnName: string, hidden: boolean): void {
         this.localStorageUserConfig.hiddenColumns[columnName] = hidden;
-        localStorage.setItem(this.localStorageConfigKey, JSON.stringify(this.localStorageUserConfig));
+        localStorage.setItem(
+            this.localStorageConfigKey,
+            JSON.stringify(this.localStorageUserConfig)
+        );
     }
 
     getJobStatus(job: DataJob): DataJobExecutionStatus {
@@ -194,8 +208,10 @@ export abstract class DataJobsBaseGridComponent
 
     getJobSuccessRateTitle(job: DataJob): string {
         if (job.deployments) {
-            return `${ job.deployments[0]?.successfulExecutions } successful / ${ job.deployments[0]?.failedExecutions
-            + job.deployments[0]?.successfulExecutions } total`;
+            return `${job.deployments[0]?.successfulExecutions} successful / ${
+                job.deployments[0]?.failedExecutions +
+                job.deployments[0]?.successfulExecutions
+            } total`;
         }
 
         return null;
@@ -230,7 +246,9 @@ export abstract class DataJobsBaseGridComponent
 
         if (this.filterByTeamName && !this.teamNameFilter) {
             //While the teamNameFilter is empty, no refresh requests will be executed.
-            console.log('Refresh operation will be skipped. teamNameFilter is empty.');
+            console.log(
+                'Refresh operation will be skipped. teamNameFilter is empty.'
+            );
 
             return;
         }
@@ -254,18 +272,16 @@ export abstract class DataJobsBaseGridComponent
             this.saveUIState();
             this.selectionChanged(job);
 
-            this.dataJobsService
-                .notifyForTeamImplicitly(job.config?.team);
+            this.dataJobsService.notifyForTeamImplicitly(job.config?.team);
 
             this.navigationInProgress = true;
 
             this.navigateTo({
                 '$.team': job.config?.team,
-                '$.job': job.jobName
-            })
-                .finally(() => {
-                    this.navigationInProgress = false;
-                });
+                '$.job': job.jobName,
+            }).finally(() => {
+                this.navigationInProgress = false;
+            });
         }
     }
 
@@ -279,9 +295,12 @@ export abstract class DataJobsBaseGridComponent
             this.routerService
                 .get()
                 .pipe(
-                    distinctUntilChanged((a, b) =>
-                        a.state.absoluteConfigPath !== b.state.absoluteConfigPath ||
-                        a.state.absoluteRoutePath === b.state.absoluteRoutePath
+                    distinctUntilChanged(
+                        (a, b) =>
+                            a.state.absoluteConfigPath !==
+                                b.state.absoluteConfigPath ||
+                            a.state.absoluteRoutePath ===
+                                b.state.absoluteRoutePath
                     )
                 )
                 .subscribe((routerState) => {
@@ -300,9 +319,10 @@ export abstract class DataJobsBaseGridComponent
                         if (this._shouldRestoreUIState(routerState)) {
                             this.restoreUIStateInProgress = true;
 
-                            const clrGridUIState = this.model.getUiState<ClrGridUIState>(
-                                DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE
-                            );
+                            const clrGridUIState =
+                                this.model.getUiState<ClrGridUIState>(
+                                    DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE
+                                );
                             if (clrGridUIState) {
                                 this.clrGridUIState = clrGridUIState;
                             }
@@ -328,9 +348,7 @@ export abstract class DataJobsBaseGridComponent
     onModelInitialLoad() {
         this.routerService
             .get()
-            .pipe(
-                take(1)
-            )
+            .pipe(take(1))
             .subscribe((routerState) => {
                 if (this._shouldRestoreUIState(routerState)) {
                     this.restoreUIState();
@@ -352,7 +370,8 @@ export abstract class DataJobsBaseGridComponent
      */
     onModelChange(model: ComponentModel) {
         const componentState = model.getComponentState();
-        const dataJobsData: { content: DataJob[], totalItems: number } = componentState.data.get(JOBS_DATA_KEY);
+        const dataJobsData: { content: DataJob[]; totalItems: number } =
+            componentState.data.get(JOBS_DATA_KEY);
 
         this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content)
             ? [...dataJobsData?.content]
@@ -365,9 +384,7 @@ export abstract class DataJobsBaseGridComponent
      * @inheritDoc
      */
     onModelError(model?: ComponentModel) {
-        const error = ErrorUtil.extractError(
-            model.getComponentState().error
-        );
+        const error = ErrorUtil.extractError(model.getComponentState().error);
 
         this.errorHandlerService.processError(error);
     }
@@ -380,17 +397,17 @@ export abstract class DataJobsBaseGridComponent
         this._initializeClrGridUIState();
 
         this.subscriptions.push(
-            this.loadDataDebouncer.pipe(
-                debounceTime(300)
-            ).subscribe((handling) => {
-                if (this.isLoadDataAllowed() || handling === 'forced') {
-                    this._doLoadData();
-                }
+            this.loadDataDebouncer
+                .pipe(debounceTime(300))
+                .subscribe((handling) => {
+                    if (this.isLoadDataAllowed() || handling === 'forced') {
+                        this._doLoadData();
+                    }
 
-                if (this.isUrlUpdateAllowed() || handling === 'forced') {
-                    this._doUrlUpdate();
-                }
-            })
+                    if (this.isUrlUpdateAllowed() || handling === 'forced') {
+                        this._doUrlUpdate();
+                    }
+                })
         );
 
         super.ngOnInit();
@@ -400,12 +417,19 @@ export abstract class DataJobsBaseGridComponent
         try {
             this._loadLocalStorageUserConfig();
         } catch (e1) {
-            console.error('Failed to read config from localStorage', e1, 'Will attempt to re-create it.');
+            console.error(
+                'Failed to read config from localStorage',
+                e1,
+                'Will attempt to re-create it.'
+            );
             try {
                 localStorage.removeItem(this.localStorageConfigKey);
                 this._loadLocalStorageUserConfig();
             } catch (e2) {
-                console.error('Was unable to re-initialize localStorage user config', e2);
+                console.error(
+                    'Was unable to re-initialize localStorage user config',
+                    e2
+                );
             }
         }
     }
@@ -413,7 +437,9 @@ export abstract class DataJobsBaseGridComponent
     protected isLoadDataAllowed(): boolean {
         if (!this.gridState) {
             //While the gridState is empty, no refresh requests will be executed.
-            console.log('Load data will be skipped. gridState is empty. operation not allowed.');
+            console.log(
+                'Load data will be skipped. gridState is empty. operation not allowed.'
+            );
 
             return false;
         }
@@ -422,34 +448,50 @@ export abstract class DataJobsBaseGridComponent
     }
 
     protected isUrlUpdateAllowed(): boolean {
-        return !this.navigationInProgress && this.urlStateManager.isQueryParamsStateMutated;
+        return (
+            !this.navigationInProgress &&
+            this.urlStateManager.isQueryParamsStateMutated
+        );
     }
 
     protected saveUIState() {
-        const dataGrid = this.elementRef.nativeElement.querySelector(DataJobsBaseGridComponent.DATA_GRID_SELECTOR);
+        const dataGrid = this.elementRef.nativeElement.querySelector(
+            DataJobsBaseGridComponent.DATA_GRID_SELECTOR
+        );
         if (dataGrid) {
-            this.model.withUiState(DataJobsBaseGridComponent.UI_KEY_GRID_OFFSET, {
-                x: dataGrid.scrollLeft,
-                y: dataGrid.scrollTop
-            });
+            this.model.withUiState(
+                DataJobsBaseGridComponent.UI_KEY_GRID_OFFSET,
+                {
+                    x: dataGrid.scrollLeft,
+                    y: dataGrid.scrollTop,
+                }
+            );
         }
 
-        const contentArea = this.document.querySelector(DataJobsBaseGridComponent.CONTENT_AREA_SELECTOR);
+        const contentArea = this.document.querySelector(
+            DataJobsBaseGridComponent.CONTENT_AREA_SELECTOR
+        );
         if (contentArea) {
-            this.model.withUiState(DataJobsBaseGridComponent.UI_KEY_PAGE_OFFSET, {
-                x: contentArea.scrollLeft,
-                y: contentArea.scrollTop
-            });
+            this.model.withUiState(
+                DataJobsBaseGridComponent.UI_KEY_PAGE_OFFSET,
+                {
+                    x: contentArea.scrollLeft,
+                    y: contentArea.scrollTop,
+                }
+            );
         }
 
-        const clrGridUIStateDeepCloned = CollectionsUtil.cloneDeep(this.clrGridUIState);
-        clrGridUIStateDeepCloned.pageSize = this.model
-                                                .getComponentState()
-            ?.page
-            ?.size;
+        const clrGridUIStateDeepCloned = CollectionsUtil.cloneDeep(
+            this.clrGridUIState
+        );
+        clrGridUIStateDeepCloned.pageSize =
+            this.model.getComponentState()?.page?.size;
         clrGridUIStateDeepCloned.lastPage = this.clrGridCurrentPage;
 
-        this.model.withUiState(DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE, clrGridUIStateDeepCloned);
+        this.model.withUiState(
+            DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE,
+            clrGridUIStateDeepCloned
+        );
 
         this.componentService.update(this.model.getComponentState());
     }
@@ -460,14 +502,22 @@ export abstract class DataJobsBaseGridComponent
         }
 
         setTimeout(() => {
-            const gridOffset = this.model.getUiState<UIElementOffset>(DataJobsBaseGridComponent.UI_KEY_GRID_OFFSET);
-            const dataGrid = this.elementRef.nativeElement.querySelector(DataJobsBaseGridComponent.DATA_GRID_SELECTOR);
+            const gridOffset = this.model.getUiState<UIElementOffset>(
+                DataJobsBaseGridComponent.UI_KEY_GRID_OFFSET
+            );
+            const dataGrid = this.elementRef.nativeElement.querySelector(
+                DataJobsBaseGridComponent.DATA_GRID_SELECTOR
+            );
             if (dataGrid) {
                 dataGrid.scrollTo(gridOffset.x, gridOffset.y);
             }
 
-            const pageOffset = this.model.getUiState<UIElementOffset>(DataJobsBaseGridComponent.UI_KEY_PAGE_OFFSET);
-            const contentArea = this.document.querySelector(DataJobsBaseGridComponent.CONTENT_AREA_SELECTOR);
+            const pageOffset = this.model.getUiState<UIElementOffset>(
+                DataJobsBaseGridComponent.UI_KEY_PAGE_OFFSET
+            );
+            const contentArea = this.document.querySelector(
+                DataJobsBaseGridComponent.CONTENT_AREA_SELECTOR
+            );
             if (contentArea) {
                 contentArea.scrollTo(pageOffset.x, pageOffset.y);
             }
@@ -477,7 +527,8 @@ export abstract class DataJobsBaseGridComponent
     }
 
     private _shouldRestoreUIState(routerState: RouterState): boolean {
-        const restoreUiWhen = routerState.state.getData<DataPipelinesRestoreUI>('restoreUiWhen');
+        const restoreUiWhen =
+            routerState.state.getData<DataPipelinesRestoreUI>('restoreUiWhen');
         if (CollectionsUtil.isNil(restoreUiWhen)) {
             return true;
         }
@@ -488,34 +539,34 @@ export abstract class DataJobsBaseGridComponent
 
         return routerState
             .getPrevious()
-            .state
-            .absoluteConfigPath
-            .includes(restoreUiWhen.previousConfigPathLike);
+            .state.absoluteConfigPath.includes(
+                restoreUiWhen.previousConfigPathLike
+            );
     }
 
     private _doesRestoreUIStateExist(): boolean {
-        return CollectionsUtil.isDefined(this.model)
-            && CollectionsUtil.isDefined(
-                this.model.getUiState<ClrGridUIState>(DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE)
-            );
+        return (
+            CollectionsUtil.isDefined(this.model) &&
+            CollectionsUtil.isDefined(
+                this.model.getUiState<ClrGridUIState>(
+                    DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE
+                )
+            )
+        );
     }
 
     private _clearUiPageState() {
         this.model
             .getComponentState()
-            .uiState
-            .delete(DataJobsBaseGridComponent.UI_KEY_GRID_OFFSET);
+            .uiState.delete(DataJobsBaseGridComponent.UI_KEY_GRID_OFFSET);
         this.model
             .getComponentState()
-            .uiState
-            .delete(DataJobsBaseGridComponent.UI_KEY_PAGE_OFFSET);
+            .uiState.delete(DataJobsBaseGridComponent.UI_KEY_PAGE_OFFSET);
         this.model
             .getComponentState()
-            .uiState
-            .delete(DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE);
+            .uiState.delete(DataJobsBaseGridComponent.UI_KEY_GRID_UI_STATE);
 
-        this.componentService
-            .update(this.model.getComponentState());
+        this.componentService.update(this.model.getComponentState());
     }
 
     private _doLoadData(): void {
@@ -528,7 +579,10 @@ export abstract class DataJobsBaseGridComponent
             this.model
                 .withFilter(this._buildRefreshFilters())
                 .withSearch(this.searchQueryValue)
-                .withPage(this.gridState?.page?.current, this.gridState?.page?.size);
+                .withPage(
+                    this.gridState?.page?.current,
+                    this.gridState?.page?.size
+                );
         }
 
         this.dataJobsService.loadJobs(this.model);
@@ -560,8 +614,10 @@ export abstract class DataJobsBaseGridComponent
             this.urlStateManager.baseURL = routeState.absoluteRoutePath;
         }
 
-        this.urlStateManager
-            .setQueryParam(this.searchParam, this.searchQueryValue);
+        this.urlStateManager.setQueryParam(
+            this.searchParam,
+            this.searchQueryValue
+        );
     }
 
     private _doUrlUpdate(): void {
@@ -569,9 +625,7 @@ export abstract class DataJobsBaseGridComponent
             this.urlStateManager.locationToURL();
         } else {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.urlStateManager
-                .navigateToUrl()
-                .then();
+            this.urlStateManager.navigateToUrl().then();
         }
     }
 
@@ -579,22 +633,32 @@ export abstract class DataJobsBaseGridComponent
         const userConfig = localStorage.getItem(this.localStorageConfigKey);
         if (userConfig) {
             let newColumnProvided = false;
-            const parsedUserConfig: DataJobsLocalStorageUserConfig = JSON.parse(userConfig);
+            const parsedUserConfig: DataJobsLocalStorageUserConfig =
+                JSON.parse(userConfig);
 
-            CollectionsUtil.iterateObject(this.localStorageUserConfig.hiddenColumns, (value, key) => {
-                if (!parsedUserConfig.hiddenColumns.hasOwnProperty(key)) {
-                    newColumnProvided = true;
-                    parsedUserConfig.hiddenColumns[key] = value;
+            CollectionsUtil.iterateObject(
+                this.localStorageUserConfig.hiddenColumns,
+                (value, key) => {
+                    if (!parsedUserConfig.hiddenColumns.hasOwnProperty(key)) {
+                        newColumnProvided = true;
+                        parsedUserConfig.hiddenColumns[key] = value;
+                    }
                 }
-            });
+            );
 
             if (newColumnProvided) {
-                localStorage.setItem(this.localStorageConfigKey, JSON.stringify(parsedUserConfig));
+                localStorage.setItem(
+                    this.localStorageConfigKey,
+                    JSON.stringify(parsedUserConfig)
+                );
             }
 
             this.localStorageUserConfig = parsedUserConfig;
         } else {
-            localStorage.setItem(this.localStorageConfigKey, JSON.stringify(this.localStorageUserConfig));
+            localStorage.setItem(
+                this.localStorageConfigKey,
+                JSON.stringify(this.localStorageUserConfig)
+            );
         }
     }
 
@@ -610,31 +674,32 @@ export abstract class DataJobsBaseGridComponent
             filters.push({
                 property: 'config.team',
                 pattern: this.teamNameFilter,
-                sort: null
+                sort: null,
             });
         }
 
         if (this.gridState?.filters) {
             for (const _filter of this.gridState.filters) {
-                const { property, value } = _filter as { property: string; value: string };
+                const { property, value } = _filter as {
+                    property: string;
+                    value: string;
+                };
 
                 filters.push({
                     property,
                     pattern: this._getFilterPattern(property, value),
-                    sort: null
+                    sort: null,
                 });
             }
         }
 
         if (this.gridState?.sort) {
-            const direction = this.gridState.sort.reverse
-                ? DESC
-                : ASC;
+            const direction = this.gridState.sort.reverse ? DESC : ASC;
 
             filters.push({
                 property: this.gridState.sort.by as string,
                 pattern: null,
-                sort: direction
+                sort: direction,
             });
         }
 
@@ -646,13 +711,13 @@ export abstract class DataJobsBaseGridComponent
         // TODO: Once jobName get the same handling as config.team, add case proper case
         switch (propertyName) {
             case 'config.team':
-                return `%${ value }%`;
+                return `%${value}%`;
             case 'deployments.enabled':
-                return `${ value }`.toLowerCase().replace(' ', '_');
+                return `${value}`.toLowerCase().replace(' ', '_');
             case 'deployments.lastExecutionStatus':
-                return `${ value }`.toLowerCase();
+                return `${value}`.toLowerCase();
             default:
-                return `${ value }`;
+                return `${value}`;
         }
     }
 
@@ -671,7 +736,7 @@ export abstract class DataJobsBaseGridComponent
                 suppressCancel: true,
                 onActivate: () => {
                     this.clrGridUIState.filter = {};
-                }
+                },
             },
             {
                 label: 'Enabled',
@@ -681,8 +746,8 @@ export abstract class DataJobsBaseGridComponent
                     title: 'Enabled - This job is deployed and executed by schedule',
                     class: 'is-solid status-icon-enabled',
                     shape: 'check-circle',
-                    size: 20
-                }
+                    size: 20,
+                },
             },
             {
                 label: 'Disabled',
@@ -692,8 +757,8 @@ export abstract class DataJobsBaseGridComponent
                     title: 'Disabled - This job is deployed but not executing by schedule',
                     class: 'is-solid status-icon-disabled',
                     shape: 'times-circle',
-                    size: 15
-                }
+                    size: 15,
+                },
             },
             {
                 label: 'Not Deployed',
@@ -702,14 +767,17 @@ export abstract class DataJobsBaseGridComponent
                 icon: {
                     title: 'Not Deployed - This job is created but still not deployed',
                     shape: 'circle',
-                    size: 15
-                }
-            }
+                    size: 15,
+                },
+            },
         ];
 
-        if (CollectionsUtil.isNumber(this.quickFiltersDefaultActiveIndex) &&
-            CollectionsUtil.isDefined(filters[this.quickFiltersDefaultActiveIndex])) {
-
+        if (
+            CollectionsUtil.isNumber(this.quickFiltersDefaultActiveIndex) &&
+            CollectionsUtil.isDefined(
+                filters[this.quickFiltersDefaultActiveIndex]
+            )
+        ) {
             filters[this.quickFiltersDefaultActiveIndex].active = true;
         }
 
@@ -722,11 +790,11 @@ export abstract class DataJobsBaseGridComponent
             lastPage: 1,
             pageSize: 25,
             filter: {
-                ...(this.clrGridDefaultFilter ?? {})
+                ...(this.clrGridDefaultFilter ?? {}),
             },
             sort: {
-                ...(this.clrGridDefaultSort ?? {})
-            }
+                ...(this.clrGridDefaultSort ?? {}),
+            },
         };
     }
 }

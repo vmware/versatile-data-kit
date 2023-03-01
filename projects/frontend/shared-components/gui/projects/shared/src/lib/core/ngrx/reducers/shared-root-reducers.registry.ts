@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -18,6 +16,6 @@ import { componentReducer } from '../../component/state';
  *
  */
 export const SHARED_ROOT_REDUCERS: ActionReducerMap<StoreState> = {
-    [STORE_ROUTER]: routerReducer,
-    [STORE_COMPONENTS]: componentReducer
+	[STORE_ROUTER]: routerReducer,
+	[STORE_COMPONENTS]: componentReducer
 };

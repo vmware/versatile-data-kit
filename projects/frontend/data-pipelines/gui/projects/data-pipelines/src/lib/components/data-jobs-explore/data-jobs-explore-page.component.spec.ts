@@ -14,7 +14,7 @@ describe('DataJobsExploreComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
-            declarations: [DataJobsExplorePageComponent]
+            declarations: [DataJobsExplorePageComponent],
         });
         fixture = TestBed.createComponent(DataJobsExplorePageComponent);
         component = fixture.componentInstance;

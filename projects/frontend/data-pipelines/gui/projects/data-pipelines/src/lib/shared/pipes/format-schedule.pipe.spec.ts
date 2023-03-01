@@ -63,7 +63,9 @@ describe('FormatSchedulePipe', () => {
 
                 // Then
                 expect(result).toBeDefined();
-                expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                expect(result).toContain(
+                    `Invalid Cron expression "${schedule}"`
+                );
             });
 
             describe('testing minute range', () => {
@@ -76,7 +78,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:00 AM, on day 10 of the month, only in July');
+                    expect(result).toContain(
+                        'At 11:00 AM, on day 10 of the month, only in July'
+                    );
                 });
 
                 it('should verify will correctly translate cron "59 11 10 7 *"', () => {
@@ -88,7 +92,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:59 AM, on day 10 of the month, only in July');
+                    expect(result).toContain(
+                        'At 11:59 AM, on day 10 of the month, only in July'
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "60 11 10 7 *"', () => {
@@ -100,7 +106,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
             });
 
@@ -114,7 +122,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 12:30 AM, on day 10 of the month, only in July');
+                    expect(result).toContain(
+                        'At 12:30 AM, on day 10 of the month, only in July'
+                    );
                 });
 
                 it('should verify will correctly translate cron "30 23 10 7 *"', () => {
@@ -126,7 +136,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 PM, on day 10 of the month, only in July');
+                    expect(result).toContain(
+                        'At 11:30 PM, on day 10 of the month, only in July'
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "30 24 10 7 *"', () => {
@@ -138,7 +150,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
             });
 
@@ -152,7 +166,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 1 of the month, only in July');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 1 of the month, only in July'
+                    );
                 });
 
                 it('should verify will correctly translate cron "30 11 31 7 *"', () => {
@@ -164,7 +180,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 31 of the month, only in July');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 31 of the month, only in July'
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "30 11 0 7 *"', () => {
@@ -176,7 +194,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "30 11 32 7 *"', () => {
@@ -188,7 +208,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
             });
 
@@ -202,7 +224,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 10 of the month, only in January');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 10 of the month, only in January'
+                    );
                 });
 
                 it('should verify will correctly translate cron "30 11 10 12 *"', () => {
@@ -214,7 +238,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 10 of the month, only in December');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 10 of the month, only in December'
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "30 11 10 0 *"', () => {
@@ -226,7 +252,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "30 11 10 13 *"', () => {
@@ -238,7 +266,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
             });
 
@@ -252,7 +282,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 10 of the month, and on Sunday, only in July');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 10 of the month, and on Sunday, only in July'
+                    );
                 });
 
                 it('should verify will correctly translate cron "30 11 10 7 6"', () => {
@@ -264,7 +296,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 10 of the month, and on Saturday, only in July');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 10 of the month, and on Saturday, only in July'
+                    );
                 });
 
                 it('should verify will correctly translate cron "30 11 10 7 7"', () => {
@@ -276,7 +310,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('At 11:30 AM, on day 10 of the month, and on Sunday, only in July');
+                    expect(result).toContain(
+                        'At 11:30 AM, on day 10 of the month, and on Sunday, only in July'
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "30 11 10 7 8"', () => {
@@ -288,7 +324,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
             });
 
@@ -302,7 +340,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('Run once an hour at the beginning of the hour');
+                    expect(result).toContain(
+                        'Run once an hour at the beginning of the hour'
+                    );
                 });
 
                 it('should verify will correctly translate cron "@daily" and "@midnight"', () => {
@@ -330,7 +370,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('Run once a week at midnight on Sunday morning');
+                    expect(result).toContain(
+                        'Run once a week at midnight on Sunday morning'
+                    );
                 });
 
                 it('should verify will correctly translate cron "@monthly"', () => {
@@ -342,7 +384,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain('Run once a month at midnight of the first day of the month');
+                    expect(result).toContain(
+                        'Run once a month at midnight of the first day of the month'
+                    );
                 });
 
                 it('should verify will correctly translate cron "@yearly" and "@annually"', () => {
@@ -356,9 +400,13 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result1).toBeDefined();
-                    expect(result1).toContain('Run once a year at midnight of 1 January');
+                    expect(result1).toContain(
+                        'Run once a year at midnight of 1 January'
+                    );
                     expect(result2).toBeDefined();
-                    expect(result2).toContain('Run once a year at midnight of 1 January');
+                    expect(result2).toContain(
+                        'Run once a year at midnight of 1 January'
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "yearly"', () => {
@@ -370,7 +418,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "some random text"', () => {
@@ -382,7 +432,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "some random text"', () => {
@@ -394,7 +446,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
 
                 it('should verify will return parsing error message invalid cron "yearly"', () => {
@@ -406,7 +460,9 @@ describe('FormatSchedulePipe', () => {
 
                     // Then
                     expect(result).toBeDefined();
-                    expect(result).toContain(`Invalid Cron expression "${ schedule }"`);
+                    expect(result).toContain(
+                        `Invalid Cron expression "${schedule}"`
+                    );
                 });
             });
         });

@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { jobData } from '../jobData';
+import { VdkOption } from '../vdkOptions/vdk_options';
 
 export interface IDownloadJobDialogProps {
     /**
@@ -6,7 +8,6 @@ export interface IDownloadJobDialogProps {
      */
      parentPath: string;
 }
-
 
 export default class DownloadJobDialog extends Component<IDownloadJobDialogProps> {
     /**
@@ -56,7 +57,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-job";
         }
-        sessionStorage.setItem("download-job-name", value);
+        jobData.set(VdkOption.NAME, value);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -69,7 +70,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-team";
         }
-        sessionStorage.setItem("download-job-team", value);
+        jobData.set(VdkOption.TEAM, value);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -82,7 +83,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if (!value) {
             value = "default-url";
         }
-        sessionStorage.setItem("download-job-rest-api-url", value);
+        jobData.set(VdkOption.REST_API_URL, value);
     };
      /**
    * Callback invoked upon changing the  job path input.
@@ -95,6 +96,6 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         if(!value){
             value = this.props.parentPath;
         }
-        sessionStorage.setItem("download-job-path", value)
+        jobData.set(VdkOption.PATH, value);
     };
 }

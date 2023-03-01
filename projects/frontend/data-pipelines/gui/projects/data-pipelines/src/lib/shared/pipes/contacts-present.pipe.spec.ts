@@ -24,78 +24,83 @@ describe('ContactsPresentPipe', () => {
         });
 
         describe('|transform|', () => {
-            const parameters: Array<{ contacts: DataJobContacts; expected: boolean }> = [
+            const parameters: Array<{
+                contacts: DataJobContacts;
+                expected: boolean;
+            }> = [
                 { contacts: null, expected: false },
                 {
                     contacts: {
                         notifiedOnJobSuccess: undefined,
                         notifiedOnJobDeploy: undefined,
                         notifiedOnJobFailurePlatformError: undefined,
-                        notifiedOnJobFailureUserError: undefined
+                        notifiedOnJobFailureUserError: undefined,
                     },
-                    expected: false
+                    expected: false,
                 },
                 {
                     contacts: {
                         notifiedOnJobSuccess: [],
                         notifiedOnJobDeploy: [],
                         notifiedOnJobFailurePlatformError: [],
-                        notifiedOnJobFailureUserError: []
+                        notifiedOnJobFailureUserError: [],
                     },
-                    expected: false
+                    expected: false,
                 },
                 {
                     contacts: {
                         notifiedOnJobSuccess: ['alpha@abc.com'],
                         notifiedOnJobDeploy: [],
                         notifiedOnJobFailurePlatformError: [],
-                        notifiedOnJobFailureUserError: []
+                        notifiedOnJobFailureUserError: [],
                     },
-                    expected: true
+                    expected: true,
                 },
                 {
                     contacts: {
                         notifiedOnJobSuccess: [],
                         notifiedOnJobDeploy: ['beta@abc.com'],
                         notifiedOnJobFailurePlatformError: [],
-                        notifiedOnJobFailureUserError: []
+                        notifiedOnJobFailureUserError: [],
                     },
-                    expected: true
+                    expected: true,
                 },
                 {
                     contacts: {
                         notifiedOnJobSuccess: [],
                         notifiedOnJobDeploy: [],
                         notifiedOnJobFailurePlatformError: ['gama@abc.com'],
-                        notifiedOnJobFailureUserError: []
+                        notifiedOnJobFailureUserError: [],
                     },
-                    expected: true
+                    expected: true,
                 },
                 {
                     contacts: {
                         notifiedOnJobSuccess: [],
                         notifiedOnJobDeploy: [],
                         notifiedOnJobFailurePlatformError: [],
-                        notifiedOnJobFailureUserError: ['delta@abc.com']
+                        notifiedOnJobFailureUserError: ['delta@abc.com'],
                     },
-                    expected: true
+                    expected: true,
                 },
                 {
                     contacts: {
                         notifiedOnJobSuccess: ['alpha@abc.com'],
                         notifiedOnJobDeploy: ['beta@abc.com'],
                         notifiedOnJobFailurePlatformError: ['gama@abc.com'],
-                        notifiedOnJobFailureUserError: ['delta@abc.com']
+                        notifiedOnJobFailureUserError: ['delta@abc.com'],
                     },
-                    expected: true
-                }
+                    expected: true,
+                },
             ];
 
             let cnt = 0;
             for (const params of parameters) {
                 cnt++;
 
-                it(`should verify will return ${ (params.expected as unknown) as string } case ${ cnt }`, () => {
+                it(`should verify will return ${
+                    params.expected as unknown as string
+                } case ${cnt}`, () => {
                     // When
                     const value = pipe.transform(params.contacts);
 

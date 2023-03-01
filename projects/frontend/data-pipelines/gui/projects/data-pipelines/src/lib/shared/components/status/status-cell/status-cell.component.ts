@@ -9,7 +9,7 @@ import { DataJob } from '../../../../model/data-job.model';
 @Component({
     selector: 'lib-status-cell',
     templateUrl: './status-cell.component.html',
-    styleUrls: ['./status-cell.component.css']
+    styleUrls: ['./status-cell.component.css'],
 })
 export class StatusCellComponent {
     @Input() dataJob: DataJob;
