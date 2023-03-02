@@ -81,6 +81,7 @@ frontend-shared-components-build:
     paths:
       - projects/frontend/shared-components/gui/package-lock.json
       - projects/frontend/shared-components/gui/dist/
+      - projects/frontend/shared-components/gui/node_modules/
     expire_in: 1 week
 
 frontend-shared-components-release:
