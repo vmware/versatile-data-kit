@@ -37,7 +37,7 @@ VDK creates data processing workflows to:
 
 
 ![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
-![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
+![Data Journey](./support/images/versatile-data-kit-before-after-dark-v2.png#gh-dark-mode-only)
 
 
 # Solve common data engineering problems
