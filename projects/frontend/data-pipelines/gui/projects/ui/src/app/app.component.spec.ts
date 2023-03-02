@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 
 import { OAuthService, UrlHelperService } from 'angular-oauth2-oidc';
 
-import { NavigationService, RouterService } from '@vdk/shared';
+import { NavigationService, RouterService } from '@versatiledatakit/shared';
 
 import { AppComponent } from './app.component';
 import { TokenResponse } from 'angular-oauth2-oidc/types';

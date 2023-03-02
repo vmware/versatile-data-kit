@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { EMPTY, expand, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ApiPredicate } from '@vdk/shared';
+import { ApiPredicate } from '@versatiledatakit/shared';
 
 import { DataJob, DataJobPage } from '../model';
 

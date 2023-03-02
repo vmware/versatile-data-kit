@@ -11,7 +11,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 
-import { NavigationService } from '@vdk/shared';
+import { NavigationService } from '@versatiledatakit/shared';
 
 import { DataJob, DataJobExecutions } from '../../../model';
 

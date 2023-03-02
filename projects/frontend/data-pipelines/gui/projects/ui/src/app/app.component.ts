@@ -9,7 +9,7 @@ import { timer } from 'rxjs';
 
 import { OAuthService } from 'angular-oauth2-oidc';
 
-import { NavigationService } from '@vdk/shared';
+import { NavigationService } from '@versatiledatakit/shared';
 
 import { authCodeFlowConfig, refreshTokenConfig } from './auth';
 

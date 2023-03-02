@@ -5,7 +5,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { ApiPredicate } from '@vdk/shared';
+import { ApiPredicate } from '@versatiledatakit/shared';
 
 import {
     DataJobContacts,

@@ -5,7 +5,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { DirectionType } from '@vdk/shared';
+import { DirectionType } from '@versatiledatakit/shared';
 
 import {
     DataJobExecution,

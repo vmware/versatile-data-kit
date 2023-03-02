@@ -24,7 +24,7 @@ import {
 
 import { ClrLoadingState } from '@clr/angular';
 
-import { VmwToastType } from '@vdk/shared';
+import { VmwToastType } from '@versatiledatakit/shared';
 
 import * as fileSaver from 'file-saver';
 
@@ -41,7 +41,7 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../shared/utils';
 import { ExtractJobStatusPipe } from '../../shared/pipes';

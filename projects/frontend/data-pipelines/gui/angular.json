@@ -91,12 +91,12 @@
               },
               {
                 "glob": "**/*",
-                "input": "node_modules/@vdk/shared/assets",
+                "input": "node_modules/@versatiledatakit/shared/assets",
                 "output": "/assets/"
               },
               {
                 "glob": "**/*",
-                "input": "node_modules/@vdk/data-pipelines/assets",
+                "input": "node_modules/@versatiledatakit/data-pipelines/assets",
                 "output": "/assets/"
               }
             ],
