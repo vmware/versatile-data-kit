@@ -6,7 +6,7 @@
 ###
 # For installing the build prerequisites, consider `install_data_pipelines.sh` script.
 # This script is meant to be used, to quickly
-# rebuild and link the the @vdk/data-pipelines in an already bootstrapped development setup.
+# rebuild and link the the @versatiledatakit/data-pipelines in an already bootstrapped development setup.
 ###
 
 if ! which npm >/dev/null 2>&1 ; then
@@ -33,7 +33,7 @@ echo "Going to the GUI root ..."
 cd "../../"
 
 echo "Use the local repo symlink to link it to node_modules ..."
-npm link @vdk/data-pipelines
+npm link @versatiledatakit/data-pipelines
 
 echo "Logging global npm packages"
 npm ls -g
