@@ -5,7 +5,7 @@
 
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
 
-import { TaurusObject } from '@vdk/shared';
+import { TaurusObject } from '@versatiledatakit/shared';
 
 import { ModalOptions } from '../../model';
 
