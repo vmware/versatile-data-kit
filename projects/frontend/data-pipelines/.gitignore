@@ -88,6 +88,7 @@ target
 gui/.vscode/launch.json
 gui/test-report.xml
 gui/reports/
+gui/package-lock.json
 gui/e2e/reports/
 gui/e2e/videos/
 .gradle

@@ -14,7 +14,7 @@ import {
     DataJobsExplorePageComponent,
     DataJobsManagePageComponent,
     DataPipelinesRoutes,
-} from '@vdk/data-pipelines';
+} from '@versatiledatakit/data-pipelines';
 
 import { GettingStartedComponent } from './getting-started/getting-started.component';
 import { DataPipelinesRoute } from '../../../data-pipelines/src/lib/model';
