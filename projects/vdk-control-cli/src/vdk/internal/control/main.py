@@ -66,7 +66,6 @@ vdk set-default --team taurus
 @click.version_option()
 @click.pass_context
 def cli(ctx: click.Context, dev: bool):
-
     if dev:
         configure_loggers(op_id=VDKConfig().op_id)
     else:
