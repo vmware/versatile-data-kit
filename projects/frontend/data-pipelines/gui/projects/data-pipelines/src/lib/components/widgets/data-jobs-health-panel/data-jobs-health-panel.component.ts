@@ -20,7 +20,7 @@ import {
     OnTaurusModelLoad,
     RouterService,
     TaurusBaseComponent,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../../shared/utils';
 

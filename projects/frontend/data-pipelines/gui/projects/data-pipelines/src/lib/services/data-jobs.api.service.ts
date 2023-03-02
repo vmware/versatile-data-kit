@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 
 import { ApolloQueryResult } from '@apollo/client/core';
 
-import { ApiPredicate, CollectionsUtil } from '@vdk/shared';
+import { ApiPredicate, CollectionsUtil } from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,

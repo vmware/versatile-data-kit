@@ -11,7 +11,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { FORM_STATE, VMWFormState } from '@vdk/shared';
+import { FORM_STATE, VMWFormState } from '@versatiledatakit/shared';
 
 import {
     ComponentModel,
@@ -23,7 +23,7 @@ import {
     RouterState,
     RouteState,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
