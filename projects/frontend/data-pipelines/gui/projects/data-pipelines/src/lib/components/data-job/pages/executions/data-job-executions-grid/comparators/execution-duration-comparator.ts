@@ -7,7 +7,9 @@ import { ClrDatagridComparatorInterface } from '@clr/angular';
 
 import { GridDataJobExecution } from '../../model/data-job-execution';
 
-export class DataJobExecutionDurationComparator implements ClrDatagridComparatorInterface<GridDataJobExecution> {
+export class DataJobExecutionDurationComparator
+    implements ClrDatagridComparatorInterface<GridDataJobExecution>
+{
     /**
      * @inheritDoc
      */

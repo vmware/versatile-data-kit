@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataPipelinesBasePO } from '../../../application/data-pipelines-base.po';
+import { DataPipelinesBasePO } from "../../../application/data-pipelines-base.po";
 
 export class GettingStartedPage extends DataPipelinesBasePO {
     /**
@@ -12,7 +12,7 @@ export class GettingStartedPage extends DataPipelinesBasePO {
      * @returns {GettingStartedPage}
      */
     static navigateTo() {
-        cy.visit('/get-started');
+        cy.visit("/get-started");
 
         this.waitForBackendRequestCompletion(3);
 
@@ -36,7 +36,7 @@ export class GettingStartedPage extends DataPipelinesBasePO {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getMainTitle() {
-        return cy.get('[data-cy=getting-started-main-title]');
+        return cy.get("[data-cy=getting-started-main-title]");
     }
 
     /**
@@ -45,6 +45,6 @@ export class GettingStartedPage extends DataPipelinesBasePO {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getDataJobsHealthPanel() {
-        return cy.get('[data-cy=dp-data-jobs-health-panel]');
+        return cy.get("[data-cy=dp-data-jobs-health-panel]");
     }
 }

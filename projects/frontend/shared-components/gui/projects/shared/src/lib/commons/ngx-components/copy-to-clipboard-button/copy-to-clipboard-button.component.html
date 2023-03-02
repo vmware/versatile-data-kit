@@ -4,48 +4,52 @@
   -->
 
 <span [ngClass]="{'copy-button': !btnLabel?.length && !hasProjectedContent}">
-    <clr-tooltip>
-        <button type="button"
-                class="btn"
-                [ngClass]="btnClassesToApply"
-                [attr.aria-label]="ariaLabel"
-                [disabled]="disabled"
-                (click)="!disabled && doCopy()"
-                clrTooltipTrigger
-                [ngStyle]="!btnLabel?.length && !hasProjectedContent && {'line-height': bounds, 'min-width': bounds, 'height': bounds}">
-            <div class="anim-object"
-                 [class.flip-horizontal-reverse]="!copied"
-                 [class.flip-horizontal-bottom]="copied"
-                 [ngStyle]="!btnLabel?.length && !hasProjectedContent && {'width': bounds, 'height': bounds}"
-            >
-                <div class="front face face-label">
-                    <cds-icon shape="copy-to-clipboard" [attr.size]="size"></cds-icon>
-                    <ng-content></ng-content>
-                    <span *ngIf="btnLabel?.length">
-                        {{btnLabel}}
-                    </span>
-                </div>
-                <div class="back face face-label">
-                    <cds-icon shape="check" [attr.size]="size"></cds-icon>
-                </div>
-            </div>
-        </button>
+	<clr-tooltip>
+		<button
+			type="button"
+			class="btn"
+			[ngClass]="btnClassesToApply"
+			[attr.aria-label]="ariaLabel"
+			[disabled]="disabled"
+			(click)="!disabled && doCopy()"
+			clrTooltipTrigger
+			[ngStyle]="!btnLabel?.length && !hasProjectedContent && {'line-height': bounds, 'min-width': bounds, 'height': bounds}"
+		>
+			<div
+				class="anim-object"
+				[class.flip-horizontal-reverse]="!copied"
+				[class.flip-horizontal-bottom]="copied"
+				[ngStyle]="!btnLabel?.length && !hasProjectedContent && {'width': bounds, 'height': bounds}"
+			>
+				<div class="front face face-label">
+					<cds-icon shape="copy-to-clipboard" [attr.size]="size"></cds-icon>
+					<ng-content></ng-content>
+					<span *ngIf="btnLabel?.length"> {{btnLabel}} </span>
+				</div>
+				<div class="back face face-label">
+					<cds-icon shape="check" [attr.size]="size"></cds-icon>
+				</div>
+			</div>
+		</button>
 
-        <clr-tooltip-content [clrPosition]="tooltipDirection"
-                clrSize="md"
-                *clrIfOpen
-                [ngClass]="{'hide-tooltip': !tooltip?.length}">
-            {{tooltip}}
-        </clr-tooltip-content>
-    </clr-tooltip>
+		<clr-tooltip-content
+			[clrPosition]="tooltipDirection"
+			clrSize="md"
+			*clrIfOpen
+			[ngClass]="{'hide-tooltip': !tooltip?.length}"
+		>
+			{{tooltip}}
+		</clr-tooltip-content>
+	</clr-tooltip>
 </span>
 
-<span *ngIf="copied"
-      role="alert"
-      aria-live="assertive"
-      class="clr-sr-only"
->
-    {{copyAlert}}
+<span *ngIf="copied" role="alert" aria-live="assertive" class="clr-sr-only">
+	{{copyAlert}}
 </span>
 
-<textarea #area *ngIf="isSafari" contenteditable="true" [hidden]="true"></textarea>
+<textarea
+	#area
+	*ngIf="isSafari"
+	contenteditable="true"
+	[hidden]="true"
+></textarea>

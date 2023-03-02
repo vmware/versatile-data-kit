@@ -15,9 +15,11 @@ import { GridDataJobExecution } from '../model/data-job-execution';
 
 @Component({
     selector: 'lib-data-job-execution-type-filter',
-    templateUrl: './data-job-execution-type-filter.component.html'
+    templateUrl: './data-job-execution-type-filter.component.html',
 })
-export class DataJobExecutionTypeFilterComponent implements ClrDatagridFilterInterface<GridDataJobExecution> {
+export class DataJobExecutionTypeFilterComponent
+    implements ClrDatagridFilterInterface<GridDataJobExecution>
+{
     allTypes = [DataJobExecutionType.MANUAL, DataJobExecutionType.SCHEDULED];
     selectedTypes: string[] = [];
     changes: Subject<boolean> = new Subject<boolean>();
@@ -36,7 +38,9 @@ export class DataJobExecutionTypeFilterComponent implements ClrDatagridFilterInt
         if (checkbox.checked) {
             this.selectedTypes.push(checkbox.value);
         } else {
-            const statusToRemoveIndex = this.selectedTypes.indexOf(checkbox.value);
+            const statusToRemoveIndex = this.selectedTypes.indexOf(
+                checkbox.value
+            );
             if (statusToRemoveIndex > -1) {
                 this.selectedTypes.splice(statusToRemoveIndex, 1);
             }

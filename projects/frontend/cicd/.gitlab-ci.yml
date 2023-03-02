@@ -1,6 +1,14 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+.frontend_shared_components_changes: &frontend_shared_components_locations
+  - "projects/frontend/cicd/**/*"
+  - "projects/frontend/shared-components/**/*"
+
+.frontend_data_pipelines_changes: &frontend_data_pipelines_locations
+  - "projects/frontend/cicd/**/*"
+  - "projects/frontend/data-pipelines/**/*"
+
 frontend_publish_test_image:
   image: docker:19.03.15
   variables:
@@ -23,3 +31,46 @@ frontend_publish_test_image:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/frontend/cicd/version.txt
+
+frontend-shared-components-build:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: build
+  before_script:
+    - cd projects/frontend/shared-components/gui
+  script:
+    - ../../cicd/build_shared.sh
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
+        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
+    paths:
+      - projects/frontend/shared-components/gui/package-lock.json
+    expire_in: 1 week
+
+frontend-shared-components-release:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: release
+  before_script:
+    - cd projects/frontend/shared-components/gui
+  script:
+    - ../../cicd/build_shared.sh
+    - ../../cicd/publish_shared.sh $CI_PIPELINE_ID $NPM_REGISTRY $NPM_TOKEN
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
+        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
+    paths:
+      - projects/frontend/shared-components/gui/package-lock.json
+    expire_in: 1 week

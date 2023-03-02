@@ -19,7 +19,7 @@ import {
     OnTaurusModelInit,
     OnTaurusModelLoad,
     RouterService,
-    TaurusBaseComponent
+    TaurusBaseComponent,
 } from '@vdk/shared';
 
 import { ErrorUtil } from '../../../shared/utils';
@@ -39,7 +39,7 @@ import {
     JOB_NAME_REQ_PARAM,
     JOBS_DATA_KEY,
     ORDER_REQ_PARAM,
-    TEAM_NAME_REQ_PARAM
+    TEAM_NAME_REQ_PARAM,
 } from '../../../model';
 import { TASK_LOAD_JOB_EXECUTIONS } from '../../../state/tasks';
 
@@ -48,17 +48,22 @@ import { DataJobExecutionToGridDataJobExecution } from '../../data-job/pages/exe
 enum State {
     loading = 'loading',
     ready = 'ready',
-    empty = 'empty'
+    empty = 'empty',
 }
 
 @Component({
     selector: 'lib-data-jobs-health-panel',
     templateUrl: './data-jobs-health-panel.component.html',
-    styleUrls: ['./data-jobs-health-panel.component.scss']
+    styleUrls: ['./data-jobs-health-panel.component.scss'],
 })
-export class DataJobsHealthPanelComponent extends TaurusBaseComponent
-    implements OnTaurusModelInit, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError {
-
+export class DataJobsHealthPanelComponent
+    extends TaurusBaseComponent
+    implements
+        OnTaurusModelInit,
+        OnTaurusModelLoad,
+        OnTaurusModelChange,
+        OnTaurusModelError
+{
     @Input() manageLink: string;
     @Output() componentStateEvent = new EventEmitter<string>();
 
@@ -79,7 +84,9 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
         private readonly errorHandlerService: ErrorHandlerService,
-        @Inject(DATA_PIPELINES_CONFIGS) public readonly dataPipelinesModuleConfig: DataPipelinesConfig) {
+        @Inject(DATA_PIPELINES_CONFIGS)
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
+    ) {
         super(componentService, navigationService, activatedRoute);
     }
 
@@ -91,7 +98,7 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
             filters.push({
                 property: 'config.team',
                 pattern: this.teamName,
-                sort: null
+                sort: null,
             });
         }
 
@@ -100,7 +107,10 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
                 .withRequestParam(TEAM_NAME_REQ_PARAM, 'no-team-specified')
                 .withRequestParam(JOB_NAME_REQ_PARAM, '')
                 .withFilter(filters)
-                .withRequestParam(ORDER_REQ_PARAM, { property: 'startTime', direction: DESC })
+                .withRequestParam(ORDER_REQ_PARAM, {
+                    property: 'startTime',
+                    direction: DESC,
+                })
                 .withPage(1, 1000)
         );
     }
@@ -113,15 +123,18 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
             this.model
                 .withRequestParam(TEAM_NAME_REQ_PARAM, 'no-team-specified')
                 .withRequestParam(JOB_NAME_REQ_PARAM, '')
-                .withRequestParam(
-                    FILTER_REQ_PARAM,
-                    {
-                        statusIn: [DataJobExecutionStatus.USER_ERROR, DataJobExecutionStatus.PLATFORM_ERROR],
-                        startTimeGte: d,
-                        teamNameIn: this.teamName ? [this.teamName] : []
-                    } as DataJobExecutionFilter
-                )
-                .withRequestParam(ORDER_REQ_PARAM, { property: 'startTime', direction: DESC } as DataJobExecutionOrder)
+                .withRequestParam(FILTER_REQ_PARAM, {
+                    statusIn: [
+                        DataJobExecutionStatus.USER_ERROR,
+                        DataJobExecutionStatus.PLATFORM_ERROR,
+                    ],
+                    startTimeGte: d,
+                    teamNameIn: this.teamName ? [this.teamName] : [],
+                } as DataJobExecutionFilter)
+                .withRequestParam(ORDER_REQ_PARAM, {
+                    property: 'startTime',
+                    direction: DESC,
+                } as DataJobExecutionOrder)
         );
     }
 
@@ -145,15 +158,23 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
      */
     onModelChange(model: ComponentModel, task: string): void {
         if (task === TASK_LOAD_JOB_EXECUTIONS) {
-            const executions: DataJobExecutions = model.getComponentState().data.get(JOB_EXECUTIONS_DATA_KEY);
+            const executions: DataJobExecutions = model
+                .getComponentState()
+                .data.get(JOB_EXECUTIONS_DATA_KEY);
             if (executions) {
-                const remappedExecutions = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution([...executions]);
-                this.jobExecutions = remappedExecutions.filter((ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED);
+                const remappedExecutions =
+                    DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(
+                        [...executions]
+                    );
+                this.jobExecutions = remappedExecutions.filter(
+                    (ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED
+                );
                 this.loadingExecutions = false;
             }
         } else {
             const componentState = model.getComponentState();
-            const dataJobsData: DataJobPage = componentState.data.get(JOBS_DATA_KEY);
+            const dataJobsData: DataJobPage =
+                componentState.data.get(JOBS_DATA_KEY);
 
             this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content)
                 ? [...dataJobsData?.content]
@@ -174,9 +195,7 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
             this.loadingJobs = false;
         }
 
-        const error = ErrorUtil.extractError(
-            model.getComponentState().error
-        );
+        const error = ErrorUtil.extractError(model.getComponentState().error);
 
         this.errorHandlerService.processError(error);
     }
@@ -184,7 +203,10 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
     private emitNewState() {
         if (this.loadingJobs || this.loadingExecutions) {
             this.componentStateEvent.emit(State.loading);
-        } else if (this.jobExecutions.length === 0 && this.dataJobs.length === 0) {
+        } else if (
+            this.jobExecutions.length === 0 &&
+            this.dataJobs.length === 0
+        ) {
             this.componentStateEvent.emit(State.empty);
         } else {
             this.componentStateEvent.emit(State.ready);
@@ -192,10 +214,13 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
     }
 
     private _subscribeForTeamChange(): void {
-        if (this.dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable) {
+        if (
+            this.dataPipelinesModuleConfig.manageConfig
+                ?.selectedTeamNameObservable
+        ) {
             this.subscriptions.push(
-                this.dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable
-                    .subscribe({
+                this.dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable.subscribe(
+                    {
                         next: (newTeamName: string) => {
                             if (newTeamName !== this.teamName) {
                                 if (newTeamName && newTeamName !== '') {
@@ -209,8 +234,9 @@ export class DataJobsHealthPanelComponent extends TaurusBaseComponent
                             this.jobExecutions = [];
                             this.dataJobs = [];
                             console.error('Error loading selected team', error);
-                        }
-                    })
+                        },
+                    }
+                )
             );
         } else {
             this.fetchDataJobExecutions();

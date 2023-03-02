@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -30,306 +28,337 @@ import { TaurusComponentHooks } from './interfaces';
  *
  */
 @Directive()
-export abstract class TaurusBaseComponent extends TaurusObject implements OnInit, OnDestroy {
-    private static _routeStateFactory: RouteStateFactory;
+export abstract class TaurusBaseComponent
+	extends TaurusObject
+	implements OnInit, OnDestroy
+{
+	private static _routeStateFactory: RouteStateFactory;
 
-    /**
-     * ** Field that hold Component Model.
-     */
-    model: ComponentModel;
+	/**
+	 * ** Field that hold Component Model.
+	 */
+	model: ComponentModel;
 
-    /**
-     * ** UUID is identifier for every Subclass in Components state Store.
-     */
-    abstract readonly uuid: string;
+	/**
+	 * ** UUID is identifier for every Subclass in Components state Store.
+	 */
+	abstract readonly uuid: string;
 
-    /**
-     * ** Feature flag to enforce Route reuse in native way provided from Taurus NgRx.
-     *
-     *      - Introduced for backward compatibility.
-     *      - Default value is false, and continues to operate like previous major version.
-     *      - If set to true will enforce Route reuse strategy and will re-initialize Component with new Model for the new params.
-     */
-    enforceRouteReuse = false;
+	/**
+	 * ** Feature flag to enforce Route reuse in native way provided from Taurus NgRx.
+	 *
+	 *      - Introduced for backward compatibility.
+	 *      - Default value is false, and continues to operate like previous major version.
+	 *      - If set to true will enforce Route reuse strategy and will re-initialize Component with new Model for the new params.
+	 */
+	enforceRouteReuse = false;
 
-    /**
-     * ** Model subscription ref.
-     * @private
-     */
-    private _modelSubscription: Subscription;
+	/**
+	 * ** Model subscription ref.
+	 * @private
+	 */
+	private _modelSubscription: Subscription;
 
-    /**
-     * ** Constructor.
-     */
-    protected constructor(protected readonly componentService: ComponentService,
-                          protected readonly navigationService: NavigationService,
-                          protected readonly activatedRoute: ActivatedRoute) {
-        super();
-    }
+	/**
+	 * ** Constructor.
+	 */
+	protected constructor(
+		protected readonly componentService: ComponentService,
+		protected readonly navigationService: NavigationService,
+		protected readonly activatedRoute: ActivatedRoute
+	) {
+		super();
+	}
 
-    /**
-     * ** Navigate to page using {@link NavigationService.navigateTo}.
-     */
-    navigateTo(replaceValues?: { [key: string]: ArrayElement<TaurusNavigateAction['replacers']>['replaceValue'] }): Promise<boolean> {
-        return this
-            .navigationService
-            .navigateTo(replaceValues);
-    }
+	/**
+	 * ** Navigate to page using {@link NavigationService.navigateTo}.
+	 */
+	navigateTo(replaceValues?: {
+		[key: string]: ArrayElement<
+			TaurusNavigateAction['replacers']
+		>['replaceValue'];
+	}): Promise<boolean> {
+		return this.navigationService.navigateTo(replaceValues);
+	}
 
-    /**
-     * ** Navigate back to previous page using {@link NavigationService.navigateBack}.
-     */
-    navigateBack(replaceValues?: { [key: string]: ArrayElement<TaurusNavigateAction['replacers']>['replaceValue'] }): Promise<boolean> {
-        return this
-            .navigationService
-            .navigateBack(replaceValues);
-    }
+	/**
+	 * ** Navigate back to previous page using {@link NavigationService.navigateBack}.
+	 */
+	navigateBack(replaceValues?: {
+		[key: string]: ArrayElement<
+			TaurusNavigateAction['replacers']
+		>['replaceValue'];
+	}): Promise<boolean> {
+		return this.navigationService.navigateBack(replaceValues);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    ngOnInit() {
-        this.bindModel();
+	/**
+	 * @inheritDoc
+	 */
+	ngOnInit() {
+		this.bindModel();
 
-        this.initializeRouteReuse();
-    }
+		this.initializeRouteReuse();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    override ngOnDestroy() {
-        this.setStateIdle();
+	/**
+	 * @inheritDoc
+	 */
+	override ngOnDestroy() {
+		this.setStateIdle();
 
-        super.ngOnDestroy();
-    }
+		super.ngOnDestroy();
+	}
 
-    /**
-     * ** Invoking method register subscriber for Taurus NgRx Redux Store mutation in context of {@link ComponentState.routePathSegments},
-     *      which binds {@link ComponentModel} to {@link TaurusBaseComponent.model}
-     *      and start invocation of Taurus NgRx Redux Component lifecycle hooks.
-     *
-     *      <b>Invocation order:</b>
-     *
-     *      1. {@link OnTaurusModelInit}
-     *      2. {@link OnTaurusModelInitialLoad} or {@link OnTaurusModelFirstLoad} - only one could be invoke,
-     *              where deprecated shouldn't be implemented anymore.
-     *      3. {@link OnTaurusModelLoad}
-     *      4. {@link OnTaurusModelChange} when status is {@link LOADED}
-     *      5. {@link OnTaurusModelError} or {@link OnTaurusModelFail} when status is {@link FAILED} - only one could be invoke,
-     *              where deprecated shouldn't be implemented anymore.
-     *
-     *      <p>
-     *          <br>
-     *          Override it if you want to change default behavior.
-     *      </p>
-     *
-     * @protected
-     */
-    protected bindModel(): void {
-        let isOnModelInitialLoadExecuted = false;
+	/**
+	 * ** Invoking method register subscriber for Taurus NgRx Redux Store mutation in context of {@link ComponentState.routePathSegments},
+	 *      which binds {@link ComponentModel} to {@link TaurusBaseComponent.model}
+	 *      and start invocation of Taurus NgRx Redux Component lifecycle hooks.
+	 *
+	 *      <b>Invocation order:</b>
+	 *
+	 *      1. {@link OnTaurusModelInit}
+	 *      2. {@link OnTaurusModelInitialLoad} or {@link OnTaurusModelFirstLoad} - only one could be invoke,
+	 *              where deprecated shouldn't be implemented anymore.
+	 *      3. {@link OnTaurusModelLoad}
+	 *      4. {@link OnTaurusModelChange} when status is {@link LOADED}
+	 *      5. {@link OnTaurusModelError} or {@link OnTaurusModelFail} when status is {@link FAILED} - only one could be invoke,
+	 *              where deprecated shouldn't be implemented anymore.
+	 *
+	 *      <p>
+	 *          <br>
+	 *          Override it if you want to change default behavior.
+	 *      </p>
+	 *
+	 * @protected
+	 */
+	protected bindModel(): void {
+		let isOnModelInitialLoadExecuted = false;
 
-        if (!TaurusBaseComponent._routeStateFactory) {
-            TaurusBaseComponent._routeStateFactory = new RouteStateFactory();
-        }
+		if (!TaurusBaseComponent._routeStateFactory) {
+			TaurusBaseComponent._routeStateFactory = new RouteStateFactory();
+		}
 
-        const routeState = TaurusBaseComponent
-            ._routeStateFactory
-            .create(this.activatedRoute.snapshot, null);
+		const routeState = TaurusBaseComponent._routeStateFactory.create(
+			this.activatedRoute.snapshot,
+			null
+		);
 
-        this.componentService
-            .init(this.uuid, routeState)
-            .subscribe((model) => {
-                this.model = model;
+		this.componentService.init(this.uuid, routeState).subscribe((model) => {
+			this.model = model;
 
-                TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelInit', model);
-            });
+			TaurusBaseComponent._executeTaurusComponentHook(
+				this,
+				'onModelInit',
+				model
+			);
+		});
 
-        this._modelSubscription = this.componentService
-                                      .getModel(this.uuid, routeState.routePathSegments)
-                                      .subscribe((model) => {
-                                          if (!isOnModelInitialLoadExecuted) {
-                                              isOnModelInitialLoadExecuted = true;
-                                              if (!TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelInitialLoad', model)) {
-                                                  TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelFirstLoad', model);
-                                              }
-                                          }
+		this._modelSubscription = this.componentService
+			.getModel(this.uuid, routeState.routePathSegments)
+			.subscribe((model) => {
+				if (!isOnModelInitialLoadExecuted) {
+					isOnModelInitialLoadExecuted = true;
+					if (
+						!TaurusBaseComponent._executeTaurusComponentHook(
+							this,
+							'onModelInitialLoad',
+							model
+						)
+					) {
+						TaurusBaseComponent._executeTaurusComponentHook(
+							this,
+							'onModelFirstLoad',
+							model
+						);
+					}
+				}
 
-                                          this.evaluateTaurusComponentLifecycleHooks(model);
-                                      });
+				this.evaluateTaurusComponentLifecycleHooks(model);
+			});
 
-        this.subscriptions.push(this._modelSubscription);
-    }
+		this.subscriptions.push(this._modelSubscription);
+	}
 
-    /**
-     * ** Evaluates Taurus NgRx Redux Component lifecycle hooks
-     *      ({@link OnTaurusModelLoad} and {@link OnTaurusModelChange} and ({@link OnTaurusModelFail} or {@link OnTaurusModelError})).
-     *
-     *      - Override it if you want to change default behavior.
-     *
-     * @protected
-     */
-    protected evaluateTaurusComponentLifecycleHooks(model: ComponentModel): void {
-        TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelLoad', model);
+	/**
+	 * ** Evaluates Taurus NgRx Redux Component lifecycle hooks
+	 *      ({@link OnTaurusModelLoad} and {@link OnTaurusModelChange} and ({@link OnTaurusModelFail} or {@link OnTaurusModelError})).
+	 *
+	 *      - Override it if you want to change default behavior.
+	 *
+	 * @protected
+	 */
+	protected evaluateTaurusComponentLifecycleHooks(model: ComponentModel): void {
+		TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelLoad', model);
 
-        if (!this.isModelModified(model)) {
-            return;
-        }
+		if (!this.isModelModified(model)) {
+			return;
+		}
 
-        this.refreshModel(model);
+		this.refreshModel(model);
 
-        if (model.status === FAILED) {
-            if (!TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelError', model)) {
-                TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelFail', model);
-            }
-        } else {
-            TaurusBaseComponent._executeTaurusComponentHook(this, 'onModelChange', model);
-        }
+		if (model.status === FAILED) {
+			if (
+				!TaurusBaseComponent._executeTaurusComponentHook(
+					this,
+					'onModelError',
+					model
+				)
+			) {
+				TaurusBaseComponent._executeTaurusComponentHook(
+					this,
+					'onModelFail',
+					model
+				);
+			}
+		} else {
+			TaurusBaseComponent._executeTaurusComponentHook(
+				this,
+				'onModelChange',
+				model
+			);
+		}
 
-        try {
-            this.normalizeModelState(model);
-        } catch (e) {
-            console.error(`Taurus NgRx Redux failed to normalize ComponentModel!`, e);
-        }
-    }
+		try {
+			this.normalizeModelState(model);
+		} catch (e) {
+			console.error(`Taurus NgRx Redux failed to normalize ComponentModel!`, e);
+		}
+	}
 
-    /**
-     * ** Refresh model field {@link TaurusBaseComponent.model} with new one, assignment by reference.
-     *
-     *      - Override it if you want to change default behavior.
-     *
-     * @protected
-     */
-    protected refreshModel(model: ComponentModel): void {
-        this.model = model;
-    }
+	/**
+	 * ** Refresh model field {@link TaurusBaseComponent.model} with new one, assignment by reference.
+	 *
+	 *      - Override it if you want to change default behavior.
+	 *
+	 * @protected
+	 */
+	protected refreshModel(model: ComponentModel): void {
+		this.model = model;
+	}
 
-    /**
-     * ** Normalize Model state, by default it clear Task field in {@link ComponentState.task} and update model in Taurus NgRx Redux Store.
-     *
-     *      - It is invoked only if {@link ComponentModel} is modified and after invocation of all Taurus components lifecycle hooks.
-     *      - Override it if you want to change default behavior.
-     *
-     * @protected
-     */
-    protected normalizeModelState(model: ComponentModel): void {
-        this.componentService.update(
-            model
-                .clearTask()
-                .getComponentState()
-        );
-    }
+	/**
+	 * ** Normalize Model state, by default it clear Task field in {@link ComponentState.task} and update model in Taurus NgRx Redux Store.
+	 *
+	 *      - It is invoked only if {@link ComponentModel} is modified and after invocation of all Taurus components lifecycle hooks.
+	 *      - Override it if you want to change default behavior.
+	 *
+	 * @protected
+	 */
+	protected normalizeModelState(model: ComponentModel): void {
+		this.componentService.update(model.clearTask().getComponentState());
+	}
 
-    /**
-     * ** Set Model state in IDLE to stop listening on Events from Store.
-     *
-     *      - It is invoked by default before Component is destroyed, in Angular lifecycle hook {@link OnDestroy}.
-     *      - Override it if you want to change default behavior.
-     *
-     * @protected
-     */
-    protected setStateIdle(): void {
-        this.componentService.idle(
-            this.model
-                .withStatusIdle()
-                .getComponentState()
-        );
-    }
+	/**
+	 * ** Set Model state in IDLE to stop listening on Events from Store.
+	 *
+	 *      - It is invoked by default before Component is destroyed, in Angular lifecycle hook {@link OnDestroy}.
+	 *      - Override it if you want to change default behavior.
+	 *
+	 * @protected
+	 */
+	protected setStateIdle(): void {
+		this.componentService.idle(this.model.withStatusIdle().getComponentState());
+	}
 
-    /**
-     * ** Evaluation of this method acknowledge that new {@link ComponentModel} is modified or not.
-     *
-     *      - Comparison is evaluated between provided Model and assigned Component's Model {@link TaurusBaseComponent.model}.
-     *      - Default implementation use {@link ComponentModel.isModified} for deep Comparison of specific fields.
-     *      - Override it if you want to change default behavior.
-     *
-     * <p>
-     *      <b>Be cautious about your changes and intents!</b>
-     *      Examples what can wrong comparison do?
-     * </p>
-     *
-     *      1. Infinite lifecycle hooks invocation, where consequences are: performance deterioration or application freeze.
-     *      2. Prevent lifecycle hooks invocation, where consequences are: your Data never arrive to your Component fields.
-     *
-     * @protected
-     */
-    protected isModelModified(model: ComponentModel): boolean {
-        return model.isModified(this.model);
-    }
+	/**
+	 * ** Evaluation of this method acknowledge that new {@link ComponentModel} is modified or not.
+	 *
+	 *      - Comparison is evaluated between provided Model and assigned Component's Model {@link TaurusBaseComponent.model}.
+	 *      - Default implementation use {@link ComponentModel.isModified} for deep Comparison of specific fields.
+	 *      - Override it if you want to change default behavior.
+	 *
+	 * <p>
+	 *      <b>Be cautious about your changes and intents!</b>
+	 *      Examples what can wrong comparison do?
+	 * </p>
+	 *
+	 *      1. Infinite lifecycle hooks invocation, where consequences are: performance deterioration or application freeze.
+	 *      2. Prevent lifecycle hooks invocation, where consequences are: your Data never arrive to your Component fields.
+	 *
+	 * @protected
+	 */
+	protected isModelModified(model: ComponentModel): boolean {
+		return model.isModified(this.model);
+	}
 
-    /**
-     * ** Initialize Route reuse strategy for Component in context of Taurus NgRx.
-     *      - Turns on listener for Activated params change and if detects mutation
-     *              sets current model in current RoutePathSegment to idle,
-     *              and bind for new model stream to the new RoutePathSegment.
-     *      - New feature this is completely backward compatible,
-     *              and it can be turned on with feature flag per Component Class.
-     *
-     * @protected
-     */
-    protected initializeRouteReuse(): void {
-        if (!this.enforceRouteReuse) {
-            return;
-        }
+	/**
+	 * ** Initialize Route reuse strategy for Component in context of Taurus NgRx.
+	 *      - Turns on listener for Activated params change and if detects mutation
+	 *              sets current model in current RoutePathSegment to idle,
+	 *              and bind for new model stream to the new RoutePathSegment.
+	 *      - New feature this is completely backward compatible,
+	 *              and it can be turned on with feature flag per Component Class.
+	 *
+	 * @protected
+	 */
+	protected initializeRouteReuse(): void {
+		if (!this.enforceRouteReuse) {
+			return;
+		}
 
-        let previousParams: Params;
+		let previousParams: Params;
 
-        this.subscriptions.push(
-            this.activatedRoute
-                .params
-                .subscribe((params) => {
-                    if (CollectionsUtil.isNil(previousParams)) {
-                        previousParams = params;
+		this.subscriptions.push(
+			this.activatedRoute.params.subscribe((params) => {
+				if (CollectionsUtil.isNil(previousParams)) {
+					previousParams = params;
 
-                        return;
-                    }
+					return;
+				}
 
-                    if (!CollectionsUtil.isEqual(previousParams, params)) {
-                        previousParams = params;
+				if (!CollectionsUtil.isEqual(previousParams, params)) {
+					previousParams = params;
 
-                        const isRemoveSuccessful = this.removeSubscriptionRef(this._modelSubscription);
-                        if (isRemoveSuccessful) {
-                            // set current RoutePathSegment model state to idle
-                            this.setStateIdle();
-                            // bind new model stream to new RoutePathSegment
-                            this.bindModel();
-                        }
-                    }
-                })
-        );
-    }
+					const isRemoveSuccessful = this.removeSubscriptionRef(
+						this._modelSubscription
+					);
+					if (isRemoveSuccessful) {
+						// set current RoutePathSegment model state to idle
+						this.setStateIdle();
+						// bind new model stream to new RoutePathSegment
+						this.bindModel();
+					}
+				}
+			})
+		);
+	}
 
-    /**
-     * ** Invoke Taurus NgRx Redux Component lifecycle hook.
-     *
-     *      - Lifecycle hooks are invoked only if implementation they are found as implemented in subclasses.
-     *      - Returns true if method is found and executed, otherwise false.
-     *
-     * @private
-     */
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    private static _executeTaurusComponentHook(
-        instance: TaurusBaseComponent,
-        method: keyof TaurusComponentHooks,
-        model: ComponentModel): boolean {
+	/**
+	 * ** Invoke Taurus NgRx Redux Component lifecycle hook.
+	 *
+	 *      - Lifecycle hooks are invoked only if implementation they are found as implemented in subclasses.
+	 *      - Returns true if method is found and executed, otherwise false.
+	 *
+	 * @private
+	 */
+	// eslint-disable-next-line @typescript-eslint/member-ordering
+	private static _executeTaurusComponentHook(
+		instance: TaurusBaseComponent,
+		method: keyof TaurusComponentHooks,
+		model: ComponentModel
+	): boolean {
+		if (CollectionsUtil.isFunction(instance[method])) {
+			const currentTask = model.getTask();
 
-        if (CollectionsUtil.isFunction(instance[method])) {
-            const currentTask = model.getTask();
+			try {
+				if (CollectionsUtil.isString(currentTask)) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+					instance[method](model, currentTask);
+				} else {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+					instance[method](model);
+				}
+			} catch (e) {
+				console.error(
+					`Taurus NgRx Redux failed to execute lifecycle hook "${method}"!`,
+					e
+				);
+			}
 
-            try {
-                if (CollectionsUtil.isString(currentTask)) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    instance[method](model, currentTask);
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    instance[method](model);
-                }
-            } catch (e) {
-                console.error(`Taurus NgRx Redux failed to execute lifecycle hook "${ method }"!`, e);
-            }
+			return true;
+		}
 
-            return true;
-        }
-
-        return false;
-    }
+		return false;
+	}
 }
