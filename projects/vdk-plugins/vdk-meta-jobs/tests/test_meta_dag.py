@@ -76,9 +76,9 @@ def test_execute_dag_busyloop():
     os.environ,
     {"VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS": "15"},
 )
-def test_build_dag_over_max_starting_jobs_sad_case():
+def test_execute_dag_over_max_running_jobs_sad_case():
     jobs = [
-        {"job_name": f"job{i}", "depends_on": [] if i == 1 else [f"job1"]}
+        {"job_name": f"job{i}", "depends_on": [] if i == 1 else ["job1"]}
         for i in range(1, 18)
     ]
 
