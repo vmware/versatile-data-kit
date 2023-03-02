@@ -17,7 +17,7 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VmwComponentsModule } from '@versatiledatakit/shared';
+import { VdkComponentsModule } from '@versatiledatakit/shared';
 
 import {
     TaurusSharedCoreModule,
@@ -51,7 +51,7 @@ export function lottiePlayerLoader() {
         TaurusSharedNgRxModule.forRootWithDevtools(),
         TimeagoModule.forRoot(),
         LottieModule.forRoot({ player: lottiePlayerLoader }),
-        VmwComponentsModule.forRoot(),
+        VdkComponentsModule.forRoot(),
         DataPipelinesModule.forRoot({
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
