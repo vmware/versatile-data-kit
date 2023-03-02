@@ -11,7 +11,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { FORM_STATE, VMWFormState } from '@versatiledatakit/shared';
+import { FORM_STATE, VdkFormState } from '@versatiledatakit/shared';
 
 import {
     ComponentModel,
@@ -307,7 +307,7 @@ describe('DataJobsDetailsModalComponent', () => {
 
     describe('sectionStateChange', () => {
         it('makes expected calls for FORM_STATE.SUBMIT', () => {
-            const vMWFormStateStub = {} as VMWFormState;
+            const vMWFormStateStub = {} as VdkFormState;
             vMWFormStateStub.state = FORM_STATE.SUBMIT;
 
             spyOn(component, 'submitForm').and.callThrough();
@@ -318,7 +318,7 @@ describe('DataJobsDetailsModalComponent', () => {
 
     describe('sectionStateChange', () => {
         it('makes expected calls for FORM_STATE.CAN_EDIT', () => {
-            const vMWFormStateStub = {} as VMWFormState;
+            const vMWFormStateStub = {} as VdkFormState;
             vMWFormStateStub.state = FORM_STATE.CAN_EDIT;
             component.sectionStateChange(vMWFormStateStub);
             expect(component.canEditSection).toBeTrue();
@@ -327,7 +327,7 @@ describe('DataJobsDetailsModalComponent', () => {
 
     describe('sectionStateChange', () => {
         it('makes expected calls for FORM_STATE.EDIT', () => {
-            const vMWFormStateStub = {} as VMWFormState;
+            const vMWFormStateStub = {} as VdkFormState;
             vMWFormStateStub.state = FORM_STATE.EDIT;
 
             component.sectionStateChange(vMWFormStateStub);
@@ -337,7 +337,7 @@ describe('DataJobsDetailsModalComponent', () => {
 
     describe('doSubmit', () => {
         it('makes expected calls for emittingSection description', () => {
-            const vMWFormStateStub = {} as VMWFormState;
+            const vMWFormStateStub = {} as VdkFormState;
             vMWFormStateStub.emittingSection = 'description';
 
             spyOn(component, 'isDescriptionSubmitEnabled').and.callThrough();
@@ -346,7 +346,7 @@ describe('DataJobsDetailsModalComponent', () => {
         });
 
         it('makes expected calls for emittingSection status', () => {
-            const vMWFormStateStub = {} as VMWFormState;
+            const vMWFormStateStub = {} as VdkFormState;
             vMWFormStateStub.emittingSection = 'status';
 
             spyOn(component, 'isStatusSubmitEnabled').and.callThrough();

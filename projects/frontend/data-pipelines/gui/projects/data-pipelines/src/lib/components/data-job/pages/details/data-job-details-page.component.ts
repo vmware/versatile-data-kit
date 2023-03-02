@@ -11,7 +11,7 @@ import { take } from 'rxjs/operators';
 
 import {
     FORM_STATE,
-    VMWFormState,
+    VdkFormState,
     VmwToastType,
 } from '@versatiledatakit/shared';
 
@@ -113,9 +113,9 @@ export class DataJobDetailsPageComponent
     allowExecutionsByDeployment = false;
 
     tmForm: FormGroup;
-    formState: VMWFormState;
-    readFormState: VMWFormState;
-    editableFormState: VMWFormState;
+    formState: VdkFormState;
+    readFormState: VdkFormState;
+    editableFormState: VdkFormState;
 
     canEditSection = true;
 
@@ -161,9 +161,9 @@ export class DataJobDetailsPageComponent
     ) {
         super(componentService, navigationService, activatedRoute);
 
-        this.formState = new VMWFormState(FORM_STATE.VIEW);
-        this.readFormState = new VMWFormState(FORM_STATE.VIEW);
-        this.editableFormState = new VMWFormState(FORM_STATE.CAN_EDIT);
+        this.formState = new VdkFormState(FORM_STATE.VIEW);
+        this.readFormState = new VdkFormState(FORM_STATE.VIEW);
+        this.editableFormState = new VdkFormState(FORM_STATE.CAN_EDIT);
 
         this.confirmationOptions = new ConfirmationModalOptions();
         this.deleteOptions = new DeleteModalOptions();
@@ -195,7 +195,7 @@ export class DataJobDetailsPageComponent
         return !notifications || notifications.length < 1;
     }
 
-    sectionStateChange(sectionState: VMWFormState) {
+    sectionStateChange(sectionState: VdkFormState) {
         if (sectionState.state === FORM_STATE.CAN_EDIT) {
             switch (sectionState.emittingSection) {
                 case 'status':
@@ -219,7 +219,7 @@ export class DataJobDetailsPageComponent
         }
     }
 
-    submitForm(event: VMWFormState) {
+    submitForm(event: VdkFormState) {
         if (
             event.emittingSection === 'description' &&
             this.isDescriptionSubmitEnabled()
@@ -236,7 +236,7 @@ export class DataJobDetailsPageComponent
     }
 
     editOperationEnded() {
-        this.formState = new VMWFormState(FORM_STATE.CAN_EDIT);
+        this.formState = new VdkFormState(FORM_STATE.CAN_EDIT);
         this.canEditSection = true;
     }
 
