@@ -37,7 +37,7 @@ VDK creates data processing workflows to:
 
 
 ![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
-![Data Journey](./support/images/versatile-data-kit-before-after-dark-v2.png#gh-dark-mode-only)
+![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
 
 
 # Solve common data engineering problems
@@ -49,7 +49,8 @@ VDK creates data processing workflows to:
 
 
 ![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-light.svg#gh-light-mode-only)
-![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-dark.svg#gh-dark-mode-only)
+![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-dark-v2.png#gh-dark-mode-only)
+![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code.svg#gh-dark-mode-only)
 
 # Versatile Data Kit Components
 - Software Development Kit (SDK):
