@@ -14,7 +14,6 @@ from vdk.internal.core import errors
 
 
 class ErrorClassifierTest(unittest.TestCase):
-
     EXECUTOR_MODULE = data_job.__file__
     EXECUTOR_MODULE_DIR = os.path.dirname(EXECUTOR_MODULE)
     USER_ERROR_STACKTRACE = [

@@ -23,9 +23,9 @@ import {
     ClrSpinnerModule,
 } from '@clr/angular';
 
-import { VmwComponentsModule } from '@vdk/shared';
+import { VdkComponentsModule } from '@versatiledatakit/shared';
 
-import { TaurusSharedNgRxModule } from '@vdk/shared';
+import { TaurusSharedNgRxModule } from '@versatiledatakit/shared';
 
 import { AttributesDirective } from './shared/directives';
 
@@ -102,7 +102,7 @@ const routes: Routes = [];
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        VmwComponentsModule.forRoot(),
+        VdkComponentsModule.forRoot(),
         ClrDatagridModule,
         ClrSpinnerModule,
         ClarityModule,

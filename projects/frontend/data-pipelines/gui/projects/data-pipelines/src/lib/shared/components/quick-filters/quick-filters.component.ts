@@ -12,7 +12,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { QuickFilter, QuickFilterChangeEvent, QuickFilters } from './model';
 
