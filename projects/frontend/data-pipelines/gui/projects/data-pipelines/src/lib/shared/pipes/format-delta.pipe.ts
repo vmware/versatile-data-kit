@@ -5,7 +5,7 @@
 
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DataJobExecution } from '../../model';
 

@@ -9,7 +9,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { take } from 'rxjs/operators';
 
-import { FORM_STATE, VMWFormState, VmwToastType } from '@vdk/shared';
+import {
+    FORM_STATE,
+    VMWFormState,
+    VmwToastType,
+} from '@versatiledatakit/shared';
 
 import {
     ASC,
@@ -27,7 +31,7 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     ConfirmationModalOptions,

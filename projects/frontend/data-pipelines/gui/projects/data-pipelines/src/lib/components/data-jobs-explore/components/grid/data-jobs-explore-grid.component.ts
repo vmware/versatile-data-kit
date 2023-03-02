@@ -12,7 +12,7 @@ import {
     ErrorHandlerService,
     NavigationService,
     RouterService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,
