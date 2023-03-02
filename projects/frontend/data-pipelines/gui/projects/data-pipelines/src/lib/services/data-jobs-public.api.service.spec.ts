@@ -9,7 +9,7 @@ import { forkJoin, of, Subject } from 'rxjs';
 
 import { ApolloQueryResult } from '@apollo/client/core';
 
-import { ApiPredicate } from '@vdk/shared';
+import { ApiPredicate } from '@versatiledatakit/shared';
 
 import { DataJobPage } from '../model';
 
@@ -22,14 +22,22 @@ describe('DataJobsPublicApiService', () => {
     let service: DataJobsPublicApiService;
 
     beforeEach(() => {
-        dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>('dataJobsBaseServiceStub', ['getJobs']);
-        dataJobsBaseServiceStub.getJobs.and.returnValue(new Subject<ApolloQueryResult<DataJobPage>>());
+        dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>(
+            'dataJobsBaseServiceStub',
+            ['getJobs']
+        );
+        dataJobsBaseServiceStub.getJobs.and.returnValue(
+            new Subject<ApolloQueryResult<DataJobPage>>()
+        );
 
         TestBed.configureTestingModule({
             providers: [
                 DataJobsPublicApiService,
-                { provide: DataJobsBaseApiService, useValue: dataJobsBaseServiceStub }
-            ]
+                {
+                    provide: DataJobsBaseApiService,
+                    useValue: dataJobsBaseServiceStub,
+                },
+            ],
         });
         service = TestBed.inject(DataJobsPublicApiService);
     });
@@ -46,18 +54,17 @@ describe('DataJobsPublicApiService', () => {
                     data: {
                         content: [{}],
                         totalItems: 1,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const apolloQueryRef = of(apolloQueryResult);
 
                 dataJobsBaseServiceStub.getJobs.and.returnValue(apolloQueryRef);
 
                 // When
-                service.getAllDataJobs('teamA')
-                       .subscribe();
+                service.getAllDataJobs('teamA').subscribe();
 
                 // Then
                 expect(dataJobsBaseServiceStub.getJobs).toHaveBeenCalledWith(
@@ -81,7 +88,7 @@ describe('DataJobsPublicApiService', () => {
                         filter: [],
                         search: null,
                         pageNumber: 1,
-                        pageSize: 1000
+                        pageSize: 1000,
                     }
                 );
             });
@@ -92,10 +99,10 @@ describe('DataJobsPublicApiService', () => {
                     data: {
                         content: [{}],
                         totalItems: 2500,
-                        totalPages: 3
+                        totalPages: 3,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const apolloQueryRef = of(apolloQueryResult);
                 let counter = 0;
@@ -103,11 +110,12 @@ describe('DataJobsPublicApiService', () => {
                 dataJobsBaseServiceStub.getJobs.and.returnValue(apolloQueryRef);
 
                 // When/Then
-                service.getAllDataJobs('teamA')
-                       .subscribe((value) => {
-                           expect(dataJobsBaseServiceStub.getJobs.calls.argsFor(counter)).toEqual([
-                               'teamA',
-                               `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
+                service.getAllDataJobs('teamA').subscribe((value) => {
+                    expect(
+                        dataJobsBaseServiceStub.getJobs.calls.argsFor(counter)
+                    ).toEqual([
+                        'teamA',
+                        `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
 						{
 						  jobs(filter: $filter, search: $search, pageNumber: $pageNumber, pageSize: $pageSize) {
 						    content {
@@ -122,22 +130,22 @@ describe('DataJobsPublicApiService', () => {
 						    totalItems
 						  }
 						}`,
-                               {
-                                   filter: [],
-                                   search: null,
-                                   pageNumber: counter + 1,
-                                   pageSize: 1000
-                               }
-                           ]);
+                        {
+                            filter: [],
+                            search: null,
+                            pageNumber: counter + 1,
+                            pageSize: 1000,
+                        },
+                    ]);
 
-                           counter++;
+                    counter++;
 
-                           expect(value?.length).toEqual(counter);
+                    expect(value?.length).toEqual(counter);
 
-                           if (counter === 3) {
-                               done();
-                           }
-                       });
+                    if (counter === 3) {
+                        done();
+                    }
+                });
             });
         });
 
@@ -148,17 +156,17 @@ describe('DataJobsPublicApiService', () => {
                     data: {
                         content: [{}, {}, {}, {}, {}],
                         totalItems: 5,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     loading: false,
-                    networkStatus: 7
+                    networkStatus: 7,
                 };
                 const assertionFilters: ApiPredicate[] = [
                     {
                         property: 'config.team',
                         pattern: 'teamA',
-                        sort: null
-                    }
+                        sort: null,
+                    },
                 ];
 
                 dataJobsBaseServiceStub.getJobs.and.returnValues(
@@ -167,14 +175,14 @@ describe('DataJobsPublicApiService', () => {
                     of(undefined),
                     of({
                         ...apolloQueryResult,
-                        data: undefined
+                        data: undefined,
                     }),
                     of({
                         ...apolloQueryResult,
                         data: {
                             ...apolloQueryResult.data,
-                            totalItems: undefined
-                        }
+                            totalItems: undefined,
+                        },
                     })
                 );
 
@@ -183,13 +191,15 @@ describe('DataJobsPublicApiService', () => {
                     service.getDataJobsTotal('teamA'),
                     service.getDataJobsTotal('teamA'),
                     service.getDataJobsTotal('teamA'),
-                    service.getDataJobsTotal('teamA')
+                    service.getDataJobsTotal('teamA'),
                 ]).subscribe(([value1, value2, value3, value4]) => {
                     expect(value1).toEqual(5);
                     expect(value2).toEqual(0);
                     expect(value3).toEqual(0);
                     expect(value4).toEqual(0);
-                    expect(dataJobsBaseServiceStub.getJobs).toHaveBeenCalledWith(
+                    expect(
+                        dataJobsBaseServiceStub.getJobs
+                    ).toHaveBeenCalledWith(
                         'teamA',
                         `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
 						{
@@ -208,7 +218,7 @@ describe('DataJobsPublicApiService', () => {
                             filter: assertionFilters,
                             search: null,
                             pageNumber: 1,
-                            pageSize: 1
+                            pageSize: 1,
                         }
                     );
 

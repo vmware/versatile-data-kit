@@ -3,9 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 
-import { NavigationService } from '@vdk/shared';
+import { NavigationService } from '@versatiledatakit/shared';
 
 import { DataJob, DataJobExecution, DataJobExecutions } from '../../../model';
 
@@ -13,10 +19,9 @@ import { DataJob, DataJobExecution, DataJobExecutions } from '../../../model';
     selector: 'lib-data-jobs-executions-widget',
     templateUrl: './data-jobs-executions-widget.component.html',
     styleUrls: ['./data-jobs-executions-widget.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataJobsExecutionsWidgetComponent implements OnChanges {
-
     @Input() manageLink: string;
     @Input() allJobs: DataJob[];
     @Input() jobExecutions: DataJobExecutions;
@@ -25,28 +30,29 @@ export class DataJobsExecutionsWidgetComponent implements OnChanges {
 
     loading = true;
 
-    constructor(private readonly navigationService: NavigationService) {
-    }
+    constructor(private readonly navigationService: NavigationService) {}
 
     /**
      * ** NgFor elements tracking function.
      */
     trackByFn(index: number, execution: DataJobExecution): string {
-        return `${ index }|${ execution?.id }`;
+        return `${index}|${execution?.id}`;
     }
 
     /**
      * @inheritDoc
      */
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['jobExecutions'] !== undefined &&
-            changes['jobExecutions'].currentValue !== undefined) {
+        if (
+            changes['jobExecutions'] !== undefined &&
+            changes['jobExecutions'].currentValue !== undefined
+        ) {
             this.loading = false;
         }
     }
 
     navigateToJobExecutions(job?: DataJobExecution): void {
-        const dataJob = this.allJobs.find(el => el.jobName === job.jobName);
+        const dataJob = this.allJobs.find((el) => el.jobName === job.jobName);
         let link = this.manageLink;
         link = link.replace('{team}', dataJob.config?.team);
         link = link.replace('{data-job}', dataJob.jobName);

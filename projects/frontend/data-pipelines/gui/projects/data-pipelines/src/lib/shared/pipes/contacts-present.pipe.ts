@@ -5,25 +5,33 @@
 
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DataJobContacts } from '../../model';
 
 @Pipe({
-    name: 'contactsPresent'
+    name: 'contactsPresent',
 })
 export class ContactsPresentPipe implements PipeTransform {
     /**
      * @inheritDoc
      */
     transform(contacts: DataJobContacts): boolean {
-        return CollectionsUtil.isDefined(contacts) &&
-            (
-                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobSuccess) ||
-                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobDeploy) ||
-                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobFailureUserError) ||
-                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobFailurePlatformError)
-            );
+        return (
+            CollectionsUtil.isDefined(contacts) &&
+            (ContactsPresentPipe.contactIsPresent(
+                contacts.notifiedOnJobSuccess
+            ) ||
+                ContactsPresentPipe.contactIsPresent(
+                    contacts.notifiedOnJobDeploy
+                ) ||
+                ContactsPresentPipe.contactIsPresent(
+                    contacts.notifiedOnJobFailureUserError
+                ) ||
+                ContactsPresentPipe.contactIsPresent(
+                    contacts.notifiedOnJobFailurePlatformError
+                ))
+        );
     }
 
     // eslint-disable-next-line @typescript-eslint/member-ordering

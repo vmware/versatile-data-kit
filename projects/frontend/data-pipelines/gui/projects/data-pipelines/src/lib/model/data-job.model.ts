@@ -5,9 +5,13 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { ApiPredicate } from '@vdk/shared';
+import { ApiPredicate } from '@versatiledatakit/shared';
 
-import { DataJobContacts, DataJobSchedule, GraphQLResponsePage } from './data-job-base.model';
+import {
+    DataJobContacts,
+    DataJobSchedule,
+    GraphQLResponsePage,
+} from './data-job-base.model';
 
 import { DataJobDeployment } from './data-job-deployments.model';
 
@@ -42,5 +46,5 @@ export interface DataJobReqVariables {
 export enum DataJobStatus {
     ENABLED = 'Enabled',
     DISABLED = 'Disabled',
-    NOT_DEPLOYED = 'Not Deployed'
+    NOT_DEPLOYED = 'Not Deployed',
 }

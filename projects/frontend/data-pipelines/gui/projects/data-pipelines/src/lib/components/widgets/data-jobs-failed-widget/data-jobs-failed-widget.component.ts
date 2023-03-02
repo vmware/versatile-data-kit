@@ -3,9 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 
-import { NavigationService } from '@vdk/shared';
+import { NavigationService } from '@versatiledatakit/shared';
 
 import { DataJob, DataJobExecutions } from '../../../model';
 
@@ -17,10 +23,9 @@ interface DataJobGrid extends DataJob {
     selector: 'lib-data-jobs-failed-widget',
     templateUrl: './data-jobs-failed-widget.component.html',
     styleUrls: ['./data-jobs-failed-widget.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataJobsFailedWidgetComponent implements OnChanges {
-
     @Input() manageLink: string;
     @Input() allJobs: DataJob[];
     @Input() jobExecutions: DataJobExecutions = [];
@@ -30,14 +35,13 @@ export class DataJobsFailedWidgetComponent implements OnChanges {
     loading = true;
     dataJobs: DataJobGrid[] = [];
 
-    constructor(private readonly navigationService: NavigationService) {
-    }
+    constructor(private readonly navigationService: NavigationService) {}
 
     /**
      * ** NgFor elements tracking function.
      */
     trackByFn(index: number, dataJob: DataJob): string {
-        return `${ index }|${ dataJob?.jobName }`;
+        return `${index}|${dataJob?.jobName}`;
     }
 
     /**
@@ -46,10 +50,17 @@ export class DataJobsFailedWidgetComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes['jobExecutions'] !== undefined) {
             this.dataJobs = [];
-            (changes['jobExecutions'].currentValue as DataJobExecutions).forEach((element) => {
-                const temp = this.dataJobs.find(i => i.jobName === element.jobName);
+            (
+                changes['jobExecutions'].currentValue as DataJobExecutions
+            ).forEach((element) => {
+                const temp = this.dataJobs.find(
+                    (i) => i.jobName === element.jobName
+                );
                 if (!temp) {
-                    this.dataJobs.push({ jobName: element.jobName, failedTotal: 1 } as DataJobGrid);
+                    this.dataJobs.push({
+                        jobName: element.jobName,
+                        failedTotal: 1,
+                    } as DataJobGrid);
                 } else {
                     temp.failedTotal++;
                 }
@@ -59,7 +70,7 @@ export class DataJobsFailedWidgetComponent implements OnChanges {
     }
 
     navigateToJobDetails(job?: DataJob): void {
-        const dataJob = this.allJobs.find(el => el.jobName === job.jobName);
+        const dataJob = this.allJobs.find((el) => el.jobName === job.jobName);
         let link = this.manageLink;
         link = link.replace('{team}', dataJob.config?.team);
         link = link.replace('{data-job}', job.jobName);

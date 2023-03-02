@@ -15,9 +15,8 @@ describe('GettingStartedComponent', () => {
         TestBed.configureTestingModule({
             declarations: [GettingStartedComponent],
             providers: [OAuthService],
-            imports: []
-        })
-               .compileComponents();
+            imports: [],
+        }).compileComponents();
     }));
 
     beforeEach(() => {

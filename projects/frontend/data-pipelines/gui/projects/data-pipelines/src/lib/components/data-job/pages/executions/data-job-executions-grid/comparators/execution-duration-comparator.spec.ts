@@ -18,8 +18,20 @@ describe('DataJobExecutionDurationComparator', () => {
 
                 // When
                 const res = instance.compare(
-                    { id: 'aJob', startTime: aStartTime.toISOString(), endTime: aEndTime.toISOString(), duration: '100', jobVersion: '' },
-                    { id: 'bJob', startTime: bStartTime.toISOString(), endTime: bEndTime.toISOString(), duration: '110', jobVersion: '' }
+                    {
+                        id: 'aJob',
+                        startTime: aStartTime.toISOString(),
+                        endTime: aEndTime.toISOString(),
+                        duration: '100',
+                        jobVersion: '',
+                    },
+                    {
+                        id: 'bJob',
+                        startTime: bStartTime.toISOString(),
+                        endTime: bEndTime.toISOString(),
+                        duration: '110',
+                        jobVersion: '',
+                    }
                 );
 
                 // Then

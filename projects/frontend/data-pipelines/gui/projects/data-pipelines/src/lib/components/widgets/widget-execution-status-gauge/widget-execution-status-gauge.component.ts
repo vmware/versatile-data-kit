@@ -10,10 +10,9 @@ import { DataJob } from '../../../model';
 @Component({
     selector: 'lib-widget-execution-status-gauge',
     templateUrl: './widget-execution-status-gauge.component.html',
-    styleUrls: ['./widget-execution-status-gauge.component.scss']
+    styleUrls: ['./widget-execution-status-gauge.component.scss'],
 })
 export class WidgetExecutionStatusGaugeComponent implements OnChanges {
-
     @Input() allJobs: DataJob[];
     failedExecutions: number;
     successfulExecutions: number;
@@ -28,12 +27,15 @@ export class WidgetExecutionStatusGaugeComponent implements OnChanges {
             (changes['allJobs'].currentValue as DataJob[]).forEach(
                 (dataJob) => {
                     if (dataJob.deployments) {
-                        this.failedExecutions += dataJob.deployments[0].failedExecutions;
-                        this.successfulExecutions += dataJob.deployments[0].successfulExecutions;
+                        this.failedExecutions +=
+                            dataJob.deployments[0].failedExecutions;
+                        this.successfulExecutions +=
+                            dataJob.deployments[0].successfulExecutions;
                     }
                 }
             );
-            this.totalExecutions = this.failedExecutions + this.successfulExecutions;
+            this.totalExecutions =
+                this.failedExecutions + this.successfulExecutions;
             this.successRate = this.successfulExecutions / this.totalExecutions;
             this.loading = false;
         }

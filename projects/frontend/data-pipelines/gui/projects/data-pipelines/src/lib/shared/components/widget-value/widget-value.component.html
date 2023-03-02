@@ -4,20 +4,27 @@
   -->
 
 <ng-container *ngIf="observable$ | async as data; else loadingOrErrorTemplate">
-    <span data-cy="widget-value-data">{{ prop ? data[prop] : data}} </span>
+    <span data-cy="widget-value-data">{{ prop ? data[prop] : data }} </span>
 </ng-container>
 
 <ng-template #loadingOrErrorTemplate>
     <ng-container *ngIf="showErrorState; else loadingTemplate">
         <div class="col-12 text-center">
-            <cds-icon data-cy="widget-value-error" shape="error-standard" size="md" status="danger"
-                      title="Error fetching data"></cds-icon>
+            <cds-icon
+                data-cy="widget-value-error"
+                shape="error-standard"
+                size="md"
+                status="danger"
+                title="Error fetching data"
+            ></cds-icon>
         </div>
     </ng-container>
 
     <ng-template #loadingTemplate>
         <div class="col-12 text-center">
-            <clr-spinner data-cy="widget-value-loading" [clrSmall]="true">Loading ...</clr-spinner>
+            <clr-spinner data-cy="widget-value-loading" [clrSmall]="true"
+                >Loading ...</clr-spinner
+            >
         </div>
     </ng-template>
 </ng-template>

@@ -20,8 +20,8 @@ import {
     RouterService,
     RouterState,
     RouteState,
-    ToastService
-} from '@vdk/shared';
+    ToastService,
+} from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -30,7 +30,7 @@ import {
     DataJobDetails,
     DataJobExecution,
     DataJobExecutionStatus,
-    DataJobExecutionType
+    DataJobExecutionType,
 } from '../../model';
 
 import { DataJobsApiService, DataJobsService } from '../../services';
@@ -70,13 +70,13 @@ describe('DataJobsDetailsComponent', () => {
                 memoryLimit: 1000,
                 memoryRequest: 1000,
                 cpuLimit: 0.5,
-                cpuRequest: 0.5
+                cpuRequest: 0.5,
             },
             executions: [],
             deployedDate: '2020-11-11T10:10:10Z',
             deployedBy: 'pmitev',
-            status: DataJobDeploymentStatus.SUCCESS
-        }
+            status: DataJobDeploymentStatus.SUCCESS,
+        },
     } as DataJobExecution;
 
     const TEST_JOB_DEPLOYMENT = {
@@ -97,64 +97,88 @@ describe('DataJobsDetailsComponent', () => {
             memory_limit: 1000,
             memory_request: 1000,
             cpu_limit: 0.5,
-            cpu_request: 0.5
-        }
+            cpu_request: 0.5,
+        },
         /* eslint-enable @typescript-eslint/naming-convention */
-
     } as DataJobDeploymentDetails;
 
     beforeEach(() => {
-        componentServiceStub = jasmine.createSpyObj<ComponentService>('componentService', ['init', 'getModel', 'idle']);
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['navigate', 'navigateTo', 'navigateBack']);
-        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState']);
-        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', ['show']);
-        dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>('dataJobsApiService', [
-            'getJobDetails',
-            'getJobExecutions',
-            'getJobDeployments',
-            'removeJob',
-            'downloadFile',
-            'executeDataJob',
-            'getJob'
+        componentServiceStub = jasmine.createSpyObj<ComponentService>(
+            'componentService',
+            ['init', 'getModel', 'idle']
+        );
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
+            'navigationService',
+            ['navigate', 'navigateTo', 'navigateBack']
+        );
+        routerServiceStub = jasmine.createSpyObj<RouterService>(
+            'routerService',
+            ['getState']
+        );
+        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
+            'show',
         ]);
-        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>('dataJobsService', [
-            'loadJobs',
-            'notifyForRunningJobExecutionId',
-            'notifyForJobExecutions',
-            'notifyForTeamImplicitly',
-            'getNotifiedForRunningJobExecutionId',
-            'getNotifiedForJobExecutions',
-            'getNotifiedForTeamImplicitly'
-        ]);
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', [
-            'processError',
-            'handleError'
-        ]);
+        dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>(
+            'dataJobsApiService',
+            [
+                'getJobDetails',
+                'getJobExecutions',
+                'getJobDeployments',
+                'removeJob',
+                'downloadFile',
+                'executeDataJob',
+                'getJob',
+            ]
+        );
+        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
+            'dataJobsService',
+            [
+                'loadJobs',
+                'notifyForRunningJobExecutionId',
+                'notifyForJobExecutions',
+                'notifyForTeamImplicitly',
+                'getNotifiedForRunningJobExecutionId',
+                'getNotifiedForJobExecutions',
+                'getNotifiedForTeamImplicitly',
+            ]
+        );
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
+            'errorHandlerService',
+            ['processError', 'handleError']
+        );
 
         const activatedRouteStub = () => ({
             snapshot: createRouteSnapshot({
                 data: {
-                    activateSubpageNavigation: true
-                }
-            })
+                    activateSubpageNavigation: true,
+                },
+            }),
         });
 
         dataJobsApiServiceStub.executeDataJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.getJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.getJobDetails.and.returnValue(new Subject());
-        dataJobsApiServiceStub.getJobExecutions.and.returnValue(of({ content: [TEST_JOB_EXECUTION], totalItems: 1, totalPages: 1 }));
-        dataJobsApiServiceStub.getJobDeployments.and.returnValue(of([TEST_JOB_DEPLOYMENT]));
+        dataJobsApiServiceStub.getJobExecutions.and.returnValue(
+            of({ content: [TEST_JOB_EXECUTION], totalItems: 1, totalPages: 1 })
+        );
+        dataJobsApiServiceStub.getJobDeployments.and.returnValue(
+            of([TEST_JOB_DEPLOYMENT])
+        );
         dataJobsApiServiceStub.removeJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.downloadFile.and.returnValue(new Subject());
 
-        dataJobsServiceStub.getNotifiedForRunningJobExecutionId.and.returnValue(new Subject());
-        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(new Subject());
-        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(new BehaviorSubject('taurus'));
+        dataJobsServiceStub.getNotifiedForRunningJobExecutionId.and.returnValue(
+            new Subject()
+        );
+        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
+            new Subject()
+        );
+        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
+            new BehaviorSubject('taurus')
+        );
 
         TestBed.configureTestingModule({
-            imports: [
-                RouterTestingModule.withRoutes([])
-            ],
+            imports: [RouterTestingModule.withRoutes([])],
             schemas: [NO_ERRORS_SCHEMA],
             declarations: [DataJobPageComponent],
             providers: [
@@ -163,28 +187,31 @@ describe('DataJobsDetailsComponent', () => {
                 { provide: RouterService, useValue: routerServiceStub },
                 { provide: ActivatedRoute, useFactory: activatedRouteStub },
                 { provide: ToastService, useValue: toastServiceStub },
-                { provide: DataJobsApiService, useValue: dataJobsApiServiceStub },
+                {
+                    provide: DataJobsApiService,
+                    useValue: dataJobsApiServiceStub,
+                },
                 { provide: DataJobsService, useValue: dataJobsServiceStub },
-                { provide: ErrorHandlerService, useValue: errorHandlerServiceStub },
+                {
+                    provide: ErrorHandlerService,
+                    useValue: errorHandlerServiceStub,
+                },
                 {
                     provide: DATA_PIPELINES_CONFIGS,
                     useFactory: () => ({
                         defaultOwnerTeamName: 'all',
                         manageConfig: {
                             allowKeyTabDownloads: true,
-                            allowExecuteNow: true
-                        }
-                    })
-                }
-            ]
+                            allowExecuteNow: true,
+                        },
+                    }),
+                },
+            ],
         });
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
-            RouterState.of(
-                RouteState.empty(),
-                1
-            )
+            RouterState.of(RouteState.empty(), 1)
         );
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
@@ -223,7 +250,9 @@ describe('DataJobsDetailsComponent', () => {
             // @ts-ignore
             spyOn(component, '_submitOperationStarted').and.callThrough();
             // @ts-ignore
-            spyOn(component, '_extractJobDeployment').and.returnValue({ id: '10' } as DataJobDetails);
+            spyOn(component, '_extractJobDeployment').and.returnValue({
+                id: '10',
+            } as DataJobDetails);
 
             // When
             component.confirmExecuteJob();

@@ -105,7 +105,7 @@ public class DataJobMonitor {
                 "Termination message of Data Job {} with execution {}: {}",
                 s.getJobName(),
                 s.getExecutionId(),
-                s.getPodTerminationMessage());
+                s.getMainContainerTerminationMessage());
             recordJobExecutionStatus(s);
           },
           runningJobExecutionIds -> {

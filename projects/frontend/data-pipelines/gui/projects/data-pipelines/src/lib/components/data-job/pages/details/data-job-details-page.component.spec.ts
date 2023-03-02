@@ -11,7 +11,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { FORM_STATE, VMWFormState } from '@vdk/shared';
+import { FORM_STATE, VMWFormState } from '@versatiledatakit/shared';
 
 import {
     ComponentModel,
@@ -22,8 +22,8 @@ import {
     RouterService,
     RouterState,
     RouteState,
-    ToastService
-} from '@vdk/shared';
+    ToastService,
+} from '@versatiledatakit/shared';
 
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
@@ -36,9 +36,13 @@ import {
     DataJobExecution,
     DataJobExecutionsPage,
     DataJobExecutionStatus,
-    DataJobExecutionType
+    DataJobExecutionType,
 } from '../../../../model';
-import { ExtractContactsPipe, ExtractJobStatusPipe, FormatSchedulePipe } from '../../../../shared/pipes';
+import {
+    ExtractContactsPipe,
+    ExtractJobStatusPipe,
+    FormatSchedulePipe,
+} from '../../../../shared/pipes';
 
 import { DataJobDetailsPageComponent } from './data-job-details-page.component';
 
@@ -62,13 +66,13 @@ const TEST_JOB_EXECUTION = {
             memoryLimit: 1000,
             memoryRequest: 1000,
             cpuLimit: 0.5,
-            cpuRequest: 0.5
+            cpuRequest: 0.5,
         },
         executions: [],
         deployedDate: '2020-11-11T10:10:10Z',
         deployedBy: 'pmitev',
-        status: DataJobDeploymentStatus.SUCCESS
-    }
+        status: DataJobDeploymentStatus.SUCCESS,
+    },
 } as DataJobExecution;
 
 const TEST_JOB_DEPLOYMENT = {
@@ -78,14 +82,14 @@ const TEST_JOB_DEPLOYMENT = {
     job_version: '001',
     mode: 'test_mode',
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
-    vdk_version: '001'
+    vdk_version: '001',
 } as DataJobDeploymentDetails;
 
 const TEST_JOB_DETAILS = {
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
     job_name: 'job001',
     team: 'taurus',
-    description: 'description'
+    description: 'description',
 };
 
 describe('DataJobsDetailsModalComponent', () => {
@@ -103,68 +107,108 @@ describe('DataJobsDetailsModalComponent', () => {
     let fixture: ComponentFixture<DataJobDetailsPageComponent>;
 
     beforeEach(() => {
-        componentServiceStub = jasmine.createSpyObj<ComponentService>('componentService', ['init', 'getModel', 'idle', 'update']);
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['navigateTo', 'navigateBack']);
+        componentServiceStub = jasmine.createSpyObj<ComponentService>(
+            'componentService',
+            ['init', 'getModel', 'idle', 'update']
+        );
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
+            'navigationService',
+            ['navigateTo', 'navigateBack']
+        );
         activatedRouteStub = { snapshot: null } as any;
-        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState']);
-        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', ['show']);
-        dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>('dataJobsApiService', [
-            'getJobDetails',
-            'getJobExecutions',
-            'getJobDeployments',
-            'downloadFile',
-            'updateDataJobStatus',
-            'updateDataJob',
-            'executeDataJob',
-            'removeJob',
-            'getJob'
+        routerServiceStub = jasmine.createSpyObj<RouterService>(
+            'routerService',
+            ['getState']
+        );
+        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
+            'show',
         ]);
-        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>('dataJobsService', [
-            'loadJobs',
-            'loadJob',
-            'notifyForRunningJobExecutionId',
-            'notifyForJobExecutions',
-            'notifyForTeamImplicitly',
-            'getNotifiedForRunningJobExecutionId',
-            'getNotifiedForJobExecutions',
-            'getNotifiedForTeamImplicitly'
-        ]);
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', [
-            'processError',
-            'handleError'
-        ]);
+        dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>(
+            'dataJobsApiService',
+            [
+                'getJobDetails',
+                'getJobExecutions',
+                'getJobDeployments',
+                'downloadFile',
+                'updateDataJobStatus',
+                'updateDataJob',
+                'executeDataJob',
+                'removeJob',
+                'getJob',
+            ]
+        );
+        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
+            'dataJobsService',
+            [
+                'loadJobs',
+                'loadJob',
+                'notifyForRunningJobExecutionId',
+                'notifyForJobExecutions',
+                'notifyForTeamImplicitly',
+                'getNotifiedForRunningJobExecutionId',
+                'getNotifiedForJobExecutions',
+                'getNotifiedForTeamImplicitly',
+            ]
+        );
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
+            'errorHandlerService',
+            ['processError', 'handleError']
+        );
 
-        dataJobsApiServiceStub.getJobDetails.and.returnValue(new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable());
-        dataJobsApiServiceStub.getJobExecutions.and
-                              .returnValue(new BehaviorSubject<DataJobExecutionsPage>({
-                                  content: [TEST_JOB_EXECUTION],
-                                  totalItems: 1,
-                                  totalPages: 1
-                              }).asObservable());
-        dataJobsApiServiceStub.getJobDeployments.and
-                              .returnValue(new BehaviorSubject<DataJobDeploymentDetails[]>([TEST_JOB_DEPLOYMENT]).asObservable());
-        dataJobsApiServiceStub.downloadFile.and.returnValue(new BehaviorSubject<Blob>({} as never).asObservable());
-        dataJobsApiServiceStub.updateDataJobStatus.and.returnValue(new BehaviorSubject<{ enabled: boolean }>({ enabled: true }).asObservable());
-        dataJobsApiServiceStub.updateDataJob.and.returnValue(new BehaviorSubject<DataJobDetails>({}).asObservable());
-        dataJobsApiServiceStub.executeDataJob.and.returnValue(new BehaviorSubject<undefined>(undefined).asObservable());
-        dataJobsApiServiceStub.removeJob.and.returnValue(new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable());
-        dataJobsApiServiceStub.getJob.and.returnValue(of({ data: { content: [TEST_JOB_DETAILS] } } as DataJob));
+        dataJobsApiServiceStub.getJobDetails.and.returnValue(
+            new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable()
+        );
+        dataJobsApiServiceStub.getJobExecutions.and.returnValue(
+            new BehaviorSubject<DataJobExecutionsPage>({
+                content: [TEST_JOB_EXECUTION],
+                totalItems: 1,
+                totalPages: 1,
+            }).asObservable()
+        );
+        dataJobsApiServiceStub.getJobDeployments.and.returnValue(
+            new BehaviorSubject<DataJobDeploymentDetails[]>([
+                TEST_JOB_DEPLOYMENT,
+            ]).asObservable()
+        );
+        dataJobsApiServiceStub.downloadFile.and.returnValue(
+            new BehaviorSubject<Blob>({} as never).asObservable()
+        );
+        dataJobsApiServiceStub.updateDataJobStatus.and.returnValue(
+            new BehaviorSubject<{ enabled: boolean }>({
+                enabled: true,
+            }).asObservable()
+        );
+        dataJobsApiServiceStub.updateDataJob.and.returnValue(
+            new BehaviorSubject<DataJobDetails>({}).asObservable()
+        );
+        dataJobsApiServiceStub.executeDataJob.and.returnValue(
+            new BehaviorSubject<undefined>(undefined).asObservable()
+        );
+        dataJobsApiServiceStub.removeJob.and.returnValue(
+            new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable()
+        );
+        dataJobsApiServiceStub.getJob.and.returnValue(
+            of({ data: { content: [TEST_JOB_DETAILS] } } as DataJob)
+        );
 
-        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(new Subject());
-        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(new BehaviorSubject(TEST_JOB_DETAILS.team));
+        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
+            new Subject()
+        );
+        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
+            new BehaviorSubject(TEST_JOB_DETAILS.team)
+        );
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
-            RouterState.of(
-                RouteState.empty(),
-                1
-            )
+            RouterState.of(RouteState.empty(), 1)
         );
         routerServiceStub.getState.and.returnValue(new Subject());
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
 
-        navigationServiceStub.navigateBack.and.returnValue(Promise.resolve(true));
+        navigationServiceStub.navigateBack.and.returnValue(
+            Promise.resolve(true)
+        );
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
@@ -172,7 +216,8 @@ describe('DataJobsDetailsModalComponent', () => {
                 DataJobDetailsPageComponent,
                 FormatSchedulePipe,
                 ExtractJobStatusPipe,
-                ExtractContactsPipe],
+                ExtractContactsPipe,
+            ],
             imports: [RouterTestingModule],
             providers: [
                 FormBuilder,
@@ -180,21 +225,27 @@ describe('DataJobsDetailsModalComponent', () => {
                 { provide: ComponentService, useValue: componentServiceStub },
                 { provide: NavigationService, useValue: navigationServiceStub },
                 { provide: ActivatedRoute, useValue: activatedRouteStub },
-                { provide: DataJobsApiService, useValue: dataJobsApiServiceStub },
+                {
+                    provide: DataJobsApiService,
+                    useValue: dataJobsApiServiceStub,
+                },
                 { provide: ToastService, useValue: toastServiceStub },
                 { provide: DataJobsService, useValue: dataJobsServiceStub },
-                { provide: ErrorHandlerService, useValue: errorHandlerServiceStub },
+                {
+                    provide: ErrorHandlerService,
+                    useValue: errorHandlerServiceStub,
+                },
                 {
                     provide: DATA_PIPELINES_CONFIGS,
                     useFactory: () => ({
                         defaultOwnerTeamName: 'all',
                         manageConfig: {
                             allowKeyTabDownloads: true,
-                            allowExecuteNow: true
-                        }
-                    })
-                }
-            ]
+                            allowExecuteNow: true,
+                        },
+                    }),
+                },
+            ],
         });
 
         fixture = TestBed.createComponent(DataJobDetailsPageComponent);

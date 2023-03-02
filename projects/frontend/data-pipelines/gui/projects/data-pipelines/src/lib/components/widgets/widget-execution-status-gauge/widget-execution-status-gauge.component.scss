@@ -25,34 +25,34 @@ $xxl-min-width: 1919px;
 $min-el-size: 310px;
 
 .medium-and-up {
-  @media screen and (max-width: $medium-width2) {
-    display: none !important;
-  }
+    @media screen and (max-width: $medium-width2) {
+        display: none !important;
+    }
 }
 
 .small-and-up {
-  @media screen and (max-width: $xs-max) {
-    display: none !important;
-  }
+    @media screen and (max-width: $xs-max) {
+        display: none !important;
+    }
 }
 
 .medium-and-down {
-  @media screen and (min-width: $medium-width) {
-    display: none !important;
-  }
+    @media screen and (min-width: $medium-width) {
+        display: none !important;
+    }
 }
 
 .small-and-down {
-  @media screen and (min-width: $small-width) {
-    display: none !important;
-  }
+    @media screen and (min-width: $small-width) {
+        display: none !important;
+    }
 }
 
 $gray1: #747474;
 $gray2: #eee;
 $gray3: #ddd;
 $gray4: #ccc;
-$gray5: #8C8C8C;
+$gray5: #8c8c8c;
 $black: #000;
 $black1: #313131;
 $error-red: #e62700;
@@ -61,17 +61,17 @@ $dark-text: #adbbc4;
 $red2: #c92100;
 $ready-green: #318700;
 $darkblue: rgb(0, 106, 144);
-$lighterBlue: #89CBDF;
-$lightblue: #49AFD9;
-$darkButtonHoverBlue: #0095D3;
+$lighterBlue: #89cbdf;
+$lightblue: #49afd9;
+$darkButtonHoverBlue: #0095d3;
 $blue3: #49afd9;
 $blue4: #57c7ea;
 $blue5: #0079b8;
-$inactiveGray: #95A4B2;
-$bgcolor: #25333D;
+$inactiveGray: #95a4b2;
+$bgcolor: #25333d;
 $bgcolorDark: #0f171c;
 $bgcolorTextareaDark: #17242b;
-$white: #FFF;
+$white: #fff;
 $focused-control-border: #6bc1e3;
 $dark-theme-text: #acbac3;
 $label-danger-color: #a32100;
@@ -80,7 +80,6 @@ $label-info-color: #004c8a;
 $clr-primary-color: #0072a3;
 $clr-primary-color-dark: #4aaed9;
 $clr-input-border-grey: #b3b3b3;
-
 
 $chart-margin: 20px;
 $xl-width: 256px;
@@ -92,504 +91,515 @@ $xs-width: 130px;
 $red: rgb(194, 84, 0);
 
 ::ng-deep .dark lib-widget-execution-status-gauge {
-  .gauge-container {
-    margin-top: 50px;
-    .gauge-meta .value-percent {
-      //color: $lightblue !important;
-    }
+    .gauge-container {
+        margin-top: 50px;
+        .gauge-meta .value-percent {
+            //color: $lightblue !important;
+        }
 
-    svg.ngx-charts g[ngx-charts-pie-arc]:not(.background-arc) > g.arc-group > path.arc {
-      //fill: $lightblue !important;
-    }
+        svg.ngx-charts
+            g[ngx-charts-pie-arc]:not(.background-arc)
+            > g.arc-group
+            > path.arc {
+            //fill: $lightblue !important;
+        }
 
-    svg.ngx-charts g[ngx-charts-pie-arc].background-arc > g.arc-group > path.arc {
-      fill: rgba(0, 0, 0, 0.25);
+        svg.ngx-charts
+            g[ngx-charts-pie-arc].background-arc
+            > g.arc-group
+            > path.arc {
+            fill: rgba(0, 0, 0, 0.25);
+        }
     }
-  }
 }
 
 ::ng-deep .dark vmw-gauge {
-  .gauge-container.above-threshold {
-    .gauge-meta .value-percent {
-      color: $red !important;
-    }
+    .gauge-container.above-threshold {
+        .gauge-meta .value-percent {
+            color: $red !important;
+        }
 
-    svg.ngx-charts g[ngx-charts-pie-arc]:not(.background-arc) > g.arc-group > path.arc {
-      fill: $red !important;
-    }
+        svg.ngx-charts
+            g[ngx-charts-pie-arc]:not(.background-arc)
+            > g.arc-group
+            > path.arc {
+            fill: $red !important;
+        }
 
-    svg.ngx-charts g[ngx-charts-pie-arc].background-arc > g.arc-group > path.arc {
-      fill: rgba(0, 0, 0, 0.25);
+        svg.ngx-charts
+            g[ngx-charts-pie-arc].background-arc
+            > g.arc-group
+            > path.arc {
+            fill: rgba(0, 0, 0, 0.25);
+        }
     }
-  }
-
 }
 
 ::ng-deep lib-widget-execution-status-gauge {
-  svg.ngx-charts {
-    margin: -$chart-margin;
+    svg.ngx-charts {
+        margin: -$chart-margin;
 
-    g text {
-      display: none;
-    }
-
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.10);
-        opacity: 0.3;
-
-        g.background-arc {
-          display:none;
+        g text {
+            display: none;
         }
-      }
-    }
-  }
 
-  .above-threshold svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.05);
-      }
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.1);
+                opacity: 0.3;
+
+                g.background-arc {
+                    display: none;
+                }
+            }
+        }
     }
-  }
+
+    .above-threshold svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.05);
+            }
+        }
+    }
 }
 
 .gauge-container {
-  padding: 0;
-  height: $xl-width - 2 * $chart-margin;
-  width: $xl-width - 2 * $chart-margin;
-  position: relative;
-  margin-top: 50px;
-  margin-left: auto;
-  margin-right: auto;
-  .gauge-chart-container {
-    width: inherit;
-    height: inherit;
-    overflow: hidden;
-  }
-
-  .gauge-chart {
-    height: $xl-width;
-    width: $xl-width;
-    margin: 0 auto;
-  }
-
-  &.above-threshold {
-    .gauge-meta .value-percent {
-      color: $red;
-    }
-  }
-
-  .gauge-meta {
-    text-align: center;
-    position: absolute;
-    width: inherit;
-    z-index: 1;
-
-    // integrators can use whatever tag they like for the title, e.g.
-    // h4 if they want screen readers to notice the gauge as a title,
-    // or span if they do not.
-    ::ng-deep .gauge-title {
-      display: block;
-      font-size: 19px;
-      margin-top: 40px;
+    padding: 0;
+    height: $xl-width - 2 * $chart-margin;
+    width: $xl-width - 2 * $chart-margin;
+    position: relative;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    .gauge-chart-container {
+        width: inherit;
+        height: inherit;
+        overflow: hidden;
     }
 
-    .value-percent {
-      color: $darkblue;
-      margin-top: 15px;
-      margin-bottom: 23px;
-      font-size: 42.5px;
+    .gauge-chart {
+        height: $xl-width;
+        width: $xl-width;
+        margin: 0 auto;
     }
 
-    .value-current {
-      font-size: 16px;
+    &.above-threshold {
+        .gauge-meta .value-percent {
+            color: $red;
+        }
     }
 
-    .value-limit {
-      font-size: 14px;
-      color: #9a9a9a;
-      margin-top: 0px;
+    .gauge-meta {
+        text-align: center;
+        position: absolute;
+        width: inherit;
+        z-index: 1;
+
+        // integrators can use whatever tag they like for the title, e.g.
+        // h4 if they want screen readers to notice the gauge as a title,
+        // or span if they do not.
+        ::ng-deep .gauge-title {
+            display: block;
+            font-size: 19px;
+            margin-top: 40px;
+        }
+
+        .value-percent {
+            color: $darkblue;
+            margin-top: 15px;
+            margin-bottom: 23px;
+            font-size: 42.5px;
+        }
+
+        .value-current {
+            font-size: 16px;
+        }
+
+        .value-limit {
+            font-size: 14px;
+            color: #9a9a9a;
+            margin-top: 0px;
+        }
     }
-  }
 }
 
 .large {
-  &.gauge-container {
-    height: $lg-width - 2 * $chart-margin + 10px;
-    width: $lg-width - 2 * $chart-margin;
-  }
-
-  .gauge-chart {
-    height: $lg-width;
-    width: $lg-width;
-  }
-
-  .gauge-meta {
-    .value-limit {
-      margin-top: 0;
+    &.gauge-container {
+        height: $lg-width - 2 * $chart-margin + 10px;
+        width: $lg-width - 2 * $chart-margin;
     }
-  }
 
-  ::ng-deep &.above-threshold svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.07) !important;
-      }
+    .gauge-chart {
+        height: $lg-width;
+        width: $lg-width;
     }
-  }
 
-  ::ng-deep svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.12);
-      }
+    .gauge-meta {
+        .value-limit {
+            margin-top: 0;
+        }
     }
-  }
+
+    ::ng-deep &.above-threshold svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.07) !important;
+            }
+        }
+    }
+
+    ::ng-deep svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.12);
+            }
+        }
+    }
 }
 
 @media (min-width: $large-min) and (max-width: $large-width) {
-  .auto {
-    &.gauge-container {
-      height: $lg-width - 2 * $chart-margin + 10px;
-      width: $lg-width - 2 * $chart-margin;
-    }
-
-    .gauge-chart {
-      height: $lg-width;
-      width: $lg-width;
-    }
-
-    .gauge-meta {
-      .value-limit {
-        margin-top: 0;
-      }
-    }
-
-    ::ng-deep &.above-threshold svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.07) !important;
+    .auto {
+        &.gauge-container {
+            height: $lg-width - 2 * $chart-margin + 10px;
+            width: $lg-width - 2 * $chart-margin;
         }
-      }
-    }
 
-    ::ng-deep svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.12);
+        .gauge-chart {
+            height: $lg-width;
+            width: $lg-width;
         }
-      }
+
+        .gauge-meta {
+            .value-limit {
+                margin-top: 0;
+            }
+        }
+
+        ::ng-deep &.above-threshold svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.07) !important;
+                }
+            }
+        }
+
+        ::ng-deep svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.12);
+                }
+            }
+        }
     }
-  }
 }
 
 .medium {
-  &.gauge-container {
-    height: $med-width - 2 * $chart-margin + 10px;
-    width: $med-width - 2 * $chart-margin;
-  }
-
-  .gauge-chart {
-    height: $med-width;
-    width: $med-width;
-  }
-
-  .gauge-meta {
-    ::ng-deep .gauge-title {
-      font-size: 20px;
-      margin-top: 28px;
+    &.gauge-container {
+        height: $med-width - 2 * $chart-margin + 10px;
+        width: $med-width - 2 * $chart-margin;
     }
 
-    .value-percent {
-      margin: 10px 0;
-      font-size: 26px;
+    .gauge-chart {
+        height: $med-width;
+        width: $med-width;
     }
 
-    .value-current {
-      font-size: 16px;
+    .gauge-meta {
+        ::ng-deep .gauge-title {
+            font-size: 20px;
+            margin-top: 28px;
+        }
+
+        .value-percent {
+            margin: 10px 0;
+            font-size: 26px;
+        }
+
+        .value-current {
+            font-size: 16px;
+        }
+
+        .value-limit {
+            font-size: 13px;
+            margin-top: 0;
+        }
     }
 
-    .value-limit {
-      font-size: 13px;
-      margin-top: 0;
+    ::ng-deep &.above-threshold svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.09) !important;
+            }
+        }
     }
-  }
 
-  ::ng-deep &.above-threshold svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.09) !important;
-      }
+    ::ng-deep svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.16);
+            }
+        }
     }
-  }
-
-  ::ng-deep svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.16);
-      }
-    }
-  }
 }
 
 @media (min-width: $medium-min) and (max-width: $medium-width) {
-  .auto {
-    &.gauge-container {
-      height: $med-width - 2 * $chart-margin + 10px;
-      width: $med-width - 2 * $chart-margin;
-    }
-
-    .gauge-chart {
-      height: $med-width;
-      width: $med-width;
-    }
-
-    .gauge-meta {
-      ::ng-deep .gauge-title {
-        font-size: 20px;
-        margin-top: 28px;
-      }
-
-      .value-percent {
-        margin: 10px 0;
-        font-size: 26px;
-      }
-
-      .value-current {
-        font-size: 16px;
-      }
-
-      .value-limit {
-        font-size: 13px;
-        margin-top: 0;
-      }
-    }
-
-    ::ng-deep &.above-threshold svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.09) !important;
+    .auto {
+        &.gauge-container {
+            height: $med-width - 2 * $chart-margin + 10px;
+            width: $med-width - 2 * $chart-margin;
         }
-      }
-    }
 
-    ::ng-deep svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.16);
+        .gauge-chart {
+            height: $med-width;
+            width: $med-width;
         }
-      }
+
+        .gauge-meta {
+            ::ng-deep .gauge-title {
+                font-size: 20px;
+                margin-top: 28px;
+            }
+
+            .value-percent {
+                margin: 10px 0;
+                font-size: 26px;
+            }
+
+            .value-current {
+                font-size: 16px;
+            }
+
+            .value-limit {
+                font-size: 13px;
+                margin-top: 0;
+            }
+        }
+
+        ::ng-deep &.above-threshold svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.09) !important;
+                }
+            }
+        }
+
+        ::ng-deep svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.16);
+                }
+            }
+        }
     }
-  }
 }
 
 .small {
-  &.gauge-container {
-    height: $sm-width - 2 * $chart-margin + 10px;
-    width: $sm-width - 2 * $chart-margin;
-  }
-
-  .gauge-chart {
-    height: $sm-width;
-    width: $sm-width;
-  }
-
-  .gauge-meta {
-    ::ng-deep .gauge-title {
-      font-size: 17px;
-      margin-top: 26px;
+    &.gauge-container {
+        height: $sm-width - 2 * $chart-margin + 10px;
+        width: $sm-width - 2 * $chart-margin;
     }
 
-    .value-percent {
-      margin: 0;
-      font-size: 18.5px;
+    .gauge-chart {
+        height: $sm-width;
+        width: $sm-width;
     }
 
-    .value-current {
-      font-size: 14px;
+    .gauge-meta {
+        ::ng-deep .gauge-title {
+            font-size: 17px;
+            margin-top: 26px;
+        }
+
+        .value-percent {
+            margin: 0;
+            font-size: 18.5px;
+        }
+
+        .value-current {
+            font-size: 14px;
+        }
+
+        .value-limit {
+            font-size: 10px;
+            margin-top: 0;
+        }
     }
 
-    .value-limit {
-      font-size: 10px;
-      margin-top: 0;
+    ::ng-deep &.above-threshold svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.1) !important;
+            }
+        }
     }
-  }
 
-  ::ng-deep &.above-threshold svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.10) !important;
-      }
+    ::ng-deep svg.ngx-charts {
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.2);
+            }
+        }
     }
-  }
-
-  ::ng-deep svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.20);
-      }
-    }
-  }
 }
 
 @media (min-width: $small-min) and (max-width: $small-max) {
-  .auto {
-    &.gauge-container {
-      height: $sm-width - 2 * $chart-margin + 10px;
-      width: $sm-width - 2 * $chart-margin;
-    }
-
-    .gauge-chart {
-      height: $sm-width;
-      width: $sm-width;
-    }
-
-    .gauge-meta {
-      ::ng-deep .gauge-title {
-        font-size: 17px;
-        margin-top: 26px;
-      }
-
-      .value-percent {
-        margin: 0;
-        font-size: 18.5px;
-      }
-
-      .value-current {
-        font-size: 14px;
-      }
-
-      .value-limit {
-        font-size: 10px;
-        margin-top: 0;
-      }
-    }
-
-    ::ng-deep &.above-threshold svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.10) !important;
+    .auto {
+        &.gauge-container {
+            height: $sm-width - 2 * $chart-margin + 10px;
+            width: $sm-width - 2 * $chart-margin;
         }
-      }
-    }
 
-    ::ng-deep svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.20);
+        .gauge-chart {
+            height: $sm-width;
+            width: $sm-width;
         }
-      }
+
+        .gauge-meta {
+            ::ng-deep .gauge-title {
+                font-size: 17px;
+                margin-top: 26px;
+            }
+
+            .value-percent {
+                margin: 0;
+                font-size: 18.5px;
+            }
+
+            .value-current {
+                font-size: 14px;
+            }
+
+            .value-limit {
+                font-size: 10px;
+                margin-top: 0;
+            }
+        }
+
+        ::ng-deep &.above-threshold svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.1) !important;
+                }
+            }
+        }
+
+        ::ng-deep svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.2);
+                }
+            }
+        }
     }
-  }
 }
 
 .xs {
-  &.gauge-container {
-    height: $xs-width - 2 * $chart-margin + 10px;
-    width: $xs-width - 2 * $chart-margin;
-  }
-
-  .gauge-chart {
-    height: $xs-width;
-    width: $xs-width;
-  }
-
-  .gauge-meta {
-    .value-current,
-    .value-limit {
-      display: none;
-    }
-
-    ::ng-deep .gauge-title {
-      width: inherit;
-      font-size: 14px;
-      margin-top: 14px;
-    }
-
-    .value-percent {
-      margin-top: 0px;
-      font-size: 18.5px;
-    }
-  }
-
-  ::ng-deep &.above-threshold svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.15) !important;
-      }
-    }
-  }
-
-  ::ng-deep svg.ngx-charts {
-    g.gauge {
-      > g:nth-child(2) {
-        transform: rotate(225deg) scale(1.31);
-      }
-    }
-  }
-}
-
-@media (max-width: $xs-max) {
-  .auto {
     &.gauge-container {
-      height: $xs-width - 2 * $chart-margin + 10px;
-      width: $xs-width - 2 * $chart-margin;
+        height: $xs-width - 2 * $chart-margin + 10px;
+        width: $xs-width - 2 * $chart-margin;
     }
 
     .gauge-chart {
-      height: $xs-width;
-      width: $xs-width;
+        height: $xs-width;
+        width: $xs-width;
     }
 
     .gauge-meta {
-      .value-current,
-      .value-limit {
-        display: none;
-      }
+        .value-current,
+        .value-limit {
+            display: none;
+        }
 
-      ::ng-deep .gauge-title {
-        width: 100%;
-        font-size: 14px;
-        margin-top: 14px;
-      }
+        ::ng-deep .gauge-title {
+            width: inherit;
+            font-size: 14px;
+            margin-top: 14px;
+        }
 
-      .value-percent {
-        margin-top: 0px;
-        font-size: 18.5px;
-      }
+        .value-percent {
+            margin-top: 0px;
+            font-size: 18.5px;
+        }
     }
 
     ::ng-deep &.above-threshold svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.15) !important;
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.15) !important;
+            }
         }
-      }
     }
 
     ::ng-deep svg.ngx-charts {
-      g.gauge {
-        > g:nth-child(2) {
-          transform: rotate(225deg) scale(1.31);
+        g.gauge {
+            > g:nth-child(2) {
+                transform: rotate(225deg) scale(1.31);
+            }
         }
-      }
     }
-  }
+}
+
+@media (max-width: $xs-max) {
+    .auto {
+        &.gauge-container {
+            height: $xs-width - 2 * $chart-margin + 10px;
+            width: $xs-width - 2 * $chart-margin;
+        }
+
+        .gauge-chart {
+            height: $xs-width;
+            width: $xs-width;
+        }
+
+        .gauge-meta {
+            .value-current,
+            .value-limit {
+                display: none;
+            }
+
+            ::ng-deep .gauge-title {
+                width: 100%;
+                font-size: 14px;
+                margin-top: 14px;
+            }
+
+            .value-percent {
+                margin-top: 0px;
+                font-size: 18.5px;
+            }
+        }
+
+        ::ng-deep &.above-threshold svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.15) !important;
+                }
+            }
+        }
+
+        ::ng-deep svg.ngx-charts {
+            g.gauge {
+                > g:nth-child(2) {
+                    transform: rotate(225deg) scale(1.31);
+                }
+            }
+        }
+    }
 }
 
 .centered {
-  text-align: center;
-  margin-top: 100px
+    text-align: center;
+    margin-top: 100px;
 }
 
 .success-rate-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  .success-rate-info-panel {
-    font-size: small;
-    margin-top: 0px;
-  }
+    .success-rate-info-panel {
+        font-size: small;
+        margin-top: 0px;
+    }
 }
