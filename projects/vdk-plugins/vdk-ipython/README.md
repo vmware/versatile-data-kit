@@ -14,11 +14,11 @@ Then to load the extension in Jupyter the user should use:
 ```
 %reload_ext vdk_ipython
 ```
-And to load the data_job (Job Control object):
+And to load the VDK (Job Control object):
 ```
 %reload_data_job
 ```
-The %reload_data_job magic can be used with arguments such as passing the job's path with --path
+The %reload_VDK magic can be used with arguments such as passing the job's path with --path
 or giving the job a new with --name, etc.
 
 ### Example
@@ -26,9 +26,9 @@ The output of this example is "myjob"
 ```
 %reload_ext vdk_ipython
 
-%reload_data_job --name=myjob
+%reload_VDK --name=myjob
 
-job_input = data_job.get_initialized_job_input()
+job_input = VDK.get_initialized_job_input()
 
 job_input.get_name()
 ```

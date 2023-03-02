@@ -77,8 +77,8 @@ def magic_load_job(line: str):
     """
         %reload_data_job magic function which parses arguments from the magic
         and calls function for loading JobControl object
-    You can use %initialize_data_job line magic within your Notebook to reload the data_job which is an instance of
-    JobControl. Using it you can get an initialized job_input variable and work with it.
+    You can use %reload_VDK line magic within your Notebook to reload the VDK which is an instance of
+    JobControl. Using its get_initialized_job_input() method can get an initialized job_input variable to work with.
     See more for line magic: https://ipython.readthedocs.io/en/stable/interactive/magics.html
     """
     args = parse_argstring(magic_load_job, line)

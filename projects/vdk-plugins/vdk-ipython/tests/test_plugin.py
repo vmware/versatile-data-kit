@@ -1,6 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import asyncio
+import time
 
 import pytest
 from IPython.core.error import UsageError
@@ -115,7 +115,7 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
     )
 
     # wait until the table is populated
-    await asyncio.sleep(1)
+    time.sleep(1)
 
     # check whether output contains the table
     # '  userId    id  title                 completed',
