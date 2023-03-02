@@ -1,11 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import os
 import time
+from unittest import mock
 from unittest.mock import call
 from unittest.mock import MagicMock
 
-from pytest import raises
-from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 
@@ -72,6 +72,10 @@ def test_execute_dag_busyloop():
     assert calls[0] <= 4
 
 
+@mock.patch.dict(
+    os.environ,
+    {"VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS": "15"},
+)
 def test_build_dag_over_max_starting_jobs_sad_case():
     jobs = [
         {"job_name": f"job{i}", "depends_on": [] if i == 1 else [f"job1"]}

@@ -12,7 +12,6 @@ from typing import Dict
 from typing import List
 
 from taurus_datajob_api import ApiException
-from vdk.internal.core import errors
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.meta import TrackableJob
 from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
@@ -35,8 +34,8 @@ class MetaJobsDag:
                 )
             ),
         )
-        self._max_concurrent_starting_jobs = int(
-            os.environ.get("VDK_META_JOBS_MAX_CONCURRENT_STARTING_JOBS", "15")
+        self._max_concurrent_running_jobs = int(
+            os.environ.get("VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS", 15)
         )
         self._finished_jobs = []
         self._dag_execution_check_time_period_seconds = int(
@@ -45,8 +44,8 @@ class MetaJobsDag:
         self._job_executor = TrackingDataJobExecutor(RemoteDataJobExecutor())
 
     @property
-    def max_concurrent_starting_jobs(self):
-        return self._max_concurrent_starting_jobs
+    def max_concurrent_running_jobs(self):
+        return self._max_concurrent_running_jobs
 
     def build_dag(self, jobs: List[Dict]):
         for job in jobs:
@@ -119,10 +118,12 @@ class MetaJobsDag:
         try:
             if (
                 len(self._job_executor.get_currently_running_jobs())
-                > self.max_concurrent_starting_jobs
+                >= self.max_concurrent_running_jobs
             ):
                 log.info(
-                    "Starting job fail - too many concurrently running jobs. Will be re-tried later"
+                    "Starting job fail - too many concurrently running jobs. Currently running: "
+                    f"{len(self._job_executor.get_currently_running_jobs())}, "
+                    f"limit: {self.max_concurrent_running_jobs}. Will be re-tried later"
                 )
                 self._delayed_starting_jobs.enqueue(node)
             else:
