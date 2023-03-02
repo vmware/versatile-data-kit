@@ -28,9 +28,10 @@ export async function getCurrentPathRequest() {
 
 /**
  * Sent a POST request to the server to run a data job.
- * The information about the data job is retrieved from sessionStorage and sent as JSON.
+ * The information about the data job is retrieved from jobData object and sent as JSON.
+ * Returns a pair of boolean (representing whether the vdk run was run) and a string (representing the result of vdk run)
  */
-export async function jobRunRequest() {
+ export async function jobRunRequest(): Promise<[String, boolean]> {
   if (jobData.get(VdkOption.PATH)) {
     try {
       const data = await requestAPI<any>('run', {
@@ -41,13 +42,14 @@ export async function jobRunRequest() {
         'Job execution has finished with status ' +
         data['message'] +
         ' \n See vdk_logs.txt file for more!';
-      alert(message);
+      return [message, true];
     } catch (error) {
       await showErrorMessage(
         'Encountered an error when trying to run the job. Error:',
         error,
         [Dialog.okButton()]
       );
+      return ["", false];
     }
   } else {
     await showErrorMessage(
@@ -55,12 +57,13 @@ export async function jobRunRequest() {
       'The path should be defined!',
       [Dialog.okButton()]
     );
+    return ["", false];
   }
 }
 
 /**
  * Sent a POST request to the server to delete a data job.
- * The information about the data job is retrieved from sessionStorage and sent as JSON.
+ * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function deleteJobRequest() {
   if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
@@ -96,7 +99,7 @@ export async function deleteJobRequest() {
 
 /**
  * Sent a POST request to the server to download a data job.
- * The information about the data job is retrieved from sessionStorage and sent as JSON.
+ * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function downloadJobRequest() {
   if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
@@ -132,7 +135,7 @@ export async function downloadJobRequest() {
 
 /**
  * Sent a POST request to the server to create a data job.
- * The information about the data job is retrieved from sessionStorage and sent as JSON.
+ * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function createJobRequest() {
   if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
