@@ -182,7 +182,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
         const pathInput = event.currentTarget as HTMLInputElement;
         let value = pathInput.value;
         if (!value) {
-            value = "0.11";
+            value = this.props.vdkVersion;
         }
         jobData.set(VdkOption.VDK_VERSION, value);
     };
