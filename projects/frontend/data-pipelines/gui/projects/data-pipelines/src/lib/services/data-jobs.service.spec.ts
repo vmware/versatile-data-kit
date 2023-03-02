@@ -13,7 +13,7 @@ import {
     ComponentStateImpl,
     RouterState,
     RouteState,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     FETCH_DATA_JOB,

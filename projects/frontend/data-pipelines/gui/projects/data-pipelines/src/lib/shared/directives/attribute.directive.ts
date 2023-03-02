@@ -13,7 +13,11 @@ import {
     SimpleChanges,
 } from '@angular/core';
 
-import { CollectionsUtil, PrimitivesNil, TaurusObject } from '@vdk/shared';
+import {
+    CollectionsUtil,
+    PrimitivesNil,
+    TaurusObject,
+} from '@versatiledatakit/shared';
 
 export interface Attributes {
     [attribute: string]: PrimitivesNil;

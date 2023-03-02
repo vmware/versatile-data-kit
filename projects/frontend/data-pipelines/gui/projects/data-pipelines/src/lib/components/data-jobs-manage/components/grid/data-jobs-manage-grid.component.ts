@@ -8,7 +8,7 @@ import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { VmwToastType } from '@vdk/shared';
+import { VmwToastType } from '@versatiledatakit/shared';
 
 import {
     ComponentService,
@@ -16,7 +16,7 @@ import {
     NavigationService,
     RouterService,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../../../shared/utils';
 

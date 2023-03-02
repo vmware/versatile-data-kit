@@ -5,7 +5,7 @@
 
 import { ApolloError } from '@apollo/client/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 /**
  * ** Error Utils class.

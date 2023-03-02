@@ -9,7 +9,7 @@ import { forkJoin, of, Subject } from 'rxjs';
 
 import { ApolloQueryResult } from '@apollo/client/core';
 
-import { ApiPredicate } from '@vdk/shared';
+import { ApiPredicate } from '@versatiledatakit/shared';
 
 import { DataJobPage } from '../model';
 

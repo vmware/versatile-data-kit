@@ -17,13 +17,13 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VmwComponentsModule } from '@vdk/shared';
+import { VmwComponentsModule } from '@versatiledatakit/shared';
 
 import {
     TaurusSharedCoreModule,
     TaurusSharedFeaturesModule,
     TaurusSharedNgRxModule,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { DataPipelinesModule } from '@vdk/data-pipelines';
 
