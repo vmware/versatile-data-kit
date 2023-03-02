@@ -7,7 +7,7 @@ This library provides UI screens that helps to manage data jobs via [Data Pipeli
 
 ### Include the packages and ngrx dependencies
 ```shell
-npm i @vdk/{data-pipelines,shared} # Actual library
+npm i @versatiledatakit/{data-pipelines,shared} # Actual library
 npm i @ngrx/{effects,entity,router-store,@ngrx/store} # NgRx (store management)
 npm i @clr/{angular,icons,ui} # Clarity (UI Components like DataGrid)
 
@@ -33,7 +33,7 @@ const routes: Routes = [
   ...
   {
     path: 'data-pipelines',
-    loadChildren: () => import('@vdk/data-pipelines').then(m => m.DataPipelinesRouting)
+    loadChildren: () => import('@versatiledatakit/data-pipelines').then(m => m.DataPipelinesRouting)
   },
   ...
 ]

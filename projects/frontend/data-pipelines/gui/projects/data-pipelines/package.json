@@ -1,5 +1,5 @@
 {
-  "name": "@vdk/data-pipelines",
+  "name": "@versatiledatakit/data-pipelines",
   "version": "0.0.1",
   "engines": {
     "node": "^14.15.0 || >=16.10.0",
@@ -28,7 +28,7 @@
     "@ngrx/store": "~13.2.0",
     "@swimlane/ngx-charts": "~16.0.0",
     "@swimlane/ngx-graph": "~8.0.0",
-    "@versatiledatakit/shared": "0.0.0",
+    "@versatiledatakit/shared": "0.0.793908604",
     "@webcomponents/custom-elements": "~1.5.0",
     "@yellowspot/ng-truncate": "~2.0.1",
     "angular-ng-autocomplete": "~2.0.8",
