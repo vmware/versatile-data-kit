@@ -25,7 +25,7 @@ import {
     TaurusSharedNgRxModule,
 } from '@versatiledatakit/shared';
 
-import { DataPipelinesModule } from '@vdk/data-pipelines';
+import { DataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
 import { AppComponent } from './app.component';
 import { AppRouting } from './app.routing';
