@@ -12,7 +12,9 @@
 frontend-data-pipelines-build:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   stage: build
-  needs: [frontend-shared-components-build]
+  needs:
+    - job: frontend-shared-components-build
+      optional: true
   before_script:
     - cd projects/frontend/
   script:
