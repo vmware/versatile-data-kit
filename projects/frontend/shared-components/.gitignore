@@ -1,5 +1,5 @@
 .idea/
-projects/gui/debug.log
-projects/gui/reports/
-projects/gui/package-lock.json
+gui/debug.log
+gui/reports/
+gui/package-lock.json
 .DS_Store

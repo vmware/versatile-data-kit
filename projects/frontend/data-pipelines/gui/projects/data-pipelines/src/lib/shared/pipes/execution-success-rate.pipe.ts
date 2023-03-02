@@ -6,7 +6,7 @@
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
 import { PercentPipe } from '@angular/common';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DataJobDeployment } from '../../model';
 

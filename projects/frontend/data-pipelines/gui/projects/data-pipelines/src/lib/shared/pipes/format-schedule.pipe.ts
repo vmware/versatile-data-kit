@@ -9,7 +9,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 import cronstrue from 'cronstrue';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 @Pipe({
     name: 'formatSchedule',
