@@ -22,7 +22,7 @@ import {
     RouterService,
     RouteState,
     TaurusBaseComponent,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../../../../shared/utils';
 

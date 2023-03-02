@@ -33,7 +33,7 @@ import {
     RouteState,
     TaurusBaseComponent,
     URLStateManager,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../shared/utils';
 

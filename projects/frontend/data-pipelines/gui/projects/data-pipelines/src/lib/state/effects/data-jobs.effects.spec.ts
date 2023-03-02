@@ -28,7 +28,7 @@ import {
     RouterState,
     RouteState,
     StatusType,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { DataJobsApiService } from '../../services';
 

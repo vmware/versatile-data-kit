@@ -1,5 +1,5 @@
 {
-  "name": "@vdk/shared",
+  "name": "@versatiledatakit/shared",
   "version": "0.0.0",
   "engines": {
     "node": "^14.15.0 || >=16.10.0",
@@ -37,7 +37,7 @@
   "dependencies": {
     "tslib": "2.3.1"
   },
-  "description": "Taurus Shared library enables reusability of shared features like: NgRx Redux, Error Handlers, Utils, Generic Components etc.",
+  "description": "Versatile Data Kit Shared library enables reusability of shared features like: NgRx Redux, Error Handlers, Utils, Generic Components, etc.",
   "repository": {
     "type": "git",
     "url": "-"
