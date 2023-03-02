@@ -1,4 +1,4 @@
-# Copyright 2023-2023 VMware, Inc.
+# Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 name: auto-merge
@@ -13,4 +13,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
-          github-token: ${{ secrets.mytoken }}
+          token: ${{ secrets.mytoken || github.token }}

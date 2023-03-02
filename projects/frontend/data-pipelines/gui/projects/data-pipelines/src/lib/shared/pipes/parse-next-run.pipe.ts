@@ -8,7 +8,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import * as parser from 'cron-parser';
 
 @Pipe({
-    name: 'parseNextRun'
+    name: 'parseNextRun',
 })
 export class ParseNextRunPipe implements PipeTransform {
     /**

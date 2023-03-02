@@ -30,7 +30,7 @@
     "url": "https://github.com/vmware/versatile-data-kit"
   },
   "scripts": {
-    "build": "jlpm build:lib && jlpm build:labextension:dev && py-to-ts-interfaces vdk-jupyterlab-extension/vdk_options/ src/vdkOptions/",
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
     "build:prod": "jlpm clean && jlpm build:lib && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
@@ -59,8 +59,7 @@
     "@jupyterlab/application": "^3.1.0",
     "@jupyterlab/settingregistry": "^3.1.0",
     "@jupyterlab/coreutils": "^5.1.0",
-    "@jupyterlab/services": "^6.1.0",
-    "py-to-ts-interfaces":  "1.4.0"
+    "@jupyterlab/services": "^6.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -84,8 +83,7 @@
     "stylelint-config-standard": "~24.0.0",
     "stylelint-prettier": "^2.0.0",
     "typescript": "~4.1.3",
-    "ts-jest": "^26.0.0",
-    "py-to-ts-interfaces":  "1.4.0"
+    "ts-jest": "^26.0.0"
   },
   "sideEffects": [
     "style/*.css",

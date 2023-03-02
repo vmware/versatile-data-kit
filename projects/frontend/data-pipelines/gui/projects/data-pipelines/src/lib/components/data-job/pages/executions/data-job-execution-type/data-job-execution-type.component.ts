@@ -11,15 +11,17 @@ import { GridDataJobExecution } from '../model/data-job-execution';
 
 @Component({
     selector: 'lib-data-job-execution-type',
-    templateUrl: './data-job-execution-type.component.html'
+    templateUrl: './data-job-execution-type.component.html',
 })
 export class DataJobExecutionTypeComponent {
-
     @Input() jobExecution: GridDataJobExecution;
 
     executionTypePropertiesMapping = {
-        [DataJobExecutionType.MANUAL]: { shape: 'cursor-hand-open', status: 'is-info' },
-        [DataJobExecutionType.SCHEDULED]: { shape: 'clock', status: '' }
+        [DataJobExecutionType.MANUAL]: {
+            shape: 'cursor-hand-open',
+            status: 'is-info',
+        },
+        [DataJobExecutionType.SCHEDULED]: { shape: 'clock', status: '' },
     };
 
     get executionTypeProperties() {

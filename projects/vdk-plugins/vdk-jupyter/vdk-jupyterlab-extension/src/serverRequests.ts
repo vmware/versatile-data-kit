@@ -134,7 +134,7 @@ export async function downloadJobRequest() {
  * Sent a POST request to the server to create a data job.
  * The information about the data job is retrieved from sessionStorage and sent as JSON.
  */
- export async function createJobRequest() {
+export async function createJobRequest() {
   if (jobData.get(VdkOption.NAME) && jobData.get(VdkOption.TEAM)) {
     try {
       const data = await requestAPI<any>('create', {

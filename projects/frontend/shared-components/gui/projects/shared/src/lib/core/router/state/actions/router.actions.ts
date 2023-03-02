@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -38,9 +36,9 @@ export const LOCATION_BACK = '[location] Back';
 export const LOCATION_FORWARD = '[location] Forward';
 
 export interface NavigatePayload {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    commands: any[];
-    extras?: NavigationExtras;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	commands: any[];
+	extras?: NavigationExtras;
 }
 
 /**
@@ -49,23 +47,23 @@ export interface NavigatePayload {
  *
  */
 export class RouterNavigate extends BaseActionWithPayload<NavigatePayload> {
-    constructor(payload: NavigatePayload) {
-        super(ROUTER_NAVIGATE, payload);
-    }
+	constructor(payload: NavigatePayload) {
+		super(ROUTER_NAVIGATE, payload);
+	}
 
-    /**
-     * ** Factory method.
-     */
-    static override of(payload: NavigatePayload) {
-        return new RouterNavigate(payload);
-    }
+	/**
+	 * ** Factory method.
+	 */
+	static override of(payload: NavigatePayload) {
+		return new RouterNavigate(payload);
+	}
 }
 
 export interface GoPayload {
-    path: string;
-    query?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state?: any;
+	path: string;
+	query?: string;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	state?: any;
 }
 
 /**
@@ -74,16 +72,16 @@ export interface GoPayload {
  *
  */
 export class LocationGo extends BaseActionWithPayload<GoPayload> {
-    constructor(payload: GoPayload) {
-        super(LOCATION_GO, payload);
-    }
+	constructor(payload: GoPayload) {
+		super(LOCATION_GO, payload);
+	}
 
-    /**
-     * ** Factory method.
-     */
-    static override of(payload: GoPayload) {
-        return new LocationGo(payload);
-    }
+	/**
+	 * ** Factory method.
+	 */
+	static override of(payload: GoPayload) {
+		return new LocationGo(payload);
+	}
 }
 
 /**
@@ -92,16 +90,16 @@ export class LocationGo extends BaseActionWithPayload<GoPayload> {
  *
  */
 export class LocationBack extends BaseAction {
-    constructor() {
-        super(LOCATION_BACK);
-    }
+	constructor() {
+		super(LOCATION_BACK);
+	}
 
-    /**
-     * ** Factory method.
-     */
-    static of() {
-        return new LocationBack();
-    }
+	/**
+	 * ** Factory method.
+	 */
+	static of() {
+		return new LocationBack();
+	}
 }
 
 /**
@@ -110,16 +108,20 @@ export class LocationBack extends BaseAction {
  *
  */
 export class LocationForward extends BaseAction {
-    constructor() {
-        super(LOCATION_FORWARD);
-    }
+	constructor() {
+		super(LOCATION_FORWARD);
+	}
 
-    /**
-     * ** Factory method.
-     */
-    static of() {
-        return new LocationForward();
-    }
+	/**
+	 * ** Factory method.
+	 */
+	static of() {
+		return new LocationForward();
+	}
 }
 
-export type NavigationActions = RouterNavigate | LocationGo | LocationBack | LocationForward;
+export type NavigationActions =
+	| RouterNavigate
+	| LocationGo
+	| LocationBack
+	| LocationForward;
