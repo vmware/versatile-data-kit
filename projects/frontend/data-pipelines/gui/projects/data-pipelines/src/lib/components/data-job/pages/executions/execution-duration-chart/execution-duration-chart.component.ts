@@ -383,8 +383,8 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             case 'year':
                 return 1000 * 60 * 60 * 24 * 365;
             default:
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 console.error(
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     `Taurus DataPipelines ExecutionDurationChartComponent unsupported time format unit ${unit}`
                 );
 
