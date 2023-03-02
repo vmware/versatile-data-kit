@@ -23,9 +23,9 @@ import {
     ClrSpinnerModule,
 } from '@clr/angular';
 
-import { VmwComponentsModule } from '@vdk/shared';
+import { VmwComponentsModule } from '@versatiledatakit/shared';
 
-import { TaurusSharedNgRxModule } from '@vdk/shared';
+import { TaurusSharedNgRxModule } from '@versatiledatakit/shared';
 
 import { AttributesDirective } from './shared/directives';
 

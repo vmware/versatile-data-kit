@@ -26,7 +26,7 @@ import {
     RouterState,
     SystemEventDispatcher,
     URLStateManager,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,

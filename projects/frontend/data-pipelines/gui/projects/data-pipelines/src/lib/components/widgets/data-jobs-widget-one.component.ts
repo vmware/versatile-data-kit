@@ -8,7 +8,7 @@ import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, delay, map } from 'rxjs/operators';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../shared/utils';
 

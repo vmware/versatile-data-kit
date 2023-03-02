@@ -22,7 +22,7 @@ Bug in general the steps are:
    ```bash
    $ npm config set legacy-peer-deps true
    ```
-1. Install Angular Cli and all other dependencies except '@vdk/shared'
+1. Install Angular Cli and all other dependencies except '@versatiledatakit/shared'
    ```bash
    npm i -g @angular/cli
    ```
@@ -47,7 +47,7 @@ Bug in general the steps are:
    ```
 6. Create symlink from build artifact to the wrapper ui (documentation-ui)
    ```bash
-   npm link @vdk/shared
+   npm link @versatiledatakit/shared
    ```
 7. Start the wrapper ui application, serve on [http://localhost.vmware.com:4200](http://localhost.vmware.com:4200)
    ```bash

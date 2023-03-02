@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import {
     DataJobDeployment,
