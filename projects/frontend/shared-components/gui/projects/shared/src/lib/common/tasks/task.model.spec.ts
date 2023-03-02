@@ -19,8 +19,8 @@ describe('Tasks', () => {
 			);
 			const interpolateStringSpy = spyOn(
 				CollectionsUtil,
-				'interpolateString'
-			).and.returnValue(taskIdentifier);
+				'interpolateString' as never
+			).and.returnValue(taskIdentifier as never);
 			const expected = `${task} __ ${dateNowISO}`;
 
 			// When
@@ -31,9 +31,9 @@ describe('Tasks', () => {
 			expect(dateISOSpy).toHaveBeenCalled();
 			// @ts-ignore
 			expect(interpolateStringSpy).toHaveBeenCalledWith(
-				'%s __ %s',
-				task,
-				dateNowISO
+				'%s __ %s' as never,
+				task as never,
+				dateNowISO as never
 			);
 		});
 

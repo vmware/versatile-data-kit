@@ -231,9 +231,10 @@ describe('TaurusBaseComponent -> TaurusSubclassComponent', () => {
 			it('should verify will invoke expected method', () => {
 				// Given
 				// @ts-ignore
-				const bindModelSpy = spyOn(component, 'bindModel').and.callFake(
-					CallFake
-				);
+				const bindModelSpy = spyOn<TaurusBaseComponentStub, any>(
+					component,
+					'bindModel'
+				).and.callFake(CallFake);
 
 				// When
 				fixture.detectChanges();
@@ -248,10 +249,10 @@ describe('TaurusBaseComponent -> TaurusSubclassComponent', () => {
 				// Given
 				spyOn(TaurusBaseComponent.prototype, 'ngOnInit').and.callFake(CallFake);
 				// @ts-ignore
-				const setIdleSpy: jasmine.Spy<() => void> = spyOn(
-					TaurusBaseComponent.prototype,
-					'setStateIdle'
-				).and.callFake(CallFake);
+				const setIdleSpy: jasmine.Spy<() => void> = spyOn<
+					TaurusBaseComponent,
+					any
+				>(TaurusBaseComponent.prototype, 'setStateIdle').and.callFake(CallFake);
 				const ngOnDestroySpy: jasmine.Spy<() => void> = spyOn(
 					TaurusObject.prototype,
 					'ngOnDestroy'
