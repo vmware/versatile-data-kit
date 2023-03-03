@@ -12,6 +12,6 @@ echo "Linking package..."
 cd dist/shared/
 npm link
 cd ../../
-npm link @vdk/shared
+npm link @versatiledatakit/shared
 echo "Starting unit tests..."
 npm run test:headless

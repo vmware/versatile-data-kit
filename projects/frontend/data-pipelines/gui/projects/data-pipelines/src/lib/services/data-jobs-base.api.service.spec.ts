@@ -14,7 +14,7 @@ import { ApolloQueryResult, gql, InMemoryCache } from '@apollo/client/core';
 import { Apollo, ApolloBase, QueryRef } from 'apollo-angular';
 import { HttpLink, HttpLinkHandler } from 'apollo-angular/http';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import {
     DataJobExecutionsPage,

@@ -6,7 +6,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import { FormatSchedulePipe } from '../../shared/pipes';
 

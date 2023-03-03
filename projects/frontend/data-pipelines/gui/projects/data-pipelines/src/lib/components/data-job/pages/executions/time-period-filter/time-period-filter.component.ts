@@ -23,7 +23,7 @@ import {
 // TODO [import dayjs from 'dayjs'] used in ng2-date-picker v13+ instead of moment
 import moment from 'moment';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 type CustomFormGroup = FormGroup & { controls: { [key: string]: FormControl } };
 

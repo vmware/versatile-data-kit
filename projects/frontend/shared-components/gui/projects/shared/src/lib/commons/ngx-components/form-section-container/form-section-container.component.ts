@@ -25,7 +25,7 @@ export enum FORM_STATE {
 	ERROR,
 	SUBMIT
 }
-export class VDKFormState {
+export class VdkFormState {
 	state: FORM_STATE;
 
 	/**
@@ -73,7 +73,7 @@ export class VdkFormSectionContainerComponent {
 	@Input() cancelBtnAriaLabel = 'Cancel'; //Cancel button text
 	@Input() saveBtnAriaLabel = 'Save'; //Save button text
 
-	@Input('formState') set formState(_formState: VDKFormState) {
+	@Input('formState') set formState(_formState: VdkFormState) {
 		if (!_formState) {
 			return;
 		}
@@ -133,7 +133,7 @@ export class VdkFormSectionContainerComponent {
 
 	clickEdit() {
 		this.formStateChange.emit(
-			new VDKFormState(FORM_STATE.CAN_EDIT, [], this.sectionName)
+			new VdkFormState(FORM_STATE.CAN_EDIT, [], this.sectionName)
 		);
 		if (this.cspForm) {
 			this.cspForm.form.enable();
@@ -150,7 +150,7 @@ export class VdkFormSectionContainerComponent {
 	// @ts-ignore
 	clickSave(): boolean {
 		this.formStateChange.emit(
-			new VDKFormState(FORM_STATE.VIEW, [], this.sectionName)
+			new VdkFormState(FORM_STATE.VIEW, [], this.sectionName)
 		);
 		this.changeSectionState(FORM_STATE.SUBMIT);
 		if (this.cspForm) {
@@ -169,7 +169,7 @@ export class VdkFormSectionContainerComponent {
 	changeSectionState(_sectionState: FORM_STATE) {
 		if (_sectionState !== this._sectionState) {
 			this.sectionStateChange.emit(
-				new VDKFormState(_sectionState, [], this.sectionName)
+				new VdkFormState(_sectionState, [], this.sectionName)
 			);
 			this._sectionState = _sectionState;
 		}

@@ -22,7 +22,7 @@ Bug in general the steps are:
    ```bash
    $ npm config set legacy-peer-deps true
    ```
-1. Install Angular Cli and all other dependencies except '@vdk/data-pipelines'
+1. Install Angular Cli and all other dependencies except '@versatiledatakit/data-pipelines'
    ```bash
    npm i -g @angular/cli@13
    ```
@@ -47,7 +47,7 @@ Bug in general the steps are:
    ```
 6. Create symlink from build artifact to the wrapper ui (ui)
    ```bash
-   npm link @vdk/data-pipelines
+   npm link @versatiledatakit/data-pipelines
    ```
 7. Start the wrapper ui application, serve on [http://localhost.vmware.com:4200](http://localhost.vmware.com:4200)
    ```bash
@@ -64,7 +64,7 @@ These capabilities include generating applications, libraries, etc as well as th
 
 Run `ng g @nrwl/angular:lib <my-lib>` to generate a library.
 
-Libraries are shareable across libraries and applications. They can be imported from `@vdk/<mylib>`.
+Libraries are shareable across libraries and applications. They can be imported from `@versatiledatakit/<mylib>`.
 
 ### Code scaffolding
 Run `ng generate component component-name --project ui` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ui`.
