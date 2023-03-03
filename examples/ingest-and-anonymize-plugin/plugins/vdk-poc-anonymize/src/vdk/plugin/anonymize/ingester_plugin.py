@@ -48,7 +48,6 @@ class AnonymizationIngesterPlugin(IIngesterPlugin):
         collection_id: Optional[str] = None,
         metadata: IngestionMetadata = None,
     ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
-
         if self._anonymization_fields:
             payload = [
                 {
