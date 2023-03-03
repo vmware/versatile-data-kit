@@ -60,7 +60,7 @@ VDK creates data processing workflows to:
 A preview of the VDK CLI commands:
 - `vdk create`
 - `vdk run`
--  `vdk deploy`<br>
+- `vdk deploy`<br>
 <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/person/zverulacis/gif/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
 
 # Getting Started
