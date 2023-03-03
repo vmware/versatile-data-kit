@@ -61,7 +61,7 @@ A preview of the VDK CLI commands:
 - `vdk create`
 - `vdk run`
 -  `vdk deploy`<br>
-<br> <img src="https://github.com/vmware/versatile-data-kit/blob/person/zverulacis/gif/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
+<br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/person/zverulacis/gif/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
 
 # Getting Started
 Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
