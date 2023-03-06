@@ -18,7 +18,7 @@ export interface IDeployJobDialogProps {
     /**
     * VDK version
     */
-     vdkVersion: string;
+    vdkVersion: string;
 }
 
 
@@ -57,23 +57,17 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
                     <label className='jp-vdk-label' htmlFor="jobRestApiUrl">Rest Api URL:</label>
                     <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this.onRestApiUrlChange} />
                 </div>
-                <div className='jp-vdk-checkbox-wrapper'>
-                    <div>
-                        <input type="checkbox" name="Disable" id="Disable" className='jp-vdk-checkbox' onClick={this.onDisableClick()} />
-                        <label className="checkboxLabel" htmlFor="Disable">Disable</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" name="Enable" id="Enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()}/>
-                        <label className="checkboxLabel" htmlFor="Enable">Enable</label>
-                    </div>
-                </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="deploymentReason">Deployment reason:</label>
-                    <input type="text" id="deploymentReason" className='jp-vdk-input' placeholder="reason" onChange={this.onDeploymentReasonChange}/>
+                    <input type="text" id="deploymentReason" className='jp-vdk-input' placeholder="reason" onChange={this.onDeploymentReasonChange} />
                 </div>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="vdkVersion">VDK version:</label>
-                    <input type="text" id="vdkVersion" className='jp-vdk-input' placeholder={this.props.vdkVersion} onChange={this.onVdkVersionChange}/>
+                    <input type="text" id="vdkVersion" className='jp-vdk-input' placeholder={this.props.vdkVersion} onChange={this.onVdkVersionChange} />
+                </div>
+                <div>
+                        <input type="checkbox" name="Enable" id="Enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()} />
+                        <label className="checkboxLabel" htmlFor="Enable">Enable - un-pause the job</label>
                 </div>
             </>
         );
@@ -83,44 +77,14 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
    */
     private onEnableClick() {
         return (event: React.MouseEvent) => {
-            this.setDeploymentFlags("Enable");
-        }
-    }
-    /**
-  * Callback invoked upon choosing Disable checkbox
-  */
-    private onDisableClick() {
-        return (event: React.MouseEvent) => {
-            this.setDeploymentFlags("Disable");
-        }
-    }
-    /**
-  * Function that sets  deployment enable/disable flags
-  */
-    private setDeploymentFlags(flag: string) {
-        let checkbox = document.getElementById(flag);
-        if (checkbox?.classList.contains("checked")) {
-            checkbox.classList.remove("checked");
-            if (flag === "Enable") {
+            let checkbox = document.getElementById("Enable");
+            if (checkbox?.classList.contains("checked")) {
+                checkbox.classList.remove("checked");
                 jobData.set(VdkOption.DEPLOY_ENABLE, "");
             }
             else {
-                jobData.set(VdkOption.DEPLOY_DISABLE, "");
-            }
-        }
-        else {
-            checkbox?.classList.add("checked");
-            if (flag === "Enable") {
+                checkbox?.classList.add("checked");
                 jobData.set(VdkOption.DEPLOY_ENABLE, "1");
-                jobData.set(VdkOption.DEPLOY_DISABLE, "");
-                let input = document.getElementById("Disable") as HTMLInputElement;
-                input.checked = false;
-            }
-            else {
-                jobData.set(VdkOption.DEPLOY_DISABLE, "1");
-                jobData.set(VdkOption.DEPLOY_ENABLE, "");
-                let input = document.getElementById("Enable") as HTMLInputElement;
-                input.checked = false;
             }
         }
     }
@@ -176,11 +140,11 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
         }
         jobData.set(VdkOption.PATH, value);
     };
-     /**
-   * Callback invoked upon changing the vdk version input.
-   *
-   * @param event - event object
-   */
+    /**
+  * Callback invoked upon changing the vdk version input.
+  *
+  * @param event - event object
+  */
     private onVdkVersionChange = (event: any): void => {
         const pathInput = event.currentTarget as HTMLInputElement;
         let value = pathInput.value;
@@ -189,12 +153,12 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
         }
         jobData.set(VdkOption.VDK_VERSION, value);
     };
-     /**
-   * Callback invoked upon changing the deployent reason input.
-   *
-   * @param event - event object
-   */
-      private onDeploymentReasonChange = (event: any): void => {
+    /**
+  * Callback invoked upon changing the deployent reason input.
+  *
+  * @param event - event object
+  */
+    private onDeploymentReasonChange = (event: any): void => {
         const pathInput = event.currentTarget as HTMLInputElement;
         let value = pathInput.value;
         if (!value) {

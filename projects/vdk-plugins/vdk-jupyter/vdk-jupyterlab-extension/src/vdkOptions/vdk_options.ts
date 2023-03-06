@@ -9,5 +9,4 @@ export enum VdkOption {
     VDK_VERSION = 'vdkVersion',
     DEPLOYMENT_REASON = 'deploymentReason',
     DEPLOY_ENABLE = 'enableDeploy',
-    DEPLOY_DISABLE = 'disableDeploy',
 }

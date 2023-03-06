@@ -51,25 +51,11 @@ describe('#onEnableClick', () => {
     it('should put a flag for enabled in jobData', () => {
         const box = new DeployJobDialog(defaultProps);
         const component = render(box.render());
-        const enableCheckbox = component.getAllByLabelText("Enable")[0] as HTMLInputElement;
+        const enableCheckbox = component.getAllByLabelText("Enable - un-pause the job")[0] as HTMLInputElement;
         expect(enableCheckbox.checked).toEqual(false);
         fireEvent.click(enableCheckbox);
         expect(enableCheckbox.checked).toEqual(true);
         expect(jobData.get(VdkOption.DEPLOY_ENABLE)).toEqual("1");
-        expect(jobData.get(VdkOption.DEPLOY_DISABLE)).toEqual("");
-    });
-});
-
-describe('#onDisableClick', () => {
-    it('should put a flag for disabled in jobData', () => {
-        const box = new DeployJobDialog(defaultProps);
-        const component = render(box.render());
-        const disableCheckbox = component.getAllByLabelText("Disable")[0] as HTMLInputElement;
-        expect(disableCheckbox.checked).toEqual(false);
-        fireEvent.click(disableCheckbox);
-        expect(disableCheckbox.checked).toEqual(true);
-        expect(jobData.get(VdkOption.DEPLOY_DISABLE)).toEqual("1");
-        expect(jobData.get(VdkOption.DEPLOY_ENABLE)).toEqual("");
     });
 });
 
