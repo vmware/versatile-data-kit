@@ -24,7 +24,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
     constructor(
         private authStorage: OAuthStorage,
         private errorHandler: OAuthResourceServerErrorHandler,
-        @Optional() private moduleConfig: OAuthModuleConfig
+        @Optional() private moduleConfig: OAuthModuleConfig,
     ) {}
 
     /**
@@ -33,7 +33,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     intercept(
         req: HttpRequest<any>,
-        next: HttpHandler
+        next: HttpHandler,
     ): Observable<HttpEvent<any>> {
         const url = req.url.toLowerCase();
         if (!this.moduleConfig) {
@@ -62,7 +62,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
         ) {
             const headers = req.headers.set(
                 'Authorization',
-                'Basic ' + btoa(authCodeFlowConfig.clientId + ':')
+                'Basic ' + btoa(authCodeFlowConfig.clientId + ':'),
             );
 
             return next.handle(req.clone({ headers }));
@@ -79,7 +79,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
 
     private checkUrl(url: string): boolean {
         const found = this.moduleConfig.resourceServer.allowedUrls.find((u) =>
-            url.startsWith(u)
+            url.startsWith(u),
         );
         return !!found;
     }

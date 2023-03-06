@@ -109,16 +109,16 @@ describe('DataJobsDetailsModalComponent', () => {
     beforeEach(() => {
         componentServiceStub = jasmine.createSpyObj<ComponentService>(
             'componentService',
-            ['init', 'getModel', 'idle', 'update']
+            ['init', 'getModel', 'idle', 'update'],
         );
         navigationServiceStub = jasmine.createSpyObj<NavigationService>(
             'navigationService',
-            ['navigateTo', 'navigateBack']
+            ['navigateTo', 'navigateBack'],
         );
         activatedRouteStub = { snapshot: null } as any;
         routerServiceStub = jasmine.createSpyObj<RouterService>(
             'routerService',
-            ['getState']
+            ['getState'],
         );
         toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
             'show',
@@ -135,7 +135,7 @@ describe('DataJobsDetailsModalComponent', () => {
                 'executeDataJob',
                 'removeJob',
                 'getJob',
-            ]
+            ],
         );
         dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
             'dataJobsService',
@@ -148,66 +148,70 @@ describe('DataJobsDetailsModalComponent', () => {
                 'getNotifiedForRunningJobExecutionId',
                 'getNotifiedForJobExecutions',
                 'getNotifiedForTeamImplicitly',
-            ]
+            ],
         );
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
             'errorHandlerService',
-            ['processError', 'handleError']
+            ['processError', 'handleError'],
         );
 
         dataJobsApiServiceStub.getJobDetails.and.returnValue(
-            new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable()
+            new BehaviorSubject<DataJobDetails>(
+                TEST_JOB_DETAILS,
+            ).asObservable(),
         );
         dataJobsApiServiceStub.getJobExecutions.and.returnValue(
             new BehaviorSubject<DataJobExecutionsPage>({
                 content: [TEST_JOB_EXECUTION],
                 totalItems: 1,
                 totalPages: 1,
-            }).asObservable()
+            }).asObservable(),
         );
         dataJobsApiServiceStub.getJobDeployments.and.returnValue(
             new BehaviorSubject<DataJobDeploymentDetails[]>([
                 TEST_JOB_DEPLOYMENT,
-            ]).asObservable()
+            ]).asObservable(),
         );
         dataJobsApiServiceStub.downloadFile.and.returnValue(
-            new BehaviorSubject<Blob>({} as never).asObservable()
+            new BehaviorSubject<Blob>({} as never).asObservable(),
         );
         dataJobsApiServiceStub.updateDataJobStatus.and.returnValue(
             new BehaviorSubject<{ enabled: boolean }>({
                 enabled: true,
-            }).asObservable()
+            }).asObservable(),
         );
         dataJobsApiServiceStub.updateDataJob.and.returnValue(
-            new BehaviorSubject<DataJobDetails>({}).asObservable()
+            new BehaviorSubject<DataJobDetails>({}).asObservable(),
         );
         dataJobsApiServiceStub.executeDataJob.and.returnValue(
-            new BehaviorSubject<undefined>(undefined).asObservable()
+            new BehaviorSubject<undefined>(undefined).asObservable(),
         );
         dataJobsApiServiceStub.removeJob.and.returnValue(
-            new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable()
+            new BehaviorSubject<DataJobDetails>(
+                TEST_JOB_DETAILS,
+            ).asObservable(),
         );
         dataJobsApiServiceStub.getJob.and.returnValue(
-            of({ data: { content: [TEST_JOB_DETAILS] } } as DataJob)
+            of({ data: { content: [TEST_JOB_DETAILS] } } as DataJob),
         );
 
         dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
-            new Subject()
+            new Subject(),
         );
         dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
-            new BehaviorSubject(TEST_JOB_DETAILS.team)
+            new BehaviorSubject(TEST_JOB_DETAILS.team),
         );
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
-            RouterState.of(RouteState.empty(), 1)
+            RouterState.of(RouteState.empty(), 1),
         );
         routerServiceStub.getState.and.returnValue(new Subject());
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
 
         navigationServiceStub.navigateBack.and.returnValue(
-            Promise.resolve(true)
+            Promise.resolve(true),
         );
 
         TestBed.configureTestingModule({

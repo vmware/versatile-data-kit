@@ -49,7 +49,7 @@ export class DataJobsBaseApiService {
      */
     constructor(
         private readonly apollo: Apollo,
-        private readonly httpLink: HttpLink
+        private readonly httpLink: HttpLink,
     ) {}
 
     /**
@@ -58,7 +58,7 @@ export class DataJobsBaseApiService {
     getJobs(
         ownerTeam: string,
         gqlQuery: string,
-        variables: DataJobReqVariables
+        variables: DataJobReqVariables,
     ): Observable<ApolloQueryResult<DataJobPage>> {
         return this.getApolloClientFor(ownerTeam).query({
             query: gql`
@@ -74,7 +74,7 @@ export class DataJobsBaseApiService {
     watchForJobs(
         ownerTeam: string,
         gqlQuery: string,
-        variables: DataJobReqVariables
+        variables: DataJobReqVariables,
     ): QueryRef<DataJobPage, DataJobReqVariables> {
         return this.getApolloClientFor(ownerTeam).watchQuery({
             query: gql`
@@ -91,7 +91,7 @@ export class DataJobsBaseApiService {
         // NOSONAR
         ownerTeam: string,
         gqlQuery: string,
-        variables: DataJobExecutionsReqVariables
+        variables: DataJobExecutionsReqVariables,
     ): Observable<ApolloQueryResult<DataJobExecutionsPage>> {
         return this.getApolloClientFor(ownerTeam).query({
             query: gql`

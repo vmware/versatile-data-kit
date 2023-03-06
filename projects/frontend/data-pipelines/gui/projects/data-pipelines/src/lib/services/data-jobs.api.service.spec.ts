@@ -35,7 +35,7 @@ describe('DataJobsApiService', () => {
     beforeEach(() => {
         dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>(
             'dataJobsBaseService',
-            ['getJobs']
+            ['getJobs'],
         );
         httpClientStub = jasmine.createSpyObj<HttpClient>('httpClient', [
             'get',
@@ -144,7 +144,7 @@ describe('DataJobsApiService', () => {
                         pageSize: 1,
                         filter: [],
                         search: 'searchQueryValue',
-                    }
+                    },
                 );
             });
         });
@@ -162,7 +162,7 @@ describe('DataJobsApiService', () => {
                     networkStatus: 7,
                 };
                 dataJobsBaseServiceStub.getJobs.and.returnValue(
-                    of(apolloQueryResult)
+                    of(apolloQueryResult),
                 );
 
                 // When
@@ -221,7 +221,7 @@ describe('DataJobsApiService', () => {
                                 sort: null,
                             },
                         ],
-                    }
+                    },
                 );
             });
 
@@ -263,7 +263,7 @@ describe('DataJobsApiService', () => {
                     of(apolloQueryResult2),
                     of(apolloQueryResult3),
                     of(apolloQueryResult4),
-                    of(apolloQueryResult5)
+                    of(apolloQueryResult5),
                 );
 
                 const executeNextCall = (executionId) => {
@@ -300,13 +300,13 @@ describe('DataJobsApiService', () => {
                 const response = service.getJobExecution(
                     teamName,
                     jobName,
-                    executionId
+                    executionId,
                 );
 
                 // Then
                 expect(response).toBeDefined();
                 expect(httpClientStub.get).toHaveBeenCalledWith(
-                    `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+                    `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`,
                 );
             });
         });
@@ -318,7 +318,7 @@ describe('DataJobsApiService', () => {
                 // @ts-ignore
                 service._validateModuleConfig({
                     defaultOwnerTeamName: '',
-                })
+                }),
             ).toThrow(new Error(MISSING_DEFAULT_TEAM_MESSAGE));
         });
 
@@ -327,7 +327,7 @@ describe('DataJobsApiService', () => {
                 // @ts-ignore
                 service._validateModuleConfig({
                     defaultOwnerTeamName: 'default',
-                })
+                }),
             ).toThrow(new Error(RESERVED_DEFAULT_TEAM_NAME_MESSAGE));
         });
     });
@@ -336,7 +336,7 @@ describe('DataJobsApiService', () => {
         it('returs observable', () => {
             const jobDetailsObservable = service.getJobDetails(
                 'team001',
-                'job001'
+                'job001',
             );
             expect(jobDetailsObservable).toBeDefined();
         });
@@ -353,7 +353,7 @@ describe('DataJobsApiService', () => {
         it('returs observable', () => {
             const downloadFileObservable = service.downloadFile(
                 'team001',
-                'job001'
+                'job001',
             );
             expect(downloadFileObservable).toBeDefined();
         });
@@ -363,7 +363,7 @@ describe('DataJobsApiService', () => {
         it('returs observable', () => {
             const getJobDeploymentsObservable = service.getJobDeployments(
                 'team001',
-                'job001'
+                'job001',
             );
             expect(getJobDeploymentsObservable).toBeDefined();
         });
@@ -375,7 +375,7 @@ describe('DataJobsApiService', () => {
                 'team001',
                 'job001',
                 'deploy001',
-                false
+                false,
             );
             expect(updateDataJobStatusObservable).toBeDefined();
         });
@@ -387,7 +387,7 @@ describe('DataJobsApiService', () => {
                 'team001',
                 'job001',
                 null,
-                false
+                false,
             );
             expect(updateDataJobStatusObservable).toBeDefined();
         });
@@ -398,7 +398,7 @@ describe('DataJobsApiService', () => {
             const updateDataJobStatusObservable = service.updateDataJob(
                 'team001',
                 'job001',
-                TEST_JOB_DETAILS
+                TEST_JOB_DETAILS,
             );
             expect(updateDataJobStatusObservable).toBeDefined();
         });
@@ -408,7 +408,7 @@ describe('DataJobsApiService', () => {
         it('returs observable', () => {
             const jobExecutionsObservable = service.getJobExecutions(
                 'team001',
-                'job001'
+                'job001',
             );
             expect(jobExecutionsObservable).toBeDefined();
         });
@@ -423,12 +423,12 @@ describe('DataJobsApiService', () => {
             const executeDataJobObservable = service.executeDataJob(
                 teamName,
                 jobName,
-                deploymentId
+                deploymentId,
             );
             expect(executeDataJobObservable).toBeDefined();
             expect(httpClientStub.post).toHaveBeenCalledWith(
                 `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
-                {}
+                {},
             );
         });
     });
@@ -443,19 +443,19 @@ describe('DataJobsApiService', () => {
             const executeDataJobObservable = service.executeDataJob(
                 teamName,
                 jobName,
-                deploymentId
+                deploymentId,
             );
             expect(executeDataJobObservable).toBeDefined();
             expect(httpClientStub.post).toHaveBeenCalledWith(
                 `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
-                {}
+                {},
             );
 
             const cancelExecutionDataJobObservable =
                 service.cancelDataJobExecution(teamName, jobName, executionId);
             expect(cancelExecutionDataJobObservable).toBeDefined();
             expect(httpClientStub.delete).toHaveBeenCalledWith(
-                `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+                `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`,
             );
         });
     });

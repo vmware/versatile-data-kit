@@ -18,8 +18,8 @@
             clrSignpostTrigger
             data-cy="data-pipelines-job-executions-time-period"
         >
-            {{ fromTime | date: "MMM d, y, hh:mm:ss a":"UTC" }} to
-            {{ toTime | date: "MMM d, y, hh:mm:ss a":"UTC" }}
+            {{ fromTime | date : "MMM d, y, hh:mm:ss a" : "UTC" }} to
+            {{ toTime | date : "MMM d, y, hh:mm:ss a" : "UTC" }}
         </p>
         <clr-signpost-content clrPosition="bottom-middle">
             <form

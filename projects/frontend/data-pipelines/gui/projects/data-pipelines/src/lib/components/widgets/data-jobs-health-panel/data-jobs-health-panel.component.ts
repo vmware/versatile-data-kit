@@ -85,7 +85,7 @@ export class DataJobsHealthPanelComponent
         private readonly dataJobsService: DataJobsService,
         private readonly errorHandlerService: ErrorHandlerService,
         @Inject(DATA_PIPELINES_CONFIGS)
-        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {
         super(componentService, navigationService, activatedRoute);
     }
@@ -111,7 +111,7 @@ export class DataJobsHealthPanelComponent
                     property: 'startTime',
                     direction: DESC,
                 })
-                .withPage(1, 1000)
+                .withPage(1, 1000),
         );
     }
 
@@ -134,7 +134,7 @@ export class DataJobsHealthPanelComponent
                 .withRequestParam(ORDER_REQ_PARAM, {
                     property: 'startTime',
                     direction: DESC,
-                } as DataJobExecutionOrder)
+                } as DataJobExecutionOrder),
         );
     }
 
@@ -164,10 +164,10 @@ export class DataJobsHealthPanelComponent
             if (executions) {
                 const remappedExecutions =
                     DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(
-                        [...executions]
+                        [...executions],
                     );
                 this.jobExecutions = remappedExecutions.filter(
-                    (ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED
+                    (ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED,
                 );
                 this.loadingExecutions = false;
             }
@@ -235,8 +235,8 @@ export class DataJobsHealthPanelComponent
                             this.dataJobs = [];
                             console.error('Error loading selected team', error);
                         },
-                    }
-                )
+                    },
+                ),
             );
         } else {
             this.fetchDataJobExecutions();
