@@ -1,6 +1,6 @@
 {
   "name": "data-pipelines-wrapper",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "engines": {
     "node": "^14.15.0 || >=16.10.0",
     "npm": ">=8.5.5"
@@ -86,7 +86,7 @@
     "zone.js": "0.11.5"
   },
   "optionalDependencies": {
-    "@versatiledatakit/data-pipelines": "0.0.1"
+    "@versatiledatakit/data-pipelines": "0.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "13.3.7",

@@ -35,11 +35,28 @@ fi
 project_type=$1
 cd "../$project_type/gui"
 
-# TODO: generated a token, and added NPM_TOKEN to gitlab ci/cd variables, need to login
-# Login
-#npm-cli-login -u ${NPM_USERNAME} \
-#              -p ${NPM_PASSWORD} \
-#              -e "versatiledatakit@groups.vmware.com"
+if [ $# -eq 1 ]
+  then
+    echo "ERROR: No argument for unique minor package version provided."
+    exit 3
+fi
+minor_version_unique=$2
+
+if [ $# -eq 2 ]
+  then
+    echo "ERROR: No argument for NPM token provided."
+    exit 3
+fi
+npm_token=$3
+
+# optional; defaults to registry.npmjs.org public repo
+if [ $# -eq 3 ]
+  then
+    npm_registry_uri="registry.npmjs.org"
+  else
+    npm_registry_uri=$4
+fi
+
 
 # Locate the project dist directory
 if [ -d "./dist/$project_type/" ]
@@ -57,10 +74,11 @@ if [ -d "./dist/$project_type/" ]
 fi
 
 # Patch distribution package version
-# TODO: hook the version.txt auto-update, yet enabling major versions manual setup by editing version.txt
-export package_version=$(cat ../../version.txt)
-# version.txt should always be ahead (incremented) in comparison to package.json
+package_version=$(awk -v id=$minor_version_unique 'BEGIN { FS="."; OFS = "."; ORS = "" } { gsub("0",id,$3); print $1, $2, $3 }' ../../version.txt)
 npm version "${package_version}"
+
+# Auth with NPM registry
+npm set //$npm_registry_uri/:_authToken $npm_token
 
 # Publish
 echo "Publishing @vdk/$(basename "$PWD"):${package_version}..."
