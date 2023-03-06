@@ -25,7 +25,7 @@ import {
     handleActionError,
     LOADED,
     StatusType,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { DataJobsApiService } from '../../services';
 

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { VmwToastType } from '@vdk/shared';
+import { VmwToastType } from '@versatiledatakit/shared';
 
-import { Toast } from '@vdk/shared';
+import { Toast } from '@versatiledatakit/shared';
 
 export class ToastDefinitions {
     static successfullyRanJob(jobName: string): Toast {

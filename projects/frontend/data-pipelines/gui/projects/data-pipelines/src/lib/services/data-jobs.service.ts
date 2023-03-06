@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
 
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
-import { ComponentModel, ComponentService } from '@vdk/shared';
+import { ComponentModel, ComponentService } from '@versatiledatakit/shared';
 
 import {
     FETCH_DATA_JOB,

@@ -30,7 +30,7 @@ import {
     RouterState,
     RouteState,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { ExtractJobStatusPipe } from '../../../../shared/pipes';
 

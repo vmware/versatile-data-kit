@@ -17,15 +17,15 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VmwComponentsModule } from '@vdk/shared';
+import { VdkComponentsModule } from '@versatiledatakit/shared';
 
 import {
     TaurusSharedCoreModule,
     TaurusSharedFeaturesModule,
     TaurusSharedNgRxModule,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
-import { DataPipelinesModule } from '@vdk/data-pipelines';
+import { DataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
 import { AppComponent } from './app.component';
 import { AppRouting } from './app.routing';
@@ -51,7 +51,7 @@ export function lottiePlayerLoader() {
         TaurusSharedNgRxModule.forRootWithDevtools(),
         TimeagoModule.forRoot(),
         LottieModule.forRoot({ player: lottiePlayerLoader }),
-        VmwComponentsModule.forRoot(),
+        VdkComponentsModule.forRoot(),
         DataPipelinesModule.forRoot({
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
