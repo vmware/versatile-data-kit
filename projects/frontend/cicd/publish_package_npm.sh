@@ -10,7 +10,7 @@
 # * data-pipelines
 #
 # Usage:
-# ./publish_package_npm.sh <component> <minor_version_unique> <token> [npm_registry_optional]
+# ./publish_package_npm.sh <component> <patch_version_unique> <token> [npm_registry_optional]
 # Example:
 # ./publish_package_npm.sh data-pipelines 123456 npm_token registry.npmjs.org
 ###
@@ -42,10 +42,10 @@ cd "../$project_type/gui"
 
 if [ $# -eq 1 ]
   then
-    echo "ERROR: No argument for unique minor package version provided."
+    echo "ERROR: No argument for unique patch package version provided."
     exit 3
 fi
-minor_version_unique=$2
+patch_version_unique=$2
 
 if [ $# -eq 2 ]
   then
@@ -79,7 +79,7 @@ if [ -d "./dist/$project_type/" ]
 fi
 
 # Patch distribution package version
-package_version=$(awk -v id=$minor_version_unique 'BEGIN { FS="."; OFS = "."; ORS = "" } { gsub("0",id,$3); print $1, $2, $3 }' ../../version.txt)
+package_version=$(awk -v id=$patch_version_unique 'BEGIN { FS="."; OFS = "."; ORS = "" } { gsub("0",id,$3); print $1, $2, $3 }' ../../version.txt)
 npm version "${package_version}"
 
 # Auth with NPM registry
