@@ -31,7 +31,7 @@ export async function getCurrentPathRequest() {
  * The information about the data job is retrieved from jobData object and sent as JSON.
  * Returns a pair of boolean (representing whether the vdk run was run) and a string (representing the result of vdk run)
  */
- export async function jobRunRequest(): Promise<[String, boolean]> {
+export async function jobRunRequest(): Promise<[String, boolean]> {
   if (jobData.get(VdkOption.PATH)) {
     try {
       const data = await requestAPI<any>('run', {
@@ -49,7 +49,7 @@ export async function getCurrentPathRequest() {
         error,
         [Dialog.okButton()]
       );
-      return ["", false];
+      return ['', false];
     }
   } else {
     await showErrorMessage(
@@ -57,7 +57,7 @@ export async function getCurrentPathRequest() {
       'The path should be defined!',
       [Dialog.okButton()]
     );
-    return ["", false];
+    return ['', false];
   }
 }
 
