@@ -38,6 +38,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
     * @returns React element
     */
     render(): React.ReactElement {
+        // TODO: switch the checkbox into radio buttons
         return (
             <>
                 <div className='jp-vdk-input-wrapper'>
@@ -49,7 +50,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
                     <input type="text" id="jobTeam" className='jp-vdk-input' placeholder={this.props.jobTeam} onChange={this.onTeamChange} />
                 </div>
                 <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobPath">Job path:</label>
+                    <label className='jp-vdk-label' htmlFor="jobPath">Job Path:</label>
                     <input type="text" id="jobPath" className='jp-vdk-input' placeholder={this.props.jobPath} onChange={this.onPathChange} />
                 </div>
                 <div className='jp-vdk-input-wrapper'>
@@ -58,11 +59,11 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
                 </div>
                 <div className='jp-vdk-checkbox-wrapper'>
                     <div>
-                        <input type="checkbox" name="Disable" id="Disable" className='jp-vdk-checkbox' onClick={this.onDisableClick} />
+                        <input type="checkbox" name="Disable" id="Disable" className='jp-vdk-checkbox' onClick={this.onDisableClick()} />
                         <label className="checkboxLabel" htmlFor="Disable">Disable</label>
                     </div>
                     <div>
-                        <input type="checkbox" name="Enable" id="Enable" className='jp-vdk-checkbox' onClick={this.onEnableClick}/>
+                        <input type="checkbox" name="Enable" id="Enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()}/>
                         <label className="checkboxLabel" htmlFor="Enable">Enable</label>
                     </div>
                 </div>
@@ -111,11 +112,13 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
             checkbox?.classList.add("checked");
             if (flag === "Enable") {
                 jobData.set(VdkOption.DEPLOY_ENABLE, "1");
+                jobData.set(VdkOption.DEPLOY_DISABLE, "");
                 let input = document.getElementById("Disable") as HTMLInputElement;
                 input.checked = false;
             }
             else {
                 jobData.set(VdkOption.DEPLOY_DISABLE, "1");
+                jobData.set(VdkOption.DEPLOY_ENABLE, "");
                 let input = document.getElementById("Enable") as HTMLInputElement;
                 input.checked = false;
             }
