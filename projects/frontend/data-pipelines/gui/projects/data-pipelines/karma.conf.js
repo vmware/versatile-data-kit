@@ -68,7 +68,7 @@ module.exports = function (config) {
                 flags: ["--no-sandbox"],
             },
         },
-        browserNoActivityTimeout: 15000,
+        browserNoActivityTimeout: 150000,
         singleRun: false,
         restartOnFileChange: true,
     });
