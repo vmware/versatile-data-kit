@@ -1,10 +1,13 @@
 import DeployJobDialog, { IDeployJobDialogProps } from "../components/DeployJob";
+import { render, fireEvent } from '@testing-library/react';
+import { jobData } from "../jobData";
+import { VdkOption } from '../vdkOptions/vdk_options';
 
 const defaultProps: IDeployJobDialogProps= {
-    jobName: "",
-    jobTeam: "",
-    jobPath: "",
-    vdkVersion: ""
+    jobName: "test-name",
+    jobTeam: "test-team",
+    jobPath: "test-path",
+    vdkVersion: "test-version"
 };
 
 describe('#constructor()', () => {
@@ -15,106 +18,117 @@ describe('#constructor()', () => {
 });
 
 describe('#render()', () => {
-    it('should display placeholder text for the commit message summary', () => {
-      const props = defaultProps;
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(CommitMessage);
-      expect(node.prop('summaryPlaceholder')).toEqual(
-        'Summary (Ctrl+Enter to commit)'
-      );
+    it('should return contain job name input with placeholder equal to jobName from props', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.jobName);
+        expect(input).toBe(component.getAllByLabelText("Job Name:")[0])
     });
 
-    it('should adjust placeholder text for the commit message summary when keybinding changes', () => {
-      const adjustedCommands = new CommandRegistry();
-      adjustedCommands.addKeyBinding({
-        keys: ['Shift Enter'],
-        command: CommandIDs.gitSubmitCommand,
-        selector: '.jp-git-CommitBox'
-      });
-      const props = {
-        ...defaultProps,
-        commands: adjustedCommands
-      };
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(CommitMessage);
-      expect(node.prop('summaryPlaceholder')).toEqual(
-        'Summary (Shift+Enter to commit)'
-      );
+    it('should return contain job team input with placeholder equal to jobTeam from props', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.jobTeam);
+        expect(input).toBe(component.getAllByLabelText("Job Team:")[0])
     });
 
-    it('should display a button to commit changes', () => {
-      const props = defaultProps;
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(Button).first();
-      expect(node.text()).toEqual('Commit');
+    it('should return contain job path input with placeholder equal to jobPath from props', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.jobPath);
+        expect(input).toBe(component.getAllByLabelText("Job Path:")[0])
     });
 
-    it('should set a `title` attribute on the button to commit changes', () => {
-      const props = defaultProps;
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(Button).first();
-      expect(node.prop('title').length > 0).toEqual(true);
+    it('should return contain vdk version input with placeholder equal to vdkVersion from props', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.vdkVersion);
+        expect(input).toBe(component.getAllByLabelText("VDK version:")[0])
     });
+});
 
-    it('should apply a class to disable the commit button when no files have changes to commit', () => {
-      const props = defaultProps;
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(Button).first();
-      const prop = node.prop('disabled');
-      expect(prop).toEqual(true);
+describe('#onEnableClick', () => {
+    it('should put a flag for enabled in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const enableCheckbox = component.getAllByLabelText("Enable")[0] as HTMLInputElement;
+        expect(enableCheckbox.checked).toEqual(false);
+        fireEvent.click(enableCheckbox);
+        expect(enableCheckbox.checked).toEqual(true);
+        expect(jobData.get(VdkOption.DEPLOY_ENABLE)).toEqual("1");
+        expect(jobData.get(VdkOption.DEPLOY_DISABLE)).toEqual("");
     });
+});
 
-    it('should apply a class to disable the commit button when files have changes to commit, but the user has not entered a commit message summary', () => {
-      const props = {
-        ...defaultProps,
-        hasFiles: true
-      };
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(Button).first();
-      const prop = node.prop('disabled');
-      expect(prop).toEqual(true);
+describe('#onDisableClick', () => {
+    it('should put a flag for disabled in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const disableCheckbox = component.getAllByLabelText("Disable")[0] as HTMLInputElement;
+        expect(disableCheckbox.checked).toEqual(false);
+        fireEvent.click(disableCheckbox);
+        expect(disableCheckbox.checked).toEqual(true);
+        expect(jobData.get(VdkOption.DEPLOY_DISABLE)).toEqual("1");
+        expect(jobData.get(VdkOption.DEPLOY_ENABLE)).toEqual("");
     });
+});
 
-    it('should not apply a class to disable the commit button when files have changes to commit and the user has entered a commit message summary', () => {
-      const props = {
-        ...defaultProps,
-        summary: 'beep boop',
-        hasFiles: true
-      };
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(Button).first();
-      const prop = node.prop('disabled');
-      expect(prop).toEqual(false);
+describe('#onNameChange', () => {
+    it('should change the job name in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.jobName);
+        fireEvent.change(input, {target: {value: 'second-name'}})
+        expect(jobData.get(VdkOption.NAME)).toEqual('second-name');
     });
+});
 
-    it('should apply a class to disable the commit input fields in amend mode', () => {
-      const props = {
-        ...defaultProps,
-        summary: 'beep boop',
-        amend: true
-      };
-      const component = shallow(<CommitBox {...props} />);
-      expect(component.find(CommitMessage).length).toEqual(0);
+describe('#onTeamChange', () => {
+    it('should change the job team in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.jobTeam);
+        fireEvent.change(input, {target: {value: 'second-team'}})
+        expect(jobData.get(VdkOption.TEAM)).toEqual('second-team');
     });
+});
 
-    it('should not apply a class to disable the commit button in amend mode', () => {
-      const props = {
-        ...defaultProps,
-        hasFiles: true,
-        amend: true
-      };
-      const component = shallow(<CommitBox {...props} />);
-      const node = component.find(Button).first();
-      const prop = node.prop('disabled');
-      expect(prop).toEqual(false);
+describe('#onRestApiUrlChange', () => {
+    it('should change the rest api url in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText("rest-api-url");
+        fireEvent.change(input, {target: {value: 'random-url'}})
+        expect(jobData.get(VdkOption.REST_API_URL)).toEqual('random-url');
     });
+});
 
-    it('should render a warning box when there are dirty staged files', () => {
-      const props = {
-        ...defaultProps,
-        warning: <WarningBox title="Warning" content="Warning content."></WarningBox>
-      };
-      const component = shallow(<CommitBox {...props} />);
-      expect(component.find(WarningBox).length).toEqual(1);
+describe('#onPathChange', () => {
+    it('should change the path in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.jobPath);
+        fireEvent.change(input, {target: {value: 'other/path'}})
+        expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
     });
-  });
+});
+
+describe('#onVdkVersionChange', () => {
+    it('should change the vdk version in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText(defaultProps.vdkVersion);
+        fireEvent.change(input, {target: {value: '0.10'}})
+        expect(jobData.get(VdkOption.VDK_VERSION)).toEqual('0.10');
+    });
+});
+
+describe('#onDeploymentReasonChange', () => {
+    it('should change the vdk version in jobData', () => {
+        const box = new DeployJobDialog(defaultProps);
+        const component = render(box.render());
+        const input = component.getByPlaceholderText('reason');
+        fireEvent.change(input, {target: {value: 'Another reason'}})
+        expect(jobData.get(VdkOption.DEPLOYMENT_REASON)).toEqual('Another reason');
+    });
+});
