@@ -49,10 +49,9 @@ frontend-data-pipelines-release:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    # TODO: cleanup external_pull_request_event before merge; for dev verification purposes only
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *frontend_data_pipelines_locations
   artifacts:
     paths:

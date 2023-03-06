@@ -87,5 +87,4 @@ npm set //$npm_registry/:_authToken $npm_token
 
 # Publish
 echo "Publishing @vdk/$(basename "$PWD"):${package_version}..."
-# TODO: remove --dry-run
-npm publish --ignore-scripts --access public --dry-run
+npm publish --ignore-scripts --access public
