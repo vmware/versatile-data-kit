@@ -14,20 +14,32 @@
                     <clr-signpost>
                         <clr-signpost-content *clrIfOpen>
                             <p class="success-rate-info-panel">
-                                Success rate is calculated from all executions from the last 14 days (up to 336 for each job)
+                                Success rate is calculated from all executions
+                                from the last 14 days (up to 336 for each job)
                             </p>
                         </clr-signpost-content>
                     </clr-signpost>
                 </div>
             </div>
-            <div class="value-percent"
-                 data-cy="dp-jobs-executions-status-gauge-widget-percentage"
-                 [style.color]="customColors(successRate*100)">{{successRate | percent}}</div> <!-- eslint-disable-line @angular-eslint/template/no-call-expression -->
-            <div class="value-current small-and-up"
-                 data-cy="dp-jobs-executions-status-gauge-widget-failed">{{failedExecutions}} failed
+            <div
+                class="value-percent"
+                data-cy="dp-jobs-executions-status-gauge-widget-percentage"
+                [style.color]="customColors(successRate * 100)"
+            >
+                {{ successRate | percent }}
             </div>
-            <div class="value-limit small-and-up"
-                 data-cy="dp-jobs-executions-status-gauge-widget-total">{{totalExecutions}} total
+            <!-- eslint-disable-line @angular-eslint/template/no-call-expression -->
+            <div
+                class="value-current small-and-up"
+                data-cy="dp-jobs-executions-status-gauge-widget-failed"
+            >
+                {{ failedExecutions }} failed
+            </div>
+            <div
+                class="value-limit small-and-up"
+                data-cy="dp-jobs-executions-status-gauge-widget-total"
+            >
+                {{ totalExecutions }} total
             </div>
         </div>
         <div class="gauge-chart-container">
@@ -35,12 +47,15 @@
                 <ngx-charts-gauge
                     [scheme]="{ domain: ['#5AA454'] }"
                     [customColors]="customColors"
-                    [results]="[{value: successRate*100, name: successRate*100}]"
+                    [results]="[
+                        { value: successRate * 100, name: successRate * 100 }
+                    ]"
                     [min]="0"
                     [tooltipDisabled]="true"
                     [angleSpan]="270"
                     [showAxis]="false"
-                    [startAngle]="-135">
+                    [startAngle]="-135"
+                >
                 </ngx-charts-gauge>
             </div>
         </div>

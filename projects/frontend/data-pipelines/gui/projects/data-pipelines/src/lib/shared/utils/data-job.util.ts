@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import {
     DataJobDeployment,
@@ -11,7 +11,7 @@ import {
     DataJobExecutionDetails,
     DataJobExecutionStatus,
     DataJobExecutionStatusDeprecated,
-    DataJobExecutionType
+    DataJobExecutionType,
 } from '../../model';
 
 /**
@@ -21,25 +21,39 @@ export class DataJobUtil {
     /**
      * ** Predicate for Job Running.
      */
-    static isJobRunningPredicate(jobExecution: DataJobExecution | DataJobExecutionDetails): boolean {
-        return (jobExecution as DataJobExecution).status === DataJobExecutionStatus.RUNNING ||
-            (jobExecution as DataJobExecution).status === DataJobExecutionStatus.SUBMITTED ||
-            (jobExecution as DataJobExecutionDetails).status === DataJobExecutionStatusDeprecated.RUNNING ||
-            (jobExecution as DataJobExecutionDetails).status === DataJobExecutionStatusDeprecated.SUBMITTED;
+    static isJobRunningPredicate(
+        jobExecution: DataJobExecution | DataJobExecutionDetails
+    ): boolean {
+        return (
+            (jobExecution as DataJobExecution).status ===
+                DataJobExecutionStatus.RUNNING ||
+            (jobExecution as DataJobExecution).status ===
+                DataJobExecutionStatus.SUBMITTED ||
+            (jobExecution as DataJobExecutionDetails).status ===
+                DataJobExecutionStatusDeprecated.RUNNING ||
+            (jobExecution as DataJobExecutionDetails).status ===
+                DataJobExecutionStatusDeprecated.SUBMITTED
+        );
     }
 
     /**
      * ** Find if some Job is running in provided Executions.
      */
-    static isJobRunning(jobExecutions: DataJobExecution[] | DataJobExecutionDetails[]): boolean {
+    static isJobRunning(
+        jobExecutions: DataJobExecution[] | DataJobExecutionDetails[]
+    ): boolean {
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        return jobExecutions.findIndex(DataJobUtil.isJobRunningPredicate) !== -1;
+        return (
+            jobExecutions.findIndex(DataJobUtil.isJobRunningPredicate) !== -1
+        );
     }
 
-    static convertFromExecutionDetailsToExecutionState(jobExecutionDetails: DataJobExecutionDetails): DataJobExecution {
+    static convertFromExecutionDetailsToExecutionState(
+        jobExecutionDetails: DataJobExecutionDetails
+    ): DataJobExecution {
         if (CollectionsUtil.isNil(jobExecutionDetails)) {
             return {
-                id: null
+                id: null,
             };
         }
 
@@ -56,28 +70,46 @@ export class DataJobUtil {
             logsUrl: jobExecutionDetails.logs_url,
             deployment: {
                 schedule: {},
-                resources: {}
-            } as DataJobDeployment
+                resources: {},
+            } as DataJobDeployment,
         };
 
         if (CollectionsUtil.isLiteralObject(jobExecutionDetails.deployment)) {
             execution.deployment.id = jobExecutionDetails.deployment.id;
-            execution.deployment.enabled = jobExecutionDetails.deployment.enabled;
-            execution.deployment.jobVersion = jobExecutionDetails.deployment.job_version;
-            execution.deployment.vdkVersion = jobExecutionDetails.deployment.vdk_version;
+            execution.deployment.enabled =
+                jobExecutionDetails.deployment.enabled;
+            execution.deployment.jobVersion =
+                jobExecutionDetails.deployment.job_version;
+            execution.deployment.vdkVersion =
+                jobExecutionDetails.deployment.vdk_version;
             execution.deployment.mode = jobExecutionDetails.deployment.mode;
-            execution.deployment.deployedDate = jobExecutionDetails.deployment.deployed_date;
-            execution.deployment.deployedBy = jobExecutionDetails.deployment.deployed_by;
+            execution.deployment.deployedDate =
+                jobExecutionDetails.deployment.deployed_date;
+            execution.deployment.deployedBy =
+                jobExecutionDetails.deployment.deployed_by;
 
-            if (CollectionsUtil.isLiteralObject(jobExecutionDetails.deployment.schedule)) {
-                execution.deployment.schedule.scheduleCron = jobExecutionDetails.deployment.schedule.schedule_cron;
+            if (
+                CollectionsUtil.isLiteralObject(
+                    jobExecutionDetails.deployment.schedule
+                )
+            ) {
+                execution.deployment.schedule.scheduleCron =
+                    jobExecutionDetails.deployment.schedule.schedule_cron;
             }
 
-            if (CollectionsUtil.isLiteralObject(jobExecutionDetails.deployment.resources)) {
-                execution.deployment.resources.cpuRequest = jobExecutionDetails.deployment.resources.cpu_request;
-                execution.deployment.resources.cpuLimit = jobExecutionDetails.deployment.resources.cpu_limit;
-                execution.deployment.resources.memoryRequest = jobExecutionDetails.deployment.resources.memory_request;
-                execution.deployment.resources.memoryLimit = jobExecutionDetails.deployment.resources.memory_limit;
+            if (
+                CollectionsUtil.isLiteralObject(
+                    jobExecutionDetails.deployment.resources
+                )
+            ) {
+                execution.deployment.resources.cpuRequest =
+                    jobExecutionDetails.deployment.resources.cpu_request;
+                execution.deployment.resources.cpuLimit =
+                    jobExecutionDetails.deployment.resources.cpu_limit;
+                execution.deployment.resources.memoryRequest =
+                    jobExecutionDetails.deployment.resources.memory_request;
+                execution.deployment.resources.memoryLimit =
+                    jobExecutionDetails.deployment.resources.memory_limit;
             }
         }
 

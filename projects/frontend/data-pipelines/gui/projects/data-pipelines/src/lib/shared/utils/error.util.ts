@@ -5,7 +5,7 @@
 
 import { ApolloError } from '@apollo/client/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 /**
  * ** Error Utils class.
@@ -17,7 +17,10 @@ export class ErrorUtil {
      * ** Extract root Error depending of the format.
      */
     static extractError(error: Error): Error {
-        if (error instanceof ApolloError && CollectionsUtil.isDefined(error.networkError)) {
+        if (
+            error instanceof ApolloError &&
+            CollectionsUtil.isDefined(error.networkError)
+        ) {
             return error.networkError;
         }
 

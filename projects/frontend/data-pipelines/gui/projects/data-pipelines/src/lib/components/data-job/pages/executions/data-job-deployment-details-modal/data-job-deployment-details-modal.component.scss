@@ -4,10 +4,11 @@
  */
 
 div.clr-row div {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
-  p, h6 {
-    margin-top: 12px;
-  }
+    p,
+    h6 {
+        margin-top: 12px;
+    }
 }

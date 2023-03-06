@@ -17,11 +17,15 @@ import { LottieModule } from 'ngx-lottie';
 
 import { DpDatePickerModule } from 'ng2-date-picker';
 
-import { ClarityModule, ClrDatagridModule, ClrSpinnerModule } from '@clr/angular';
+import {
+    ClarityModule,
+    ClrDatagridModule,
+    ClrSpinnerModule,
+} from '@clr/angular';
 
-import { VmwComponentsModule } from '@vdk/shared';
+import { VdkComponentsModule } from '@versatiledatakit/shared';
 
-import { TaurusSharedNgRxModule } from '@vdk/shared';
+import { TaurusSharedNgRxModule } from '@versatiledatakit/shared';
 
 import { AttributesDirective } from './shared/directives';
 
@@ -33,7 +37,7 @@ import {
     FormatDeltaPipe,
     FormatSchedulePipe,
     ParseEpochPipe,
-    ParseNextRunPipe
+    ParseNextRunPipe,
 } from './shared/pipes';
 
 import {
@@ -46,10 +50,16 @@ import {
     QuickFiltersComponent,
     StatusCellComponent,
     StatusPanelComponent,
-    WidgetValueComponent
+    WidgetValueComponent,
 } from './shared/components';
 
-import { DataJobsApiService, DataJobsBaseApiService, DataJobsPublicApiService, DataJobsService, DataJobsServiceImpl } from './services';
+import {
+    DataJobsApiService,
+    DataJobsBaseApiService,
+    DataJobsPublicApiService,
+    DataJobsService,
+    DataJobsServiceImpl,
+} from './services';
 
 import { DATA_PIPELINES_CONFIGS, DataPipelinesConfig } from './model';
 
@@ -75,7 +85,7 @@ import {
     DataJobExecutionTypeFilterComponent,
     ExecutionDurationChartComponent,
     ExecutionStatusChartComponent,
-    TimePeriodFilterComponent
+    TimePeriodFilterComponent,
 } from './components/data-job/pages/executions';
 
 import {
@@ -83,7 +93,7 @@ import {
     DataJobsFailedWidgetComponent,
     DataJobsHealthPanelComponent,
     DataJobsWidgetOneComponent,
-    WidgetExecutionStatusGaugeComponent
+    WidgetExecutionStatusGaugeComponent,
 } from './components/widgets';
 
 const routes: Routes = [];
@@ -92,7 +102,7 @@ const routes: Routes = [];
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        VmwComponentsModule.forRoot(),
+        VdkComponentsModule.forRoot(),
         ClrDatagridModule,
         ClrSpinnerModule,
         ClarityModule,
@@ -103,7 +113,7 @@ const routes: Routes = [];
         TimeagoModule.forRoot(),
         TaurusSharedNgRxModule.forFeatureEffects([DataJobsEffects]),
         DpDatePickerModule,
-        NgxChartsModule
+        NgxChartsModule,
     ],
     declarations: [
         AttributesDirective,
@@ -147,7 +157,7 @@ const routes: Routes = [];
         DataJobsFailedWidgetComponent,
         WidgetExecutionStatusGaugeComponent,
         DataJobsHealthPanelComponent,
-        EmptyStateComponent
+        EmptyStateComponent,
     ],
     exports: [
         DataJobsExplorePageComponent,
@@ -161,12 +171,14 @@ const routes: Routes = [];
         DataJobsExecutionsWidgetComponent,
         DataJobsFailedWidgetComponent,
         WidgetExecutionStatusGaugeComponent,
-        DataJobsHealthPanelComponent
-    ]
+        DataJobsHealthPanelComponent,
+    ],
 })
 export class DataPipelinesModule {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static forRoot(config: DataPipelinesConfig = {} as any): ModuleWithProviders<DataPipelinesModule> {
+    static forRoot(
+        config: DataPipelinesConfig = {} as any
+    ): ModuleWithProviders<DataPipelinesModule> {
         return {
             ngModule: DataPipelinesModule,
             providers: [
@@ -174,8 +186,8 @@ export class DataPipelinesModule {
                 DataJobsPublicApiService,
                 DataJobsApiService,
                 { provide: DataJobsService, useClass: DataJobsServiceImpl },
-                { provide: DATA_PIPELINES_CONFIGS, useValue: config }
-            ]
+                { provide: DATA_PIPELINES_CONFIGS, useValue: config },
+            ],
         };
     }
 }

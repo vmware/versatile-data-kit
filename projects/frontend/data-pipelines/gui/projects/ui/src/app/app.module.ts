@@ -17,11 +17,15 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VmwComponentsModule } from '@vdk/shared';
+import { VdkComponentsModule } from '@versatiledatakit/shared';
 
-import { TaurusSharedCoreModule, TaurusSharedFeaturesModule, TaurusSharedNgRxModule } from '@vdk/shared';
+import {
+    TaurusSharedCoreModule,
+    TaurusSharedFeaturesModule,
+    TaurusSharedNgRxModule,
+} from '@versatiledatakit/shared';
 
-import { DataPipelinesModule } from '@vdk/data-pipelines';
+import { DataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
 import { AppComponent } from './app.component';
 import { AppRouting } from './app.routing';
@@ -47,18 +51,18 @@ export function lottiePlayerLoader() {
         TaurusSharedNgRxModule.forRootWithDevtools(),
         TimeagoModule.forRoot(),
         LottieModule.forRoot({ player: lottiePlayerLoader }),
-        VmwComponentsModule.forRoot(),
+        VdkComponentsModule.forRoot(),
         DataPipelinesModule.forRoot({
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
-                allowKeyTabDownloads: true
+                allowKeyTabDownloads: true,
             },
             exploreConfig: {
-                showTeamsColumn: true
+                showTeamsColumn: true,
             },
             healthStatusUrl: '/explore/data-jobs?search={0}',
             showExecutionsPage: true,
-            showLineagePage: false
+            showLineagePage: false,
         }),
         HttpClientModule,
         OAuthModule.forRoot({
@@ -66,28 +70,27 @@ export function lottiePlayerLoader() {
                 allowedUrls: [
                     'https://console-stg.cloud.vmware.com/',
                     'https://gaz-preview.csp-vidm-prod.com/',
-                    '/data-jobs'
+                    '/data-jobs',
                 ],
-                sendAccessToken: true
-            }
-        })
+                sendAccessToken: true,
+            },
+        }),
     ],
     providers: [
         {
             provide: OAuthStorage,
-            useValue: localStorage
+            useValue: localStorage,
         },
         {
             provide: AuthConfig,
-            useValue: authCodeFlowConfig
+            useValue: authCodeFlowConfig,
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthorizationInterceptor,
-            multi: true
-        }
+            multi: true,
+        },
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

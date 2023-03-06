@@ -228,7 +228,6 @@ class ImpalaErrorHandler:
                 exception_message_matcher_regex=".*ImpalaRuntimeException: Error making 'updateTableColumnStatistics'.*",
             )
         ):
-
             sleep_seconds = 2 ** recovery_cursor.get_retries() * 30
             self._log.info(
                 f"Query failed with: {exception.__class__} : {str(exception)}"

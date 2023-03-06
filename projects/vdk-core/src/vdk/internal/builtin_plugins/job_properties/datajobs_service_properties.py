@@ -92,7 +92,7 @@ class DataJobsServiceProperties(IProperties):
                         countermeasures=f"Handle the exception raised.",
                     )
 
-        for (k, v) in list(properties.items()):
+        for k, v in list(properties.items()):
             check_valid_property(
                 k, v, DataJobsServiceProperties.__VALID_TYPES
             )  # throws

@@ -13,8 +13,8 @@ import {
     DataJobPageComponent,
     DataJobsExplorePageComponent,
     DataJobsManagePageComponent,
-    DataPipelinesRoutes
-} from '@vdk/data-pipelines';
+    DataPipelinesRoutes,
+} from '@versatiledatakit/data-pipelines';
 
 import { GettingStartedComponent } from './getting-started/getting-started.component';
 import { DataPipelinesRoute } from '../../../data-pipelines/src/lib/model';
@@ -31,13 +31,13 @@ const routes: DataPipelinesRoutes = [
                 path: '/explore/data-jobs/{0}/{1}',
                 replacers: [
                     { searchValue: '{0}', replaceValue: '$.team' },
-                    { searchValue: '{1}', replaceValue: '$.job' }
-                ]
+                    { searchValue: '{1}', replaceValue: '$.job' },
+                ],
             },
             restoreUiWhen: {
-                previousConfigPathLike: '/explore/data-jobs/:team/:job'
-            }
-        }
+                previousConfigPathLike: '/explore/data-jobs/:team/:job',
+            },
+        },
     },
     {
         path: 'explore/data-jobs/:team/:job',
@@ -53,16 +53,16 @@ const routes: DataPipelinesRoutes = [
                 data: {
                     editable: false,
                     navigateBack: {
-                        path: '/explore/data-jobs'
-                    }
-                }
+                        path: '/explore/data-jobs',
+                    },
+                },
             },
             {
                 path: 'executions',
-                redirectTo: 'details'
+                redirectTo: 'details',
             },
-            { path: '**', redirectTo: 'details' }
-        ]
+            { path: '**', redirectTo: 'details' },
+        ],
     },
 
     //Manage
@@ -74,13 +74,13 @@ const routes: DataPipelinesRoutes = [
                 path: '/manage/data-jobs/{0}/{1}',
                 replacers: [
                     { searchValue: '{0}', replaceValue: '$.team' },
-                    { searchValue: '{1}', replaceValue: '$.job' }
-                ]
+                    { searchValue: '{1}', replaceValue: '$.job' },
+                ],
             },
             restoreUiWhen: {
-                previousConfigPathLike: '/manage/data-jobs/:team/:job'
-            }
-        } as DataPipelinesRoute
+                previousConfigPathLike: '/manage/data-jobs/:team/:job',
+            },
+        } as DataPipelinesRoute,
     },
     {
         path: 'manage/data-jobs/:team/:job',
@@ -96,9 +96,9 @@ const routes: DataPipelinesRoutes = [
                 data: {
                     editable: true,
                     navigateBack: {
-                        path: '/manage/data-jobs'
-                    }
-                }
+                        path: '/manage/data-jobs',
+                    },
+                },
             },
             {
                 path: 'executions',
@@ -106,20 +106,19 @@ const routes: DataPipelinesRoutes = [
                 data: {
                     editable: true,
                     navigateBack: {
-                        path: '/manage/data-jobs'
-                    }
-                }
+                        path: '/manage/data-jobs',
+                    },
+                },
             },
-            { path: '**', redirectTo: 'details' }
-        ]
+            { path: '**', redirectTo: 'details' },
+        ],
     },
 
-    { path: '**', redirectTo: 'get-started' }
+    { path: '**', redirectTo: 'get-started' },
 ];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
+    exports: [RouterModule],
 })
-export class AppRouting {
-}
+export class AppRouting {}

@@ -21,8 +21,8 @@ import {
     OnTaurusModelLoad,
     RouterService,
     RouteState,
-    TaurusBaseComponent
-} from '@vdk/shared';
+    TaurusBaseComponent,
+} from '@versatiledatakit/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../../../../shared/utils';
 
@@ -35,22 +35,29 @@ import {
     JOB_EXECUTIONS_DATA_KEY,
     JOB_NAME_REQ_PARAM,
     ORDER_REQ_PARAM,
-    TEAM_NAME_REQ_PARAM
+    TEAM_NAME_REQ_PARAM,
 } from '../../../../../model';
 import { DataJobsService } from '../../../../../services';
 import { TASK_LOAD_JOB_EXECUTIONS } from '../../../../../state/tasks';
 
-import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../model/data-job-execution';
+import {
+    DataJobExecutionToGridDataJobExecution,
+    GridDataJobExecution,
+} from '../model/data-job-execution';
 
 @Component({
     selector: 'lib-data-job-executions-page',
     templateUrl: './data-job-executions-page.component.html',
-    styleUrls: ['./data-job-executions-page.component.scss']
+    styleUrls: ['./data-job-executions-page.component.scss'],
 })
 export class DataJobExecutionsPageComponent
     extends TaurusBaseComponent
-    implements OnTaurusModelInit, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError {
-
+    implements
+        OnTaurusModelInit,
+        OnTaurusModelLoad,
+        OnTaurusModelChange,
+        OnTaurusModelError
+{
     readonly uuid = 'DataJobExecutionsPageComponent';
 
     teamName: string;
@@ -62,7 +69,10 @@ export class DataJobExecutionsPageComponent
     loading = true;
     initialLoading = true;
 
-    dateTimeFilter: { fromTime: Date; toTime: Date } = { fromTime: null, toTime: null };
+    dateTimeFilter: { fromTime: Date; toTime: Date } = {
+        fromTime: null,
+        toTime: null,
+    };
 
     constructor(
         componentService: ComponentService,
@@ -70,47 +80,40 @@ export class DataJobExecutionsPageComponent
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
-        private readonly errorHandlerService: ErrorHandlerService) {
-
+        private readonly errorHandlerService: ErrorHandlerService
+    ) {
         super(componentService, navigationService, activatedRoute);
     }
 
     doNavigateBack(): void {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.navigateBack({ '$.team': this.teamName })
-            .then();
+        this.navigateBack({ '$.team': this.teamName }).then();
     }
 
     onTimeFilterChange(dateTimeFilter: { fromTime: Date; toTime: Date }): void {
         this.dateTimeFilter = dateTimeFilter;
 
-        const modelFilter: DataJobExecutionFilter = this
-            .model
-            .getComponentState()
-            .requestParams
-            .get(FILTER_REQ_PARAM) ?? {};
+        const modelFilter: DataJobExecutionFilter =
+            this.model
+                .getComponentState()
+                .requestParams.get(FILTER_REQ_PARAM) ?? {};
 
-        if (CollectionsUtil.isNil(dateTimeFilter.fromTime) || CollectionsUtil.isNil(dateTimeFilter.toTime)) {
+        if (
+            CollectionsUtil.isNil(dateTimeFilter.fromTime) ||
+            CollectionsUtil.isNil(dateTimeFilter.toTime)
+        ) {
             delete modelFilter.startTimeGte;
             delete modelFilter.startTimeLte;
 
-            this.model
-                .withRequestParam(
-                    FILTER_REQ_PARAM,
-                    {
-                        ...modelFilter
-                    } as DataJobExecutionFilter
-                );
+            this.model.withRequestParam(FILTER_REQ_PARAM, {
+                ...modelFilter,
+            } as DataJobExecutionFilter);
         } else {
-            this.model
-                .withRequestParam(
-                    FILTER_REQ_PARAM,
-                    {
-                        ...modelFilter,
-                        startTimeGte: dateTimeFilter.fromTime,
-                        startTimeLte: dateTimeFilter.toTime
-                    } as DataJobExecutionFilter
-                );
+            this.model.withRequestParam(FILTER_REQ_PARAM, {
+                ...modelFilter,
+                startTimeGte: dateTimeFilter.fromTime,
+                startTimeLte: dateTimeFilter.toTime,
+            } as DataJobExecutionFilter);
         }
 
         this.fetchDataJobExecutions();
@@ -123,7 +126,10 @@ export class DataJobExecutionsPageComponent
             this.model
                 .withRequestParam(TEAM_NAME_REQ_PARAM, this.teamName)
                 .withRequestParam(JOB_NAME_REQ_PARAM, this.jobName)
-                .withRequestParam(ORDER_REQ_PARAM, { property: 'startTime', direction: ASC } as DataJobExecutionOrder)
+                .withRequestParam(ORDER_REQ_PARAM, {
+                    property: 'startTime',
+                    direction: ASC,
+                } as DataJobExecutionOrder)
         );
     }
 
@@ -133,9 +139,7 @@ export class DataJobExecutionsPageComponent
     onModelInit(): void {
         this.routerService
             .getState()
-            .pipe(
-                take(1)
-            )
+            .pipe(take(1))
             .subscribe((routeState) => this._initialize(routeState));
     }
 
@@ -152,14 +156,20 @@ export class DataJobExecutionsPageComponent
      */
     onModelChange(model: ComponentModel, task: string): void {
         if (task === TASK_LOAD_JOB_EXECUTIONS) {
-            const executions: DataJobExecutions = model.getComponentState().data.get(JOB_EXECUTIONS_DATA_KEY);
+            const executions: DataJobExecutions = model
+                .getComponentState()
+                .data.get(JOB_EXECUTIONS_DATA_KEY);
             if (executions) {
                 this.dataJobsService.notifyForJobExecutions([...executions]);
 
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                const runningExecution = executions.find(DataJobUtil.isJobRunningPredicate);
+                const runningExecution = executions.find(
+                    DataJobUtil.isJobRunningPredicate
+                );
                 if (runningExecution) {
-                    this.dataJobsService.notifyForRunningJobExecutionId(runningExecution.id);
+                    this.dataJobsService.notifyForRunningJobExecutionId(
+                        runningExecution.id
+                    );
                 }
             }
         }
@@ -169,21 +179,24 @@ export class DataJobExecutionsPageComponent
      * @inheritDoc
      */
     onModelError(model: ComponentModel): void {
-        const error = ErrorUtil.extractError(
-            model.getComponentState().error
-        );
+        const error = ErrorUtil.extractError(model.getComponentState().error);
 
         this.errorHandlerService.processError(error);
     }
 
     private _initialize(state: RouteState): void {
-        const teamParamKey = state.getData<DataPipelinesRouteData['teamParamKey']>('teamParamKey');
+        const teamParamKey =
+            state.getData<DataPipelinesRouteData['teamParamKey']>(
+                'teamParamKey'
+            );
         this.teamName = state.getParam(teamParamKey);
 
-        const jobParamKey = state.getData<DataPipelinesRouteData['jobParamKey']>('jobParamKey');
+        const jobParamKey =
+            state.getData<DataPipelinesRouteData['jobParamKey']>('jobParamKey');
         this.jobName = state.getParam(jobParamKey);
 
-        this.isJobEditable = !!state.getData<DataPipelinesRouteData['editable']>('editable');
+        this.isJobEditable =
+            !!state.getData<DataPipelinesRouteData['editable']>('editable');
 
         this._subscribeForExecutions();
 
@@ -192,17 +205,25 @@ export class DataJobExecutionsPageComponent
 
     private _subscribeForExecutions(): void {
         this.subscriptions.push(
-            this.dataJobsService.getNotifiedForJobExecutions()
+            this.dataJobsService
+                .getNotifiedForJobExecutions()
                 .pipe(
                     // eslint-disable-next-line @typescript-eslint/unbound-method
-                    map(DataJobExecutionToGridDataJobExecution.convertToDataJobExecution)
+                    map(
+                        DataJobExecutionToGridDataJobExecution.convertToDataJobExecution
+                    )
                 )
                 .subscribe({
                     next: (values) => {
                         this.jobExecutions = values.filter((ex) => {
-                            if (CollectionsUtil.isNil(this.dateTimeFilter.fromTime) ||
-                                CollectionsUtil.isNil(this.dateTimeFilter.toTime)) {
-
+                            if (
+                                CollectionsUtil.isNil(
+                                    this.dateTimeFilter.fromTime
+                                ) ||
+                                CollectionsUtil.isNil(
+                                    this.dateTimeFilter.toTime
+                                )
+                            ) {
                                 return true;
                             }
 
@@ -212,24 +233,37 @@ export class DataJobExecutionsPageComponent
 
                             const startTime = new Date(ex.startTime);
 
-                            return startTime > this.dateTimeFilter.fromTime && startTime < this.dateTimeFilter.toTime;
+                            return (
+                                startTime > this.dateTimeFilter.fromTime &&
+                                startTime < this.dateTimeFilter.toTime
+                            );
                         });
 
                         if (this.jobExecutions.length > 0) {
                             const newMinJobExecutionsTime = new Date(
-                                this.jobExecutions.reduce((prev, curr) => prev.startTime < curr.startTime ? prev : curr).startTime
+                                this.jobExecutions.reduce((prev, curr) =>
+                                    prev.startTime < curr.startTime
+                                        ? prev
+                                        : curr
+                                ).startTime
                             );
 
-                            if (CollectionsUtil.isNil(this.minJobExecutionTime) ||
-                                (newMinJobExecutionsTime.getTime() - this.minJobExecutionTime.getTime()) !== 0) {
-
-                                this.minJobExecutionTime = newMinJobExecutionsTime;
+                            if (
+                                CollectionsUtil.isNil(
+                                    this.minJobExecutionTime
+                                ) ||
+                                newMinJobExecutionsTime.getTime() -
+                                    this.minJobExecutionTime.getTime() !==
+                                    0
+                            ) {
+                                this.minJobExecutionTime =
+                                    newMinJobExecutionsTime;
                             }
                         }
                     },
                     error: (error: unknown) => {
                         console.error(error);
-                    }
+                    },
                 })
         );
     }

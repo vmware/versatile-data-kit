@@ -25,10 +25,15 @@ import {
     RouterService,
     RouterState,
     SystemEventDispatcher,
-    URLStateManager
-} from '@vdk/shared';
+    URLStateManager,
+} from '@versatiledatakit/shared';
 
-import { DATA_PIPELINES_CONFIGS, DataJobDetails, DataJobPage, DisplayMode } from '../../../../model';
+import {
+    DATA_PIPELINES_CONFIGS,
+    DataJobDetails,
+    DataJobPage,
+    DisplayMode,
+} from '../../../../model';
 
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
@@ -49,7 +54,7 @@ describe('DataJobsExploreGridComponent', () => {
     let fixture: ComponentFixture<DataJobsExploreGridComponent>;
 
     const TEST_JOB = {
-        jobName: 'job001'
+        jobName: 'job001',
     };
 
     beforeAll(() => {
@@ -61,38 +66,57 @@ describe('DataJobsExploreGridComponent', () => {
     beforeEach(() => {
         const activatedRouteStub = () => ({
             queryParams: {
-                subscribe: CallFake
+                subscribe: CallFake,
             },
-            snapshot: null
+            snapshot: null,
         });
         const routerStub = () => ({
-            url: '/explore/data-jobs'
+            url: '/explore/data-jobs',
         });
 
-        componentServiceStub = jasmine.createSpyObj<ComponentService>('componentService', ['init', 'getModel', 'idle', 'update']);
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['navigate', 'navigateTo', 'navigateBack']);
+        componentServiceStub = jasmine.createSpyObj<ComponentService>(
+            'componentService',
+            ['init', 'getModel', 'idle', 'update']
+        );
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
+            'navigationService',
+            ['navigate', 'navigateTo', 'navigateBack']
+        );
         dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>(
             'dataJobsService',
             ['getJobs', 'getJobDetails', 'getJobExecutions']
         );
-        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>('dataJobsService', [
-            'loadJobs',
-            'notifyForRunningJobExecutionId',
-            'notifyForJobExecutions',
-            'notifyForTeamImplicitly',
-            'getNotifiedForRunningJobExecutionId',
-            'getNotifiedForJobExecutions',
-            'getNotifiedForTeamImplicitly'
+        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
+            'dataJobsService',
+            [
+                'loadJobs',
+                'notifyForRunningJobExecutionId',
+                'notifyForJobExecutions',
+                'notifyForTeamImplicitly',
+                'getNotifiedForRunningJobExecutionId',
+                'getNotifiedForJobExecutions',
+                'getNotifiedForTeamImplicitly',
+            ]
+        );
+        locationStub = jasmine.createSpyObj<Location>('location', [
+            'path',
+            'go',
         ]);
-        locationStub = jasmine.createSpyObj<Location>('location', ['path', 'go']);
-        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState', 'get']);
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', [
-            'processError',
-            'handleError'
-        ]);
+        routerServiceStub = jasmine.createSpyObj<RouterService>(
+            'routerService',
+            ['getState', 'get']
+        );
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
+            'errorHandlerService',
+            ['processError', 'handleError']
+        );
 
-        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(new Subject());
-        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(new BehaviorSubject('taurus'));
+        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
+            new Subject()
+        );
+        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
+            new BehaviorSubject('taurus')
+        );
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
@@ -110,19 +134,25 @@ describe('DataJobsExploreGridComponent', () => {
                 {
                     provide: DATA_PIPELINES_CONFIGS,
                     useFactory: () => ({
-                        defaultOwnerTeamName: 'all'
-                    })
+                        defaultOwnerTeamName: 'all',
+                    }),
                 },
                 { provide: RouterService, useValue: routerServiceStub },
                 { provide: ComponentService, useValue: componentServiceStub },
                 { provide: NavigationService, useValue: navigationServiceStub },
                 { provide: ActivatedRoute, useFactory: activatedRouteStub },
-                { provide: DataJobsApiService, useValue: dataJobsApiServiceStub },
+                {
+                    provide: DataJobsApiService,
+                    useValue: dataJobsApiServiceStub,
+                },
                 { provide: DataJobsService, useValue: dataJobsServiceStub },
                 { provide: Location, useValue: locationStub },
                 { provide: Router, useFactory: routerStub },
-                { provide: ErrorHandlerService, useValue: errorHandlerServiceStub }
-            ]
+                {
+                    provide: ErrorHandlerService,
+                    useValue: errorHandlerServiceStub,
+                },
+            ],
         });
 
         fixture = TestBed.createComponent(DataJobsExploreGridComponent);
@@ -130,18 +160,26 @@ describe('DataJobsExploreGridComponent', () => {
         component.teamNameFilter = 'testFilterTeam';
         component.model = componentModelStub;
 
-        dataJobsApiServiceStub.getJobs.and.returnValue(of({
-            data: {
-                content: [],
-                totalItems: 0
-            }
-        } as ApolloQueryResult<DataJobPage>));
-        dataJobsApiServiceStub.getJobDetails.and.returnValue(of(null) as Observable<DataJobDetails>);
-        dataJobsApiServiceStub.getJobExecutions.and.returnValue(of({ content: [], totalItems: 0, totalPages: 0 }));
+        dataJobsApiServiceStub.getJobs.and.returnValue(
+            of({
+                data: {
+                    content: [],
+                    totalItems: 0,
+                },
+            } as ApolloQueryResult<DataJobPage>)
+        );
+        dataJobsApiServiceStub.getJobDetails.and.returnValue(
+            of(null) as Observable<DataJobDetails>
+        );
+        dataJobsApiServiceStub.getJobExecutions.and.returnValue(
+            of({ content: [], totalItems: 0, totalPages: 0 })
+        );
 
         locationStub.path.and.returnValue('/explore/data-jobs');
 
-        spyOn(SystemEventDispatcher, 'send').and.returnValue(Promise.resolve(true));
+        spyOn(SystemEventDispatcher, 'send').and.returnValue(
+            Promise.resolve(true)
+        );
     });
 
     it('can load instance', () => {
@@ -166,7 +204,10 @@ describe('DataJobsExploreGridComponent', () => {
 
     describe('urlUpdateStrategy', () => {
         it('should verify the behaviour of _doUrlUpdate when urlUpdateStrategy is default (updateRouter)', () => {
-            const navigateToUrlSpy = spyOn(component.urlStateManager, 'navigateToUrl').and.returnValue(Promise.resolve(true));
+            const navigateToUrlSpy = spyOn(
+                component.urlStateManager,
+                'navigateToUrl'
+            ).and.returnValue(Promise.resolve(true));
 
             // @ts-ignore
             component._doUrlUpdate();
@@ -175,7 +216,10 @@ describe('DataJobsExploreGridComponent', () => {
         });
 
         it('should verify the behaviour of _doUrlUpdate when urlUpdateStrategy is changed (updateLocation)', () => {
-            const locationToURLSpy = spyOn(component.urlStateManager, 'locationToURL').and.callFake(CallFake);
+            const locationToURLSpy = spyOn(
+                component.urlStateManager,
+                'locationToURL'
+            ).and.callFake(CallFake);
             component.urlUpdateStrategy = 'updateLocation';
 
             // @ts-ignore
@@ -188,31 +232,49 @@ describe('DataJobsExploreGridComponent', () => {
     describe('urlStateManager', () => {
         it('should verify will invoke default urlStateManager (locally created)', () => {
             // Given
-            const setQueryParamSpy = spyOn(component.urlStateManager, 'setQueryParam').and.callFake(CallFake);
+            const setQueryParamSpy = spyOn(
+                component.urlStateManager,
+                'setQueryParam'
+            ).and.callFake(CallFake);
 
             // When
             component.search('search');
 
             // Then
-            expect(setQueryParamSpy).toHaveBeenCalledWith(QUERY_PARAM_SEARCH, 'search');
+            expect(setQueryParamSpy).toHaveBeenCalledWith(
+                QUERY_PARAM_SEARCH,
+                'search'
+            );
         });
 
         it('should verify will invoke external urlStateManager (dependency injected)', () => {
             // Given
-            const urlStateManagerStub = new URLStateManager('baseUrl', locationStub);
-            const setQueryParamSpy = spyOn(urlStateManagerStub, 'setQueryParam').and.callFake(CallFake);
+            const urlStateManagerStub = new URLStateManager(
+                'baseUrl',
+                locationStub
+            );
+            const setQueryParamSpy = spyOn(
+                urlStateManagerStub,
+                'setQueryParam'
+            ).and.callFake(CallFake);
 
             // When
             component.urlStateManager = urlStateManagerStub;
             component.search('search');
 
             // Then
-            expect(setQueryParamSpy).toHaveBeenCalledWith(QUERY_PARAM_SEARCH, 'search');
+            expect(setQueryParamSpy).toHaveBeenCalledWith(
+                QUERY_PARAM_SEARCH,
+                'search'
+            );
         });
 
         it('should verify will invoke default urlStateManager (dependency injection is null or undefined)', () => {
             // Given
-            const setQueryParamSpy = spyOn(component.urlStateManager, 'setQueryParam').and.callFake(CallFake);
+            const setQueryParamSpy = spyOn(
+                component.urlStateManager,
+                'setQueryParam'
+            ).and.callFake(CallFake);
 
             // When
             component.urlStateManager = null;
@@ -221,18 +283,26 @@ describe('DataJobsExploreGridComponent', () => {
             component.search('search test value 2');
 
             // Then
-            expect(setQueryParamSpy.calls.argsFor(0)).toEqual([QUERY_PARAM_SEARCH, 'search test value 1']);
-            expect(setQueryParamSpy.calls.argsFor(1)).toEqual([QUERY_PARAM_SEARCH, 'search test value 2']);
+            expect(setQueryParamSpy.calls.argsFor(0)).toEqual([
+                QUERY_PARAM_SEARCH,
+                'search test value 1',
+            ]);
+            expect(setQueryParamSpy.calls.argsFor(1)).toEqual([
+                QUERY_PARAM_SEARCH,
+                'search test value 2',
+            ]);
         });
     });
 
     describe('handleStateChange', () => {
         it('makes expected calls', () => {
-            const clrDatagridStateInterfaceStub = { filters: [] } as ClrDatagridStateInterface;
+            const clrDatagridStateInterfaceStub = {
+                filters: [],
+            } as ClrDatagridStateInterface;
             clrDatagridStateInterfaceStub.filters.push({
                 property: 'search_prop',
                 pattern: '%search%',
-                sort: ASC
+                sort: ASC,
             });
             component.gridState = clrDatagridStateInterfaceStub;
 
@@ -249,7 +319,9 @@ describe('DataJobsExploreGridComponent', () => {
     describe('viewJobDetails', () => {
         it('skips viewJobDetails for undefined job', () => {
             // Given
-            const navigateToSpy = spyOn(component, 'navigateTo').and.callFake(CallFake);
+            const navigateToSpy = spyOn(component, 'navigateTo').and.callFake(
+                CallFake
+            );
 
             // When
             component.navigateToJobDetails();
@@ -261,17 +333,23 @@ describe('DataJobsExploreGridComponent', () => {
 
         it('opens viewJobDetails for valid job', () => {
             // Given
-            const navigateToSpy = spyOn(component, 'navigateTo').and.returnValue(Promise.resolve(true));
+            const navigateToSpy = spyOn(
+                component,
+                'navigateTo'
+            ).and.returnValue(Promise.resolve(true));
             component.ngOnInit();
 
             // When
-            component.navigateToJobDetails({ jobName: 'job001', config: { team: 'team007' } });
+            component.navigateToJobDetails({
+                jobName: 'job001',
+                config: { team: 'team007' },
+            });
 
             // Then
             expect(component.selectedJob).toBeDefined();
             expect(navigateToSpy).toHaveBeenCalledWith({
                 '$.team': 'team007',
-                '$.job': 'job001'
+                '$.job': 'job001',
             });
         });
     });

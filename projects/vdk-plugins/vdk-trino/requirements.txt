@@ -2,7 +2,7 @@
 # testing requirements
 click
 docker-compose
-pytest-docker
+testcontainers
 trino
 vdk-core
 vdk-test-utils

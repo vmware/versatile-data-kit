@@ -5,7 +5,7 @@
 
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
 
-import { TaurusObject } from '@vdk/shared';
+import { TaurusObject } from '@versatiledatakit/shared';
 
 import { ModalOptions } from '../../model';
 
@@ -13,9 +13,11 @@ import { ModalOptions } from '../../model';
 export abstract class ModalComponentDirective extends TaurusObject {
     @Input() options: ModalOptions;
 
-    @Output() optionsChange: EventEmitter<ModalOptions> = new EventEmitter<ModalOptions>();
+    @Output() optionsChange: EventEmitter<ModalOptions> =
+        new EventEmitter<ModalOptions>();
 
-    @Output() cancelAction: EventEmitter<undefined> = new EventEmitter<undefined>();
+    @Output() cancelAction: EventEmitter<undefined> =
+        new EventEmitter<undefined>();
 
     constructor() {
         super();

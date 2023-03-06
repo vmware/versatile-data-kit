@@ -6,10 +6,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'extractContacts'
+    name: 'extractContacts',
 })
 export class ExtractContactsPipe implements PipeTransform {
-
     static transform(contacts: string[]): string[] {
         if (Array.isArray(contacts) && contacts.length) {
             return contacts;
@@ -21,5 +20,4 @@ export class ExtractContactsPipe implements PipeTransform {
     transform(contacts: string[]): string[] {
         return ExtractContactsPipe.transform(contacts);
     }
-
 }

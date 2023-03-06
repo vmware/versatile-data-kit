@@ -6,13 +6,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import { FormatSchedulePipe } from '../../shared/pipes';
 
 import { DataJobsApiService } from '../../services';
 
-import { DataJobsWidgetOneComponent, WidgetTab } from './data-jobs-widget-one.component';
+import {
+    DataJobsWidgetOneComponent,
+    WidgetTab,
+} from './data-jobs-widget-one.component';
 
 describe('DataJobsWidgetOneComponent', () => {
     let errorHandlerServiceStub: jasmine.SpyObj<ErrorHandlerService>;
@@ -23,30 +26,44 @@ describe('DataJobsWidgetOneComponent', () => {
     beforeEach(async () => {
         // mock service
         const dataJobsServiceStub = () => ({
-            getJobs: () => of({
-                data: {
-                    totalItems: 1, totalPages: 11, content: [
-                        {
-                            jobName: 'test-job',
-                            item: { config: { schedule: { scheduleCron: '*/5 * * * *' } } }
-                        }
-                    ]
-                }
-            })
+            getJobs: () =>
+                of({
+                    data: {
+                        totalItems: 1,
+                        totalPages: 11,
+                        content: [
+                            {
+                                jobName: 'test-job',
+                                item: {
+                                    config: {
+                                        schedule: {
+                                            scheduleCron: '*/5 * * * *',
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                }),
         });
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', [
-            'processError',
-            'handleError'
-        ]);
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
+            'errorHandlerService',
+            ['processError', 'handleError']
+        );
 
         await TestBed.configureTestingModule({
             declarations: [DataJobsWidgetOneComponent, FormatSchedulePipe],
             providers: [
-                { provide: DataJobsApiService, useFactory: dataJobsServiceStub },
-                { provide: ErrorHandlerService, useValue: errorHandlerServiceStub }
-            ]
-        })
-                     .compileComponents();
+                {
+                    provide: DataJobsApiService,
+                    useFactory: dataJobsServiceStub,
+                },
+                {
+                    provide: ErrorHandlerService,
+                    useValue: errorHandlerServiceStub,
+                },
+            ],
+        }).compileComponents();
     });
 
     beforeEach(() => {
@@ -61,9 +78,8 @@ describe('DataJobsWidgetOneComponent', () => {
 
     describe('ngOnInit', () => {
         it('make expected calls', () => {
-            const dataJobsServiceStub: DataJobsApiService = fixture.debugElement.injector.get(
-                DataJobsApiService
-            );
+            const dataJobsServiceStub: DataJobsApiService =
+                fixture.debugElement.injector.get(DataJobsApiService);
             spyOn(dataJobsServiceStub, 'getJobs').and.callThrough();
             component.ngOnInit();
             expect(dataJobsServiceStub.getJobs).toHaveBeenCalled();
@@ -89,10 +105,11 @@ describe('DataJobsWidgetOneComponent', () => {
     describe('handle errors', () => {
         it('should catch error when API fails', () => {
             expect(component.errorJobs).toEqual(false);
-            const dataJobsServiceStub: DataJobsApiService = fixture.debugElement.injector.get(
-                DataJobsApiService
+            const dataJobsServiceStub: DataJobsApiService =
+                fixture.debugElement.injector.get(DataJobsApiService);
+            spyOn(dataJobsServiceStub, 'getJobs').and.returnValue(
+                throwError(() => true)
             );
-            spyOn(dataJobsServiceStub, 'getJobs').and.returnValue(throwError(() => true));
             component.refresh(1, WidgetTab.DATAJOBS);
 
             component.jobs$.subscribe();

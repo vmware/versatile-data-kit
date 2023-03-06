@@ -14,9 +14,14 @@ import { ApolloQueryResult, gql, InMemoryCache } from '@apollo/client/core';
 import { Apollo, ApolloBase, QueryRef } from 'apollo-angular';
 import { HttpLink, HttpLinkHandler } from 'apollo-angular/http';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
-import { DataJobExecutionsPage, DataJobExecutionsReqVariables, DataJobPage, DataJobReqVariables } from '../model';
+import {
+    DataJobExecutionsPage,
+    DataJobExecutionsReqVariables,
+    DataJobPage,
+    DataJobReqVariables,
+} from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 
@@ -30,15 +35,25 @@ describe('DataJobsBaseApiService', () => {
     let apolloBaseStub: jasmine.SpyObj<ApolloBase>;
 
     beforeEach(() => {
-        apolloStub = jasmine.createSpyObj<Apollo>('apolloService', ['use', 'createNamed']);
-        httpLinkStub = jasmine.createSpyObj<HttpLink>('httpLinkService', ['create']);
-        httpClientStub = jasmine.createSpyObj<HttpClient>('httpClientService', ['request']);
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', [
-            'processError',
-            'handleError'
+        apolloStub = jasmine.createSpyObj<Apollo>('apolloService', [
+            'use',
+            'createNamed',
         ]);
+        httpLinkStub = jasmine.createSpyObj<HttpLink>('httpLinkService', [
+            'create',
+        ]);
+        httpClientStub = jasmine.createSpyObj<HttpClient>('httpClientService', [
+            'request',
+        ]);
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
+            'errorHandlerService',
+            ['processError', 'handleError']
+        );
 
-        apolloBaseStub = jasmine.createSpyObj<ApolloBase>('apolloBase', ['query', 'watchQuery']);
+        apolloBaseStub = jasmine.createSpyObj<ApolloBase>('apolloBase', [
+            'query',
+            'watchQuery',
+        ]);
 
         TestBed.configureTestingModule({
             providers: [
@@ -46,8 +61,11 @@ describe('DataJobsBaseApiService', () => {
                 { provide: Apollo, useValue: apolloStub },
                 { provide: HttpLink, useValue: httpLinkStub },
                 { provide: HttpClient, useValue: httpClientStub },
-                { provide: ErrorHandlerService, useValue: errorHandlerServiceStub }
-            ]
+                {
+                    provide: ErrorHandlerService,
+                    useValue: errorHandlerServiceStub,
+                },
+            ],
         });
 
         service = TestBed.inject(DataJobsBaseApiService);
@@ -82,17 +100,17 @@ describe('DataJobsBaseApiService', () => {
                     pageNumber: 2,
                     pageSize: 25,
                     filter: [],
-                    search: 'sup'
+                    search: 'sup',
                 };
                 const apolloLinkHandlerStub: HttpLinkHandler = {} as any;
                 const apolloMockResponse: ApolloQueryResult<DataJobPage> = {
                     data: {
                         content: [],
                         totalItems: 25,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     networkStatus: 7,
-                    loading: false
+                    loading: false,
                 };
 
                 apolloBaseStub.query.and.returnValue(of(apolloMockResponse));
@@ -103,31 +121,41 @@ describe('DataJobsBaseApiService', () => {
                 let dataJobPage: DataJobPage;
                 service
                     .getJobs(ownerTeam, gqlQuery, dataJobReqVariables)
-                    .subscribe((r) => dataJobPage = r.data);
+                    .subscribe((r) => (dataJobPage = r.data));
 
                 // Then
                 expect(apolloStub.use.calls.argsFor(0)).toEqual([ownerTeam]);
                 expect(httpLinkStub.create).toHaveBeenCalledWith({
-                    uri: `/data-jobs/for-team/${ ownerTeam }/jobs`,
-                    method: 'GET'
+                    uri: `/data-jobs/for-team/${ownerTeam}/jobs`,
+                    method: 'GET',
                 });
-                expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(ownerTeam);
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].cache).toEqual(jasmine.any(InMemoryCache));
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(apolloLinkHandlerStub);
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions).toEqual({
+                expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(
+                    ownerTeam
+                );
+                expect(
+                    apolloStub.createNamed.calls.argsFor(0)[1].cache
+                ).toEqual(jasmine.any(InMemoryCache));
+                expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(
+                    apolloLinkHandlerStub
+                );
+                expect(
+                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions
+                ).toEqual({
                     watchQuery: {
                         fetchPolicy: 'no-cache',
-                        errorPolicy: 'all'
+                        errorPolicy: 'all',
                     },
                     query: {
                         fetchPolicy: 'no-cache',
-                        errorPolicy: 'all'
-                    }
+                        errorPolicy: 'all',
+                    },
                 });
                 expect(apolloStub.use.calls.argsFor(1)).toEqual([ownerTeam]);
                 expect(apolloBaseStub.query).toHaveBeenCalledWith({
-                    query: gql`${ gqlQuery }`,
-                    variables: dataJobReqVariables
+                    query: gql`
+                        ${gqlQuery}
+                    `,
+                    variables: dataJobReqVariables,
                 });
                 expect(dataJobPage).toBe(apolloMockResponse.data);
             });
@@ -156,20 +184,23 @@ describe('DataJobsBaseApiService', () => {
                     pageNumber: 2,
                     pageSize: 25,
                     filter: [],
-                    search: 'sup'
+                    search: 'sup',
                 };
                 const apolloLinkHandlerStub = {} as HttpLinkHandler;
                 const apolloQueryResult: ApolloQueryResult<DataJobPage> = {
                     data: {
                         content: [],
                         totalItems: 25,
-                        totalPages: 1
+                        totalPages: 1,
                     },
                     networkStatus: 7,
-                    loading: false
+                    loading: false,
                 };
-                const apolloMockResponse: QueryRef<DataJobPage, DataJobReqVariables> = {
-                    valueChanges: of(apolloQueryResult)
+                const apolloMockResponse: QueryRef<
+                    DataJobPage,
+                    DataJobReqVariables
+                > = {
+                    valueChanges: of(apolloQueryResult),
                 } as QueryRef<DataJobPage, DataJobReqVariables>;
 
                 apolloBaseStub.watchQuery.and.returnValue(apolloMockResponse);
@@ -180,32 +211,41 @@ describe('DataJobsBaseApiService', () => {
                 let dataJobPage: DataJobPage;
                 service
                     .watchForJobs(ownerTeam, gqlQuery, dataJobReqVariables)
-                    .valueChanges
-                    .subscribe((r) => dataJobPage = r.data);
+                    .valueChanges.subscribe((r) => (dataJobPage = r.data));
 
                 // Then
                 expect(apolloStub.use.calls.argsFor(0)).toEqual([ownerTeam]);
                 expect(httpLinkStub.create).toHaveBeenCalledWith({
-                    uri: `/data-jobs/for-team/${ ownerTeam }/jobs`,
-                    method: 'GET'
+                    uri: `/data-jobs/for-team/${ownerTeam}/jobs`,
+                    method: 'GET',
                 });
-                expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(ownerTeam);
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].cache).toEqual(jasmine.any(InMemoryCache));
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(apolloLinkHandlerStub);
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions).toEqual({
+                expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(
+                    ownerTeam
+                );
+                expect(
+                    apolloStub.createNamed.calls.argsFor(0)[1].cache
+                ).toEqual(jasmine.any(InMemoryCache));
+                expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(
+                    apolloLinkHandlerStub
+                );
+                expect(
+                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions
+                ).toEqual({
                     watchQuery: {
                         fetchPolicy: 'no-cache',
-                        errorPolicy: 'all'
+                        errorPolicy: 'all',
                     },
                     query: {
                         fetchPolicy: 'no-cache',
-                        errorPolicy: 'all'
-                    }
+                        errorPolicy: 'all',
+                    },
                 });
                 expect(apolloStub.use.calls.argsFor(1)).toEqual([ownerTeam]);
                 expect(apolloBaseStub.watchQuery).toHaveBeenCalledWith({
-                    query: gql`${ gqlQuery }`,
-                    variables: dataJobReqVariables
+                    query: gql`
+                        ${gqlQuery}
+                    `,
+                    variables: dataJobReqVariables,
                 });
                 expect(dataJobPage).toBe(apolloQueryResult.data);
             });
@@ -240,18 +280,19 @@ describe('DataJobsBaseApiService', () => {
                 const ownerTeam = 'supercollider_test';
                 const dataJobReqVariables: DataJobExecutionsReqVariables = {
                     pageNumber: 2,
-                    pageSize: 25
+                    pageSize: 25,
                 };
                 const apolloLinkHandlerStub = {} as HttpLinkHandler;
-                const apolloMockResponse: ApolloQueryResult<DataJobExecutionsPage> = {
-                    data: {
-                        content: [],
-                        totalItems: 25,
-                        totalPages: 1
-                    },
-                    networkStatus: 7,
-                    loading: false
-                };
+                const apolloMockResponse: ApolloQueryResult<DataJobExecutionsPage> =
+                    {
+                        data: {
+                            content: [],
+                            totalItems: 25,
+                            totalPages: 1,
+                        },
+                        networkStatus: 7,
+                        loading: false,
+                    };
 
                 apolloBaseStub.query.and.returnValue(of(apolloMockResponse));
                 apolloStub.use.and.returnValues(null, apolloBaseStub);
@@ -261,31 +302,41 @@ describe('DataJobsBaseApiService', () => {
                 let dataJobExecutionsPage: DataJobExecutionsPage;
                 service
                     .getExecutions(ownerTeam, gqlQuery, dataJobReqVariables)
-                    .subscribe((r) => dataJobExecutionsPage = r.data);
+                    .subscribe((r) => (dataJobExecutionsPage = r.data));
 
                 // Then
                 expect(apolloStub.use.calls.argsFor(0)).toEqual([ownerTeam]);
                 expect(httpLinkStub.create).toHaveBeenCalledWith({
-                    uri: `/data-jobs/for-team/${ ownerTeam }/jobs`,
-                    method: 'GET'
+                    uri: `/data-jobs/for-team/${ownerTeam}/jobs`,
+                    method: 'GET',
                 });
-                expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(ownerTeam);
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].cache).toEqual(jasmine.any(InMemoryCache));
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(apolloLinkHandlerStub);
-                expect(apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions).toEqual({
+                expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(
+                    ownerTeam
+                );
+                expect(
+                    apolloStub.createNamed.calls.argsFor(0)[1].cache
+                ).toEqual(jasmine.any(InMemoryCache));
+                expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(
+                    apolloLinkHandlerStub
+                );
+                expect(
+                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions
+                ).toEqual({
                     watchQuery: {
                         fetchPolicy: 'no-cache',
-                        errorPolicy: 'all'
+                        errorPolicy: 'all',
                     },
                     query: {
                         fetchPolicy: 'no-cache',
-                        errorPolicy: 'all'
-                    }
+                        errorPolicy: 'all',
+                    },
                 });
                 expect(apolloStub.use.calls.argsFor(1)).toEqual([ownerTeam]);
                 expect(apolloBaseStub.query).toHaveBeenCalledWith({
-                    query: gql`${ gqlQuery }`,
-                    variables: dataJobReqVariables
+                    query: gql`
+                        ${gqlQuery}
+                    `,
+                    variables: dataJobReqVariables,
                 });
                 expect(dataJobExecutionsPage).toBe(apolloMockResponse.data);
             });

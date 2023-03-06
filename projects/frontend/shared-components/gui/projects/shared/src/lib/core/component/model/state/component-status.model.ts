@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -35,4 +33,9 @@ export const FAILED = 'Failed';
 /**
  * ** Status types.
  */
-export type StatusType = typeof INITIALIZED | typeof IDLE | typeof LOADING | typeof LOADED | typeof FAILED;
+export type StatusType =
+	| typeof INITIALIZED
+	| typeof IDLE
+	| typeof LOADING
+	| typeof LOADED
+	| typeof FAILED;
