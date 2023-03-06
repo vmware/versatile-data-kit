@@ -314,8 +314,8 @@ describe('DataJobsApiService', () => {
 
     describe('validateModuleConfig', () => {
         it('validates dataPipelinesModuleConfig with empty defaultOwnerTeamName', () => {
-            // @ts-ignore
             expect(() =>
+                // @ts-ignore
                 service._validateModuleConfig({
                     defaultOwnerTeamName: '',
                 })
@@ -323,8 +323,8 @@ describe('DataJobsApiService', () => {
         });
 
         it('validates dataPipelinesModuleConfig with reserved defaultOwnerTeamName', () => {
-            // @ts-ignore
             expect(() =>
+                // @ts-ignore
                 service._validateModuleConfig({
                     defaultOwnerTeamName: 'default',
                 })

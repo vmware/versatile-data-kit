@@ -237,8 +237,8 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
      * @inheritDoc
      */
     ngOnInit(): void {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this._refreshIntervalRef = setInterval(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._refreshMaxTime.bind(this),
             15 * 1000
         ); // Update max time every 15s
