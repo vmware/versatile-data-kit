@@ -109,9 +109,9 @@ frontend-shared-components-release:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   stage: release
   before_script:
-    - cd projects/frontend/shared-components/gui
+    - cd projects/frontend/
   script:
-    - ../../cicd/publish_package_npm.sh shared $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
+    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
