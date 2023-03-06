@@ -8,6 +8,11 @@
 # It is meant to publish the release NPM artifact of a subproject in `projects/frontend/`:
 # * shared-components
 # * data-pipelines
+#
+# Usage:
+# ./publish_package_npm.sh <component> <minor_version_unique> <token> [npm_registry_optional]
+# Example:
+# ./publish_package_npm.sh data-pipelines 123456 npm_token registry.npmjs.org
 ###
 
 if ! which npm >/dev/null 2>&1 ; then
@@ -52,9 +57,9 @@ npm_token=$3
 # optional; defaults to registry.npmjs.org public repo
 if [ $# -eq 3 ]
   then
-    npm_registry_uri="registry.npmjs.org"
+    npm_registry="registry.npmjs.org"
   else
-    npm_registry_uri=$4
+    npm_registry=$4
 fi
 
 
@@ -78,7 +83,7 @@ package_version=$(awk -v id=$minor_version_unique 'BEGIN { FS="."; OFS = "."; OR
 npm version "${package_version}"
 
 # Auth with NPM registry
-npm set //$npm_registry_uri/:_authToken $npm_token
+npm set //$npm_registry/:_authToken $npm_token
 
 # Publish
 echo "Publishing @vdk/$(basename "$PWD"):${package_version}..."
