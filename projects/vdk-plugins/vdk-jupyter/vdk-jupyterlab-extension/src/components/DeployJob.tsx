@@ -66,8 +66,8 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
                     <input type="text" id="vdkVersion" className='jp-vdk-input' placeholder={this.props.vdkVersion} onChange={this.onVdkVersionChange} />
                 </div>
                 <div>
-                        <input type="checkbox" name="Enable" id="Enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()} />
-                        <label className="checkboxLabel" htmlFor="Enable">Enable - un-pause the job</label>
+                        <input type="checkbox" name="enable" id="enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()} />
+                        <label className="checkboxLabel" htmlFor="enable">Enable - un-pause the job</label>
                 </div>
             </>
         );
@@ -77,7 +77,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
    */
     private onEnableClick() {
         return (event: React.MouseEvent) => {
-            let checkbox = document.getElementById("Enable");
+            let checkbox = document.getElementById("enable");
             if (checkbox?.classList.contains("checked")) {
                 checkbox.classList.remove("checked");
                 jobData.set(VdkOption.DEPLOY_ENABLE, "");
