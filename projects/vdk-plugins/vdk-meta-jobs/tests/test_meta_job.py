@@ -303,3 +303,36 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
         # no other request should be tried as the meta job fails
         assert isinstance(result.exception, UserCodeError)
         assert len(httpserver.log) == 0
+
+
+def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
+    jobs = [("job" + str(i), [200], "succeeded") for i in range(1, 18)]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
+            "VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS": "15",
+        },
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-exceed-limit")]
+        )
+
+        post_requests = [req for req, res in httpserver.log if req.method == "POST"]
+
+        # Check if the limit has been reached (we add 1 for the request for job1)
+        if (
+            len(post_requests)
+            == int(os.getenv("VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS", "15")) + 1
+        ):
+            print("change state")
+
+        cli_assert_equal(0, result)
+
+        assert len(post_requests) == 17
