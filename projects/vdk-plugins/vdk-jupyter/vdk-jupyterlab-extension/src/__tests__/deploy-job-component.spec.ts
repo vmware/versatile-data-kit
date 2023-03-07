@@ -13,7 +13,7 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 const defaultProps: IDeployJobDialogProps = {
   jobName: 'test-name',
   jobTeam: 'test-team',
-  jobPath: 'test-path',
+  jobPath: 'test-path'
 };
 
 describe('#constructor()', () => {
@@ -44,7 +44,6 @@ describe('#render()', () => {
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     expect(input).toBe(component.getAllByLabelText('Job Path:')[0]);
   });
-
 });
 
 describe('#onEnableClick', () => {
@@ -52,7 +51,7 @@ describe('#onEnableClick', () => {
     const box = new DeployJobDialog(defaultProps);
     const component = render(box.render());
     const enableCheckbox = component.getAllByLabelText(
-      'Enable - un-pause the job'
+      'Enable'
     )[0] as HTMLInputElement;
     expect(enableCheckbox.checked).toEqual(false);
     fireEvent.click(enableCheckbox);

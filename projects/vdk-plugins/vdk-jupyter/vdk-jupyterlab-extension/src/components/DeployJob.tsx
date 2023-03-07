@@ -34,7 +34,6 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
     * @returns React element
     */
     render(): React.ReactElement {
-        // TODO: switch the checkbox into radio buttons
         return (
             <>
                 <div className='jp-vdk-input-wrapper'>
@@ -58,8 +57,8 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
                     <input type="text" id="deploymentReason" className='jp-vdk-input' placeholder="reason" onChange={this.onDeploymentReasonChange} />
                 </div>
                 <div>
-                        <input type="checkbox" name="enable" id="enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()} />
-                        <label className="checkboxLabel" htmlFor="enable">Enable - un-pause the job</label>
+                    <input type="checkbox" name="enable" id="enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()} />
+                    <label className="checkboxLabel" htmlFor="enable">Enable</label>
                 </div>
             </>
         );
@@ -86,12 +85,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
   * @param event - event object
   */
     private onNameChange = (event: any): void => {
-        const nameInput = event.currentTarget as HTMLInputElement;
-        let value = nameInput.value;
-        if (!value) {
-            value = this.props.jobName;
-        }
-        jobData.set(VdkOption.NAME, value);
+        this.populateJobData(VdkOption.NAME, event.currentTarget as HTMLInputElement);
     };
     /**
    * Callback invoked upon changing the job team input.
@@ -99,12 +93,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
    * @param event - event object
    */
     private onTeamChange = (event: any): void => {
-        const teamInput = event.currentTarget as HTMLInputElement;
-        let value = teamInput.value;
-        if (!value) {
-            value = "default-team";
-        }
-        jobData.set(VdkOption.TEAM, value);
+        this.populateJobData(VdkOption.TEAM, event.currentTarget as HTMLInputElement);
     };
     /**
    * Callback invoked upon changing the job rest-api-url input.
@@ -112,12 +101,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
    * @param event - event object
    */
     private onRestApiUrlChange = (event: any): void => {
-        const urlInput = event.currentTarget as HTMLInputElement;
-        let value = urlInput.value;
-        if (!value) {
-            value = "default-url";
-        }
-        jobData.set(VdkOption.REST_API_URL, value);
+        this.populateJobData(VdkOption.REST_API_URL, event.currentTarget as HTMLInputElement);
     };
     /**
    * Callback invoked upon changing the job path input.
@@ -125,12 +109,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
    * @param event - event object
    */
     private onPathChange = (event: any): void => {
-        const pathInput = event.currentTarget as HTMLInputElement;
-        let value = pathInput.value;
-        if (!value) {
-            value = this.props.jobPath;
-        }
-        jobData.set(VdkOption.PATH, value);
+        this.populateJobData(VdkOption.PATH, event.currentTarget as HTMLInputElement);
     };
     /**
   * Callback invoked upon changing the deployent reason input.
@@ -138,11 +117,14 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
   * @param event - event object
   */
     private onDeploymentReasonChange = (event: any): void => {
-        const pathInput = event.currentTarget as HTMLInputElement;
-        let value = pathInput.value;
-        if (!value) {
-            value = "";
-        }
-        jobData.set(VdkOption.DEPLOYMENT_REASON, value);
+        this.populateJobData(VdkOption.DEPLOYMENT_REASON, event.currentTarget as HTMLInputElement);
     };
+    /**
+  *  Helper function for populating jobData
+  */
+    private populateJobData(option: VdkOption, input: HTMLInputElement) {
+        let value = input.value;
+        if (!value) value = "";
+        jobData.set(option, value);
+    }
 }

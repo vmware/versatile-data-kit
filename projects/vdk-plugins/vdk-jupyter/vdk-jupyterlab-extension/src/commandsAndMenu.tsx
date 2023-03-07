@@ -232,20 +232,15 @@ export function updateVDKMenu(commands: CommandRegistry) {
             });
             if (runConfirmationResult.button.accept) {
               let success = await jobRunRequest();
-              let bodyMessage = "We encauntered some errors while trying to run the job! To see more please check the vdk_logs.txt file!\n Do you want to continue with deployment?"
               if(success[1]){
-                bodyMessage = success[0] + " Do you want to continue with the deployment?"
-              }
-              const finalResult = await showDialog({
-                title: 'Create deployment',
-                body: bodyMessage,
-                buttons: [
-                  Dialog.cancelButton({ label: 'Cancel' }),
-                  Dialog.okButton({ label: 'Yes' })
-                ]
-              });
-              if (finalResult.button.accept) {
                 // add server request
+              }
+              else{
+                showErrorMessage(
+                  'Encauntered an error while running the job!',
+                  success[0],
+                  [Dialog.okButton()]
+                );
               }
             }
           } catch (error) {
