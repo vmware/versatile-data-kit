@@ -62,7 +62,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
 
     getChartLabels(): number[] {
         return this.jobExecutions.map((execution) =>
-            DateUtil.normalizeToUTC(execution.startTime).getTime()
+            DateUtil.normalizeToUTC(execution.startTime).getTime(),
         );
     }
 
@@ -71,7 +71,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
         const executions = CollectionsUtil.isDefined(min)
             ? this.jobExecutions.filter((ex) => {
                   const startTime = DateUtil.normalizeToUTC(
-                      ex.startTime
+                      ex.startTime,
                   ).getTime();
 
                   return startTime >= min && startTime <= max;
@@ -81,11 +81,11 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
         return executions.map((execution) => {
             return {
                 startTime: DateUtil.normalizeToUTC(
-                    execution.startTime
+                    execution.startTime,
                 ).getTime(),
                 duration:
                     Math.round(
-                        (this.getJobDurationSeconds(execution) / divider) * 100
+                        (this.getJobDurationSeconds(execution) / divider) * 100,
                     ) / 100,
                 endTime: execution.endTime
                     ? new Date(execution.endTime)
@@ -158,11 +158,11 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                     pointRadius: 3,
                     pointBorderColor: (context) =>
                         DataJobExecutionToGridDataJobExecution.resolveColor(
-                            (context.raw as { status: string }).status
+                            (context.raw as { status: string }).status,
                         ),
                     pointBackgroundColor: (context) =>
                         DataJobExecutionToGridDataJobExecution.resolveColor(
-                            (context.raw as { status: string }).status
+                            (context.raw as { status: string }).status,
                         ),
                     pointBorderWidth: 3,
                     parsing: {
@@ -183,7 +183,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                         type: 'time',
                         time: {
                             unit: this._getTimeScaleUnit(
-                                ...this._getMinMaxExecutionTuple()
+                                ...this._getMinMaxExecutionTuple(),
                             ),
                         },
                     },
@@ -230,7 +230,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                                               rawValues.endTime,
                                               'MMM d, y, hh:mm:ss a',
                                               'en-US',
-                                              'UTC'
+                                              'UTC',
                                           )}`
                                         : '')
                                 );
@@ -285,7 +285,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
 
     private _getTimeScaleUnit(
         min: number | string,
-        max: number | string
+        max: number | string,
     ): TimeUnit {
         if (CollectionsUtil.isNil(min) || CollectionsUtil.isNil(max)) {
             return 'day';
@@ -363,7 +363,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             | 'day'
             | 'week'
             | 'month'
-            | 'year'
+            | 'year',
     ): number {
         switch (unit) {
             case 'millisecond':
@@ -385,7 +385,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             default:
                 console.error(
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    `Taurus DataPipelines ExecutionDurationChartComponent unsupported time format unit ${unit}`
+                    `Taurus DataPipelines ExecutionDurationChartComponent unsupported time format unit ${unit}`,
                 );
 
                 return 0;

@@ -37,7 +37,7 @@ export class ExecutionsTimelineComponent {
 
     constructor(
         @Inject(DATA_PIPELINES_CONFIGS)
-        public dataPipelinesModuleConfig: DataPipelinesConfig
+        public dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {}
 
     /**

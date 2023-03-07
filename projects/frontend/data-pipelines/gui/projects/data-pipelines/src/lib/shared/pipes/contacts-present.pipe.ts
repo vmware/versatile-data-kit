@@ -20,16 +20,16 @@ export class ContactsPresentPipe implements PipeTransform {
         return (
             CollectionsUtil.isDefined(contacts) &&
             (ContactsPresentPipe.contactIsPresent(
-                contacts.notifiedOnJobSuccess
+                contacts.notifiedOnJobSuccess,
             ) ||
                 ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobDeploy
+                    contacts.notifiedOnJobDeploy,
                 ) ||
                 ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobFailureUserError
+                    contacts.notifiedOnJobFailureUserError,
                 ) ||
                 ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobFailurePlatformError
+                    contacts.notifiedOnJobFailurePlatformError,
                 ))
         );
     }

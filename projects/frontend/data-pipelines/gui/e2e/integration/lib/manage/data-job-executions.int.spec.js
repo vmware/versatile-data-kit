@@ -19,7 +19,7 @@ describe(
         before(() => {
             return DataJobManageExecutionsPage.recordHarIfSupported()
                 .then(() =>
-                    cy.clearLocalStorageSnapshot("data-job-manage-executions")
+                    cy.clearLocalStorageSnapshot("data-job-manage-executions"),
                 )
                 .then(() => DataJobManageExecutionsPage.login())
                 .then(() => cy.saveLocalStorage("data-job-manage-executions"))
@@ -58,7 +58,7 @@ describe(
 
                 dataJobsManagePage.openJobDetails(
                     longLivedTestJob.team,
-                    longLivedTestJob.job_name
+                    longLivedTestJob.job_name,
                 );
 
                 const dataJobBasePage = DataJobBasePO.getPage();
@@ -95,7 +95,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -103,8 +103,8 @@ describe(
                     .should(
                         "match",
                         new RegExp(
-                            `\\/manage\\/data-jobs\\/${longLivedTestJob.team}\\/${longLivedTestJob.job_name}\\/executions$`
-                        )
+                            `\\/manage\\/data-jobs\\/${longLivedTestJob.team}\\/${longLivedTestJob.job_name}\\/executions$`,
+                        ),
                     );
 
                 dataJobExecutionsPage
@@ -124,7 +124,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -171,7 +171,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage.initPostExecutionInterceptor();
@@ -226,7 +226,7 @@ describe(
             const dataJobExecutionsPage =
                 DataJobManageExecutionsPage.navigateTo(
                     longLivedTestJob.team,
-                    longLivedTestJob.job_name
+                    longLivedTestJob.job_name,
                 );
 
             dataJobExecutionsPage
@@ -236,8 +236,8 @@ describe(
                 .should(
                     "match",
                     new RegExp(
-                        `^\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)\\sto\\s\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)$`
-                    )
+                        `^\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)\\sto\\s\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)$`,
+                    ),
                 );
         });
 
@@ -245,7 +245,7 @@ describe(
             const dataJobExecutionsPage =
                 DataJobManageExecutionsPage.navigateTo(
                     longLivedTestJob.team,
-                    longLivedTestJob.job_name
+                    longLivedTestJob.job_name,
                 );
 
             dataJobExecutionsPage.getDataGrid().should("exist");
@@ -280,7 +280,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage.openStatusFilter();
@@ -290,7 +290,7 @@ describe(
                 dataJobExecutionsPage
                     .getDataGridExecStatusFilters()
                     .then((elements) =>
-                        Array.from(elements).map((el) => el.innerText)
+                        Array.from(elements).map((el) => el.innerText),
                     )
                     .should("deep.equal", [
                         "Success",
@@ -313,7 +313,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage.openTypeFilter();
@@ -323,7 +323,7 @@ describe(
                 dataJobExecutionsPage
                     .getDataGridExecTypeFilters()
                     .then((elements) =>
-                        Array.from(elements).map((el) => el.innerText)
+                        Array.from(elements).map((el) => el.innerText),
                     )
                     .should("deep.equal", ["Manual", "Scheduled"]);
 
@@ -338,7 +338,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -372,7 +372,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -408,7 +408,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -445,10 +445,10 @@ describe(
                             .then((elText2) => {
                                 return (
                                     dataJobExecutionsPage.convertStringContentToSeconds(
-                                        elText1
+                                        elText1,
                                     ) -
                                     dataJobExecutionsPage.convertStringContentToSeconds(
-                                        elText2
+                                        elText2,
                                     )
                                 );
                             });
@@ -479,10 +479,10 @@ describe(
                             .then((elText2) => {
                                 return (
                                     dataJobExecutionsPage.convertStringContentToSeconds(
-                                        elText1
+                                        elText1,
                                     ) -
                                     dataJobExecutionsPage.convertStringContentToSeconds(
-                                        elText2
+                                        elText2,
                                     )
                                 );
                             });
@@ -494,7 +494,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -554,7 +554,7 @@ describe(
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
                         longLivedTestJob.team,
-                        longLivedTestJob.job_name
+                        longLivedTestJob.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -636,5 +636,5 @@ describe(
                     .should("be.gte", 0);
             });
         });
-    }
+    },
 );

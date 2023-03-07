@@ -30,7 +30,7 @@ module.exports = function (config) {
         coverageReporter: {
             dir: require("path").join(
                 __dirname,
-                "../../reports/coverage/data-pipelines-ui"
+                "../../reports/coverage/data-pipelines-ui",
             ),
             reporters: [
                 //Code coverage - output only in HTML file
@@ -50,7 +50,7 @@ module.exports = function (config) {
         junitReporter: {
             outputDir: require("path").join(
                 __dirname,
-                "../../reports/test-results/data-pipelines-ui"
+                "../../reports/test-results/data-pipelines-ui",
             ),
             outputFile: "unit-tests.xml",
             useBrowserName: false,

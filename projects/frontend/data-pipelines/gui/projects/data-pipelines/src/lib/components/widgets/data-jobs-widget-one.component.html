@@ -120,7 +120,7 @@
                     <div class="data-row">
                         <span class="p5 data-title">{{ item.jobName }}</span>
                         <span class="p7 data-description"
-                            >{{ item.startTime | date: "MMM d, y, hh:mm a" }} ,
+                            >{{ item.startTime | date : "MMM d, y, hh:mm a" }} ,
                             took 12min, {{ item.status }}</span
                         >
                     </div>
@@ -152,7 +152,7 @@
                     <div class="data-row">
                         <span class="p5 data-title">{{ item.jobName }}</span>
                         <span class="p7 data-description"
-                            >{{ item.startTime | date: "MMM d, y, hh:mm a" }} ,
+                            >{{ item.startTime | date : "MMM d, y, hh:mm a" }} ,
                             took 12min, {{ item.status }}</span
                         >
                     </div>
@@ -197,7 +197,7 @@
                 <clr-dg-cell [style.font-size.rem]="0.6">
                     {{
                         item.config?.schedule?.scheduleCron
-                            | formatSchedule: "Not scheduled"
+                            | formatSchedule : "Not scheduled"
                     }}
                 </clr-dg-cell>
             </clr-dg-row>
