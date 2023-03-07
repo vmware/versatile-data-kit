@@ -31,7 +31,7 @@ describe('DataJobExecutionDurationComparator', () => {
                         endTime: bEndTime.toISOString(),
                         duration: '110',
                         jobVersion: '',
-                    }
+                    },
                 );
 
                 // Then

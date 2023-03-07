@@ -84,7 +84,7 @@ describe('ParseNextRunPipe', () => {
                         // Then
                         console.log(date.toISOString());
                         expect(date.toISOString()).toEqual(
-                            `${y}-${m}-${d}T12:00:00.000Z`
+                            `${y}-${m}-${d}T12:00:00.000Z`,
                         );
 
                         done();
@@ -96,7 +96,7 @@ describe('ParseNextRunPipe', () => {
                     // Then
                     console.log(date.toISOString());
                     expect(date.toISOString()).toEqual(
-                        `${y}-${m}-${d}T12:00:00.000Z`
+                        `${y}-${m}-${d}T12:00:00.000Z`,
                     );
 
                     done();
@@ -157,7 +157,7 @@ describe('ParseNextRunPipe', () => {
                         // Then
                         console.log(date.toISOString());
                         expect(date.toISOString()).toEqual(
-                            `${y}-${m}-${d}T${hh}:${mm}:00.000Z`
+                            `${y}-${m}-${d}T${hh}:${mm}:00.000Z`,
                         );
 
                         done();
@@ -169,7 +169,7 @@ describe('ParseNextRunPipe', () => {
                     // Then
                     console.log(date.toISOString());
                     expect(date.toISOString()).toEqual(
-                        `${y}-${m}-${d}T${hh}:${mm}:00.000Z`
+                        `${y}-${m}-${d}T${hh}:${mm}:00.000Z`,
                     );
 
                     done();

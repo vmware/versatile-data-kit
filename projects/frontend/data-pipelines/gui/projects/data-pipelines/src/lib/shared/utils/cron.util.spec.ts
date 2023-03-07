@@ -8,7 +8,7 @@ import { CronUtil } from './cron.util';
 describe('DateUtil', () => {
     it('expect null argument to return null result', () => {
         expect(CronUtil.getNextExecutionErrors(null)).toBe(
-            'No schedule cron configured for this job'
+            'No schedule cron configured for this job',
         );
     });
 

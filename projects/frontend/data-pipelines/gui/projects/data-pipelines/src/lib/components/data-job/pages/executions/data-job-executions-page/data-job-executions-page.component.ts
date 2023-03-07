@@ -80,7 +80,7 @@ export class DataJobExecutionsPageComponent
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
-        private readonly errorHandlerService: ErrorHandlerService
+        private readonly errorHandlerService: ErrorHandlerService,
     ) {
         super(componentService, navigationService, activatedRoute);
     }
@@ -129,7 +129,7 @@ export class DataJobExecutionsPageComponent
                 .withRequestParam(ORDER_REQ_PARAM, {
                     property: 'startTime',
                     direction: ASC,
-                } as DataJobExecutionOrder)
+                } as DataJobExecutionOrder),
         );
     }
 
@@ -164,11 +164,11 @@ export class DataJobExecutionsPageComponent
 
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 const runningExecution = executions.find(
-                    DataJobUtil.isJobRunningPredicate
+                    DataJobUtil.isJobRunningPredicate,
                 );
                 if (runningExecution) {
                     this.dataJobsService.notifyForRunningJobExecutionId(
-                        runningExecution.id
+                        runningExecution.id,
                     );
                 }
             }
@@ -187,7 +187,7 @@ export class DataJobExecutionsPageComponent
     private _initialize(state: RouteState): void {
         const teamParamKey =
             state.getData<DataPipelinesRouteData['teamParamKey']>(
-                'teamParamKey'
+                'teamParamKey',
             );
         this.teamName = state.getParam(teamParamKey);
 
@@ -210,18 +210,18 @@ export class DataJobExecutionsPageComponent
                 .pipe(
                     // eslint-disable-next-line @typescript-eslint/unbound-method
                     map(
-                        DataJobExecutionToGridDataJobExecution.convertToDataJobExecution
-                    )
+                        DataJobExecutionToGridDataJobExecution.convertToDataJobExecution,
+                    ),
                 )
                 .subscribe({
                     next: (values) => {
                         this.jobExecutions = values.filter((ex) => {
                             if (
                                 CollectionsUtil.isNil(
-                                    this.dateTimeFilter.fromTime
+                                    this.dateTimeFilter.fromTime,
                                 ) ||
                                 CollectionsUtil.isNil(
-                                    this.dateTimeFilter.toTime
+                                    this.dateTimeFilter.toTime,
                                 )
                             ) {
                                 return true;
@@ -244,13 +244,13 @@ export class DataJobExecutionsPageComponent
                                 this.jobExecutions.reduce((prev, curr) =>
                                     prev.startTime < curr.startTime
                                         ? prev
-                                        : curr
-                                ).startTime
+                                        : curr,
+                                ).startTime,
                             );
 
                             if (
                                 CollectionsUtil.isNil(
-                                    this.minJobExecutionTime
+                                    this.minJobExecutionTime,
                                 ) ||
                                 newMinJobExecutionsTime.getTime() -
                                     this.minJobExecutionTime.getTime() !==
@@ -264,7 +264,7 @@ export class DataJobExecutionsPageComponent
                     error: (error: unknown) => {
                         console.error(error);
                     },
-                })
+                }),
         );
     }
 }

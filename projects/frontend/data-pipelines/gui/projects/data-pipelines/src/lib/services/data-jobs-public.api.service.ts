@@ -48,11 +48,11 @@ export class DataJobsPublicApiService {
             }),
             map((dataJobPage) => {
                 dataJobs = dataJobs.concat(
-                    dataJobPage.content as unknown as DataJob[]
+                    dataJobPage.content as unknown as DataJob[],
                 );
 
                 return dataJobs;
-            })
+            }),
         );
     }
 
@@ -89,7 +89,7 @@ export class DataJobsPublicApiService {
                     search: null,
                     pageNumber: 1,
                     pageSize: 1,
-                }
+                },
             )
             .pipe(map((response) => response?.data?.totalItems ?? 0));
     }
@@ -102,7 +102,7 @@ export class DataJobsPublicApiService {
         pageNumber: number,
         pageSize: number,
         filters: ApiPredicate[] = [],
-        searchQueryValue: string = null
+        searchQueryValue: string = null,
     ): Observable<DataJobPage> {
         return this.dataJobsBaseService
             .getJobs(
@@ -127,7 +127,7 @@ export class DataJobsPublicApiService {
                     search: searchQueryValue,
                     pageNumber,
                     pageSize,
-                }
+                },
             )
             .pipe(map((response) => response.data));
     }
