@@ -39,7 +39,7 @@ export class DataJobExecutionTypeFilterComponent
             this.selectedTypes.push(checkbox.value);
         } else {
             const statusToRemoveIndex = this.selectedTypes.indexOf(
-                checkbox.value
+                checkbox.value,
             );
             if (statusToRemoveIndex > -1) {
                 this.selectedTypes.splice(statusToRemoveIndex, 1);

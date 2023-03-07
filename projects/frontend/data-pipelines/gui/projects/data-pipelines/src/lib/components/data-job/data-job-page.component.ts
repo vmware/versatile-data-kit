@@ -130,7 +130,7 @@ export class DataJobPageComponent
         private readonly toastService: ToastService,
         private readonly errorHandlerService: ErrorHandlerService,
         @Inject(DATA_PIPELINES_CONFIGS)
-        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {
         super(componentService, navigationService, activatedRoute);
 
@@ -180,17 +180,17 @@ export class DataJobPageComponent
                 .executeDataJob(
                     this.teamName,
                     this.jobName,
-                    this._extractJobDeployment()?.id
+                    this._extractJobDeployment()?.id,
                 )
                 .pipe(
                     finalize(() => {
                         this._submitOperationEnded();
-                    })
+                    }),
                 )
                 .subscribe({
                     next: () => {
                         this.toastService.show(
-                            ToastDefinitions.successfullyRanJob(this.jobName)
+                            ToastDefinitions.successfullyRanJob(this.jobName),
                         );
 
                         let previousReqFinished = true;
@@ -214,32 +214,32 @@ export class DataJobPageComponent
                                                 {
                                                     property: 'startTime',
                                                     direction: ASC,
-                                                }
+                                                },
                                             )
                                             .pipe(
                                                 catchError((error: unknown) => {
                                                     this.errorHandlerService.processError(
                                                         ErrorUtil.extractError(
-                                                            error as Error
-                                                        )
+                                                            error as Error,
+                                                        ),
                                                     );
 
                                                     return of([]);
                                                 }),
                                                 finalize(() => {
                                                     previousReqFinished = true;
-                                                })
-                                            )
+                                                }),
+                                            ),
                                     ),
                                     map((executions: DataJobExecutionsPage) =>
                                         executions.content
                                             ? [...executions.content]
-                                            : []
+                                            : [],
                                     ),
                                     takeWhile((executions) => {
                                         if (
                                             CollectionsUtil.isArrayEmpty(
-                                                executions
+                                                executions,
                                             ) ||
                                             executions.length <=
                                                 this.jobExecutions.length
@@ -255,23 +255,23 @@ export class DataJobPageComponent
                                             executions[executions.length - 1];
                                         if (
                                             !DataJobUtil.isJobRunningPredicate(
-                                                lastExecution
+                                                lastExecution,
                                             )
                                         ) {
                                             return true;
                                         }
 
                                         this.dataJobsService.notifyForJobExecutions(
-                                            executions
+                                            executions,
                                         );
                                         this.dataJobsService.notifyForRunningJobExecutionId(
-                                            lastExecution.id
+                                            lastExecution.id,
                                         );
 
                                         return false; // Stop polling if above condition is met.
-                                    })
+                                    }),
                                 )
-                                .subscribe() // eslint-disable-line rxjs/no-nested-subscribe
+                                .subscribe(), // eslint-disable-line rxjs/no-nested-subscribe
                         );
                     },
                     error: (error: unknown) => {
@@ -282,10 +282,10 @@ export class DataJobPageComponent
                                     (error as HttpErrorResponse)?.status === 409
                                         ? 'Failed, Data job is already executing'
                                         : 'Failed to queue Data job for execution',
-                            }
+                            },
                         );
                     },
-                })
+                }),
         );
     }
 
@@ -300,7 +300,7 @@ export class DataJobPageComponent
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
-                })
+                }),
             )
             .subscribe({
                 next: (response: Blob) => {
@@ -326,7 +326,7 @@ export class DataJobPageComponent
                         ErrorUtil.extractError(error as Error),
                         {
                             description: errorDescription,
-                        }
+                        },
                     );
                 },
             });
@@ -356,7 +356,7 @@ export class DataJobPageComponent
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
-                })
+                }),
             )
             .subscribe({
                 next: () => {
@@ -373,7 +373,7 @@ export class DataJobPageComponent
                         ErrorUtil.extractError(error as Error),
                         {
                             title: `Data job delete failed`,
-                        }
+                        },
                     );
                 },
             });
@@ -385,12 +385,12 @@ export class DataJobPageComponent
             .cancelDataJobExecution(
                 this.teamName,
                 this.jobName,
-                this.lastExecution()?.id
+                this.lastExecution()?.id,
             )
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
-                })
+                }),
             )
             .subscribe({
                 next: () => {
@@ -406,7 +406,7 @@ export class DataJobPageComponent
                         ErrorUtil.extractError(error as Error),
                         {
                             title: `Data job cancellation failed`,
-                        }
+                        },
                     );
                 },
             });
@@ -417,9 +417,8 @@ export class DataJobPageComponent
      */
     cancelExecution() {
         this.cancelNowOptions.title = `Cancel ${this.lastExecution()?.id} now?`;
-        this.cancelNowOptions.message = `Execution <strong>${
-            this.lastExecution()?.id
-        }</strong> will be canceled.`;
+        this.cancelNowOptions.message = `Execution <strong>${this.lastExecution()
+            ?.id}</strong> will be canceled.`;
         this.cancelNowOptions.infoText = `Confirming will result in immediate data job execution cancellation.`;
         this.cancelNowOptions.opened = true;
     }
@@ -489,7 +488,7 @@ export class DataJobPageComponent
 
     private _subscribeForTeamChange(state: RouteState): void {
         const shouldActivateListener = !!state.getData<boolean>(
-            'activateListenerForTeamChange'
+            'activateListenerForTeamChange',
         );
 
         if (
@@ -505,8 +504,8 @@ export class DataJobPageComponent
 
                             this.doNavigateBack();
                         }
-                    }
-                )
+                    },
+                ),
             );
         }
     }
@@ -517,7 +516,7 @@ export class DataJobPageComponent
                 .getNotifiedForJobExecutions()
                 .subscribe((executions) => {
                     this.jobExecutions = [...executions];
-                })
+                }),
         );
     }
 
@@ -534,40 +533,40 @@ export class DataJobPageComponent
                                     .getJobExecution(
                                         this.teamName,
                                         this.jobName,
-                                        id
+                                        id,
                                     )
                                     .pipe(
                                         catchError((error: unknown) => {
                                             this.errorHandlerService.processError(
                                                 ErrorUtil.extractError(
-                                                    error as Error
-                                                )
+                                                    error as Error,
+                                                ),
                                             );
 
                                             return of(null);
-                                        })
-                                    )
+                                        }),
+                                    ),
                             ),
                             tap((executionDetails) =>
                                 this._replaceRunningExecutionAndNotify(
-                                    executionDetails
-                                )
+                                    executionDetails,
+                                ),
                             ),
                             takeWhile((executionDetails) => {
                                 const isRunning =
                                     CollectionsUtil.isNil(executionDetails) ||
                                     DataJobUtil.isJobRunningPredicate(
-                                        executionDetails
+                                        executionDetails,
                                     );
                                 if (!isRunning) {
                                     this.isDataJobRunning = false;
                                 }
                                 return isRunning;
-                            })
-                        )
-                    )
+                            }),
+                        ),
+                    ),
                 )
-                .subscribe()
+                .subscribe(),
         );
 
         this.subscriptions.push(
@@ -579,7 +578,7 @@ export class DataJobPageComponent
                             .getJobExecution(
                                 this.teamName,
                                 this.jobName,
-                                executionId
+                                executionId,
                             )
                             .pipe(
                                 map((executionDetails) => [
@@ -588,27 +587,27 @@ export class DataJobPageComponent
                                 ]),
                                 catchError((error: unknown) => {
                                     this.errorHandlerService.processError(
-                                        ErrorUtil.extractError(error as Error)
+                                        ErrorUtil.extractError(error as Error),
                                     );
 
                                     return of([executionId]);
-                                })
-                            )
-                    )
+                                }),
+                            ),
+                    ),
                 )
                 .subscribe(
                     ([executionId, executionDetails]: [
                         string,
-                        DataJobExecutionDetails
+                        DataJobExecutionDetails,
                     ]) => {
                         this.isDataJobRunning = true;
                         this.cancelDataJobDisabled = false;
                         this._replaceRunningExecutionAndNotify(
-                            executionDetails
+                            executionDetails,
                         );
                         scheduleLastExecutionPolling.next(executionId);
-                    }
-                )
+                    },
+                ),
         );
     }
 
@@ -627,7 +626,7 @@ export class DataJobPageComponent
                             console.error('Error loading jobDetails', error);
                         }
                     },
-                })
+                }),
         );
         this.subscriptions.push(
             this.dataJobsApiService
@@ -640,7 +639,7 @@ export class DataJobPageComponent
                             this.jobDeployments = job.deployments;
                             this.isExecuteJobAllowed =
                                 ExtractJobStatusPipe.transform(
-                                    this.jobDeployments
+                                    this.jobDeployments,
                                 ) !== DataJobStatus.NOT_DEPLOYED;
 
                             return;
@@ -654,10 +653,10 @@ export class DataJobPageComponent
                             ErrorUtil.extractError(error as Error),
                             {
                                 title: `Loading Data job "${this.jobName}" failed`,
-                            }
+                            },
                         );
                     },
-                })
+                }),
         );
     }
 
@@ -677,11 +676,11 @@ export class DataJobPageComponent
 
                             // eslint-disable-next-line @typescript-eslint/unbound-method
                             const runningExecution = value.content.find(
-                                DataJobUtil.isJobRunningPredicate
+                                DataJobUtil.isJobRunningPredicate,
                             );
                             if (runningExecution) {
                                 this.dataJobsService.notifyForRunningJobExecutionId(
-                                    runningExecution.id
+                                    runningExecution.id,
                                 );
                             }
                         }
@@ -690,15 +689,15 @@ export class DataJobPageComponent
                     },
                     error: (error: unknown) => {
                         this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error)
+                            ErrorUtil.extractError(error as Error),
                         );
                     },
-                })
+                }),
         );
     }
 
     private _replaceRunningExecutionAndNotify(
-        executionDetails: DataJobExecutionDetails
+        executionDetails: DataJobExecutionDetails,
     ): void {
         if (CollectionsUtil.isNil(executionDetails)) {
             return;
@@ -706,10 +705,10 @@ export class DataJobPageComponent
 
         const convertedExecution =
             DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                executionDetails
+                executionDetails,
             );
         const foundIndex = this.jobExecutions.findIndex(
-            (ex) => ex.id === convertedExecution.id
+            (ex) => ex.id === convertedExecution.id,
         );
 
         if (foundIndex !== -1) {

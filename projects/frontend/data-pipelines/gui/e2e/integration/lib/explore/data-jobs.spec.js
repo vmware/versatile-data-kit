@@ -112,13 +112,13 @@ describe(
                     dataJobsExplorePage.refreshDataGrid();
 
                     dataJobsExplorePage.filterByJobName(
-                        normalizedTestJob.job_name
+                        normalizedTestJob.job_name,
                     );
 
                     dataJobsExplorePage
                         .getDataGridCell(normalizedTestJob.job_name)
                         .should("have.text", normalizedTestJob.job_name);
-                }
+                },
             );
         });
 
@@ -172,8 +172,8 @@ describe(
                 .should(
                     "match",
                     new RegExp(
-                        `\\/explore\\/data-jobs\\?search=${testJobs[0].job_name}$`
-                    )
+                        `\\/explore\\/data-jobs\\?search=${testJobs[0].job_name}$`,
+                    ),
                 );
 
             // clear search with clear() method
@@ -198,7 +198,7 @@ describe(
 
             // navigate with search value in URL
             dataJobsExplorePage = DataJobsExplorePage.navigateToUrl(
-                `/explore/data-jobs?search=${testJobs[1].job_name}`
+                `/explore/data-jobs?search=${testJobs[1].job_name}`,
             );
 
             // verify url contains search value
@@ -207,8 +207,8 @@ describe(
                 .should(
                     "match",
                     new RegExp(
-                        `\\/explore\\/data-jobs\\?search=${testJobs[1].job_name}$`
-                    )
+                        `\\/explore\\/data-jobs\\?search=${testJobs[1].job_name}$`,
+                    ),
                 );
 
             // verify 1 test row visible
@@ -249,7 +249,7 @@ describe(
                 .invoke("join", ",")
                 .should(
                     "eq",
-                    "Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Source,Logs"
+                    "Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Source,Logs",
                 );
 
             // verify column is not checked in toggling menu
@@ -265,7 +265,7 @@ describe(
 
             // toggle column to render
             dataJobsExplorePage.checkColumnShowHideOption(
-                "Last Execution Duration"
+                "Last Execution Duration",
             );
 
             // verify column is checked in toggling menu
@@ -281,7 +281,7 @@ describe(
 
             // toggle column to hide
             dataJobsExplorePage.uncheckColumnShowHideOption(
-                "Last Execution Duration"
+                "Last Execution Duration",
             );
 
             // verify column is not checked in toggling menu
@@ -306,7 +306,7 @@ describe(
 
             dataJobsExplorePage.openJobDetails(
                 testJobs[0].team,
-                testJobs[0].job_name
+                testJobs[0].job_name,
             );
 
             const dataJobExploreDetailsPage =
@@ -322,5 +322,5 @@ describe(
                 .should("be.visible")
                 .should("contain.text", testJobs[0].description);
         });
-    }
+    },
 );
