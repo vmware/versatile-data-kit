@@ -11,6 +11,5 @@ class VdkOption(Enum):
     CLOUD = "cloud"
     LOCAL = "local"
     ARGUMENTS = "jobArguments"
-    VDK_VERSION = "vdkVersion"
     DEPLOYMENT_REASON = "deploymentReason"
     DEPLOY_ENABLE = "enableDeploy"

@@ -15,10 +15,6 @@ export interface IDeployJobDialogProps {
     * Current Job path
     */
     jobPath: string;
-    /**
-    * VDK version
-    */
-    vdkVersion: string;
 }
 
 
@@ -60,10 +56,6 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="deploymentReason">Deployment reason:</label>
                     <input type="text" id="deploymentReason" className='jp-vdk-input' placeholder="reason" onChange={this.onDeploymentReasonChange} />
-                </div>
-                <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="vdkVersion">VDK version:</label>
-                    <input type="text" id="vdkVersion" className='jp-vdk-input' placeholder={this.props.vdkVersion} onChange={this.onVdkVersionChange} />
                 </div>
                 <div>
                         <input type="checkbox" name="enable" id="enable" className='jp-vdk-checkbox' onClick={this.onEnableClick()} />
@@ -141,19 +133,6 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
         jobData.set(VdkOption.PATH, value);
     };
     /**
-  * Callback invoked upon changing the vdk version input.
-  *
-  * @param event - event object
-  */
-    private onVdkVersionChange = (event: any): void => {
-        const pathInput = event.currentTarget as HTMLInputElement;
-        let value = pathInput.value;
-        if (!value) {
-            value = this.props.vdkVersion;
-        }
-        jobData.set(VdkOption.VDK_VERSION, value);
-    };
-    /**
   * Callback invoked upon changing the deployent reason input.
   *
   * @param event - event object
@@ -162,7 +141,7 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
         const pathInput = event.currentTarget as HTMLInputElement;
         let value = pathInput.value;
         if (!value) {
-            value = this.props.vdkVersion;
+            value = "";
         }
         jobData.set(VdkOption.DEPLOYMENT_REASON, value);
     };

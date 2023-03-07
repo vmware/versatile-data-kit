@@ -14,7 +14,6 @@ const defaultProps: IDeployJobDialogProps = {
   jobName: 'test-name',
   jobTeam: 'test-team',
   jobPath: 'test-path',
-  vdkVersion: 'test-version'
 };
 
 describe('#constructor()', () => {
@@ -46,12 +45,6 @@ describe('#render()', () => {
     expect(input).toBe(component.getAllByLabelText('Job Path:')[0]);
   });
 
-  it('should return contain vdk version input with placeholder equal to vdkVersion from props', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
-    const input = component.getByPlaceholderText(defaultProps.vdkVersion);
-    expect(input).toBe(component.getAllByLabelText('VDK version:')[0]);
-  });
 });
 
 describe('#onEnableClick', () => {
@@ -105,16 +98,6 @@ describe('#onPathChange', () => {
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
-  });
-});
-
-describe('#onVdkVersionChange', () => {
-  it('should change the vdk version in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
-    const input = component.getByPlaceholderText(defaultProps.vdkVersion);
-    fireEvent.change(input, { target: { value: '0.10' } });
-    expect(jobData.get(VdkOption.VDK_VERSION)).toEqual('0.10');
   });
 });
 

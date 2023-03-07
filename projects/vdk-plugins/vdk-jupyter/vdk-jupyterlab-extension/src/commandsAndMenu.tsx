@@ -215,7 +215,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
         const result = await showDialog({
           title: 'Create Deployment',
           body: (
-            <DeployJobDialog jobName='job-to-deploy' jobPath={sessionStorage.getItem('current-path')!} jobTeam='my-team' vdkVersion='0.11'></DeployJobDialog>
+            <DeployJobDialog jobName='job-to-deploy' jobPath={sessionStorage.getItem('current-path')!} jobTeam='my-team'></DeployJobDialog>
           ),
           buttons: [Dialog.okButton(), Dialog.cancelButton()]
         });
