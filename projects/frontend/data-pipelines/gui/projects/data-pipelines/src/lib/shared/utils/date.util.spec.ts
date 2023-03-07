@@ -42,8 +42,8 @@ describe('DateUtil', () => {
         expect(
             DateUtil.compareDatesAsc(
                 LESSER_DATE_JOBS_EXECUTION,
-                LESSER_DATE_JOBS_EXECUTION
-            )
+                LESSER_DATE_JOBS_EXECUTION,
+            ),
         ).toEqual(0);
     });
 
@@ -51,8 +51,8 @@ describe('DateUtil', () => {
         expect(
             DateUtil.compareDatesAsc(
                 GREATER_DATE_JOBS_EXECUTION,
-                LESSER_DATE_JOBS_EXECUTION
-            )
+                LESSER_DATE_JOBS_EXECUTION,
+            ),
         ).toBeGreaterThan(0);
     });
 
@@ -60,14 +60,14 @@ describe('DateUtil', () => {
         expect(
             DateUtil.compareDatesAsc(
                 LESSER_DATE_JOBS_EXECUTION,
-                GREATER_DATE_JOBS_EXECUTION
-            )
+                GREATER_DATE_JOBS_EXECUTION,
+            ),
         ).toBeLessThan(0);
     });
 
     it('GetDateInUTC', () => {
         expect(
-            DateUtil.normalizeToUTC('2021-12-10T10:12:12Z').getHours()
+            DateUtil.normalizeToUTC('2021-12-10T10:12:12Z').getHours(),
         ).toEqual(10);
     });
 });

@@ -34,9 +34,29 @@ frontend-data-pipelines-build:
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
     paths:
       - projects/frontend/data-pipelines/gui/package-lock.json
+      - projects/frontend/data-pipelines/gui/dist/
+      - projects/frontend/data-pipelines/gui/node_modules/
     expire_in: 1 week
 
-# TODO: frontend-data-pipelines-publish: eval publish_artifact.sh <param>
+frontend-data-pipelines-release:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: release
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+  artifacts:
+    paths:
+      - projects/frontend/data-pipelines/gui/package-lock.json
+    expire_in: 1 week
 
 frontend_publish_test_image:
   image: docker:19.03.15
@@ -88,11 +108,13 @@ frontend-shared-components-release:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   stage: release
   before_script:
-    - cd projects/frontend/shared-components/gui
+    - cd projects/frontend/
   script:
-    - ../../cicd/publish_shared.sh $CI_PIPELINE_ID $NPM_REGISTRY $NPM_TOKEN
+    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
   retry: !reference [.retry, retry_options]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *frontend_shared_components_locations
   artifacts:

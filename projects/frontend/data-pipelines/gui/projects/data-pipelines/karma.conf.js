@@ -33,7 +33,7 @@ module.exports = function (config) {
         coverageReporter: {
             dir: require("path").join(
                 __dirname,
-                "../../reports/coverage/data-pipelines-lib"
+                "../../reports/coverage/data-pipelines-lib",
             ),
             subdir: ".",
             reporters: [
@@ -52,7 +52,7 @@ module.exports = function (config) {
         junitReporter: {
             outputDir: require("path").join(
                 __dirname,
-                "../../reports/test-results/data-pipelines-lib"
+                "../../reports/test-results/data-pipelines-lib",
             ),
             outputFile: "unit-tests.xml",
             useBrowserName: false,

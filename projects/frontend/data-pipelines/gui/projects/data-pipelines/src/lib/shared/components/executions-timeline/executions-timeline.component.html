@@ -24,7 +24,7 @@
             [live]="true"
             [attr.title]="
                 'Started ' +
-                (execution.startTime | date: 'MMM d, y, hh:mm a':'UTC') +
+                (execution.startTime | date : 'MMM d, y, hh:mm a' : 'UTC') +
                 ' UTC'
             "
         ></div>
@@ -94,7 +94,7 @@
                             execution.endTime
                                 ? 'Ended ' +
                                   (execution.endTime
-                                      | date: 'MMM d, y, hh:mm a':'UTC') +
+                                      | date : 'MMM d, y, hh:mm a' : 'UTC') +
                                   ' UTC'
                                 : ''
                         "
@@ -139,7 +139,7 @@
             class="clr-timeline-step-header"
             style="text-decoration: underline; text-decoration-style: dotted"
             timeago
-            [attr.title]="(next | date: 'MMM d, y, hh:mm a':'UTC') + ' UTC'"
+            [attr.title]="(next | date : 'MMM d, y, hh:mm a' : 'UTC') + ' UTC'"
             [date]="next"
             [live]="true"
         ></div>
@@ -149,7 +149,7 @@
         <div class="clr-timeline-step-body">
             <span class="clr-timeline-step-title">Scheduled</span>
             <span class="clr-timeline-step-description"
-                >{{ next | date: "MMM d, y, hh:mm a":"UTC" }} UTC</span
+                >{{ next | date : "MMM d, y, hh:mm a" : "UTC" }} UTC</span
             >
         </div>
     </li>

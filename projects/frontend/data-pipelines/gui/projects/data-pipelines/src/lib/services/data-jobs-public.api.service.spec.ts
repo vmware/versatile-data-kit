@@ -24,10 +24,10 @@ describe('DataJobsPublicApiService', () => {
     beforeEach(() => {
         dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>(
             'dataJobsBaseServiceStub',
-            ['getJobs']
+            ['getJobs'],
         );
         dataJobsBaseServiceStub.getJobs.and.returnValue(
-            new Subject<ApolloQueryResult<DataJobPage>>()
+            new Subject<ApolloQueryResult<DataJobPage>>(),
         );
 
         TestBed.configureTestingModule({
@@ -89,7 +89,7 @@ describe('DataJobsPublicApiService', () => {
                         search: null,
                         pageNumber: 1,
                         pageSize: 1000,
-                    }
+                    },
                 );
             });
 
@@ -112,7 +112,7 @@ describe('DataJobsPublicApiService', () => {
                 // When/Then
                 service.getAllDataJobs('teamA').subscribe((value) => {
                     expect(
-                        dataJobsBaseServiceStub.getJobs.calls.argsFor(counter)
+                        dataJobsBaseServiceStub.getJobs.calls.argsFor(counter),
                     ).toEqual([
                         'teamA',
                         `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
@@ -183,7 +183,7 @@ describe('DataJobsPublicApiService', () => {
                             ...apolloQueryResult.data,
                             totalItems: undefined,
                         },
-                    })
+                    }),
                 );
 
                 // When/Then
@@ -198,7 +198,7 @@ describe('DataJobsPublicApiService', () => {
                     expect(value3).toEqual(0);
                     expect(value4).toEqual(0);
                     expect(
-                        dataJobsBaseServiceStub.getJobs
+                        dataJobsBaseServiceStub.getJobs,
                     ).toHaveBeenCalledWith(
                         'teamA',
                         `query jobsQuery($filter: [Predicate], $search: String, $pageNumber: Int, $pageSize: Int)
@@ -219,7 +219,7 @@ describe('DataJobsPublicApiService', () => {
                             search: null,
                             pageNumber: 1,
                             pageSize: 1,
-                        }
+                        },
                     );
 
                     done();

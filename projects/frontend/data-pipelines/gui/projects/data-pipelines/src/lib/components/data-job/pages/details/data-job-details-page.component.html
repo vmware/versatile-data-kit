@@ -106,7 +106,7 @@
                                 data-cy="data-pipelines-job-details-description"
                                 >{{
                                     description.value
-                                        | words: descriptionWordsBeforeTruncate
+                                        | words : descriptionWordsBeforeTruncate
                                 }}
                                 <button
                                     *ngIf="
@@ -176,7 +176,7 @@
                         >
                             {{
                                 jobDetails?.config?.schedule?.schedule_cron
-                                    | formatSchedule: "Not scheduled"
+                                    | formatSchedule : "Not scheduled"
                             }}
 
                             <clr-signpost
@@ -205,7 +205,7 @@
                                             {{
                                                 jobDetails?.config?.schedule
                                                     ?.schedule_cron
-                                                    | parseNextRun: times
+                                                    | parseNextRun : times
                                                     | date
                                                         : "MMM d, y, hh:mm a"
                                                         : "UTC"
@@ -329,7 +329,7 @@
                                                             ?.config?.contacts
                                                             ?.notified_on_job_deploy
                                                             | extractContacts
-                                                            | slice: 0:3
+                                                            | slice : 0 : 3
                                                     "
                                                 >
                                                     <span>{{ contacts }}</span>
@@ -427,7 +427,7 @@
                                                             ?.config?.contacts
                                                             ?.notified_on_job_failure_platform_error
                                                             | extractContacts
-                                                            | slice: 0:3
+                                                            | slice : 0 : 3
                                                     "
                                                 >
                                                     <span>{{ contacts }}</span>
@@ -525,7 +525,7 @@
                                                             ?.config?.contacts
                                                             ?.notified_on_job_failure_user_error
                                                             | extractContacts
-                                                            | slice: 0:3
+                                                            | slice : 0 : 3
                                                     "
                                                 >
                                                     <span>{{ contacts }}</span>
@@ -623,7 +623,7 @@
                                                             ?.config?.contacts
                                                             ?.notified_on_job_success
                                                             | extractContacts
-                                                            | slice: 0:3
+                                                            | slice : 0 : 3
                                                     "
                                                 >
                                                     <span>{{ contacts }}</span>

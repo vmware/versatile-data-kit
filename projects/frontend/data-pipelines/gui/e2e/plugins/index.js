@@ -33,7 +33,7 @@ module.exports = (on, config) => {
         // generated output directory.
         specRoot: path.relative(
             config.fileServerFolder,
-            config.integrationFolder
+            config.integrationFolder,
         ),
         outputTarget: {
             "cypress-logs|json": "json",

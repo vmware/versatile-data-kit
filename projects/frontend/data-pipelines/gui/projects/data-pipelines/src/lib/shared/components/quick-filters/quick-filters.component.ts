@@ -103,7 +103,7 @@ export class QuickFiltersComponent implements OnChanges {
                 this.activatedFilter.onActivate();
             } else {
                 console.warn(
-                    'QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.'
+                    'QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.',
                 );
             }
         } else {

@@ -177,7 +177,7 @@ const routes: Routes = [];
 export class DataPipelinesModule {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static forRoot(
-        config: DataPipelinesConfig = {} as any
+        config: DataPipelinesConfig = {} as any,
     ): ModuleWithProviders<DataPipelinesModule> {
         return {
             ngModule: DataPipelinesModule,

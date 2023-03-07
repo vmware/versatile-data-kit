@@ -84,13 +84,13 @@
             jobExecution.duration
         }}</clr-dg-cell>
         <clr-dg-cell data-cy="data-pipelines-job-executions-start-cell">{{
-            jobExecution.startTime | date: "MMM d, y, hh:mm:ss a":"UTC"
+            jobExecution.startTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
         }}</clr-dg-cell>
         <clr-dg-cell data-cy="data-pipelines-job-executions-end-cell">{{
-            jobExecution.endTime | date: "MMM d, y, hh:mm:ss a":"UTC"
+            jobExecution.endTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
         }}</clr-dg-cell>
         <clr-dg-cell>{{ jobExecution.id }}</clr-dg-cell>
-        <clr-dg-cell>{{ jobExecution.jobVersion | slice: 0:8 }}</clr-dg-cell>
+        <clr-dg-cell>{{ jobExecution.jobVersion | slice : 0 : 8 }}</clr-dg-cell>
         <clr-dg-cell
             class="text-center grid-column__min-width--s grid-column__max-width--s"
         >

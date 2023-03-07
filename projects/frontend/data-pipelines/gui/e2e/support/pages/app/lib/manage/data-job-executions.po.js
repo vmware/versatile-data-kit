@@ -12,7 +12,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
 
     static navigateTo(teamName, jobName) {
         return super.navigateToUrl(
-            `/manage/data-jobs/${teamName}/${jobName}/executions`
+            `/manage/data-jobs/${teamName}/${jobName}/executions`,
         );
     }
 
@@ -47,7 +47,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
 
     getExecLoadingSpinner() {
         return cy.get(
-            "[data-cy=data-pipelines-job-executions-loading-spinner]"
+            "[data-cy=data-pipelines-job-executions-loading-spinner]",
         );
     }
 
@@ -217,7 +217,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .then(($rows) => {
                 const _rows = $rows.reduce((accumulator, row) => {
                     const _cells = Array.from(
-                        row.querySelectorAll("clr-dg-cell.datagrid-cell")
+                        row.querySelectorAll("clr-dg-cell.datagrid-cell"),
                     );
 
                     if (_cells[cellIndex - 1]) {
@@ -238,7 +238,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     getDataGridExecTypeCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
-            "[data-cy=data-pipelines-job-executions-type-cell]"
+            "[data-cy=data-pipelines-job-executions-type-cell]",
         );
     }
 
@@ -251,21 +251,21 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     getDataGridExecDurationCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
-            "[data-cy=data-pipelines-job-executions-duration-cell]"
+            "[data-cy=data-pipelines-job-executions-duration-cell]",
         );
     }
 
     getDataGridExecStartCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
-            "[data-cy=data-pipelines-job-executions-start-cell]"
+            "[data-cy=data-pipelines-job-executions-start-cell]",
         );
     }
 
     getDataGridExecEndCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
-            "[data-cy=data-pipelines-job-executions-end-cell]"
+            "[data-cy=data-pipelines-job-executions-end-cell]",
         );
     }
 
@@ -275,7 +275,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         return this.getDataGrid()
             .should("exist")
             .find(
-                "[data-cy=data-pipelines-job-executions-datagrid-pagination]"
+                "[data-cy=data-pipelines-job-executions-datagrid-pagination]",
             );
     }
 

@@ -52,7 +52,7 @@ export class DataJobsExploreGridComponent
         elementRef: ElementRef<HTMLElement>,
         @Inject(DOCUMENT) document: Document,
         @Inject(DATA_PIPELINES_CONFIGS)
-        dataPipelinesModuleConfig: DataPipelinesConfig
+        dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {
         super(
             componentService,
@@ -79,7 +79,7 @@ export class DataJobsExploreGridComponent
                     source: true,
                     logsUrl: true,
                 },
-            }
+            },
         );
     }
 
