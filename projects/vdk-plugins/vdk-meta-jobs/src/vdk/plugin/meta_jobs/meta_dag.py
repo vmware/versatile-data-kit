@@ -35,7 +35,7 @@ class MetaJobsDag:
             ),
         )
         self._max_concurrent_running_jobs = int(
-            os.environ.get("VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS", 15)
+            os.environ.get("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", 15)
         )
         self._finished_jobs = []
         self._dag_execution_check_time_period_seconds = int(
@@ -116,14 +116,11 @@ class MetaJobsDag:
 
     def _start_job(self, node):
         try:
-            if (
-                len(self._job_executor.get_currently_running_jobs())
-                >= self.max_concurrent_running_jobs
-            ):
+            curr_running_jobs = len(self._job_executor.get_currently_running_jobs())
+            if curr_running_jobs >= self._max_concurrent_running_jobs:
                 log.info(
                     "Starting job fail - too many concurrently running jobs. Currently running: "
-                    f"{len(self._job_executor.get_currently_running_jobs())}, "
-                    f"limit: {self.max_concurrent_running_jobs}. Will be re-tried later"
+                    f"{curr_running_jobs}, limit: {self.max_concurrent_running_jobs}. Will be re-tried later"
                 )
                 self._delayed_starting_jobs.enqueue(node)
             else:

@@ -306,14 +306,14 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
 
 
 def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
-    jobs = [("job" + str(i), [200], "succeeded") for i in range(1, 18)]
+    jobs = [("job" + str(i), [200], "succeeded") for i in range(1, 8)]
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
         os.environ,
         {
             "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
-            "VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS": "15",
+            "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5",
         },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
@@ -329,7 +329,7 @@ def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
         # Check if the limit has been reached (we add 1 for the request for job1)
         if (
             len(post_requests)
-            == int(os.getenv("VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS", "15")) + 1
+            == int(os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "5")) + 1
         ):
             print("change state")
 

@@ -13,6 +13,6 @@ def run(job_input: IJobInput):
 
     jobs = [
         {"job_name": f"job{i}", "depends_on": [] if i == 1 else ["job1"]}
-        for i in range(1, 18)
+        for i in range(1, 8)
     ]
     MetaJobInput().run_meta_job(jobs)

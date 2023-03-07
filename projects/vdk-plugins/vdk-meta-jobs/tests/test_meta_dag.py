@@ -74,12 +74,12 @@ def test_execute_dag_busyloop():
 
 @mock.patch.dict(
     os.environ,
-    {"VDK_META_JOBS_MAX_CONCURRENTLY_RUNNING_JOBS": "15"},
+    {"VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5"},
 )
 def test_execute_dag_over_max_running_jobs_sad_case():
     jobs = [
         {"job_name": f"job{i}", "depends_on": [] if i == 1 else ["job1"]}
-        for i in range(1, 18)
+        for i in range(1, 8)
     ]
 
     dag = MetaJobsDag("team")
@@ -95,21 +95,11 @@ def test_execute_dag_over_max_running_jobs_sad_case():
             "job5",
             "job6",
             "job7",
-            "job8",
-            "job9",
-            "job10",
-            "job11",
-            "job12",
-            "job13",
-            "job14",
-            "job15",
-            "job16",
-            "job17",
         ],
     ]
 
     dag.execute_dag()
 
     assert [
-        call(job["job_name"]) for job in jobs[:17]
+        call(job["job_name"]) for job in jobs[:7]
     ] == dag._job_executor.start_job.call_args_list
