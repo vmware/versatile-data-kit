@@ -1,8 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from datetime import datetime
-from unittest.mock import MagicMock
 
+from vdk.internal.heartbeat.config import Config
 from vdk.internal.heartbeat.trino_database_test import TrinoDatabaseRunTest
 
 
@@ -18,7 +18,7 @@ def test_create_table():
     }
 
     queries = []
-    trino_test = TrinoDatabaseRunTest(MagicMock())
+    trino_test = TrinoDatabaseRunTest(Config())
     trino_test._execute_query = lambda q: queries.append(q)
 
     trino_test._create_table(db, table_name, columns)
@@ -37,7 +37,7 @@ def test_delete_table():
     table_name = "my_table"
 
     queries = []
-    trino_test = TrinoDatabaseRunTest(MagicMock())
+    trino_test = TrinoDatabaseRunTest(Config())
     trino_test._execute_query = lambda q: queries.append(q)
 
     trino_test._delete_table(db, table_name)
@@ -58,7 +58,7 @@ def test_insert_table_row():
     }
 
     queries = []
-    trino_test = TrinoDatabaseRunTest(MagicMock())
+    trino_test = TrinoDatabaseRunTest(Config())
     trino_test._execute_query = lambda q: queries.append(q)
 
     trino_test._insert_table_row(db, table_name, row)
@@ -82,7 +82,7 @@ def test_select_data():
     }
 
     queries = []
-    trino_test = TrinoDatabaseRunTest(MagicMock())
+    trino_test = TrinoDatabaseRunTest(Config())
     trino_test._execute_query = lambda q: queries.append(q)
 
     trino_test._select_data(db, table_name, column_filters)

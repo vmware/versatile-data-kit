@@ -19,7 +19,7 @@ export interface GridDataJobExecution extends DataJobExecution {
 export class DataJobExecutionToGridDataJobExecution {
     static convertStatus(
         jobStatus: DataJobExecutionStatus,
-        message: string
+        message: string,
     ): DataJobExecutionStatus {
         switch (`${jobStatus}`.toUpperCase()) {
             case DataJobExecutionStatus.SUCCEEDED:
@@ -39,7 +39,7 @@ export class DataJobExecutionToGridDataJobExecution {
     }
 
     static convertToDataJobExecution(
-        dataJobExecution: DataJobExecutions
+        dataJobExecution: DataJobExecutions,
     ): GridDataJobExecution[] {
         const formatDeltaPipe = new FormatDeltaPipe();
 
@@ -47,7 +47,7 @@ export class DataJobExecutionToGridDataJobExecution {
             accumulator.push({
                 status: DataJobExecutionToGridDataJobExecution.convertStatus(
                     execution.status,
-                    execution.message
+                    execution.message,
                 ),
                 type: execution.type,
                 duration: formatDeltaPipe.transform(execution),

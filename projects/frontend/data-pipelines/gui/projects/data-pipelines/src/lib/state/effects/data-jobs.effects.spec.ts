@@ -80,11 +80,11 @@ describe('DataJobsEffects', () => {
                 'getJobExecutions',
                 'updateDataJob',
                 'updateDataJobStatus',
-            ]
+            ],
         );
         componentServiceStub = jasmine.createSpyObj<ComponentService>(
             'componentService',
-            ['getModel']
+            ['getModel'],
         );
 
         TestBed.configureTestingModule({
@@ -114,11 +114,11 @@ describe('DataJobsEffects', () => {
                     actions$ = m.cold('-a---------b', {
                         a: GenericAction.of(
                             FETCH_DATA_JOBS,
-                            createModel().getComponentState()
+                            createModel().getComponentState(),
                         ),
                         b: GenericAction.of(
                             FETCH_DATA_JOBS,
-                            createModel(null, 4).getComponentState()
+                            createModel(null, 4).getComponentState(),
                         ),
                     });
 
@@ -156,7 +156,7 @@ describe('DataJobsEffects', () => {
                         }
 
                         return throwError(
-                            () => new Error('Something bad happened')
+                            () => new Error('Something bad happened'),
                         );
                     });
 
@@ -165,13 +165,13 @@ describe('DataJobsEffects', () => {
                             createModel()
                                 .withData(JOBS_DATA_KEY, result.data)
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                         b: ComponentFailed.of(
                             createModel(null, 4)
                                 .withError(new Error('Something bad happened'))
                                 .withStatusFailed()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                     });
 
@@ -180,7 +180,7 @@ describe('DataJobsEffects', () => {
 
                     // Then
                     m.expect(response$).toBeObservable(expected$);
-                })
+                }),
             );
         });
 
@@ -192,7 +192,7 @@ describe('DataJobsEffects', () => {
                     actions$ = m.cold('-a----------', {
                         a: GenericAction.of(
                             FETCH_DATA_JOB,
-                            createModel().getComponentState()
+                            createModel().getComponentState(),
                         ),
                     });
 
@@ -212,7 +212,7 @@ describe('DataJobsEffects', () => {
                                             getJobStateTuple(),
                                         ]),
                                         1,
-                                        LOADED
+                                        LOADED,
                                     ),
                                 });
                             case 4:
@@ -223,7 +223,7 @@ describe('DataJobsEffects', () => {
                                             getDataJobDetailsTuple(),
                                         ]),
                                         1,
-                                        LOADED
+                                        LOADED,
                                     ),
                                 });
                             default:
@@ -239,7 +239,7 @@ describe('DataJobsEffects', () => {
                                             ],
                                         ]),
                                         1,
-                                        LOADED
+                                        LOADED,
                                     ),
                                 });
                         }
@@ -248,19 +248,19 @@ describe('DataJobsEffects', () => {
                     dataJobsApiServiceStub.getJob.and.returnValue(
                         m.cold('--a', {
                             a: getJobStateTuple()[1],
-                        })
+                        }),
                     );
 
                     dataJobsApiServiceStub.getJobDetails.and.returnValue(
                         m.cold('----a', {
                             a: getDataJobDetailsTuple()[1],
-                        })
+                        }),
                     );
 
                     dataJobsApiServiceStub.getJobExecutions.and.returnValue(
                         m.cold('------a', {
                             a: getExecutionsTuples()[1],
-                        })
+                        }),
                     );
 
                     const expected$ = m.cold('--------a-b-c', {
@@ -270,10 +270,10 @@ describe('DataJobsEffects', () => {
                                 .withTask(TASK_LOAD_JOB_STATE)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
-                                    getJobStateTuple()[1]
+                                    getJobStateTuple()[1],
                                 )
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                         b: ComponentUpdate.of(
                             createModel()
@@ -281,14 +281,14 @@ describe('DataJobsEffects', () => {
                                 .withTask(TASK_LOAD_JOB_DETAILS)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
-                                    getJobStateTuple()[1]
+                                    getJobStateTuple()[1],
                                 )
                                 .withData(
                                     JOB_DETAILS_DATA_KEY,
-                                    getDataJobDetailsTuple()[1]
+                                    getDataJobDetailsTuple()[1],
                                 )
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                         c: ComponentUpdate.of(
                             createModel()
@@ -296,18 +296,18 @@ describe('DataJobsEffects', () => {
                                 .withTask(TASK_LOAD_JOB_EXECUTIONS)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
-                                    getJobStateTuple()[1]
+                                    getJobStateTuple()[1],
                                 )
                                 .withData(
                                     JOB_DETAILS_DATA_KEY,
-                                    getDataJobDetailsTuple()[1]
+                                    getDataJobDetailsTuple()[1],
                                 )
                                 .withData(
                                     JOB_EXECUTIONS_DATA_KEY,
-                                    getExecutionsTuples()[1].content
+                                    getExecutionsTuples()[1].content,
                                 )
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                     });
 
@@ -316,7 +316,7 @@ describe('DataJobsEffects', () => {
 
                     // Then
                     m.expect(response$).toBeObservable(expected$);
-                })
+                }),
             );
         });
 
@@ -328,7 +328,7 @@ describe('DataJobsEffects', () => {
                     const genericAction = GenericAction.of(
                         FETCH_DATA_JOB_EXECUTIONS,
                         createModel().getComponentState(),
-                        TASK_LOAD_JOB_EXECUTIONS
+                        TASK_LOAD_JOB_EXECUTIONS,
                     );
                     actions$ = m.cold('-a----------', {
                         a: genericAction,
@@ -354,7 +354,7 @@ describe('DataJobsEffects', () => {
                                             ],
                                         ]),
                                         1,
-                                        LOADED
+                                        LOADED,
                                     ),
                                 });
                         }
@@ -363,7 +363,7 @@ describe('DataJobsEffects', () => {
                     dataJobsApiServiceStub.getJobExecutions.and.returnValue(
                         m.cold('--a', {
                             a: getExecutionsTuples()[1],
-                        })
+                        }),
                     );
 
                     const expected$ = m.cold('--------a', {
@@ -373,10 +373,10 @@ describe('DataJobsEffects', () => {
                                 .withTask(genericAction.task)
                                 .withData(
                                     JOB_EXECUTIONS_DATA_KEY,
-                                    getExecutionsTuples()[1].content
+                                    getExecutionsTuples()[1].content,
                                 )
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                     });
 
@@ -385,7 +385,7 @@ describe('DataJobsEffects', () => {
 
                     // Then
                     m.expect(response$).toBeObservable(expected$);
-                })
+                }),
             );
         });
 
@@ -397,7 +397,7 @@ describe('DataJobsEffects', () => {
                     const genericAction1 = GenericAction.of(
                         UPDATE_DATA_JOB,
                         createModel(undefined, 1, LOADING).getComponentState(),
-                        TASK_UPDATE_JOB_DESCRIPTION
+                        TASK_UPDATE_JOB_DESCRIPTION,
                     );
                     actions$ = m.cold('-a----------', {
                         a: genericAction1,
@@ -406,13 +406,13 @@ describe('DataJobsEffects', () => {
                     componentServiceStub.getModel.and.callFake(() =>
                         m.cold('---a', {
                             a: createModel(undefined, 1, LOADING),
-                        })
+                        }),
                     );
 
                     dataJobsApiServiceStub.updateDataJob.and.returnValue(
                         m.cold('-----a', {
                             a: getDataJobDetailsTuple()[1],
-                        })
+                        }),
                     );
 
                     const expected$ = m.cold('---------a-', {
@@ -422,7 +422,7 @@ describe('DataJobsEffects', () => {
                                 .withTask(genericAction1.task)
                                 .withData(JOB_DETAILS_DATA_KEY, undefined)
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                     });
 
@@ -431,7 +431,7 @@ describe('DataJobsEffects', () => {
 
                     // Then
                     m.expect(response$).toBeObservable(expected$);
-                })
+                }),
             );
 
             it(
@@ -441,7 +441,7 @@ describe('DataJobsEffects', () => {
                     const genericAction1 = GenericAction.of(
                         UPDATE_DATA_JOB,
                         createModel(undefined, 1, LOADING).getComponentState(),
-                        TASK_UPDATE_JOB_STATUS
+                        TASK_UPDATE_JOB_STATUS,
                     );
                     actions$ = m.cold('-a----------', {
                         a: genericAction1,
@@ -450,13 +450,13 @@ describe('DataJobsEffects', () => {
                     componentServiceStub.getModel.and.callFake(() =>
                         m.cold('---a', {
                             a: createModel(undefined, 1, LOADING),
-                        })
+                        }),
                     );
 
                     dataJobsApiServiceStub.updateDataJobStatus.and.returnValue(
                         m.cold('-----a', {
                             a: { enabled: true },
-                        })
+                        }),
                     );
 
                     const expected$ = m.cold('---------a-', {
@@ -466,7 +466,7 @@ describe('DataJobsEffects', () => {
                                 .withTask(genericAction1.task)
                                 .withData(JOB_STATE_DATA_KEY, undefined)
                                 .withStatusLoaded()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                     });
 
@@ -475,7 +475,7 @@ describe('DataJobsEffects', () => {
 
                     // Then
                     m.expect(response$).toBeObservable(expected$);
-                })
+                }),
             );
 
             it(
@@ -485,7 +485,7 @@ describe('DataJobsEffects', () => {
                     const genericAction1 = GenericAction.of(
                         UPDATE_DATA_JOB,
                         createModel(undefined, 1, LOADING).getComponentState(),
-                        TASK_LOAD_JOB_STATE
+                        TASK_LOAD_JOB_STATE,
                     );
                     actions$ = m.cold('-a----------', {
                         a: genericAction1,
@@ -494,7 +494,7 @@ describe('DataJobsEffects', () => {
                     componentServiceStub.getModel.and.callFake(() =>
                         m.cold('---a', {
                             a: createModel(),
-                        })
+                        }),
                     );
 
                     const expected$ = m.cold('----a-', {
@@ -503,11 +503,11 @@ describe('DataJobsEffects', () => {
                                 .withTask(genericAction1.task)
                                 .withError(
                                     new Error(
-                                        'Unsupported ComponentModel update task'
-                                    )
+                                        'Unsupported ComponentModel update task',
+                                    ),
                                 )
                                 .withStatusFailed()
-                                .getComponentState()
+                                .getComponentState(),
                         ),
                     });
 
@@ -516,7 +516,7 @@ describe('DataJobsEffects', () => {
 
                     // Then
                     m.expect(response$).toBeObservable(expected$);
-                })
+                }),
             );
         });
     });
@@ -526,7 +526,7 @@ const createModel = (
     data?: Map<string, any>,
     navigationId = 1,
     status: StatusType = LOADING,
-    requestParams: Array<[string, any]> = []
+    requestParams: Array<[string, any]> = [],
 ) =>
     ComponentModel.of(
         ComponentStateImpl.of({
@@ -541,7 +541,7 @@ const createModel = (
             ]),
             navigationId,
         }),
-        RouterState.of(RouteState.empty(), navigationId)
+        RouterState.of(RouteState.empty(), navigationId),
     );
 
 const getJobStateTuple = () =>

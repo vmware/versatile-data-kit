@@ -2,12 +2,12 @@ project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
             'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
-            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.30.2',
+            'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.31',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.10.4',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.6',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
-            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.3',
+            'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.5.4',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.26',
             'com.h2database:h2'                                                  : 'com.h2database:h2:2.1.214',
             'org.apache.httpcomponents:httpclient'                               : 'org.apache.httpcomponents:httpclient:4.5.14',
@@ -31,7 +31,7 @@ project.ext {
             'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2021-10-25T04-50-54-fbc162f',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.2.0',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.5',
-            'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:4.43.0',
+            'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.2.0',
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.42.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.17.6',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2

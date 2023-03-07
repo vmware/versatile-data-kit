@@ -18,7 +18,7 @@ export interface GraphQLResponsePage<T> {
 // Deployment
 
 export interface BaseDataJobDeployment<
-    E extends DataJobExecution = DataJobExecution
+    E extends DataJobExecution = DataJobExecution,
 > extends StatusDetails {
     id: string;
     contacts?: DataJobContacts;
