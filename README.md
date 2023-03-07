@@ -48,7 +48,7 @@ VDK creates data processing workflows to:
 - Track both code and data modifications and the relationship between them, allowing quicker troubleshooting and version rollback.
 
 
-![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-light.svg#gh-light-mode-only)
+![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-img-transparent-light.svg#gh-light-mode-only)
 ![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-img-transparent-dark.svg#gh-dark-mode-only)
 ![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
 
