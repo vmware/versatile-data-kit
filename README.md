@@ -60,6 +60,12 @@ VDK creates data processing workflows to:
     - A plugin framework that allows users to extend the framework according to their specific requirements.
 - Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
 
+A preview of the VDK CLI commands:
+- `vdk create`
+- `vdk run`
+- `vdk deploy`<br>
+<br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
+
 # Getting Started
 Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
 
@@ -74,8 +80,8 @@ Create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull 
 
 # Contacts
 - Connect on Slack by:
-    1. Joining the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).
-    2. Joining the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
+    - Joining the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).
+    - Joining the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
 - Follow us on [Twitter](https://twitter.com/VDKProject).
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
 - Join our [development mailing list](mailto:join-versatiledatakit@groups.vmware.com), used by developers and maintainers of VDK.
