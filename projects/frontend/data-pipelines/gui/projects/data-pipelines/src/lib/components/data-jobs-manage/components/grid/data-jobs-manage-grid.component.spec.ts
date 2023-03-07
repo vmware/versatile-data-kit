@@ -80,15 +80,15 @@ describe('DataJobsManageGridComponent', () => {
     beforeEach(() => {
         componentServiceStub = jasmine.createSpyObj<ComponentService>(
             'componentService',
-            ['init', 'getModel', 'idle', 'update']
+            ['init', 'getModel', 'idle', 'update'],
         );
         navigationServiceStub = jasmine.createSpyObj<NavigationService>(
             'navigationService',
-            ['navigateTo', 'navigateBack']
+            ['navigateTo', 'navigateBack'],
         );
         routerServiceStub = jasmine.createSpyObj<RouterService>(
             'routerService',
-            ['getState', 'get']
+            ['getState', 'get'],
         );
         dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
             'dataJobsService',
@@ -100,20 +100,20 @@ describe('DataJobsManageGridComponent', () => {
                 'getNotifiedForRunningJobExecutionId',
                 'getNotifiedForJobExecutions',
                 'getNotifiedForTeamImplicitly',
-            ]
+            ],
         );
         toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
             'show',
         ]);
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
             'errorHandlerService',
-            ['processError', 'handleError']
+            ['processError', 'handleError'],
         );
 
         teamSubject = new Subject<string>();
         teamSubjectSubscribeSpy = spyOn(
             teamSubject,
-            'subscribe'
+            'subscribe',
         ).and.callThrough();
 
         const activatedRouteStub = () => ({
@@ -189,7 +189,7 @@ describe('DataJobsManageGridComponent', () => {
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
-            RouterState.of(RouteState.empty(), 1)
+            RouterState.of(RouteState.empty(), 1),
         );
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
@@ -210,7 +210,7 @@ describe('DataJobsManageGridComponent', () => {
         it('skips editJob for undefined job', () => {
             // Given
             const navigateToSpy = spyOn(component, 'navigateTo').and.callFake(
-                CallFake
+                CallFake,
             );
             component.selectedJob = null;
 
@@ -226,7 +226,7 @@ describe('DataJobsManageGridComponent', () => {
             // Given
             const navigateToSpy = spyOn(
                 component,
-                'navigateTo'
+                'navigateTo',
             ).and.returnValue(Promise.resolve(true));
             component.selectedJob = null;
             component.ngOnInit();

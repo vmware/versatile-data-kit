@@ -8,7 +8,7 @@ import { DataJobExecution } from '../../model';
 export class DateUtil {
     static compareDatesAsc(
         left: DataJobExecution,
-        right: DataJobExecution
+        right: DataJobExecution,
     ): number {
         const leftStartTime = left.startTime ?? 0;
         const rightStartTime = right.endTime ?? 0;

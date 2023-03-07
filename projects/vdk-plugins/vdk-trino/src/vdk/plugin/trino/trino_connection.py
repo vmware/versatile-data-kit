@@ -103,7 +103,6 @@ class TrinoConnection(ManagedConnectionBase):
         return res
 
     def _get_lineage_data(self, query):
-
         from vdk.plugin.trino import lineage_utils
         import sqlparse
 

@@ -77,7 +77,7 @@ describe('DataJobUtil', () => {
             // Given
             const spy = spyOn(
                 DataJobUtil,
-                'isJobRunningPredicate'
+                'isJobRunningPredicate',
             ).and.callThrough();
             const executions: DataJobExecutionDetails[] = [
                 { status: DataJobExecutionStatusDeprecated.RUNNING },
@@ -94,7 +94,7 @@ describe('DataJobUtil', () => {
             // Given
             const spy = spyOn(
                 DataJobUtil,
-                'isJobRunningPredicate'
+                'isJobRunningPredicate',
             ).and.callThrough();
             const executions: DataJobExecutionDetails[] = [
                 { status: DataJobExecutionStatusDeprecated.FAILED },
@@ -117,7 +117,7 @@ describe('DataJobUtil', () => {
             // Given
             const spy = spyOn(
                 DataJobUtil,
-                'isJobRunningPredicate'
+                'isJobRunningPredicate',
             ).and.callThrough();
             const executions: DataJobExecutionDetails[] = [
                 { status: DataJobExecutionStatusDeprecated.FAILED },
@@ -211,7 +211,7 @@ describe('DataJobUtil', () => {
                 DataJobUtil.convertFromExecutionDetailsToExecutionState(null);
             const res2 =
                 DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    undefined
+                    undefined,
                 );
 
             // Then
@@ -223,7 +223,7 @@ describe('DataJobUtil', () => {
             // When
             const converted =
                 DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails
+                    executionDetails,
                 );
 
             // Then
@@ -238,7 +238,7 @@ describe('DataJobUtil', () => {
             // When
             const converted =
                 DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails
+                    executionDetails,
                 );
 
             // Then
@@ -253,7 +253,7 @@ describe('DataJobUtil', () => {
             // When
             const converted =
                 DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails
+                    executionDetails,
                 );
 
             // Then
@@ -271,7 +271,7 @@ describe('DataJobUtil', () => {
             // When
             const converted =
                 DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails
+                    executionDetails,
                 );
 
             // Then

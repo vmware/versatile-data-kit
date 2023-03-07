@@ -17,7 +17,7 @@ import { By } from '@angular/platform-browser';
 
 import { ClarityModule } from '@clr/angular';
 
-import { FORM_STATE, VDKFormState } from './form-section-container.component';
+import { FORM_STATE, VdkFormState } from './form-section-container.component';
 import { VdkFormSectionComponent } from '../form-section';
 import {
 	VdkSimpleTranslateModule,
@@ -108,7 +108,7 @@ class PageObject {
 class TestHostComponent {
 	@ViewChild(VdkFormSectionContainerComponent, { static: false })
 	child: VdkFormSectionContainerComponent;
-	formState: VDKFormState;
+	formState: VdkFormState;
 
 	editProfileForm = new FormGroup({
 		firstName: new FormControl()
@@ -228,7 +228,7 @@ describe('Form Section Container Component', () => {
 		fixture.detectChanges();
 
 		expect(saveButton.disabled).toEqual(true, 'Save to be disabled');
-		hostComp.formState = new VDKFormState(FORM_STATE.CAN_EDIT);
+		hostComp.formState = new VdkFormState(FORM_STATE.CAN_EDIT);
 		fixture.detectChanges();
 
 		expect(page.getReadOnlySectionElements().length).toBe(

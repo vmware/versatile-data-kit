@@ -32,7 +32,7 @@ export class WidgetExecutionStatusGaugeComponent implements OnChanges {
                         this.successfulExecutions +=
                             dataJob.deployments[0].successfulExecutions;
                     }
-                }
+                },
             );
             this.totalExecutions =
                 this.failedExecutions + this.successfulExecutions;

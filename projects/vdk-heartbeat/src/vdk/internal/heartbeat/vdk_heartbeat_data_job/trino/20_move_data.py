@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 
 
 def run(job_input: IJobInput):
-
     job_input.execute_query(
         """
     INSERT INTO {db}.{table_destination}

@@ -22,7 +22,7 @@ export class DataJobUtil {
      * ** Predicate for Job Running.
      */
     static isJobRunningPredicate(
-        jobExecution: DataJobExecution | DataJobExecutionDetails
+        jobExecution: DataJobExecution | DataJobExecutionDetails,
     ): boolean {
         return (
             (jobExecution as DataJobExecution).status ===
@@ -40,7 +40,7 @@ export class DataJobUtil {
      * ** Find if some Job is running in provided Executions.
      */
     static isJobRunning(
-        jobExecutions: DataJobExecution[] | DataJobExecutionDetails[]
+        jobExecutions: DataJobExecution[] | DataJobExecutionDetails[],
     ): boolean {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         return (
@@ -49,7 +49,7 @@ export class DataJobUtil {
     }
 
     static convertFromExecutionDetailsToExecutionState(
-        jobExecutionDetails: DataJobExecutionDetails
+        jobExecutionDetails: DataJobExecutionDetails,
     ): DataJobExecution {
         if (CollectionsUtil.isNil(jobExecutionDetails)) {
             return {
@@ -90,7 +90,7 @@ export class DataJobUtil {
 
             if (
                 CollectionsUtil.isLiteralObject(
-                    jobExecutionDetails.deployment.schedule
+                    jobExecutionDetails.deployment.schedule,
                 )
             ) {
                 execution.deployment.schedule.scheduleCron =
@@ -99,7 +99,7 @@ export class DataJobUtil {
 
             if (
                 CollectionsUtil.isLiteralObject(
-                    jobExecutionDetails.deployment.resources
+                    jobExecutionDetails.deployment.resources,
                 )
             ) {
                 execution.deployment.resources.cpuRequest =
