@@ -9,6 +9,35 @@
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/data-pipelines/**/*"
 
+frontend-data-pipelines-build:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: build
+  needs:
+    - job: frontend-shared-components-build
+      optional: true
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/install_data_pipelines.sh
+  coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_data_pipelines_locations
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
+        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
+    paths:
+      - projects/frontend/data-pipelines/gui/package-lock.json
+    expire_in: 1 week
+
+# TODO: frontend-data-pipelines-publish: eval publish_artifact.sh <param>
+
 frontend_publish_test_image:
   image: docker:19.03.15
   variables:
@@ -41,7 +70,7 @@ frontend-shared-components-build:
     - ../../cicd/build_shared.sh
   retry: !reference [.retry, retry_options]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_shared_components_locations
   artifacts:
     when: always
@@ -51,6 +80,8 @@ frontend-shared-components-build:
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
     paths:
       - projects/frontend/shared-components/gui/package-lock.json
+      - projects/frontend/shared-components/gui/dist/
+      - projects/frontend/shared-components/gui/node_modules/
     expire_in: 1 week
 
 frontend-shared-components-release:
@@ -59,7 +90,6 @@ frontend-shared-components-release:
   before_script:
     - cd projects/frontend/shared-components/gui
   script:
-    - ../../cicd/build_shared.sh
     - ../../cicd/publish_shared.sh $CI_PIPELINE_ID $NPM_REGISTRY $NPM_TOKEN
   retry: !reference [.retry, retry_options]
   rules:
@@ -67,10 +97,6 @@ frontend-shared-components-release:
       changes: *frontend_shared_components_locations
   artifacts:
     when: always
-    reports:
-      junit:
-        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
-        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
     paths:
       - projects/frontend/shared-components/gui/package-lock.json
     expire_in: 1 week
