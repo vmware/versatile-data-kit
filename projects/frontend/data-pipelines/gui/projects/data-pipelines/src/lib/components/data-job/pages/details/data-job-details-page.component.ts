@@ -9,7 +9,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { take } from 'rxjs/operators';
 
-import { FORM_STATE, VMWFormState, VmwToastType } from '@vdk/shared';
+import {
+    FORM_STATE,
+    VdkFormState,
+    VmwToastType,
+} from '@versatiledatakit/shared';
 
 import {
     ASC,
@@ -27,7 +31,7 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     ConfirmationModalOptions,
@@ -109,9 +113,9 @@ export class DataJobDetailsPageComponent
     allowExecutionsByDeployment = false;
 
     tmForm: FormGroup;
-    formState: VMWFormState;
-    readFormState: VMWFormState;
-    editableFormState: VMWFormState;
+    formState: VdkFormState;
+    readFormState: VdkFormState;
+    editableFormState: VdkFormState;
 
     canEditSection = true;
 
@@ -153,13 +157,13 @@ export class DataJobDetailsPageComponent
         private readonly toastService: ToastService,
         private readonly errorHandlerService: ErrorHandlerService,
         @Inject(DATA_PIPELINES_CONFIGS)
-        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {
         super(componentService, navigationService, activatedRoute);
 
-        this.formState = new VMWFormState(FORM_STATE.VIEW);
-        this.readFormState = new VMWFormState(FORM_STATE.VIEW);
-        this.editableFormState = new VMWFormState(FORM_STATE.CAN_EDIT);
+        this.formState = new VdkFormState(FORM_STATE.VIEW);
+        this.readFormState = new VdkFormState(FORM_STATE.VIEW);
+        this.editableFormState = new VdkFormState(FORM_STATE.CAN_EDIT);
 
         this.confirmationOptions = new ConfirmationModalOptions();
         this.deleteOptions = new DeleteModalOptions();
@@ -191,14 +195,14 @@ export class DataJobDetailsPageComponent
         return !notifications || notifications.length < 1;
     }
 
-    sectionStateChange(sectionState: VMWFormState) {
+    sectionStateChange(sectionState: VdkFormState) {
         if (sectionState.state === FORM_STATE.CAN_EDIT) {
             switch (sectionState.emittingSection) {
                 case 'status':
                     this.status.setValue(
                         ExtractJobStatusPipe.transform(
-                            this.jobState?.deployments
-                        )
+                            this.jobState?.deployments,
+                        ),
                     );
                     break;
                 case 'description':
@@ -215,7 +219,7 @@ export class DataJobDetailsPageComponent
         }
     }
 
-    submitForm(event: VMWFormState) {
+    submitForm(event: VdkFormState) {
         if (
             event.emittingSection === 'description' &&
             this.isDescriptionSubmitEnabled()
@@ -232,7 +236,7 @@ export class DataJobDetailsPageComponent
     }
 
     editOperationEnded() {
-        this.formState = new VMWFormState(FORM_STATE.CAN_EDIT);
+        this.formState = new VdkFormState(FORM_STATE.CAN_EDIT);
         this.canEditSection = true;
     }
 
@@ -246,8 +250,8 @@ export class DataJobDetailsPageComponent
             .navigateByUrl(
                 StringUtil.stringFormat(
                     this.dataPipelinesModuleConfig.healthStatusUrl,
-                    this.jobDetails.job_name
-                )
+                    this.jobDetails.job_name,
+                ),
             )
             .then();
     }
@@ -284,7 +288,7 @@ export class DataJobDetailsPageComponent
                 ExtractJobStatusPipe.transform(this.jobState?.deployments) !==
                 DataJobStatus.NOT_DEPLOYED;
             this.cronError = CronUtil.getNextExecutionErrors(
-                this.jobState?.config?.schedule?.scheduleCron
+                this.jobState?.config?.schedule?.scheduleCron,
             );
 
             return;
@@ -309,11 +313,11 @@ export class DataJobDetailsPageComponent
 
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 const runningExecution = executions.find(
-                    DataJobUtil.isJobRunningPredicate
+                    DataJobUtil.isJobRunningPredicate,
                 );
                 if (runningExecution) {
                     this.dataJobsService.notifyForRunningJobExecutionId(
-                        runningExecution.id
+                        runningExecution.id,
                     );
                 }
             }
@@ -436,7 +440,7 @@ export class DataJobDetailsPageComponent
                 .withRequestParam(ORDER_REQ_PARAM, {
                     property: 'startTime',
                     direction: ASC,
-                } as DataJobExecutionOrder)
+                } as DataJobExecutionOrder),
         );
     }
 
@@ -489,10 +493,10 @@ export class DataJobDetailsPageComponent
                 .withRequestParam(TEAM_NAME_REQ_PARAM, jobDetailsUpdated.team)
                 .withRequestParam(
                     JOB_NAME_REQ_PARAM,
-                    jobDetailsUpdated.job_name
+                    jobDetailsUpdated.job_name,
                 )
                 .withRequestParam(JOB_DETAILS_REQ_PARAM, jobDetailsUpdated),
-            TASK_UPDATE_JOB_DESCRIPTION
+            TASK_UPDATE_JOB_DESCRIPTION,
         );
     }
 
@@ -501,7 +505,7 @@ export class DataJobDetailsPageComponent
 
         if (!jobDeployment) {
             console.log(
-                'Status update will not be performed for job with no deployments.'
+                'Status update will not be performed for job with no deployments.',
             );
 
             return;
@@ -525,16 +529,16 @@ export class DataJobDetailsPageComponent
                 .withRequestParam(JOB_DEPLOYMENT_ID_REQ_PARAM, jobDeployment.id)
                 .withRequestParam(
                     JOB_STATUS_REQ_PARAM,
-                    this.status.value === DataJobStatus.ENABLED
+                    this.status.value === DataJobStatus.ENABLED,
                 )
                 .withRequestParam(JOB_STATE_REQ_PARAM, jobState),
-            TASK_UPDATE_JOB_STATUS
+            TASK_UPDATE_JOB_STATUS,
         );
     }
 
     private _initializeNextRunDate(): void {
         this.next = ParseEpochPipe.transform(
-            this.jobState?.config?.schedule?.nextRunEpochSeconds
+            this.jobState?.config?.schedule?.nextRunEpochSeconds,
         );
     }
 
@@ -544,7 +548,7 @@ export class DataJobDetailsPageComponent
                 .getNotifiedForJobExecutions()
                 .subscribe((executions) => {
                     this.jobExecutions = executions;
-                })
+                }),
         );
     }
 

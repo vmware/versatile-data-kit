@@ -6,7 +6,7 @@
 import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
 import { PercentPipe } from '@angular/common';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DataJobDeployment } from '../../model';
 
@@ -44,7 +44,7 @@ export class ExecutionSuccessRatePipe implements PipeTransform {
 
         result += this._percentPipe.transform(
             firstDeployment.successfulExecutions / allExecutions,
-            '1.2-2'
+            '1.2-2',
         );
 
         if (firstDeployment.failedExecutions > 0) {

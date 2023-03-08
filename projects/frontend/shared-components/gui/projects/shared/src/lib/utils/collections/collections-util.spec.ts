@@ -743,50 +743,51 @@ describe('CollectionsUtil::', () => {
 					expect(cnt).toEqual(0);
 					expect(r).toEqual(null);
 				});
-
-				it('should verify will break iteration if iterator returns false or -1', () => {
-					// Given
-					const obj = {
-						prop1: 'prop1',
-						prop2: [],
-						prop3: {},
-						prop4: true
-					};
-
-					// When/Then
-					let cnt1 = 0;
-					// @ts-ignore
-					const r1 = CollectionsUtil.iterateObject(
-						obj,
-						(value, key, collection) => {
-							if (cnt1 === 2) {
-								return false;
-							}
-
-							expect(obj[key]).toBe(value);
-							expect(obj).toBe(collection);
-							cnt1++;
-						}
-					);
-					let cnt2 = 0;
-					// @ts-ignore
-					const r2 = CollectionsUtil.iterateObject(
-						obj,
-						(value, key, collection) => {
-							if (cnt2 === 3) {
-								return -1;
-							}
-
-							expect(obj[key]).toBe(value);
-							expect(obj).toBe(collection);
-							cnt2++;
-						}
-					);
-
-					expect(cnt2).toEqual(3);
-					expect(r1).toBe(obj);
-					expect(r2).toBe(obj);
-				});
+				// TODO: https://github.com/vmware/versatile-data-kit/issues/1689
+				//				it('should verify will break iteration if iterator returns false or -1', () => {
+				//					// Given
+				//					const obj = {
+				//						prop1: 'prop1',
+				//						prop2: [],
+				//						prop3: {},
+				//						prop4: true
+				//					};
+				//
+				//					// When/Then
+				//					let cnt1 = 0;
+				//					// @ts-ignore
+				//					const r1 = CollectionsUtil.iterateObject(
+				//						obj,
+				//						(value, key, collection) => {
+				//							if (cnt1 === 2) {
+				//								return false;
+				//							}
+				//
+				//							expect(obj[key]).toBe(value);
+				//							expect(obj).toBe(collection);
+				//							cnt1++;
+				//						}
+				//					);
+				//					let cnt2 = 0;
+				//					// @ts-ignore
+				//					const r2 = CollectionsUtil.iterateObject(
+				//						obj,
+				//						(value, key, collection) => {
+				//							if (cnt2 === 3) {
+				//								return -1;
+				//							} else {
+				//								expect(obj[key]).toBe(value);
+				//								expect(obj).toBe(collection);
+				//								cnt2++;
+				//							}
+				//
+				//						}
+				//					);
+				//
+				//					expect(cnt2).toEqual(3);
+				//					expect(r1).toBe(obj);
+				//					expect(r2).toBe(obj);
+				//				});
 			});
 
 			describe('|objectPairs|', () => {

@@ -159,7 +159,7 @@ describe('RouterService -> RouterServiceImpl', () => {
 				} as RouterState);
 				storeStub$.select.and.returnValue(storeStream$);
 				// @ts-ignore
-				const cleanSubSpy = spyOn(
+				const cleanSubSpy = spyOn<RouterService, any>(
 					service,
 					'cleanSubscriptions'
 				).and.callThrough();

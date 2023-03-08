@@ -13,7 +13,11 @@ import {
     SimpleChanges,
 } from '@angular/core';
 
-import { CollectionsUtil, PrimitivesNil, TaurusObject } from '@vdk/shared';
+import {
+    CollectionsUtil,
+    PrimitivesNil,
+    TaurusObject,
+} from '@versatiledatakit/shared';
 
 export interface Attributes {
     [attribute: string]: PrimitivesNil;
@@ -43,7 +47,7 @@ export class AttributesDirective
      */
     constructor(
         private readonly el: ElementRef,
-        private readonly renderer: Renderer2
+        private readonly renderer: Renderer2,
     ) {
         super();
     }
@@ -76,7 +80,7 @@ export class AttributesDirective
                 this._attributesCopy,
                 (_attributeValue, attributeName) => {
                     this._removeAttribute(attributeName);
-                }
+                },
             );
 
             return;
@@ -92,13 +96,13 @@ export class AttributesDirective
             this._attributesCopy,
             (attributeValue, attributeName) => {
                 this._setOrRemoveAttribute(attributeName, attributeValue);
-            }
+            },
         );
     }
 
     private _setOrRemoveAttribute(
         attributeName: string,
-        attributeValue: unknown
+        attributeValue: unknown,
     ): void {
         if (AttributesDirective._isTruthy(attributeValue)) {
             this._setAttribute(attributeName, attributeValue);
@@ -109,12 +113,12 @@ export class AttributesDirective
 
     private _setAttribute(
         attributeName: string,
-        attributeValue: unknown
+        attributeValue: unknown,
     ): void {
         this.renderer.setAttribute(
             this.el.nativeElement,
             attributeName,
-            attributeValue as string
+            attributeValue as string,
         );
     }
 

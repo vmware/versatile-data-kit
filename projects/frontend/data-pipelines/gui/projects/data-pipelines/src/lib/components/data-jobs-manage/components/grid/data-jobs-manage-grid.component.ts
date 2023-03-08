@@ -8,7 +8,7 @@ import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { VmwToastType } from '@vdk/shared';
+import { VmwToastType } from '@versatiledatakit/shared';
 
 import {
     ComponentService,
@@ -16,7 +16,7 @@ import {
     NavigationService,
     RouterService,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../../../shared/utils';
 
@@ -78,7 +78,7 @@ export class DataJobsManageGridComponent
         @Inject(DOCUMENT) document: Document,
         @Inject(DATA_PIPELINES_CONFIGS)
         dataPipelinesModuleConfig: DataPipelinesConfig,
-        private readonly toastService: ToastService
+        private readonly toastService: ToastService,
     ) {
         super(
             componentService,
@@ -103,7 +103,7 @@ export class DataJobsManageGridComponent
                     notifications: true,
                     source: true,
                 },
-            }
+            },
         );
 
         this.confirmStatusOptions = new ConfirmationModalOptions();
@@ -129,7 +129,7 @@ export class DataJobsManageGridComponent
         const selectedJobDeployment = this.extractSelectedJobDeployment();
         if (!selectedJobDeployment) {
             console.log(
-                'Status update action will not be performed for job with no deployments.'
+                'Status update action will not be performed for job with no deployments.',
             );
             return;
         }
@@ -140,7 +140,7 @@ export class DataJobsManageGridComponent
                     this.selectedJob.config?.team,
                     this.selectedJob.jobName,
                     selectedJobDeployment.id,
-                    !selectedJobDeployment.enabled
+                    !selectedJobDeployment.enabled,
                 )
                 .subscribe({
                     next: () => {
@@ -162,10 +162,10 @@ export class DataJobsManageGridComponent
                             ErrorUtil.extractError(error as Error),
                             {
                                 title: `Updating status for Data job "${this.selectedJob?.jobName}" failed`,
-                            }
+                            },
                         );
                     },
-                })
+                }),
         );
     }
 
@@ -181,14 +181,14 @@ export class DataJobsManageGridComponent
                 .executeDataJob(
                     this.selectedJob.config?.team,
                     this.selectedJob.jobName,
-                    this.extractSelectedJobDeployment().id
+                    this.extractSelectedJobDeployment().id,
                 )
                 .subscribe({
                     next: () => {
                         this.toastService.show(
                             ToastDefinitions.successfullyRanJob(
-                                this.selectedJob.jobName
-                            )
+                                this.selectedJob.jobName,
+                            ),
                         );
                     },
                     error: (error: unknown) => {
@@ -199,10 +199,10 @@ export class DataJobsManageGridComponent
                                     (error as HttpErrorResponse)?.status === 409
                                         ? 'Failed, Data job is already executing'
                                         : 'Failed to queue Data job for execution',
-                            }
+                            },
                         );
                     },
-                })
+                }),
         );
     }
 
@@ -247,8 +247,8 @@ export class DataJobsManageGridComponent
                             this.resetTeamNameFilter();
                             console.error('Error loading selected team', error);
                         },
-                    }
-                )
+                    },
+                ),
             );
         }
     }

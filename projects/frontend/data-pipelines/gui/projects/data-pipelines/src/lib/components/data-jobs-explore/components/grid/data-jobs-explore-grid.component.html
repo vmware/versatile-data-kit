@@ -308,7 +308,7 @@
                 <clr-dg-cell
                     class="column__min-width--xl"
                     title="{{ job.config?.description }}"
-                    >{{ job.config?.description | words: 8 }}</clr-dg-cell
+                    >{{ job.config?.description | words : 8 }}</clr-dg-cell
                 >
 
                 <clr-dg-cell
@@ -321,7 +321,7 @@
                     {{
                         job.deployments
                             ? (job.deployments[0]?.lastExecutionTime
-                              | date: "MMM d, y, hh:mm a":"utc")
+                              | date : "MMM d, y, hh:mm a" : "utc")
                             : null
                     }}
                 </clr-dg-cell>
@@ -349,7 +349,7 @@
                 >
 
                 <clr-dg-cell class="column__min-width--xl">{{
-                    job.config?.schedule?.scheduleCron | formatSchedule: ""
+                    job.config?.schedule?.scheduleCron | formatSchedule : ""
                 }}</clr-dg-cell>
 
                 <clr-dg-cell
@@ -360,7 +360,7 @@
                             ? 'Next job run:' +
                               (job.config?.schedule?.nextRunEpochSeconds
                                   | parseEpoch
-                                  | date: 'MMM d, y, hh:mm a':'UTC')
+                                  | date : 'MMM d, y, hh:mm a' : 'UTC')
                             : ''
                     }}"
                 >
@@ -373,7 +373,7 @@
                         {{
                             job.config?.schedule?.nextRunEpochSeconds
                                 | parseEpoch
-                                | date: "MMM d, y, hh:mm a":"UTC"
+                                | date : "MMM d, y, hh:mm a" : "UTC"
                         }}
                     </span>
                 </clr-dg-cell>
@@ -384,14 +384,14 @@
                         job.deployments && job.deployments[0]?.lastDeployedDate
                             ? 'Last job deployed: ' +
                               (job.deployments[0]?.lastDeployedDate
-                                  | date: 'MMM d, y, hh:mm a':'UTC')
+                                  | date : 'MMM d, y, hh:mm a' : 'UTC')
                             : null
                     "
                 >
                     {{
                         job.deployments && job.deployments[0]?.lastDeployedDate
                             ? (job.deployments[0]?.lastDeployedDate
-                              | date: "MMM d, y, hh:mm a":"UTC")
+                              | date : "MMM d, y, hh:mm a" : "UTC")
                             : null
                     }}
                 </clr-dg-cell>

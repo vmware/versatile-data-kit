@@ -23,7 +23,7 @@ import {
 // TODO [import dayjs from 'dayjs'] used in ng2-date-picker v13+ instead of moment
 import moment from 'moment';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 type CustomFormGroup = FormGroup & { controls: { [key: string]: FormControl } };
 
@@ -105,8 +105,8 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
                     .get('fromDate')
                     .patchValue(
                         this._normalizeDateTime(date, 'from', 'utc').format(
-                            this.fromPickerConfig.format
-                        )
+                            this.fromPickerConfig.format,
+                        ),
                     );
             }
         }
@@ -145,7 +145,7 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             const origMinTimeUtc = this._normalizeDateTime(
                 this._minTimeOrig,
                 'from',
-                'utc'
+                'utc',
             );
             if (
                 emittedDate.isBefore(origMinTimeUtc) ||
@@ -158,8 +158,8 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
                 this._normalizeDateTime(
                     emittedDate,
                     'from',
-                    'timezone'
-                ).valueOf()
+                    'timezone',
+                ).valueOf(),
             );
 
             this.toTimeMin = this._normalizeDateTime(emittedDate, 'min');
@@ -176,7 +176,11 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             }
 
             this.toTime = new Date(
-                this._normalizeDateTime(emittedDate, 'to', 'timezone').valueOf()
+                this._normalizeDateTime(
+                    emittedDate,
+                    'to',
+                    'timezone',
+                ).valueOf(),
             );
 
             this.fromTimeMax = this._normalizeDateTime(emittedDate, 'max');
@@ -237,10 +241,10 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
      * @inheritDoc
      */
     ngOnInit(): void {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this._refreshIntervalRef = setInterval(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this._refreshMaxTime.bind(this),
-            15 * 1000
+            15 * 1000,
         ); // Update max time every 15s
     }
 
@@ -278,8 +282,8 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
                     .get('toDate')
                     .patchValue(
                         this._normalizeDateTime(date, 'to', 'utc').format(
-                            this.toPickerConfig.format
-                        )
+                            this.toPickerConfig.format,
+                        ),
                     );
             }
         }
@@ -288,7 +292,7 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
     private _normalizeDateTime(
         date: Date | moment.Moment,
         type: 'min' | 'max' | 'from' | 'to',
-        travel: 'utc' | 'timezone' = null
+        travel: 'utc' | 'timezone' = null,
     ): moment.Moment {
         const offset = moment().utcOffset();
 

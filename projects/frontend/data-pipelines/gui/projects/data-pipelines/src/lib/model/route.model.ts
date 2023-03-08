@@ -10,7 +10,7 @@ import {
     TaurusRouteNavigateBackData,
     TaurusRouteNavigateToData,
     TaurusRoutes,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 export interface DataPipelinesRestoreUI {
     /**

@@ -14,7 +14,7 @@ import { ApolloQueryResult, gql, InMemoryCache } from '@apollo/client/core';
 import { Apollo, ApolloBase, QueryRef } from 'apollo-angular';
 import { HttpLink, HttpLinkHandler } from 'apollo-angular/http';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import {
     DataJobExecutionsPage,
@@ -47,7 +47,7 @@ describe('DataJobsBaseApiService', () => {
         ]);
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
             'errorHandlerService',
-            ['processError', 'handleError']
+            ['processError', 'handleError'],
         );
 
         apolloBaseStub = jasmine.createSpyObj<ApolloBase>('apolloBase', [
@@ -130,16 +130,16 @@ describe('DataJobsBaseApiService', () => {
                     method: 'GET',
                 });
                 expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(
-                    ownerTeam
+                    ownerTeam,
                 );
                 expect(
-                    apolloStub.createNamed.calls.argsFor(0)[1].cache
+                    apolloStub.createNamed.calls.argsFor(0)[1].cache,
                 ).toEqual(jasmine.any(InMemoryCache));
                 expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(
-                    apolloLinkHandlerStub
+                    apolloLinkHandlerStub,
                 );
                 expect(
-                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions
+                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions,
                 ).toEqual({
                     watchQuery: {
                         fetchPolicy: 'no-cache',
@@ -220,16 +220,16 @@ describe('DataJobsBaseApiService', () => {
                     method: 'GET',
                 });
                 expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(
-                    ownerTeam
+                    ownerTeam,
                 );
                 expect(
-                    apolloStub.createNamed.calls.argsFor(0)[1].cache
+                    apolloStub.createNamed.calls.argsFor(0)[1].cache,
                 ).toEqual(jasmine.any(InMemoryCache));
                 expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(
-                    apolloLinkHandlerStub
+                    apolloLinkHandlerStub,
                 );
                 expect(
-                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions
+                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions,
                 ).toEqual({
                     watchQuery: {
                         fetchPolicy: 'no-cache',
@@ -311,16 +311,16 @@ describe('DataJobsBaseApiService', () => {
                     method: 'GET',
                 });
                 expect(apolloStub.createNamed.calls.argsFor(0)[0]).toEqual(
-                    ownerTeam
+                    ownerTeam,
                 );
                 expect(
-                    apolloStub.createNamed.calls.argsFor(0)[1].cache
+                    apolloStub.createNamed.calls.argsFor(0)[1].cache,
                 ).toEqual(jasmine.any(InMemoryCache));
                 expect(apolloStub.createNamed.calls.argsFor(0)[1].link).toBe(
-                    apolloLinkHandlerStub
+                    apolloLinkHandlerStub,
                 );
                 expect(
-                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions
+                    apolloStub.createNamed.calls.argsFor(0)[1].defaultOptions,
                 ).toEqual({
                     watchQuery: {
                         fetchPolicy: 'no-cache',
