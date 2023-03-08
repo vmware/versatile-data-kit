@@ -26,7 +26,6 @@ jobs:
         uses: "pascalgn/automerge-action@v0.15.6"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_LABELS: "dependencies"
           MERGE_METHOD: "rebase"
           MERGE_COMMIT_MESSAGE: "pull-request-description"
           MERGE_FORKS: "false"
