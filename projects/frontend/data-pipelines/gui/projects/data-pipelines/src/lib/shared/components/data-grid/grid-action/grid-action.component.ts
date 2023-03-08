@@ -14,7 +14,7 @@ import {
     ViewEncapsulation,
 } from '@angular/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { QuickFilterChangeEvent, QuickFilters } from '../../quick-filters';
 

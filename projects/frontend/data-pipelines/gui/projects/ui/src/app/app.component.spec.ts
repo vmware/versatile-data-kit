@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 
 import { OAuthService, UrlHelperService } from 'angular-oauth2-oidc';
 
-import { NavigationService, RouterService } from '@vdk/shared';
+import { NavigationService, RouterService } from '@versatiledatakit/shared';
 
 import { AppComponent } from './app.component';
 import { TokenResponse } from 'angular-oauth2-oidc/types';
@@ -23,7 +23,7 @@ describe('AppComponent', () => {
     beforeEach(() => {
         routerServiceStub = jasmine.createSpyObj<RouterService>(
             'routerService',
-            ['getState']
+            ['getState'],
         );
         oAuthServiceStub = jasmine.createSpyObj<OAuthService>('oAuthService', [
             'configure',
@@ -36,17 +36,17 @@ describe('AppComponent', () => {
         ]);
         navigationServiceStub = jasmine.createSpyObj<NavigationService>(
             'navigationService',
-            ['initialize']
+            ['initialize'],
         );
 
         routerServiceStub.getState.and.returnValue(new Subject());
         oAuthServiceStub.getIdentityClaims.and.returnValue({});
         oAuthServiceStub.loadDiscoveryDocumentAndLogin.and.returnValue(
-            Promise.resolve(true)
+            Promise.resolve(true),
         );
         oAuthServiceStub.getAccessTokenExpiration.and.returnValue(0);
         oAuthServiceStub.refreshToken.and.returnValue(
-            Promise.resolve({} as TokenResponse)
+            Promise.resolve({} as TokenResponse),
         );
 
         TestBed.configureTestingModule({

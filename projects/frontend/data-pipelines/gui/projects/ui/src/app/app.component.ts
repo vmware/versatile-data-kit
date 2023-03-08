@@ -9,7 +9,7 @@ import { timer } from 'rxjs';
 
 import { OAuthService } from 'angular-oauth2-oidc';
 
-import { NavigationService } from '@vdk/shared';
+import { NavigationService } from '@versatiledatakit/shared';
 
 import { authCodeFlowConfig, refreshTokenConfig } from './auth';
 
@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
 
     constructor(
         private readonly oauthService: OAuthService,
-        private readonly navigationService: NavigationService
+        private readonly navigationService: NavigationService,
     ) {
         this.oauthService.configure(authCodeFlowConfig);
         this.oauthService
@@ -73,14 +73,14 @@ export class AppComponent implements OnInit {
     private initTokenRefresh() {
         timer(
             REFRESH_TOKEN_START,
-            AppComponent.toMillis(refreshTokenConfig.refreshTokenCheckInterval)
+            AppComponent.toMillis(refreshTokenConfig.refreshTokenCheckInterval),
         ).subscribe(() => {
             const remainiTimeMillis =
                 this.oauthService.getAccessTokenExpiration() - Date.now();
             if (
                 remainiTimeMillis <=
                 AppComponent.toMillis(
-                    refreshTokenConfig.refreshTokenRemainingTime
+                    refreshTokenConfig.refreshTokenRemainingTime,
                 )
             ) {
                 this.setCustomTokenAttributes(false, null);
@@ -93,7 +93,7 @@ export class AppComponent implements OnInit {
 
     private setCustomTokenAttributes(
         redirectToConsole: boolean,
-        defaultOrg: { refLink: string }
+        defaultOrg: { refLink: string },
     ) {
         const linkOrgQuery = AppComponent.getOrgLinkFromQueryParams(defaultOrg);
         this.oauthService.customQueryParams = {

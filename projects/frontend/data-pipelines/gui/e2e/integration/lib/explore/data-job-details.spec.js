@@ -18,7 +18,7 @@ describe(
         before(() => {
             return DataJobExploreDetailsPage.recordHarIfSupported()
                 .then(() =>
-                    cy.clearLocalStorageSnapshot("data-job-explore-details")
+                    cy.clearLocalStorageSnapshot("data-job-explore-details"),
                 )
                 .then(() => DataJobExploreDetailsPage.login())
                 .then(() => cy.saveLocalStorage("data-job-explore-details"))
@@ -54,7 +54,7 @@ describe(
 
             dataJobsExplorePage.openJobDetails(
                 testJobs[0].team,
-                testJobs[0].job_name
+                testJobs[0].job_name,
             );
 
             dataJobExploreDetailsPage = DataJobExploreDetailsPage.getPage();
@@ -86,7 +86,7 @@ describe(
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    "At 12:00 AM, on day 01 of the month, and on Friday"
+                    "At 12:00 AM, on day 01 of the month, and on Friday",
                 );
 
             // DISABLED Because there is no Source at the moment.
@@ -101,7 +101,7 @@ describe(
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    testJobs[0].config.contacts.notified_on_job_deploy
+                    testJobs[0].config.contacts.notified_on_job_deploy,
                 );
 
             dataJobExploreDetailsPage
@@ -110,7 +110,7 @@ describe(
                 .should(
                     "contains.text",
                     testJobs[0].config.contacts
-                        .notified_on_job_failure_platform_error
+                        .notified_on_job_failure_platform_error,
                 );
 
             dataJobExploreDetailsPage
@@ -119,7 +119,7 @@ describe(
                 .should(
                     "contains.text",
                     testJobs[0].config.contacts
-                        .notified_on_job_failure_user_error
+                        .notified_on_job_failure_user_error,
                 );
 
             dataJobExploreDetailsPage
@@ -127,7 +127,7 @@ describe(
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    testJobs[0].config.contacts.notified_on_job_success
+                    testJobs[0].config.contacts.notified_on_job_success,
                 );
         });
 
@@ -138,7 +138,7 @@ describe(
 
             dataJobsExplorePage.openJobDetails(
                 testJobs[0].team,
-                testJobs[0].job_name
+                testJobs[0].job_name,
             );
 
             const dataJobExploreDetailsPage =
@@ -162,7 +162,7 @@ describe(
 
             dataJobsExplorePage.openJobDetails(
                 testJobs[0].team,
-                testJobs[0].job_name
+                testJobs[0].job_name,
             );
 
             const dataJobExploreDetailsPage =
@@ -179,5 +179,5 @@ describe(
                 .getActionDropdownBtn()
                 .should("not.exist");
         });
-    }
+    },
 );

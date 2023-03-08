@@ -109,7 +109,7 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
 
             // navigate to most recent failing job executions
             dataJobsHealthPanel.navigateToMostRecentFailingJobExecutions(
-                testJob.job_name
+                testJob.job_name,
             );
 
             const dataJobManageExecutionsPage =

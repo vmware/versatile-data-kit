@@ -1,6 +1,6 @@
 {
   "name": "data-pipelines-wrapper",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "engines": {
     "node": "^14.15.0 || >=16.10.0",
     "npm": ">=8.5.5"
@@ -9,7 +9,7 @@
   "scripts": {
     "ng": "node --max_old_space_size=2048 ./node_modules/@angular/cli/bin/ng",
     "start": "npm run ng -- serve",
-    "build": "npm run ng -- build",
+    "build": "npm run ng -- build --configuration=production",
     "build:dev": "npm run build -- --configuration=development",
     "build:watch": "npm run ng -- build --watch",
     "build:ui": "npm run build -- ui --configuration=production",
@@ -46,7 +46,7 @@
     "@ngrx/store": "13.2.0",
     "@swimlane/ngx-charts": "16.0.0",
     "@swimlane/ngx-graph": "8.0.0",
-    "@vdk/shared": "0.0.1",
+    "@versatiledatakit/shared": ">=0.0.0",
     "@webcomponents/custom-elements": "1.5.0",
     "@yellowspot/ng-truncate": "2.0.1",
     "angular-ng-autocomplete": "2.0.8",
@@ -71,7 +71,7 @@
     "lodash": "4.17.21",
     "lottie-web": "5.9.4",
     "lz-string": "1.4.4",
-    "moment": "2.29.3",
+    "moment": "2.29.4",
     "ng2-date-picker": "12.0.4",
     "ngx-clipboard": "15.1.0",
     "ngx-cookie-service": "13.2.1",
@@ -82,11 +82,11 @@
     "striptags": "3.2.0",
     "superagent": "5.3.1",
     "tslib": "2.3.1",
-    "ua-parser-js": "1.0.2",
+    "ua-parser-js": "1.0.33",
     "zone.js": "0.11.5"
   },
   "optionalDependencies": {
-    "@vdk/data-pipelines": "0.0.1"
+    "@versatiledatakit/data-pipelines": "0.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "13.3.7",

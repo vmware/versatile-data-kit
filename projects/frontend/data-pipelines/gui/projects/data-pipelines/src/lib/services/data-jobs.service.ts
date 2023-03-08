@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
 
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
-import { ComponentModel, ComponentService } from '@vdk/shared';
+import { ComponentModel, ComponentService } from '@versatiledatakit/shared';
 
 import {
     FETCH_DATA_JOB,
@@ -97,7 +97,7 @@ export class DataJobsServiceImpl extends DataJobsService {
         this.componentService.load(model.getComponentState());
         this.componentService.dispatchAction(
             FETCH_DATA_JOBS,
-            model.getComponentState()
+            model.getComponentState(),
         );
     }
 
@@ -105,7 +105,7 @@ export class DataJobsServiceImpl extends DataJobsService {
         this.componentService.load(model.getComponentState());
         this.componentService.dispatchAction(
             FETCH_DATA_JOB,
-            model.getComponentState()
+            model.getComponentState(),
         );
     }
 
@@ -117,7 +117,7 @@ export class DataJobsServiceImpl extends DataJobsService {
         this.componentService.dispatchAction(
             FETCH_DATA_JOB_EXECUTIONS,
             model.getComponentState(),
-            TASK_LOAD_JOB_EXECUTIONS
+            TASK_LOAD_JOB_EXECUTIONS,
         );
     }
 
@@ -129,7 +129,7 @@ export class DataJobsServiceImpl extends DataJobsService {
         this.componentService.dispatchAction(
             UPDATE_DATA_JOB,
             model.getComponentState(),
-            task
+            task,
         );
     }
 

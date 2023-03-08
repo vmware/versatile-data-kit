@@ -8,7 +8,7 @@ import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, delay, map } from 'rxjs/operators';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../shared/utils';
 
@@ -116,7 +116,7 @@ export class DataJobsWidgetOneComponent implements OnInit {
 
     constructor(
         private readonly dataJobsService: DataJobsApiService,
-        private readonly errorHandlerService: ErrorHandlerService
+        private readonly errorHandlerService: ErrorHandlerService,
     ) {}
 
     @HostListener('window:resize')
@@ -156,11 +156,11 @@ export class DataJobsWidgetOneComponent implements OnInit {
                             this.errorJobs = !!error;
 
                             this.errorHandlerService.processError(
-                                ErrorUtil.extractError(error as Error)
+                                ErrorUtil.extractError(error as Error),
                             );
 
                             return throwError(() => error);
-                        })
+                        }),
                     );
                 break;
             case WidgetTab.EXECUTIONS:
@@ -173,13 +173,13 @@ export class DataJobsWidgetOneComponent implements OnInit {
                     },
                 }).pipe(
                     map((result) => result?.data),
-                    delay(1200) // TODO: Remove delay when consume data from API
+                    delay(1200), // TODO: Remove delay when consume data from API
                 );
                 break;
             case WidgetTab.FAILURES:
                 // TODO: Consume data from API
                 const failuresMock = executionsMock.filter(
-                    (e) => e.status === DataJobExecutionStatus.FAILED
+                    (e) => e.status === DataJobExecutionStatus.FAILED,
                 );
                 this.failures$ = of({
                     data: {
@@ -189,7 +189,7 @@ export class DataJobsWidgetOneComponent implements OnInit {
                     },
                 }).pipe(
                     map((result) => result?.data),
-                    delay(1800) // TODO: Remove delay when consume data from API
+                    delay(1800), // TODO: Remove delay when consume data from API
                 );
                 break;
         }

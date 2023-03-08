@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 
 import { ApolloQueryResult } from '@apollo/client/core';
 
-import { ApiPredicate, CollectionsUtil } from '@vdk/shared';
+import { ApiPredicate, CollectionsUtil } from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -41,7 +41,7 @@ export class DataJobsApiService {
         @Inject(DATA_PIPELINES_CONFIGS)
         dataPipelinesModuleConfig: DataPipelinesConfig,
         private readonly http: HttpClient,
-        private readonly dataJobsBaseService: DataJobsBaseApiService
+        private readonly dataJobsBaseService: DataJobsBaseApiService,
     ) {
         this._validateModuleConfig(dataPipelinesModuleConfig);
 
@@ -53,7 +53,7 @@ export class DataJobsApiService {
                         //Take the first element from the teams array
                         this.ownerTeamName = result[0];
                     }
-                }
+                },
             );
         }
     }
@@ -62,7 +62,7 @@ export class DataJobsApiService {
         filters: ApiPredicate[],
         searchQueryValue: string,
         pageNumber: number,
-        pageSize: number
+        pageSize: number,
     ): Observable<ApolloQueryResult<DataJobPage>> {
         return this.dataJobsBaseService.getJobs(
             this.ownerTeamName,
@@ -112,7 +112,7 @@ export class DataJobsApiService {
                 pageSize,
                 filter: filters,
                 search: searchQueryValue,
-            }
+            },
         );
     }
 
@@ -159,7 +159,7 @@ export class DataJobsApiService {
               }`,
                 {
                     filter: this._createTeamJobNameFilter(teamName, jobName),
-                }
+                },
             )
             .pipe(
                 map((response: ApolloQueryResult<DataJobPage>) => {
@@ -171,22 +171,22 @@ export class DataJobsApiService {
                     }
 
                     return response.data.content[0];
-                })
+                }),
             );
     }
 
     getJobDetails(
         teamName: string,
-        jobName: string
+        jobName: string,
     ): Observable<DataJobDetails> {
         return this.http.get<DataJobDetails>(
-            `/data-jobs/for-team/${teamName}/jobs/${jobName}`
+            `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
         );
     }
 
     removeJob(teamName: string, jobName: string): Observable<DataJobDetails> {
         return this.http.delete(
-            `/data-jobs/for-team/${teamName}/jobs/${jobName}`
+            `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
         );
     }
 
@@ -199,13 +199,13 @@ export class DataJobsApiService {
             {
                 headers: httpHeaders,
                 responseType: 'blob',
-            }
+            },
         );
     }
 
     getJobExecutions(
         teamName: string,
-        jobName: string
+        jobName: string,
     ): Observable<DataJobExecutionDetails[]>;
     getJobExecutions(
         teamName: string,
@@ -214,7 +214,7 @@ export class DataJobsApiService {
         filter?: DataJobExecutionFilter,
         order?: DataJobExecutionOrder,
         pageNumber?: number,
-        pageSize?: number
+        pageSize?: number,
     ): Observable<DataJobExecutionsPage>;
     getJobExecutions(
         teamName: string,
@@ -223,13 +223,13 @@ export class DataJobsApiService {
         filter: DataJobExecutionFilter = null,
         order: DataJobExecutionOrder = null,
         pageNumber: number = null,
-        pageSize: number = null
+        pageSize: number = null,
     ):
         | Observable<DataJobExecutionDetails[]>
         | Observable<DataJobExecutionsPage> {
         if (!forceGraphQL) {
             return this.http.get<DataJobExecutionDetails[]>(
-                `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions`
+                `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions`,
             );
         }
 
@@ -287,7 +287,7 @@ export class DataJobsApiService {
                     pageSize: pageSize ?? 500,
                     filter: preparedFilter,
                     order: order ?? null,
-                }
+                },
             )
             .pipe(map((response) => response.data));
     }
@@ -295,19 +295,19 @@ export class DataJobsApiService {
     getJobExecution(
         teamName: string,
         jobName: string,
-        executionId: string
+        executionId: string,
     ): Observable<DataJobExecutionDetails> {
         return this.http.get<DataJobExecutionDetails>(
-            `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+            `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`,
         );
     }
 
     getJobDeployments(
         teamName: string,
-        jobName: string
+        jobName: string,
     ): Observable<DataJobDeploymentDetails[]> {
         return this.http.get<DataJobDeploymentDetails[]>(
-            `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`
+            `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
         );
     }
 
@@ -315,52 +315,52 @@ export class DataJobsApiService {
         teamName: string,
         jobName: string,
         deploymentId: string,
-        dataJobEnabled: boolean
+        dataJobEnabled: boolean,
     ): Observable<{ enabled: boolean }> {
         const deploymentStatus = { enabled: dataJobEnabled };
 
         if (!deploymentId) {
             console.log(
-                `Status update will be processed with default deploymentId`
+                `Status update will be processed with default deploymentId`,
             );
             deploymentId = 'default';
         }
 
         return this.http.patch<{ enabled: boolean }>(
             `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}`,
-            deploymentStatus
+            deploymentStatus,
         );
     }
 
     updateDataJob(
         teamName: string,
         jobName: string,
-        dataJob: DataJobDetails
+        dataJob: DataJobDetails,
     ): Observable<DataJobDetails> {
         return this.http.put<DataJobDetails>(
             `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
-            dataJob
+            dataJob,
         );
     }
 
     executeDataJob(
         teamName: string,
         jobName: string,
-        deploymentId: string
+        deploymentId: string,
     ): Observable<undefined> {
         return this.http.post<undefined>(
             `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
-            {}
+            {},
         );
     }
 
     cancelDataJobExecution(
         teamName: string,
         jobName: string,
-        executionId: string
+        executionId: string,
     ): Observable<any> {
         return this.http.delete(
-            `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+            `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`,
         );
     }
 
@@ -372,7 +372,7 @@ export class DataJobsApiService {
     }
 
     private _validateModuleConfig(
-        dataPipelinesModuleConfig: DataPipelinesConfig
+        dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {
         if (!dataPipelinesModuleConfig?.defaultOwnerTeamName) {
             throw new Error(MISSING_DEFAULT_TEAM_MESSAGE);
