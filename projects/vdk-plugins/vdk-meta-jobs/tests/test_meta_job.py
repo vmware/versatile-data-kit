@@ -314,6 +314,8 @@ def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
         {
             "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
             "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5",
+            "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
+            "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
         },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
@@ -335,4 +337,4 @@ def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
 
         cli_assert_equal(0, result)
 
-        assert len(post_requests) == 17
+        assert len(post_requests) == 7
