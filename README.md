@@ -17,7 +17,7 @@
      <a href="https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q">
         <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCasf2Q7X8nF7S4VEmcTHJ0Q?style=social"></a>
 
-<!-- TODO: code coverage -->
+<!-- TODO:   coverage -->
 </p>
 
 
