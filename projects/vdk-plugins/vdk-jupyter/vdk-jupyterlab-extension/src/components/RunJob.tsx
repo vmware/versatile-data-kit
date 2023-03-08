@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
+import VDKTextInput from './VdkTextInput';
 
 export interface IRunJobDialogProps {
     /**
@@ -29,10 +30,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
     render(): React.ReactElement {
         return (
             <>
-                <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobPath">Path to parent directory:</label>
-                    <input type="text" id="jobPath" className='jp-vdk-input' placeholder={this.props.jobPath} onChange={this._onPathChange} />
-                </div>
+                <VDKTextInput option={VdkOption.PATH} value={this.props.jobPath} label="Path to job directory:"></VDKTextInput>
                 <div className='jp-vdk-input-wrapper'>
                     <label className='jp-vdk-label' htmlFor="vdkArguments">Arguments:</label>
                     <input type="text" className='jp-vdk-input' placeholder='{"key": "value"}' onChange={this._onArgsChange} />
@@ -41,19 +39,6 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
             </>
         );
     }
-    /**
-   * Callback invoked upon changing the  job path input.
-   *
-   * @param event - event object
-   */
-    private _onPathChange = (event: any): void => {
-        const element = event.currentTarget as HTMLInputElement;
-        let value = element.value;
-        if(!value){
-            value = this.props.jobPath;
-        }
-        jobData.set(VdkOption.PATH, value);
-    };
     /**
     * Callback invoked upon  changing the args input
     *

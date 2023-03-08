@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
+import VDKTextInput from './VdkTextInput';
 
 export interface ICreateJobDialogProps {
     /**
@@ -42,22 +43,10 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
                         <label className="checkboxLabel" htmlFor="Local">Cloud</label>
                     </div>
                 </div>
-                <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobName">Job Name:</label>
-                    <input type="text" id="jobName" className='jp-vdk-input' placeholder={this.props.jobName} onChange={this._onNameChange} />
-                </div>
-                <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobTeam">Job Team:</label>
-                    <input type="text" id="jobTeam" className='jp-vdk-input' placeholder="jobs" onChange={this._onTeamChange} />
-                </div>
-                <div className='jp-vdk-input-wrapper hidden'>
-                    <label className='jp-vdk-label' htmlFor="jobPath">Path to parent directory:</label>
-                    <input type="text" id="jobPath" className='jp-vdk-input' placeholder={this.props.jobPath} onChange={this._onPathChange} />
-                </div>
-                <div className='jp-vdk-input-wrapper hidden'>
-                    <label className='jp-vdk-label' htmlFor="jobRestApiUrl">Rest Api URL:</label>
-                    <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this._onRestApiUrlChange} />
-                </div>
+                <VDKTextInput option={VdkOption.NAME} value="default-name" label="Job Name:"></VDKTextInput>
+                 <VDKTextInput option={VdkOption.TEAM} value="default-team" label="Job Team:"></VDKTextInput>
+                 <VDKTextInput option={VdkOption.REST_API_URL} value="http://my_vdk_instance" label="Rest API URL:"></VDKTextInput>
+                 <VDKTextInput option={VdkOption.PATH} value={this.props.jobPath} label="Path to job directory:"></VDKTextInput>
             </>
         );
     }
@@ -104,59 +93,4 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
                 input?.parentElement?.classList.remove("hidden");
             }
  }
-
-
-    /**
-   * Callback invoked upon changing the job name input.
-   *
-   * @param event - event object
-   */
-    private _onNameChange = (event: any): void => {
-        const nameInput = event.currentTarget as HTMLInputElement;
-        let value = nameInput.value;
-        if (!value) {
-            value = this.props.jobPath;
-        }
-        jobData.set(VdkOption.NAME, value);
-    };
-    /**
-   * Callback invoked upon changing the job team input.
-   *
-   * @param event - event object
-   */
-    private _onTeamChange = (event: any): void => {
-        const teamInput = event.currentTarget as HTMLInputElement;
-        let value = teamInput.value;
-        if (!value) {
-            value = "default-team";
-        }
-        jobData.set(VdkOption.TEAM, value);
-    };
-    /**
-   * Callback invoked upon changing the job path input.
-   *
-   * @param event - event object
-   */
-    private _onPathChange = (event: any): void => {
-        const pathInput = event.currentTarget as HTMLInputElement;
-        let value = pathInput.value;
-        if (!value) {
-            value = this.props.jobPath;
-        }
-        jobData.set(VdkOption.PATH, value);
-    };
-    /**
-   * Callback invoked upon changing the job rest-api-url input.
-   *
-   * @param event - event object
-   */
-    private _onRestApiUrlChange = (event: any): void => {
-        const urlInput = event.currentTarget as HTMLInputElement;
-        let value = urlInput.value;
-        if (!value) {
-            value = "default-url";
-        }
-        jobData.set(VdkOption.REST_API_URL, value);
-    };
-
 }
