@@ -43,17 +43,20 @@ Explain the user problem that need to be solved.
 
 Data teams are constantly looking for ways to optimize and streamline their data processing workflows.
 One critical aspect of these workflows is managing job dependencies, which ensures that Data Jobs are executed
-in the appropriate order, leading to more accurate and consistent data output. However, relying on external
-workflow management tools can be costly and time-consuming, especially for smaller data teams with limited resources.
+in the appropriate order, leading to more accurate and consistent data output. Until now, we addressed this problem
+by integrating the external tool Apache Airflow. However, this approach comes with its downsides: teams would
+have to manage their own instance of Airflow, or pay for an externally managed service.
 
-To address this problem, VDK is introducing the Meta Jobs plugin. Meta Jobs are a lightweight alternative to external
-workflow management tools, providing users with the ability to manage job dependencies natively within the framework.
-This new feature simplifies the data processing workflow and allows users to create
-more complex and efficient data processing workflows without the need for additional external tools.
+To address this problem, VDK is introducing the Meta Jobs plugin. Meta Jobs are providing users with the ability
+to manage job dependencies natively within the framework. They are regular Data Jobs that invoke other Data Jobs using
+the Control Service Execution API. This new feature gives the chance to the user to easily orchestrate the workflow
+the way they want it, without the need to think about anything during the execution. The most important problem
+that Meta Jobs solve is that a certain Data Job will only be triggered after the successful completion
+(or other specified criteria) of one or more other Data Jobs.
 
-By introducing Meta Jobs, our data engineering framework empowers data teams to manage job dependencies more easily,
-leading to more reliable and efficient data processing workflows. This will ultimately save users time and resources,
-while enabling them to produce higher quality data output.
+By introducing Meta Jobs, our data engineering framework empowers data teams to manage job dependencies in an elegant,
+quick and easy fashion, leading to more reliable and efficient data processing workflows. This feature will
+ultimately save time, resources and dependencies to worry about, allowing users to produce higher quality data output.
 
 ## Requirements and goals
 <!--
