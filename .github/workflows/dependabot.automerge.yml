@@ -27,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           MERGE_METHOD: "rebase"
-          MERGE_COMMIT_MESSAGE: "pull-request-description"
+          MERGE_LABELS: "dependencies"
           MERGE_FORKS: "false"
           MERGE_RETRIES: "6"
           MERGE_RETRY_SLEEP: "10000"
