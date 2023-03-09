@@ -1,6 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
+# foo
 frontend_publish_test_image:
   image: docker:19.03.15
   variables:
