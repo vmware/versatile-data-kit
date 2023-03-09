@@ -42,7 +42,7 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
                     </div>
                     <div>
                         <input type="checkbox" name="Cloud" id="Cloud" className='jp-vdk-checkbox' onClick={this._onCloudClick()} />
-                        <label className="checkboxLabel" htmlFor="Local">Cloud</label>
+                        <label className="checkboxLabel" htmlFor="Cloud">Cloud</label>
                     </div>
                 </div>
                 <VDKTextInput option={VdkOption.NAME} value="default-name" label="Job Name:"></VDKTextInput>
