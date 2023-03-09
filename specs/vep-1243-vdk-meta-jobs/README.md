@@ -24,10 +24,10 @@ useful for a wide audience.
 -->
 
 The Meta Job is a new feature in VDK that enables users to manage job dependencies in their data processing workflows.
-It allows a Data Job to trigger other Data Jobs only after they have successfully completed,
-resulting in more accurate and consistent data output. An integration with Apache Airflow is available,
-but it requires users to manage their own instance or pay for an externally managed service.
-Meta Jobs provide a more lightweight alternative that simplifies the process and reduces cost.
+It allows a Data Job to manage other Data Jobs by triggering them on certain job completion conditions (i.e. job1
+and job2 complete before job3 starts) resulting in more accurate and consistent data output. An integration with
+Apache Airflow is available, but it requires users to manage their own instance or pay for an externally managed
+service. Meta Jobs provide a more lightweight alternative that simplifies the process and reduces cost.
 
 ## Glossary
 <!--
@@ -43,21 +43,20 @@ Explain the user problem that need to be solved.
 
 Data teams are constantly looking for ways to optimize and streamline their data processing workflows.
 One critical aspect of these workflows is managing job dependencies, which ensures that Data Jobs are executed
-in the appropriate order, leading to more accurate and consistent data output. Until now, we addressed this problem
-by integrating the external tool Apache Airflow. However, this approach comes with its downsides: teams would
+in the appropriate order. Until now, we addressed this problem
+by integrating with the external tool Apache Airflow. However, this approach comes with its downsides: teams would
 have to manage their instance of Airflow or pay for an externally managed service.
 
 To address this problem, VDK is introducing the Meta Jobs plugin. Meta Jobs are providing users with the ability
 to manage job dependencies natively within the framework. They ensure that one or more Data Jobs will be triggered
 upon successful completion (or other specified criteria) of one or more other Data Jobs. Similarly to other
 orchestrating services, Meta Jobs express the dependencies as a DAG. As Data Jobs themselves, they go with
-all the powerful features as every other Data Job, such as scheduling and monitoring. Meta Jobs invoke other Data Jobs
-using the Control Service Execution API. This new feature gives the chance to the user to easily orchestrate the
-workflow the way they want it.
+all the powerful features as every other Data Job, such as scheduling and monitoring.
+This new feature gives users the ability to easily orchestrate the workflow the way they want it.
 
-Introducing Meta Jobs, we allow for greater job segmentation, which can prove beneficial when working with complex
-pipelines. Breaking down the pipelines into more manageable Data Jobs can help users with maintaining and debugging
-their pipelines. Thus, this feature will save time, resources, and worries about external dependencies.
+Meta Jobs allow for greater job segmentation, which can prove beneficial when working with complex
+pipelines. Breaking down the pipelines into more manageable Data Jobs can help users with maintaining and debugging.
+Thus, this feature will save time, resources, and worries about external dependencies.
 Our data engineering framework empowers data teams to manage job dependencies with control, leading to more
 reliable and efficient data processing workflows.
 
