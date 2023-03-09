@@ -1,1 +1,6 @@
-/projects/frontend @tozka @vdkghbot
+# Code owners are a feature in GitHub that can be used to automatically request reviews 
+# from the defined code owners when changes are made to specific files or folders.
+# Use it if you want subcribe for only certain components / directories in the VDK repository
+# Add your github user id '@github_id' to the directory you want ot monitor.
+
+/projects/frontend/ @tozka @vdkghbot
