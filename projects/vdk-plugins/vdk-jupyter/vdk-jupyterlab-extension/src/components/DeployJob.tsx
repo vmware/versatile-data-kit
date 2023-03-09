@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
+import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { jobRunRequest } from '../serverRequests';
 
 export interface IDeployJobDialogProps {
     /**
@@ -66,3 +68,45 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
         }
     }
 }
+
+export async function showCreateDeploymentDialog() {
+    const result = await showDialog({
+      title: 'Create Deployment',
+      body: (
+        <DeployJobDialog jobName='job-to-deploy' jobPath={sessionStorage.getItem('current-path')!} jobTeam='my-team'></DeployJobDialog>
+      ),
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+    const resultButtonClicked = !result.value && result.button.accept;
+    if (resultButtonClicked) {
+      try {
+        const runConfirmationResult = await showDialog({
+          title: 'Create deployment',
+          body: "The job will be executed once before deployment.\n Check the result and decide whether you will continue with the deployment, please!",
+          buttons: [
+            Dialog.cancelButton({ label: 'Cancel' }),
+            Dialog.okButton({ label: 'Continue' })
+          ]
+        });
+        if (runConfirmationResult.button.accept) {
+          let success = await jobRunRequest();
+          if(success[1]){
+            // add server request
+          }
+          else{
+            showErrorMessage(
+              'Encauntered an error while running the job!',
+              success[0],
+              [Dialog.okButton()]
+            );
+          }
+        }
+      } catch (error) {
+        await showErrorMessage(
+          'Encountered an error when deploying the job. Error:',
+          error,
+          [Dialog.okButton()]
+        );
+      }
+    }
+  }

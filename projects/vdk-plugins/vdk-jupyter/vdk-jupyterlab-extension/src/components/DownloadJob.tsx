@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { downloadJobRequest } from '../serverRequests';
 
 export interface IDownloadJobDialogProps {
     /**
@@ -35,3 +37,19 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         );
     }
 }
+
+export async function showDownloadJobDialog() {
+    const result = await showDialog({
+      title: 'Download Job',
+      body: (
+        <DownloadJobDialog
+          parentPath={sessionStorage.getItem('current-path')!}
+        ></DownloadJobDialog>
+      ),
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+    const resultButtonClicked = !result.value && result.button.accept;
+    if (resultButtonClicked) {
+      await downloadJobRequest();
+    }
+  }

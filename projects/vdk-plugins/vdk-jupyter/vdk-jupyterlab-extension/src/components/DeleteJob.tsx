@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
+import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { jobData } from '../jobData';
+import { deleteJobRequest } from '../serverRequests';
 
 export interface IDeleteJobDialogProps {
     /**
@@ -39,3 +42,45 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
         );
     }
 }
+
+export async function showDeleteJobDialog(){
+    const result = await showDialog({
+      title: 'Delete Job',
+      body: (
+        <DeleteJobDialog
+          jobName="job-to-delete"
+          jobTeam="default-team"
+        ></DeleteJobDialog>
+      ),
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+    if (result.button.accept) {
+      let bodyMessage =
+        'Do you really want to delete the job with name ' +
+        jobData.get(VdkOption.NAME) +
+        ' from ' +
+        jobData.get(VdkOption.REST_API_URL) +
+        '?';
+      try {
+        const finalResult = await showDialog({
+          title: 'Delete a data job',
+          body: bodyMessage,
+          buttons: [
+            Dialog.cancelButton({ label: 'Cancel' }),
+            Dialog.okButton({ label: 'Yes' })
+          ]
+        });
+        if (finalResult.button.accept) {
+          await deleteJobRequest();
+        }
+      } catch (error) {
+        await showErrorMessage(
+          'Encountered an error when deleting the job. Error:',
+          error,
+          [Dialog.okButton()]
+        );
+      }
+    }
+  }
+
+  

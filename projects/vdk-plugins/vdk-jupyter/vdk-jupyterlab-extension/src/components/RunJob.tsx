@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { jobRunRequest } from '../serverRequests';
 
 export interface IRunJobDialogProps {
     /**
@@ -61,3 +63,22 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
           }
       }
 }
+
+export async function showRunJobDialog(){
+    const result = await showDialog({
+      title: 'Run Job',
+      body: (
+        <RunJobDialog
+          jobPath={sessionStorage.getItem('current-path')!}
+        ></RunJobDialog>
+      ),
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+    const resultButtonClicked = !result.value && result.button.accept;
+    if (resultButtonClicked) {
+      let response = await jobRunRequest();
+      if(response[1]){
+        alert(response[0]);
+      }
+    }
+  }

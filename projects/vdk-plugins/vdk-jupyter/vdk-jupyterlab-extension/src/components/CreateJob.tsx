@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { createJobRequest } from '../serverRequests';
 
 export interface ICreateJobDialogProps {
     /**
@@ -94,3 +96,20 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
             }
  }
 }
+
+export async function showCreateJobDialog(){
+    const result = await showDialog({
+      title: 'Create Job',
+      body: (
+        <CreateJobDialog
+          jobPath={sessionStorage.getItem('current-path')!}
+          jobName="default-name"
+        ></CreateJobDialog>
+      ),
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+    const resultButtonClicked = !result.value && result.button.accept;
+    if (resultButtonClicked) {
+      await createJobRequest();
+    }
+  }
