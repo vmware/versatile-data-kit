@@ -44,6 +44,8 @@ frontend-data-pipelines-e2e-tests:
   stage: pre_release_test
   before_script:
     - cd projects/frontend/
+    # TODO: cleanup; for debug purposes only
+    - cat "/etc/hosts"
   script:
     - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN"
   retry: !reference [.retry, retry_options]
