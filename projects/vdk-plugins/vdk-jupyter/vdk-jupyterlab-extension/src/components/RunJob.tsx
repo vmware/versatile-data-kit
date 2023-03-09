@@ -34,8 +34,8 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
             <>
                 <VDKTextInput option={VdkOption.PATH} value={this.props.jobPath} label="Path to job directory:"></VDKTextInput>
                 <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="vdkArguments">Arguments:</label>
-                    <input type="text" className='jp-vdk-input' placeholder='{"key": "value"}' onChange={this._onArgsChange} />
+                    <label className='jp-vdk-label' htmlFor="arguments">Arguments:</label>
+                    <input type="text" id='arguments' className='jp-vdk-input' placeholder='{"key": "value"}' onChange={this._onArgsChange} />
                 </div>
                 <ul id="argumentsUl" className="hidden"></ul>
             </>
