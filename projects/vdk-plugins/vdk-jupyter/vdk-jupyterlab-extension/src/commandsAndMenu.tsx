@@ -13,15 +13,12 @@ export function updateVDKMenu(commands: CommandRegistry) {
   // Add Run job command
   add_command(commands, 'jp-vdk:menu-run','Run','Execute VDK Run Command', showRunJobDialog);
 
-
   // Add Create job command
   add_command(commands, 'jp-vdk:menu-create','Create','Execute VDK Create Command', showCreateJobDialog);
-
 
   // Add Delete job command
   add_command(commands, 'jp-vdk:menu-delete','Delete','Execute VDK Delete Command', showDeleteJobDialog);
   
-
   // Add Download job command
   add_command(commands, 'jp-vdk:menu-download','Download','Execute VDK Download Command', showDownloadJobDialog);
 
