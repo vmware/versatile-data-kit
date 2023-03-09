@@ -20,7 +20,7 @@ export interface IVdkTextInputProps {
 
 export default class VDKTextInput extends Component<IVdkTextInputProps> {
     /**
-   * Returns a React component for rendering a download menu.
+   * Returns a React component for rendering a div with input and value  for VDK Option.
    *
    * @param props - component properties
    * @returns React component
@@ -29,7 +29,7 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
         super(props);
     }
     /**
-    * Renders a dialog for downloading a data job.
+    * Renders a div with input and value  for VDK Option.
     *
     * @returns React element
     */

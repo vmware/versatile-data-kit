@@ -9,6 +9,7 @@
  * The enum shall not be modified directly
  */
 import { VdkOption } from './vdkOptions/vdk_options';
+import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 
 /*
  * A global variable which holds the information about the current job.
@@ -33,7 +34,7 @@ export function setJobDataToDefault() {
 setJobDataToDefault();
 
 /*
- * Function taht return the JSON object of jobData
+ * Function that return the JSON object of jobData
  * TODO: find a better wat to parse the Map into JSON object
  */
 export function getJobDataJsonObject() {
@@ -47,4 +48,21 @@ export function getJobDataJsonObject() {
     jobArguments: jobData.get(VdkOption.ARGUMENTS)
   };
   return jsObj;
+}
+
+
+/*
+ * Function that checks whether a value is defined in jobData 
+ * Shows dialog that operation cannot be performed because of undefined value
+ */
+export async function checkDefinedValue(option: VdkOption): Promise<boolean>{
+  if (jobData.get(option)) return true;
+  else {
+    await showErrorMessage(
+      'Encountered an error while trying to execute operation. Error:',
+      'The ' + option + ' should be defined!',
+      [Dialog.okButton()]
+    );
+    return false;
+  }
 }

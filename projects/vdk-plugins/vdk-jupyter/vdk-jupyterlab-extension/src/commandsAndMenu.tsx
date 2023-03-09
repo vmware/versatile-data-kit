@@ -27,6 +27,12 @@ export function updateVDKMenu(commands: CommandRegistry) {
 }
 
 
+/**
+ *@param schemaNaming - string representing the command in the schema in schema/plugin.json
+ *@param label - the label that will be added in the Menu 
+ *@param caption - the caption for the command.
+ *@param getOperationDialog - function that will load the dialog for the command
+ */
 function add_command(commands: CommandRegistry, schemaNaming: string, label: string, caption: string, getOperationDialog: Function){
   commands.addCommand(schemaNaming, {
     label: label,
