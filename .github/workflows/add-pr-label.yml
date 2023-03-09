@@ -1,0 +1,25 @@
+name: Add Label to PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  add-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Determine top-level folder of changed files
+        id: get_folder
+        run: |
+          echo "::set-output name=folder::$(git diff --name-only $(git merge-base HEAD ${{ github.base_ref }}) | cut -d'/' -f1 | sort | uniq)"
+
+      - name: Add label
+        uses: peter-evans/add-labels@v2.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: area/${{ steps.get_folder.outputs.folder }}
