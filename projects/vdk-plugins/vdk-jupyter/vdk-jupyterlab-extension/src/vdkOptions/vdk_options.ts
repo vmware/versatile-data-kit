@@ -10,5 +10,7 @@ export enum VdkOption {
   PATH = 'jobPath',
   CLOUD = 'cloud',
   LOCAL = 'local',
-  ARGUMENTS = 'jobArguments'
+  ARGUMENTS = 'jobArguments',
+  DEPLOYMENT_REASON = 'deploymentReason',
+  DEPLOY_ENABLE = 'enableDeploy'
 }
