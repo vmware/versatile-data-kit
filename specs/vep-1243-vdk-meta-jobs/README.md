@@ -48,15 +48,18 @@ by integrating the external tool Apache Airflow. However, this approach comes wi
 have to manage their own instance of Airflow, or pay for an externally managed service.
 
 To address this problem, VDK is introducing the Meta Jobs plugin. Meta Jobs are providing users with the ability
-to manage job dependencies natively within the framework. They are regular Data Jobs that invoke other Data Jobs using
-the Control Service Execution API. This new feature gives the chance to the user to easily orchestrate the workflow
-the way they want it, without the need to think about anything during the execution. The most important problem
-that Meta Jobs solve is that a certain Data Job will only be triggered after the successful completion
-(or other specified criteria) of one or more other Data Jobs.
+to manage job dependencies natively within the framework. They ensure that one or more Data Jobs will be triggered
+upon successful completion (or other specified criteria) of one or more other Data Jobs.Similarly to other
+orchestrating services, Meta Jobs express the dependencies as a DAG. As being Data Jobs themselves, they go with
+all the powerful features as every other Data Job, such as scheduling and monitoring. Meta Jobs invoke other Data Jobs
+using the Control Service Execution API. This new feature gives the chance to the user to easily orchestrate the
+workflow the way they want it.
 
-By introducing Meta Jobs, our data engineering framework empowers data teams to manage job dependencies in an elegant,
-quick and easy fashion, leading to more reliable and efficient data processing workflows. This feature will
-ultimately save time, resources and dependencies to worry about, allowing users to produce higher quality data output.
+By introducing Meta Jobs, we allow for greater job segmentation, which can prove useful when working with complex
+pipelines. Breaking down the pipelines into more manageable Data Jobs can help users with maintaining and debugging
+their pipelines. Thus, this feature will ultimately save time, resources and external dependencies to worry about.
+Our data engineering framework empowers data teams to manage job dependencies with full control, leading to more
+reliable and efficient data processing workflows.
 
 ## Requirements and goals
 <!--
