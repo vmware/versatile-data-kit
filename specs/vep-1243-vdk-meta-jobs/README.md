@@ -60,10 +60,6 @@ Thus, this feature will save time, resources, and worries about external depende
 Our data engineering framework empowers data teams to manage job dependencies with control, leading to more
 reliable and efficient data processing workflows.
 
-Although having all these pros, the user should have in mind the cons of the Meta Jobs as well. The limitation that
-have to be considered is that there is a limit on the number of concurrent running jobs in a single DAG. If this
-limit is exceeded, the upcoming jobs would be delayed for a while until there is an empty spot for them.
-
 ## Requirements and goals
 <!--
 It tells **what** is it trying to achieve?
@@ -157,6 +153,9 @@ Consider at least the below topics but you do not need to cover those that are n
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
 
+Although having all these pros, the user should have in mind the cons of the Meta Jobs as well. The limitation that
+have to be considered is that there is a limit on the number of concurrent running jobs in a single DAG. If this
+limit is exceeded, the upcoming jobs would be delayed for a while until there is an empty spot for them.
 
 ## Implementation stories
 <!--
