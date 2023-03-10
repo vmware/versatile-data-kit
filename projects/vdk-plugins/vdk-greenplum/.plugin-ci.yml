@@ -4,15 +4,9 @@
 image: "python:3.7"
 
 .build-vdk-greenplum:
-  image: docker:19.03.8
-  services:
-    - docker:19.03.8-dind
   variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
     PLUGIN_NAME: vdk-greenplum
-  extends: .build-plugin
+  extends: .build-plugin-dind
 
 build-py37-vdk-greenplum:
   extends: .build-vdk-greenplum
