@@ -25,7 +25,7 @@ def test_get_latest_available_execution_id():
     test_executor = MagicMock(spec=RemoteDataJobExecutor)
     test_executor.job_executions_list.side_effect = [[test_execution]]
 
-    tracking_executor = TrackingDataJobExecutor(test_executor)
+    tracking_executor = TrackingDataJobExecutor(test_executor, 40)
     assert test_job_id == tracking_executor.get_latest_available_execution_id(
         test_job_id, "awesome-test-team"
     )
@@ -37,7 +37,7 @@ def test_get_latest_available_execution_id_return_none():
     test_executor = MagicMock(spec=RemoteDataJobExecutor)
     test_executor.job_executions_list.side_effect = [[]]
 
-    tracking_executor = TrackingDataJobExecutor(test_executor)
+    tracking_executor = TrackingDataJobExecutor(test_executor, 40)
     assert not tracking_executor.get_latest_available_execution_id(
         test_job_id, "awesome-test-team"
     )
@@ -54,7 +54,7 @@ def test_start_new_job_execution_timeout_error(patched_timeout):
     test_executor.start_job.side_effect = [test_timeout_exception, "awesome-test-job"]
     test_executor.job_executions_list.side_effect = [[], []]
 
-    tracking_executor = TrackingDataJobExecutor(test_executor)
+    tracking_executor = TrackingDataJobExecutor(test_executor, 40)
     assert test_job_id == tracking_executor.start_new_job_execution(
         job_name=test_job_id, team_name="awesome-team"
     )
