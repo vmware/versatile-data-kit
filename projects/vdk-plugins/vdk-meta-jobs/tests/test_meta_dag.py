@@ -1,8 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import os
 import time
-from unittest import mock
 from unittest.mock import call
 from unittest.mock import MagicMock
 
@@ -12,7 +10,6 @@ from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 
 # We overall eschew unit tests in favor of functional tests in test_meta_job
 # Still some functionalities are more easily tested in unit tests so we add here some.
-
 
 def test_execute_dag_happy_case():
     job1 = dict(job_name="job1", depends_on=[])
