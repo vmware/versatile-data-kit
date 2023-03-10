@@ -12,7 +12,6 @@
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
   services:
     - docker:20.10.22-dind
 
