@@ -5,7 +5,7 @@
 
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DataJobContacts } from '../../model';
 
@@ -20,16 +20,16 @@ export class ContactsPresentPipe implements PipeTransform {
         return (
             CollectionsUtil.isDefined(contacts) &&
             (ContactsPresentPipe.contactIsPresent(
-                contacts.notifiedOnJobSuccess
+                contacts.notifiedOnJobSuccess,
             ) ||
                 ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobDeploy
+                    contacts.notifiedOnJobDeploy,
                 ) ||
                 ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobFailureUserError
+                    contacts.notifiedOnJobFailureUserError,
                 ) ||
                 ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobFailurePlatformError
+                    contacts.notifiedOnJobFailurePlatformError,
                 ))
         );
     }

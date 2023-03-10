@@ -41,9 +41,9 @@
        - "projects/vdk-core/src/**/*"
 
 .build-plugin-dind:
-  image: docker:19.03.8
+  image: docker:23.0.1
   services:
-    - docker:19.03.8-dind
+    - docker:23.0.1-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -51,6 +51,7 @@
   extends: .build-plugin
 
 .release-plugin:
+  image: "python:3.10"
   stage: release
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
@@ -74,9 +75,9 @@
 
 .release-vdk-image:
   stage: release_image
-  image: docker:19.03.8
+  image: docker:23.0.1
   services:
-    - docker:19.03.8-dind
+    - docker:23.0.1-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
@@ -89,7 +90,7 @@
     - echo "Build and release vdk image of plugin $PLUGIN_NAME"
     - cd $PLUGIN_NAME/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
-    - apk add --no-cache git bash python3
+    - apk add --no-cache git bash python3 py3-pip
     - python3 -V
     - python3 -m pip install -U setuptools configparser
     - export VDK_PACKAGE=$(python3 setup.py --name)

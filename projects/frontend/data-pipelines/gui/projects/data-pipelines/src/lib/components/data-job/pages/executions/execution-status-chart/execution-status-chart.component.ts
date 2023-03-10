@@ -46,9 +46,9 @@ export class ExecutionStatusChartComponent implements OnInit, OnChanges {
         this.getDoughnutLabels().forEach((label) =>
             data.push(
                 this.jobExecutions.filter(
-                    (execution) => (execution.status as string) === label
-                ).length
-            )
+                    (execution) => (execution.status as string) === label,
+                ).length,
+            ),
         );
 
         return data;

@@ -13,12 +13,17 @@
   display: none;
 }
 
-.jp-vdk-create-options-wrapper {
+.jp-vdk-checkbox-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.jp-create-job-checkbox {
+.jp-vdk-checkbox {
   margin-left: 10px;
+}
+
+#enable {
+  margin-top: 10px;
+  margin-left: 0;
 }

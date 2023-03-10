@@ -9,7 +9,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 import cronstrue from 'cronstrue';
 
-import { CollectionsUtil } from '@vdk/shared';
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 @Pipe({
     name: 'formatSchedule',
@@ -19,7 +19,7 @@ export class FormatSchedulePipe implements PipeTransform {
         const match = `${cron}`
             .trim()
             .match(
-                /^@hourly|@daily|@midnight|@weekly|@monthly|@yearly|@annually$/
+                /^@hourly|@daily|@midnight|@weekly|@monthly|@yearly|@annually$/,
             );
 
         if (CollectionsUtil.isNil(match)) {
@@ -41,7 +41,7 @@ export class FormatSchedulePipe implements PipeTransform {
                 return 'Run once a year at midnight of 1 January';
             default:
                 throw new Error(
-                    'Cron expression is NOT nonstandard predefined scheduling definition.'
+                    'Cron expression is NOT nonstandard predefined scheduling definition.',
                 );
         }
     }
@@ -69,11 +69,11 @@ export class FormatSchedulePipe implements PipeTransform {
         } catch (e) {
             try {
                 return FormatSchedulePipe._fallbackTransformNonStandardCron(
-                    cronSchedule
+                    cronSchedule,
                 );
             } catch (_e) {
                 console.error(
-                    `Parsing error. Cron expression "${cronSchedule}"`
+                    `Parsing error. Cron expression "${cronSchedule}"`,
                 );
 
                 return `Invalid Cron expression "${cronSchedule}"`;

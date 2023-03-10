@@ -26,7 +26,7 @@ import {
     RouterState,
     SystemEventDispatcher,
     URLStateManager,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -76,15 +76,15 @@ describe('DataJobsExploreGridComponent', () => {
 
         componentServiceStub = jasmine.createSpyObj<ComponentService>(
             'componentService',
-            ['init', 'getModel', 'idle', 'update']
+            ['init', 'getModel', 'idle', 'update'],
         );
         navigationServiceStub = jasmine.createSpyObj<NavigationService>(
             'navigationService',
-            ['navigate', 'navigateTo', 'navigateBack']
+            ['navigate', 'navigateTo', 'navigateBack'],
         );
         dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>(
             'dataJobsService',
-            ['getJobs', 'getJobDetails', 'getJobExecutions']
+            ['getJobs', 'getJobDetails', 'getJobExecutions'],
         );
         dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
             'dataJobsService',
@@ -96,7 +96,7 @@ describe('DataJobsExploreGridComponent', () => {
                 'getNotifiedForRunningJobExecutionId',
                 'getNotifiedForJobExecutions',
                 'getNotifiedForTeamImplicitly',
-            ]
+            ],
         );
         locationStub = jasmine.createSpyObj<Location>('location', [
             'path',
@@ -104,23 +104,23 @@ describe('DataJobsExploreGridComponent', () => {
         ]);
         routerServiceStub = jasmine.createSpyObj<RouterService>(
             'routerService',
-            ['getState', 'get']
+            ['getState', 'get'],
         );
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
             'errorHandlerService',
-            ['processError', 'handleError']
+            ['processError', 'handleError'],
         );
 
         dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
-            new Subject()
+            new Subject(),
         );
         dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
-            new BehaviorSubject('taurus')
+            new BehaviorSubject('taurus'),
         );
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
-            RouterState.empty()
+            RouterState.empty(),
         );
         routerServiceStub.getState.and.returnValue(new Subject());
         routerServiceStub.get.and.returnValue(new Subject());
@@ -166,19 +166,19 @@ describe('DataJobsExploreGridComponent', () => {
                     content: [],
                     totalItems: 0,
                 },
-            } as ApolloQueryResult<DataJobPage>)
+            } as ApolloQueryResult<DataJobPage>),
         );
         dataJobsApiServiceStub.getJobDetails.and.returnValue(
-            of(null) as Observable<DataJobDetails>
+            of(null) as Observable<DataJobDetails>,
         );
         dataJobsApiServiceStub.getJobExecutions.and.returnValue(
-            of({ content: [], totalItems: 0, totalPages: 0 })
+            of({ content: [], totalItems: 0, totalPages: 0 }),
         );
 
         locationStub.path.and.returnValue('/explore/data-jobs');
 
         spyOn(SystemEventDispatcher, 'send').and.returnValue(
-            Promise.resolve(true)
+            Promise.resolve(true),
         );
     });
 
@@ -206,7 +206,7 @@ describe('DataJobsExploreGridComponent', () => {
         it('should verify the behaviour of _doUrlUpdate when urlUpdateStrategy is default (updateRouter)', () => {
             const navigateToUrlSpy = spyOn(
                 component.urlStateManager,
-                'navigateToUrl'
+                'navigateToUrl',
             ).and.returnValue(Promise.resolve(true));
 
             // @ts-ignore
@@ -218,7 +218,7 @@ describe('DataJobsExploreGridComponent', () => {
         it('should verify the behaviour of _doUrlUpdate when urlUpdateStrategy is changed (updateLocation)', () => {
             const locationToURLSpy = spyOn(
                 component.urlStateManager,
-                'locationToURL'
+                'locationToURL',
             ).and.callFake(CallFake);
             component.urlUpdateStrategy = 'updateLocation';
 
@@ -234,7 +234,7 @@ describe('DataJobsExploreGridComponent', () => {
             // Given
             const setQueryParamSpy = spyOn(
                 component.urlStateManager,
-                'setQueryParam'
+                'setQueryParam',
             ).and.callFake(CallFake);
 
             // When
@@ -243,7 +243,7 @@ describe('DataJobsExploreGridComponent', () => {
             // Then
             expect(setQueryParamSpy).toHaveBeenCalledWith(
                 QUERY_PARAM_SEARCH,
-                'search'
+                'search',
             );
         });
 
@@ -251,11 +251,11 @@ describe('DataJobsExploreGridComponent', () => {
             // Given
             const urlStateManagerStub = new URLStateManager(
                 'baseUrl',
-                locationStub
+                locationStub,
             );
             const setQueryParamSpy = spyOn(
                 urlStateManagerStub,
-                'setQueryParam'
+                'setQueryParam',
             ).and.callFake(CallFake);
 
             // When
@@ -265,7 +265,7 @@ describe('DataJobsExploreGridComponent', () => {
             // Then
             expect(setQueryParamSpy).toHaveBeenCalledWith(
                 QUERY_PARAM_SEARCH,
-                'search'
+                'search',
             );
         });
 
@@ -273,7 +273,7 @@ describe('DataJobsExploreGridComponent', () => {
             // Given
             const setQueryParamSpy = spyOn(
                 component.urlStateManager,
-                'setQueryParam'
+                'setQueryParam',
             ).and.callFake(CallFake);
 
             // When
@@ -320,7 +320,7 @@ describe('DataJobsExploreGridComponent', () => {
         it('skips viewJobDetails for undefined job', () => {
             // Given
             const navigateToSpy = spyOn(component, 'navigateTo').and.callFake(
-                CallFake
+                CallFake,
             );
 
             // When
@@ -335,7 +335,7 @@ describe('DataJobsExploreGridComponent', () => {
             // Given
             const navigateToSpy = spyOn(
                 component,
-                'navigateTo'
+                'navigateTo',
             ).and.returnValue(Promise.resolve(true));
             component.ngOnInit();
 

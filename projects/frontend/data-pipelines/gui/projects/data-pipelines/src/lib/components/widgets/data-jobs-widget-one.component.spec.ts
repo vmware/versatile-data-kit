@@ -6,7 +6,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
-import { ErrorHandlerService } from '@vdk/shared';
+import { ErrorHandlerService } from '@versatiledatakit/shared';
 
 import { FormatSchedulePipe } from '../../shared/pipes';
 
@@ -48,7 +48,7 @@ describe('DataJobsWidgetOneComponent', () => {
         });
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
             'errorHandlerService',
-            ['processError', 'handleError']
+            ['processError', 'handleError'],
         );
 
         await TestBed.configureTestingModule({
@@ -108,7 +108,7 @@ describe('DataJobsWidgetOneComponent', () => {
             const dataJobsServiceStub: DataJobsApiService =
                 fixture.debugElement.injector.get(DataJobsApiService);
             spyOn(dataJobsServiceStub, 'getJobs').and.returnValue(
-                throwError(() => true)
+                throwError(() => true),
             );
             component.refresh(1, WidgetTab.DATAJOBS);
 

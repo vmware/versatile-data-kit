@@ -11,7 +11,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 
-import { NavigationService } from '@vdk/shared';
+import { NavigationService } from '@versatiledatakit/shared';
 
 import { DataJob, DataJobExecutions } from '../../../model';
 
@@ -54,7 +54,7 @@ export class DataJobsFailedWidgetComponent implements OnChanges {
                 changes['jobExecutions'].currentValue as DataJobExecutions
             ).forEach((element) => {
                 const temp = this.dataJobs.find(
-                    (i) => i.jobName === element.jobName
+                    (i) => i.jobName === element.jobName,
                 );
                 if (!temp) {
                     this.dataJobs.push({

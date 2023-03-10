@@ -13,7 +13,7 @@ import {
     ComponentStateImpl,
     RouterState,
     RouteState,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     FETCH_DATA_JOB,
@@ -36,7 +36,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
     beforeEach(() => {
         componentServiceStub = jasmine.createSpyObj<ComponentService>(
             'componentService',
-            ['load', 'dispatchAction']
+            ['load', 'dispatchAction'],
         );
 
         TestBed.configureTestingModule({
@@ -62,7 +62,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                     ComponentStateImpl.of({
                         id: 'test-component',
                     }),
-                    RouterState.of(RouteState.empty(), 1)
+                    RouterState.of(RouteState.empty(), 1),
                 );
 
                 // When
@@ -70,13 +70,13 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
 
                 // Then
                 expect(componentServiceStub.load).toHaveBeenCalledWith(
-                    model.getComponentState()
+                    model.getComponentState(),
                 );
                 expect(
-                    componentServiceStub.dispatchAction
+                    componentServiceStub.dispatchAction,
                 ).toHaveBeenCalledWith(
                     FETCH_DATA_JOB,
-                    model.getComponentState()
+                    model.getComponentState(),
                 );
             });
         });
@@ -88,7 +88,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                     ComponentStateImpl.of({
                         id: 'test-component',
                     }),
-                    RouterState.of(RouteState.empty(), 1)
+                    RouterState.of(RouteState.empty(), 1),
                 );
 
                 // When
@@ -96,13 +96,13 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
 
                 // Then
                 expect(componentServiceStub.load).toHaveBeenCalledWith(
-                    model.getComponentState()
+                    model.getComponentState(),
                 );
                 expect(
-                    componentServiceStub.dispatchAction
+                    componentServiceStub.dispatchAction,
                 ).toHaveBeenCalledWith(
                     FETCH_DATA_JOBS,
-                    model.getComponentState()
+                    model.getComponentState(),
                 );
             });
         });
@@ -114,7 +114,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                     ComponentStateImpl.of({
                         id: 'test-component',
                     }),
-                    RouterState.of(RouteState.empty(), 1)
+                    RouterState.of(RouteState.empty(), 1),
                 );
 
                 // When
@@ -122,14 +122,14 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
 
                 // Then
                 expect(componentServiceStub.load).toHaveBeenCalledWith(
-                    model.getComponentState()
+                    model.getComponentState(),
                 );
                 expect(
-                    componentServiceStub.dispatchAction
+                    componentServiceStub.dispatchAction,
                 ).toHaveBeenCalledWith(
                     FETCH_DATA_JOB_EXECUTIONS,
                     model.getComponentState(),
-                    TASK_LOAD_JOB_EXECUTIONS
+                    TASK_LOAD_JOB_EXECUTIONS,
                 );
             });
         });
@@ -141,7 +141,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                     ComponentStateImpl.of({
                         id: 'test-component',
                     }),
-                    RouterState.of(RouteState.empty(), 1)
+                    RouterState.of(RouteState.empty(), 1),
                 );
 
                 // When
@@ -149,14 +149,14 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
 
                 // Then
                 expect(componentServiceStub.load).toHaveBeenCalledWith(
-                    model.getComponentState()
+                    model.getComponentState(),
                 );
                 expect(
-                    componentServiceStub.dispatchAction
+                    componentServiceStub.dispatchAction,
                 ).toHaveBeenCalledWith(
                     UPDATE_DATA_JOB,
                     model.getComponentState(),
-                    TASK_UPDATE_JOB_DESCRIPTION
+                    TASK_UPDATE_JOB_DESCRIPTION,
                 );
             });
         });
@@ -167,7 +167,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 const asObservableSpy = spyOn(
                     (service as DataJobsServiceImpl)['_runningJobExecutionId'],
-                    'asObservable'
+                    'asObservable',
                 ).and.callThrough();
 
                 // When
@@ -186,7 +186,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 const nextSpy = spyOn(
                     (service as DataJobsServiceImpl)['_runningJobExecutionId'],
-                    'next'
+                    'next',
                 ).and.callThrough();
 
                 // When
@@ -203,7 +203,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 const asObservableSpy = spyOn(
                     (service as DataJobsServiceImpl)['_jobExecutions'],
-                    'asObservable'
+                    'asObservable',
                 ).and.callThrough();
 
                 // When
@@ -221,7 +221,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 const nextSpy = spyOn(
                     (service as DataJobsServiceImpl)['_jobExecutions'],
-                    'next'
+                    'next',
                 ).and.callThrough();
 
                 // When
@@ -238,7 +238,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 const asObservableSpy = spyOn(
                     (service as DataJobsServiceImpl)['_implicitTeam'],
-                    'asObservable'
+                    'asObservable',
                 ).and.callThrough();
 
                 // When
@@ -256,7 +256,7 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 const nextSpy = spyOn(
                     (service as DataJobsServiceImpl)['_implicitTeam'],
-                    'next'
+                    'next',
                 ).and.callThrough();
 
                 // When

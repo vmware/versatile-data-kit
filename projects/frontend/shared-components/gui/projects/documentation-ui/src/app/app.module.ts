@@ -12,13 +12,13 @@ import { AuthConfig, OAuthModule, OAuthStorage } from 'angular-oauth2-oidc';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VdkComponentsModule } from '@vdk/shared';
+import { VdkComponentsModule } from '@versatiledatakit/shared';
 
 import {
 	TaurusSharedCoreModule,
 	TaurusSharedFeaturesModule,
 	TaurusSharedNgRxModule
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';

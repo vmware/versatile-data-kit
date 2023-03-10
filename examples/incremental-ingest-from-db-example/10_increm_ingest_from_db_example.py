@@ -4,7 +4,6 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-
     # Get last_date property/parameter:
     #  - if the this is the first job run, initialize last_date to 01-01-1900 in oder to fetch all rows
     #  - if the data job was run previously, take the property value already stored in the DJ from the previous run

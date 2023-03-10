@@ -98,7 +98,6 @@ def test_lineage_for_insert():
     },
 )
 def test_lineage_for_select():
-
     table_name = "test_table_" + uuid.uuid4().hex
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)

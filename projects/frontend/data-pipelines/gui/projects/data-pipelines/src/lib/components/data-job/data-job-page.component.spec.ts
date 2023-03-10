@@ -21,7 +21,7 @@ import {
     RouterState,
     RouteState,
     ToastService,
-} from '@vdk/shared';
+} from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -105,15 +105,15 @@ describe('DataJobsDetailsComponent', () => {
     beforeEach(() => {
         componentServiceStub = jasmine.createSpyObj<ComponentService>(
             'componentService',
-            ['init', 'getModel', 'idle']
+            ['init', 'getModel', 'idle'],
         );
         navigationServiceStub = jasmine.createSpyObj<NavigationService>(
             'navigationService',
-            ['navigate', 'navigateTo', 'navigateBack']
+            ['navigate', 'navigateTo', 'navigateBack'],
         );
         routerServiceStub = jasmine.createSpyObj<RouterService>(
             'routerService',
-            ['getState']
+            ['getState'],
         );
         toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
             'show',
@@ -128,7 +128,7 @@ describe('DataJobsDetailsComponent', () => {
                 'downloadFile',
                 'executeDataJob',
                 'getJob',
-            ]
+            ],
         );
         dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
             'dataJobsService',
@@ -140,11 +140,11 @@ describe('DataJobsDetailsComponent', () => {
                 'getNotifiedForRunningJobExecutionId',
                 'getNotifiedForJobExecutions',
                 'getNotifiedForTeamImplicitly',
-            ]
+            ],
         );
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
             'errorHandlerService',
-            ['processError', 'handleError']
+            ['processError', 'handleError'],
         );
 
         const activatedRouteStub = () => ({
@@ -159,22 +159,22 @@ describe('DataJobsDetailsComponent', () => {
         dataJobsApiServiceStub.getJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.getJobDetails.and.returnValue(new Subject());
         dataJobsApiServiceStub.getJobExecutions.and.returnValue(
-            of({ content: [TEST_JOB_EXECUTION], totalItems: 1, totalPages: 1 })
+            of({ content: [TEST_JOB_EXECUTION], totalItems: 1, totalPages: 1 }),
         );
         dataJobsApiServiceStub.getJobDeployments.and.returnValue(
-            of([TEST_JOB_DEPLOYMENT])
+            of([TEST_JOB_DEPLOYMENT]),
         );
         dataJobsApiServiceStub.removeJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.downloadFile.and.returnValue(new Subject());
 
         dataJobsServiceStub.getNotifiedForRunningJobExecutionId.and.returnValue(
-            new Subject()
+            new Subject(),
         );
         dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
-            new Subject()
+            new Subject(),
         );
         dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
-            new BehaviorSubject('taurus')
+            new BehaviorSubject('taurus'),
         );
 
         TestBed.configureTestingModule({
@@ -211,7 +211,7 @@ describe('DataJobsDetailsComponent', () => {
 
         componentModelStub = ComponentModel.of(
             ComponentStateImpl.of({}),
-            RouterState.of(RouteState.empty(), 1)
+            RouterState.of(RouteState.empty(), 1),
         );
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));

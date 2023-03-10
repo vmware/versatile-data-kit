@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Ease with script hot deployments while developing
-rm -rf node_modules/@vdk/data-pipelines
+rm -rf node_modules/@versatiledatakit/data-pipelines
 rm -rf dist/data-pipelines
 
 ng build data-pipelines
-npm link @vdk/data-pipelines
+npm link @versatiledatakit/data-pipelines
 ng serve --host localhost.vmware.com --port 4200 --proxy-config proxy.config.json

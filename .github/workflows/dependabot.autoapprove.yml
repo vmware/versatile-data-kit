@@ -1,0 +1,14 @@
+# Copyright 2023-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Auto approve
+on: pull_request_target
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - uses: hmarr/auto-approve-action@v3

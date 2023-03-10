@@ -52,25 +52,25 @@ describe('ExecutionsTimelineComponent', () => {
             startedBy: 'manual/auser',
         } as DataJobExecution;
         expect(component.getManualExecutedByTitle(mockExec)).toBe(
-            ExecutionsTimelineComponent.manualRunKnownUser + ' auser'
+            ExecutionsTimelineComponent.manualRunKnownUser + ' auser',
         );
 
         mockExec.startedBy = 'manual/manual';
         mockExec.type = DataJobExecutionType.MANUAL;
         expect(component.getManualExecutedByTitle(mockExec)).toBe(
-            ExecutionsTimelineComponent.manualRunKnownUser + ' manual'
+            ExecutionsTimelineComponent.manualRunKnownUser + ' manual',
         );
 
         mockExec.startedBy = 'scheduled/runtime';
         mockExec.type = DataJobExecutionType.SCHEDULED;
         expect(component.getManualExecutedByTitle(mockExec)).toContain(
-            ExecutionsTimelineComponent.manualRunNoUser
+            ExecutionsTimelineComponent.manualRunNoUser,
         );
 
         mockExec.startedBy = 'scheduled/runtime';
         mockExec.type = null;
         expect(component.getManualExecutedByTitle(mockExec)).toContain(
-            ExecutionsTimelineComponent.manualRunNoUser
+            ExecutionsTimelineComponent.manualRunNoUser,
         );
     });
 
