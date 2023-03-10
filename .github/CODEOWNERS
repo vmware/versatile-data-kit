@@ -1,6 +1,6 @@
-# Code owners are a feature in GitHub that can be used to automatically request reviews 
+# Code owners are a feature in GitHub that can be used to automatically request reviews
 # from the defined code owners when changes are made to specific files or folders.
-# Use it only if you want subcribe for few components / directories in the VDK repository 
+# Use it only if you want subcribe for few components / directories in the VDK repository
 # To subscribe for all PRs, use the project Watch feature.
 # Add your github user id '@github_id' to the directory you want ot monitor below.
 
