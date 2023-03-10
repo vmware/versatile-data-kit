@@ -152,7 +152,7 @@ Cypress.Commands.add("prepareBaseTestJobs", () => {
                 const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
                 return createTestJob(normalizedTestJob);
-            })
+            }),
         );
     });
 });
@@ -170,14 +170,14 @@ Cypress.Commands.add("prepareAdditionalTestJobs", () => {
 Cypress.Commands.add("prepareLongLivedTestJob", () => {
     return deployTestJobIfNotExists(
         "lib/manage/e2e-cypress-dp-test.json",
-        "lib/manage/e2e-cypress-dp-test.zip"
+        "lib/manage/e2e-cypress-dp-test.zip",
     );
 });
 
 Cypress.Commands.add("prepareLongLivedFailingTestJob", () => {
     return deployTestJobIfNotExists(
         "e2e-cy-dp-failing.job.json",
-        "e2e-cy-dp-failing.job.zip"
+        "e2e-cy-dp-failing.job.zip",
     );
 });
 
@@ -190,7 +190,7 @@ Cypress.Commands.add("cleanTestJobs", () => {
                     const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
                     return deleteTestJobIfExists(normalizedTestJob);
-                })
+                }),
             );
         })
         .then(() => {
@@ -213,7 +213,7 @@ Cypress.Commands.add("waitForTestJobExecutionCompletion", () => {
         return waitForJobExecutionCompletion(
             normalizedTestJob.team,
             normalizedTestJob.job_name,
-            waitForJobExecutionTimeout
+            waitForJobExecutionTimeout,
         );
     });
 });
@@ -228,7 +228,7 @@ Cypress.Commands.add("createTwoExecutionsLongLivedTestJob", () => {
             normalizedTestJob.team,
             normalizedTestJob.job_name,
             waitForJobExecutionTimeout,
-            2
+            2,
         );
     });
 });
@@ -243,7 +243,7 @@ Cypress.Commands.add("createExecutionsLongLivedFailingTestJob", () => {
             normalizedTestJob.team,
             normalizedTestJob.job_name,
             waitForJobExecutionTimeout,
-            2
+            2,
         );
     });
 });
@@ -277,7 +277,7 @@ Cypress.Commands.add(
                             body: { enabled: status },
                             auth: {
                                 bearer: window.localStorage.getItem(
-                                    "access_token"
+                                    "access_token",
                                 ),
                             },
                             failOnStatusCode: false,
@@ -288,11 +288,11 @@ Cypress.Commands.add(
                                 innerResponse.status < 300
                             ) {
                                 cy.log(
-                                    `Change enable status to [${status}] for data job [${jobName}]`
+                                    `Change enable status to [${status}] for data job [${jobName}]`,
                                 );
                             } else {
                                 cy.log(
-                                    `Cannot change enabled status to [${status}] for data job [${jobName}]`
+                                    `Cannot change enabled status to [${status}] for data job [${jobName}]`,
                                 );
 
                                 console.log(`Http request:`, innerResponse);
@@ -306,7 +306,7 @@ Cypress.Commands.add(
                         });
                 } else {
                     cy.log(
-                        `Cannot change enabled status to [${status}] for data job [${jobName}]`
+                        `Cannot change enabled status to [${status}] for data job [${jobName}]`,
                     );
 
                     console.log(`Http request:`, outerResponse);
@@ -317,5 +317,5 @@ Cypress.Commands.add(
                     });
                 }
             });
-    }
+    },
 );

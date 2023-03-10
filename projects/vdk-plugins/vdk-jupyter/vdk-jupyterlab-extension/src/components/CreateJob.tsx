@@ -32,13 +32,13 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
     render(): React.ReactElement {
         return (
             <>
-                <div className='jp-vdk-create-options-wrapper'>
+                <div className='jp-vdk-checkbox-wrappers'>
                     <div>
-                        <input type="checkbox" name="Local" id="Local" className='jp-create-job-checkbox' onClick={this._onLocalClick()} />
+                        <input type="checkbox" name="Local" id="Local" className='jp-vdk-checkbox' onClick={this._onLocalClick()} />
                         <label className="checkboxLabel" htmlFor="Local">Local</label>
                     </div>
                     <div>
-                        <input type="checkbox" name="Cloud" id="Cloud" className='jp-create-job-checkbox' onClick={this._onCloudClick()} />
+                        <input type="checkbox" name="Cloud" id="Cloud" className='jp-vdk-checkbox' onClick={this._onCloudClick()} />
                         <label className="checkboxLabel" htmlFor="Local">Cloud</label>
                     </div>
                 </div>

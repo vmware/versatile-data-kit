@@ -22,7 +22,7 @@ describe(
         before(() => {
             return DataJobManageDetailsPage.recordHarIfSupported()
                 .then(() =>
-                    cy.clearLocalStorageSnapshot("data-job-manage-details")
+                    cy.clearLocalStorageSnapshot("data-job-manage-details"),
                 )
                 .then(() => DataJobManageDetailsPage.login())
                 .then(() => cy.saveLocalStorage("data-job-manage-details"))
@@ -68,19 +68,19 @@ describe(
             () => {
                 dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                     longLivedTestJob.team,
-                    longLivedTestJob.job_name
+                    longLivedTestJob.job_name,
                 );
 
                 dataJobManageDetailsPage.clickOnContentContainer();
 
                 //Toggle job status twice, enable to disable and vice versa.
                 dataJobManageDetailsPage.toggleJobStatus(
-                    longLivedTestJob.job_name
+                    longLivedTestJob.job_name,
                 );
                 dataJobManageDetailsPage.toggleJobStatus(
-                    longLivedTestJob.job_name
+                    longLivedTestJob.job_name,
                 );
-            }
+            },
         );
 
         it(
@@ -92,7 +92,7 @@ describe(
 
                 dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                     testJobs[0].team,
-                    testJobs[0].job_name
+                    testJobs[0].job_name,
                 );
 
                 dataJobManageDetailsPage.clickOnContentContainer();
@@ -100,7 +100,7 @@ describe(
                 dataJobManageDetailsPage.openDescription();
 
                 dataJobManageDetailsPage.enterDescriptionDetails(
-                    newDescription
+                    newDescription,
                 );
 
                 dataJobManageDetailsPage.saveDescription();
@@ -113,15 +113,15 @@ describe(
                         newDescription
                             .split(" ")
                             .slice(0, descriptionWordsBeforeTruncate)
-                            .join(" ")
+                            .join(" "),
                     );
-            }
+            },
         );
 
         it("Data Job Manage Details Page - execute now", () => {
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                 longLivedTestJob.team,
-                longLivedTestJob.job_name
+                longLivedTestJob.job_name,
             );
 
             dataJobManageDetailsPage.waitForTestJobExecutionCompletion();
@@ -134,14 +134,14 @@ describe(
                 .getToastTitle(10000)
                 .should("exist")
                 .contains(
-                    /Data job Queued for execution|Failed, Data job is already executing/
+                    /Data job Queued for execution|Failed, Data job is already executing/,
                 );
         });
 
         it("Data Job Manage Details Page - download job key", () => {
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                 longLivedTestJob.team,
-                longLivedTestJob.job_name
+                longLivedTestJob.job_name,
             );
 
             dataJobManageDetailsPage.openActionDropdown();
@@ -151,7 +151,7 @@ describe(
             dataJobManageDetailsPage
                 .readFile(
                     "downloadsFolder",
-                    `${longLivedTestJob.job_name}.keytab`
+                    `${longLivedTestJob.job_name}.keytab`,
                 )
                 .should("exist");
         });
@@ -170,7 +170,7 @@ describe(
                         dataJobManageDetailsPage =
                             DataJobManageDetailsPage.navigateTo(
                                 normalizedTestJob.team,
-                                normalizedTestJob.job_name
+                                normalizedTestJob.job_name,
                             );
 
                         dataJobManageDetailsPage.clickOnContentContainer();
@@ -185,7 +185,7 @@ describe(
                             .getToastTitle(20000) // Wait up to 20 seconds for the job to be deleted.
                             .should(
                                 "contain.text",
-                                "Data job delete completed"
+                                "Data job delete completed",
                             );
 
                         dataJobManageDetailsPage.waitForBackendRequestCompletion();
@@ -195,9 +195,9 @@ describe(
                         dataJobsManagePage
                             .getDataGridCell(normalizedTestJob.job_name, 10000) // Wait up to 10 seconds for the jobs list to show.
                             .should("not.exist");
-                    }
+                    },
                 );
-            }
+            },
         );
 
         //TODO: Double-check and enable this test
@@ -212,7 +212,7 @@ describe(
 
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                 team,
-                jobName
+                jobName,
             );
 
             cy.wait("@executionApiCall").then((interception) => {
@@ -226,7 +226,7 @@ describe(
 
                 cy.get(".clr-timeline-step").should(
                     "have.length",
-                    lastExecutionsSize + 1
+                    lastExecutionsSize + 1,
                 ); // +1 next execution
 
                 cy.get(`[data-cy=${lastExecution.id}]`).as("lastExecution");
@@ -265,5 +265,5 @@ describe(
                 }
             });
         });
-    }
+    },
 );

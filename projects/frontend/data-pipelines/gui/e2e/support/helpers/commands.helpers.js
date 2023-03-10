@@ -35,20 +35,20 @@ const createExecutionsForJob = (
     teamName,
     jobName,
     waitForJobExecutionTimeout,
-    numberOfExecutions = 2
+    numberOfExecutions = 2,
 ) => {
     cy.log(
-        `Trying to provide at least ${numberOfExecutions} executions for Job "${jobName}"`
+        `Trying to provide at least ${numberOfExecutions} executions for Job "${jobName}"`,
     );
 
     return _getJobExecutions(teamName, jobName).then((executions) => {
         cy.log(
-            `Found ${executions.length} executions for Job "${jobName}" and target is ${numberOfExecutions} executions`
+            `Found ${executions.length} executions for Job "${jobName}" and target is ${numberOfExecutions} executions`,
         );
 
         if (executions.length >= numberOfExecutions) {
             cy.log(
-                `Skipping manual execution, expected number of executions found`
+                `Skipping manual execution, expected number of executions found`,
             );
 
             return cy.wrap({
@@ -60,7 +60,7 @@ const createExecutionsForJob = (
         return waitForJobExecutionCompletion(
             teamName,
             jobName,
-            waitForJobExecutionTimeout
+            waitForJobExecutionTimeout,
         ).then(() => {
             return _getJobLastDeployment(teamName, jobName).then(
                 (lastDeployment) => {
@@ -71,7 +71,7 @@ const createExecutionsForJob = (
                             waitForJobExecutionTimeout,
                             lastDeployment,
                             executions,
-                            numberOfExecutions
+                            numberOfExecutions,
                         );
                     }
 
@@ -80,7 +80,7 @@ const createExecutionsForJob = (
                             "commands.helpers::2::createExecutionsForJob()",
                         action: "continue",
                     });
-                }
+                },
             );
         });
     });
@@ -90,7 +90,7 @@ const waitForJobExecutionCompletion = (
     teamName,
     jobName,
     jobExecutionTimeout,
-    loopStep = 0
+    loopStep = 0,
 ) => {
     const pollInterval = 5000;
 
@@ -107,7 +107,7 @@ const waitForJobExecutionCompletion = (
         .then((response) => {
             if (response.status !== 200) {
                 cy.log(
-                    `Job execution poll failed. Status: ${response.status}; Message: ${response.body}`
+                    `Job execution poll failed. Status: ${response.status}; Message: ${response.body}`,
                 );
 
                 return cy.wrap({
@@ -148,7 +148,7 @@ const waitForJobExecutionCompletion = (
                           })
                 ).then(() => {
                     cy.log(
-                        `Job "${jobName}" executed successfully, polling completed!`
+                        `Job "${jobName}" executed successfully, polling completed!`,
                     );
 
                     return cy.wrap({
@@ -161,7 +161,7 @@ const waitForJobExecutionCompletion = (
 
             if (jobExecutionTimeout <= 0) {
                 cy.log(
-                    "Time to wait exceeded! Will not wait for job execution to finish any longer."
+                    "Time to wait exceeded! Will not wait for job execution to finish any longer.",
                 );
 
                 return cy.wrap({
@@ -174,7 +174,7 @@ const waitForJobExecutionCompletion = (
             cy.log(
                 `Job ${jobName}, still executing... Retrying after: ${
                     pollInterval / 1000
-                } seconds`
+                } seconds`,
             );
 
             return cy
@@ -184,8 +184,8 @@ const waitForJobExecutionCompletion = (
                         teamName,
                         jobName,
                         jobExecutionTimeout - pollInterval,
-                        jobExecutionTimeout++
-                    )
+                        jobExecutionTimeout++,
+                    ),
                 );
         });
 };
@@ -210,7 +210,7 @@ const createTestJob = (testJob) => {
             if (response.status >= 400) {
                 cy.log(
                     `Http request fail for url:`,
-                    `/data-jobs/for-team/${teamName}/jobs`
+                    `/data-jobs/for-team/${teamName}/jobs`,
                 );
 
                 console.log(`Http request error:`, response);
@@ -252,7 +252,7 @@ const deleteTestJobIfExists = (testJob) => {
                         if (innerResponse.status >= 400) {
                             cy.log(
                                 `Http request fail for url:`,
-                                `/data-jobs/for-team/${teamName}/jobs/${jobName}`
+                                `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
                             );
 
                             console.log(`Http request error:`, innerResponse);
@@ -267,7 +267,7 @@ const deleteTestJobIfExists = (testJob) => {
             } else if (outerResponse.status >= 400) {
                 cy.log(
                     `Http request fail for url:`,
-                    `/data-jobs/for-team/${teamName}/jobs/${jobName}`
+                    `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
                 );
 
                 console.log(`Http request error:`, outerResponse);
@@ -305,7 +305,7 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                 ) {
                     cy.log(
                         jobName +
-                            " is already existing, therefore skipping creation and deployment."
+                            " is already existing, therefore skipping creation and deployment.",
                     );
                 } else if (
                     outerResponse.status === 200 &&
@@ -313,12 +313,12 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                 ) {
                     cy.log(
                         jobName +
-                            " exists, but it is not deployed. Deploying..."
+                            " exists, but it is not deployed. Deploying...",
                     );
 
                     return _deployTestDataJob(
                         normalizedTestJob,
-                        pathToJobBinary
+                        pathToJobBinary,
                     );
                 } else if (outerResponse.status === 404) {
                     return createTestJob(normalizedTestJob).then(
@@ -326,19 +326,19 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                             if (innerResponse.status === 201) {
                                 return _deployTestDataJob(
                                     normalizedTestJob,
-                                    pathToJobBinary
+                                    pathToJobBinary,
                                 );
                             } else {
                                 throw new Error(
-                                    "Failed to create job: " + jobName
+                                    "Failed to create job: " + jobName,
                                 );
                             }
-                        }
+                        },
                     );
                 } else if (outerResponse.status >= 400) {
                     cy.log(
                         `Http request fail for url:`,
-                        `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`
+                        `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
                     );
 
                     console.log(`Http request error:`, outerResponse);
@@ -357,7 +357,7 @@ function _loadTestEnvironmentVar() {
 
     if (!testEnv) {
         console.log(
-            `DataPipelines test_environment is not set. Using default: ${DEFAULT_TEST_ENV_VAR}`
+            `DataPipelines test_environment is not set. Using default: ${DEFAULT_TEST_ENV_VAR}`,
         );
         testEnv = DEFAULT_TEST_ENV_VAR;
     }
@@ -372,7 +372,7 @@ function _executeCreateExecutionsForJob(
     lastDeployment,
     executions,
     numberOfExecutions,
-    counterOfExecutions = 0
+    counterOfExecutions = 0,
 ) {
     const neededExecutions = numberOfExecutions - executions.length;
 
@@ -382,7 +382,7 @@ function _executeCreateExecutionsForJob(
         cy.log(
             `${
                 neededExecutions - counterOfExecutions
-            } more executions left for executing`
+            } more executions left for executing`,
         );
     }
 
@@ -400,14 +400,14 @@ function _executeCreateExecutionsForJob(
                     context:
                         "commands.helpers::2::_executeCreateExecutionsForJob()",
                     action: "continue",
-                })
+                }),
             );
         })
         .then(() => {
             return waitForJobExecutionCompletion(
                 teamName,
                 jobName,
-                waitForJobExecutionTimeout
+                waitForJobExecutionTimeout,
             );
         })
         .then(() => {
@@ -418,7 +418,7 @@ function _executeCreateExecutionsForJob(
                 lastDeployment,
                 executions,
                 numberOfExecutions,
-                counterOfExecutions + 1
+                counterOfExecutions + 1,
             );
         });
 }
@@ -437,14 +437,14 @@ function _getJobExecutions(teamName, jobName) {
         .then((response) => {
             if (response.status !== 200) {
                 cy.log(
-                    `Getting Job executions failed. Status: ${response.status}; Message: ${response.body}`
+                    `Getting Job executions failed. Status: ${response.status}; Message: ${response.body}`,
                 );
 
                 return cy.wrap([]);
             }
 
             return cy.wrap(
-                response.body && response.body.length ? response.body : []
+                response.body && response.body.length ? response.body : [],
             );
         });
 }
@@ -465,7 +465,7 @@ function _getJobLastDeployment(teamName, jobName) {
         .then((response) => {
             if (response.status !== 200) {
                 cy.log(
-                    `Getting Job deployments failed. Status: ${response.status}; Message: ${response.body}`
+                    `Getting Job deployments failed. Status: ${response.status}; Message: ${response.body}`,
                 );
 
                 return cy.wrap(null);
@@ -474,7 +474,7 @@ function _getJobLastDeployment(teamName, jobName) {
             return cy.wrap(
                 response.body && response.body.length
                     ? response.body[response.body.length - 1]
-                    : null
+                    : null,
             );
         });
 }
@@ -496,7 +496,7 @@ function _executeJob(teamName, jobName, deploymentId) {
         .then((response) => {
             if (response.status >= 400) {
                 cy.log(
-                    `Executing Job failed. Status: ${response.status}; Message: ${response.body}`
+                    `Executing Job failed. Status: ${response.status}; Message: ${response.body}`,
                 );
             }
 
@@ -542,7 +542,7 @@ function _deployTestDataJob(testJob, pathToJobBinary) {
             })
             .then((response1) => {
                 let jsonResponse = JSON.parse(
-                    Cypress.Blob.arrayBufferToBinaryString(response1.body)
+                    Cypress.Blob.arrayBufferToBinaryString(response1.body),
                 );
 
                 // Deploy data job
@@ -568,12 +568,12 @@ function _deployTestDataJob(testJob, pathToJobBinary) {
                     .then((response2) => {
                         if (response2.status === 202) {
                             cy.log(
-                                `Job: ${jobName} deployment in progress. Waiting for deployment to complete`
+                                `Job: ${jobName} deployment in progress. Waiting for deployment to complete`,
                             );
 
                             return _waitForDeploymentToFinish(
                                 testJob,
-                                waitForJobDeploymentTimeout
+                                waitForJobDeploymentTimeout,
                             );
                         }
 
@@ -618,7 +618,7 @@ function _waitForDeploymentToFinish(testJob, timeout) {
 
             if (timeout <= 0) {
                 cy.log(
-                    "Time to wait exceeded! Will not wait for job deployment to finish any longer."
+                    "Time to wait exceeded! Will not wait for job deployment to finish any longer.",
                 );
 
                 return cy.wrap({
@@ -631,13 +631,13 @@ function _waitForDeploymentToFinish(testJob, timeout) {
             cy.log(
                 `Job ${jobName}, still not deployed.. retrying after: ${
                     waitInterval / 1000
-                } seconds`
+                } seconds`,
             );
 
             return cy
                 .wait(waitInterval)
                 .then(() =>
-                    _waitForDeploymentToFinish(testJob, timeout - waitInterval)
+                    _waitForDeploymentToFinish(testJob, timeout - waitInterval),
                 );
         });
 }
