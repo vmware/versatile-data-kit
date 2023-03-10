@@ -122,8 +122,8 @@ def test_meta_job(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver)
 
     with mock.patch.dict(
-        os.environ,
-        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+            os.environ,
+            {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -145,8 +145,8 @@ def test_meta_job_error(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+            os.environ,
+            {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -168,8 +168,8 @@ def test_meta_job_fail_false(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+            os.environ,
+            {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -191,12 +191,12 @@ def test_meta_job_conflict(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
-            "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "0",
-            "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "0",
-        },
+            os.environ,
+            {
+                "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
+                "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "0",
+                "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "0",
+            },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -218,8 +218,8 @@ def test_meta_job_cannot_start_job(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+            os.environ,
+            {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -245,13 +245,13 @@ def test_meta_job_long_running(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
-            # we set 5 seconds more than execution duration of 3 set above
-            "VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "5",
-            "VDK_META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS": "0",
-        },
+            os.environ,
+            {
+                "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
+                # we set 5 seconds more than execution duration of 3 set above
+                "VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "5",
+                "VDK_META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS": "0",
+            },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -289,8 +289,8 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+            os.environ,
+            {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -305,18 +305,18 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
         assert len(httpserver.log) == 0
 
 
-def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
+def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
     jobs = [("job" + str(i), [200], "succeeded") for i in range(1, 8)]
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
-            "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5",
-            "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
-            "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
-        },
+            os.environ,
+            {
+                "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
+                "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5",
+                "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
+                "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
+            },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
         # and mock large parts of it - e.g passed our own plugins
@@ -326,15 +326,25 @@ def test_meta_job_exceed_limit(httpserver: PluginHTTPServer):
             ["run", jobs_path_from_caller_directory("meta-job-exceed-limit")]
         )
 
-        post_requests = [req for req, res in httpserver.log if req.method == "POST"]
-
-        # Check if the limit has been reached (we add 1 for the request for job1)
-        if (
-            len(post_requests)
-            == int(os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "5")) + 1
-        ):
-            print("change state")
+        expected_max_running_jobs = int(os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "5"))
+        post_reqs = 0
+        # keep track of the number of running jobs at any given time
+        running_jobs = 0
+        # track the latest request in order to reset the number of running jobs when such finish
+        latest_req = None
+        for request, response in httpserver.log:
+            if "executions" in request.path and request.method == "POST":
+                running_jobs += 1
+                post_reqs += 1
+                assert running_jobs <= expected_max_running_jobs  # assert that max concurrent running jobs is not
+                # exceeded
+            if request.method == latest_req and "executions/job" in request.path and response.status < "300":
+                running_jobs = 0  # back-to-back GET reqs means the jobs have been finalized successfully
+            latest_req = request.method
 
         cli_assert_equal(0, result)
 
-        assert len(post_requests) == 7
+        # assert that all the jobs finished successfully
+        assert running_jobs == 0
+        assert post_reqs == len(jobs)
+
