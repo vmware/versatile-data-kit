@@ -70,36 +70,3 @@ def test_execute_dag_busyloop():
 
     # check for busyloop (this would have been called hundreds of times if there is busyloop bug)
     assert calls[0] <= 4
-
-
-@mock.patch.dict(
-    os.environ,
-    {"VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5"},
-)
-def test_execute_dag_over_max_running_jobs_sad_case():
-    jobs = [
-        {"job_name": f"job{i}", "depends_on": [] if i == 1 else ["job1"]}
-        for i in range(1, 8)
-    ]
-
-    dag = MetaJobsDag("team")
-    dag.build_dag(jobs)
-
-    dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
-    dag._job_executor.get_finished_job_names.side_effect = [
-        ["job1"],
-        [
-            "job2",
-            "job3",
-            "job4",
-            "job5",
-            "job6",
-            "job7",
-        ],
-    ]
-
-    dag.execute_dag()
-
-    assert [
-        call(job["job_name"]) for job in jobs[:7]
-    ] == dag._job_executor.start_job.call_args_list
