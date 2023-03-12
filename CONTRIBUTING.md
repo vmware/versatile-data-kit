@@ -19,7 +19,7 @@ We welcome many different types of contributions that include:
 - Helping onboard new contributors
 
 # Code of Conduct
-VDK follows the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md), adapted from the [Contributor Covenant](https://www.contributor-covenant.org/). Please read the guide to familiarize yourself with the expectations and responsibilities of the community.
+VDK follows the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md), adapted from the [Contributor Covenant](https://www.contributor-covenant.org/). Please read the Code of Conduct guide to familiarize yourself with the expectations and responsibilities of the community.
 
 # Contributor License Agreement CLA. 
 If you wish to contribute code, you must sign the [contributor license agreement](https://cla.vmware.com/cla/1/preview) (CLA). For any questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq) page.
@@ -73,11 +73,11 @@ Before submitting your pull request, review the following:
 
 ## Submit a pull request
 - All changes must be submitted to the main branch using pull requests.
-- Any changes must go on a feature branch or on a fork.
+- Any change must go on a feature branch or on a fork.
 - Pipeline must pass before merging.
 - Code commits must be broken down into small self-contained units.
 - Commit messages must follow the template in [git-commit-template.txt](https://github.com/vmware/versatile-data-kit/blob/main/support/git-commit-template.txt). See [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit) as a guideline to write commit messages.
-- The change must abide by the [Versatile Data Kit Coding Standard]((https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard)).
+- The change must abide by the [Versatile Data Kit Coding Standard](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
 - Each change is a subject to two code reviews and approvals before it is merged.
 
 We prefer to maintain a straight branch history by rebasing before merging. Fast-forward merges should not create merge conflicts.
@@ -86,9 +86,9 @@ We prefer to maintain a straight branch history by rebasing before merging. Fast
 A typical development workflow has the following process:
 - Create a topic branch from where you want to base your work, naming your branch according to our naming convention. For example `person/`.
 - Make commits in logical units.
-- Make sure your commit messages are with the proper format, quality and descriptiveness.
+- Use clear commit titles and commit descriptions.
 - Push your changes to the topic branch in your fork.
-- Create a pull request from that commit.
+- Create a pull request from commit.
 
 We follow the GitHub workflow. See [GitHub flow](https://docs.github.com/en/get-started/quickstart/github-flow) for more information.
 
