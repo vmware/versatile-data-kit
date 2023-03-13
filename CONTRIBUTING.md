@@ -46,7 +46,7 @@ To report a bug, [create a GitHub issue](https://github.com/vmware/versatile-dat
 ## Security Bugs
 If you believe you have found a security bug, [create a GitHub issue](https://github.com/vmware/versatile-data-kit/issues) and reach out to us in the [Contacts Us](#contact-us) section.
 
-# Proposing a Change
+# Propose a Change
 Before suggesting a feature or change, consider the impact of this change. Does it only serve your needs, or does it serve the broader community's needs?
 
 For substantial features or changes, submitting your design is valuable. Creating a PR in Github with your proposal as markdown in the [specs](https://github.com/vmware/versatile-data-kit/blob/main/specs) directory is recommended. Reviews, feedback, and approvals are documented in the PR.
