@@ -202,6 +202,8 @@ def test_get_initialized_job_input_after_finalize(ip):
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    assert ip.user_global_ns["job_input"] is not None
+    assert isinstance(ip.user_global_ns["job_input"], IJobInput)
 
 
 def test_call_finalize_multiple_times(ip):
@@ -209,6 +211,7 @@ def test_call_finalize_multiple_times(ip):
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
+    # verifying that calling finalize multiple times won't produce any errors (the method will not fail)
 
 
 def test_call_finalize_before_get_initialized_job_input(ip):
@@ -216,3 +219,4 @@ def test_call_finalize_before_get_initialized_job_input(ip):
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
+    # verifying that calling finalize before get_initialized_job_input won't produce errors(the method will not fail)
