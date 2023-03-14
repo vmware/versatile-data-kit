@@ -5,16 +5,18 @@
 
 /// <reference types="cypress" />
 
-import { DataJobBasePO } from "../../../support/application/data-job-base.po";
 import { DataJobsManagePage } from "../../../support/pages/app/lib/manage/data-jobs.po";
+import { DataJobDetailsBasePO } from "../../../support/application/data-job-details-base.po";
 import { DataJobManageExecutionsPage } from "../../../support/pages/app/lib/manage/data-job-executions.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
 
 describe(
     "Data Job Manage Executions Page",
     { tags: ["@dataPipelines", "@manageDataJobExecutions"] },
     () => {
-        let longLivedTestJob;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let longLivedTestJobFixture;
 
         before(() => {
             return DataJobManageExecutionsPage.recordHarIfSupported()
@@ -23,17 +25,28 @@ describe(
                 )
                 .then(() => DataJobManageExecutionsPage.login())
                 .then(() => cy.saveLocalStorage("data-job-manage-executions"))
-                .then(() => cy.prepareLongLivedTestJob())
-                .then(() => cy.createTwoExecutionsLongLivedTestJob())
-                .then(() => cy.fixture("lib/manage/e2e-cypress-dp-test.json"))
-                .then((loadedTestJob) => {
-                    longLivedTestJob = applyGlobalEnvSettings(loadedTestJob);
+                .then(() => DataJobManageExecutionsPage.createTeam())
+                .then(() =>
+                    DataJobManageExecutionsPage.createLongLivedJobs("test"),
+                )
+                .then(() =>
+                    DataJobManageExecutionsPage.provideExecutionsForLongLivedJobs(
+                        "test",
+                    ),
+                )
+                .then(() =>
+                    DataJobManageExecutionsPage.loadLongLivedTestJobFixture().then(
+                        (loadedTestJob) => {
+                            longLivedTestJobFixture = loadedTestJob;
 
-                    return cy.wrap({
-                        context: "manage::data-job-executions.spec::before()",
-                        action: "continue",
-                    });
-                });
+                            return cy.wrap({
+                                context:
+                                    "manage::data-job-executions.spec::before()",
+                                action: "continue",
+                            });
+                        },
+                    ),
+                );
         });
 
         after(() => {
@@ -43,12 +56,13 @@ describe(
         beforeEach(() => {
             cy.restoreLocalStorage("data-job-manage-executions");
 
-            DataJobManageExecutionsPage.initBackendRequestInterceptor();
+            DataJobManageExecutionsPage.wireUserSession();
+            DataJobManageExecutionsPage.initInterceptors();
         });
 
         describe("Sanity", { tags: "@integration" }, () => {
             it(`Data Job Manage Executions Page - should open Details and verify Executions tab is displayed and navigates`, () => {
-                cy.log("Fixture for name: " + longLivedTestJob.job_name);
+                cy.log("Fixture for name: " + longLivedTestJobFixture.job_name);
 
                 const dataJobsManagePage = DataJobsManagePage.navigateTo();
 
@@ -61,7 +75,7 @@ describe(
                     longLivedTestJob.job_name,
                 );
 
-                const dataJobBasePage = DataJobBasePO.getPage();
+                const dataJobBasePage = DataJobDetailsBasePO.getPage();
 
                 dataJobBasePage
                     .getDetailsTab()
@@ -94,8 +108,8 @@ describe(
             it("Data Job Manage Executions Page - should verify on URL navigate to Executions will open the page", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -103,7 +117,7 @@ describe(
                     .should(
                         "match",
                         new RegExp(
-                            `\\/manage\\/data-jobs\\/${longLivedTestJob.team}\\/${longLivedTestJob.job_name}\\/executions$`,
+                            `\\/manage\\/data-jobs\\/${longLivedTestJobFixture.team}\\/${longLivedTestJobFixture.job_name}\\/executions$`,
                         ),
                     );
 
@@ -123,14 +137,15 @@ describe(
             it("Data Job Manage Executions Page - should verify elements are rendered in DOM", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage
                     .getMainTitle()
+                    .scrollIntoView()
                     .should("be.visible")
-                    .should("contains.text", longLivedTestJob.job_name);
+                    .should("contains.text", longLivedTestJobFixture.job_name);
 
                 dataJobExecutionsPage
                     .getDetailsTab()
@@ -142,7 +157,9 @@ describe(
                     .should("exist")
                     .should("have.class", "active");
 
-                dataJobExecutionsPage.getExecuteNowButton().should("exist");
+                dataJobExecutionsPage
+                    .getExecuteOrCancelButton()
+                    .should("exist");
 
                 dataJobExecutionsPage.getActionDropdownBtn().should("exist");
 
@@ -170,8 +187,8 @@ describe(
             it("Data Job Manage Executions Page - should verify cancel execution button works properly", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage.initPostExecutionInterceptor();
@@ -225,8 +242,8 @@ describe(
         it("Data Job Manage Executions Page - should verify time period is in correct format", () => {
             const dataJobExecutionsPage =
                 DataJobManageExecutionsPage.navigateTo(
-                    longLivedTestJob.team,
-                    longLivedTestJob.job_name,
+                    longLivedTestJobFixture.team,
+                    longLivedTestJobFixture.job_name,
                 );
 
             dataJobExecutionsPage
@@ -244,8 +261,8 @@ describe(
         it("Data Job Manage Executions Page - should verify refresh button will show spinner and then load data", () => {
             const dataJobExecutionsPage =
                 DataJobManageExecutionsPage.navigateTo(
-                    longLivedTestJob.team,
-                    longLivedTestJob.job_name,
+                    longLivedTestJobFixture.team,
+                    longLivedTestJobFixture.job_name,
                 );
 
             dataJobExecutionsPage.getDataGrid().should("exist");
@@ -279,8 +296,8 @@ describe(
             it("Data Job Manage Executions Page - should verify status filter options are rendered", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage.openStatusFilter();
@@ -312,8 +329,8 @@ describe(
             it("Data Job Manage Executions Page - should verify type filter options are rendered", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage.openTypeFilter();
@@ -337,8 +354,8 @@ describe(
             it("Data Job Manage Executions Page - should verify id filter render input and filters correctly", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -371,8 +388,8 @@ describe(
             it("Data Job Manage Executions Page - should verify version filter render input and filters correctly", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -407,8 +424,8 @@ describe(
             it("Data Job Manage Executions Page - should verify duration sort works", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -493,8 +510,8 @@ describe(
             it("Data Job Manage Executions Page - should verify execution start sort works", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage
@@ -553,8 +570,8 @@ describe(
             it("Data Job Manage Executions Page - should verify execution end sort works", () => {
                 const dataJobExecutionsPage =
                     DataJobManageExecutionsPage.navigateTo(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
+                        longLivedTestJobFixture.team,
+                        longLivedTestJobFixture.job_name,
                     );
 
                 dataJobExecutionsPage

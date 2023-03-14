@@ -127,6 +127,17 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
             .find("input");
     }
 
+    /**
+     * ** Get DataGrid page size selection.
+     *
+     * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
+     */
+    getDataGridPageSizeSelect() {
+        return this.getDataGrid().find(
+            "clr-dg-page-size .clr-page-size-select",
+        );
+    }
+
     /* Actions */
 
     chooseQuickFilter(filterPosition) {
@@ -170,6 +181,29 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         this.getDataGridColumnShowHideOption(option)
             .should("exist")
             .uncheck({ force: true });
+
+        this.waitForViewToRenderShort();
+    }
+
+    /**
+     * ** Change DataGrid page size
+     *
+     *      - hint options in Clarity are generated with values e.g.
+     *        - '0: 25'
+     *        - '1: 50'
+     *        - '2: 100'
+     *
+     * @param {string} size
+     */
+    changePageSize(size) {
+        this.getDataGridPageSizeSelect()
+            .should("be.visible")
+            .then(($element) => {
+                return cy.wait(1000).then(() => $element);
+            })
+            .select(size);
+
+        this.waitForBackendRequestCompletion();
 
         this.waitForViewToRenderShort();
     }

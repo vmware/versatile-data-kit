@@ -10,7 +10,6 @@
 
 import { DataJobsManagePage } from "../../../support/pages/app/lib/manage/data-jobs.po";
 import { DataJobManageDetailsPage } from "../../../support/pages/app/lib/manage/data-job-details.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
 
 describe(
     "Data Jobs Manage Page",
@@ -22,104 +21,113 @@ describe(
          * @type {DataJobsManagePage}
          */
         let dataJobsManagePage;
-        let testJobs;
-        let longLivedTestJob;
-        let longLivedFailingTestJob;
+        /**
+         * @type {Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
+         */
+        let testJobsFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let additionalTestJobFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let longLivedTestJobFixture;
 
         before(() => {
             return DataJobsManagePage.recordHarIfSupported()
                 .then(() => cy.clearLocalStorageSnapshot("data-jobs-manage"))
                 .then(() => DataJobsManagePage.login())
                 .then(() => cy.saveLocalStorage("data-jobs-manage"))
-                .then(() => cy.cleanTestJobs())
-                .then(() => cy.prepareBaseTestJobs())
-                .then(() => cy.prepareLongLivedTestJob())
-                .then(() => cy.createTwoExecutionsLongLivedTestJob())
-                .then(() => cy.prepareLongLivedFailingTestJob())
+                .then(() => DataJobsManagePage.createTeam())
+                .then(() => DataJobsManagePage.deleteShortLivedTestJobs())
                 .then(() =>
-                    cy
-                        .fixture("lib/explore/test-jobs.json")
-                        .then((loadedTestJobs) => {
-                            testJobs = applyGlobalEnvSettings(loadedTestJobs);
+                    DataJobsManagePage.createLongLivedJobs("test", "failing"),
+                )
+                .then(() =>
+                    DataJobsManagePage.provideExecutionsForLongLivedJobs(
+                        "test",
+                    ),
+                )
+                .then(() => DataJobsManagePage.createShortLivedTestJobs())
+                .then(() =>
+                    DataJobsManagePage.loadShortLivedTestJobsFixture().then(
+                        (fixtures) => {
+                            testJobsFixture = [fixtures[0], fixtures[1]];
+                            additionalTestJobFixture = fixtures[2];
 
                             return cy.wrap({
                                 context:
                                     "manage::1::data-jobs.int.spec::before()",
                                 action: "continue",
                             });
-                        }),
+                        },
+                    ),
                 )
                 .then(() =>
-                    cy
-                        .fixture("lib/manage/e2e-cypress-dp-test.json")
-                        .then((loadedTestJob) => {
-                            longLivedTestJob =
-                                applyGlobalEnvSettings(loadedTestJob);
+                    DataJobsManagePage.loadLongLivedTestJobFixture().then(
+                        (loadedTestJob) => {
+                            longLivedTestJobFixture = loadedTestJob;
 
                             return cy.wrap({
                                 context:
                                     "manage::2::data-jobs.int.spec::before()",
                                 action: "continue",
                             });
-                        }),
-                )
-                .then(() =>
-                    cy
-                        .fixture("e2e-cy-dp-failing.job.json")
-                        .then((failingTestJob) => {
-                            longLivedFailingTestJob =
-                                applyGlobalEnvSettings(failingTestJob);
-
-                            return cy.wrap({
-                                context:
-                                    "manage::3::data-jobs.int.spec::before()",
-                                action: "continue",
-                            });
-                        }),
-                )
-                .then(() =>
-                    // Enable data job after job end
-                    DataJobsManagePage.changeJobStatus(
-                        longLivedTestJob.team,
-                        longLivedTestJob.job_name,
-                        true,
+                        },
                     ),
+                )
+                .then(() =>
+                    // Enable data job at the end of before suite
+                    DataJobsManagePage.changeLongLivedJobStatus("test", true),
+                )
+                .then(() => DataJobsManagePage.waitBeforeSuiteState())
+                .then(() =>
+                    cy.wrap({
+                        context: "manage::3::data-jobs.int.spec::before()",
+                        action: "continue",
+                    }),
                 );
+        });
+
+        after(() => {
+            DataJobsManagePage.deleteShortLivedTestJobs();
+
+            // Enable data job after tests suites end
+            DataJobsManagePage.changeLongLivedJobStatus("test", true);
+
+            DataJobsManagePage.saveHarIfSupported();
         });
 
         beforeEach(() => {
             cy.restoreLocalStorage("data-jobs-manage");
 
-            DataJobsManagePage.initBackendRequestInterceptor();
+            DataJobsManagePage.wireUserSession();
+            DataJobsManagePage.initInterceptors();
 
             dataJobsManagePage = DataJobsManagePage.navigateTo();
         });
 
-        after(() => {
-            cy.cleanTestJobs();
-
-            // Enable data job after job end
-            DataJobsManagePage.changeJobStatus(
-                longLivedTestJob.team,
-                longLivedTestJob.job_name,
-                true,
-            );
-
-            DataJobsManagePage.saveHarIfSupported();
-        });
-
         it("Data Jobs Manage Page - loads title", () => {
-            dataJobsManagePage.getPageTitle().should("be.visible");
+            dataJobsManagePage
+                .getPageTitle()
+                .scrollIntoView()
+                .should("be.visible");
         });
 
         it("Data Jobs Manage Page - grid contains test jobs", () => {
             dataJobsManagePage.chooseQuickFilter(0);
 
-            dataJobsManagePage.sortByJobName();
+            dataJobsManagePage.filterByJobName(
+                testJobsFixture[0].job_name.substring(0, 14),
+            );
 
-            dataJobsManagePage.getDataGrid().should("be.visible");
+            dataJobsManagePage
+                .getDataGrid()
+                .scrollIntoView()
+                .should("be.visible");
 
-            testJobs.forEach((testJob) => {
+            testJobsFixture.forEach((testJob) => {
                 cy.log("Fixture for name: " + testJob.job_name);
 
                 dataJobsManagePage
@@ -135,14 +143,15 @@ describe(
             () => {
                 dataJobsManagePage.chooseQuickFilter(0);
 
-                dataJobsManagePage.filterByJobName(testJobs[0].job_name);
+                dataJobsManagePage.filterByJobName(testJobsFixture[0].job_name);
 
                 dataJobsManagePage
-                    .getDataGridCell(testJobs[0].job_name)
+                    .getDataGridCell(testJobsFixture[0].job_name)
+                    .scrollIntoView()
                     .should("be.visible");
 
                 dataJobsManagePage
-                    .getDataGridCell(testJobs[1].job_name)
+                    .getDataGridCell(testJobsFixture[1].job_name)
                     .should("not.exist");
             },
         );
@@ -155,14 +164,15 @@ describe(
 
                 dataJobsManagePage.chooseQuickFilter(0);
 
-                dataJobsManagePage.searchByJobName(testJobs[1].job_name);
+                dataJobsManagePage.searchByJobName(testJobsFixture[1].job_name);
 
                 dataJobsManagePage
-                    .getDataGridCell(testJobs[0].job_name)
+                    .getDataGridCell(testJobsFixture[0].job_name)
                     .should("not.exist");
 
                 dataJobsManagePage
-                    .getDataGridCell(testJobs[1].job_name)
+                    .getDataGridCell(testJobsFixture[1].job_name)
+                    .scrollIntoView()
                     .should("be.visible");
             },
         );
@@ -170,30 +180,32 @@ describe(
         it("Data Jobs Manage Page - grid search parameter goes into URL", () => {
             dataJobsManagePage.chooseQuickFilter(0);
 
-            dataJobsManagePage.sortByJobName();
+            dataJobsManagePage.filterByJobName(
+                testJobsFixture[0].job_name.substring(0, 14),
+            );
 
             // verify 2 test rows visible
             dataJobsManagePage
-                .getDataGridCell(testJobs[0].job_name)
+                .getDataGridCell(testJobsFixture[0].job_name)
                 .scrollIntoView()
                 .should("be.visible");
             dataJobsManagePage
-                .getDataGridCell(testJobs[1].job_name)
+                .getDataGridCell(testJobsFixture[1].job_name)
                 .scrollIntoView()
                 .should("be.visible");
 
             // do search
-            dataJobsManagePage.searchByJobName(testJobs[0].job_name);
+            dataJobsManagePage.searchByJobName(testJobsFixture[0].job_name);
 
             dataJobsManagePage.waitForViewToRender();
 
             // verify 1 test row visible
             dataJobsManagePage
-                .getDataGridCell(testJobs[0].job_name)
+                .getDataGridCell(testJobsFixture[0].job_name)
                 .scrollIntoView()
                 .should("be.visible");
             dataJobsManagePage
-                .getDataGridCell(testJobs[1].job_name)
+                .getDataGridCell(testJobsFixture[1].job_name)
                 .should("not.exist");
 
             // verify url contains search value
@@ -202,7 +214,7 @@ describe(
                 .should(
                     "match",
                     new RegExp(
-                        `\\/manage\\/data-jobs\\?search=${testJobs[0].job_name}$`,
+                        `\\/manage\\/data-jobs\\?search=${testJobsFixture[0].job_name}$`,
                     ),
                 );
 
@@ -213,11 +225,11 @@ describe(
 
             // verify 2 test rows visible
             dataJobsManagePage
-                .getDataGridCell(testJobs[0].job_name)
+                .getDataGridCell(testJobsFixture[0].job_name)
                 .scrollIntoView()
                 .should("be.visible");
             dataJobsManagePage
-                .getDataGridCell(testJobs[1].job_name)
+                .getDataGridCell(testJobsFixture[1].job_name)
                 .scrollIntoView()
                 .should("be.visible");
 
@@ -230,7 +242,7 @@ describe(
         it("Data Jobs Manage Page - grid search perform search when URL contains search parameter", () => {
             // navigate with search value in URL
             dataJobsManagePage = DataJobsManagePage.navigateToUrl(
-                `/manage/data-jobs?search=${testJobs[1].job_name}`,
+                `/manage/data-jobs?search=${testJobsFixture[1].job_name}`,
             );
 
             dataJobsManagePage.chooseQuickFilter(0);
@@ -243,16 +255,16 @@ describe(
                 .should(
                     "match",
                     new RegExp(
-                        `\\/manage\\/data-jobs\\?search=${testJobs[1].job_name}$`,
+                        `\\/manage\\/data-jobs\\?search=${testJobsFixture[1].job_name}$`,
                     ),
                 );
 
             // verify 1 test row visible
             dataJobsManagePage
-                .getDataGridCell(testJobs[0].job_name)
+                .getDataGridCell(testJobsFixture[0].job_name)
                 .should("not.exist");
             dataJobsManagePage
-                .getDataGridCell(testJobs[1].job_name)
+                .getDataGridCell(testJobsFixture[1].job_name)
                 .scrollIntoView()
                 .should("be.visible");
 
@@ -261,11 +273,11 @@ describe(
 
             // verify 2 test rows visible
             dataJobsManagePage
-                .getDataGridCell(testJobs[0].job_name)
+                .getDataGridCell(testJobsFixture[0].job_name)
                 .scrollIntoView()
                 .should("be.visible");
             dataJobsManagePage
-                .getDataGridCell(testJobs[1].job_name)
+                .getDataGridCell(testJobsFixture[1].job_name)
                 .scrollIntoView()
                 .should("be.visible");
 
@@ -276,38 +288,31 @@ describe(
         });
 
         it("Data Jobs Manage Page - refresh shows newly created job", () => {
-            cy.fixture("lib/explore/additional-test-job.json").then(
-                (additionalTestJob) => {
-                    const normalizedTestJob =
-                        applyGlobalEnvSettings(additionalTestJob);
+            dataJobsManagePage.chooseQuickFilter(0);
 
-                    cy.log("Fixture for name: " + normalizedTestJob.job_name);
-
-                    dataJobsManagePage.chooseQuickFilter(0);
-
-                    dataJobsManagePage.sortByJobName();
-
-                    dataJobsManagePage
-                        .getDataGridCell(testJobs[0].job_name)
-                        .should("have.text", testJobs[0].job_name);
-
-                    dataJobsManagePage
-                        .getDataGridCell(normalizedTestJob.job_name)
-                        .should("not.exist");
-
-                    dataJobsManagePage.prepareAdditionalTestJob();
-
-                    dataJobsManagePage.refreshDataGrid();
-
-                    dataJobsManagePage.filterByJobName(
-                        normalizedTestJob.job_name,
-                    );
-
-                    dataJobsManagePage
-                        .getDataGridCell(normalizedTestJob.job_name)
-                        .should("have.text", normalizedTestJob.job_name);
-                },
+            dataJobsManagePage.filterByJobName(
+                testJobsFixture[0].job_name.substring(0, 14),
             );
+
+            dataJobsManagePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .should("have.text", testJobsFixture[0].job_name);
+
+            dataJobsManagePage
+                .getDataGridCell(additionalTestJobFixture.job_name)
+                .should("not.exist");
+
+            DataJobsManagePage.createAdditionalShortLivedTestJobs();
+
+            dataJobsManagePage.refreshDataGrid();
+
+            dataJobsManagePage.filterByJobName(
+                additionalTestJobFixture.job_name,
+            );
+
+            dataJobsManagePage
+                .getDataGridCell(additionalTestJobFixture.job_name)
+                .should("have.text", additionalTestJobFixture.job_name);
         });
 
         it(
@@ -318,11 +323,15 @@ describe(
 
                 dataJobsManagePage.chooseQuickFilter(0);
 
+                dataJobsManagePage.filterByJobName(
+                    testJobsFixture[0].job_name.substring(0, 14),
+                );
+
                 dataJobsManagePage.sortByJobName();
 
                 dataJobsManagePage.openJobDetails(
-                    testJobs[0].team,
-                    testJobs[0].job_name,
+                    testJobsFixture[0].team,
+                    testJobsFixture[0].job_name,
                 );
 
                 const dataJobManageDetailsPage =
@@ -330,24 +339,30 @@ describe(
 
                 dataJobManageDetailsPage
                     .getMainTitle()
+                    .scrollIntoView()
                     .should("be.visible")
-                    .should("contains.text", testJobs[0].job_name);
+                    .should("contains.text", testJobsFixture[0].job_name);
 
                 dataJobManageDetailsPage
                     .getDescription()
+                    .scrollIntoView()
                     .should("be.visible")
                     .should(
                         "contain.text",
-                        testJobs[0].description
+                        testJobsFixture[0].description
                             .split(" ")
                             .slice(0, descriptionWordsBeforeTruncate)
                             .join(" "),
                     );
 
-                dataJobManageDetailsPage.getSchedule().should("be.visible");
+                dataJobManageDetailsPage
+                    .getSchedule()
+                    .scrollIntoView()
+                    .should("be.visible");
 
                 dataJobManageDetailsPage
                     .getDeploymentStatus("not-deployed")
+                    .scrollIntoView()
                     .should("be.visible")
                     .should("have.text", "Not Deployed");
             },
@@ -361,14 +376,18 @@ describe(
 
                 dataJobsManagePage.chooseQuickFilter(0);
 
-                const jobName = longLivedTestJob.job_name;
-                const team = longLivedTestJob.team;
+                const jobName = longLivedTestJobFixture.job_name;
+                const team = longLivedTestJobFixture.team;
 
                 dataJobsManagePage.searchByJobName(jobName);
 
                 //Toggle job status twice, enable to disable and vice versa.
-                dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);
-                dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);
+                dataJobsManagePage.toggleJobStatus(
+                    longLivedTestJobFixture.job_name,
+                );
+                dataJobsManagePage.toggleJobStatus(
+                    longLivedTestJobFixture.job_name,
+                );
             },
         );
 
@@ -377,15 +396,10 @@ describe(
             { tags: "@integration" },
             () => {
                 // Disable data job before test start
-                DataJobsManagePage.changeJobStatus(
-                    longLivedFailingTestJob.team,
-                    longLivedFailingTestJob.job_name,
-                    true,
-                )
+                DataJobsManagePage.changeLongLivedJobStatus("failing", true)
                     .then(() =>
-                        DataJobsManagePage.changeJobStatus(
-                            longLivedTestJob.team,
-                            longLivedTestJob.job_name,
+                        DataJobsManagePage.changeLongLivedJobStatus(
+                            "test",
                             false,
                         ),
                     )
@@ -460,9 +474,8 @@ describe(
                             });
 
                         // Enable data job after job end
-                        DataJobsManagePage.changeJobStatus(
-                            longLivedTestJob.team,
-                            longLivedTestJob.job_name,
+                        DataJobsManagePage.changeLongLivedJobStatus(
+                            "test",
                             true,
                         );
                     });
@@ -530,23 +543,45 @@ describe(
             "Data Jobs Manage Page - execute now",
             { tags: "@integration" },
             () => {
-                const jobName = longLivedTestJob.job_name;
-                const team = longLivedTestJob.team;
+                const jobName = longLivedTestJobFixture.job_name;
+                const team = longLivedTestJobFixture.team;
 
                 dataJobsManagePage.chooseQuickFilter(0);
 
-                dataJobsManagePage.sortByJobName();
+                dataJobsManagePage.filterByJobName(jobName.substring(0, 14));
 
                 dataJobsManagePage.executeDataJob(jobName);
 
                 // TODO better handling toast message. If tests are executed immediately it will return
-                //  error 409 conflict and it will say that the job is already executing
+                // error 409 conflict and it will say that the job is already executing
                 dataJobsManagePage
                     .getToastTitle(10000) // Wait up to 10 seconds for Toast to show.
                     .should("exist")
                     .contains(
                         /Data job Queued for execution|Failed, Data job is already executing/,
                     );
+            },
+        );
+
+        it(
+            `Data Jobs Manage Page - execute now is disabled when Job doesn't have deployment`,
+            { tags: "@integration" },
+            () => {
+                const jobName = testJobsFixture[0].job_name;
+                const team = testJobsFixture[0].team;
+
+                dataJobsManagePage.chooseQuickFilter(0);
+
+                dataJobsManagePage.filterByJobName(jobName.substring(0, 14));
+
+                dataJobsManagePage.selectRow(jobName);
+
+                dataJobsManagePage.waitForViewToRenderShort();
+                dataJobsManagePage.waitForClickThinkingTime();
+
+                dataJobsManagePage
+                    .getExecuteNowGridButton()
+                    .should("be.disabled");
             },
         );
     },

@@ -69,6 +69,26 @@ export class DataJobBasePO extends DataPipelinesBasePO {
         return cy.get("[data-cy=data-pipelines-job-cancel-execution-btn]");
     }
 
+    getExecuteOrCancelButton() {
+        return cy
+            .get("[data-cy=data-pipelines-job-actions-container]")
+            .then(($container) => {
+                if ($container && $container.length > 0) {
+                    const $btn = $container.find(
+                        "[data-cy=data-pipelines-job-execute-btn]",
+                    );
+
+                    if ($btn && $btn.length > 0) {
+                        return $btn;
+                    }
+                }
+
+                return $container.find(
+                    "[data-cy=data-pipelines-job-cancel-execution-btn]",
+                );
+            });
+    }
+
     getConfirmDialogButton() {
         return cy.get('[data-cy="confirmation-dialog-ok-btn"]');
     }
@@ -95,6 +115,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
 
     getExecutionsTab() {
         return cy.get("[data-cy=data-pipelines-job-executions-tab]");
+    }
+
+    getLineageTab() {
+        return cy.get("[data-cy=data-pipelines-job-lineage-tab]");
     }
 
     getExecutionStatus() {

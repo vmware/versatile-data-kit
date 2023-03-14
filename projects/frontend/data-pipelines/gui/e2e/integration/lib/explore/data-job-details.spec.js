@@ -6,14 +6,19 @@
 /// <reference types="cypress" />
 import { DataJobsExplorePage } from "../../../support/pages/app/lib/explore/data-jobs.po";
 import { DataJobExploreDetailsPage } from "../../../support/pages/app/lib/explore/data-job-details.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
 
 describe(
     "Data Job Explore Details Page",
     { tags: ["@dataPipelines", "@exploreDataJobDetails"] },
     () => {
+        /**
+         * @type {DataJobExploreDetailsPage}
+         */
         let dataJobExploreDetailsPage;
-        let testJobs;
+        /**
+         * @type {Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
+         */
+        let testJobsFixture;
 
         before(() => {
             return DataJobExploreDetailsPage.recordHarIfSupported()
@@ -22,21 +27,30 @@ describe(
                 )
                 .then(() => DataJobExploreDetailsPage.login())
                 .then(() => cy.saveLocalStorage("data-job-explore-details"))
-                .then(() => cy.cleanTestJobs())
-                .then(() => cy.prepareBaseTestJobs())
-                .then(() => cy.fixture("lib/explore/test-jobs.json"))
-                .then((loadedTestJobs) => {
-                    testJobs = applyGlobalEnvSettings(loadedTestJobs);
+                .then(() => DataJobExploreDetailsPage.createTeam())
+                .then(() =>
+                    DataJobExploreDetailsPage.deleteShortLivedTestJobs(),
+                )
+                .then(() =>
+                    DataJobExploreDetailsPage.createShortLivedTestJobs(),
+                )
+                .then(() =>
+                    DataJobExploreDetailsPage.loadShortLivedTestJobsFixture().then(
+                        (fixtures) => {
+                            testJobsFixture = [fixtures[0], fixtures[1]];
 
-                    return cy.wrap({
-                        context: "explore::data-job-details.spec::before()",
-                        action: "continue",
-                    });
-                });
+                            return cy.wrap({
+                                context:
+                                    "explore::data-job-details.spec::before()",
+                                action: "continue",
+                            });
+                        },
+                    ),
+                );
         });
 
         after(() => {
-            cy.cleanTestJobs();
+            DataJobExploreDetailsPage.deleteShortLivedTestJobs();
 
             DataJobExploreDetailsPage.saveHarIfSupported();
         });
@@ -44,45 +58,55 @@ describe(
         beforeEach(() => {
             cy.restoreLocalStorage("data-job-explore-details");
 
-            DataJobExploreDetailsPage.initBackendRequestInterceptor();
+            DataJobExploreDetailsPage.wireUserSession();
+            DataJobExploreDetailsPage.initInterceptors();
         });
 
         it("Data Job Explore Details Page - should load and show job details", () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
 
             const dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
             dataJobsExplorePage.openJobDetails(
-                testJobs[0].team,
-                testJobs[0].job_name,
+                testJobsFixture[0].team,
+                testJobsFixture[0].job_name,
             );
 
             dataJobExploreDetailsPage = DataJobExploreDetailsPage.getPage();
 
-            dataJobExploreDetailsPage.getDetailsTab().should("be.visible");
+            dataJobExploreDetailsPage
+                .getDetailsTab()
+                .scrollIntoView()
+                .should("be.visible");
 
             dataJobExploreDetailsPage
                 .getMainTitle()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("contains.text", testJobs[0].job_name);
+                .should("contains.text", testJobsFixture[0].job_name);
 
             dataJobExploreDetailsPage
                 .getStatusField()
+                .scrollIntoView()
                 .should("be.visible")
+                // TODO: do the right assertion (once it gets implemented)
                 .should("have.text", "Not Deployed");
 
             dataJobExploreDetailsPage
                 .getDescriptionField()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("contain.text", testJobs[0].description);
+                .should("contain.text", testJobsFixture[0].description);
 
             dataJobExploreDetailsPage
                 .getTeamField()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("have.text", testJobs[0].team);
+                .should("have.text", testJobsFixture[0].team);
 
             dataJobExploreDetailsPage
                 .getScheduleField()
+                .scrollIntoView()
                 .should("be.visible")
                 .should(
                     "contains.text",
@@ -98,47 +122,51 @@ describe(
 
             dataJobExploreDetailsPage
                 .getOnDeployedField()
+                .scrollIntoView()
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    testJobs[0].config.contacts.notified_on_job_deploy,
+                    testJobsFixture[0].config.contacts.notified_on_job_deploy,
                 );
 
             dataJobExploreDetailsPage
                 .getOnPlatformErrorField()
+                .scrollIntoView()
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    testJobs[0].config.contacts
+                    testJobsFixture[0].config.contacts
                         .notified_on_job_failure_platform_error,
                 );
 
             dataJobExploreDetailsPage
                 .getOnUserErrorField()
+                .scrollIntoView()
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    testJobs[0].config.contacts
+                    testJobsFixture[0].config.contacts
                         .notified_on_job_failure_user_error,
                 );
 
             dataJobExploreDetailsPage
                 .getOnSuccessField()
+                .scrollIntoView()
                 .should("be.visible")
                 .should(
                     "contains.text",
-                    testJobs[0].config.contacts.notified_on_job_success,
+                    testJobsFixture[0].config.contacts.notified_on_job_success,
                 );
         });
 
         it("Data Job Explore Details Page - should verify Details tab is visible and active", () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
 
             const dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
             dataJobsExplorePage.openJobDetails(
-                testJobs[0].team,
-                testJobs[0].job_name,
+                testJobsFixture[0].team,
+                testJobsFixture[0].job_name,
             );
 
             const dataJobExploreDetailsPage =
@@ -146,23 +174,25 @@ describe(
 
             dataJobExploreDetailsPage
                 .getMainTitle()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("contains.text", testJobs[0].job_name);
+                .should("contains.text", testJobsFixture[0].job_name);
 
             dataJobExploreDetailsPage
                 .getDetailsTab()
+                .scrollIntoView()
                 .should("be.visible")
                 .should("have.class", "active");
         });
 
         it("Data Job Explore Details Page - should verify Action buttons are not displayed", () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
 
             const dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
             dataJobsExplorePage.openJobDetails(
-                testJobs[0].team,
-                testJobs[0].job_name,
+                testJobsFixture[0].team,
+                testJobsFixture[0].job_name,
             );
 
             const dataJobExploreDetailsPage =
@@ -170,8 +200,9 @@ describe(
 
             dataJobExploreDetailsPage
                 .getMainTitle()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("contains.text", testJobs[0].job_name);
+                .should("contains.text", testJobsFixture[0].job_name);
 
             dataJobExploreDetailsPage.getExecuteNowButton().should("not.exist");
 

@@ -6,12 +6,15 @@
 import { DataJobsBasePO } from "../../../../application/data-jobs-base.po";
 
 export class DataJobsManagePage extends DataJobsBasePO {
+    /**
+     * @returns {DataJobsManagePage}
+     */
     static getPage() {
         return new DataJobsManagePage();
     }
 
     static navigateTo() {
-        return super.navigateTo("[data-cy=navigation-link-manage-datajobs]");
+        return super.navigateTo("#navLinkManageDataJobs");
     }
 
     getPageTitle() {
@@ -177,6 +180,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
         cy.get("div.datagrid-filter > input")
             .should("be.visible")
+            .clear()
             .type(jobName);
 
         this.getPageTitle().should("be.visible").click({ force: true });
@@ -196,11 +200,5 @@ export class DataJobsManagePage extends DataJobsBasePO {
         this.waitForViewToRenderShort();
 
         this.confirmInConfirmDialog();
-    }
-
-    prepareAdditionalTestJob() {
-        cy.prepareAdditionalTestJobs();
-
-        this.waitForApiModifyCall();
     }
 }

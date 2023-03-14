@@ -4,14 +4,19 @@
  */
 
 /// <reference types="cypress" />
+
+import { TEAM_NAME_DP_DATA_JOB_FAILING } from "../../../support/helpers/constants.support";
+
 import { DataPipelinesBasePO } from "../../../support/application/data-pipelines-base.po";
 import { GettingStartedPage } from "../../../support/pages/app/getting-started/getting-started.po";
 import { DataJobsHealthPanelComponentPO } from "../../../support/pages/app/getting-started/data-jobs-health-panel-component.po";
 import { DataJobManageDetailsPage } from "../../../support/pages/app/lib/manage/data-job-details.po";
 import { DataJobManageExecutionsPage } from "../../../support/pages/app/lib/manage/data-job-executions.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
 
 describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
+    /**
+     * @type {{name: string; description: string; users: Array<{id: string; description: string}>; lakeNamespaces: Array<string>; collectors:Array<string>}}
+     */
     let testJob;
 
     before(() => {
@@ -19,16 +24,24 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
             .then(() => cy.clearLocalStorageSnapshot("getting-started"))
             .then(() => DataPipelinesBasePO.login())
             .then(() => cy.saveLocalStorage("getting-started"))
-            .then(() => cy.prepareLongLivedFailingTestJob())
-            .then(() => cy.createExecutionsLongLivedFailingTestJob())
-            .then(() => cy.fixture("e2e-cy-dp-failing.job.json"))
-            .then((failingTestJob) => {
-                testJob = applyGlobalEnvSettings(failingTestJob);
+            .then(() => DataPipelinesBasePO.createTeam())
+            .then(() => DataPipelinesBasePO.createLongLivedJobs("failing"))
+            .then(() =>
+                DataPipelinesBasePO.provideExecutionsForLongLivedJobs(
+                    "failing",
+                ),
+            )
+            .then(() => {
+                return DataPipelinesBasePO.loadLongLivedFailingJobFixture().then(
+                    (jobFixture) => {
+                        testJob = jobFixture;
 
-                return cy.wrap({
-                    context: "getting-started.spec::before()",
-                    action: "continue",
-                });
+                        return cy.wrap({
+                            context: "getting-started.spec::before()",
+                            action: "continue",
+                        });
+                    },
+                );
             });
     });
 
@@ -39,17 +52,16 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
     beforeEach(() => {
         cy.restoreLocalStorage("getting-started");
 
-        DataPipelinesBasePO.initBackendRequestInterceptor();
+        DataPipelinesBasePO.wireUserSession();
+        DataPipelinesBasePO.initInterceptors();
     });
 
     it("Main Title Component have text: Get Started with Data Pipelines", () => {
         GettingStartedPage.navigateTo()
             .getMainTitle()
-            .should(($el) =>
-                expect($el.text().trim()).to.equal(
-                    "Get Started with Data Pipelines",
-                ),
-            );
+            //TODO : Discuss/agree what should be the assertion strategy of the UI Components.
+            // Do we assert text directly, or use some other form?
+            .should("have.text", "Get Started with Data Pipelines");
     });
 
     describe("Data Jobs Health Overview Panel", () => {
@@ -79,12 +91,14 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
                 .should("have.length.gte", 1);
 
             // navigate to failing job details
-            dataJobsHealthPanel.navigateToFailingJobDetails(testJob.job_name);
+            dataJobsHealthPanel.navigateToFailingJobDetails(
+                TEAM_NAME_DP_DATA_JOB_FAILING,
+            );
 
             const dataJobManageDetailsPage = DataJobManageDetailsPage.getPage();
             dataJobManageDetailsPage
                 .getMainTitle()
-                .should("contain.text", testJob.job_name);
+                .should("contain.text", TEAM_NAME_DP_DATA_JOB_FAILING);
             dataJobManageDetailsPage
                 .getDetailsTab()
                 .should("be.visible")
@@ -92,6 +106,10 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
             dataJobManageDetailsPage
                 .getExecutionsTab()
                 .should("exist")
+                .should("not.have.class", "active");
+            dataJobManageDetailsPage
+                .getLineageTab()
+                .should("be.visible")
                 .should("not.have.class", "active");
             dataJobManageDetailsPage
                 .showMoreDescription()
@@ -113,14 +131,14 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
 
             // navigate to most recent failing job executions
             dataJobsHealthPanel.navigateToMostRecentFailingJobExecutions(
-                testJob.job_name,
+                TEAM_NAME_DP_DATA_JOB_FAILING,
             );
 
             const dataJobManageExecutionsPage =
                 DataJobManageExecutionsPage.getPage();
             dataJobManageExecutionsPage
                 .getMainTitle()
-                .should("contain.text", testJob.job_name);
+                .should("contain.text", TEAM_NAME_DP_DATA_JOB_FAILING);
             dataJobManageExecutionsPage
                 .getDetailsTab()
                 .should("be.visible")
@@ -129,6 +147,10 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
                 .getExecutionsTab()
                 .should("be.visible")
                 .should("have.class", "active");
+            dataJobManageExecutionsPage
+                .getLineageTab()
+                .should("be.visible")
+                .should("not.have.class", "active");
             dataJobManageExecutionsPage
                 .getDataGridRows()
                 .should("have.length.gte", 1);

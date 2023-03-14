@@ -1,0 +1,21 @@
+{
+  "name": "cy-e2e-team-z-dp-lib",
+  "description": "Cypress e2e tests mock Team cy-e2e-team-z-dp-lib for Data Pipelines library",
+  "collectors": [],
+  "users": [
+    {
+      "id": "svc.sc-automation-admin@VMWARE.COM",
+      "description": "Data Owner"
+    },
+    {
+      "id": "cypress-test@VMWARE.COM",
+      "description": "Team Member"
+    }
+  ],
+  "dataJobs": null,
+  "lakeNamespaces": [],
+  "dataMarts": [],
+  "contacts": [],
+  "sharedItems": [],
+  "dataApplications": []
+}

@@ -17,6 +17,9 @@ describe("App Page", { tags: ["@dataPipelines"] }, () => {
 
     after(() => {
         AppPage.saveHarIfSupported();
+
+        AppPage.wireUserSession();
+        AppPage.initInterceptors();
     });
 
     beforeEach(() => {

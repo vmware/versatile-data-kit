@@ -5,9 +5,9 @@
 
 /// <reference types="cypress" />
 
+import { compareDatesASC } from "../../../plugins/helpers/job-helpers.plugins";
 import { DataJobManageDetailsPage } from "../../../support/pages/app/lib/manage/data-job-details.po";
 import { DataJobsManagePage } from "../../../support/pages/app/lib/manage/data-jobs.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
 
 describe(
     "Data Job Manage Details Page",
@@ -15,9 +15,22 @@ describe(
     () => {
         const descriptionWordsBeforeTruncate = 12;
 
+        /**
+         * @type {DataJobManageDetailsPage};
+         */
         let dataJobManageDetailsPage;
-        let testJobs;
-        let longLivedTestJob;
+        /**
+         * @type {Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
+         */
+        let testJobsFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let additionalTestJobFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let longLivedTestJobFixture;
 
         before(() => {
             return DataJobManageDetailsPage.recordHarIfSupported()
@@ -26,32 +39,48 @@ describe(
                 )
                 .then(() => DataJobManageDetailsPage.login())
                 .then(() => cy.saveLocalStorage("data-job-manage-details"))
-                .then(() => cy.cleanTestJobs())
-                .then(() => cy.prepareLongLivedTestJob())
-                .then(() => cy.createTwoExecutionsLongLivedTestJob())
-                .then(() => cy.prepareBaseTestJobs())
-                .then(() => cy.fixture("lib/explore/test-jobs.json"))
-                .then((loadedTestJobs) => {
-                    testJobs = applyGlobalEnvSettings(loadedTestJobs);
+                .then(() => DataJobManageDetailsPage.createTeam())
+                .then(() => DataJobManageDetailsPage.deleteShortLivedTestJobs())
+                .then(() =>
+                    DataJobManageDetailsPage.createLongLivedJobs("test"),
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.provideExecutionsForLongLivedJobs(
+                        "test",
+                    ),
+                )
+                .then(() => DataJobManageDetailsPage.createShortLivedTestJobs())
+                .then(() =>
+                    DataJobManageDetailsPage.loadShortLivedTestJobsFixture().then(
+                        (fixtures) => {
+                            testJobsFixture = [fixtures[0], fixtures[1]];
+                            additionalTestJobFixture = fixtures[2];
 
-                    return cy.wrap({
-                        context: "manage::data-job-details.spec::1::before()",
-                        action: "continue",
-                    });
-                })
-                .then(() => cy.fixture("lib/manage/e2e-cypress-dp-test.json"))
-                .then((loadedTestJob) => {
-                    longLivedTestJob = applyGlobalEnvSettings(loadedTestJob);
+                            return cy.wrap({
+                                context:
+                                    "manage::data-job-details.spec::1::before()",
+                                action: "continue",
+                            });
+                        },
+                    ),
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.loadLongLivedTestJobFixture().then(
+                        (loadedTestJob) => {
+                            longLivedTestJobFixture = loadedTestJob;
 
-                    return cy.wrap({
-                        context: "manage::data-job-details.spec::2::before()",
-                        action: "continue",
-                    });
-                });
+                            return cy.wrap({
+                                context:
+                                    "manage::data-job-details.spec::2::before()",
+                                action: "continue",
+                            });
+                        },
+                    ),
+                );
         });
 
         after(() => {
-            cy.cleanTestJobs();
+            DataJobManageDetailsPage.deleteShortLivedTestJobs();
 
             DataJobManageDetailsPage.saveHarIfSupported();
         });
@@ -59,7 +88,8 @@ describe(
         beforeEach(() => {
             cy.restoreLocalStorage("data-job-manage-details");
 
-            DataJobManageDetailsPage.initBackendRequestInterceptor();
+            DataJobManageDetailsPage.wireUserSession();
+            DataJobManageDetailsPage.initInterceptors();
         });
 
         it(
@@ -67,18 +97,18 @@ describe(
             { tags: "@integration" },
             () => {
                 dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
-                    longLivedTestJob.team,
-                    longLivedTestJob.job_name,
+                    longLivedTestJobFixture.team,
+                    longLivedTestJobFixture.job_name,
                 );
 
                 dataJobManageDetailsPage.clickOnContentContainer();
 
                 //Toggle job status twice, enable to disable and vice versa.
                 dataJobManageDetailsPage.toggleJobStatus(
-                    longLivedTestJob.job_name,
+                    longLivedTestJobFixture.job_name,
                 );
                 dataJobManageDetailsPage.toggleJobStatus(
-                    longLivedTestJob.job_name,
+                    longLivedTestJobFixture.job_name,
                 );
             },
         );
@@ -91,8 +121,8 @@ describe(
                     "Test if changing the description is working";
 
                 dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
-                    testJobs[0].team,
-                    testJobs[0].job_name,
+                    testJobsFixture[0].team,
+                    testJobsFixture[0].job_name,
                 );
 
                 dataJobManageDetailsPage.clickOnContentContainer();
@@ -107,6 +137,7 @@ describe(
 
                 dataJobManageDetailsPage
                     .getDescription()
+                    .scrollIntoView()
                     .should("be.visible")
                     .should(
                         "contain.text",
@@ -120,11 +151,11 @@ describe(
 
         it("Data Job Manage Details Page - execute now", () => {
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
-                longLivedTestJob.team,
-                longLivedTestJob.job_name,
+                longLivedTestJobFixture.team,
+                longLivedTestJobFixture.job_name,
             );
 
-            dataJobManageDetailsPage.waitForTestJobExecutionCompletion();
+            DataJobManageDetailsPage.waitForTestJobExecutionToComplete();
 
             dataJobManageDetailsPage.executeNow();
 
@@ -140,8 +171,8 @@ describe(
 
         it("Data Job Manage Details Page - download job key", () => {
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
-                longLivedTestJob.team,
-                longLivedTestJob.job_name,
+                longLivedTestJobFixture.team,
+                longLivedTestJobFixture.job_name,
             );
 
             dataJobManageDetailsPage.openActionDropdown();
@@ -151,7 +182,7 @@ describe(
             dataJobManageDetailsPage
                 .readFile(
                     "downloadsFolder",
-                    `${longLivedTestJob.job_name}.keytab`,
+                    `${longLivedTestJobFixture.job_name}.keytab`,
                 )
                 .should("exist");
         });
@@ -160,50 +191,39 @@ describe(
             "Data Job Manage Details Page - delete job",
             { tags: "@integration" },
             () => {
-                cy.fixture("lib/explore/additional-test-job.json").then(
-                    (additionalTestJob) => {
-                        const normalizedTestJob =
-                            applyGlobalEnvSettings(additionalTestJob);
+                DataJobsManagePage.createAdditionalShortLivedTestJobs();
 
-                        cy.prepareAdditionalTestJobs();
-
-                        dataJobManageDetailsPage =
-                            DataJobManageDetailsPage.navigateTo(
-                                normalizedTestJob.team,
-                                normalizedTestJob.job_name,
-                            );
-
-                        dataJobManageDetailsPage.clickOnContentContainer();
-
-                        dataJobManageDetailsPage.openActionDropdown();
-
-                        dataJobManageDetailsPage.deleteJob();
-
-                        dataJobManageDetailsPage.confirmDeleteJob();
-
-                        dataJobManageDetailsPage
-                            .getToastTitle(20000) // Wait up to 20 seconds for the job to be deleted.
-                            .should(
-                                "contain.text",
-                                "Data job delete completed",
-                            );
-
-                        dataJobManageDetailsPage.waitForBackendRequestCompletion();
-
-                        const dataJobsManagePage = DataJobsManagePage.getPage();
-
-                        dataJobsManagePage
-                            .getDataGridCell(normalizedTestJob.job_name, 10000) // Wait up to 10 seconds for the jobs list to show.
-                            .should("not.exist");
-                    },
+                dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
+                    additionalTestJobFixture.team,
+                    additionalTestJobFixture.job_name,
                 );
+
+                dataJobManageDetailsPage.clickOnContentContainer();
+
+                dataJobManageDetailsPage.openActionDropdown();
+
+                dataJobManageDetailsPage.deleteJob();
+
+                dataJobManageDetailsPage.confirmDeleteJob();
+
+                dataJobManageDetailsPage
+                    .getToastTitle(20000) // Wait up to 20 seconds for the job to be deleted.
+                    .should("contain.text", "Data job delete completed");
+
+                dataJobManageDetailsPage.waitForBackendRequestCompletion();
+
+                const dataJobsManagePage = DataJobsManagePage.getPage();
+
+                dataJobsManagePage
+                    .getDataGridCell(additionalTestJobFixture.job_name, 10000) // Wait up to 10 seconds for the jobs list to show.
+                    .should("not.exist");
             },
         );
 
         //TODO: Double-check and enable this test
         it.skip("Data Job Manage Details Page - executions timeline", () => {
-            const jobName = longLivedTestJob.job_name;
-            const team = longLivedTestJob.team;
+            const jobName = longLivedTestJobFixture.job_name;
+            const team = longLivedTestJobFixture.team;
 
             cy.intercept({
                 method: "GET",

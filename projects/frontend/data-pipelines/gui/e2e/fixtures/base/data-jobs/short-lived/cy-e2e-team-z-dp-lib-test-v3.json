@@ -1,4 +1,7 @@
 {
+  "job_name": "cy-e2e-team-z-dp-lib-test-$env-placeholder$-v3",
+  "team": "cy-e2e-team-z-dp-lib",
+  "description": "Test description 3 with a long text on the line",
   "config": {
     "contacts": {
       "notified_on_job_deploy": [
@@ -20,8 +23,5 @@
       "schedule_cron": "0 0 03 * 5"
     }
   },
-  "description": "Test description 3 with a long text on the line",
-  "job_name": "e2e-cp-$env-placeholder$-a-test-job-3",
-  "status": "disabled",
-  "team": "e2e-cp-$env-placeholder$-a-test-team-3"
+  "status": "disabled"
 }

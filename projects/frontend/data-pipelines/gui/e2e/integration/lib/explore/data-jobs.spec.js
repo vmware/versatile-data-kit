@@ -4,37 +4,52 @@
  */
 
 /// <reference types="cypress" />
+
 import { DataJobsExplorePage } from "../../../support/pages/app/lib/explore/data-jobs.po";
 import { DataJobExploreDetailsPage } from "../../../support/pages/app/lib/explore/data-job-details.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
 
 describe(
     "Data Jobs Explore Page",
     { tags: ["@dataPipelines", "@exploreDataJobs"] },
     () => {
+        /**
+         * @type {DataJobsExplorePage}
+         */
         let dataJobsExplorePage;
-        let testJobs;
+        /**
+         * @type {Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
+         */
+        let testJobsFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let additionalTestJobFixture;
 
         before(() => {
             return DataJobsExplorePage.recordHarIfSupported()
                 .then(() => cy.clearLocalStorageSnapshot("data-jobs-explore"))
                 .then(() => DataJobsExplorePage.login())
                 .then(() => cy.saveLocalStorage("data-jobs-explore"))
-                .then(() => cy.cleanTestJobs())
-                .then(() => cy.prepareBaseTestJobs())
-                .then(() => cy.fixture("lib/explore/test-jobs.json"))
-                .then((loadedTestJobs) => {
-                    testJobs = applyGlobalEnvSettings(loadedTestJobs);
+                .then(() => DataJobsExplorePage.createTeam())
+                .then(() => DataJobsExplorePage.deleteShortLivedTestJobs())
+                .then(() => DataJobsExplorePage.createShortLivedTestJobs())
+                .then(() =>
+                    DataJobsExplorePage.loadShortLivedTestJobsFixture().then(
+                        (fixtures) => {
+                            testJobsFixture = [fixtures[0], fixtures[1]];
+                            additionalTestJobFixture = fixtures[2];
 
-                    return cy.wrap({
-                        context: "explore::data-jobs.spec::before()",
-                        action: "continue",
-                    });
-                });
+                            return cy.wrap({
+                                context: "explore::data-jobs.spec::before()",
+                                action: "continue",
+                            });
+                        },
+                    ),
+                );
         });
 
         after(() => {
-            cy.cleanTestJobs();
+            DataJobsExplorePage.deleteShortLivedTestJobs();
 
             DataJobsExplorePage.saveHarIfSupported();
         });
@@ -42,7 +57,8 @@ describe(
         beforeEach(() => {
             cy.restoreLocalStorage("data-jobs-explore");
 
-            DataJobsExplorePage.initBackendRequestInterceptor();
+            DataJobsExplorePage.wireUserSession();
+            DataJobsExplorePage.initInterceptors();
         });
 
         it("Main Title Component have text: Explore Data Jobs", () => {
@@ -50,18 +66,20 @@ describe(
 
             dataJobsExplorePage
                 .getMainTitle()
+                .scrollIntoView()
                 .should("be.visible")
-                .should(($el) =>
-                    expect($el.text().trim()).to.equal("Explore Data Jobs"),
-                );
+                .should("have.text", "Explore Data Jobs");
         });
 
         it("Data Jobs Explore Page - loaded and shows data jobs", () => {
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
-            dataJobsExplorePage.getDataGrid().should("be.visible");
+            dataJobsExplorePage
+                .getDataGrid()
+                .scrollIntoView()
+                .should("be.visible");
 
-            testJobs.forEach((testJob) => {
+            testJobsFixture.forEach((testJob) => {
                 cy.log("Fixture for name: " + testJob.job_name);
 
                 dataJobsExplorePage
@@ -71,172 +89,175 @@ describe(
 
                 dataJobsExplorePage
                     .getDataGridCell(testJob.team)
+                    .scrollIntoView()
                     .should("be.visible");
             });
         });
 
         it("Data Jobs Explore Page - filters data jobs", () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
 
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
-            dataJobsExplorePage.filterByJobName(testJobs[0].job_name);
+            dataJobsExplorePage.filterByJobName(testJobsFixture[0].job_name);
 
             dataJobsExplorePage
-                .getDataGridCell(testJobs[0].job_name)
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .scrollIntoView()
                 .should("be.visible");
 
             dataJobsExplorePage
-                .getDataGridCell(testJobs[1].job_name)
+                .getDataGridCell(testJobsFixture[1].job_name)
                 .should("not.exist");
         });
 
         it("Data Jobs Explore Page - refreshes data jobs", () => {
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
-            cy.fixture("lib/explore/additional-test-job.json").then(
-                (additionalTestJob) => {
-                    const normalizedTestJob =
-                        applyGlobalEnvSettings(additionalTestJob);
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .should("have.text", testJobsFixture[0].job_name);
 
-                    cy.log("Fixture for name: " + normalizedTestJob.job_name);
+            dataJobsExplorePage
+                .getDataGridCell(additionalTestJobFixture.job_name)
+                .should("not.exist");
 
-                    dataJobsExplorePage
-                        .getDataGridCell(testJobs[0].job_name)
-                        .should("have.text", testJobs[0].job_name);
+            DataJobsExplorePage.createAdditionalShortLivedTestJobs();
 
-                    dataJobsExplorePage
-                        .getDataGridCell(normalizedTestJob.job_name)
-                        .should("not.exist");
+            dataJobsExplorePage.refreshDataGrid();
 
-                    cy.prepareAdditionalTestJobs();
-
-                    dataJobsExplorePage.refreshDataGrid();
-
-                    dataJobsExplorePage.filterByJobName(
-                        normalizedTestJob.job_name,
-                    );
-
-                    dataJobsExplorePage
-                        .getDataGridCell(normalizedTestJob.job_name)
-                        .should("have.text", normalizedTestJob.job_name);
-                },
+            dataJobsExplorePage.filterByJobName(
+                additionalTestJobFixture.job_name,
             );
+
+            dataJobsExplorePage
+                .getDataGridCell(additionalTestJobFixture.job_name)
+                .should("have.text", additionalTestJobFixture.job_name);
         });
 
-        // it("Data Jobs Explore Page - searches data jobs", () => {
-        //     cy.log("Fixture for name: " + testJobs[0].job_name);
-        //
-        //     dataJobsExplorePage = DataJobsExplorePage.navigateTo();
-        //
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("be.visible");
-        //
-        //     dataJobsExplorePage.searchByJobName(testJobs[0].job_name);
-        //
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[0].job_name)
-        //         .should("be.visible");
-        //
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("not.exist");
-        // });
+        it("Data Jobs Explore Page - searches data jobs", () => {
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
 
-        // it("Data Jobs Explore Page - searches data jobs, search parameter goes into URL", () => {
-        //     cy.log("Fixture for name: " + testJobs[0].job_name);
-        //
-        //     dataJobsExplorePage = DataJobsExplorePage.navigateTo();
-        //
-        //     // verify 2 test rows visible
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[0].job_name)
-        //         .should("be.visible");
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("be.visible");
-        //
-        //     // do search
-        //     dataJobsExplorePage.searchByJobName(testJobs[0].job_name);
-        //
-        //     // verify 1 test row visible
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[0].job_name)
-        //         .should("be.visible");
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("not.exist");
-        //
-        //     // verify url contains search value
-        //     dataJobsExplorePage
-        //         .getCurrentUrl()
-        //         .should(
-        //             "match",
-        //             new RegExp(
-        //                 `\\/explore\\/data-jobs\\?search=${testJobs[0].job_name}$`,
-        //             ),
-        //         );
-        //
-        //     // clear search with clear() method
-        //     dataJobsExplorePage.clearSearchField();
-        //
-        //     // verify 2 test rows visible
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[0].job_name)
-        //         .should("be.visible");
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("be.visible");
-        //
-        //     // verify url does not contain search value
-        //     dataJobsExplorePage
-        //         .getCurrentUrl()
-        //         .should("match", new RegExp(`\\/explore\\/data-jobs$`));
-        // });
+            dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
-        // it("Data Jobs Explore Page - searches data jobs, perform search when URL contains search parameter", () => {
-        //     cy.log("Fixture for name: " + testJobs[1].job_name);
-        //
-        //     // navigate with search value in URL
-        //     dataJobsExplorePage = DataJobsExplorePage.navigateToUrl(
-        //         `/explore/data-jobs?search=${testJobs[1].job_name}`,
-        //     );
-        //
-        //     // verify url contains search value
-        //     dataJobsExplorePage
-        //         .getCurrentUrl()
-        //         .should(
-        //             "match",
-        //             new RegExp(
-        //                 `\\/explore\\/data-jobs\\?search=${testJobs[1].job_name}$`,
-        //             ),
-        //         );
-        //
-        //     // verify 1 test row visible
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[0].job_name)
-        //         .should("not.exist");
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("be.visible");
-        //
-        //     // clear search with button
-        //     dataJobsExplorePage.clearSearchFieldWithButton();
-        //
-        //     // verify 2 test rows visible
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[0].job_name)
-        //         .should("be.visible");
-        //     dataJobsExplorePage
-        //         .getDataGridCell(testJobs[1].job_name)
-        //         .should("be.visible");
-        //
-        //     // verify url does not contain search value
-        //     dataJobsExplorePage
-        //         .getCurrentUrl()
-        //         .should("match", new RegExp(`\\/explore\\/data-jobs$`));
-        // });
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+
+            dataJobsExplorePage.searchByJobName(testJobsFixture[0].job_name);
+
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .should("not.exist");
+        });
+
+        it("Data Jobs Explore Page - searches data jobs, search parameter goes into URL", () => {
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
+
+            dataJobsExplorePage = DataJobsExplorePage.navigateTo();
+
+            // verify 2 test rows visible
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+
+            // do search
+            dataJobsExplorePage.searchByJobName(testJobsFixture[0].job_name);
+
+            // verify 1 test row visible
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .should("not.exist");
+
+            // verify url contains search value
+            dataJobsExplorePage
+                .getCurrentUrl()
+                .should(
+                    "match",
+                    new RegExp(
+                        `\\/explore\\/data-jobs\\?search=${testJobsFixture[0].job_name}$`,
+                    ),
+                );
+
+            // clear search with clear() method
+            dataJobsExplorePage.clearSearchField();
+
+            // verify 2 test rows visible
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+
+            // verify url does not contain search value
+            dataJobsExplorePage
+                .getCurrentUrl()
+                .should("match", new RegExp(`\\/explore\\/data-jobs$`));
+        });
+
+        it("Data Jobs Explore Page - searches data jobs, perform search when URL contains search parameter", () => {
+            cy.log("Fixture for name: " + testJobsFixture[1].job_name);
+
+            // navigate with search value in URL
+            dataJobsExplorePage = DataJobsExplorePage.navigateToUrl(
+                `/explore/data-jobs?search=${testJobsFixture[1].job_name}`,
+            );
+
+            // verify url contains search value
+            dataJobsExplorePage
+                .getCurrentUrl()
+                .should(
+                    "match",
+                    new RegExp(
+                        `\\/explore\\/data-jobs\\?search=${testJobsFixture[1].job_name}$`,
+                    ),
+                );
+
+            // verify 1 test row visible
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .should("not.exist");
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+
+            // clear search with button
+            dataJobsExplorePage.clearSearchFieldWithButton();
+
+            // verify 2 test rows visible
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[0].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+            dataJobsExplorePage
+                .getDataGridCell(testJobsFixture[1].job_name)
+                .scrollIntoView()
+                .should("be.visible");
+
+            // verify url does not contain search value
+            dataJobsExplorePage
+                .getCurrentUrl()
+                .should("match", new RegExp(`\\/explore\\/data-jobs$`));
+        });
 
         it("Data Jobs Explore Page - show/hide column when toggling from menu", () => {
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
@@ -302,13 +323,13 @@ describe(
         });
 
         it("Data Jobs Explore Page - navigates to data job", () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
+            cy.log("Fixture for name: " + testJobsFixture[0].job_name);
 
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
             dataJobsExplorePage.openJobDetails(
-                testJobs[0].team,
-                testJobs[0].job_name,
+                testJobsFixture[0].team,
+                testJobsFixture[0].job_name,
             );
 
             const dataJobExploreDetailsPage =
@@ -316,13 +337,15 @@ describe(
 
             dataJobExploreDetailsPage
                 .getMainTitle()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("contains.text", testJobs[0].job_name);
+                .should("contains.text", testJobsFixture[0].job_name);
 
             dataJobExploreDetailsPage
                 .getDescriptionField()
+                .scrollIntoView()
                 .should("be.visible")
-                .should("contain.text", testJobs[0].description);
+                .should("contain.text", testJobsFixture[0].description);
         });
     },
 );
