@@ -3,7 +3,6 @@
 import logging
 
 import pytest
-from IPython.testing.globalipapp import get_ipython
 from IPython.testing.globalipapp import start_ipython
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
