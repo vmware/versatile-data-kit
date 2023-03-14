@@ -1,18 +1,26 @@
 
 # VEP-NNNN: Your short, descriptive title
 
-* **Author(s):** Paul Murphy (murphp15@tcd.ie),Iva Koleva (ikoleva@vmware.com)
-* **Status:** implementable
+* **Author(s):** Paul Murphy (murphp15@tcd.ie), Iva Koleva (ikoleva@vmware.com), Dilyan Marinov (mdilyan@vmware.com)
+* **Status:** implemented
 
-- [Summary](#summary)
-- [Glossary](#glossary)
-- [Motivation](#motivation)
-- [Requirements and goals](#requirements-and-goals)
-- [High-level design](#high-level-design)
-- [API Design](#api-design)
-- [Detailed design](#detailed-design)
-- [Implementation stories](#implementation-stories)
-- [Alternatives](#alternatives)
+- [VEP-NNNN: Your short, descriptive title](#vep-nnnn-your-short-descriptive-title)
+  - [Summary](#summary)
+  - [Glossary](#glossary)
+  - [Motivation](#motivation)
+  - [Requirements and goals](#requirements-and-goals)
+    - [Goals:](#goals)
+    - [Non Goals:](#non-goals)
+  - [High-level design](#high-level-design)
+      - [Folder Structure](#folder-structure)
+      - [Package publishing](#package-publishing)
+  - [Detailed design](#detailed-design)
+    - [CI/CD](#cicd)
+      - [Dependency management](#dependency-management)
+      - [Build and Test](#build-and-test)
+        - [e2e test image](#e2e-test-image)
+      - [Release](#release)
+  - [Implementation stories](#implementation-stories)
 
 ## Summary
 
@@ -98,9 +106,12 @@ In this context, a component is any separate software process.
 
 -->
 #### Package publishing
-The shared-component and frontend packages are published to NPMJS(https://www.npmjs.com/) under the user versatiledatakit.
-NPMJS was chosen as the package repository because it is the most widely adopted javascript package manager.
-They are published to a public NPMJS to support two workflows:
+The shared components and data-pipelines packages are published to the [npm
+registry](https://www.npmjs.com/) under the user
+[@verstiledatakit](https://www.npmjs.com/settings/versatiledatakit/packages).
+The npm registry was chosen as the package repository because it is the most
+widely adopted javascript package manager. Publishing to the registry also
+supports the following workflows:
 1. Customers want to use the shared component libraries in their projects.
 2. Customers want to build their own docker image for data-pipelines instead of using the one provided by us.
 
@@ -153,10 +164,76 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
-### CICD
+### CI/CD
 
-#### e2e test image
-To run e2e tests alot of dependencies are needed (browsers, build systems etc...).
+CI/CD for frontend components leverages existing CI/CD for the VDK monorepo using
+GitLab.
+
+- [GitLab config for frontend components](/projects/frontend/cicd/.gitlab-ci.yml)
+- [@versatiledatakit/shared install script](/projects/frontend/cicd/install_shared.sh)
+- [@versatiledatakit/data-pipelines build script](/projects/frontend/cicd/build_data_pipelines.sh)
+- [@versatiledatakit/data-pipelines install script](/projects/frontend/cicd/install_data_pipelines.sh)
+- [release script for npm packages](/projects/frontend/cicd/publish_package_npm.sh)
+
+The shells scripts linked above are designed for CI/CD and local development use.
+
+#### Dependency management
+
+Our main goals when it comes to dependency management are as follows:
+
+1. Keep peer dependencies up to date to avoid vulnerabilities
+2. Detect problems related to peer dependencies early
+
+Therefore, peer dependency versions are lower-bound, i.e. the version of a specific peer
+dependency should be greater than or equal to a specific number. Peer dependency
+versions should not be upper-bound unless absolutely necessary.
+
+`package-lock.json` is not included in version control for either package.
+Instead, for each pipeline run, `npm install` is run and `package-lock.json` is
+output as an artefact at the end. Artefact retention is 7 days. This setup
+ensures that the latest dependencies are pulled for every build. It also ensures
+compatibility issues are detected early and are traceable.
+
+**Advantages of using lower-bound peer dependency versions**
+
+1. Reduces conflicts. Setting a lower-bound version for a peer dependency
+ensures that the package uses a compatible version of that dependency and
+reduces the chance of conflicts (if another version is pinned somewhere else).
+It also provides more flexibility to users: they can pin the version themselves
+if they have to.
+
+2. Improves security. Ensures we use the latest versions and makes it easier to
+keep up with updates.
+
+**Disadvantages** Compatibility issues. If a new version of a dependency
+introduces a breaking change, this leads to increased maintenance, due to
+failures in CICD.
+
+**Alternatives considered**
+
+Pinned dependencies and Dependabot automatic updates. The dependencies are
+pinned and dependabot automatically updates them. This keeps peer dependencies
+up to date and allows the detection of problems early by opening PRs after a new
+dependecy release. The disadvantage here is that the process becomes too
+granular, e.g. every peer dependency update opens a new PR, which triggers a new
+release.
+
+Range-based dependencies. Specify only major version and allow any minor and
+patch version to be used. Dependabot opens PRs only for major version updates.
+This is better in terms of granularity, but reduces flexibility.
+
+#### Build and Test
+
+Opening a pull request with changes to `@versatiledatakit/data-pipelines`
+triggers a pipeline that builds the shared package and runs unit tests on it.
+Opening a pull request with changes to `@versatiledatakit/shared` triggers a
+pipeline that builds and tests both the data-pipelines and shared packages to
+ensure compatibility. Opening a pull request with changes to the [frontend CI/CD](/projects/frontend/cicd)
+triggers a pipeline that builds and tests both packages. Merging changes into
+`main` requires that these pipelines pass successfully.
+
+##### e2e test image
+To run e2e tests a lot of dependencies are needed (browsers, build systems etc...).
 Cypress(e2e framework) are actually aware of this and provide a base image.
 We extend this with extra functionality we need.
 A docker image is built with all these dependencies to make e2e testing easier in gitlab.
@@ -171,6 +248,29 @@ it contains:
 The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
 New versions are released by changing the version in [version.txt](/projects/frontend/cicd/version.txt)
 New releases are published under the image name [registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
+
+**Related Issues**
+https://github.com/vmware/versatile-data-kit/issues/1728
+
+#### Release
+
+Frontend packages are published under the
+[@verstiledatakit](https://www.npmjs.com/settings/versatiledatakit/packages)
+namespace in npm registry. Merging changes to a package triggers the publishing
+of that package to npm. Frontend packages are **not** included in VDK nightly
+builds. This setup ensures that each atomic change to the frontend corresponds
+to a release version.
+
+Versioning for each package is based on its `version.txt` file and the gitlab
+pipeline id. Major and minor versions are taken from `version.txt`. The gitlab
+pipeline id, which is guaranteed to be unique, serves as the patch version. Note
+that `package.json` files do not represent package versions and should not be
+used as a source of truth for versioning.
+
+- [version.txt for @versatiledatakit/data-pipelines](/projects/frontend/data-pipelines/gui/version.txt)
+- [version.txt for @versatiledatakit/shared](/projects/frontend/shared-components/gui/version.txt)
+
+As stated in [CONTRIBUTING.md](/CONTRIBUTING.md), versioning of all components follows https://semver.org
 
 ## Implementation stories
 <!--

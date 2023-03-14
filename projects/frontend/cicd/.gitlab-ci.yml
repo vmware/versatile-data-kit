@@ -87,7 +87,7 @@ frontend-shared-components-build:
   before_script:
     - cd projects/frontend/shared-components/gui
   script:
-    - ../../cicd/build_shared.sh
+    - ../../cicd/install_shared.sh
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
