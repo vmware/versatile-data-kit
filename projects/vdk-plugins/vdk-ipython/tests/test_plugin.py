@@ -202,3 +202,17 @@ def test_get_initialized_job_input_after_finalize(ip):
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+
+
+def test_call_finalize_multiple_times(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    ip.get_ipython().run_cell("VDK.finalize()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    ip.get_ipython().run_cell("VDK.finalize()")
+
+
+def test_call_finalize_before_get_initialized_job_input(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    ip.get_ipython().run_cell("VDK.finalize()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    ip.get_ipython().run_cell("VDK.finalize()")

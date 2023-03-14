@@ -65,8 +65,9 @@ class JobControl:
         """
         Finalise the current job
         """
-        self.job.__exit__(None, None, None)
-        self.job_input = None
+        if self.job:
+            self.job.__exit__(None, None, None)
+            self.job_input = None
 
 
 def load_ipython_extension(ipython):
