@@ -11,7 +11,8 @@ AUDIT_HOOK_FORBIDDEN_EVENTS_LIST_DEFAULT = (
     "os.forkpty;os.getxattr;os.kill;os.killpg;os.link;os.listxattr;"
     "os.lockf;os.posix_spawn;os.putenv;os.removexattr;os.rmdir;"
     "os.scandir;os.setxattr;os.spawn;os.startfile;os.symlink;"
-    "os.truncate;os.unsetenv;os.utime;pty.spawn"
+    "os.truncate;os.unsetenv;os.utime;pty.spawn;os.spawn;"
+    "os.posix_spawn;subprocess.run"
 )
 
 

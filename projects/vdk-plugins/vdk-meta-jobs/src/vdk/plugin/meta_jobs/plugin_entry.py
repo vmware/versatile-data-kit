@@ -6,20 +6,28 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.meta_jobs import meta_job_runner
-
-"""
-Include the plugins implementation. For example:
-"""
+from vdk.plugin.meta_jobs.meta_configuration import add_definitions
+from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 
 
 class MetaJobsPlugin:
+    @staticmethod
     @hookimpl
-    def run_job(self, context: JobContext) -> None:
+    def run_job(context: JobContext) -> None:
         # TODO: there should be less hacky way
         meta_job_runner.TEAM_NAME = context.core_context.configuration.get_value(
             JobConfigKeys.TEAM
         )
+        meta_job_runner.META_CONFIG = MetaPluginConfiguration(
+            context.core_context.configuration
+        )
+
+    @staticmethod
+    @hookimpl
+    def vdk_configure(config_builder: ConfigurationBuilder) -> None:
+        add_definitions(config_builder)
 
 
 @hookimpl
