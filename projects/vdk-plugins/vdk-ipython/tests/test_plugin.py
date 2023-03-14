@@ -169,3 +169,19 @@ def test_extension_with_pure_sql_job(ip, tmpdir):
     assert "2021-01-01  GOOG          123" in (
         ip.get_ipython().getoutput("! " "vdk " "sqlite-query -q 'SELECT * FROM stocks'")
     )
+
+
+def test_finalise(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    assert (
+        "finalize_job"
+        not in ip.get_ipython()
+        .run_cell("VDK.job._plugin_registry.hook().__dict__")
+        .result
+    )
+    ip.get_ipython().run_cell("VDK.finalize()")
+    assert (
+        "finalize_job"
+        in ip.get_ipython().run_cell("VDK.job._plugin_registry.hook().__dict__").result
+    )

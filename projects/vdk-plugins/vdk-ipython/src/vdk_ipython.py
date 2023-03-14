@@ -1,5 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import atexit
 import json
 import os
 import pathlib
@@ -9,6 +10,9 @@ from IPython.core.magic_arguments import argument
 from IPython.core.magic_arguments import magic_arguments
 from IPython.core.magic_arguments import parse_argstring
 from vdk.internal.builtin_plugins.run import standalone_data_job
+
+
+# see https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.hooks.html for more options
 
 
 class JobControl:
@@ -52,8 +56,10 @@ class JobControl:
             self.job_input = self.job.__enter__()
         return self.job_input
 
-    # TODO: should automate calling finalize (if it is not called explicitly)
     def finalize(self):
+        """
+        Finalise the current job
+        """
         self.job.__exit__(None, None, None)
         self.job_input = None
 
@@ -90,3 +96,8 @@ def load_job(
 ):
     job = JobControl(path, name, arguments, template)
     get_ipython().push(variables={"VDK": job})
+
+    def finalise_atexit():
+        job.finalize()
+
+    atexit.register(finalise_atexit)
