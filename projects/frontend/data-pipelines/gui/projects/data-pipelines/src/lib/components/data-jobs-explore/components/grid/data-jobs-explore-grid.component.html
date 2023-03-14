@@ -15,6 +15,7 @@
         [selectedValue]="selectedJob"
         [quickFilters]="quickFilters"
         [suppressQuickFilterChangeEvent]="true"
+        [disableActionableElements]="disableActionableElements"
         (search)="search($event)"
     >
         <div *ngIf="isStandardDisplayMode()" class="custom-buttons-left">
@@ -22,7 +23,7 @@
                 class="btn btn-link btn-sm"
                 aria-label="refresh"
                 data-cy="data-pipelines-explore-refresh-btn"
-                [disabled]="loading"
+                [disabled]="loading || disableActionableElements"
                 (click)="refresh()"
             >
                 <clr-icon shape="refresh" size="14"></clr-icon>
@@ -348,6 +349,12 @@
                     >{{ job.deployments | executionSuccessRate }}</clr-dg-cell
                 >
 
+                <clr-dg-cell
+                    class="column__min-width--l"
+                    [title]="getJobSuccessRateTitle(job)"
+                    >{{ job.deployments | executionSuccessRate }}</clr-dg-cell
+                >
+
                 <clr-dg-cell class="column__min-width--xl">{{
                     job.config?.schedule?.scheduleCron | formatSchedule : ""
                 }}</clr-dg-cell>
@@ -468,13 +475,25 @@
             </clr-dg-row>
 
             <clr-dg-placeholder>
-                <div *ngIf="!searchQueryValue">No data jobs created!</div>
-                <div *ngIf="searchQueryValue">
-                    <span
-                        >No data jobs that match with
-                        <strong>{{ searchQueryValue }}</strong> criteria</span
-                    >
-                </div>
+                <shared-placeholder
+                    errorContext="Data Jobs"
+                    [plural]="true"
+                    [errorsQueue]="errors.records"
+                    [listenForErrorPatterns]="listenForErrorPatterns"
+                >
+                    <ng-template #emptyTemplate>
+                        <div *ngIf="!searchQueryValue">
+                            No data jobs created!
+                        </div>
+                        <div *ngIf="searchQueryValue">
+                            <span
+                                >No data jobs that match with
+                                <strong>{{ searchQueryValue }}</strong>
+                                criteria</span
+                            >
+                        </div>
+                    </ng-template>
+                </shared-placeholder>
             </clr-dg-placeholder>
 
             <clr-dg-footer>

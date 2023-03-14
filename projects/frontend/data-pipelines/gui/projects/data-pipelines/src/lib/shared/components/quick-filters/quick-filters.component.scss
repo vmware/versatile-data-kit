@@ -26,7 +26,14 @@
 
         .quick-filters__list-item {
             margin: 0 0 0 0.3rem;
-            cursor: pointer;
+
+            &.disabled {
+                cursor: not-allowed;
+            }
+
+            &.clickable {
+                cursor: pointer;
+            }
         }
 
         .label-light-blue {

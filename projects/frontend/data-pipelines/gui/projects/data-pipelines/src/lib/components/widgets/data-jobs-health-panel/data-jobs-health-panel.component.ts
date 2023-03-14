@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Inject,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import {
@@ -12,7 +19,7 @@ import {
     ComponentModel,
     ComponentService,
     DESC,
-    ErrorHandlerService,
+    ErrorRecord,
     NavigationService,
     OnTaurusModelChange,
     OnTaurusModelError,
@@ -41,7 +48,15 @@ import {
     ORDER_REQ_PARAM,
     TEAM_NAME_REQ_PARAM,
 } from '../../../model';
-import { TASK_LOAD_JOB_EXECUTIONS } from '../../../state/tasks';
+
+import {
+    TASK_LOAD_JOB_EXECUTIONS,
+    TASK_LOAD_JOBS_STATE,
+} from '../../../state/tasks';
+import {
+    LOAD_JOB_ERROR_CODES,
+    LOAD_JOBS_ERROR_CODES,
+} from '../../../state/error-codes';
 
 import { DataJobExecutionToGridDataJobExecution } from '../../data-job/pages/executions';
 
@@ -49,6 +64,7 @@ enum State {
     loading = 'loading',
     ready = 'ready',
     empty = 'empty',
+    error = 'error',
 }
 
 @Component({
@@ -59,6 +75,7 @@ enum State {
 export class DataJobsHealthPanelComponent
     extends TaurusBaseComponent
     implements
+        OnInit,
         OnTaurusModelInit,
         OnTaurusModelLoad,
         OnTaurusModelChange,
@@ -77,13 +94,25 @@ export class DataJobsHealthPanelComponent
     dataJobs: DataJob[];
     jobExecutions: DataJobExecutions;
 
+    /**
+     * ** Flag that indicates there is jobs executions load error.
+     */
+    isComponentInErrorState = false;
+
+    /**
+     * ** Array of error code patterns that component should listen for in errors store.
+     */
+    listenForErrorPatterns: string[] = [
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS].All,
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE].All,
+    ];
+
     constructor(
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
-        private readonly errorHandlerService: ErrorHandlerService,
         @Inject(DATA_PIPELINES_CONFIGS)
         public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
     ) {
@@ -171,7 +200,7 @@ export class DataJobsHealthPanelComponent
                 );
                 this.loadingExecutions = false;
             }
-        } else {
+        } else if (task === TASK_LOAD_JOBS_STATE) {
             const componentState = model.getComponentState();
             const dataJobsData: DataJobPage =
                 componentState.data.get(JOBS_DATA_KEY);
@@ -187,20 +216,43 @@ export class DataJobsHealthPanelComponent
     /**
      * @inheritDoc
      */
-    onModelError(model: ComponentModel, task: string): void {
-        if (task === TASK_LOAD_JOB_EXECUTIONS) {
-            this.jobExecutions = [];
-            this.loadingExecutions = false;
-        } else {
-            this.loadingJobs = false;
-        }
+    onModelError(
+        model: ComponentModel,
+        task: string,
+        newErrorRecords: ErrorRecord[],
+    ): void {
+        newErrorRecords.forEach((errorRecord) => {
+            const error = ErrorUtil.extractError(errorRecord.error);
 
-        const error = ErrorUtil.extractError(model.getComponentState().error);
+            if (task === TASK_LOAD_JOB_EXECUTIONS) {
+                this.jobExecutions = [];
+                this.loadingExecutions = false;
+            } else if (task === TASK_LOAD_JOBS_STATE) {
+                this.loadingJobs = false;
+            }
 
-        this.errorHandlerService.processError(error);
+            // don't show toast message, only log to console, logic for component is to stay hidden when there is no data are there is error
+
+            console.error(error);
+        });
     }
 
-    private emitNewState() {
+    /**
+     * @inheritDoc
+     */
+    override ngOnInit(): void {
+        // attach listener to ErrorStore and listen for Errors change
+        this.errors.onChange((store) => {
+            // if there is record for listened error code patterns set component in error state
+            this.isComponentInErrorState = store.hasCodePattern(
+                ...this.listenForErrorPatterns,
+            );
+        });
+
+        super.ngOnInit();
+    }
+
+    private _emitNewState() {
         if (this.loadingJobs || this.loadingExecutions) {
             this.componentStateEvent.emit(State.loading);
         } else if (
@@ -208,6 +260,8 @@ export class DataJobsHealthPanelComponent
             this.dataJobs.length === 0
         ) {
             this.componentStateEvent.emit(State.empty);
+        } else if (this.isComponentInErrorState) {
+            this.componentStateEvent.emit(State.error);
         } else {
             this.componentStateEvent.emit(State.ready);
         }

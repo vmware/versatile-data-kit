@@ -50,14 +50,14 @@ describe('ParseNextRunPipe', () => {
                 const expected = new Date();
                 let useTimeout = false;
 
-                if (expected.getUTCHours() >= 12) {
-                    expected.setUTCDate(expected.getUTCDate() + 1);
-                } else if (
+                if (
                     expected.getUTCHours() === 11 &&
                     expected.getUTCMinutes() === 59 &&
                     expected.getUTCSeconds() === 59
                 ) {
                     useTimeout = true;
+                    expected.setUTCDate(expected.getUTCDate() + 1);
+                } else if (expected.getUTCHours() >= 12) {
                     expected.setUTCDate(expected.getUTCDate() + 1);
                 }
 
@@ -113,18 +113,24 @@ describe('ParseNextRunPipe', () => {
                 let hh: string;
                 let mm: string;
 
-                expected.setUTCDate(expected.getUTCDate() + 1);
-
-                if (expected.getUTCHours() > 12) {
-                    lunchTime = true;
-                } else if (
+                if (
                     expected.getUTCHours() === 12 &&
                     expected.getUTCMinutes() === 44 &&
                     expected.getUTCSeconds() === 59
                 ) {
                     lunchTime = true;
                     useTimeout = true;
+                } else if (
+                    !(
+                        (expected.getUTCHours() === 12 &&
+                            expected.getUTCMinutes() <= 44) ||
+                        expected.getUTCHours() < 12
+                    )
+                ) {
+                    lunchTime = true;
                 }
+
+                expected.setUTCDate(expected.getUTCDate() + 1);
 
                 const y = expected.getUTCFullYear();
                 const _m: number = expected.getUTCMonth() + 1;
@@ -161,7 +167,7 @@ describe('ParseNextRunPipe', () => {
                         );
 
                         done();
-                    });
+                    }, 2000);
                 } else {
                     // When
                     const date = pipe.transform(cron, 2);
@@ -174,7 +180,7 @@ describe('ParseNextRunPipe', () => {
 
                     done();
                 }
-            }, 5000);
+            }, 10000);
         });
     });
 });

@@ -47,6 +47,17 @@ export class DataJobsManageGridComponent
     extends DataJobsBaseGridComponent
     implements OnInit
 {
+    /**
+     * @inheritDoc
+     */
+    static override readonly CLASS_NAME: string = 'DataJobsManageGridComponent';
+
+    /**
+     * @inheritDoc
+     */
+    static override readonly PUBLIC_NAME: string =
+        'DataJobs-ManageGrid-Component';
+
     readonly uuid = 'DataJobsManageGridComponent';
 
     confirmStatusOptions: ModalOptions;
@@ -104,6 +115,7 @@ export class DataJobsManageGridComponent
                     source: true,
                 },
             },
+            DataJobsManageGridComponent.CLASS_NAME,
         );
 
         this.confirmStatusOptions = new ConfirmationModalOptions();

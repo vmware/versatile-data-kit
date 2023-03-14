@@ -5,21 +5,37 @@
 
 import { Injectable } from '@angular/core';
 
-import { EMPTY, expand, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { EMPTY, expand, Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import { ApiPredicate } from '@versatiledatakit/shared';
+import { ApiPredicate, TaurusBaseApiService } from '@versatiledatakit/shared';
+
+import { ErrorUtil } from '../shared/utils';
 
 import { DataJob, DataJobPage } from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 
 @Injectable()
-export class DataJobsPublicApiService {
+export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPublicApiService> {
+    /**
+     * @inheritDoc
+     */
+    static override readonly CLASS_NAME: string = 'DataJobsPublicApiService';
+
+    /**
+     * @inheritDoc
+     */
+    static override readonly PUBLIC_NAME: string = 'Data-Pipelines-Service';
+
     /**
      * ** Constructor.
      */
-    constructor(private readonly dataJobsBaseService: DataJobsBaseApiService) {}
+    constructor(private readonly dataJobsBaseService: DataJobsBaseApiService) {
+        super(DataJobsPublicApiService.CLASS_NAME);
+
+        this.registerErrorCodes(DataJobsPublicApiService);
+    }
 
     /**
      * ** Retrieve all DataJobs for Team.
@@ -53,6 +69,9 @@ export class DataJobsPublicApiService {
 
                 return dataJobs;
             }),
+            catchError((error: unknown) =>
+                throwError(() => ErrorUtil.extractError(error as Error)),
+            ),
         );
     }
 
@@ -91,7 +110,12 @@ export class DataJobsPublicApiService {
                     pageSize: 1,
                 },
             )
-            .pipe(map((response) => response?.data?.totalItems ?? 0));
+            .pipe(
+                map((response) => response?.data?.totalItems ?? 0),
+                catchError((error: unknown) =>
+                    throwError(() => ErrorUtil.extractError(error as Error)),
+                ),
+            );
     }
 
     /**
