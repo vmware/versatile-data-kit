@@ -66,7 +66,10 @@ class MetaJobsDag:
             if self._delayed_starting_jobs.size() < self._max_concurrent_running_jobs:
                 self._start_delayed_jobs()
             else:
-                while self._delayed_starting_jobs.size() >= self._max_concurrent_running_jobs:
+                while (
+                    self._delayed_starting_jobs.size()
+                    >= self._max_concurrent_running_jobs
+                ):
                     finished_jobs = self._get_finished_jobs()
                     self._finalize_jobs(finished_jobs)
                     self._start_delayed_jobs()
@@ -92,7 +95,10 @@ class MetaJobsDag:
             self._finished_jobs.append(node)
 
     def _start_delayed_jobs(self):
-        while len(self._job_executor.get_currently_running_jobs()) < self._max_concurrent_running_jobs:
+        while (
+            len(self._job_executor.get_currently_running_jobs())
+            < self._max_concurrent_running_jobs
+        ):
             job = self._delayed_starting_jobs.dequeue()
             if job is None:
                 break
