@@ -1,0 +1,28 @@
+@startuml
+actor User as engineer
+participant ControlService as cs
+participant K8sNamespace_DataJobBuilders as namespace
+database Database as db
+database DockerRegistry as ecr
+
+engineer -> engineer : Set <b>python_version</b> in the data job's config.ini
+engineer -> cs : vdk deploy
+
+activate cs
+cs -> cs : Read Deployment data
+cs -> db : Update data job configuration data with specified python version
+cs ->> cs : Start deployment process (async)
+return deployment started
+
+
+cs -> namespace : Start data job builder
+activate namespace
+
+namespace -> ecr : Pull data job base image with specified python version
+activate ecr
+namespace -> ecr : Pull vdk image with specified python version
+return Finish downloading images
+
+namespace -> ecr : Push built data job image
+return Return deployment status
+@enduml
