@@ -32,7 +32,4 @@ def test_automatic_finalize_after_kernel_shutdown(ip):
     plugin = FinalizeTrackingPlugin()
     ip.get_ipython().push(variables={"plugin": plugin})
     ip.run_line_magic(magic_name="reload_VDK", line="")
-    ip.get_ipython().run_cell(
-        "VDK.job._plugin_registry.load_plugin_with_hooks_impl(plugin)"
-    )
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")

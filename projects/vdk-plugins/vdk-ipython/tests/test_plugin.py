@@ -17,20 +17,18 @@ def session_ip():
 @pytest.fixture(scope="function")
 def ip(session_ip):
     session_ip.run_line_magic(magic_name="load_ext", line="vdk_ipython")
+    session_ip.run_line_magic(magic_name="reload_VDK", line="")
     yield session_ip
     session_ip.run_line_magic(magic_name="reset", line="-f")
 
 
 def test_load_vdk_with_no_arguments(ip):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     assert ip.user_global_ns["VDK"] is not None
     assert isinstance(ip.user_global_ns["VDK"], JobControl)
 
 
 def test_load_vdk_with_valid_argument(ip):
     ip.run_line_magic(magic_name="reload_VDK", line="--name=test")
-
     assert ip.user_global_ns["VDK"] is not None
     assert isinstance(ip.user_global_ns["VDK"], JobControl)
     assert ip.user_global_ns["VDK"]._name == "test"
@@ -44,8 +42,6 @@ def test_load_vdk_with_invalid_argument(ip):
 
 
 def test_get_initialized_job_input(ip):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
 
     assert ip.user_global_ns["job_input"] is not None
@@ -53,8 +49,6 @@ def test_get_initialized_job_input(ip):
 
 
 def test_calling_get_initialise_job_input_multiple_times(ip, tmpdir):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     assert ip.user_global_ns["VDK"] is not None
     assert isinstance(ip.user_global_ns["VDK"], JobControl)
 
@@ -84,8 +78,6 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
     ip.get_ipython().run_cell("%env VDK_INGEST_METHOD_DEFAULT=sqlite")
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
-
-    ip.run_line_magic(magic_name="reload_VDK", line="")
 
     # get the job_input
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
@@ -152,8 +144,6 @@ def test_extension_with_pure_sql_job(ip, tmpdir):
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
 
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     # get the job_input
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
 
@@ -183,8 +173,6 @@ def test_extension_with_pure_sql_job(ip, tmpdir):
 
 
 def test_finalise(ip):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
 
     # check whether finalize_job is in the output before calling finalize()
@@ -215,8 +203,6 @@ def test_get_initialized_job_input_multiple_times(ip):
 
 
 def test_get_initialized_job_input_after_finalize(ip):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
@@ -228,8 +214,6 @@ def test_get_initialized_job_input_after_finalize(ip):
 
 
 def test_call_finalize_multiple_times(ip):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
@@ -237,9 +221,20 @@ def test_call_finalize_multiple_times(ip):
 
 
 def test_call_finalize_before_get_initialized_job_input(ip):
-    ip.run_line_magic(magic_name="reload_VDK", line="")
-
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
     # verifying that calling finalize before get_initialized_job_input won't produce errors(the method will not fail)
+
+
+def test_calling_get_initialise_job_input_multiple_times_after_finalize(ip, tmpdir):
+    # first call
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    result_job_input = ip.get_ipython().run_cell("job_input").result
+    ip.get_ipython().run_cell("VDK.finalize()")
+
+    # second call
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+
+    # check whether first job_input is the same as the second one
+    assert result_job_input != ip.get_ipython().run_cell("job_input").result

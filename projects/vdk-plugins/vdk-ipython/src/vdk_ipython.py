@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import atexit
 import json
+import logging
 import os
 import pathlib
 
@@ -11,6 +12,7 @@ from IPython.core.magic_arguments import magic_arguments
 from IPython.core.magic_arguments import parse_argstring
 from vdk.internal.builtin_plugins.run import standalone_data_job
 
+log = logging.getLogger(__name__)
 
 # see https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.hooks.html for more options
 
@@ -41,7 +43,7 @@ class JobControl:
         job_args = json.loads(arguments) if arguments else None
         self._name = name
         self._path = path
-        self._arguments = arguments
+        self._arguments = job_args
         self._template = template
         self.job = None
         self.job_input = None
@@ -68,6 +70,11 @@ class JobControl:
         if self.job:
             self.job.__exit__(None, None, None)
             self.job_input = None
+        else:
+            log.warning(
+                "You are trying to finalize a job that is not existing!\n"
+                "Initialize a job using VDK.get_initialized_job_input() first, please! "
+            )
 
 
 def load_ipython_extension(ipython):
