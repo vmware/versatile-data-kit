@@ -27,7 +27,14 @@ Bug in general the steps are:
    npm i -g @angular/cli@13
    ```
    ```bash
-   npm ci --omit=optional
+   npm i --omit=optional
+   ```
+1. Update peer dependencies to latest versions (optional)
+
+   Run this step if it's not a fresh install and peer dependencies need to be
+   updated
+   ```bash
+   npm update
    ```
 2. Build the data-pipelines UI library
    ```bash
