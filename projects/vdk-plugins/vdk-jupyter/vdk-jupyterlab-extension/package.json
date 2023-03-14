@@ -114,9 +114,6 @@
     "outputDir": "vdk-jupyterlab-extension/labextension",
     "schemaDir": "schema"
   },
-  "compilerOptions": {
-    "skipLibCheck": true
-  },
   "jupyter-releaser": {
     "hooks": {
       "before-build-npm": [

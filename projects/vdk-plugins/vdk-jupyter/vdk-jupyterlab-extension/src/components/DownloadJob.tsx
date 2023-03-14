@@ -28,7 +28,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
     */
     render(): React.ReactElement {
         return (
-            <>  
+            <>
                  <VDKTextInput option={VdkOption.NAME} value="default-name" label="Job Name:"></VDKTextInput>
                  <VDKTextInput option={VdkOption.TEAM} value="default-team" label="Job Team:"></VDKTextInput>
                  <VDKTextInput option={VdkOption.REST_API_URL} value="http://my_vdk_instance" label="Rest API URL:"></VDKTextInput>
@@ -48,8 +48,7 @@ export async function showDownloadJobDialog() {
       ),
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
-    const resultButtonClicked = !result.value && result.button.accept;
-    if (resultButtonClicked) {
+    if (result.button.accept) {
       await downloadJobRequest();
     }
   }

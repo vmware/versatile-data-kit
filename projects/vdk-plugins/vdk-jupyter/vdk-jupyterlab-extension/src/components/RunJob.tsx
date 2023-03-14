@@ -74,8 +74,7 @@ export async function showRunJobDialog(){
       ),
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
-    const resultButtonClicked = !result.value && result.button.accept;
-    if (resultButtonClicked) {
+    if (result.button.accept) {
       let response = await jobRunRequest();
       if(response[1]){
         alert(response[0]);

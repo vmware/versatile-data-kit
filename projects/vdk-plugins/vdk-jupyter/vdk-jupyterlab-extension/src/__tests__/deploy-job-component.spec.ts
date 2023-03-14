@@ -24,31 +24,29 @@ describe('#constructor()', () => {
 
 describe('#render()', () => {
   it('should return contain job name input with placeholder equal to jobName from props', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
-    const input = component.getByPlaceholderText("default-name");
+    const component = render(new DeployJobDialog(defaultProps).render());
+    const input = component.getByPlaceholderText('default-name');
     expect(input).toBe(component.getAllByLabelText('Job Name:')[0]);
   });
 
   it('should return contain job team input with placeholder equal to jobTeam from props', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
-    const input = component.getByPlaceholderText("default-team");
+    const component = render(new DeployJobDialog(defaultProps).render());
+    const input = component.getByPlaceholderText('default-team');
     expect(input).toBe(component.getAllByLabelText('Job Team:')[0]);
   });
 
   it('should return contain job path input with placeholder equal to jobPath from props', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
+    const component = render(new DeployJobDialog(defaultProps).render());
     const input = component.getByPlaceholderText(defaultProps.jobPath);
-    expect(input).toBe(component.getAllByLabelText('Path to job directory:')[0]);
+    expect(input).toBe(
+      component.getAllByLabelText('Path to job directory:')[0]
+    );
   });
 });
 
 describe('#onEnableClick', () => {
   it('should put a flag for enabled in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
+    const component = render(new DeployJobDialog(defaultProps).render());
     const enableCheckbox = component.getAllByLabelText(
       'Enable'
     )[0] as HTMLInputElement;
@@ -61,9 +59,8 @@ describe('#onEnableClick', () => {
 
 describe('#onNameChange', () => {
   it('should change the job name in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
-    const input = component.getByPlaceholderText("default-name");
+    const component = render(new DeployJobDialog(defaultProps).render());
+    const input = component.getByPlaceholderText('default-name');
     fireEvent.change(input, { target: { value: 'second-name' } });
     expect(jobData.get(VdkOption.NAME)).toEqual('second-name');
   });
@@ -71,9 +68,8 @@ describe('#onNameChange', () => {
 
 describe('#onTeamChange', () => {
   it('should change the job team in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
-    const input = component.getByPlaceholderText("default-team");
+    const component = render(new DeployJobDialog(defaultProps).render());
+    const input = component.getByPlaceholderText('default-team');
     fireEvent.change(input, { target: { value: 'second-team' } });
     expect(jobData.get(VdkOption.TEAM)).toEqual('second-team');
   });
@@ -81,8 +77,7 @@ describe('#onTeamChange', () => {
 
 describe('#onRestApiUrlChange', () => {
   it('should change the rest api url in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
+    const component = render(new DeployJobDialog(defaultProps).render());
     const input = component.getByPlaceholderText('http://my_vdk_instance');
     fireEvent.change(input, { target: { value: 'random-url' } });
     expect(jobData.get(VdkOption.REST_API_URL)).toEqual('random-url');
@@ -91,8 +86,7 @@ describe('#onRestApiUrlChange', () => {
 
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
+    const component = render(new DeployJobDialog(defaultProps).render());
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
@@ -101,8 +95,7 @@ describe('#onPathChange', () => {
 
 describe('#onDeploymentReasonChange', () => {
   it('should change the vdk version in jobData', () => {
-    const box = new DeployJobDialog(defaultProps);
-    const component = render(box.render());
+    const component = render(new DeployJobDialog(defaultProps).render());
     const input = component.getByPlaceholderText('reason');
     fireEvent.change(input, { target: { value: 'Another reason' } });
     expect(jobData.get(VdkOption.DEPLOYMENT_REASON)).toEqual('Another reason');
