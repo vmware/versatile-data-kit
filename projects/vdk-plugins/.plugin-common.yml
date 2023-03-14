@@ -27,7 +27,7 @@
   artifacts:
     when: always
     reports:
-      junit: tests.xml
+      junit: "projects/vdk-plugins/$PLUGIN_NAME/tests.xml"
 
 .build-plugin-on-vdk-core-release:
   stage: pre_release_test
