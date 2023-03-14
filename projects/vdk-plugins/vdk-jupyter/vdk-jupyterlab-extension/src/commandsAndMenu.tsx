@@ -18,7 +18,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
 
   // Add Delete job command
   add_command(commands, 'jp-vdk:menu-delete','Delete','Execute VDK Delete Command', showDeleteJobDialog);
-  
+
   // Add Download job command
   add_command(commands, 'jp-vdk:menu-download','Download','Execute VDK Download Command', showDownloadJobDialog);
 
@@ -29,7 +29,7 @@ export function updateVDKMenu(commands: CommandRegistry) {
 
 /**
  *@param schemaNaming - string representing the command in the schema in schema/plugin.json
- *@param label - the label that will be added in the Menu 
+ *@param label - the label that will be added in the Menu
  *@param caption - the caption for the command.
  *@param getOperationDialog - function that will load the dialog for the command
  */

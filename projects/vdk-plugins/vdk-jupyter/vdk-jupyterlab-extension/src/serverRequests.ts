@@ -5,7 +5,7 @@
 
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
-import { checkDefinedValue, getJobDataJsonObject} from './jobData';
+import { checkDefinedValue, getJobDataJsonObject } from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
 /**
  * Utility functions that are called by the dialogs.
@@ -61,7 +61,10 @@ export async function jobRunRequest(): Promise<[String, boolean]> {
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function deleteJobRequest() {
-  if (await checkDefinedValue(VdkOption.NAME) &&  await checkDefinedValue(VdkOption.TEAM)) {
+  if (
+    (await checkDefinedValue(VdkOption.NAME)) &&
+    (await checkDefinedValue(VdkOption.TEAM))
+  ) {
     try {
       const data = await requestAPI<any>('delete', {
         body: JSON.stringify(getJobDataJsonObject()),
@@ -90,7 +93,10 @@ export async function deleteJobRequest() {
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function downloadJobRequest() {
-  if (await checkDefinedValue(VdkOption.NAME) &&  await checkDefinedValue(VdkOption.TEAM)) {
+  if (
+    (await checkDefinedValue(VdkOption.NAME)) &&
+    (await checkDefinedValue(VdkOption.TEAM))
+  ) {
     try {
       let data = await requestAPI<any>('download', {
         body: JSON.stringify(getJobDataJsonObject()),
@@ -119,7 +125,10 @@ export async function downloadJobRequest() {
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function createJobRequest() {
-  if (await checkDefinedValue(VdkOption.NAME) &&  await checkDefinedValue(VdkOption.TEAM)) {
+  if (
+    (await checkDefinedValue(VdkOption.NAME)) &&
+    (await checkDefinedValue(VdkOption.TEAM))
+  ) {
     try {
       const data = await requestAPI<any>('create', {
         body: JSON.stringify(getJobDataJsonObject()),

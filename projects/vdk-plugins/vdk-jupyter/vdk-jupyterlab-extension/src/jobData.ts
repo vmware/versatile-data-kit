@@ -50,12 +50,11 @@ export function getJobDataJsonObject() {
   return jsObj;
 }
 
-
 /*
- * Function that checks whether a value is defined in jobData 
+ * Function that checks whether a value is defined in jobData
  * Shows dialog that operation cannot be performed because of undefined value
  */
-export async function checkDefinedValue(option: VdkOption): Promise<boolean>{
+export async function checkDefinedValue(option: VdkOption): Promise<boolean> {
   if (jobData.get(option)) return true;
   else {
     await showErrorMessage(
