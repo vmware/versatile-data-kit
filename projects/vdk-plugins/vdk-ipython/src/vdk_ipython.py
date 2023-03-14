@@ -39,12 +39,11 @@ class JobControl:
     ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         job_args = json.loads(arguments) if arguments else None
-        self.job = standalone_data_job.StandaloneDataJob(
-            name=name,
-            template_name=template,
-            job_args=job_args,
-            data_job_directory=path,
-        )
+        self._name = name
+        self._path = path
+        self._arguments = arguments
+        self._template = template
+        self.job = None
         self.job_input = None
 
     def get_initialized_job_input(self):
@@ -53,6 +52,12 @@ class JobControl:
             :return:  an IJobInput object
         """
         if not self.job_input:
+            self.job = standalone_data_job.StandaloneDataJob(
+                name=self._name,
+                template_name=self._template,
+                job_args=self._arguments,
+                data_job_directory=self._path,
+            )
             self.job_input = self.job.__enter__()
         return self.job_input
 

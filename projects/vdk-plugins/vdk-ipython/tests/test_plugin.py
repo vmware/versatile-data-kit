@@ -31,7 +31,7 @@ def test_load_vdk_with_valid_argument(ip):
     ip.run_line_magic(magic_name="reload_VDK", line="--name=test")
     assert ip.user_global_ns["VDK"] is not None
     assert isinstance(ip.user_global_ns["VDK"], JobControl)
-    assert ip.user_global_ns["VDK"].job._name == "test"
+    assert ip.user_global_ns["VDK"]._name == "test"
 
 
 def test_load_vdk_with_invalid_argument(ip):
@@ -185,3 +185,20 @@ def test_finalise(ip):
         "finalize_job"
         in ip.get_ipython().run_cell("VDK.job._plugin_registry.hook().__dict__").result
     )
+
+
+def test_get_initialized_job_input_multiple_times(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    first_result = ip.get_ipython().run_cell("job_input").result
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    assert first_result == ip.get_ipython().run_cell("job_input").result
+
+
+def test_get_initialized_job_input_after_finalize(ip):
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    ip.get_ipython().run_cell("VDK.finalize()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    ip.get_ipython().run_cell("VDK.finalize()")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
