@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import time
+from aifc import Error
 
 import pytest
 from IPython.core.error import UsageError
@@ -214,8 +215,8 @@ def test_get_initialized_job_input_after_finalize(ip):
 
 
 def test_call_finalize_multiple_times(ip):
-    ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("VDK.finalize()")
     # verifying that calling finalize multiple times won't produce any errors (the method will not fail)
 
@@ -224,6 +225,10 @@ def test_call_finalize_before_get_initialized_job_input(ip):
     ip.get_ipython().run_cell("VDK.finalize()")
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     ip.get_ipython().run_cell("VDK.finalize()")
+    assert (
+        "finalize_job"
+        in ip.get_ipython().run_cell("VDK.job._plugin_registry.hook().__dict__").result
+    )
     # verifying that calling finalize before get_initialized_job_input won't produce errors(the method will not fail)
 
 
