@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import time
-from aifc import Error
 
 import pytest
 from IPython.core.error import UsageError
