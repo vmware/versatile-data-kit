@@ -95,6 +95,17 @@ runners:
     cpuRequests: 100m
     memoryRequests: 128Mi
 
+  ## Runner configuration, where the multi line strings is evaluated as template.
+  ## You can specify helm values inside the config.
+  ## tpl: https://helm.sh/docs/howto/charts_tips_and_tricks/#using-the-tpl-function
+  ## runner configuration: https://docs.gitlab.com/runner/configuration/advanced-configuration.html
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        [[runners.kubernetes.host_aliases]]
+          ip = "127.0.0.1"
+          hostnames = ["localhost.vmware.com"]
+
 # Resources for the runner itself. It is very lean.
 resources:
   limits:

@@ -1,13 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-image: "python:3.7"
-
-variables:
-  DOCKER_HOST: tcp://localhost:2375
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
-
 # Add all quickstart-vdk dependencies locations which trigger the dependency release when changed.
 # In this way, quickstart-vdk will always be tested before one or more dependencies are changed, and
 # this is important since quickstart-vdk has unpinned dependencies and when they are upgraded,
@@ -78,6 +71,7 @@ quickstart-vdk-release-candidate-base-image:
   extends: .release-vdk-image
 
 quickstart-vdk-release-acceptance-test:
+  image: "python:3.10"
   stage: pre_release_test
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}

@@ -11,6 +11,20 @@ from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 # Still some functionalities are more easily tested in unit tests so we add here some.
 
 
+class DummyMetaPluginConfiguration:
+    def meta_jobs_delayed_jobs_min_delay_seconds(self):
+        return 30
+
+    def meta_jobs_delayed_jobs_randomized_added_delay_seconds(self):
+        return 600
+
+    def meta_jobs_dag_execution_check_time_period_seconds(self):
+        return 10
+
+    def meta_jobs_time_between_status_check_seconds(self):
+        return 40
+
+
 def test_execute_dag_happy_case():
     job1 = dict(job_name="job1", depends_on=[])
     job2 = dict(job_name="job2", depends_on=["job1"])
@@ -18,7 +32,7 @@ def test_execute_dag_happy_case():
     job4 = dict(job_name="job4", depends_on=["job2", "job3"])
     jobs = [job1, job2, job3, job4]
 
-    dag = MetaJobsDag("team")
+    dag = MetaJobsDag("team", DummyMetaPluginConfiguration())
     dag.build_dag(jobs)
     dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
     dag._job_executor.get_finished_job_names.side_effect = [
@@ -43,7 +57,7 @@ def test_execute_dag_busyloop():
     job3 = dict(job_name="job3", depends_on=["job1"])
     jobs = [job1, job2, job3]
 
-    dag = MetaJobsDag("team")
+    dag = MetaJobsDag("team", DummyMetaPluginConfiguration())
     dag.build_dag(jobs)
     dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
     dag._dag_execution_check_time_period_seconds = 3

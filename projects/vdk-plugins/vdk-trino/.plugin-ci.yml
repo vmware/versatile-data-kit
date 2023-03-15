@@ -4,17 +4,9 @@
 image: "python:3.7"
 
 .build-vdk-trino:
-  image: docker:23.0.1
-  services:
-    - name: docker:23.0.1-dind
-      # explicitly disable tls to avoid docker startup interruption
-      command: ["--tls=false"]
   variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
     PLUGIN_NAME: vdk-trino
-  extends: .build-plugin
+  extends: .build-plugin-dind
 
 build-py37-vdk-trino:
   extends: .build-vdk-trino
