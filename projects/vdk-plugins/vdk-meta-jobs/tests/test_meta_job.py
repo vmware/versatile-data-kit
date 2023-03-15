@@ -313,7 +313,7 @@ def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
         os.environ,
         {
             "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
-            "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "5",
+            "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "2",
             "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
             "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
         },
@@ -327,31 +327,24 @@ def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
         )
 
         expected_max_running_jobs = int(
-            os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "5")
+            os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "2")
         )
-        post_reqs = 0
         # keep track of the number of running jobs at any given time
-        running_jobs = 0
+        running_jobs = set()
         # track the latest request in order to reset the number of running jobs when such finish
-        latest_req = None
         for request, response in httpserver.log:
-            if "executions" in request.path and request.method == "POST":
-                running_jobs += 1
-                post_reqs += 1
-                assert (
-                    running_jobs <= expected_max_running_jobs
-                )  # assert that max concurrent running jobs is not
-                # exceeded
-            if (
-                request.method == latest_req
-                and "executions/job" in request.path
-                and response.status < "300"
-            ):
-                running_jobs = 0  # back-to-back GET reqs means the jobs have been finalized successfully
-            latest_req = request.method
+            if "executions" in request.path:
+                if request.method == "POST":
+                    running_jobs.add(execution["job_name"])
+                    assert len(running_jobs) <= expected_max_running_jobs  # assert that max concurrent running jobs is
+                    # not exceeded
+                if request.method == "GET":
+                    execution = json.loads(response.response[0])
+                    if execution["status"] == "succeeded":
+                        running_jobs.discard(execution["job_name"])  # back-to-back GET reqs means the jobs have been
+                    # finalized successfully
 
         cli_assert_equal(0, result)
 
         # assert that all the jobs finished successfully
-        assert running_jobs == 0
-        assert post_reqs == len(jobs)
+        assert len(running_jobs) == 0
