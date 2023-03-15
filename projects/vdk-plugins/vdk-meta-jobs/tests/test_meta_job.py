@@ -336,12 +336,16 @@ def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
             if "executions" in request.path:
                 if request.method == "POST":
                     running_jobs.add(execution["job_name"])
-                    assert len(running_jobs) <= expected_max_running_jobs  # assert that max concurrent running jobs is
+                    assert (
+                        len(running_jobs) <= expected_max_running_jobs
+                    )  # assert that max concurrent running jobs is
                     # not exceeded
                 if request.method == "GET":
                     execution = json.loads(response.response[0])
                     if execution["status"] == "succeeded":
-                        running_jobs.discard(execution["job_name"])  # back-to-back GET reqs means the jobs have been
+                        running_jobs.discard(
+                            execution["job_name"]
+                        )  # back-to-back GET reqs means the jobs have been
                     # finalized successfully
 
         cli_assert_equal(0, result)
