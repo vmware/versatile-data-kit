@@ -193,6 +193,8 @@ Example use case:
 
 ![example-use-case](images/example.png)
 
+The extension a data contract to save the user input information. To see more details, check the ![README](projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/README.md)
+
 #### Folder Structure
 
 * [vdk-jupyterlab-extension](/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension): the root folder for all the code.

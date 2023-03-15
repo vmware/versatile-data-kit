@@ -14,6 +14,7 @@ from typing import List
 from taurus_datajob_api import ApiException
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.meta import TrackableJob
+from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
 from vdk.plugin.meta_jobs.time_based_queue import TimeBasedQueue
 
@@ -21,27 +22,24 @@ log = logging.getLogger(__name__)
 
 
 class MetaJobsDag:
-    def __init__(self, team_name: str):
+    def __init__(self, team_name: str, meta_config: MetaPluginConfiguration):
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(
-            min_ready_time_seconds=int(
-                os.environ.get("VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS", 30)
-            ),
-            randomize_delay_seconds=int(
-                os.environ.get(
-                    "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS", 600
-                )
-            ),
+            min_ready_time_seconds=meta_config.meta_jobs_delayed_jobs_min_delay_seconds(),
+            randomize_delay_seconds=meta_config.meta_jobs_delayed_jobs_randomized_added_delay_seconds(),
         )
         self._max_concurrent_running_jobs = int(
             os.environ.get("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", 15)
         )
         self._finished_jobs = []
-        self._dag_execution_check_time_period_seconds = int(
-            os.environ.get("VDK_META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS", 10)
+        self._dag_execution_check_time_period_seconds = (
+            meta_config.meta_jobs_dag_execution_check_time_period_seconds()
         )
-        self._job_executor = TrackingDataJobExecutor(RemoteDataJobExecutor())
+        self._job_executor = TrackingDataJobExecutor(
+            executor=RemoteDataJobExecutor(),
+            time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
+        )
 
     @property
     def max_concurrent_running_jobs(self):
