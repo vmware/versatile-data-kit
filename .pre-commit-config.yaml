@@ -22,7 +22,7 @@ repos:
       - id: detect-private-key
       - id: fix-byte-order-marker
   - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.19.0dev
+    rev: v0.19.1
     hooks:
       - id: gitlint
   - repo: https://github.com/psf/black
@@ -140,7 +140,7 @@ repos:
           - --license-filepath
           - NOTICE.txt
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+    rev: v3.0.0-alpha.6
     hooks:
       - id: prettier
         types_or: [scss, css, javascript, ts, html]

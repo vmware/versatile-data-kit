@@ -44,7 +44,7 @@ export class ExecutionSuccessRatePipe implements PipeTransform {
 
         result += this._percentPipe.transform(
             firstDeployment.successfulExecutions / allExecutions,
-            '1.2-2'
+            '1.2-2',
         );
 
         if (firstDeployment.failedExecutions > 0) {

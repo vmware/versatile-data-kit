@@ -27,7 +27,7 @@
   artifacts:
     when: always
     reports:
-      junit: tests.xml
+      junit: "projects/vdk-plugins/$PLUGIN_NAME/tests.xml"
 
 .build-plugin-on-vdk-core-release:
   stage: pre_release_test
@@ -51,6 +51,7 @@
   extends: .build-plugin
 
 .release-plugin:
+  image: "python:3.10"
   stage: release
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
@@ -89,7 +90,7 @@
     - echo "Build and release vdk image of plugin $PLUGIN_NAME"
     - cd $PLUGIN_NAME/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
-    - apk add --no-cache git bash python3
+    - apk add --no-cache git bash python3 py3-pip
     - python3 -V
     - python3 -m pip install -U setuptools configparser
     - export VDK_PACKAGE=$(python3 setup.py --name)

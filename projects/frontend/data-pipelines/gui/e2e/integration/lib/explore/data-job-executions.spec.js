@@ -18,7 +18,7 @@ describe(
         before(() => {
             return DataJobBasePO.recordHarIfSupported()
                 .then(() =>
-                    cy.clearLocalStorageSnapshot("data-job-explore-executions")
+                    cy.clearLocalStorageSnapshot("data-job-explore-executions"),
                 )
                 .then(() => DataJobBasePO.login())
                 .then(() => cy.saveLocalStorage("data-job-explore-executions"))
@@ -54,7 +54,7 @@ describe(
 
             dataJobsExplorePage.openJobDetails(
                 testJobs[0].team,
-                testJobs[0].job_name
+                testJobs[0].job_name,
             );
 
             const dataJobBasePage = DataJobBasePO.getPage();
@@ -71,7 +71,7 @@ describe(
 
         it("Data Job Explore Executions Page - should verify on URL navigate to Executions will redirect to Details", () => {
             const dataJobBasePage = DataJobBasePO.navigateToUrl(
-                `/explore/data-jobs/${testJobs[0].team}/${testJobs[0].job_name}/executions`
+                `/explore/data-jobs/${testJobs[0].team}/${testJobs[0].job_name}/executions`,
             );
 
             dataJobBasePage
@@ -84,11 +84,11 @@ describe(
                 .should(
                     "match",
                     new RegExp(
-                        `\\/explore\\/data-jobs\\/${testJobs[0].team}\\/${testJobs[0].job_name}\\/details$`
-                    )
+                        `\\/explore\\/data-jobs\\/${testJobs[0].team}\\/${testJobs[0].job_name}\\/details$`,
+                    ),
                 );
 
             dataJobBasePage.getDetailsTab().should("have.class", "active");
         });
-    }
+    },
 );

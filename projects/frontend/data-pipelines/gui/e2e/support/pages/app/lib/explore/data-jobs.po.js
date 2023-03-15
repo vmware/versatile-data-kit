@@ -27,7 +27,7 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     getDataGridCell(content) {
         return cy
             .get(
-                '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted'
+                '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted',
             )
             .contains(new RegExp(`^${content}$`));
     }
@@ -38,7 +38,7 @@ export class DataJobsExplorePage extends DataJobsBasePO {
                 team +
                 ";" +
                 job +
-                '"]'
+                '"]',
         );
     }
 

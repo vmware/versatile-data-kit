@@ -13,6 +13,7 @@ import DeleteJobDialog from './components/DeleteJob';
 import DownloadJobDialog from './components/DownloadJob';
 import { jobData, setJobDataToDefault } from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
+import DeployJobDialog from './components/DeployJob';
 
 var runningVdkOperation = false;
 
@@ -35,7 +36,10 @@ export function updateVDKMenu(commands: CommandRegistry) {
           });
           const resultButtonClicked = !result.value && result.button.accept;
           if (resultButtonClicked) {
-            await jobRunRequest();
+            let response = await jobRunRequest();
+            if(response[1]){
+              alert(response[0]);
+            }
           }
           setJobDataToDefault();
           runningVdkOperation = false;
@@ -194,6 +198,71 @@ export function updateVDKMenu(commands: CommandRegistry) {
       } catch (error) {
         await showErrorMessage(
           'Encountered an error when trying to download the job. Error:',
+          error,
+          [Dialog.okButton()]
+        );
+      }
+    }
+  });
+
+  commands.addCommand('jp-vdk:menu-create-deployment', {
+    label: 'Deploy',
+    caption: 'Create deployment of a VDK job',
+    execute: async () => {
+      try {
+        if (!runningVdkOperation) {
+          runningVdkOperation = true;
+        const result = await showDialog({
+          title: 'Create Deployment',
+          body: (
+            <DeployJobDialog jobName='job-to-deploy' jobPath={sessionStorage.getItem('current-path')!} jobTeam='my-team'></DeployJobDialog>
+          ),
+          buttons: [Dialog.okButton(), Dialog.cancelButton()]
+        });
+        const resultButtonClicked = !result.value && result.button.accept;
+        if (resultButtonClicked) {
+          try {
+            const runConfirmationResult = await showDialog({
+              title: 'Create deployment',
+              body: "The job will be executed once before deployment.\n Check the result and decide whether you will continue with the deployment, please!",
+              buttons: [
+                Dialog.cancelButton({ label: 'Cancel' }),
+                Dialog.okButton({ label: 'Continue' })
+              ]
+            });
+            if (runConfirmationResult.button.accept) {
+              let success = await jobRunRequest();
+              if(success[1]){
+                // add server request
+              }
+              else{
+                showErrorMessage(
+                  'Encauntered an error while running the job!',
+                  success[0],
+                  [Dialog.okButton()]
+                );
+              }
+            }
+          } catch (error) {
+            await showErrorMessage(
+              'Encountered an error when deploying the job. Error:',
+              error,
+              [Dialog.okButton()]
+            );
+          }
+        }
+        setJobDataToDefault();
+        runningVdkOperation = false;
+      } else {
+        showErrorMessage(
+          'Another VDK operation is currently running!',
+          'Please wait until the operation ends!',
+          [Dialog.okButton()]
+        );
+      }
+      } catch (error) {
+        await showErrorMessage(
+          'Encountered an error when trying to deploy the job. Error:',
           error,
           [Dialog.okButton()]
         );

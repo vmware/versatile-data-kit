@@ -64,7 +64,7 @@ describe('FormatSchedulePipe', () => {
                 // Then
                 expect(result).toBeDefined();
                 expect(result).toContain(
-                    `Invalid Cron expression "${schedule}"`
+                    `Invalid Cron expression "${schedule}"`,
                 );
             });
 
@@ -79,7 +79,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:00 AM, on day 10 of the month, only in July'
+                        'At 11:00 AM, on day 10 of the month, only in July',
                     );
                 });
 
@@ -93,7 +93,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:59 AM, on day 10 of the month, only in July'
+                        'At 11:59 AM, on day 10 of the month, only in July',
                     );
                 });
 
@@ -107,7 +107,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
             });
@@ -123,7 +123,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 12:30 AM, on day 10 of the month, only in July'
+                        'At 12:30 AM, on day 10 of the month, only in July',
                     );
                 });
 
@@ -137,7 +137,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 PM, on day 10 of the month, only in July'
+                        'At 11:30 PM, on day 10 of the month, only in July',
                     );
                 });
 
@@ -151,7 +151,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
             });
@@ -167,7 +167,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 1 of the month, only in July'
+                        'At 11:30 AM, on day 1 of the month, only in July',
                     );
                 });
 
@@ -181,7 +181,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 31 of the month, only in July'
+                        'At 11:30 AM, on day 31 of the month, only in July',
                     );
                 });
 
@@ -195,7 +195,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
 
@@ -209,7 +209,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
             });
@@ -225,7 +225,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 10 of the month, only in January'
+                        'At 11:30 AM, on day 10 of the month, only in January',
                     );
                 });
 
@@ -239,7 +239,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 10 of the month, only in December'
+                        'At 11:30 AM, on day 10 of the month, only in December',
                     );
                 });
 
@@ -253,7 +253,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
 
@@ -267,7 +267,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
             });
@@ -283,7 +283,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 10 of the month, and on Sunday, only in July'
+                        'At 11:30 AM, on day 10 of the month, and on Sunday, only in July',
                     );
                 });
 
@@ -297,7 +297,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 10 of the month, and on Saturday, only in July'
+                        'At 11:30 AM, on day 10 of the month, and on Saturday, only in July',
                     );
                 });
 
@@ -311,7 +311,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'At 11:30 AM, on day 10 of the month, and on Sunday, only in July'
+                        'At 11:30 AM, on day 10 of the month, and on Sunday, only in July',
                     );
                 });
 
@@ -325,7 +325,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
             });
@@ -341,7 +341,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'Run once an hour at the beginning of the hour'
+                        'Run once an hour at the beginning of the hour',
                     );
                 });
 
@@ -371,7 +371,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'Run once a week at midnight on Sunday morning'
+                        'Run once a week at midnight on Sunday morning',
                     );
                 });
 
@@ -385,7 +385,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        'Run once a month at midnight of the first day of the month'
+                        'Run once a month at midnight of the first day of the month',
                     );
                 });
 
@@ -401,11 +401,11 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result1).toBeDefined();
                     expect(result1).toContain(
-                        'Run once a year at midnight of 1 January'
+                        'Run once a year at midnight of 1 January',
                     );
                     expect(result2).toBeDefined();
                     expect(result2).toContain(
-                        'Run once a year at midnight of 1 January'
+                        'Run once a year at midnight of 1 January',
                     );
                 });
 
@@ -419,7 +419,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
 
@@ -433,7 +433,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
 
@@ -447,7 +447,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
 
@@ -461,7 +461,7 @@ describe('FormatSchedulePipe', () => {
                     // Then
                     expect(result).toBeDefined();
                     expect(result).toContain(
-                        `Invalid Cron expression "${schedule}"`
+                        `Invalid Cron expression "${schedule}"`,
                     );
                 });
             });

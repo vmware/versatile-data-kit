@@ -54,7 +54,7 @@ export class DataJobsFailedWidgetComponent implements OnChanges {
                 changes['jobExecutions'].currentValue as DataJobExecutions
             ).forEach((element) => {
                 const temp = this.dataJobs.find(
-                    (i) => i.jobName === element.jobName
+                    (i) => i.jobName === element.jobName,
                 );
                 if (!temp) {
                     this.dataJobs.push({

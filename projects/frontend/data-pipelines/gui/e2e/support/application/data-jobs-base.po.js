@@ -91,7 +91,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         return this.getDataGrid()
             .should("exist")
             .find(
-                "[data-cy=data-pipelines-manage-grid-status-cell] clr-icon[data-cy*=data-pipelines-job]"
+                "[data-cy=data-pipelines-manage-grid-status-cell] clr-icon[data-cy*=data-pipelines-job]",
             );
     }
 
@@ -122,7 +122,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         return this.getDataGridColumnShowHideOptions()
             .should("have.length.gt", 0)
             .then((elements) =>
-                Array.from(elements).find((el) => el.innerText === option)
+                Array.from(elements).find((el) => el.innerText === option),
             )
             .find("input");
     }
