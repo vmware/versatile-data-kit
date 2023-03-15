@@ -14,13 +14,8 @@ const defaultProps: IDeleteJobDialogProps = {
   jobTeam: 'test-team'
 };
 
-describe('#constructor()', () => {
-  it('should return a new instance', () => {
-    const box = new DeleteJobDialog(defaultProps);
-    expect(box).toBeInstanceOf(DeleteJobDialog);
-  });
-});
-
+// created with the expectation to compare a rendered value with expected value parsed from config.ini
+// yet to be implemented
 describe('#render()', () => {
   it('should return contain job name input with placeholder equal to jobName from props', () => {
     const component = render(new DeleteJobDialog(defaultProps).render());

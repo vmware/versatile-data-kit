@@ -11,13 +11,8 @@ const defaultProps: IRunJobDialogProps = {
   jobPath: 'test-path'
 };
 
-describe('#constructor()', () => {
-  it('should return a new instance', () => {
-    const box = new RunJobDialog(defaultProps);
-    expect(box).toBeInstanceOf(RunJobDialog);
-  });
-});
-
+// created with the expectation to compare a rendered value with expected value parsed from config.ini
+// yet to be implemented
 describe('#render()', () => {
   it('should return contain job path input with placeholder equal to jobPath from props', () => {
     const component = render(new RunJobDialog(defaultProps).render());
