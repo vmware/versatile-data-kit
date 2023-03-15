@@ -1,12 +1,17 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import time
 
 import pytest
 from IPython.core.error import UsageError
 from IPython.testing.globalipapp import start_ipython
 from vdk.api.job_input import IJobInput
+from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk_ipython import JobControl
+
+_log = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
@@ -242,3 +247,18 @@ def test_calling_get_initialise_job_input_multiple_times_after_finalize(ip, tmpd
 
     # check whether first job_input is the same as the second one
     assert result_job_input != ip.get_ipython().run_cell("job_input").result
+
+
+def test_automatic_finalize_after_kernel_shutdown(ip):
+    class FinalizeTrackingPlugin:
+        # Due to problems with testing atexit functions, this should be tested manually
+        # Logs will be introduced, and to see the result of the test we should check logs
+        @hookimpl
+        def finalize_job(self, context: JobContext) -> None:
+            # _log.info("\n\nfinalize_job is called!\n\n")
+            print("\n\nfinalize_job is called!\n\n")
+
+    plugin = FinalizeTrackingPlugin()
+    ip.get_ipython().push(variables={"plugin": plugin})
+    ip.run_line_magic(magic_name="reload_VDK", line="")
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")

@@ -110,7 +110,7 @@ def load_job(
     job = JobControl(path, name, arguments, template)
     get_ipython().push(variables={"VDK": job})
 
-    def finalise_atexit():
+    def finalize_atexit():
         job.finalize()
 
-    atexit.register(finalise_atexit)
+    atexit.register(finalize_atexit)
