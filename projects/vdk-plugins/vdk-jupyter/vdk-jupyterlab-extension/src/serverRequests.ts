@@ -5,7 +5,7 @@
 
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
-import { checkDefinedValue, getJobDataJsonObject } from './jobData';
+import { checkIfVdkOptionDataIsDefined, getJobDataJsonObject } from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
 /**
  * Utility functions that are called by the dialogs.
@@ -32,7 +32,7 @@ export async function getCurrentPathRequest() {
  * Returns a pair of boolean (representing whether the vdk run was run) and a string (representing the result of vdk run)
  */
 export async function jobRunRequest(): Promise<[String, boolean]> {
-  if (await checkDefinedValue(VdkOption.PATH)) {
+  if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const data = await requestAPI<any>('run', {
         body: JSON.stringify(getJobDataJsonObject()),
@@ -62,8 +62,8 @@ export async function jobRunRequest(): Promise<[String, boolean]> {
  */
 export async function deleteJobRequest() {
   if (
-    (await checkDefinedValue(VdkOption.NAME)) &&
-    (await checkDefinedValue(VdkOption.TEAM))
+    (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
+    (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
       const data = await requestAPI<any>('delete', {
@@ -90,12 +90,12 @@ export async function deleteJobRequest() {
 
 /**
  * Sent a POST request to the server to download a data job.
- * The information about the data job is retrieved from jobData object and sent as JSON.
+ * The inforcheckIfVdkOptionDataIsDefineddata job is retrieved from checkIfVdkOptionDataIsDefinedd sent as JSON.
  */
 export async function downloadJobRequest() {
   if (
-    (await checkDefinedValue(VdkOption.NAME)) &&
-    (await checkDefinedValue(VdkOption.TEAM))
+    (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
+    (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
       let data = await requestAPI<any>('download', {
@@ -119,15 +119,14 @@ export async function downloadJobRequest() {
     }
   }
 }
-
 /**
  * Sent a POST request to the server to create a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
 export async function createJobRequest() {
   if (
-    (await checkDefinedValue(VdkOption.NAME)) &&
-    (await checkDefinedValue(VdkOption.TEAM))
+    (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
+    (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
       const data = await requestAPI<any>('create', {
