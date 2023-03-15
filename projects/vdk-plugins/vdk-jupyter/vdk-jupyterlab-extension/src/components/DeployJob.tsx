@@ -119,13 +119,13 @@ export async function showCreateDeploymentDialog() {
         ]
       });
       if (runConfirmationResult.button.accept) {
-        let success = await jobRunRequest();
-        if (success[1]) {
+        let { message, status } = await jobRunRequest();
+        if (status) {
           // add server request
         } else {
           showErrorMessage(
             'Encauntered an error while running the job!',
-            success[0],
+            message,
             [Dialog.okButton()]
           );
         }

@@ -3,7 +3,7 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobData } from '../jobData';
-import { deleteJobRequest } from '../serverRequests';
+import { jobRequest } from '../serverRequests';
 
 export interface IDeleteJobDialogProps {
   /**
@@ -81,7 +81,7 @@ export async function showDeleteJobDialog() {
         ]
       });
       if (finalResult.button.accept) {
-        await deleteJobRequest();
+        await jobRequest('delete');
       }
     } catch (error) {
       await showErrorMessage(

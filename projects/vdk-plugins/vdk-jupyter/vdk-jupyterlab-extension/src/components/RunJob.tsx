@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
-import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRunRequest } from '../serverRequests';
 
 export interface IRunJobDialogProps {
@@ -86,9 +86,16 @@ export async function showRunJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    let response = await jobRunRequest();
-    if (response[1]) {
-      alert(response[0]);
-    }
+    let { message, status } = await jobRunRequest();
+        if (status) {
+          alert(message)
+        }
+        else{
+          showErrorMessage(
+            'Encauntered an error while running the job!',
+            message,
+            [Dialog.okButton()]
+          );
+        }
   }
 }

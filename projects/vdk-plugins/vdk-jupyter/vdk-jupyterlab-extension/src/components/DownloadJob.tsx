@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { downloadJobRequest } from '../serverRequests';
+import { jobRequest } from '../serverRequests';
 
 export interface IDownloadJobDialogProps {
   /**
@@ -65,6 +65,6 @@ export async function showDownloadJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await downloadJobRequest();
+    await jobRequest('download');
   }
 }

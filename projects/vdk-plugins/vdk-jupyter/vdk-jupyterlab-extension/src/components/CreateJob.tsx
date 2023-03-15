@@ -3,7 +3,7 @@ import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { createJobRequest } from '../serverRequests';
+import { jobRequest } from '../serverRequests';
 
 export interface ICreateJobDialogProps {
   /**
@@ -137,6 +137,6 @@ export async function showCreateJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await createJobRequest();
+    await jobRequest('create');
   }
 }

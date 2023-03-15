@@ -31,7 +31,10 @@ export async function getCurrentPathRequest() {
  * The information about the data job is retrieved from jobData object and sent as JSON.
  * Returns a pair of boolean (representing whether the vdk run was run) and a string (representing the result of vdk run)
  */
-export async function jobRunRequest(): Promise<[String, boolean]> {
+export async function jobRunRequest(): Promise<{
+  message: String;
+  status: boolean;
+}> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const data = await requestAPI<any>('run', {
@@ -42,108 +45,47 @@ export async function jobRunRequest(): Promise<[String, boolean]> {
         'Job execution has finished with status ' +
         data['message'] +
         ' \n See vdk_logs.txt file for more!';
-      return [message, true];
+      return { message: message, status: true };
     } catch (error) {
       await showErrorMessage(
         'Encountered an error when trying to run the job. Error:',
         error,
         [Dialog.okButton()]
       );
-      return ['', false];
+      return { message: '', status: false };
     }
   } else {
-    return ['', false];
+    return { message: '', status: false };
   }
 }
 
 /**
- * Sent a POST request to the server to delete a data job.
+ * Sent a POST request to the server to execute a VDK operation a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
-export async function deleteJobRequest() {
+export async function jobRequest(endPoint: string) {
   if (
     (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
-      const data = await requestAPI<any>('delete', {
+      const data = await requestAPI<any>(endPoint, {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
       if (!data['error']) alert(data['message']);
       else {
         await showErrorMessage(
-          'Encountered an error when deleting the job. Error:',
+          'Encountered an error while trying the ' +
+            endPoint +
+            ' operation. Error:',
           data['message'],
           [Dialog.okButton()]
         );
       }
     } catch (error) {
       await showErrorMessage(
-        'Encountered an error when deleting the job. Error:',
-        error,
-        [Dialog.okButton()]
-      );
-    }
-  }
-}
-
-/**
- * Sent a POST request to the server to download a data job.
- * The inforcheckIfVdkOptionDataIsDefineddata job is retrieved from checkIfVdkOptionDataIsDefinedd sent as JSON.
- */
-export async function downloadJobRequest() {
-  if (
-    (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
-    (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
-  ) {
-    try {
-      let data = await requestAPI<any>('download', {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
-      if (!data['error']) alert(data['message']);
-      else {
-        await showErrorMessage(
-          'Encountered an error when trying to download the job. Error:',
-          data['message'],
-          [Dialog.okButton()]
-        );
-      }
-    } catch (reason) {
-      await showErrorMessage(
-        'Encountered an error when trying to download the job. Error:',
-        reason,
-        [Dialog.okButton()]
-      );
-    }
-  }
-}
-/**
- * Sent a POST request to the server to create a data job.
- * The information about the data job is retrieved from jobData object and sent as JSON.
- */
-export async function createJobRequest() {
-  if (
-    (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
-    (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
-  ) {
-    try {
-      const data = await requestAPI<any>('create', {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
-      if (!data['error']) alert(data['message']);
-      else {
-        await showErrorMessage(
-          'Encountered an error when creating the job. Error:',
-          data['message'],
-          [Dialog.okButton()]
-        );
-      }
-    } catch (error) {
-      await showErrorMessage(
-        'Encountered an error when creating the job. Error:',
+        'Encountered an error while trying to run the VDK operation. Error:',
         error,
         [Dialog.okButton()]
       );
