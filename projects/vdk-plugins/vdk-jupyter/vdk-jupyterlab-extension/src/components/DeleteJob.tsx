@@ -4,26 +4,17 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobData } from '../jobData';
 import { jobRequest } from '../serverRequests';
+import { IJobNameAndTeamProps } from './props';
 
-export interface IDeleteJobDialogProps {
-  /**
-   * Current Job name
-   */
-  jobName: string;
-  /**
-   * Current Team name
-   */
-  jobTeam: string;
-}
 
-export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
+export default class DeleteJobDialog extends Component<IJobNameAndTeamProps> {
   /**
    * Returns a React component for rendering a delete menu.
    *
    * @param props - component properties
    * @returns React component
    */
-  constructor(props: IDeleteJobDialogProps) {
+  constructor(props: IJobNameAndTeamProps) {
     super(props);
   }
   /**
@@ -36,12 +27,12 @@ export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
       <>
         <VDKTextInput
           option={VdkOption.NAME}
-          value="default-name"
+          value={this.props.jobName}
           label="Job Name:"
         ></VDKTextInput>
         <VDKTextInput
           option={VdkOption.TEAM}
-          value="default-team"
+          value={this.props.jobTeam}
           label="Job Team:"
         ></VDKTextInput>
         <VDKTextInput

@@ -3,22 +3,17 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
+import { IJobPathProp } from './props';
 
-export interface IDownloadJobDialogProps {
-  /**
-   * Current Path
-   */
-  parentPath: string;
-}
 
-export default class DownloadJobDialog extends Component<IDownloadJobDialogProps> {
+export default class DownloadJobDialog extends Component<IJobPathProp> {
   /**
    * Returns a React component for rendering a download menu.
    *
    * @param props - component properties
    * @returns React component
    */
-  constructor(props: IDownloadJobDialogProps) {
+  constructor(props: IJobPathProp) {
     super(props);
   }
   /**
@@ -46,7 +41,7 @@ export default class DownloadJobDialog extends Component<IDownloadJobDialogProps
         ></VDKTextInput>
         <VDKTextInput
           option={VdkOption.PATH}
-          value={this.props.parentPath}
+          value={this.props.jobPath}
           label="Path to job directory:"
         ></VDKTextInput>
       </>
@@ -59,7 +54,7 @@ export async function showDownloadJobDialog() {
     title: 'Download Job',
     body: (
       <DownloadJobDialog
-        parentPath={sessionStorage.getItem('current-path')!}
+        jobPath={sessionStorage.getItem('current-path')!}
       ></DownloadJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
