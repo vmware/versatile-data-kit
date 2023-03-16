@@ -1,89 +1,94 @@
 import React, { Component } from 'react';
-import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
+import VDKTextInput from './VdkTextInput';
+import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { jobData } from '../jobData';
+import { jobRequest } from '../serverRequests';
 
 export interface IDeleteJobDialogProps {
-    /**
-     * Current Job name
-     */
-    jobName: string;
-    /**
-     * Current Team name
-     */
-     jobTeam: string;
+  /**
+   * Current Job name
+   */
+  jobName: string;
+  /**
+   * Current Team name
+   */
+  jobTeam: string;
 }
 
-
 export default class DeleteJobDialog extends Component<IDeleteJobDialogProps> {
-    /**
+  /**
    * Returns a React component for rendering a delete menu.
    *
    * @param props - component properties
    * @returns React component
    */
-    constructor(props: IDeleteJobDialogProps) {
-        super(props);
+  constructor(props: IDeleteJobDialogProps) {
+    super(props);
+  }
+  /**
+   * Renders a dialog for deleting data job.
+   *
+   * @returns React element
+   */
+  render(): React.ReactElement {
+    return (
+      <>
+        <VDKTextInput
+          option={VdkOption.NAME}
+          value="default-name"
+          label="Job Name:"
+        ></VDKTextInput>
+        <VDKTextInput
+          option={VdkOption.TEAM}
+          value="default-team"
+          label="Job Team:"
+        ></VDKTextInput>
+        <VDKTextInput
+          option={VdkOption.REST_API_URL}
+          value="http://my_vdk_instance"
+          label="Rest API URL:"
+        ></VDKTextInput>
+      </>
+    );
+  }
+}
+
+export async function showDeleteJobDialog() {
+  const result = await showDialog({
+    title: 'Delete Job',
+    body: (
+      <DeleteJobDialog
+        jobName="job-to-delete"
+        jobTeam="default-team"
+      ></DeleteJobDialog>
+    ),
+    buttons: [Dialog.okButton(), Dialog.cancelButton()]
+  });
+  if (result.button.accept) {
+    try {
+      const finalResult = await showDialog({
+        title: 'Delete a data job',
+        body:
+          'Do you really want to delete the job with name ' +
+          jobData.get(VdkOption.NAME) +
+          ' from ' +
+          jobData.get(VdkOption.REST_API_URL) +
+          '?',
+        buttons: [
+          Dialog.cancelButton({ label: 'Cancel' }),
+          Dialog.okButton({ label: 'Yes' })
+        ]
+      });
+      if (finalResult.button.accept) {
+        await jobRequest('delete');
+      }
+    } catch (error) {
+      await showErrorMessage(
+        'Encountered an error when deleting the job. Error:',
+        error,
+        [Dialog.okButton()]
+      );
     }
-    /**
-    * Renders a dialog for deleting data job.
-    *
-    * @returns React element
-    */
-    render(): React.ReactElement {
-        return (
-            <>
-                 <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobName">Job Name:</label>
-                    <input type="text" id="jobName" className='jp-vdk-input' placeholder={this.props.jobName} onChange={this.onNameChange} />
-                </div>
-                <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobTeam">Job Team:</label>
-                    <input type="text" id="jobTeam" className='jp-vdk-input' placeholder={this.props.jobTeam} onChange={this.onTeamChange} />
-                </div>
-                <div className='jp-vdk-input-wrapper'>
-                    <label className='jp-vdk-label' htmlFor="jobRestApiUrl">Rest Api URL:</label>
-                    <input type="text" id="jobRestApiUrl" className='jp-vdk-input' placeholder="rest-api-url" onChange={this.onRestApiUrlChange} />
-                </div>
-            </>
-        );
-    }
-     /**
-   * Callback invoked upon changing the job name input.
-   *
-   * @param event - event object
-   */
-      private onNameChange = (event: any): void => {
-        const nameInput = event.currentTarget as HTMLInputElement;
-        let value = nameInput.value;
-        if (!value) {
-            value = this.props.jobName;
-        }
-        jobData.set(VdkOption.NAME, value);
-    };
-    /**
-   * Callback invoked upon changing the job team input.
-   *
-   * @param event - event object
-   */
-    private onTeamChange = (event: any): void => {
-        const teamInput = event.currentTarget as HTMLInputElement;
-        let value = teamInput.value;
-        if (!value) {
-            value = "default-team";
-        }
-        jobData.set(VdkOption.TEAM, value);
-    };
-    /**
-   * Callback invoked upon changing the job rest-api-url input.
-   *
-   * @param event - event object
-   */
-    private onRestApiUrlChange = (event: any): void => {
-        const urlInput = event.currentTarget as HTMLInputElement;
-        let value = urlInput.value;
-        if (!value) {
-            value = "default-url";
-        }
-        jobData.set(VdkOption.REST_API_URL, value);
-    };
+  }
 }
