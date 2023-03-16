@@ -9,14 +9,14 @@ import { VdkSimpleTranslateService } from './simple-translate.service';
 import { VdkSimpleTranslatePipe } from './simple-translate.pipe';
 
 @NgModule({
-	declarations: [VdkSimpleTranslatePipe],
-	exports: [VdkSimpleTranslatePipe]
+    declarations: [VdkSimpleTranslatePipe],
+    exports: [VdkSimpleTranslatePipe]
 })
 export class VdkSimpleTranslateModule {
-	static forRoot(): ModuleWithProviders<VdkSimpleTranslateModule> {
-		return {
-			ngModule: VdkSimpleTranslateModule,
-			providers: [VdkSimpleTranslateService]
-		};
-	}
+    static forRoot(): ModuleWithProviders<VdkSimpleTranslateModule> {
+        return {
+            ngModule: VdkSimpleTranslateModule,
+            providers: [VdkSimpleTranslateService]
+        };
+    }
 }

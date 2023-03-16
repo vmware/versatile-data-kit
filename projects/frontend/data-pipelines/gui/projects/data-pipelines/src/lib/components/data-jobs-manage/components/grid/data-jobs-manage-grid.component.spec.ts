@@ -25,6 +25,7 @@ import {
     ComponentStateImpl,
     DESC,
     ErrorHandlerService,
+    generateErrorCodes,
     NavigationService,
     RouterService,
     RouterState,
@@ -37,6 +38,9 @@ import { ExtractJobStatusPipe } from '../../../../shared/pipes';
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
 import { DATA_PIPELINES_CONFIGS, DisplayMode } from '../../../../model';
+
+import { TASK_LOAD_JOBS_STATE } from '../../../../state/tasks';
+import { LOAD_JOBS_ERROR_CODES } from '../../../../state/error-codes';
 
 import { DataJobsManageGridComponent } from './data-jobs-manage-grid.component';
 
@@ -150,6 +154,20 @@ describe('DataJobsManageGridComponent', () => {
         const routerStub = () => ({
             url: '/explore/data-jobs',
         });
+
+        const dataJobsApiServiceStubTemp =
+            jasmine.createSpyObj<DataJobsApiService>('dataJobsApiServiceStub', [
+                'getJobs',
+            ]);
+
+        generateErrorCodes<DataJobsApiService>(dataJobsApiServiceStubTemp, [
+            'getJobs',
+            'getJobDetails',
+            'getJobExecutions',
+        ]);
+
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE] =
+            dataJobsApiServiceStubTemp.errorCodes.getJobs;
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],

@@ -53,6 +53,11 @@ export class GridActionComponent implements AfterViewInit, OnChanges {
     @Input() suppressQuickFilterChangeEvent: boolean;
 
     /**
+     * ** Flag that indicates actionable elements should be disabled.
+     */
+    @Input() disableActionableElements = false;
+
+    /**
      * ** Proxy emitter from QuickFilters component.
      */
     @Output() quickFilterChange = new EventEmitter<QuickFilterChangeEvent>();

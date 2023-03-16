@@ -69,7 +69,7 @@
         "ngrx/prefer-action-creator": "off",
         "ngrx/no-typed-global-store": "off",
         "ngrx/prefer-selector-in-select": "off",
-        "ngrx/avoid-cyclic-effects": "warn",
+        "ngrx/avoid-cyclic-effects": "off",
         "no-underscore-dangle": "off"
       }
     },

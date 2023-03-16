@@ -50,6 +50,11 @@ export class QuickFiltersComponent implements OnChanges {
     @Input() suppressQuickFilterChangeEvent = false;
 
     /**
+     * ** Flag that indicates actionable elements should be disabled.
+     */
+    @Input() disableActionableElements = false;
+
+    /**
      * ** Event Emitter for Filter state change.
      */
     @Output() quickFilterChange = new EventEmitter<QuickFilterChangeEvent>();
@@ -73,6 +78,10 @@ export class QuickFiltersComponent implements OnChanges {
      * </p>
      */
     changeFilter(filter: QuickFilter): void {
+        if (this.disableActionableElements) {
+            return;
+        }
+
         const executeOnDeactivate = (dFilter: QuickFilter) => {
             if (
                 this.suppressQuickFilterChangeEvent &&

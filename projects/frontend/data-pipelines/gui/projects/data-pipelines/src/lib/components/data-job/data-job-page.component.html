@@ -70,7 +70,11 @@
             </ng-template>
         </div>
 
-        <div *ngIf="isJobEditable" class="data-pipelines-job__actions-right">
+        <div
+            *ngIf="isJobEditable"
+            class="data-pipelines-job__actions-right"
+            data-cy="data-pipelines-job-actions-container"
+        >
             <button
                 *ngIf="isDataJobRunning && isJobWithRunningStatus()"
                 class="btn btn-secondary"
@@ -99,7 +103,7 @@
                 Execute
             </button>
 
-            <clr-dropdown>
+            <clr-dropdown *ngIf="isJobAvailable">
                 <button
                     clrDropdownTrigger
                     class="btn btn-secondary data-pipelines-job__action-dropdown-trigger"
@@ -115,7 +119,7 @@
 
                 <clr-dropdown-menu clrPosition="bottom-right">
                     <button
-                        *ngIf="isJobAvailable && isDownloadJobKeyAllowed"
+                        *ngIf="isDownloadJobKeyAllowed"
                         clrDropdownItem
                         class="btn btn-secondary"
                         aria-label="Download Key"
@@ -128,7 +132,6 @@
                     </button>
 
                     <button
-                        *ngIf="isJobAvailable"
                         clrDropdownItem
                         class="btn btn-secondary"
                         aria-label="Delete Job"
