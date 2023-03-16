@@ -54,8 +54,8 @@ describe('DataJobExecutionToGridDataJobExecution', () => {
                 for (const [status, message, assertion] of params) {
                     it(`should verify for provided status "${status}" will return "${assertion}"`, () => {
                         // When
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         const returnedStatus =
+                            /* eslint-disable @typescript-eslint/no-unsafe-argument */
                             DataJobExecutionToGridDataJobExecution.convertStatus(
                                 status as any,
                                 message,

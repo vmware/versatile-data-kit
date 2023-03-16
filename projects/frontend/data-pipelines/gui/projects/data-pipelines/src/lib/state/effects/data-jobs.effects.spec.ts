@@ -295,6 +295,9 @@ describe('DataJobsEffects', () => {
 
                     const expected$ = m.cold('--------a-b-c', {
                         a: ComponentLoaded.of(
+                            /* eslint-disable @typescript-eslint/no-unsafe-argument */
+                            /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+                            /* eslint-disable @typescript-eslint/no-unsafe-call */
                             createModel()
                                 .clearError()
                                 .withTask(TASK_LOAD_JOB_STATE)
