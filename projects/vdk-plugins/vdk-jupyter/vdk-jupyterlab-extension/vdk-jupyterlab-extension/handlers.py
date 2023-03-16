@@ -12,7 +12,7 @@ from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
 
-class CongifHandler(APIHandler):
+class JobDataHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
         data = JobData()
@@ -99,20 +99,15 @@ def setup_handlers(web_app):
     run_job_handlers = [(run_job_route_pattern, RunJobHandler)]
     web_app.add_handlers(host_pattern, run_job_handlers)
 
-    delete_job_route_pattern = url_path_join(
-        base_url, "vdk-jupyterlab-extension", "delete"
-    )
-    delete_job_handlers = [(delete_job_route_pattern, DeleteJobHandler)]
-    web_app.add_handlers(host_pattern, delete_job_handlers)
+    def add_handler(handler, endpoint):
+        job_route_pattern = url_path_join(
+            base_url, "vdk-jupyterlab-extension", endpoint
+        )
+        job_handlers = [(job_route_pattern, handler)]
+        web_app.add_handlers(host_pattern, job_handlers)
 
-    download_job_route_pattern = url_path_join(
-        base_url, "vdk-jupyterlab-extension", "download"
-    )
-    download_job_handlers = [(download_job_route_pattern, DownloadJobHandler)]
-    web_app.add_handlers(host_pattern, download_job_handlers)
-
-    create_job_route_pattern = url_path_join(
-        base_url, "vdk-jupyterlab-extension", "create"
-    )
-    create_job_handlers = [(create_job_route_pattern, CreateJobHandler)]
-    web_app.add_handlers(host_pattern, create_job_handlers)
+    add_handler(RunJobHandler, "run")
+    add_handler(DeleteJobHandler, "delete")
+    add_handler(DownloadJobHandler, "download")
+    add_handler(CreateJobHandler, "create")
+    add_handler(JobDataHandler, "job")
