@@ -7,8 +7,24 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
+from .job_data import JobData
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
+
+
+class CongifHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        data = JobData()
+        self.finish(
+            json.dumps(
+                {
+                    VdkOption.PATH: data.get_job_path(),
+                    VdkOption.NAME: data.get_job_name(),
+                    VdkOption.TEAM: data.get_team_name(),
+                }
+            )
+        )
 
 
 class RunJobHandler(APIHandler):
