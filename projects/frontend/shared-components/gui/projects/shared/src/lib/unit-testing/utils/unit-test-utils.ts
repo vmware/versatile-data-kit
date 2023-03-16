@@ -10,26 +10,20 @@
  *
  * e.g.
  *      .and.callFake(CallFake)
- *
- *
  */
 export const CallFake = (..._args: any[]): any => {
-	// No-op.
+    // No-op.
 };
 
 /**
  * ** Utility to trigger keyboard event from some HTMLElement.
  */
-export const triggerKeyboardEvent = (
-	el: HTMLElement,
-	type: string,
-	keyCode: string
-) => {
-	const e = new KeyboardEvent(type, {
-		code: keyCode,
-		bubbles: true,
-		cancelable: true
-	});
+export const triggerKeyboardEvent = (el: HTMLElement, type: string, keyCode: string) => {
+    const e = new KeyboardEvent(type, {
+        code: keyCode,
+        bubbles: true,
+        cancelable: true
+    });
 
-	el.dispatchEvent(e);
+    el.dispatchEvent(e);
 };

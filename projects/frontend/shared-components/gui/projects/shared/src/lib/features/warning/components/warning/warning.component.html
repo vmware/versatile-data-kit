@@ -1,0 +1,86 @@
+<!--
+  ~ Copyright 2023 VMware, Inc.
+  ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<clr-signpost *ngIf="showTooltip; else showStandard">
+    <clr-icon
+        clrSignpostTrigger
+        class="alert-icon shared-warning__icon-tooltip"
+        shape="exclamation-triangle"
+        role="img"
+        aria-label="Warning"
+        [attr.status]="'warning'"
+        [attr.size]="iconSize"
+    ></clr-icon>
+
+    <clr-signpost-content
+        *clrIfOpen="isSignpostOpen"
+        [clrPosition]="tooltipPosition"
+        [ngClass]="'shared-warning__tooltip-size--' + tooltipSize"
+    >
+        <ng-container *ngIf="customTemplateRef; else defaultTooltipTemplate">
+            <ng-container *ngTemplateOutlet="customTemplateRef"></ng-container>
+        </ng-container>
+
+        <ng-template #defaultTooltipTemplate>
+            <ng-container
+                *ngTemplateOutlet="systemDefault; context: { $implicit: 'tooltip' }"
+            ></ng-container>
+        </ng-template>
+    </clr-signpost-content>
+</clr-signpost>
+
+<ng-template #showStandard>
+    <div class="alert alert-warning" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <clr-icon
+                        class="alert-icon shared-warning__icon-standard"
+                        shape="exclamation-triangle"
+                        role="img"
+                        aria-label="Warning"
+                        [attr.status]="'warning'"
+                        [attr.size]="iconSize"
+                    ></clr-icon>
+                </div>
+                <div class="alert-text">
+                    <ng-container
+                        *ngIf="customTemplateRef; else defaultStandardTemplate"
+                    >
+                        <ng-container
+                            *ngTemplateOutlet="customTemplateRef"
+                        ></ng-container>
+                    </ng-container>
+
+                    <ng-template #defaultStandardTemplate>
+                        <ng-container
+                            *ngTemplateOutlet="systemDefault; context: { $implicit: 'standard' }"
+                        ></ng-container>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #systemDefault let-context>
+    <p class="shared-warning__{{ context }}-template--default">
+        <ng-container *ngIf="!showNotFound">{{ text }}</ng-container>
+        <ng-container *ngIf="showNotFound">{{ notFoundText }}</ng-container>
+
+        <ng-container *ngIf="addServiceDeskLink">
+            <ng-container *ngIf="!showNotFound">
+                Please try again later.</ng-container
+            >
+            <br />If the issue persists, please
+            <a href="{{ serviceRequestUrl }}" target="_blank" rel="noopener"
+                >open a service request.</a
+            >
+        </ng-container>
+        <ng-container *ngIf="impactedServices && impactedServices.length > 0">
+            <br />Impacted Services: {{ impactedServices }}
+        </ng-container>
+    </p>
+</ng-template>

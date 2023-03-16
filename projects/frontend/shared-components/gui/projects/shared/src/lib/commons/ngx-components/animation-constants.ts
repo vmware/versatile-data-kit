@@ -65,5 +65,5 @@ export const STAGGER_DURATION = 200;
 const ANIMATION_MULTIPLIER = 1;
 
 export function multiply(value: number) {
-	return value * ANIMATION_MULTIPLIER;
+    return value * ANIMATION_MULTIPLIER;
 }
