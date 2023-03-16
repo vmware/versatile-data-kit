@@ -41,10 +41,6 @@ class MetaJobsDag:
             time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
         )
 
-    @property
-    def max_concurrent_running_jobs(self):
-        return self._max_concurrent_running_jobs
-
     def build_dag(self, jobs: List[Dict]):
         for job in jobs:
             # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
@@ -127,7 +123,7 @@ class MetaJobsDag:
             if curr_running_jobs >= self._max_concurrent_running_jobs:
                 log.info(
                     "Starting job fail - too many concurrently running jobs. Currently running: "
-                    f"{curr_running_jobs}, limit: {self.max_concurrent_running_jobs}. Will be re-tried later"
+                    f"{curr_running_jobs}, limit: {self._max_concurrent_running_jobs}. Will be re-tried later"
                 )
                 self._delayed_starting_jobs.enqueue(node)
             else:
