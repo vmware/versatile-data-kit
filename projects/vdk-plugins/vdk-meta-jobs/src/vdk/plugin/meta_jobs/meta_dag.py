@@ -29,9 +29,7 @@ class MetaJobsDag:
             min_ready_time_seconds=meta_config.meta_jobs_delayed_jobs_min_delay_seconds(),
             randomize_delay_seconds=meta_config.meta_jobs_delayed_jobs_randomized_added_delay_seconds(),
         )
-        self._max_concurrent_running_jobs = int(
-            os.environ.get("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", 15)
-        )
+        self._max_concurrent_running_jobs = meta_config.meta_jobs_max_concurrent_running_jobs()
         self._finished_jobs = []
         self._dag_execution_check_time_period_seconds = (
             meta_config.meta_jobs_dag_execution_check_time_period_seconds()

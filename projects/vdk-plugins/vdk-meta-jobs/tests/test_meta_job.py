@@ -306,7 +306,7 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
 
 
 def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
-    jobs = [("job" + str(i), [200], "succeeded") for i in range(1, 8)]
+    jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
     api_url = _prepare(httpserver, jobs)
 
     with mock.patch.dict(
@@ -316,6 +316,7 @@ def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
             "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "2",
             "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
             "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
+            "VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "1",
         },
     ):
         # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
