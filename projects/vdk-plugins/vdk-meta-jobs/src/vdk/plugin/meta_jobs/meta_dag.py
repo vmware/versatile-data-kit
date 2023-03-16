@@ -57,14 +57,7 @@ class MetaJobsDag:
         while self._topological_sorter.is_active():
             for node in self._topological_sorter.get_ready():
                 self._start_job(node)
-            if self._delayed_starting_jobs.size() > 0:
-                self._start_delayed_jobs()
-            while (
-                self._delayed_starting_jobs.size() >= self._max_concurrent_running_jobs
-            ):
-                finished_jobs = self._get_finished_jobs()
-                self._finalize_jobs(finished_jobs)
-                self._start_delayed_jobs()
+            self._start_delayed_jobs()
             finished_jobs = self._get_finished_jobs()
             self._finalize_jobs(finished_jobs)
             if not finished_jobs:
