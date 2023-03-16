@@ -299,7 +299,7 @@ describe('DataJobsEffects', () => {
                             /* eslint-disable @typescript-eslint/no-unsafe-member-access */
                             /* eslint-disable @typescript-eslint/no-unsafe-call */
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_STATE)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
@@ -310,7 +310,7 @@ describe('DataJobsEffects', () => {
                         ),
                         b: ComponentUpdate.of(
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_DETAILS)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
@@ -325,7 +325,7 @@ describe('DataJobsEffects', () => {
                         ),
                         c: ComponentUpdate.of(
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_EXECUTIONS)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
@@ -401,7 +401,7 @@ describe('DataJobsEffects', () => {
                     const expected$ = m.cold('--------a', {
                         a: ComponentLoaded.of(
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_EXECUTIONS)
                                 .withData(
                                     JOB_EXECUTIONS_DATA_KEY,
@@ -450,7 +450,7 @@ describe('DataJobsEffects', () => {
                     const expected$ = m.cold('---------a-', {
                         a: ComponentLoaded.of(
                             createModel(undefined, 1, LOADING)
-                                .clearError()
+                                .clearErrors()
                                 .withTask(genericAction1.task)
                                 .withData(JOB_DETAILS_DATA_KEY, undefined)
                                 .withStatusLoaded()
@@ -494,7 +494,7 @@ describe('DataJobsEffects', () => {
                     const expected$ = m.cold('---------a-', {
                         a: ComponentLoaded.of(
                             createModel(undefined, 1, LOADING)
-                                .clearError()
+                                .clearErrors()
                                 .withTask(genericAction1.task)
                                 .withData(JOB_STATE_DATA_KEY, undefined)
                                 .withStatusLoaded()
