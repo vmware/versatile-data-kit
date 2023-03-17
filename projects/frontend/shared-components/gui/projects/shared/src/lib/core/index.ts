@@ -4,6 +4,7 @@
  */
 
 export * from './component';
+export * from './error';
 export * from './navigation';
 export * from './ngrx';
 export * from './router';

@@ -22,6 +22,7 @@ import {
     ComponentService,
     DESC,
     ErrorHandlerService,
+    ErrorRecord,
     NavigationService,
     OnTaurusModelChange,
     OnTaurusModelError,
@@ -48,6 +49,11 @@ import {
     DisplayMode,
     JOBS_DATA_KEY,
 } from '../../model';
+
+import { TASK_LOAD_JOBS_STATE } from '../../state/tasks';
+
+import { LOAD_JOBS_ERROR_CODES } from '../../state/error-codes';
+
 import { DataJobsApiService, DataJobsService } from '../../services';
 
 export const QUERY_PARAM_SEARCH = 'search';
@@ -77,6 +83,17 @@ export abstract class DataJobsBaseGridComponent
         OnTaurusModelChange,
         OnTaurusModelError
 {
+    /**
+     * @inheritDoc
+     */
+    static override readonly CLASS_NAME: string = 'DataJobsBaseGridComponent';
+
+    /**
+     * @inheritDoc
+     */
+    static override readonly PUBLIC_NAME: string =
+        'DataJobs-BaseGrid-Component';
+
     static readonly UI_KEY_PAGE_OFFSET = 'pageOffset';
     static readonly UI_KEY_GRID_OFFSET = 'gridOffset';
     static readonly UI_KEY_GRID_UI_STATE = 'gridUIState';
@@ -98,8 +115,6 @@ export abstract class DataJobsBaseGridComponent
     get urlStateManager(): URLStateManager {
         return this._urlStateManager;
     }
-
-    override model: ComponentModel;
 
     teamNameFilter: string;
     displayMode = DisplayMode.STANDARD;
@@ -138,9 +153,22 @@ export abstract class DataJobsBaseGridComponent
 
     dataJobStatus = DataJobStatus;
 
+    /**
+     * ** Array of error code patterns that component should listen for in errors store.
+     */
+    listenForErrorPatterns: string[] = [
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE].All,
+    ];
+
+    /**
+     * ** Flag that indicates actionable elements should be disabled.
+     */
+    disableActionableElements = false;
+
     protected restoreUIStateInProgress = false;
     protected navigationInProgress = false;
     protected _urlStateManager: URLStateManager;
+
     private _isUrlStateManagerExternalDependency = false;
 
     protected constructor(
@@ -159,8 +187,14 @@ export abstract class DataJobsBaseGridComponent
         protected dataPipelinesModuleConfig: DataPipelinesConfig,
         protected readonly localStorageConfigKey: string,
         public localStorageUserConfig: DataJobsLocalStorageUserConfig,
+        className: string = null,
     ) {
-        super(componentService, navigationService, activatedRoute);
+        super(
+            componentService,
+            navigationService,
+            activatedRoute,
+            className ?? DataJobsBaseGridComponent.CLASS_NAME,
+        );
 
         this._urlStateManager = new URLStateManager(
             router.url.split('?')[0],
@@ -288,7 +322,7 @@ export abstract class DataJobsBaseGridComponent
     /**
      * @inheritDoc
      */
-    onModelInit() {
+    onModelInit(): void {
         let initializationFinished = false;
 
         this.subscriptions.push(
@@ -345,7 +379,7 @@ export abstract class DataJobsBaseGridComponent
     /**
      * @inheritDoc
      */
-    onModelInitialLoad() {
+    onModelInitialLoad(): void {
         this.routerService
             .get()
             .pipe(take(1))
@@ -361,32 +395,32 @@ export abstract class DataJobsBaseGridComponent
     /**
      * @inheritDoc
      */
-    onModelLoad() {
+    onModelLoad(): void {
         this.loading = false;
     }
 
     /**
      * @inheritDoc
      */
-    onModelChange(model: ComponentModel) {
-        const componentState = model.getComponentState();
-        const dataJobsData: { content: DataJob[]; totalItems: number } =
-            componentState.data.get(JOBS_DATA_KEY);
-
-        this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content)
-            ? [...dataJobsData?.content]
-            : [];
-
-        this.clrGridUIState.totalItems = dataJobsData?.totalItems ?? 0;
+    onModelChange(model: ComponentModel): void {
+        this._extractData(model);
     }
 
     /**
      * @inheritDoc
      */
-    onModelError(model?: ComponentModel) {
-        const error = ErrorUtil.extractError(model.getComponentState().error);
+    onModelError(
+        model: ComponentModel,
+        _task: string,
+        newErrorRecords: ErrorRecord[],
+    ): void {
+        this._extractData(model);
 
-        this.errorHandlerService.processError(error);
+        newErrorRecords.forEach((errorRecord) => {
+            const error = ErrorUtil.extractError(errorRecord.error);
+
+            this.errorHandlerService.processError(error);
+        });
     }
 
     /**
@@ -395,6 +429,14 @@ export abstract class DataJobsBaseGridComponent
     override ngOnInit(): void {
         this._initializeQuickFilters();
         this._initializeClrGridUIState();
+
+        // attach listener to ErrorStore and listen for Errors change
+        this.errors.onChange((store) => {
+            // if there is record for listened error code patterns disable actionable elements
+            this.disableActionableElements = store.hasCodePattern(
+                ...this.listenForErrorPatterns,
+            );
+        });
 
         this.subscriptions.push(
             this.loadDataDebouncer
@@ -588,6 +630,18 @@ export abstract class DataJobsBaseGridComponent
         this.dataJobsService.loadJobs(this.model);
     }
 
+    private _extractData(model: ComponentModel): void {
+        const componentState = model.getComponentState();
+        const dataJobsData: { content?: DataJob[]; totalItems?: number } =
+            componentState.data.get(JOBS_DATA_KEY) ?? {};
+
+        this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content)
+            ? [...dataJobsData?.content]
+            : [];
+
+        this.clrGridUIState.totalItems = dataJobsData?.totalItems ?? 0;
+    }
+
     private _initUrlStateManager(routeState: RouteState): void {
         if (!this._isUrlStateManagerExternalDependency) {
             this._urlStateManager = new URLStateManager(
@@ -716,6 +770,8 @@ export abstract class DataJobsBaseGridComponent
                 return `${value}`.toLowerCase().replace(' ', '_');
             case 'deployments.lastExecutionStatus':
                 return `${value}`.toLowerCase();
+            case 'jobName':
+                return `*${value}*`;
             default:
                 return `${value}`;
         }

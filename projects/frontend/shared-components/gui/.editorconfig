@@ -8,6 +8,9 @@ indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+[*.{ts, html}]
+max_line_length = 140
+
 [*.{ts, js}]
 quote_type = single
 
@@ -17,6 +20,9 @@ max_line_length = off
 [*.{json, scss}]
 quote_type = double
 indent_size = 2
+
+[*.{scss, css}]
+max_line_length = 140
 
 [*.md]
 max_line_length = off

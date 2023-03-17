@@ -33,9 +33,4 @@ export const FAILED = 'Failed';
 /**
  * ** Status types.
  */
-export type StatusType =
-	| typeof INITIALIZED
-	| typeof IDLE
-	| typeof LOADING
-	| typeof LOADED
-	| typeof FAILED;
+export type StatusType = typeof INITIALIZED | typeof IDLE | typeof LOADING | typeof LOADED | typeof FAILED;

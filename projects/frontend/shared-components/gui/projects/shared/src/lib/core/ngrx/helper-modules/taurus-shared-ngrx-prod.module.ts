@@ -21,28 +21,26 @@ import { STORE_ROUTER } from '../state';
 
 /**
  * ** Taurus NgRx Redux module recommended for use in Production builds.
- *
- *
  */
 @NgModule({
-	imports: [
-		StoreModule.forRoot(SHARED_ROOT_REDUCERS, NGRX_STORE_CONFIG),
-		EffectsModule.forRoot(SHARED_ROOT_EFFECTS),
-		StoreRouterConnectingModule.forRoot({
-			stateKey: STORE_ROUTER,
-			serializer: SharedRouterSerializer
-		})
-	],
-	exports: [StoreModule, EffectsModule, StoreRouterConnectingModule]
+    imports: [
+        StoreModule.forRoot(SHARED_ROOT_REDUCERS, NGRX_STORE_CONFIG),
+        EffectsModule.forRoot(SHARED_ROOT_EFFECTS),
+        StoreRouterConnectingModule.forRoot({
+            stateKey: STORE_ROUTER,
+            serializer: SharedRouterSerializer
+        })
+    ],
+    exports: [StoreModule, EffectsModule, StoreRouterConnectingModule]
 })
 export class TaurusSharedNgrxProdModule {
-	static forRoot(): ModuleWithProviders<TaurusSharedNgrxProdModule> {
-		return {
-			ngModule: TaurusSharedNgrxProdModule,
-			providers: [
-				{ provide: RouterService, useClass: RouterServiceImpl },
-				{ provide: ComponentService, useClass: ComponentServiceImpl }
-			]
-		};
-	}
+    static forRoot(): ModuleWithProviders<TaurusSharedNgrxProdModule> {
+        return {
+            ngModule: TaurusSharedNgrxProdModule,
+            providers: [
+                { provide: RouterService, useClass: RouterServiceImpl },
+                { provide: ComponentService, useClass: ComponentServiceImpl }
+            ]
+        };
+    }
 }

@@ -5,11 +5,13 @@
 
 <div class="time-filter__container">
     <span class="time-filter__heading">Time period (UTC): </span>
-    <clr-spinner
-        *ngIf="loading; else timeFilter"
-        data-cy="data-pipelines-job-executions-loading-spinner"
-        clrSmall="true"
-    ></clr-spinner>
+    <ng-container *ngIf="!isComponentInErrorState">
+        <clr-spinner
+            *ngIf="loading; else timeFilter"
+            data-cy="data-pipelines-job-executions-loading-spinner"
+            clrSmall="true"
+        ></clr-spinner>
+    </ng-container>
 </div>
 
 <ng-template #timeFilter>

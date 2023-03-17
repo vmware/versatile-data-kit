@@ -104,13 +104,21 @@ repos:
           - --comment-style
           - <!--|   ~|  -->
       - id: insert-license
-        files: (\.scss$|\.css$)
+        files: \.css
         args:
           - --use-current-year
           - --license-filepath
           - NOTICE.txt
           - --comment-style
           - /*| *| */
+      - id: insert-license
+        files: \.scss
+        args:
+          - --use-current-year
+          - --license-filepath
+          - NOTICE.txt
+          - --comment-style
+          - /*!| *| */
       - id: insert-license
         files: (\.yaml$|\.yml$)
         # exclude control service helm chart templates as they require template-style comments

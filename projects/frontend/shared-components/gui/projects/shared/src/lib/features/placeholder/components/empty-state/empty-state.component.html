@@ -1,0 +1,78 @@
+<!--
+  ~ Copyright 2023 VMware, Inc.
+  ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<ng-container *ngIf="!customTemplateRef; else customTemplateContainer">
+    <clr-icon *ngIf="icon" [attr.shape]="icon" size="64"></clr-icon>
+
+    <ng-content select="img"></ng-content>
+    <ng-content select="ng-lottie"></ng-content>
+
+    <ng-container [ngSwitch]="headingLevel">
+        <ng-container *ngSwitchCase="1">
+            <h1
+                class="empty-placeholder-heading"
+                role="heading"
+                [attr.aria-level]="headingLevel"
+            >
+                {{title}}
+            </h1>
+        </ng-container>
+        <ng-container *ngSwitchCase="2">
+            <h2
+                class="empty-placeholder-heading"
+                role="heading"
+                [attr.aria-level]="headingLevel"
+            >
+                {{title}}
+            </h2>
+        </ng-container>
+        <ng-container *ngSwitchCase="3">
+            <h3
+                class="empty-placeholder-heading"
+                role="heading"
+                [attr.aria-level]="headingLevel"
+            >
+                {{title}}
+            </h3>
+        </ng-container>
+        <ng-container *ngSwitchCase="4">
+            <h4
+                class="empty-placeholder-heading"
+                role="heading"
+                [attr.aria-level]="headingLevel"
+            >
+                {{title}}
+            </h4>
+        </ng-container>
+        <ng-container *ngSwitchCase="5">
+            <h5
+                class="empty-placeholder-heading"
+                role="heading"
+                [attr.aria-level]="headingLevel"
+            >
+                {{title}}
+            </h5>
+        </ng-container>
+        <ng-container *ngSwitchCase="6">
+            <h6
+                class="empty-placeholder-heading"
+                role="heading"
+                [attr.aria-level]="headingLevel"
+            >
+                {{title}}
+            </h6>
+        </ng-container>
+    </ng-container>
+
+    <div *ngIf="description" class="empty-placeholder-description">
+        {{description}}
+    </div>
+
+    <ng-content select="button, a"></ng-content>
+</ng-container>
+
+<ng-template #customTemplateContainer>
+    <ng-container *ngTemplateOutlet="customTemplateRef"></ng-container>
+</ng-template>

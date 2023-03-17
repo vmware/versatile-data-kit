@@ -18,10 +18,8 @@ export const STORE_COMPONENTS = 'components';
 
 /**
  * ** Store State interface.
- *
- *
  */
 export interface StoreState {
-	[STORE_ROUTER]: RouterState;
-	[STORE_COMPONENTS]: LiteralComponentsState;
+    [STORE_ROUTER]: RouterState;
+    [STORE_COMPONENTS]: LiteralComponentsState;
 }

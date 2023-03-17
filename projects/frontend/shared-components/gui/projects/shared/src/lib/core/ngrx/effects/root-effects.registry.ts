@@ -9,8 +9,6 @@ import { RouterEffects } from '../../router/state/effects';
 
 /**
  * ** Registry for Root Effects.
- *
- *
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SHARED_ROOT_EFFECTS: Array<Type<any>> = [RouterEffects];
