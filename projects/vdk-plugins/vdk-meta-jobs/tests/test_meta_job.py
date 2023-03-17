@@ -343,9 +343,7 @@ def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
                 if request.method == "GET":
                     execution = json.loads(response.response[0])
                     if execution["status"] == "succeeded":
-                        running_jobs.discard(
-                            execution["job_name"]
-                        )
+                        running_jobs.discard(execution["job_name"])
         cli_assert_equal(0, result)
         # assert that all the jobs finished successfully
         assert len(running_jobs) == 0
