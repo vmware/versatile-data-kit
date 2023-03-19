@@ -23,7 +23,7 @@ We welcome many different types of contributions that include:
 # Code of Conduct
 VDK follows the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md), adapted from the [Contributor Covenant](https://www.contributor-covenant.org/). Please read the Code of Conduct guide to familiarize yourself with the expectations and responsibilities of the community.
 
-# Contributor License Agreement CLA. 
+# Contributor License Agreement CLA.
 If you wish to contribute code, you must sign the [contributor license agreement](https://cla.vmware.com/cla/1/preview) (CLA). For any questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq) page.
 
 # Open Development
@@ -56,7 +56,7 @@ For substantial features or changes, submitting your design is valuable. Creatin
 Reach out to the community through Slack or e-mail in the [Contact Us](#contact-us) section to discuss your idea. We are happy to help.
 
 # Your First Pull Request
-If this is your first PR, take a look at this video series to get you started: 
+If this is your first PR, take a look at this video series to get you started:
 [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
 Take a look at our list of [good first issues](https://github.com/vmware/versatile-data-kit/labels/good%20first%20issue). These issues are a great place to start.
@@ -102,7 +102,7 @@ See [Versatile Data Kit Coding Standard](https://github.com/vmware/versatile-dat
 
 
 # Next Steps
-Ready to contribute? Take a look at the [open issues list](https://github.com/vmware/versatile-data-kit/issues) or create an issue for a suggested change. 
+Ready to contribute? Take a look at the [open issues list](https://github.com/vmware/versatile-data-kit/issues) or create an issue for a suggested change.
 
 # Contact us
 You can reach out to us using any of the following:
