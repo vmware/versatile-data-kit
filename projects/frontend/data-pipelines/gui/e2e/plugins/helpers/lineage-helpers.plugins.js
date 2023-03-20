@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Copyright (c) 2023. VMware
- * All rights reserved.
- */
-
 const { Logger } = require("./logger-helpers.plugins");
 
 const { generateUUID } = require("./util-helpers.plugins");
