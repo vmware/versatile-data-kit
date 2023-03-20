@@ -6,7 +6,7 @@
 
 
 To get started with this template:
-- 
+-
 - [ ] **Fill out this file as best you can.**
   There are instructions as HTML comments.
   At minimum, you should fill in the "Summary" and "Motivation" sections.
@@ -31,23 +31,23 @@ To get started with this template:
 
 ## Summary
 
-Provide integration with Hashicorp Vault for secure storage of secrets. Control Service operators will be able to 
-optionally configure a vault instance to be used for storing data job properties which are marked as secret. 
+Provide integration with Hashicorp Vault for secure storage of secrets. Control Service operators will be able to
+optionally configure a vault instance to be used for storing data job properties which are marked as secret.
 
 ## Glossary
 
-CS or VDK-CS - The Versatile Data Kit [Control Service](https://github.com/vmware/versatile-data-kit/tree/main/projects/control-service)  
+CS or VDK-CS - The Versatile Data Kit [Control Service](https://github.com/vmware/versatile-data-kit/tree/main/projects/control-service)
 [Hashicorp Vault](https://github.com/hashicorp/vault) or Vault - A tool for secrets management, encryption as a service,
-and privileged access management  
+and privileged access management
 Secret/Secrets - sensitive data which needs to be available to data jobs - including but no limited to: secrets/
 passwords/credentials/tokens/data
 
 ## Motivation
 
 Some data jobs need to use secrets in order to connect to third party systems by providing user credentials or tokens - currently these
-secrets are stored in data jobs properties, which in turn are stored in plain text in the configured Control 
-Service Data Base. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into 
-a vault. 
+secrets are stored in data jobs properties, which in turn are stored in plain text in the configured Control
+Service Data Base. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into
+a vault.
 
 
 ## Requirements and goals
@@ -66,14 +66,14 @@ In order to implement the proposed change, we should make the following changes 
 - provide the ability to optionally configure a Vault instance in the Control Service for storing secrets
 - change the CS to store properties marked as secret into the configured Vault
 - enhance vdk-sdk to allow for users to store secrets for their data jobs
-- during runtime, data jobs can retrieve the secrets 
+- during runtime, data jobs can retrieve the secrets
 
 ![high_level_design.png](diagrams/high_level_design.png)
 
 ## API design
 
 Currently, data job properties are stored and read in bulk. We are going to introduce similar APIs for storing and
-reading secrets. 
+reading secrets.
 
 #### Storing/retrieving secrets Control Service API
 
@@ -143,7 +143,7 @@ When storing secrets, the request body is expected to provide a JSON object, con
 
 #### Storing/retrieving secrets via the SDK during data job runtime
 
-We are going to introduce Secrets API similar to the existing Properties API in the 
+We are going to introduce Secrets API similar to the existing Properties API in the
 [JobInput class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L11)
 which allow data jobs to get and set properties
 
@@ -152,7 +152,7 @@ Get a single secret:
 ```python
 
 def run(job_input):
-   my_secret_token = job_input.get_secret("my_secret_key")   
+   my_secret_token = job_input.get_secret("my_secret_key")
 
 ```
 
