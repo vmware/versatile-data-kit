@@ -34,6 +34,14 @@ service. Meta Jobs provide a more lightweight alternative that simplifies the pr
 Optional section which defines terms and abbreviations used in the rest of the document.
 -->
 
+* **VDK**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
+* **Control Service**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#control-service
+* **Data Job**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job
+* **Data Job Step**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-step
+* **Data Job Execution**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-execution
+* **Apache Airflow (Airflow)**: https://airflow.apache.org/
+* **DAG**: Directed Acyclic Graph
+
 ## Motivation
 <!--
 It tells **why** do we need X?
@@ -71,6 +79,17 @@ Non-goals are only features, which a contributor can reasonably assume were a go
 One example is features that were cut during scoping.
 -->
 
+### Goals
+
+* **Introduce a vdk-meta-jobs plugin**
+
+* **Provide a way to manage job dependencies**
+    - A user wants to execute jobs in a strict order. For example, one wants to ingest data from two different sources
+into the same database table and read all the data only when both ingests are successful.
+    - A user is able to execute a Meta Job with some specified arguments
+
+### Non-Goals
+
 ## High-level design
 
 <!--
@@ -90,6 +109,20 @@ In this context, a component is any separate software process.
 
 -->
 
+![high-level-diagram.png](high-level-diagram.png)
+
+The vdk-meta-jobs plugin is a VDK component that enables the orchestration of Data Jobs.
+Simply put, the Meta Job is a regular Data Job that invokes other Data Jobs using the Control Service Execution API.
+The plugin allows users to define job dependencies and orchestrates the execution of multiple Data Jobs in a specific
+order. The Data Jobs themselves perform specific ETL tasks. The plugin is designed in a way that is native to VDK’s
+ecosystem.
+
+#### Folder structure
+
+* [vdk-meta-jobs](/projects/vdk-plugins/vdk-meta-jobs): the root folder for all the code
+* [src](/projects/vdk-plugins/vdk-meta-jobs/src): the root folder for all the core python code
+* [tests](/projects/vdk-plugins/vdk-meta-jobs/tests): the root folder for the e2e tests
+* [config](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py): contains configuration variables
 
 ## API design
 
@@ -104,6 +137,7 @@ PyDoc/Javadoc (or similar) for Python/Java changes.
 Explain how does the system handle API violations.
 -->
 
+No changes to the public API.
 
 ## Detailed design
 <!--
@@ -153,6 +187,43 @@ Consider at least the below topics but you do not need to cover those that are n
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
 
+### Workflow
+
+The structure of the Meta Job is a DAG. Here is an example of the DAG of jobs workflow:
+* The Meta Job(DAG) is initialized, following the preset configuration.
+* The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the Control Service
+it addresses as well as any other technical errors. If there are no errors, the DAG is built.
+* The DAG of jobs is executed, taking into account all the order information.
+* A summary of the DAG is logged.
+
+### Configuration details
+
+You are allowed to specify whether the Meta Job itself should fail if any of its orchestrated jobs encounter errors.
+This is achieved by adding the Data Job attribute **fail_meta_job_on_error**. Set to true, as by default, would mean
+that in the event of a failing orchestrated job, the Meta Job would also fail - with USER error.
+This can help to prevent cascading failures and ensure that issues are isolated and addressed as soon as possible.
+
+There are more settings that are configurable by the user, that can be explored in the
+[config](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py).
+
+### Troubleshooting
+
+  * Diagnostics: All the main operations such as building
+
+### Test Plan
+
+Unit and functional tests are introduced as part of the VDK Meta Jobs plugin.
+
+### Availability
+
+The plugin will be part of the vdk installation, so the same availability constraints apply.
+
+### Dependencies
+
+There are no external dependencies that the plugin relies on.
+
+### Cons
+
 Although having all these pros, the user should have in mind the cons of the Meta Jobs as well. The limitation that
 have to be considered is that there is a limit on the number of concurrent running jobs in a single DAG. If this
 limit is exceeded, the upcoming jobs would be delayed for a while until there is an empty spot for them.
@@ -167,3 +238,6 @@ Optionally, describe what are the implementation stories (eventually we'd create
 Optionally, describe what alternatives has been considered.
 Keep it short - if needed link to more detailed research document.
 -->
+
+Apache Airflow was the alternative workflow management platform that was taken into consideration.
+However, a VDK integration with Airflow proved to be costly mainly due to the management of external infrastructure.
