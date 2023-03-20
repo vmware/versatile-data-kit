@@ -16,7 +16,7 @@
     "test": "npm run ng -- test --watch=false",
     "test:headless": "npm run test -- --browsers=ChromeHeadless_No_Sandbox",
     "lint": "npm run ng -- lint",
-    "e2e": "([ ! -z ${OAUTH2_API_TOKEN} ] || echo 'WARN: No OAUTH2_API_TOKEN set.') && npx cypress run --browser chrome --env grepTags=${FRONTEND_E2E_CYPRESS_GREP_TAGS},OAUTH2_API_TOKEN=${OAUTH2_API_TOKEN},CYPRESS_TERMINAL_LOGS='./e2e/logs')",
+    "e2e": "([ ! -z ${OAUTH2_API_TOKEN} ] || echo 'WARN: No OAUTH2_API_TOKEN set.') && npx cypress run --browser chrome --env grepTags=${FRONTEND_E2E_CYPRESS_GREP_TAGS},OAUTH2_API_TOKEN=${OAUTH2_API_TOKEN},CYPRESS_TERMINAL_LOGS='./e2e/logs'",
     "start-server-and-test-e2e": "start-server-and-test start http://localhost.vmware.com:4200 e2e",
     "dev-start": "npm run build && npm run start",
     "clean:dist": "rimraf dist",
