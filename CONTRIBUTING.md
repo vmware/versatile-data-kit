@@ -85,7 +85,7 @@ Before submitting your pull request, review the following:
 - Any change must go on a feature branch or on a fork.
 - Pipeline must pass before merging.
 - Code commits must be broken down into small self-contained units.
-- Commit messages must follow the template in [git-commit-template.txt](https://github.com/vmware/versatile-data-kit/blob/main/support/git-commit-template.txt). See [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit) as a guideline to write commit messages.
+- Commit messages must follow the template in [git-commit-template.txt](https://github.com/vmware/versatile-data-kit/blob/main/support/git-commit-template.txt). See [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit) as a guideline to writing commit messages.
 - The change must abide by the [Versatile Data Kit Coding Standard](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
 - Each change is a subject to two code reviews and approvals before it is merged.
 
