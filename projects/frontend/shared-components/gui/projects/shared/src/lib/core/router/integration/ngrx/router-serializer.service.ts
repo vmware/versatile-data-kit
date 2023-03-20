@@ -13,32 +13,28 @@ import { RouteStateFactory } from '../../factory';
 
 /**
  * ** Shared Router Serializer implements NgRx RouterStateSerializer.
- *
- *
  */
 @Injectable()
-export class SharedRouterSerializer
-	implements RouterStateSerializer<RouteState>
-{
-	private readonly _routeStateFactory: RouteStateFactory;
+export class SharedRouterSerializer implements RouterStateSerializer<RouteState> {
+    private readonly _routeStateFactory: RouteStateFactory;
 
-	/**
-	 * ** Constructor.
-	 */
-	constructor() {
-		this._routeStateFactory = new RouteStateFactory();
-	}
+    /**
+     * ** Constructor.
+     */
+    constructor() {
+        this._routeStateFactory = new RouteStateFactory();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	serialize(routerState: RouterStateSnapshot): RouteState {
-		let routeSnapshot = routerState.root;
+    /**
+     * @inheritDoc
+     */
+    serialize(routerState: RouterStateSnapshot): RouteState {
+        let routeSnapshot = routerState.root;
 
-		while (routeSnapshot.firstChild) {
-			routeSnapshot = routeSnapshot.firstChild;
-		}
+        while (routeSnapshot.firstChild) {
+            routeSnapshot = routeSnapshot.firstChild;
+        }
 
-		return this._routeStateFactory.create(routeSnapshot, routerState.url);
-	}
+        return this._routeStateFactory.create(routeSnapshot, routerState.url);
+    }
 }

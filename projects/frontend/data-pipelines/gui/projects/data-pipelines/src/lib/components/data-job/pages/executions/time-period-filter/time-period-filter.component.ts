@@ -44,6 +44,11 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         return this._loading;
     }
 
+    /**
+     * ** Flag that indicates there is jobs executions load error.
+     */
+    @Input() isComponentInErrorState = false;
+
     @Output() filterChanged: EventEmitter<{ fromTime: Date; toTime: Date }> =
         new EventEmitter<{ fromTime: Date; toTime: Date }>();
 

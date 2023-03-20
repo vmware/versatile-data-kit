@@ -1,6 +1,5 @@
 {
-  "tabWidth": 2,
-  "useTabs": true,
+  "editorconfig": true,
   "semi": true,
   "singleQuote": true,
   "quoteProps": "as-needed",

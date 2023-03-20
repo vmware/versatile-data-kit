@@ -5,10 +5,8 @@
 
 /**
  * ** Interface for generic replacer.
- *
- *
  */
 export interface Replacer<T> {
-	searchValue: T;
-	replaceValue: T;
+    searchValue: T;
+    replaceValue: T;
 }

@@ -4,6 +4,7 @@
  */
 
 export * from './component/public-api';
+export * from './error/public-api';
 export * from './navigation/public-api';
 export * from './ngrx/public-api';
 export * from './router/public-api';

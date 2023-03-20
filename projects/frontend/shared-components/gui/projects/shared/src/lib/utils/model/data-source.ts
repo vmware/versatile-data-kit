@@ -26,13 +26,7 @@ export type PrimitivesNilArrays = PrimitivesNil | PrimitivesNil[];
 export type PrimitivesNilObject = PrimitivesNil | LiteralObject<PrimitivesNil>;
 
 // Represent union of LiteralObject, Array, Map, WeakMap and Set.
-export type Collections<T = unknown> =
-	| LiteralObject
-	| T[]
-	| Map<any, T>
-	| WeakMap<any, T>
-	| Set<T>
-	| { [key: string]: T };
+export type Collections<T = unknown> = LiteralObject | T[] | Map<any, T> | WeakMap<any, T> | Set<T> | { [key: string]: T };
 
 // Extracts element from Array and its type.
 export type ArrayElement<ArrayType extends ArrayLike<any>> = ArrayType[number];
@@ -41,14 +35,10 @@ export type ArrayElement<ArrayType extends ArrayLike<any>> = ArrayType[number];
  * The state of a DataSource.
  */
 export interface DataSource<T = DataSource<any>> {
-	/**
-	 * ** Map of DataSource.
-	 *
-	 *     - Each DataSource can be either a primitive, null or undefined, other DataSource or array of DataSources.
-	 */
-	readonly [key: string]:
-		| PrimitivesNilArrays
-		| DataSource<T>
-		| Array<DataSource<T>>
-		| T;
+    /**
+     * ** Map of DataSource.
+     *
+     *     - Each DataSource can be either a primitive, null or undefined, other DataSource or array of DataSources.
+     */
+    readonly [key: string]: PrimitivesNilArrays | DataSource<T> | Array<DataSource<T>> | T;
 }

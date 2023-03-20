@@ -34,6 +34,7 @@ import {
     ComponentModel,
     ComponentService,
     ErrorHandlerService,
+    ErrorRecord,
     NavigationService,
     OnTaurusModelError,
     OnTaurusModelInit,
@@ -444,10 +445,16 @@ export class DataJobPageComponent
     /**
      * @inheritDoc
      */
-    onModelError(model?: ComponentModel) {
-        const error = ErrorUtil.extractError(model.getComponentState().error);
+    onModelError(
+        model: ComponentModel,
+        _task: string,
+        newErrorRecords: ErrorRecord[],
+    ) {
+        newErrorRecords.forEach((errorRecord) => {
+            const error = ErrorUtil.extractError(errorRecord.error);
 
-        this.errorHandlerService.processError(error);
+            this.errorHandlerService.processError(error);
+        });
     }
 
     private _initialize(state: RouteState): void {
@@ -536,6 +543,12 @@ export class DataJobPageComponent
                                         id,
                                     )
                                     .pipe(
+                                        map((execution) => {
+                                            return {
+                                                execution,
+                                                error: null as Error,
+                                            };
+                                        }),
                                         catchError((error: unknown) => {
                                             this.errorHandlerService.processError(
                                                 ErrorUtil.extractError(
@@ -543,21 +556,37 @@ export class DataJobPageComponent
                                                 ),
                                             );
 
-                                            return of(null);
+                                            return of({
+                                                execution:
+                                                    null as DataJobExecutionDetails,
+                                                error: error as Error,
+                                            });
                                         }),
                                     ),
                             ),
-                            tap((executionDetails) =>
+                            tap((data) =>
                                 this._replaceRunningExecutionAndNotify(
-                                    executionDetails,
+                                    data.execution,
                                 ),
                             ),
-                            takeWhile((executionDetails) => {
+                            takeWhile((data) => {
+                                if (data.error instanceof HttpErrorResponse) {
+                                    if (
+                                        data.error.status === 404 ||
+                                        data.error.status >= 500
+                                    ) {
+                                        this.isDataJobRunning = false;
+
+                                        return false;
+                                    }
+                                }
+
                                 const isRunning =
-                                    CollectionsUtil.isNil(executionDetails) ||
+                                    CollectionsUtil.isNil(data.execution) ||
                                     DataJobUtil.isJobRunningPredicate(
-                                        executionDetails,
+                                        data.execution,
                                     );
+
                                 if (!isRunning) {
                                     this.isDataJobRunning = false;
                                 }

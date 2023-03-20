@@ -15,9 +15,14 @@
             tabindex="0"
             aria-disabled="false"
             role="button"
-            [ngClass]="
-                filter === activatedFilter ? 'label-light-blue' : 'label-grey'
-            "
+            [ngClass]="{
+                'label-light-blue':
+                    filter === activatedFilter && !disableActionableElements,
+                'label-grey':
+                    filter !== activatedFilter || disableActionableElements,
+                clickable: !disableActionableElements,
+                disabled: disableActionableElements
+            }"
             (keydown.enter)="changeFilter(filter)"
             (click)="changeFilter(filter)"
         >

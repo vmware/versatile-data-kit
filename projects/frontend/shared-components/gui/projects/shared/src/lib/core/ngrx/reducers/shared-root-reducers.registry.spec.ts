@@ -12,11 +12,11 @@ import { STORE_COMPONENTS, STORE_ROUTER } from '../state';
 import { SHARED_ROOT_REDUCERS } from './shared-root-reducers.registry';
 
 describe('SHARED_ROOT_REDUCERS', () => {
-	it('should verify root reducers are registered', () => {
-		// Then
-		expect(SHARED_ROOT_REDUCERS).toEqual({
-			[STORE_ROUTER]: routerReducer,
-			[STORE_COMPONENTS]: componentReducer
-		});
-	});
+    it('should verify root reducers are registered', () => {
+        // Then
+        expect(SHARED_ROOT_REDUCERS).toEqual({
+            [STORE_ROUTER]: routerReducer,
+            [STORE_COMPONENTS]: componentReducer
+        });
+    });
 });

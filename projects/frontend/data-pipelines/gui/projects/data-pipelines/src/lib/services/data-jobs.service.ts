@@ -17,7 +17,7 @@ import {
     FETCH_DATA_JOBS,
     UPDATE_DATA_JOB,
 } from '../state/actions';
-import { DataJobUpdateTasks, TASK_LOAD_JOB_EXECUTIONS } from '../state/tasks';
+import { DataJobUpdateTasks } from '../state/tasks';
 
 import { DataJobExecutions } from '../model';
 
@@ -117,7 +117,6 @@ export class DataJobsServiceImpl extends DataJobsService {
         this.componentService.dispatchAction(
             FETCH_DATA_JOB_EXECUTIONS,
             model.getComponentState(),
-            TASK_LOAD_JOB_EXECUTIONS,
         );
     }
 

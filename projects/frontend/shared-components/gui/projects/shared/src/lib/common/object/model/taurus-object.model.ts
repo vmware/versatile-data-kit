@@ -6,86 +6,119 @@
 import { Directive, OnDestroy } from '@angular/core';
 
 import { Subscription } from 'rxjs';
+
 import { CollectionsUtil } from '../../../utils';
 
 /**
  * ** Base Class for all Angular related Objects.
  *
  *      - Cleans all rxjs subscriptions on object destroy.
- *
- *
  */
 @Directive()
 // eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class TaurusObject implements OnDestroy {
-	/**
-	 * ** Store for Subscriptions references.
-	 */
-	protected subscriptions: Subscription[];
+    /**
+     * ** Class name, identifier for Object class.
+     *
+     *      - Format should be PascalCase.
+     */
+    static readonly CLASS_NAME: string = 'TaurusObject';
 
-	/**
-	 * ** Constructor.
-	 */
-	constructor() {
-		this.subscriptions = [];
-	}
+    /**
+     * ** Class PUBLIC_NAME, human-readable.
+     *
+     *      - Format should be Kebab-Case.
+     */
+    static readonly PUBLIC_NAME: string = 'Taurus-Base-Object';
 
-	/**
-	 * ** Methods that will dispose Object.
-	 *      - Clean all Subscriptions.
-	 */
-	dispose(): void {
-		this.cleanSubscriptions();
-	}
+    /**
+     * ** Object UUID that meats RFC4122 compliance and also has Class name identifier inside.
+     *
+     * <br/>
+     * <i>pattern</i>:
+     * <p>
+     *     <Class Name><strong>_</strong><UUID RFC4122>
+     * </p>
+     */
+    readonly objectUUID: string;
 
-	/**
-	 * @inheritDoc
-	 */
-	ngOnDestroy() {
-		this.dispose();
-	}
+    /**
+     * ** Store for Subscriptions references.
+     */
+    protected subscriptions: Subscription[];
 
-	/**
-	 * ** Clean all Subscriptions.
-	 */
-	protected cleanSubscriptions(): void {
-		// unsubscribe all valid subscriptions
-		this.subscriptions
-			// eslint-disable-next-line @typescript-eslint/unbound-method
-			.filter(CollectionsUtil.isDefined)
-			// eslint-disable-next-line @typescript-eslint/unbound-method
-			.forEach(TaurusObject._unsubscribeFromStream);
-	}
+    /**
+     * ** Constructor.
+     */
+    constructor(className: string = null) {
+        this.objectUUID = CollectionsUtil.generateObjectUUID(className ?? TaurusObject.CLASS_NAME);
+        this.subscriptions = [];
+    }
 
-	protected removeSubscriptionRef(subscriptionRef: Subscription): boolean {
-		const subscriptionIndex = this.subscriptions.findIndex(
-			(s) => s === subscriptionRef
-		);
+    /**
+     * ** Methods that will dispose Object.
+     *      - Clean all Subscriptions.
+     */
+    dispose(): void {
+        this.cleanSubscriptions();
+    }
 
-		if (subscriptionIndex === -1) {
-			if (subscriptionRef instanceof Subscription) {
-				TaurusObject._unsubscribeFromStream(subscriptionRef);
+    /**
+     * @inheritDoc
+     */
+    ngOnDestroy() {
+        this.dispose();
+    }
 
-				return true;
-			}
+    /**
+     * ** Clean all Subscriptions.
+     */
+    protected cleanSubscriptions(): void {
+        // unsubscribe all valid subscriptions
+        this.subscriptions
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            .filter(CollectionsUtil.isDefined)
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            .forEach(TaurusObject._unsubscribeFromStream);
+    }
 
-			return false;
-		}
+    /**
+     * ** Remove subscription reference from subscriptions queue providing reference itself.
+     *
+     *      - Before remove it would be auto-unsubscribed from stream.
+     * @protected
+     */
+    protected removeSubscriptionRef(subscriptionRef: Subscription): boolean {
+        const subscriptionIndex = this.subscriptions.findIndex((s) => s === subscriptionRef);
 
-		const removedSubscription = this.subscriptions.splice(subscriptionIndex, 1);
+        if (subscriptionIndex === -1) {
+            if (subscriptionRef instanceof Subscription) {
+                TaurusObject._unsubscribeFromStream(subscriptionRef);
 
-		return TaurusObject._unsubscribeFromStream(removedSubscription[0]);
-	}
+                return true;
+            }
 
-	private static _unsubscribeFromStream(s: Subscription): boolean {
-		try {
-			s.unsubscribe();
+            return false;
+        }
 
-			return true;
-		} catch (e) {
-			console.error(`Taurus Object failed to unsubscribe from rxjs stream!`, e);
+        const removedSubscription = this.subscriptions.splice(subscriptionIndex, 1);
 
-			return false;
-		}
-	}
+        return TaurusObject._unsubscribeFromStream(removedSubscription[0]);
+    }
+
+    /**
+     * ** Unsubscribe subscription from stream.
+     * @private
+     */
+    private static _unsubscribeFromStream(s: Subscription): boolean {
+        try {
+            s.unsubscribe();
+
+            return true;
+        } catch (e) {
+            console.error(`Taurus Object failed to unsubscribe from rxjs stream!`, e);
+
+            return false;
+        }
+    }
 }
