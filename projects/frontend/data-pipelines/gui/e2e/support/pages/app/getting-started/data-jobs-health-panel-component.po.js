@@ -48,7 +48,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
             .should("exist")
             .find("[data-cy=dp-jobs-executions-status-gauge-widget-failed]")
             .invoke("text")
-            .invoke("replace", /\s\w+/, "")
+            .invoke("replace", /\s(\D)+/, "")
             .then((value) => +value);
     }
 

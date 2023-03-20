@@ -51,7 +51,9 @@ describe(
             dataJobsExplorePage
                 .getMainTitle()
                 .should("be.visible")
-                .should("have.text", "Explore Data Jobs");
+                .should(($el) =>
+                    expect($el.text().trim()).to.equal("Explore Data Jobs"),
+                );
         });
 
         it("Data Jobs Explore Page - loaded and shows data jobs", () => {

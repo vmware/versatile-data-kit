@@ -33,6 +33,7 @@ frontend-data-pipelines-build:
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
     paths:
+      - projects/frontend/data-pipelines/gui/reports/coverage/
       - projects/frontend/data-pipelines/gui/package-lock.json
       - projects/frontend/data-pipelines/gui/dist/
       - projects/frontend/data-pipelines/gui/node_modules/
@@ -54,11 +55,11 @@ frontend-data-pipelines-e2e-tests:
   artifacts:
     when: always
     paths:
-      - projects/frontend/data-pipelines/gui/e2e/videos
-      - projects/frontend/data-pipelines/gui/e2e/screenshots
-      - projects/frontend/data-pipelines/gui/e2e/hars
-      - projects/frontend/data-pipelines/gui/e2e/logs
-      - projects/frontend/data-pipelines/gui/e2e/reports
+      - projects/frontend/data-pipelines/gui/e2e/videos/
+      - projects/frontend/data-pipelines/gui/e2e/screenshots/
+      - projects/frontend/data-pipelines/gui/e2e/hars/
+      - projects/frontend/data-pipelines/gui/e2e/logs/
+      - projects/frontend/data-pipelines/gui/e2e/reports/
     expire_in: 1 week
 
 frontend-data-pipelines-release:
@@ -122,6 +123,7 @@ frontend-shared-components-build:
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
     paths:
+      - projects/frontend/shared-components/gui/reports/coverage/
       - projects/frontend/shared-components/gui/package-lock.json
       - projects/frontend/shared-components/gui/dist/
       - projects/frontend/shared-components/gui/node_modules/
