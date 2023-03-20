@@ -4,6 +4,7 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
+import { jobData } from '../jobData';
 
 
 export default class DownloadJobDialog extends Component<IJobPathProp> {
@@ -54,7 +55,7 @@ export async function showDownloadJobDialog() {
     title: 'Download Job',
     body: (
       <DownloadJobDialog
-        jobPath={sessionStorage.getItem('current-path')!}
+        jobPath={jobData.get(VdkOption.PATH)!}
       ></DownloadJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]

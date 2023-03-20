@@ -75,7 +75,7 @@ export async function showRunJobDialog() {
     title: 'Run Job',
     body: (
       <RunJobDialog
-        jobPath={sessionStorage.getItem('current-path')!}
+        jobPath={jobData.get(VdkOption.PATH)!}
       ></RunJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]

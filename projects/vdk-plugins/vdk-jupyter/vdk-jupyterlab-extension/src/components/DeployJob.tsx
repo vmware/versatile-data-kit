@@ -87,9 +87,9 @@ export async function showCreateDeploymentDialog() {
     title: 'Create Deployment',
     body: (
       <DeployJobDialog
-        jobName="job-to-deploy"
-        jobPath={sessionStorage.getItem('current-path')!}
-        jobTeam="my-team"
+        jobName={jobData.get(VdkOption.NAME)!}
+        jobPath={jobData.get(VdkOption.PATH)!}
+        jobTeam={jobData.get(VdkOption.TEAM)!}
       ></DeployJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]

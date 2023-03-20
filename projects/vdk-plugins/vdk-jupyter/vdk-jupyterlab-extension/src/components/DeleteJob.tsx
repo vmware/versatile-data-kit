@@ -50,8 +50,8 @@ export async function showDeleteJobDialog() {
     title: 'Delete Job',
     body: (
       <DeleteJobDialog
-        jobName="job-to-delete"
-        jobTeam="default-team"
+        jobName={jobData.get(VdkOption.NAME)!}
+        jobTeam={jobData.get(VdkOption.TEAM)!}
       ></DeleteJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]

@@ -121,9 +121,9 @@ export async function showCreateJobDialog() {
     title: 'Create Job',
     body: (
       <CreateJobDialog
-        jobPath={sessionStorage.getItem('current-path')!}
-        jobName="default-name"
-        jobTeam='default-team'
+        jobPath={jobData.get(VdkOption.PATH)!}
+        jobName={jobData.get(VdkOption.NAME)!}
+        jobTeam={jobData.get(VdkOption.TEAM)!}
       ></CreateJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
