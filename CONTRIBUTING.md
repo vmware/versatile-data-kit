@@ -68,7 +68,7 @@ If this is your first PR, take a look at this video series to get you started:
 
 Take a look at our list of [good first issues](https://github.com/vmware/versatile-data-kit/labels/good%20first%20issue). These issues are a great place to start.
 
-If you see an issue that you would like to work on, leave a comment in the PR to let people know you are interested.
+If you see an issue that you would like to work on, leave a comment in the issue to let people know you are interested.
 
 ## Submit and merge a change
 Before submitting your first PR, please review our general guidelines in [How to prepare a new PR](https://github.com/vmware/versatile-data-kit/wiki/How-to-prepare-a-new-PR).
