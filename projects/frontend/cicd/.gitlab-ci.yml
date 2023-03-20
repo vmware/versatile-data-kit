@@ -44,7 +44,7 @@ frontend-data-pipelines-e2e-tests:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/test_e2e_data_pipelines.sh "$FRONTEND_CICD_API_TOKEN"
+    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN"
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
