@@ -19,9 +19,9 @@ class JobDataHandler(APIHandler):
         self.finish(
             json.dumps(
                 {
-                    VdkOption.PATH: data.get_job_path(),
-                    VdkOption.NAME: data.get_job_name(),
-                    VdkOption.TEAM: data.get_team_name(),
+                    VdkOption.PATH.value: data.get_job_path(),
+                    VdkOption.NAME.value: data.get_job_name(),
+                    VdkOption.TEAM.value: data.get_team_name(),
                 }
             )
         )
