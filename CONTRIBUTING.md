@@ -54,8 +54,8 @@ Before proposing a feature or change, consider the impact of this change. Does i
 For substantial features or changes, submitting your design is valuable.
 
 To submit a change:
-1. Creating a PR in Github.
-2. Following the [VDK Enhancement Proposal (VEP)](https://github.com/vmware/versatile-data-kit/tree/main/specs) template.
+1. Create a PR in Github.
+2. Follow the [VDK Enhancement Proposal (VEP)](https://github.com/vmware/versatile-data-kit/tree/main/specs) template.
 3. Add your proposal as markdown in the [/specs](https://github.com/vmware/versatile-data-kit/blob/main/specs) directory.
 
 Reviews, feedback, and approvals are documented in the PR.
