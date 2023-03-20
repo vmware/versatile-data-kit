@@ -51,6 +51,15 @@ frontend-data-pipelines-e2e-tests:
       changes: *frontend_shared_components_locations
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_data_pipelines_locations
+  artifacts:
+    when: always
+    paths:
+      - projects/frontend/data-pipelines/gui/e2e/videos
+      - projects/frontend/data-pipelines/gui/e2e/screenshots
+      - projects/frontend/data-pipelines/gui/e2e/hars
+      - projects/frontend/data-pipelines/gui/e2e/logs
+      - projects/frontend/data-pipelines/gui/e2e/reports
+    expire_in: 1 week
 
 frontend-data-pipelines-release:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
