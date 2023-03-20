@@ -51,7 +51,7 @@ If you believe you have found a security bug, [create a GitHub issue](https://gi
 # Propose a Change
 Before proposing a feature or change, consider the impact of this change. Does it only serve your needs, or does it serve the broader community's needs?
 
-For substantial features or changes, submitting your design is valuable. Creating a PR in Github with your proposal as markdown in the [/specs](https://github.com/vmware/versatile-data-kit/blob/main/specs) directory is recommended. Reviews, feedback, and approvals are documented in the PR.
+For substantial features or changes, submitting your design is valuable. Creating a PR in Github, following the VDK Enhancement Proposal (VEP) template, with your proposal as markdown in the [/specs](https://github.com/vmware/versatile-data-kit/blob/main/specs) directory is recommended. Reviews, feedback, and approvals are documented in the PR.
 
 Reach out to the community through Slack or e-mail in the [Contact Us](#contact-us) section to discuss your idea. We are happy to help.
 
@@ -86,7 +86,7 @@ We prefer to maintain a straight branch history by rebasing before merging. Fast
 
 # Development Workflow
 A typical development workflow has the following process:
-- Create a topic branch from where you want to base your work, naming your branch according to our naming convention. For example `person/<github-username>/<feature-name>`.
+- Create a topic branch from where you want to base your work, naming your branch according to our naming convention. For example, `person/<github-username>/<feature-name>`.
 - Make commits in logical units.
 - Use clear commit titles and commit descriptions.
 - Push your changes to the topic branch in your fork.
