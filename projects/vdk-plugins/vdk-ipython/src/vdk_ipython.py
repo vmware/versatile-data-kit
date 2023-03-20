@@ -1,6 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import atexit
 import json
+import logging
 import os
 import pathlib
 
@@ -9,6 +11,10 @@ from IPython.core.magic_arguments import argument
 from IPython.core.magic_arguments import magic_arguments
 from IPython.core.magic_arguments import parse_argstring
 from vdk.internal.builtin_plugins.run import standalone_data_job
+
+log = logging.getLogger(__name__)
+
+# see https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.hooks.html for more options
 
 
 class JobControl:
@@ -35,12 +41,11 @@ class JobControl:
     ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         job_args = json.loads(arguments) if arguments else None
-        self.job = standalone_data_job.StandaloneDataJob(
-            name=name,
-            template_name=template,
-            job_args=job_args,
-            data_job_directory=path,
-        )
+        self._name = name
+        self._path = path
+        self._arguments = job_args
+        self._template = template
+        self.job = None
         self.job_input = None
 
     def get_initialized_job_input(self):
@@ -49,13 +54,27 @@ class JobControl:
             :return:  an IJobInput object
         """
         if not self.job_input:
+            self.job = standalone_data_job.StandaloneDataJob(
+                name=self._name,
+                template_name=self._template,
+                job_args=self._arguments,
+                data_job_directory=self._path,
+            )
             self.job_input = self.job.__enter__()
         return self.job_input
 
-    # TODO: should automate calling finalize (if it is not called explicitly)
     def finalize(self):
-        self.job.__exit__(None, None, None)
-        self.job_input = None
+        """
+        Finalise the current job
+        """
+        if self.job:
+            self.job.__exit__(None, None, None)
+            self.job_input = None
+        else:
+            log.warning(
+                "You are trying to finalize a job that is not existing!\n"
+                "Initialize a job using VDK.get_initialized_job_input() first, please! "
+            )
 
 
 def load_ipython_extension(ipython):
@@ -90,3 +109,8 @@ def load_job(
 ):
     job = JobControl(path, name, arguments, template)
     get_ipython().push(variables={"VDK": job})
+
+    def finalize_atexit():
+        job.finalize()
+
+    atexit.register(finalize_atexit)
