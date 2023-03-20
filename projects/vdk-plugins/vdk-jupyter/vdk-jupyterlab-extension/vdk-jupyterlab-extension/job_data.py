@@ -3,7 +3,13 @@
 import os
 import pathlib
 
+import ipykernel
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
+
+try:
+    import hybridcontents
+except ImportError:
+    hybridcontents = None
 
 
 class JobData:
@@ -11,8 +17,8 @@ class JobData:
     class responsible for retrieving data for the job
     """
 
-    def __init__(self):
-        self._path = pathlib.Path(os.getcwd())
+    def __init__(self, working_directory: str):
+        self._path = pathlib.Path(os.getcwd() + "/" + working_directory)
         self._config = JobConfig(self._path)
 
     def get_job_path(self) -> str:

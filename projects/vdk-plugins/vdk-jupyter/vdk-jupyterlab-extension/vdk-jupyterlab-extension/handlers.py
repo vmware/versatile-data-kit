@@ -14,8 +14,9 @@ from .vdk_ui import VdkUI
 
 class JobDataHandler(APIHandler):
     @tornado.web.authenticated
-    def get(self):
-        data = JobData()
+    def post(self):
+        working_directory = json.loads(self.get_json_body())[VdkOption.PATH.value]
+        data = JobData(working_directory)
         self.finish(
             json.dumps(
                 {
@@ -28,10 +29,6 @@ class JobDataHandler(APIHandler):
 
 
 class RunJobHandler(APIHandler):
-    @tornado.web.authenticated
-    def get(self):
-        self.finish(json.dumps({"path": f"{os.getcwd()}"}))
-
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()

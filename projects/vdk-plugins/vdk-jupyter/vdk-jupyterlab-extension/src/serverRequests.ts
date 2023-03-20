@@ -5,26 +5,16 @@
 
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
-import { checkIfVdkOptionDataIsDefined, getJobDataJsonObject } from './jobData';
+import {
+  checkIfVdkOptionDataIsDefined,
+  getJobDataJsonObject,
+  jobData
+} from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
  */
-
-/**
- * Sent a GET request to the server to get current working directory
- */
-export async function getCurrentPathRequest() {
-  try {
-    const data = await requestAPI<any>('run', {
-      method: 'GET'
-    });
-    sessionStorage.setItem('current-path', data['path']);
-  } catch (error) {
-    throw error;
-  }
-}
 
 /**
  * Sent a POST request to the server to run a data job.
@@ -90,5 +80,28 @@ export async function jobRequest(endPoint: string) {
         [Dialog.okButton()]
       );
     }
+  }
+}
+
+/**
+ * Sent a POST request to the server to get information about the data job of current directory
+ */
+export async function jobdDataRequest() {
+  try {
+    const data = await requestAPI<any>('job', {
+      body: JSON.stringify(JSON.stringify(getJobDataJsonObject())),
+      method: 'POST'
+    });
+    if (data) {
+      jobData.set(VdkOption.NAME, data[VdkOption.NAME]);
+      jobData.set(VdkOption.TEAM, data[VdkOption.TEAM]);
+      jobData.set(VdkOption.PATH, data[VdkOption.PATH]);
+    }
+  } catch (error) {
+    await showErrorMessage(
+      'Encountered an error while trying to connect the server. Error:',
+      error,
+      [Dialog.okButton()]
+    );
   }
 }
