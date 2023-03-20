@@ -38,6 +38,20 @@ frontend-data-pipelines-build:
       - projects/frontend/data-pipelines/gui/node_modules/
     expire_in: 1 week
 
+frontend-data-pipelines-e2e-tests:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: pre_release_test
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN"
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_data_pipelines_locations
+
 frontend-data-pipelines-release:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   stage: release
