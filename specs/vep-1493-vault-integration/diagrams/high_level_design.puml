@@ -1,0 +1,31 @@
+@startuml
+!include <awslib/AWSSimplified>
+!include <awslib/General/User>
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.0/sprites/vault.puml
+
+User(admin, "Administrator", " ")
+User(engineer, "User", " ")
+
+rectangle "K8s Cluster" {
+   component "Control Service" as cs #teal {
+    rectangle "Properties " as properties_service #teal
+   }
+}
+
+rectangle "  <&cog*4>\nVDK SDK" as sdk #teal
+database "\nCockroachDB\n" as DB
+rectangle "<$vault>\n  Vault " as vault #yellow
+
+engineer -- sdk : get/set property\nfor a data job
+sdk -- properties_service : API call
+admin -- cs : Configure \nVault \ninstance
+properties_service -- vault : stores\nsecrets
+properties_service -- DB : stores\nproperties
+
+legend bottom right
+  | <#teal> changed component |
+  | <#yellow>     new component |
+  ~* CockroachDB and Vault can be deployed inside the k8s cluster as well
+endlegend
+
+@enduml
