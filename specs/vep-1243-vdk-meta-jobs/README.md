@@ -213,9 +213,9 @@ There are more settings that are configurable by the user, that can be explored 
 The load to the Control Service APIs from the Meta Jobs plugin mostly depends on two factors:
 
 * Number of concurrent Data Job Executions (there is a reasonable default limit, but the value is
-  [configurable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
-* Data Job Executions duration
-* Configuration value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76)
+  [configurable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87);
+* Data Job Executions duration;
+* Configuration value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76).
 
 A workflow that consists of one Data Job is going to perform 2 requests per minute to the
 Control Service APIs.
@@ -225,31 +225,32 @@ For example, the following workflow consists of 6 Data Jobs:
 * `Job 2`, `Job 3` and `Job 4` depend on `Job 1`;
 * `Job 5` depends on `Job 2` and `Job 3`;
 * `Job 6` depends on `Job 4`;
-* The execution time of each of the following jobs is about 1 hour: `Job 1` and `Job 2`;
-* The execution time of each of the following jobs is about 2 hours: `Job 3` and `Job 4`;
-* The execution time of each of the following jobs is about 3 hours: `Job 5` and `Job 6`;
+* The execution time of each of the following jobs is about 10 min: `Job 1` and `Job 2`;
+* The execution time of each of the following jobs is about 15 min: `Job 3`, `Job 4` and `Job 6`;
+* The execution time of each of the following jobs is about 20 min: `Job 5`;
 * The concurrent running jobs limit is configured to 2.
+* The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS is configured to 60 (sec).
 
 ![sample-execution.png](sample-execution.png)
 
-Let's estimate the number of requests the Meta Jobs plugin would send every hour of the workflow execution.
+Let's estimate the number of requests the Meta Jobs plugin would send after certain time of the workflow execution.
 For our convenience, let's assume that finalizing one job and starting another takes no time (~0 sec).
-There will also be information about the jobs that have run during each time interval.
+The following time intervals "X - Y" mean from moment X until moment Y (measured in minutes), where X = 0 is the start:
 
-* During the first hour: about 2 (1 job * 2 reqs/min) requests per minute or 120 requests in total.
+* 0 - 10: about 1 (1 job * 1 reqs/min) requests per minute or 10 requests in total.
   Running: `Job 1`;
-* During the second hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 240 requests in total.
+* 10 - 20: about 2 (2 jobs * 1 reqs/min) requests per minute or 20 requests in total.
   Running jobs: `Job 2` and `Job 3`;
-* During the third hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 240 requests in total.
+* 20 - 25: about 2 (2 jobs * 1 reqs/min) requests per minute or 10 requests in total.
   Running jobs: `Job 3` and `Job 4`;
-* During the fourth hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 240 requests in total.
+* 25 - 35: about 2 (2 jobs * 1 reqs/min) requests per minute or 20 requests in total.
   Running jobs: `Job 4` and `Job 5`;
-* During the fifth and sixth hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 480 requests in total.
+* 35 - 40: about 2 (2 jobs * 1 reqs/min) requests per minute or 10 requests in total.
   Running jobs: `Job 5` and `Job 6`;
-* During the seventh hour: about 2 (1 job * 2 reqs/min) requests per minute or 120 requests in total.
+* 40 - 50: about 1 (1 job * 1 reqs/min) requests per minute or 10 requests in total.
   Running jobs: `Job 6`.
 
-In total, the vdk-meta-jobs plugin will perform 1440 requests for the whole workflow execution.
+In total, the vdk-meta-jobs plugin will perform 80 requests for the whole workflow execution.
 
 ### Troubleshooting
 
