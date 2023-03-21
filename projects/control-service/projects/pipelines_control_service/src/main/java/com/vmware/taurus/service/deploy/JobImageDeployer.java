@@ -47,7 +47,6 @@ public class JobImageDeployer {
   @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
   private boolean readOnlyRootFilesystem;
 
-
   private static final String VOLUME_NAME = "vdk";
   private static final String VOLUME_MOUNT_PATH = "/vdk";
   private static final String EPHEMERAL_VOLUME_NAME = "tmpfs";
