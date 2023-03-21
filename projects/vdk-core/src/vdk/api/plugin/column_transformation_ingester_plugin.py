@@ -10,14 +10,24 @@ from typing import Tuple
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 
 
+
+
 class ColumnLevelTransformer(ABC):
-    def transform(self, destination_table: str, key: str, value: any) -> any:
+    def transform(self, destination_table: str, column_name: str, column_value: any) -> any:
+        """
+        :return: The value to be stored in the column.
+        If the transformer doesn't want to make any changes it should return the existing value
+        """
         pass
 
 
 class ColumnTransformationIngestorPlugin(IIngesterPlugin):
     """
-    When apply from
+    Often transformations need to be preformed on data before ingesting it.
+    These transformations often operate on a single row and single column at a time.
+    As a result many ingestion plugins duplicate the work of iterating over all values.
+
+    This class iterates over all values allowing plugin code to focus on what needs to be done and removes duplication
     """
 
     IngestionMetadata = NewType("IngestionMetadata", Dict)
