@@ -4,7 +4,7 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    for _ in range(50):
+    for _ in range(60):
         obj = dict(str_key="str", sensitive_key=False)
 
         job_input.send_object_for_ingestion(

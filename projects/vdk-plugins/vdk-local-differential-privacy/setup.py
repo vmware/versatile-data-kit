@@ -5,9 +5,9 @@ import pathlib
 import setuptools
 
 setuptools.setup(
-    name="vdk-poc-local-differential-privacy",
+    name="vdk-local-differential-privacy",
     version="0.1",
-    description="POC local-differential-privacy plugin",
+    description="local-differential-privacy plugin for use during ingestion",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core"],
@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={
         "vdk.plugin.run": [
-            "vdk-poc-local-differential-privacy-plugin = vdk.plugin.differential_privacy.differential_privacy_plugin",
+            "vdk-local-differential-privacy-plugin = vdk.plugin.local_differential_privacy.differential_privacy_plugin",
         ]
     },
 )

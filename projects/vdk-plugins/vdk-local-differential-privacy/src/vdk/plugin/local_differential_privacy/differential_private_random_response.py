@@ -7,17 +7,12 @@ import numpy as np
 
 
 class DifferentialPrivateRandomResponse:
-    """
-    Here the actual anonymizer algorithm is implemented.
+    def __init__(self, random_response_frequency: int):
+        self._random_response_frequency = random_response_frequency
 
-    Currently It is SHA256 but it could easily be change to anything that is necessary.
-
-    """
-
-    @staticmethod
-    def privatize(value: bool):
+    def privatize(self, value: bool):
         # first coin flip
-        if np.random.randint(0, 2) == 0:
+        if np.random.randint(0, self._random_response_frequency) == 0:
             # answer truthfully
             return value
         else:
