@@ -85,9 +85,9 @@ One example is features that were cut during scoping.
 * **Introduce a vdk-meta-jobs plugin**
 
 * **Provide a way to manage job dependencies**
-    - A user wants to execute jobs in a strict order. For example, one wants to ingest data from two different sources
-into the same database table and read all the data only when both ingests are successful.
-    - A user is able to execute a Meta Job with some specified arguments
+    - Execute jobs in a strict order. For example, one wants to ingest data from two different sources
+      into the same database table and read all the data only when both ingests are successful.
+    - Execute a job from another job with some specified arguments
 
 ### Non-Goals
 
@@ -212,9 +212,10 @@ There are more settings that are configurable by the user, that can be explored 
 
 The load to the Control Service APIs from the Meta Jobs plugin mostly depends on two factors:
 
-* Number of concurrent Data Job Executions (by default limited to 15, but it is
-  [configurable](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py))
+* Number of concurrent Data Job Executions (there is a reasonable default limit, but the value is
+  [configurable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
 * Data Job Executions duration
+* Configuration value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76)
 
 A workflow that consists of one Data Job is going to perform 2 requests per minute to the
 Control Service APIs.
