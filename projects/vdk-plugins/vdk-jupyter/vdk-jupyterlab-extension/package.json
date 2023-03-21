@@ -35,6 +35,7 @@
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
+    "build:interfaces": "npx py-to-ts-interfaces vdk-jupyterlab-extension/vdk_options/ src/vdkOptions",
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
@@ -59,7 +60,8 @@
     "@jupyterlab/application": "^3.1.0",
     "@jupyterlab/coreutils": "^5.1.0",
     "@jupyterlab/services": "^6.1.0",
-    "@jupyterlab/settingregistry": "^3.1.0"
+    "@jupyterlab/settingregistry": "^3.1.0",
+    "py-to-ts-interfaces": "git+https://github.com/Syndallic/py-to-ts-interfaces#main"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
