@@ -1,5 +1,6 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+
 from abc import ABC
 from typing import Dict
 from typing import List
@@ -10,10 +11,9 @@ from typing import Tuple
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 
 
+
 class ColumnLevelTransformer(ABC):
-    def transform(
-        self, destination_table: str, column_name: str, column_value: any
-    ) -> any:
+    def transform(self, destination_table: str, column_name: str, column_value: any) -> any:
         """
         :return: The value to be stored in the column.
         If the transformer doesn't want to make any changes it should return the existing value
