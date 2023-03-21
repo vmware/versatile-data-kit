@@ -41,6 +41,7 @@ Optional section which defines terms and abbreviations used in the rest of the d
 * **Data Job Execution**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-execution
 * **Apache Airflow (Airflow)**: https://airflow.apache.org/
 * **DAG**: Directed Acyclic Graph
+* **reqs/min**: requests per minute
 
 ## Motivation
 <!--
@@ -190,11 +191,12 @@ Consider at least the below topics but you do not need to cover those that are n
 ### Workflow
 
 The structure of the Meta Job is a DAG. Here is an example of the DAG of jobs workflow:
-* The Meta Job(DAG) is initialized, following the preset configuration.
-* The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the Control Service
-it addresses as well as any other technical errors. If there are no errors, the DAG is built.
-* The DAG of jobs is executed, taking into account all the order information.
-* A summary of the DAG is logged.
+1. The Meta Job(DAG) is initialized, following the preset configuration.
+2. The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the
+Control Service it addresses as well as any other technical errors.
+3. If there are no errors during step 2., the DAG is built.
+4. The DAG of jobs is executed, taking into account all the order information.
+5. A summary of the DAG is logged.
 
 ### Configuration details
 
@@ -205,6 +207,48 @@ This can help to prevent cascading failures and ensure that issues are isolated 
 
 There are more settings that are configurable by the user, that can be explored in the
 [config](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py).
+
+### Capacity Estimation and Constraints
+
+The load to the Control Service APIs from the Meta Jobs plugin mostly depends on two factors:
+
+* Number of concurrent Data Job Executions (by default limited to 15, but it is
+  [configurable](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py))
+* Data Job Executions duration
+
+A workflow that consists of one Data Job is going to perform 2 requests per minute to the
+Control Service APIs.
+
+For example, the following workflow consists of 6 Data Jobs:
+
+* `Job 2`, `Job 3` and `Job 4` depend on `Job 1`;
+* `Job 5` depends on `Job 2` and `Job 3`;
+* `Job 6` depends on `Job 4`;
+* The execution time of each of the following jobs is about 1 hour: `Job 1` and `Job 2`;
+* The execution time of each of the following jobs is about 2 hours: `Job 3` and `Job 4`;
+* The execution time of each of the following jobs is about 3 hours: `Job 5` and `Job 6`;
+* The concurrent running jobs limit is configured to 2.
+
+![sample-execution.png](sample-execution.png)
+
+Let's estimate the number of requests the Meta Jobs plugin would send every hour of the workflow execution.
+For our convenience, let's assume that finalizing one job and starting another takes no time (~0 sec).
+There will also be information about the jobs that have run during each time interval.
+
+* During the first hour: about 2 (1 job * 2 reqs/min) requests per minute or 120 requests in total.
+  Running: `Job 1`;
+* During the second hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 240 requests in total.
+  Running jobs: `Job 2` and `Job 3`;
+* During the third hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 240 requests in total.
+  Running jobs: `Job 3` and `Job 4`;
+* During the fourth hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 240 requests in total.
+  Running jobs: `Job 4` and `Job 5`;
+* During the fifth and sixth hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 480 requests in total.
+  Running jobs: `Job 5` and `Job 6`;
+* During the seventh hour: about 2 (1 job * 2 reqs/min) requests per minute or 240 requests in total.
+  Running jobs: `Job 6`.
+
+In total, the vdk-meta-jobs plugin will perform 1560 requests for the whole workflow execution.
 
 ### Troubleshooting
 
