@@ -1,28 +1,29 @@
 
-# VEP-NNNN: Your short, descriptive title
+# VEP-1507: Versatile Data Kit Operations UI
 
-* **Author(s):** Paul Murphy (murphp15@tcd.ie), Iva Koleva (ikoleva@vmware.com), Dilyan Marinov (mdilyan@vmware.com)
+* **Author(s):** Paul Murphy (murphp15@tcd.ie), Iva Koleva (ikoleva@vmware.com),
+  Dilyan Marinov (mdilyan@vmware.com)
 * **Status:** implemented
 
-- [VEP-NNNN: Your short, descriptive title](#vep-nnnn-your-short-descriptive-title)
+- [VEP-1507: Versatile Data Kit Operations UI](#vep-1507-versatile-data-kit-operations-ui)
   - [Summary](#summary)
   - [Glossary](#glossary)
   - [Motivation](#motivation)
-  - [Requirements and goals](#requirements-and-goals)
+  - [Requirements And Goals](#requirements-and-goals)
     - [Goals:](#goals)
-    - [Non Goals:](#non-goals)
-  - [High-level design](#high-level-design)
+    - [Out Of Scope:](#out-of-scope)
+  - [High-Level Design](#high-level-design)
       - [Folder Structure](#folder-structure)
-      - [Package publishing](#package-publishing)
-  - [Detailed design](#detailed-design)
-    - [Frontend components](#frontend-components)
+      - [Package Publishing](#package-publishing)
+  - [Detailed Design](#detailed-design)
+    - [Front-End Components](#front-end-components)
     - [User Journeys](#user-journeys)
     - [CI/CD](#cicd)
-      - [Dependency management](#dependency-management)
+      - [Dependency Management](#dependency-management)
       - [Build and Test](#build-and-test)
         - [e2e test image](#e2e-test-image)
       - [Release](#release)
-  - [Implementation stories](#implementation-stories)
+  - [Implementation Stories](#implementation-stories)
 
 ## Summary
 
@@ -33,32 +34,44 @@ The tone and content of the `Summary` section should be
 useful for a wide audience.
 -->
 
-At the moment customers can deploy and manage jobs through the VDK CLI tool or through the API's.
-We want to extend on this and create a web frontend for the VDK.
-The frontend will let customers, create,delete deploy and generally manage and browse their jobs.
-Frontend is written in an extensible format to easily allow other teams to build extensions.
-To achieve this extensibility the frontend is built in angular.
+At the moment customers can deploy and manage jobs through the VDK CLI tool or
+the Control Service API. Adding a web UI to the VDK lets customers develop and
+manage data jobs more comfortably. The Operations UI packages are built in
+Angular and are designed to be extensible. This allows anyone to build their
+project on top of the existing UI components.
 
 ## Glossary
 <!--
 Optional section which defines terms and abbreviations used in the rest of the document.
 -->
 
-data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code. for more details please see [README.md](/projects/frontend/data-pipelines/README.md)
-shared-components, @versatiledatakit/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects [README.md](/projects/frontend/data-pipelines/README.md)
+data-pipelines, @versatiledatakit/data-pipelines: npm project for bootstrapping
+of the codebase. It contains all the vdk-specific front-end code. For more
+details please see [README.md](/projects/frontend/data-pipelines/README.md)
+
+shared-components, @versatiledatakit/shared: a set of reusable Angular
+components [README.md](/projects/frontend/data-pipelines/README.md)
+
 ## Motivation
-One of the core goals of the VDK is to provide a common and efficient framework for implementing, executing, monitoring, and troubleshooting data jobs (and data pipelines).
 
-In a sufficiently complex system, a single data team would need to manage many different data jobs - upgrade them, monitor them, fix incidents and issues, etc. Using CLI or API directly for the purpose of troubleshooting or operating multiple jobs doesn't scale. The CLI is very limited in terms of filtering, searching and visualizing complex information. And both require a higher level of technical skills to use.
+The VDK aims to simplify the implementation, execution, monitoring, and
+troubleshooting of data jobs and pipelines. When managing numerous data jobs, it
+becomes challenging to upgrade them, monitor them, and resolve issues. Using the
+VDK CLI or API directly for operating multiple jobs is not scalable. Visualizing
+complex information with just the available tools is not convenient and requires
+a high level of technical skill.
 
-In an UI we want user to be able to
+To address this challenge, an easy-to-use user interface is necessary. The UI
+should provide the following functionalities:
 
-For Developers - To be able to manage data jobs that allows for more flexibility - update configuration, check latest version, etc.
-For Operator/Support - ability to detect status of data jobs and easily access troubleshooting tools, as well as the ability to track and see log data jobs
-For team leads to be able to have aggregated view of the status of all jobs how often they fail, why do they fail.
+- Developers should be able to manage data jobs easily. They should have the
+  flexibility to update configurations, check the latest version, and more.
+- Operators and support staff should be able to detect the status of data jobs
+  quickly and have easy access to troubleshooting tools.
+- Team leads should have an aggregated view of the status of all jobs, including
+  how often they fail and why they fail.
 
-
-## Requirements and goals
+## Requirements And Goals
 <!--
 It tells **why** do we need X?
 Describe why the change is important and the benefits to users.
@@ -66,30 +79,39 @@ Explain the user problem that need to be solved.
 -->
 
 ### Goals:
-1. It should be easy to setup and run locally or in a k8s cluster.
-2. It should be easy to extend with new features
-   1. Adding a new section should be well documented
-   2. We expect programmers who didn't work on the initial build of the project to be able to build a section for their needs in isolated manner
-   3. After they have created a section they can easily add it to a deployed instance
 
+The VDK Operations UI should be:
+1. Easy to set up and run, whether locally or in a k8s cluster.
+1. Easy to extend with new features
+  1. The process for adding a new UI section should be clearly documented, with
+     step-by-step instructions provided
+  1. First-time contributors should be able to build a new section in an
+     isolated manner
+  1. After creating a new section, contributors should be able to add it to a
+     deployed instance of the UI without any friction
 
-
-### Non Goals:
+### Out Of Scope:
 1. Screens for rendering data lineage graphs.
 
-## High-level design
+## High-Level Design
 
 #### Folder Structure
 
-* [frontend](/projects/frontend) The root folder for all frontend code.
-    * [shared-components](/projects/frontend/shared-components/README.md): the root folder for the shared components project, for more details please see the readme.
-      * gui: This contains the root package.json file for the project.
+* [frontend](/projects/frontend) root folder for all frontend code.
+    * [shared-components](/projects/frontend/shared-components/README.md): the
+      root folder for the shared components project, for more details please see
+      the readme.
+      * gui: contains the root package.json file for the project.
         * projects:
-          * documentation-ui: functionality for testing and developing new components
+          * documentation-ui: functionality for testing and developing new
+            components
           * shared: all the shared components live here
-      * cicd: gitlab config
-    * [data-pipelines](/projects/frontend/data-pipelines/README.md): the root folder for the data-pipelines project, for more details please see the readme.
-    * cicd: contains docker images, scripts etc needed for cicd jobs
+    * [data-pipelines](/projects/frontend/data-pipelines/README.md): the root
+      folder for the data-pipelines project, for more details please see the
+      readme.
+    * [cicd](/projects/frontend/cicd/): contains docker images, scripts, etc.
+      for cicd jobs
+
 <!--
 All the rest sections tell **how** are we solving it?
 
@@ -106,19 +128,17 @@ For every new component on the diagram, explain which goals does it solve.
 In this context, a component is any separate software process.
 
 -->
-#### Package publishing
+#### Package Publishing
 The shared components and data-pipelines packages are published to the [npm
 registry](https://www.npmjs.com/) under the user
 [@verstiledatakit](https://www.npmjs.com/settings/versatiledatakit/packages).
 The npm registry was chosen as the package repository because it is the most
 widely adopted javascript package manager. Publishing to the registry also
-supports the following workflows:
-1. Customers want to use the shared component libraries in their projects.
-2. Customers want to build their own docker image for data-pipelines instead of using the one provided by us.
+supports customers that want to:
+1. Use the shared component libraries in their projects.
+2. Build their own docker image for data-pipelines
 
-
-
-## Detailed design
+## Detailed Design
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
@@ -165,7 +185,7 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
-### Frontend components
+### Front-End Components
 
 **Home Page**
 
@@ -273,14 +293,18 @@ https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#r
 
 https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes
 
+**Related Issues**
+
+https://github.com/vmware/versatile-data-kit/issues/1751
+
 ### User Journeys
 
 **Data Job Development**
 
-The VDK frontend empowers users to iterate quickly during the active development
-phase of new data jobs. It provides the necessary tools for developers to view
-the status and output of their jobs. It outputs performance and resource data to
-help with optimisation.
+The VDK Operations UI empowers users to iterate quickly during the active
+development phase of new data jobs. It provides the necessary tools for
+developers to view the status and output of their jobs. It outputs performance
+and resource data to help with optimisation.
 
 *Example scenario 1 - User creates a new job and tests it on different types of input data*
 
@@ -306,8 +330,8 @@ from the provided link and finds out what caused the error.
 
 **Data Job Monitoring**
 
-The VDK frontend empowers users to detect problems at a glance. It also provides
-the necessary traceability to do deeper troubleshooting when necessary.
+The VDK Operations UI empowers users to detect problems at a glance. It also
+provides the necessary traceability to do deeper troubleshooting when necessary.
 
 *Example Scenario 1 User finds that their job is failing intermittently*
 
@@ -365,35 +389,40 @@ the failure and resolve the issue.
 
 ### CI/CD
 
-CI/CD for frontend components leverages existing CI/CD for the VDK monorepo using
-GitLab.
+CI/CD for VDK Operations UI components leverages existing CI/CD for the VDK monorepo
+using GitLab.
 
-- [GitLab config for frontend components](/projects/frontend/cicd/.gitlab-ci.yml)
-- [@versatiledatakit/shared install script](/projects/frontend/cicd/install_shared.sh)
-- [@versatiledatakit/data-pipelines build script](/projects/frontend/cicd/build_data_pipelines.sh)
-- [@versatiledatakit/data-pipelines install script](/projects/frontend/cicd/install_data_pipelines.sh)
-- [release script for npm packages](/projects/frontend/cicd/publish_package_npm.sh)
+- [GitLab config for frontend
+  components](/projects/frontend/cicd/.gitlab-ci.yml)
+- [@versatiledatakit/shared install
+  script](/projects/frontend/cicd/install_shared.sh)
+- [@versatiledatakit/data-pipelines build
+  script](/projects/frontend/cicd/build_data_pipelines.sh)
+- [@versatiledatakit/data-pipelines install
+  script](/projects/frontend/cicd/install_data_pipelines.sh)
+- [release script for npm
+  packages](/projects/frontend/cicd/publish_package_npm.sh)
 
-The shells scripts linked above are designed for CI/CD and local development use.
+The shell scripts linked above are designed for CI/CD and local development use.
 
-#### Dependency management
+#### Dependency Management
 
 Our main goals when it comes to dependency management are as follows:
 
 1. Keep peer dependencies up to date to avoid vulnerabilities
 2. Detect problems related to peer dependencies early
 
-Therefore, peer dependency versions are lower-bound, i.e. the version of a specific peer
-dependency should be greater than or equal to a specific number. Peer dependency
-versions should not be upper-bound unless absolutely necessary.
+Therefore, peer dependency versions are lower-bound, i.e. the version of a
+specific peer dependency should be greater than or equal to a specific number.
+Peer dependency versions should not be upper-bound unless absolutely necessary.
 
 `package-lock.json` is not included in version control for either package.
-Instead, for each pipeline run, `npm install` is run and `package-lock.json` is
+Instead, for each pipeline run, `npm install` is run, and `package-lock.json` is
 output as an artefact at the end. Artefact retention is 7 days. This setup
 ensures that the latest dependencies are pulled for every build. It also ensures
 compatibility issues are detected early and are traceable.
 
-**Advantages of using lower-bound peer dependency versions**
+**Advantages Of Using Lower-Bound Peer Dependency Versions**
 
 1. Reduces conflicts. Setting a lower-bound version for a peer dependency
 ensures that the package uses a compatible version of that dependency and
@@ -404,75 +433,89 @@ if they have to.
 2. Improves security. Ensures we use the latest versions and makes it easier to
 keep up with updates.
 
-**Disadvantages** Compatibility issues. If a new version of a dependency
-introduces a breaking change, this leads to increased maintenance, due to
-failures in CICD.
+**Disadvantages**
 
-**Alternatives considered**
+Compatibility issues. If a new version of a dependency
+introduces a breaking change, this leads to increased maintenance, due to
+failures in CI/CD.
+
+**Alternatives Considered**
 
 Pinned dependencies and Dependabot automatic updates. The dependencies are
 pinned and dependabot automatically updates them. This keeps peer dependencies
 up to date and allows the detection of problems early by opening PRs after a new
-dependecy release. The disadvantage here is that the process becomes too
+dependency release. The disadvantage here is that the process becomes too
 granular, e.g. every peer dependency update opens a new PR, which triggers a new
 release.
 
-Range-based dependencies. Specify only major version and allow any minor and
-patch version to be used. Dependabot opens PRs only for major version updates.
-This is better in terms of granularity, but reduces flexibility.
+Range-based dependencies. Specify only the major version and allow any minor and
+patch versions to be used. Dependabot opens PRs only for major version updates.
+This is better in terms of granularity but reduces flexibility.
 
 #### Build and Test
 
-Opening a pull request with changes to `@versatiledatakit/data-pipelines`
+- Opening a pull request with changes to `@versatiledatakit/data-pipelines`
 triggers a pipeline that builds the shared package and runs unit tests on it.
-Opening a pull request with changes to `@versatiledatakit/shared` triggers a
+- Opening a pull request with changes to `@versatiledatakit/shared` triggers a
 pipeline that builds and tests both the data-pipelines and shared packages to
-ensure compatibility. Opening a pull request with changes to the [frontend CI/CD](/projects/frontend/cicd)
-triggers a pipeline that builds and tests both packages. Merging changes into
-`main` requires that these pipelines pass successfully.
+ensure compatibility.
+- Opening a pull request with changes to the [VDK Operations UI
+CI/CD](/projects/frontend/cicd) triggers a pipeline that builds and tests both
+packages. Merging changes into `main` requires that these pipelines pass
+successfully.
 
 ##### e2e test image
-To run e2e tests a lot of dependencies are needed (browsers, build systems etc...).
-Cypress(e2e framework) are actually aware of this and provide a base image.
-We extend this with extra functionality we need.
-A docker image is built with all these dependencies to make e2e testing easier in gitlab.
+End-to-end tests have lots dependencies (browsers, build systems, etc.). Cypress
+(e2e framework) are aware of this and provide a base image. We extend the base
+image with the extra functionality we need. This extended image is used for
+testing in GitLab
 
-it contains:
+It contains:
+
 1. Angluar (build)
 2. Chrome Browser (for UI testing)
-3. Command cli utils (curl, git, zip etc...) (auxiliary functions/packaging reports etc..)
+3. Command cli utils (curl, git, zip, etc...) (auxiliary functions/packaging
+   reports, etc..)
 4. Sonar (Code Quality checking)
 5. Npm and Nvm (build)
 
-The actual dockerfile can be found at [Dockerfile](/projects/frontend/cicd/Dockerfile)
-New versions are released by changing the version in [version.txt](/projects/frontend/cicd/version.txt)
-New releases are published under the image name [registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
+The actual dockerfile can be found at
+[Dockerfile](/projects/frontend/cicd/Dockerfile)
+
+New versions are released by changing the version in
+[version.txt](/projects/frontend/cicd/version.txt)
+
+New releases are published under the image name
+[registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
 
 **Related Issues**
+
 https://github.com/vmware/versatile-data-kit/issues/1728
 
 #### Release
 
-Frontend packages are published under the
+VDK Operations UI packages are published under the
 [@verstiledatakit](https://www.npmjs.com/settings/versatiledatakit/packages)
 namespace in npm registry. Merging changes to a package triggers the publishing
-of that package to npm. Frontend packages are **not** included in VDK nightly
-builds. This setup ensures that each atomic change to the frontend corresponds
-to a release version.
+of that package to npm. VDK Operations UI packages are **not** included in VDK
+nightly builds. This setup ensures that each atomic change to the Operations UI
+corresponds to a release version.
 
-Versioning for each package is based on its `version.txt` file and the gitlab
-pipeline id. Major and minor versions are taken from `version.txt`. The gitlab
+Versioning for each package is based on its `version.txt` file and the GitLab
+pipeline id. Major and minor versions are taken from `version.txt`. The GitLab
 pipeline id, which is guaranteed to be unique, serves as the patch version. Note
 that `package.json` files do not represent package versions and should not be
 used as a source of truth for versioning.
 
-- [version.txt for @versatiledatakit/data-pipelines](/projects/frontend/data-pipelines/gui/version.txt)
-- [version.txt for @versatiledatakit/shared](/projects/frontend/shared-components/gui/version.txt)
+- [version.txt for
+  @versatiledatakit/data-pipelines](/projects/frontend/data-pipelines/gui/version.txt)
+- [version.txt for
+  @versatiledatakit/shared](/projects/frontend/shared-components/gui/version.txt)
 
-As stated in [CONTRIBUTING.md](/CONTRIBUTING.md), versioning of all components follows https://semver.org
+As stated in [CONTRIBUTING.md](/CONTRIBUTING.md), versioning of all components
+follows https://semver.org
 
-## Implementation stories
+## Implementation Stories
 <!--
 Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
 -->
-[frontend: Hide explore data jobs table by default](https://github.com/vmware/versatile-data-kit/issues/1751)
