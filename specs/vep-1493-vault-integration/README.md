@@ -44,13 +44,13 @@ passwords/credentials/tokens/data
 
 ## Motivation
 
-* Some data jobs need to use secrets in order to connect to third party systems by providing user credentials or tokens - 
+* Some data jobs need to use secrets in order to connect to third party systems by providing user credentials or tokens -
 currently these secrets are stored in data jobs properties, which in turn are stored in plain text in the configured Control
 Service DataBase. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into a vault.
-* Compliance: Storing sensitive information such as credentials, tokens, or API keys in plaintext may lead to 
-non-compliance with certain industry standards or regulations, such as GDPR, HIPAA. Without it, VDK would be hard to be 
+* Compliance: Storing sensitive information such as credentials, tokens, or API keys in plaintext may lead to
+non-compliance with certain industry standards or regulations, such as GDPR, HIPAA. Without it, VDK would be hard to be
 certified to store or process restricted type of data.
-* Risk reduction: Storing secrets in plaintext increases the risk of unauthorized access and potential data breaches. 
+* Risk reduction: Storing secrets in plaintext increases the risk of unauthorized access and potential data breaches.
 This is severely mitigated by services like Vault .
 
 
@@ -103,8 +103,8 @@ Introduce new API methods for storing and retrieving secrets under:
       example:
         redshift-user: foo
         redshift-password: bar
-... 
-    
+...
+
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/secrets':
     summary: |
       Data Job Secrets API.
@@ -201,7 +201,7 @@ def run(job_input):
 #### Storing/retrieving secrets via the CLI
 
 We are going to introduce a new set of commands for secrets, similar to "vdk properties":
-* Will prompt for the value so it's not printed on the screen  
+* Will prompt for the value so it's not printed on the screen
   vdk secrets --set "my-password"
 
 * Return the secret value associated with the given key "my-password"
