@@ -245,10 +245,10 @@ There will also be information about the jobs that have run during each time int
   Running jobs: `Job 4` and `Job 5`;
 * During the fifth and sixth hour: about 4 (2 jobs * 2 reqs/min) requests per minute or 480 requests in total.
   Running jobs: `Job 5` and `Job 6`;
-* During the seventh hour: about 2 (1 job * 2 reqs/min) requests per minute or 240 requests in total.
+* During the seventh hour: about 2 (1 job * 2 reqs/min) requests per minute or 120 requests in total.
   Running jobs: `Job 6`.
 
-In total, the vdk-meta-jobs plugin will perform 1560 requests for the whole workflow execution.
+In total, the vdk-meta-jobs plugin will perform 1440 requests for the whole workflow execution.
 
 ### Troubleshooting
 
