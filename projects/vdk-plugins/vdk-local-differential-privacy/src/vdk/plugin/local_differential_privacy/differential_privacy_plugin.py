@@ -41,6 +41,8 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         key="differential_privacy_unary_encoding_fields",
         default_value='{"table_name": {"column_name": ["DOMAIN_VALUE_ONE", "DOMAIN_VALUE_TWO", "DOMAIN_VALUE_THREE"]}}',
         description="Map with entity/table name and list of attributes names that need to be privatized using unary encoding."
+        "The property must be an enum like type with a finite set of values"
+        "*The finite number of domain values must be known ahead of time and must never change when using unary encoding*"
         "Checks are case sensitive.",
     )
 

@@ -31,10 +31,14 @@ def ingest_data() -> List[int]:
     aggregated_results = DifferentialPrivateUnaryEncoding(0.75, 0.25).aggregate(
         [a["customer_os"] for a in actual_payload]
     )
+    # within the test all events have the value "WINDOWS". "WINDOWS" is index 1 in the array
+    # For this reason we expect that even with noise the value at index 1 should be significantly higher than any of the other properties
+    # If it is not then we have lost statistical significance in the data and their would be no point in storing it.
     assert aggregated_results[0] < aggregated_results[1] - 20
     assert aggregated_results[2] < aggregated_results[1] - 20
     assert aggregated_results[3] < aggregated_results[1] - 20
 
+    # the values at index 0,2,3 all had 0 occurrences. here we want to check they are statistically close enough to each other
     assert abs(aggregated_results[0] - aggregated_results[2]) < 20
     assert abs(aggregated_results[0] < aggregated_results[3]) < 20
     return aggregated_results

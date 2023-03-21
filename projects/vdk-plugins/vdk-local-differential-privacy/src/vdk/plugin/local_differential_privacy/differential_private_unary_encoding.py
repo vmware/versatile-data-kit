@@ -13,8 +13,10 @@ def one_hot_encode(response: str, domain: List[str]) -> List[int]:
 
 class DifferentialPrivateUnaryEncoding:
     """
-        The class responsible for injecting the noise into the data
+    The class responsible for injecting the noise into the data
     For a detailed description of how unary encoding works please see: https://programming-dp.com/ch13.html#unary-encoding
+
+    *The finite number of domain values must be known ahead of time and must never change when using unary encoding*
     """
 
     def __init__(self, p: float, q: float):
@@ -22,9 +24,15 @@ class DifferentialPrivateUnaryEncoding:
         self._q = q
 
     def privatize(self, value: str, domain: List[str]) -> List[int]:
+        """
+        This function is used during the ingestion phase to add noise to the raw data
+        """
         return self._perturb(one_hot_encode(value, domain))
 
     def aggregate(self, responses: List[List[int]]) -> List[int]:
+        """
+        This function is used during the analysis phase to derive a rough approximation of the counts of each enum value
+        """
         sums = np.sum(responses, axis=0)
         n = len(responses)
 

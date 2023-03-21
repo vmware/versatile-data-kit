@@ -27,8 +27,13 @@ def ingest_data():
     count_of_true = np.count_nonzero([a["sensitive_key"] for a in payload])
     count_of_false = len(payload) - count_of_true
 
+    # assert that the plugins have no unintended impact on other columns.
     assert list(payload[0].keys()) == ["str_key", "sensitive_key"]
     assert payload[0]["str_key"] == "str"
+
+    # Within the test data the actual of true vs false is 0 to 60.
+    # within the noisy data we want to test to ensure that false is still significantly higher count.
+    # If it is not we have added too much noise and lost all value in the data.
     assert count_of_false > count_of_true + 20
     return payload
 
