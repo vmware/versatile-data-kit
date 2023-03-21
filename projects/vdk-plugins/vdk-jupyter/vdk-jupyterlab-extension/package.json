@@ -60,8 +60,7 @@
     "@jupyterlab/application": "^3.1.0",
     "@jupyterlab/coreutils": "^5.1.0",
     "@jupyterlab/services": "^6.1.0",
-    "@jupyterlab/settingregistry": "^3.1.0",
-    "py-to-ts-interfaces": "git+https://github.com/Syndallic/py-to-ts-interfaces#main"
+    "@jupyterlab/settingregistry": "^3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
