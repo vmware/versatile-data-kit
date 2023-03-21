@@ -13,9 +13,11 @@ import { updateVDKMenu } from './commandsAndMenu';
 
 import { FileBrowserModel, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IChangedArgs } from '@jupyterlab/coreutils';
-import { jobData } from './jobData';
-import { VdkOption } from './vdkOptions/vdk_options';
-import { jobdDataRequest } from './serverRequests';
+
+/**
+ * Current working directory in Jupyter
+ */
+export var workingDirectory = '';
 
 /**
  * Initialization data for the vdk-jupyterlab-extension extension.
@@ -44,6 +46,5 @@ const onPathChanged = async (
   model: FileBrowserModel,
   change: IChangedArgs<string>
 ) => {
-  jobData.set(VdkOption.PATH, change.newValue);
-  await jobdDataRequest();
+  workingDirectory = change.newValue;
 };

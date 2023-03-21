@@ -11,6 +11,7 @@ import {
   jobData
 } from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
+
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
