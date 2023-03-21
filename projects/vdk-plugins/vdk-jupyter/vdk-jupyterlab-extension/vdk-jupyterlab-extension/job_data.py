@@ -3,13 +3,7 @@
 import os
 import pathlib
 
-import ipykernel
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
-
-try:
-    import hybridcontents
-except ImportError:
-    hybridcontents = None
 
 
 class JobData:
