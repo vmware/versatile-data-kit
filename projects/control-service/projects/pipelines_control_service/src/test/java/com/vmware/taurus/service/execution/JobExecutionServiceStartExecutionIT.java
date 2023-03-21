@@ -94,7 +94,7 @@ public class JobExecutionServiceStartExecutionIT {
   public void testStartDataJobExecution_correctDataJobDeployment_shouldStartDataJobExecution()
       throws ApiException {
     String opId = "test-op-id";
-    String startedBy = "startedBy" + "/" + operationContext.getUser();
+    String startedBy = "vdk-control-cli" + "/" + operationContext.getUser();
     String cronJobName = "test-cron-job";
 
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
@@ -121,7 +121,7 @@ public class JobExecutionServiceStartExecutionIT {
             actualDataJob.getJobConfig().getTeam(),
             actualDataJob.getName(),
             "",
-            new DataJobExecutionRequest().startedBy("startedBy"));
+            new DataJobExecutionRequest().startedBy("vdk-control-cli"));
     Mockito.verify(dataJobsKubernetesService)
         .startNewCronJobExecution(
             Mockito.eq(cronJobName),
