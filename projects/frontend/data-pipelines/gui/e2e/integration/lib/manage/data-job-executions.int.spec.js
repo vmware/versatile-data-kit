@@ -233,11 +233,10 @@ describe(
                 .getTimePeriod()
                 .invoke("text")
                 .invoke("trim")
-                .should(($el) =>
-                    expect($el.text().trim()).to.match(
-                        new RegExp(
-                            `^\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)\\sto\\s\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)$`,
-                        ),
+                .should(
+                    "match",
+                    new RegExp(
+                        `^\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)\\sto\\s\\w+\\s\\d+,\\s\\d+,\\s\\d+:\\d+:\\d+\\s(AM|PM)$`,
                     ),
                 );
         });

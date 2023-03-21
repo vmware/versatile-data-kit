@@ -29,6 +29,8 @@ export class DataJobsExplorePage extends DataJobsBasePO {
             .get(
                 '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted',
             )
+            .invoke("text")
+            .invoke("trim")
             .contains(new RegExp(`^${content}$`));
     }
 
