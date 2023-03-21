@@ -17,7 +17,7 @@ At the moment we support noise on two different types of data.
 ## Usage
 
 ```
-pip install local-differential-privacy
+pip install vdk-local-differential-privacy
 ```
 
 ### Configuration
