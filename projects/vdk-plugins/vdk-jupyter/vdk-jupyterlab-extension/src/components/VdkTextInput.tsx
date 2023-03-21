@@ -58,7 +58,7 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
   private onInputChange = (event: any): void => {
     const nameInput = event.currentTarget as HTMLInputElement;
     let value = nameInput.value;
-    if (value == "") value = this.props.value;
+    if (!value) value = this.props.value;
     jobData.set(this.props.option, value);
   };
 }

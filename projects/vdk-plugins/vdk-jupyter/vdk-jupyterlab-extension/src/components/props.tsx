@@ -1,13 +1,13 @@
 
 
-export interface IJobPathProp {
+export type IJobPathProp = {
     /**
      * Current Job path or the path to job's parent directory
      */
     jobPath: string;
 }
 
-export interface IJobNameAndTeamProps {
+export type IJobNameAndTeamProps = {
     /**
      * Current Job name
      */
@@ -17,3 +17,5 @@ export interface IJobNameAndTeamProps {
      */
     jobTeam: string;
 }
+
+export type IJobFullProps = IJobPathProp & IJobNameAndTeamProps;

@@ -6,9 +6,9 @@ import pathlib
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
 
 
-class JobData:
+class JobDataLoader:
     """
-    class responsible for retrieving data for the job
+    Class responsible for retrieving data for the job of the provided directory
     """
 
     def __init__(self, working_directory: str):

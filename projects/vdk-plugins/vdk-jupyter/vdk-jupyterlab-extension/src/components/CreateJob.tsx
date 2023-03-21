@@ -4,17 +4,17 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
-import { IJobNameAndTeamProps, IJobPathProp } from './props';
+import { IJobFullProps } from './props';
 
 
-export default class CreateJobDialog extends Component<(IJobNameAndTeamProps & IJobPathProp)> {
+export default class CreateJobDialog extends Component<(IJobFullProps)> {
   /**
    * Returns a React component for rendering a create menu.
    *
    * @param props - component properties
    * @returns React component
    */
-  constructor(props: (IJobNameAndTeamProps & IJobPathProp)) {
+  constructor(props: IJobFullProps) {
     super(props);
   }
   /**

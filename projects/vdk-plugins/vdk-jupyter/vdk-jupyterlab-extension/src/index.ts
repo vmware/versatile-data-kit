@@ -16,8 +16,9 @@ import { IChangedArgs } from '@jupyterlab/coreutils';
 
 /**
  * Current working directory in Jupyter
+ * The variable can be accessed anywhere in the JupyterFrontEndPlugin
  */
-export var workingDirectory = '';
+export let workingDirectory: string = '';
 
 /**
  * Initialization data for the vdk-jupyterlab-extension extension.

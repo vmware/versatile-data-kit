@@ -4,17 +4,17 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRunRequest } from '../serverRequests';
-import { IJobNameAndTeamProps, IJobPathProp } from './props';
+import { IJobFullProps } from './props';
 
 
-export default class DeployJobDialog extends Component<(IJobNameAndTeamProps & IJobPathProp)> {
+export default class DeployJobDialog extends Component<(IJobFullProps)> {
   /**
    * Returns a React component for rendering a Deploy menu.
    *
    * @param props - component properties
    * @returns React component
    */
-  constructor(props: (IJobNameAndTeamProps & IJobPathProp)) {
+  constructor(props: IJobFullProps) {
     super(props);
   }
   /**

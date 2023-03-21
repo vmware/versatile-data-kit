@@ -17,6 +17,17 @@ import { VdkOption } from './vdkOptions/vdk_options';
  * They are called when a request to the server is needed to be sent.
  */
 
+type serverVdkOperationResult = {
+  /**
+   * Error message
+   */
+  error: string;
+  /**
+   * Result message if no errors occured
+   */
+  message: string;
+};
+
 /**
  * Sent a POST request to the server to run a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
@@ -28,7 +39,7 @@ export async function jobRunRequest(): Promise<{
 }> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<any>('run', {
+      const data = await requestAPI<serverVdkOperationResult>('run', {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
@@ -54,13 +65,13 @@ export async function jobRunRequest(): Promise<{
  * Sent a POST request to the server to execute a VDK operation a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
-export async function jobRequest(endPoint: string) {
+export async function jobRequest(endPoint: string): Promise<void> {
   if (
     (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
-      const data = await requestAPI<any>(endPoint, {
+      const data = await requestAPI<serverVdkOperationResult>(endPoint, {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
@@ -87,7 +98,7 @@ export async function jobRequest(endPoint: string) {
 /**
  * Sent a POST request to the server to get information about the data job of current directory
  */
-export async function jobdDataRequest() {
+export async function jobdDataRequest(): Promise<void> {
   try {
     const data = await requestAPI<any>('job', {
       body: JSON.stringify(JSON.stringify(getJobDataJsonObject())),
