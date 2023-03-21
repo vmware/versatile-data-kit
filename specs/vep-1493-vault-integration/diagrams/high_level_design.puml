@@ -21,7 +21,7 @@ engineer --> sdk : "  get/set properties and \n secrets for a data job"
 sdk -- properties_api : API call \n(User Oauth2 token)
 sdk -- secrets_api : API call \n(User Oauth2 token)
 admin --> cs : Configure \nVault \ninstance
-secrets_api -- vault : " stores/reads\nsecrets"
+secrets_api -- vault : " stores/reads\nsecrets\n(using Vault Token)"
 properties_api -- DB : " stores/reads\nproperties"
 
 legend bottom right
