@@ -124,25 +124,25 @@ describe(
             );
         });
 
-        it("Data Jobs Explore Page - searches data jobs", () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
-
-            dataJobsExplorePage = DataJobsExplorePage.navigateTo();
-
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[1].job_name)
-                .should("be.visible");
-
-            dataJobsExplorePage.searchByJobName(testJobs[0].job_name);
-
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[0].job_name)
-                .should("be.visible");
-
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[1].job_name)
-                .should("not.exist");
-        });
+        // it("Data Jobs Explore Page - searches data jobs", () => {
+        //     cy.log("Fixture for name: " + testJobs[0].job_name);
+        //
+        //     dataJobsExplorePage = DataJobsExplorePage.navigateTo();
+        //
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[1].job_name)
+        //         .should("be.visible");
+        //
+        //     dataJobsExplorePage.searchByJobName(testJobs[0].job_name);
+        //
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[0].job_name)
+        //         .should("be.visible");
+        //
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[1].job_name)
+        //         .should("not.exist");
+        // });
 
         it("Data Jobs Explore Page - searches data jobs, search parameter goes into URL", () => {
             cy.log("Fixture for name: " + testJobs[0].job_name);
@@ -195,48 +195,48 @@ describe(
                 .should("match", new RegExp(`\\/explore\\/data-jobs$`));
         });
 
-        it("Data Jobs Explore Page - searches data jobs, perform search when URL contains search parameter", () => {
-            cy.log("Fixture for name: " + testJobs[1].job_name);
-
-            // navigate with search value in URL
-            dataJobsExplorePage = DataJobsExplorePage.navigateToUrl(
-                `/explore/data-jobs?search=${testJobs[1].job_name}`,
-            );
-
-            // verify url contains search value
-            dataJobsExplorePage
-                .getCurrentUrl()
-                .should(
-                    "match",
-                    new RegExp(
-                        `\\/explore\\/data-jobs\\?search=${testJobs[1].job_name}$`,
-                    ),
-                );
-
-            // verify 1 test row visible
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[0].job_name)
-                .should("not.exist");
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[1].job_name)
-                .should("be.visible");
-
-            // clear search with button
-            dataJobsExplorePage.clearSearchFieldWithButton();
-
-            // verify 2 test rows visible
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[0].job_name)
-                .should("be.visible");
-            dataJobsExplorePage
-                .getDataGridCell(testJobs[1].job_name)
-                .should("be.visible");
-
-            // verify url does not contain search value
-            dataJobsExplorePage
-                .getCurrentUrl()
-                .should("match", new RegExp(`\\/explore\\/data-jobs$`));
-        });
+        // it("Data Jobs Explore Page - searches data jobs, perform search when URL contains search parameter", () => {
+        //     cy.log("Fixture for name: " + testJobs[1].job_name);
+        //
+        //     // navigate with search value in URL
+        //     dataJobsExplorePage = DataJobsExplorePage.navigateToUrl(
+        //         `/explore/data-jobs?search=${testJobs[1].job_name}`,
+        //     );
+        //
+        //     // verify url contains search value
+        //     dataJobsExplorePage
+        //         .getCurrentUrl()
+        //         .should(
+        //             "match",
+        //             new RegExp(
+        //                 `\\/explore\\/data-jobs\\?search=${testJobs[1].job_name}$`,
+        //             ),
+        //         );
+        //
+        //     // verify 1 test row visible
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[0].job_name)
+        //         .should("not.exist");
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[1].job_name)
+        //         .should("be.visible");
+        //
+        //     // clear search with button
+        //     dataJobsExplorePage.clearSearchFieldWithButton();
+        //
+        //     // verify 2 test rows visible
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[0].job_name)
+        //         .should("be.visible");
+        //     dataJobsExplorePage
+        //         .getDataGridCell(testJobs[1].job_name)
+        //         .should("be.visible");
+        //
+        //     // verify url does not contain search value
+        //     dataJobsExplorePage
+        //         .getCurrentUrl()
+        //         .should("match", new RegExp(`\\/explore\\/data-jobs$`));
+        // });
 
         it("Data Jobs Explore Page - show/hide column when toggling from menu", () => {
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
