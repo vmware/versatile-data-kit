@@ -100,6 +100,7 @@ public class JobExecutionService {
       annotations.put(
               JobAnnotation.EXECUTION_TYPE.getValue(),
               jobExecutionRequest.getStartedBy().equals("vdk-control-cli") ? ExecutionType.MANUAL.getValue() : ExecutionType.SCHEDULED.getValue());
+      // TODO: we need to extract "vdk-control-cli" as a global string as it currently appears here and in the execution API
 
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
