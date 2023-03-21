@@ -44,29 +44,33 @@ passwords/credentials/tokens/data
 
 ## Motivation
 
-Some data jobs need to use secrets in order to connect to third party systems by providing user credentials or tokens - currently these
-secrets are stored in data jobs properties, which in turn are stored in plain text in the configured Control
-Service Data Base. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into
-a vault.
+* Some data jobs need to use secrets in order to connect to third party systems by providing user credentials or tokens - 
+currently these secrets are stored in data jobs properties, which in turn are stored in plain text in the configured Control
+Service DataBase. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into a vault.
+* Compliance: Storing sensitive information such as credentials, tokens, or API keys in plaintext may lead to 
+non-compliance with certain industry standards or regulations, such as GDPR, HIPAA. Without it, VDK would be hard to be 
+certified to store or process restricted type of data.
+* Risk reduction: Storing secrets in plaintext increases the risk of unauthorized access and potential data breaches. 
+This is severely mitigated by services like Vault .
 
 
 ## Requirements and goals
 
 Goals:
-- provide the ability to optionally configure a Vault instance in the Control Service for storing secrets
-- change the APIs and SDK so that users can set and retrieve secrets and data jobs can use them during runtime
+* provide the ability to optionally configure a Vault instance in the Control Service for storing secrets
+* change the APIs and SDK so that users can set and retrieve secrets and data jobs can use them during runtime
 
 Non-Goals:
-- automatic provisioning of a Vault instance as part of the VDK-CS installation
-- automatic migration of existing secrets to Vault
+* automatic provisioning of a Vault instance as part of the VDK-CS installation
+* automatic migration of existing secrets to Vault
 
 ## High-level design
 
 In order to implement the proposed change, we should make the following changes - highlighted in the diagram below:
-- provide the ability to optionally configure a Vault instance in the Control Service for storing secrets
-- change the CS to store properties marked as secret into the configured Vault
-- enhance vdk-sdk to allow for users to store secrets for their data jobs
-- during runtime, data jobs can retrieve the secrets
+* provide the ability to optionally configure a Vault instance in the Control Service for storing secrets
+* change the CS to store properties marked as secret into the configured Vault
+* enhance vdk cli to allow for users to store secrets for their data jobs
+* during runtime, data jobs can retrieve/store/update the secrets
 
 ![high_level_design.png](diagrams/high_level_design.png)
 
@@ -78,9 +82,29 @@ reading secrets.
 #### Storing/retrieving secrets Control Service API
 
 Introduce new API methods for storing and retrieving secrets under:
-[/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/properties]()
+[/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/secrets]()
 
 ```yaml
+...
+    Secrets:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DataJobSecrets'
+      description: Data Job properties
+
+
+...
+    DataJobSecrets:
+      description: Secrets of a Data Job
+      type: object
+      additionalProperties:
+        type: object
+      example:
+        redshift-user: foo
+        redshift-password: bar
+... 
+    
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/secrets':
     summary: |
       Data Job Secrets API.
@@ -135,9 +159,9 @@ When storing secrets, the request body is expected to provide a JSON object, con
 
 ```json
 {
-  "secret1": {},
-  "secret2": {},
-  "secret3": {}
+  "secret1": "secret_value1",
+  "secret2": "secret_value2",
+  "secret3": "secret_value3"
 }
 ```
 
@@ -173,6 +197,26 @@ def run(job_input):
    secrets['MY_TOKEN'] = get_new_token()
    job_input.set_all_secrets()
 ```
+
+#### Storing/retrieving secrets via the CLI
+
+We are going to introduce a new set of commands for secrets, similar to "vdk properties":
+* Will prompt for the value so it's not printed on the screen  
+  vdk secrets --set "my-password"
+
+* Return the secret value associated with the given key "my-password"
+  vdk secrets --get "my-password"
+
+* List all secret keys
+  vdk secret --list
+
+* List all secret keys and values
+  vdk secret --list --show-secrets
+
+
+Changes to the properties cli command:
+* remove the --set-secret option
+* change the explanation of the command from "store credentials securely" to "store credentials"
 
 ## Detailed design
 <!--
