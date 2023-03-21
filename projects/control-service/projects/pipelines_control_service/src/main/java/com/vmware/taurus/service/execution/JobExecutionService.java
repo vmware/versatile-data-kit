@@ -97,7 +97,9 @@ public class JobExecutionService {
               ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
-      annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), ExecutionType.MANUAL.getValue());
+      annotations.put(
+              JobAnnotation.EXECUTION_TYPE.getValue(),
+              jobExecutionRequest.getStartedBy().equals("vdk-control-cli") ? ExecutionType.MANUAL.getValue() : ExecutionType.SCHEDULED.getValue());
 
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
