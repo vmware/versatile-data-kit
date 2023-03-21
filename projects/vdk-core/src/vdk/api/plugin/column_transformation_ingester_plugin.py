@@ -13,9 +13,7 @@ from vdk.api.plugin.plugin_input import IIngesterPlugin
 
 
 class ColumnLevelTransformer(ABC):
-    def transform(
-        self, destination_table: str, column_name: str, column_value: any
-    ) -> any:
+    def transform(self, destination_table: str, column_name: str, column_value: any) -> any:
         """
         :return: The value to be stored in the column.
         If the transformer doesn't want to make any changes it should return the existing value
