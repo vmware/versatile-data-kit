@@ -15,6 +15,8 @@
       - [Folder Structure](#folder-structure)
       - [Package publishing](#package-publishing)
   - [Detailed design](#detailed-design)
+    - [Frontend components](#frontend-components)
+    - [User Journeys](#user-journeys)
     - [CI/CD](#cicd)
       - [Dependency management](#dependency-management)
       - [Build and Test](#build-and-test)
@@ -44,7 +46,6 @@ Optional section which defines terms and abbreviations used in the rest of the d
 
 data-pipelines: This is the npm project of the bootstrapping codebase it contains all the vdk specific frontend code. for more details please see [README.md](/projects/frontend/data-pipelines/README.md)
 shared-components, @versatiledatakit/shared: This is a set of components that are used within the data-pipelines project but are generic and could be re-used by other projects [README.md](/projects/frontend/data-pipelines/README.md)
-
 ## Motivation
 One of the core goals of the VDK is to provide a common and efficient framework for implementing, executing, monitoring, and troubleshooting data jobs (and data pipelines).
 
@@ -164,6 +165,204 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+### Frontend components
+
+**Home Page**
+
+![](images/home.png)
+
+Contains three widgets:
+- [data
+  job](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job)
+  execution success rate - shows the success rate for all data job
+  [executions](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-execution)
+  in the last 14 days
+- data jobs with failing exectuions(last 24h) - the list can also be used to
+  navigate to individual job details
+- most recent failed executions(last 24h) - the list can also be used to
+  navigate to individual failed execution details
+
+**Data Jobs Page**
+
+![](images/jobs_page.png)
+
+Shows all existing data jobs and their properties
+- Job name
+- Description
+- Deployment Status
+- Last Execution End (UTC)
+- Last Execution Duration
+- Last Execution Status
+- Success rate
+- Schedule (in UTC)
+- Next run (UTC)
+- Last Deployed (UTC)
+- Last Deployed By
+- Notifications
+- Source
+- Logs
+- Details
+
+Jobs can be filtered by the following properites
+- Job name
+- Description
+- Deployment Status
+- Last Execution Status
+
+Individual data jobs can be enabled, disabled and executed from the appropriate
+buttons. Each job row in the table contains links to the source code, logs and
+details of the corresponding data job. A search box is also available.
+
+**Data Job Details Page**
+
+![](images/job_details.png)
+
+Shows the status, description, owner team, schedule (in UTC) and source
+location. Shows who gets notified on changing job status (deployment, success,
+user error, platform error). Shows the last 5 job executions, their status,
+execution time, duration, and links to logs. The job can be executed or deleted
+from the appropriate buttons. The data job executions details page can be viewed
+from the `Executions` tab.
+
+**Data Job Executions Details Page**
+
+![](images/job_executions.png)
+
+Shows a success/failure pie chart for the total executions of the data job.
+Shows a graph of job duration over time. Graph is zoomable and the time period
+can be adjusted. Shows execution history for the job. Executions history table
+has the following columns:
+- Status
+- Type
+- Duration
+- Start (UTC)
+- End (UTC)
+- ID
+- Version
+- Logs
+
+The execution history table can be filtered by
+- Status
+- Type
+- ID
+- Version
+
+Deployment details for an individual execution can be viewed using a button
+attached to the row.
+
+**Data Job Execution Deployment Details Pop-Up**
+
+![](images/job_execution_details.png)
+
+Shows the follwoing details about an individual execution
+- Version
+- Deployed by
+- Deployed at (UTC)
+- Schedule cron (UTC)
+- VDK version
+
+Shows the following resource information about an individual execution
+- CPU Limit
+- CPU Request
+- Memory Limit
+- Memory Request
+
+More info about k8s resource requests, resource limits and resource units.
+
+https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits
+
+https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes
+
+### User Journeys
+
+**Data Job Development**
+
+The VDK frontend empowers users to iterate quickly during the active development
+phase of new data jobs. It provides the necessary tools for developers to view
+the status and output of their jobs. It outputs performance and resource data to
+help with optimisation.
+
+*Example scenario 1 - User creates a new job and tests it on different types of input data*
+
+Bob, a data engineer, is developing a new data job that works with different
+data sources. He creates and deploy the job using the vdk cli. Bob then changes
+the data source configuration. He uses the executions tab to view logs and check
+how each data source impacts job duration.
+
+*Example scenario 2 - User has data heavy ingestion and wants to optimize their data jobs*
+
+Alice, a data engineer is developing a data job that uses a complex SQL query to
+ingest a large amount of data. She has several ideas to optimise the query to
+run on a large amount of data. Alice does incremental code changes and creates
+data job deployments for each change. She compares how different approaches
+scale by using the  job duration graph on the data jobs executions details page.
+Alice chooses the best approach based on her findings.
+
+*Example scenario 3 - User creates a new job, but it fails to start*
+
+Charlie, a data engineer, is developing a new data job. He does a code change
+and sees that his job has failed in the data job details page. He opens the logs
+from the provided link and finds out what caused the error.
+
+**Data Job Monitoring**
+
+The VDK frontend empowers users to detect problems at a glance. It also provides
+the necessary traceability to do deeper troubleshooting when necessary.
+
+*Example Scenario 1 User finds that their job is failing intermittently*
+
+Dan, a data engineer on an ingestion team has a production job that runs every
+30 minutes. One morning, he finds a mix of data job success and failure
+notifications in his inbox. Dan goes to the data jobs page, finds his job by
+name, goes to the job's details page and navigates to the executions tab. He
+finds that his job started failing the previous day after 00:01 AM.
+
+Dan checks the logs for the first failure and finds that the job is getting
+rate-limited by the data source. He checks the documentation and finds that the
+data source has introduced new rate limits starting the previous day. Dan
+adjusts their job's frequency to prevent future failures.
+
+*Example Scenario 2 User finds that their job's duration has increased after May 24th*
+
+Erica, a data engineer on an ingestion team, owns a production job that fetches
+and curates data. The data is used to generate daily reports. She gets a
+complaint from a data analytics team that the new report contains stale data
+from the previous day. She finds the job in the data job page and goes to the
+job's details page, where she navigates to the executions tab. Erica checks the
+duration graph and sees that execution times have been rising since May 24th.
+
+Erica uses the versioning info from the deployment details pop-up to trace
+changes to the data job in the job's code repository. She finds that on and
+after May 24th, Chuck, a member of her team, introduced a series of changes. The
+changes have significantly worsened performance. Erica mitigates the issue by
+reverting the changes. She calls a meeting with her team to discuss how to fix
+the problem. The team has available resource information from the data job
+execution deployment details pop-up. They discuss the trade-off of throwing more
+resources at the problem vs. spending time optimising Chuck's changes.
+
+*Example Scenario 3 - User finds that their job failed, but they didn't get notified*
+
+Fred is a DevOps engineer who manages data pipelines for several ingestion and
+analytics teams. He checks the general health of his data jobs using the home
+page. Fred finds that it has fallen below 100%. He sees there have been recent
+failures in a specific team's job, but he wasn't notified. This job is a core
+dependency for several other jobs. He navigates from the home page to the job's
+detail's page. Fred finds that his e-mail is not listed in the failure
+notifications section. He contacts the job owner and asks that they add his
+e-mail to avoid this scenario in the future.
+
+*Example Scenario 4 - User finds that a job delivers low-quality data*
+
+Georgia, a data analyst, has received complaints about data quality issues in a
+recent report. She logs into the web UI to check the data jobs which produced
+tables for that report. The jobs have failing or delayed executions in the last
+24 hours. Georgia navigates to the Home Page and checks the data jobs with
+failing executions widget. She navigates to the individual job details page and
+analyses the logs and execution history. Georgie takes note of the failing data
+job and the owner team responsible for it. She reaches out to the job owner.
+Georgia shares her findings and collaborates with them to identify the cause of
+the failure and resolve the issue.
+
 ### CI/CD
 
 CI/CD for frontend components leverages existing CI/CD for the VDK monorepo using
@@ -276,3 +475,4 @@ As stated in [CONTRIBUTING.md](/CONTRIBUTING.md), versioning of all components f
 <!--
 Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
 -->
+[frontend: Hide explore data jobs table by default](https://github.com/vmware/versatile-data-kit/issues/1751)
