@@ -23,6 +23,7 @@ class UnaryEncodingIngesterPlugin(ColumnLevelTransformer):
     """
     Responsible for hooking DifferentialPrivateUnaryEncoding into the VDK framework
     """
+
     def __init__(
         self,
         unary_encoding_fields: Dict[Table, Dict[Column, DomainOptions]],

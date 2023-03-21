@@ -22,6 +22,7 @@ class RandomResponseIngesterPlugin(ColumnLevelTransformer):
     """
     Responsible for hooking DifferentialPrivateRandomResponse into the VDK framework
     """
+
     def __init__(
         self,
         random_response_fields: Dict[Table, List[Column]],
