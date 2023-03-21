@@ -30,7 +30,6 @@ log = logging.getLogger(__name__)
 
 @hookimpl(tryfirst=True)
 def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-    # Declare needed configuration, it will be injected automatically fron file, env variables, etc.
     config_builder.add(
         key="differential_privacy_randomized_response_fields",
         default_value='{"table_name": ["column_name"]}',
@@ -52,7 +51,6 @@ def get_json_for_prop(context: JobContext, prop: str) -> dict:
 
 @hookimpl
 def initialize_job(context: JobContext) -> None:
-    # Now let's get the correctly configured value
     context.ingester.add_ingester_factory_method(
         "random_response_differential_privacy",
         lambda: ColumnTransformationIngestorPlugin(

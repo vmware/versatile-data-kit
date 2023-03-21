@@ -13,7 +13,8 @@ def one_hot_encode(response: str, domain: List[str]) -> List[int]:
 
 class DifferentialPrivateUnaryEncoding:
     """
-    Here the actual unary encoding differential private algorithm is implemented.
+        The class responsible for injecting the noise into the data
+    For a detailed description of how unary encoding works please see: https://programming-dp.com/ch13.html#unary-encoding
     """
 
     def __init__(self, p: float, q: float):
@@ -21,7 +22,7 @@ class DifferentialPrivateUnaryEncoding:
         self._q = q
 
     def privatize(self, value: str, domain: List[str]) -> List[int]:
-        return self.perturb(one_hot_encode(value, domain))
+        return self._perturb(one_hot_encode(value, domain))
 
     def aggregate(self, responses: List[List[int]]) -> List[int]:
         sums = np.sum(responses, axis=0)
@@ -29,10 +30,10 @@ class DifferentialPrivateUnaryEncoding:
 
         return [(v - n * self._q) / (self._p - self._q) for v in sums]
 
-    def perturb(self, encoded_response: List[int]) -> List[int]:
-        return [self.perturb_bit(b) for b in encoded_response]
+    def _perturb(self, encoded_response: List[int]) -> List[int]:
+        return [self._perturb_bit(b) for b in encoded_response]
 
-    def perturb_bit(self, bit: int) -> int:
+    def _perturb_bit(self, bit: int) -> int:
         sample = np.random.random()
         if bit == 1:
             if sample <= self._p:

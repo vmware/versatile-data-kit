@@ -13,18 +13,15 @@ from vdk.plugin.local_differential_privacy.differential_private_random_response 
 IngestionMetadata = IIngesterPlugin.IngestionMetadata
 
 log = logging.getLogger(__name__)
-
-"""
-Ingester Plugins are implemented by inheriting IIngesterPlugin and impelemented only the needed methods.
-See IIngesterPlugin docs for more info.
-"""
-
 Table = str
 Column = str
 DomainOptions = List[str]
 
 
 class RandomResponseIngesterPlugin(ColumnLevelTransformer):
+    """
+    Responsible for hooking DifferentialPrivateRandomResponse into the VDK framework
+    """
     def __init__(
         self,
         random_response_fields: Dict[Table, List[Column]],

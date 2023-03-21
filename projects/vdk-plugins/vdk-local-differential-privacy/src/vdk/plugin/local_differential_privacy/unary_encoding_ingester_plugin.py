@@ -14,17 +14,15 @@ IngestionMetadata = IIngesterPlugin.IngestionMetadata
 
 log = logging.getLogger(__name__)
 
-"""
-Ingester Plugins are implemented by inheriting IIngesterPlugin and impelemented only the needed methods.
-See IIngesterPlugin docs for more info.
-"""
-
 Table = str
 Column = str
 DomainOptions = List[str]
 
 
 class UnaryEncodingIngesterPlugin(ColumnLevelTransformer):
+    """
+    Responsible for hooking DifferentialPrivateUnaryEncoding into the VDK framework
+    """
     def __init__(
         self,
         unary_encoding_fields: Dict[Table, Dict[Column, DomainOptions]],

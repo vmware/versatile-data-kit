@@ -7,6 +7,10 @@ import numpy as np
 
 
 class DifferentialPrivateRandomResponse:
+    """
+    The class responsible for injecting the noise into the data
+    For a detailed description of how random response works please see: https://programming-dp.com/ch13.html#randomized-response
+    """
     def __init__(self, random_response_frequency: int):
         self._random_response_frequency = random_response_frequency
 
