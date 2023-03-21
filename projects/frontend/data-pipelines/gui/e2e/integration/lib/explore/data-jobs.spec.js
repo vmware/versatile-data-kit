@@ -50,7 +50,6 @@ describe(
 
             dataJobsExplorePage
                 .getMainTitle()
-                .scrollIntoView()
                 .should("be.visible")
                 .should(($el) =>
                     expect($el.text().trim()).to.equal("Explore Data Jobs"),
@@ -60,10 +59,7 @@ describe(
         it("Data Jobs Explore Page - loaded and shows data jobs", () => {
             dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
-            dataJobsExplorePage
-                .getDataGrid()
-                .scrollIntoView()
-                .should("be.visible");
+            dataJobsExplorePage.getDataGrid().should("be.visible");
 
             testJobs.forEach((testJob) => {
                 cy.log("Fixture for name: " + testJob.job_name);
@@ -75,7 +71,6 @@ describe(
 
                 dataJobsExplorePage
                     .getDataGridCell(testJob.team)
-                    .scrollIntoView()
                     .should("be.visible");
             });
         });
@@ -89,7 +84,6 @@ describe(
 
             dataJobsExplorePage
                 .getDataGridCell(testJobs[0].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             dataJobsExplorePage
@@ -137,14 +131,12 @@ describe(
 
             dataJobsExplorePage
                 .getDataGridCell(testJobs[1].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             dataJobsExplorePage.searchByJobName(testJobs[0].job_name);
 
             dataJobsExplorePage
                 .getDataGridCell(testJobs[0].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             dataJobsExplorePage
@@ -160,11 +152,9 @@ describe(
             // verify 2 test rows visible
             dataJobsExplorePage
                 .getDataGridCell(testJobs[0].job_name)
-                .scrollIntoView()
                 .should("be.visible");
             dataJobsExplorePage
                 .getDataGridCell(testJobs[1].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             // do search
@@ -173,7 +163,6 @@ describe(
             // verify 1 test row visible
             dataJobsExplorePage
                 .getDataGridCell(testJobs[0].job_name)
-                .scrollIntoView()
                 .should("be.visible");
             dataJobsExplorePage
                 .getDataGridCell(testJobs[1].job_name)
@@ -195,11 +184,9 @@ describe(
             // verify 2 test rows visible
             dataJobsExplorePage
                 .getDataGridCell(testJobs[0].job_name)
-                .scrollIntoView()
                 .should("be.visible");
             dataJobsExplorePage
                 .getDataGridCell(testJobs[1].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             // verify url does not contain search value
@@ -232,7 +219,6 @@ describe(
                 .should("not.exist");
             dataJobsExplorePage
                 .getDataGridCell(testJobs[1].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             // clear search with button
@@ -241,11 +227,9 @@ describe(
             // verify 2 test rows visible
             dataJobsExplorePage
                 .getDataGridCell(testJobs[0].job_name)
-                .scrollIntoView()
                 .should("be.visible");
             dataJobsExplorePage
                 .getDataGridCell(testJobs[1].job_name)
-                .scrollIntoView()
                 .should("be.visible");
 
             // verify url does not contain search value
@@ -332,13 +316,11 @@ describe(
 
             dataJobExploreDetailsPage
                 .getMainTitle()
-                .scrollIntoView()
                 .should("be.visible")
                 .should("contains.text", testJobs[0].job_name);
 
             dataJobExploreDetailsPage
                 .getDescriptionField()
-                .scrollIntoView()
                 .should("be.visible")
                 .should("contain.text", testJobs[0].description);
         });
