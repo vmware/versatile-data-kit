@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/* eslint-disable */
+
 import { Type } from '@angular/core';
 
 import { VdkFormSectionComponent } from './form-section.component';

@@ -21,6 +21,7 @@ import {
     ComponentService,
     ComponentStateImpl,
     ErrorHandlerService,
+    generateErrorCodes,
     NavigationService,
     RouterService,
     RouterState,
@@ -37,8 +38,12 @@ import {
 
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
-import { DataJobsExploreGridComponent } from './data-jobs-explore-grid.component';
+import { TASK_LOAD_JOBS_STATE } from '../../../../state/tasks';
+import { LOAD_JOBS_ERROR_CODES } from '../../../../state/error-codes';
+
 import { QUERY_PARAM_SEARCH } from '../../../base-grid/data-jobs-base-grid.component';
+
+import { DataJobsExploreGridComponent } from './data-jobs-explore-grid.component';
 
 describe('DataJobsExploreGridComponent', () => {
     let componentServiceStub: jasmine.SpyObj<ComponentService>;
@@ -126,6 +131,15 @@ describe('DataJobsExploreGridComponent', () => {
         routerServiceStub.get.and.returnValue(new Subject());
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
+
+        generateErrorCodes<DataJobsApiService>(dataJobsApiServiceStub, [
+            'getJobs',
+            'getJobDetails',
+            'getJobExecutions',
+        ]);
+
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE] =
+            dataJobsApiServiceStub.errorCodes.getJobs;
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],

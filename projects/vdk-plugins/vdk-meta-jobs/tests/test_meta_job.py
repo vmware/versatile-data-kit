@@ -303,3 +303,47 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
         # no other request should be tried as the meta job fails
         assert isinstance(result.exception, UserCodeError)
         assert len(httpserver.log) == 0
+
+
+def test_meta_job_concurrent_running_jobs_limit(httpserver: PluginHTTPServer):
+    jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_CONTROL_SERVICE_REST_API_URL": api_url,
+            "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "2",
+            "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
+            "VDK_META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
+            "VDK_META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "1",
+        },
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a way to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-exceed-limit")]
+        )
+
+        expected_max_running_jobs = int(
+            os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "2")
+        )
+        # keep track of the number of running jobs at any given time
+        running_jobs = set()
+        for request, response in httpserver.log:
+            if "executions" in request.path:
+                if request.method == "POST":
+                    job_name = request.path.split("/jobs/")[1].split("/")[0]
+                    running_jobs.add(job_name)
+                    assert (
+                        len(running_jobs) <= expected_max_running_jobs
+                    )  # assert that max concurrent running jobs is not exceeded
+                if request.method == "GET":
+                    execution = json.loads(response.response[0])
+                    if execution["status"] == "succeeded":
+                        running_jobs.discard(execution["job_name"])
+        cli_assert_equal(0, result)
+        # assert that all the jobs finished successfully
+        assert len(running_jobs) == 0

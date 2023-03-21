@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -32,7 +32,7 @@ import { SystemEventHandlerRecord } from './models';
  * @example
  *    // void
  *    SystemEventDispatcher
- *        .post('SE_Send_Email', { email: 'join-versatiledatakit@groups.vmware.com });
+ *        .post('SE_Send_Email', { email: 'taurus-shared@vmware.com });
  *
  *    // returns Promise
  *    SystemEventDispatcher
@@ -40,164 +40,103 @@ import { SystemEventHandlerRecord } from './models';
  *        .then((v) => {
  *          // Do something
  *        });
- *
- *
  */
 export class SystemEventDispatcher {
-	/**
-	 * ** Method to post System Event.
-	 *
-	 *   - NON-BLOCKING execution.
-	 *   - Execution is non-blocking, e.g. it is executed in queue using setTimeout of 0.
-	 *   - If third parameters is provided it will execute as many handlers as it is request.
-	 *      - e.g. 1 or 2 or N and will skip the others.
-	 */
-	static post(
-		eventId: SystemEvent,
-		payload: any,
-		handlersToExecute: number = null
-	) {
-		const preparedHandlers =
-			SystemEventHandlerRegistry.getPreparedArrayOfHandlers(eventId);
+    /**
+     * ** Method to post System Event.
+     *
+     *   - NON-BLOCKING execution.
+     *   - Execution is non-blocking, e.g. it is executed in queue using setTimeout of 0.
+     *   - If third parameters is provided it will execute as many handlers as it is request.
+     *      - e.g. 1 or 2 or N and will skip the others.
+     */
+    static post(eventId: SystemEvent, payload: any, handlersToExecute: number = null) {
+        const preparedHandlers = SystemEventHandlerRegistry.getPreparedArrayOfHandlers(eventId);
 
-		let executedHandlers = 0;
+        let executedHandlers = 0;
 
-		for (const handlerRecord of preparedHandlers) {
-			if (
-				!SystemEventDispatcher.executeExpressionFilter(
-					handlerRecord,
-					eventId,
-					payload
-				)
-			) {
-				return;
-			}
+        for (const handlerRecord of preparedHandlers) {
+            if (!SystemEventDispatcher.executeExpressionFilter(handlerRecord, eventId, payload)) {
+                return;
+            }
 
-			executedHandlers++;
+            executedHandlers++;
 
-			const isHandlerActive = (e: SystemEvent) =>
-				SystemEventHandlerRegistry.findHandlerByReference(
-					e,
-					handlerRecord.handlerRef,
-					handlerRecord.handlerClassInstance
-				).active;
+            const isHandlerActive = (e: SystemEvent) =>
+                SystemEventHandlerRegistry.findHandlerByReference(e, handlerRecord.handlerRef, handlerRecord.handlerClassInstance).active;
 
-			setTimeout(() => {
-				if (!isHandlerActive(eventId) && !isHandlerActive(SE_ALL_EVENTS)) {
-					return;
-				}
+            setTimeout(() => {
+                if (!isHandlerActive(eventId) && !isHandlerActive(SE_ALL_EVENTS)) {
+                    return;
+                }
 
-				handlerRecord.handlerRef.call(
-					handlerRecord.handlerClassInstance,
-					payload,
-					eventId
-				);
-			}, 0);
+                handlerRecord.handlerRef.call(handlerRecord.handlerClassInstance, payload, eventId);
+            }, 0);
 
-			if (
-				CollectionsUtil.isNumber(handlersToExecute) &&
-				executedHandlers >= handlersToExecute
-			) {
-				break;
-			}
-		}
-	}
+            if (CollectionsUtil.isNumber(handlersToExecute) && executedHandlers >= handlersToExecute) {
+                break;
+            }
+        }
+    }
 
-	/**
-	 * ** Method to send System Event.
-	 *
-	 *   - BLOCKING execution.
-	 *   - Execution is blocking, e.g. it is achieved using Promises, and every handler must return Promise.
-	 *   - If third parameters is provided it will execute as many handlers as it is request.
-	 *      - e.g. 1 or 2 or N and will return the flow to the invoker.
-	 */
-	static send(
-		eventId: SystemEvent,
-		payload: any,
-		handlersToExecute: number = null
-	): Promise<boolean> {
-		const preparedHandlers =
-			SystemEventHandlerRegistry.getPreparedArrayOfHandlers(eventId, true);
+    /**
+     * ** Method to send System Event.
+     *
+     *   - BLOCKING execution.
+     *   - Execution is blocking, e.g. it is achieved using Promises, and every handler must return Promise.
+     *   - If third parameters is provided it will execute as many handlers as it is request.
+     *      - e.g. 1 or 2 or N and will return the flow to the invoker.
+     */
+    static send(eventId: SystemEvent, payload: any, handlersToExecute: number = null): Promise<boolean> {
+        const preparedHandlers = SystemEventHandlerRegistry.getPreparedArrayOfHandlers(eventId, true);
 
-		return SystemEventDispatcher.executeSendCommand(
-			preparedHandlers,
-			eventId,
-			payload,
-			handlersToExecute
-		);
-	}
+        return SystemEventDispatcher.executeSendCommand(preparedHandlers, eventId, payload, handlersToExecute);
+    }
 
-	/**
-	 * ** Execute send command and handle Promises from handlers.
-	 */
-	private static executeSendCommand(
-		handlers: SystemEventHandlerRecord[],
-		eventId: SystemEvent,
-		payload: any,
-		handlersToExecute: number = null,
-		executedHandlers = 0
-	): Promise<boolean> {
-		if (!handlers.length) {
-			return Promise.resolve(true);
-		}
+    /**
+     * ** Execute send command and handle Promises from handlers.
+     */
+    private static executeSendCommand(
+        handlers: SystemEventHandlerRecord[],
+        eventId: SystemEvent,
+        payload: any,
+        handlersToExecute: number = null,
+        executedHandlers = 0
+    ): Promise<boolean> {
+        if (!handlers.length) {
+            return Promise.resolve(true);
+        }
 
-		if (
-			CollectionsUtil.isNumber(handlersToExecute) &&
-			handlersToExecute === executedHandlers
-		) {
-			return Promise.resolve(true);
-		}
+        if (CollectionsUtil.isNumber(handlersToExecute) && handlersToExecute === executedHandlers) {
+            return Promise.resolve(true);
+        }
 
-		const handlerForExecution = handlers.pop();
+        const handlerForExecution = handlers.pop();
 
-		if (
-			!SystemEventDispatcher.executeExpressionFilter(
-				handlerForExecution,
-				eventId,
-				payload
-			)
-		) {
-			return SystemEventDispatcher.executeSendCommand(
-				handlers,
-				eventId,
-				payload,
-				handlersToExecute,
-				executedHandlers
-			);
-		}
+        if (!SystemEventDispatcher.executeExpressionFilter(handlerForExecution, eventId, payload)) {
+            return SystemEventDispatcher.executeSendCommand(handlers, eventId, payload, handlersToExecute, executedHandlers);
+        }
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-		return handlerForExecution.handlerRef
-			.call(handlerForExecution.handlerClassInstance, payload, eventId)
-			.then(() =>
-				SystemEventDispatcher.executeSendCommand(
-					handlers,
-					eventId,
-					payload,
-					handlersToExecute,
-					executedHandlers + 1
-				)
-			)
-			.catch(() => Promise.reject(false));
-	}
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+        return handlerForExecution.handlerRef
+            .call(handlerForExecution.handlerClassInstance, payload, eventId)
+            .then(() => SystemEventDispatcher.executeSendCommand(handlers, eventId, payload, handlersToExecute, executedHandlers + 1))
+            .catch(() => Promise.reject(false));
+    }
 
-	/**
-	 * ** Execute Expression filter for Handler before execution.
-	 */
-	private static executeExpressionFilter(
-		handlerRecord: SystemEventHandlerRecord,
-		eventId: SystemEvent,
-		payload: any
-	): boolean {
-		const filterExpression = handlerRecord.handlerFilterExpression;
+    /**
+     * ** Execute Expression filter for Handler before execution.
+     */
+    private static executeExpressionFilter(handlerRecord: SystemEventHandlerRecord, eventId: SystemEvent, payload: any): boolean {
+        const filterExpression = handlerRecord.handlerFilterExpression;
 
-		if (CollectionsUtil.isNil(filterExpression)) {
-			return true;
-		}
+        if (CollectionsUtil.isNil(filterExpression)) {
+            return true;
+        }
 
-		return handlerRecord.handlerFilterExpression.evaluate(
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			SystemEventComparable.of({ eventId, payload })
-		);
-	}
+        return handlerRecord.handlerFilterExpression.evaluate(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            SystemEventComparable.of({ eventId, payload })
+        );
+    }
 }

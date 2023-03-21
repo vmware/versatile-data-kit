@@ -11,7 +11,11 @@ import { map } from 'rxjs/operators';
 
 import { ApolloQueryResult } from '@apollo/client/core';
 
-import { ApiPredicate, CollectionsUtil } from '@versatiledatakit/shared';
+import {
+    ApiPredicate,
+    CollectionsUtil,
+    TaurusBaseApiService,
+} from '@versatiledatakit/shared';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -34,7 +38,17 @@ export const MISSING_DEFAULT_TEAM_MESSAGE =
 export const RESERVED_DEFAULT_TEAM_NAME_MESSAGE = `The 'default' value is reserved, and can not be used for defaultOwnerTeamName property`;
 
 @Injectable()
-export class DataJobsApiService {
+export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService> {
+    /**
+     * @inheritDoc
+     */
+    static override readonly CLASS_NAME: string = 'DataJobsApiService';
+
+    /**
+     * @inheritDoc
+     */
+    static override readonly PUBLIC_NAME: string = 'Data-Pipelines-Service';
+
     ownerTeamName: string;
 
     constructor(
@@ -43,6 +57,10 @@ export class DataJobsApiService {
         private readonly http: HttpClient,
         private readonly dataJobsBaseService: DataJobsBaseApiService,
     ) {
+        super(DataJobsApiService.CLASS_NAME);
+
+        this.registerErrorCodes(DataJobsApiService);
+
         this._validateModuleConfig(dataPipelinesModuleConfig);
 
         this.ownerTeamName = dataPipelinesModuleConfig?.defaultOwnerTeamName;

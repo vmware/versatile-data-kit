@@ -29,6 +29,9 @@ class MetaJobsDag:
             min_ready_time_seconds=meta_config.meta_jobs_delayed_jobs_min_delay_seconds(),
             randomize_delay_seconds=meta_config.meta_jobs_delayed_jobs_randomized_added_delay_seconds(),
         )
+        self._max_concurrent_running_jobs = (
+            meta_config.meta_jobs_max_concurrent_running_jobs()
+        )
         self._finished_jobs = []
         self._dag_execution_check_time_period_seconds = (
             meta_config.meta_jobs_dag_execution_check_time_period_seconds()
@@ -55,7 +58,6 @@ class MetaJobsDag:
             for node in self._topological_sorter.get_ready():
                 self._start_job(node)
             self._start_delayed_jobs()
-
             finished_jobs = self._get_finished_jobs()
             self._finalize_jobs(finished_jobs)
             if not finished_jobs:
@@ -78,7 +80,10 @@ class MetaJobsDag:
             self._finished_jobs.append(node)
 
     def _start_delayed_jobs(self):
-        while True:
+        while (
+            len(self._job_executor.get_currently_running_jobs())
+            < self._max_concurrent_running_jobs
+        ):
             job = self._delayed_starting_jobs.dequeue()
             if job is None:
                 break
@@ -107,7 +112,15 @@ class MetaJobsDag:
 
     def _start_job(self, node):
         try:
-            self._job_executor.start_job(node)
+            curr_running_jobs = len(self._job_executor.get_currently_running_jobs())
+            if curr_running_jobs >= self._max_concurrent_running_jobs:
+                log.info(
+                    "Starting job fail - too many concurrently running jobs. Currently running: "
+                    f"{curr_running_jobs}, limit: {self._max_concurrent_running_jobs}. Will be re-tried later"
+                )
+                self._delayed_starting_jobs.enqueue(node)
+            else:
+                self._job_executor.start_job(node)
         except ApiException as e:
             if e.status == 409:
                 log.info(

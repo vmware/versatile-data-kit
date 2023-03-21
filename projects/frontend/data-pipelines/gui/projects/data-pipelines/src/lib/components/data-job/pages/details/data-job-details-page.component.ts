@@ -22,6 +22,7 @@ import {
     ComponentService,
     ErrorHandlerConfig,
     ErrorHandlerService,
+    ErrorRecord,
     NavigationService,
     OnTaurusModelChange,
     OnTaurusModelError,
@@ -66,7 +67,6 @@ import {
     ORDER_REQ_PARAM,
     TEAM_NAME_REQ_PARAM,
 } from '../../../../model';
-import { DataJobsApiService, DataJobsService } from '../../../../services';
 
 import {
     TASK_LOAD_JOB_DETAILS,
@@ -75,6 +75,10 @@ import {
     TASK_UPDATE_JOB_DESCRIPTION,
     TASK_UPDATE_JOB_STATUS,
 } from '../../../../state/tasks';
+
+import { LOAD_JOB_ERROR_CODES } from '../../../../state/error-codes';
+
+import { DataJobsApiService, DataJobsService } from '../../../../services';
 
 @Component({
     selector: 'lib-data-job-details-page',
@@ -109,7 +113,7 @@ export class DataJobDetailsPageComponent
     next: Date;
 
     loadingExecutions = true;
-    loadingInProgress = false;
+    loadingInProgress = true;
     allowExecutionsByDeployment = false;
 
     tmForm: FormGroup;
@@ -143,6 +147,19 @@ export class DataJobDetailsPageComponent
     get description() {
         return this.tmForm.get('description');
     }
+
+    /**
+     * ** Array of error code patterns that component should listen for in errors store.
+     */
+    listenForErrorPatterns: string[] = [
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE].All,
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS].All,
+    ];
+
+    /**
+     * ** Flag that indicates there is jobs executions load error.
+     */
+    isComponentInErrorState = false;
 
     constructor(
         // NOSONAR
@@ -272,6 +289,8 @@ export class DataJobDetailsPageComponent
     onModelLoad(model: ComponentModel, task: string): void {
         if (task === TASK_LOAD_JOB_EXECUTIONS) {
             this.loadingExecutions = false;
+        } else if (task === TASK_LOAD_JOB_DETAILS) {
+            this.loadingInProgress = false;
         }
     }
 
@@ -365,44 +384,58 @@ export class DataJobDetailsPageComponent
     /**
      * @inheritDoc
      */
-    onModelError(model: ComponentModel, task: string): void {
-        const error = ErrorUtil.extractError(model.getComponentState().error);
+    onModelError(
+        model: ComponentModel,
+        task: string,
+        newErrorRecords: ErrorRecord[],
+    ): void {
+        newErrorRecords.forEach((errorRecord) => {
+            const error = ErrorUtil.extractError(errorRecord.error);
 
-        let errorHandlerConfig: ErrorHandlerConfig;
+            let errorHandlerConfig: ErrorHandlerConfig;
 
-        switch (task) {
-            case TASK_LOAD_JOB_DETAILS:
-                this._resetJobDetails();
-                break;
-            case TASK_LOAD_JOB_EXECUTIONS:
+            switch (task) {
+                case TASK_LOAD_JOB_DETAILS:
+                    this._resetJobDetails();
+                    break;
+                case TASK_LOAD_JOB_EXECUTIONS:
+                    // No-op.
+                    break;
+                case TASK_LOAD_JOB_STATE:
+                    // No-op.
+                    break;
+                case TASK_UPDATE_JOB_DESCRIPTION:
+                    errorHandlerConfig = {
+                        title: 'Description update failed',
+                    };
+                    this.editOperationEnded();
+                    break;
+                case TASK_UPDATE_JOB_STATUS:
+                    errorHandlerConfig = {
+                        title: 'Status update failed',
+                    };
+                    this.editOperationEnded();
+                    break;
+                default:
                 // No-op.
-                break;
-            case TASK_LOAD_JOB_STATE:
-                // No-op.
-                break;
-            case TASK_UPDATE_JOB_DESCRIPTION:
-                errorHandlerConfig = {
-                    title: 'Description update failed',
-                };
-                this.editOperationEnded();
-                break;
-            case TASK_UPDATE_JOB_STATUS:
-                errorHandlerConfig = {
-                    title: 'Status update failed',
-                };
-                this.editOperationEnded();
-                break;
-            default:
-            // No-op.
-        }
+            }
 
-        this.errorHandlerService.processError(error, errorHandlerConfig);
+            this.errorHandlerService.processError(error, errorHandlerConfig);
+        });
     }
 
     /**
      * @inheritDoc
      */
     override ngOnInit() {
+        // attach listener to ErrorStore and listen for Errors change
+        this.errors.onChange((store) => {
+            // if there is record for listened error code patterns set component in error state
+            this.isComponentInErrorState = store.hasCodePattern(
+                ...this.listenForErrorPatterns,
+            );
+        });
+
         super.ngOnInit();
 
         this._initializeNextRunDate();

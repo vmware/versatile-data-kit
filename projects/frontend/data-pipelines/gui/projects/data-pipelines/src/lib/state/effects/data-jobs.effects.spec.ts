@@ -16,12 +16,16 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { ApolloQueryResult } from '@apollo/client/core';
 
 import {
+    CollectionsUtil,
     ComponentFailed,
     ComponentLoaded,
     ComponentModel,
     ComponentService,
     ComponentStateImpl,
     ComponentUpdate,
+    ErrorRecord,
+    generateErrorCode,
+    generateErrorCodes,
     GenericAction,
     LOADED,
     LOADING,
@@ -58,6 +62,7 @@ import {
     TASK_LOAD_JOB_DETAILS,
     TASK_LOAD_JOB_EXECUTIONS,
     TASK_LOAD_JOB_STATE,
+    TASK_LOAD_JOBS_STATE,
     TASK_UPDATE_JOB_DESCRIPTION,
     TASK_UPDATE_JOB_STATUS,
 } from '../tasks';
@@ -87,6 +92,15 @@ describe('DataJobsEffects', () => {
             ['getModel'],
         );
 
+        generateErrorCodes<DataJobsApiService>(dataJobsApiServiceStub, [
+            'getJob',
+            'getJobDetails',
+            'getJobExecutions',
+            'getJobs',
+            'updateDataJobStatus',
+            'updateDataJob',
+        ]);
+
         TestBed.configureTestingModule({
             providers: [
                 {
@@ -111,6 +125,15 @@ describe('DataJobsEffects', () => {
                 'should verify will load data-jobs',
                 marbles((m) => {
                     // Given
+                    const dateNow = Date.now();
+                    spyOn(CollectionsUtil, 'dateNow').and.returnValue(dateNow);
+                    const error = new Error('Something bad happened');
+                    const errorRecord: ErrorRecord = {
+                        code: dataJobsApiServiceStub.errorCodes.getJobs.Unknown,
+                        error,
+                        objectUUID: effects.objectUUID,
+                    };
+
                     actions$ = m.cold('-a---------b', {
                         a: GenericAction.of(
                             FETCH_DATA_JOBS,
@@ -160,16 +183,23 @@ describe('DataJobsEffects', () => {
                         );
                     });
 
-                    const expected$ = m.cold('--------a----b', {
+                    const expected$ = m.cold('--------a------b', {
                         a: ComponentLoaded.of(
                             createModel()
                                 .withData(JOBS_DATA_KEY, result.data)
+                                .withTask(TASK_LOAD_JOBS_STATE)
                                 .withStatusLoaded()
                                 .getComponentState(),
                         ),
                         b: ComponentFailed.of(
                             createModel(null, 4)
-                                .withError(new Error('Something bad happened'))
+                                .withData(JOBS_DATA_KEY, {
+                                    content: [],
+                                    totalItems: 0,
+                                    totalPages: 0,
+                                } as DataJobPage)
+                                .withError(errorRecord)
+                                .withTask(TASK_LOAD_JOBS_STATE)
                                 .withStatusFailed()
                                 .getComponentState(),
                         ),
@@ -265,8 +295,11 @@ describe('DataJobsEffects', () => {
 
                     const expected$ = m.cold('--------a-b-c', {
                         a: ComponentLoaded.of(
+                            /* eslint-disable @typescript-eslint/no-unsafe-argument */
+                            /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+                            /* eslint-disable @typescript-eslint/no-unsafe-call */
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_STATE)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
@@ -277,7 +310,7 @@ describe('DataJobsEffects', () => {
                         ),
                         b: ComponentUpdate.of(
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_DETAILS)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
@@ -292,7 +325,7 @@ describe('DataJobsEffects', () => {
                         ),
                         c: ComponentUpdate.of(
                             createModel()
-                                .clearError()
+                                .clearErrors()
                                 .withTask(TASK_LOAD_JOB_EXECUTIONS)
                                 .withData(
                                     JOB_STATE_DATA_KEY,
@@ -328,7 +361,6 @@ describe('DataJobsEffects', () => {
                     const genericAction = GenericAction.of(
                         FETCH_DATA_JOB_EXECUTIONS,
                         createModel().getComponentState(),
-                        TASK_LOAD_JOB_EXECUTIONS,
                     );
                     actions$ = m.cold('-a----------', {
                         a: genericAction,
@@ -369,8 +401,8 @@ describe('DataJobsEffects', () => {
                     const expected$ = m.cold('--------a', {
                         a: ComponentLoaded.of(
                             createModel()
-                                .clearError()
-                                .withTask(genericAction.task)
+                                .clearErrors()
+                                .withTask(TASK_LOAD_JOB_EXECUTIONS)
                                 .withData(
                                     JOB_EXECUTIONS_DATA_KEY,
                                     getExecutionsTuples()[1].content,
@@ -418,7 +450,7 @@ describe('DataJobsEffects', () => {
                     const expected$ = m.cold('---------a-', {
                         a: ComponentLoaded.of(
                             createModel(undefined, 1, LOADING)
-                                .clearError()
+                                .clearErrors()
                                 .withTask(genericAction1.task)
                                 .withData(JOB_DETAILS_DATA_KEY, undefined)
                                 .withStatusLoaded()
@@ -462,7 +494,7 @@ describe('DataJobsEffects', () => {
                     const expected$ = m.cold('---------a-', {
                         a: ComponentLoaded.of(
                             createModel(undefined, 1, LOADING)
-                                .clearError()
+                                .clearErrors()
                                 .withTask(genericAction1.task)
                                 .withData(JOB_STATE_DATA_KEY, undefined)
                                 .withStatusLoaded()
@@ -482,6 +514,21 @@ describe('DataJobsEffects', () => {
                 'should verify will fail',
                 marbles((m) => {
                     // Given
+                    const dateNow = Date.now();
+                    spyOn(CollectionsUtil, 'dateNow').and.returnValue(dateNow);
+                    const error = new Error(
+                        'Unsupported action task for Data Pipelines, update Data Job.',
+                    );
+                    const errorRecord: ErrorRecord = {
+                        code: generateErrorCode(
+                            DataJobsEffects.CLASS_NAME,
+                            DataJobsEffects.PUBLIC_NAME,
+                            '_updateJob',
+                            'UnsupportedActionTask',
+                        ),
+                        error,
+                        objectUUID: effects.objectUUID,
+                    };
                     const genericAction1 = GenericAction.of(
                         UPDATE_DATA_JOB,
                         createModel(undefined, 1, LOADING).getComponentState(),
@@ -501,11 +548,7 @@ describe('DataJobsEffects', () => {
                         a: ComponentFailed.of(
                             createModel()
                                 .withTask(genericAction1.task)
-                                .withError(
-                                    new Error(
-                                        'Unsupported ComponentModel update task',
-                                    ),
-                                )
+                                .withError(errorRecord)
                                 .withStatusFailed()
                                 .getComponentState(),
                         ),

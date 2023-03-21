@@ -15,6 +15,7 @@
         [selectedValue]="selectedJob"
         [quickFilters]="quickFilters"
         [suppressQuickFilterChangeEvent]="true"
+        [disableActionableElements]="disableActionableElements"
         (search)="search($event)"
     >
         <div class="custom-buttons-left">
@@ -22,7 +23,7 @@
                 class="btn btn-link btn-sm"
                 aria-label="refresh"
                 data-cy="data-pipelines-manage-refresh-btn"
-                [disabled]="loading"
+                [disabled]="loading || disableActionableElements"
                 (click)="refresh()"
             >
                 <clr-icon shape="refresh" size="14"></clr-icon>
@@ -41,7 +42,8 @@
                     !(
                         (selectedJob?.deployments | extractJobStatus) ===
                         'Disabled'
-                    )
+                    ) ||
+                    disableActionableElements
                 "
                 (click)="enable()"
             >
@@ -60,7 +62,8 @@
                     !(
                         (selectedJob?.deployments | extractJobStatus) ===
                         'Enabled'
-                    )
+                    ) ||
+                    disableActionableElements
                 "
                 (click)="disable()"
             >
@@ -77,7 +80,8 @@
                 [disabled]="
                     loading ||
                     (selectedJob?.deployments | extractJobStatus) ===
-                        'Not Deployed'
+                        'Not Deployed' ||
+                    disableActionableElements
                 "
                 (click)="executeDataJob()"
             >
@@ -531,22 +535,37 @@
             </clr-dg-row>
 
             <clr-dg-placeholder>
-                <div *ngIf="!searchQueryValue" class="msg-btn-placeholder">
-                    <div>No data jobs created!</div>
-                    <a
-                        class="btn btn-primary btn-doc"
-                        target="_blank"
-                        href="https://github.com/vmware/versatile-data-kit"
-                        ><clr-icon shape="pop-out"></clr-icon> Learn about Data
-                        Jobs</a
-                    >
-                </div>
-                <div *ngIf="searchQueryValue">
-                    <span
-                        >No data jobs that match with
-                        <strong>{{ searchQueryValue }}</strong> criteria</span
-                    >
-                </div>
+                <shared-placeholder
+                    errorContext="Data Jobs"
+                    [plural]="true"
+                    [errorsQueue]="errors.records"
+                    [listenForErrorPatterns]="listenForErrorPatterns"
+                >
+                    <ng-template #emptyTemplate>
+                        <div
+                            *ngIf="!searchQueryValue"
+                            class="msg-btn-placeholder"
+                        >
+                            <div>No data jobs created!</div>
+                            <a
+                                class="btn btn-primary btn-doc"
+                                target="_blank"
+                                rel="noopener"
+                                href="https://confluence.eng.vmware.com/display/SuperCollider/Data+Pipelines"
+                            >
+                                <clr-icon shape="pop-out"></clr-icon> Learn
+                                about Data Jobs
+                            </a>
+                        </div>
+                        <div *ngIf="searchQueryValue">
+                            <span
+                                >No data jobs that match with
+                                <strong>{{ searchQueryValue }}</strong>
+                                criteria</span
+                            >
+                        </div>
+                    </ng-template>
+                </shared-placeholder>
             </clr-dg-placeholder>
 
             <clr-dg-footer>

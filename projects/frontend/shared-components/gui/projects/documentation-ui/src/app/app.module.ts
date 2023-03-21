@@ -12,53 +12,54 @@ import { AuthConfig, OAuthModule, OAuthStorage } from 'angular-oauth2-oidc';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VdkComponentsModule } from '@versatiledatakit/shared';
+import { TaurusSharedCoreModule, TaurusSharedFeaturesModule, TaurusSharedNgRxModule, VdkComponentsModule } from '@versatiledatakit/shared';
 
-import {
-	TaurusSharedCoreModule,
-	TaurusSharedFeaturesModule,
-	TaurusSharedNgRxModule
-} from '@versatiledatakit/shared';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { AuthorizationInterceptor } from './http.interceptor';
+
 import { authCodeFlowConfig } from './auth';
 
+import { AppRoutingModule } from './app-routing.module';
+
+import { AppComponent } from './app.component';
+
 @NgModule({
-	imports: [
-		AppRoutingModule,
-		BrowserModule,
-		ClarityModule,
-		BrowserAnimationsModule,
-		TaurusSharedCoreModule.forRoot(),
-		TaurusSharedFeaturesModule.forRoot(),
-		TaurusSharedNgRxModule.forRootWithDevtools(),
-		VdkComponentsModule.forRoot(),
-		HttpClientModule,
-		OAuthModule.forRoot({
-			resourceServer: {
-				allowedUrls: [authCodeFlowConfig.issuer, '/metadata'],
-				sendAccessToken: true
-			}
-		})
-	],
-	declarations: [AppComponent],
-	providers: [
-		{
-			provide: OAuthStorage,
-			useValue: localStorage
-		},
-		{
-			provide: AuthConfig,
-			useValue: authCodeFlowConfig
-		},
-		{
-			provide: HTTP_INTERCEPTORS,
-			useClass: AuthorizationInterceptor,
-			multi: true
-		}
-	],
-	bootstrap: [AppComponent]
+    imports: [
+        AppRoutingModule,
+        BrowserModule,
+        ClarityModule,
+        BrowserAnimationsModule,
+        VdkComponentsModule.forRoot(),
+        TaurusSharedCoreModule.forRoot(),
+        TaurusSharedFeaturesModule.forRoot({
+            warning: {
+                serviceRequestUrl: '#'
+            }
+        }),
+        TaurusSharedNgRxModule.forRootWithDevtools(),
+        HttpClientModule,
+        OAuthModule.forRoot({
+            resourceServer: {
+                allowedUrls: [authCodeFlowConfig.issuer, '/metadata'],
+                sendAccessToken: true
+            }
+        })
+    ],
+    declarations: [AppComponent],
+    providers: [
+        {
+            provide: OAuthStorage,
+            useValue: localStorage
+        },
+        {
+            provide: AuthConfig,
+            useValue: authCodeFlowConfig
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthorizationInterceptor,
+            multi: true
+        }
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}
