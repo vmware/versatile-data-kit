@@ -29,7 +29,7 @@ export class DataJobsExplorePage extends DataJobsBasePO {
             .get(
                 '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted',
             )
-            .contains(new RegExp(`^${content}$`));
+            .contains(new RegExp(`^\\s*${content}\\s*$`));
     }
 
     getDataGridNavigateBtn(team, job) {

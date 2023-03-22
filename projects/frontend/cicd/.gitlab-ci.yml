@@ -33,9 +33,33 @@ frontend-data-pipelines-build:
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
     paths:
+      - projects/frontend/data-pipelines/gui/reports/coverage/
       - projects/frontend/data-pipelines/gui/package-lock.json
       - projects/frontend/data-pipelines/gui/dist/
       - projects/frontend/data-pipelines/gui/node_modules/
+    expire_in: 1 week
+
+frontend-data-pipelines-e2e-tests:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: pre_release_test
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN"
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_data_pipelines_locations
+  artifacts:
+    when: always
+    paths:
+      - projects/frontend/data-pipelines/gui/e2e/videos/
+      - projects/frontend/data-pipelines/gui/e2e/screenshots/
+      - projects/frontend/data-pipelines/gui/e2e/hars/
+      - projects/frontend/data-pipelines/gui/e2e/logs/
+      - projects/frontend/data-pipelines/gui/e2e/reports/
     expire_in: 1 week
 
 frontend-data-pipelines-release:
@@ -87,7 +111,7 @@ frontend-shared-components-build:
   before_script:
     - cd projects/frontend/shared-components/gui
   script:
-    - ../../cicd/build_shared.sh
+    - ../../cicd/install_shared.sh
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
@@ -99,6 +123,7 @@ frontend-shared-components-build:
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
     paths:
+      - projects/frontend/shared-components/gui/reports/coverage/
       - projects/frontend/shared-components/gui/package-lock.json
       - projects/frontend/shared-components/gui/dist/
       - projects/frontend/shared-components/gui/node_modules/

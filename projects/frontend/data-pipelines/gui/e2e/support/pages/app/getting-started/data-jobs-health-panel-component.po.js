@@ -34,6 +34,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
             .should("exist")
             .find("[data-cy=dp-jobs-executions-status-gauge-widget-percentage]")
             .invoke("text")
+            .invoke("trim")
             .invoke("replace", /%/, "")
             .then((value) => +value);
     }
@@ -48,6 +49,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
             .should("exist")
             .find("[data-cy=dp-jobs-executions-status-gauge-widget-failed]")
             .invoke("text")
+            .invoke("trim")
             .invoke("replace", /\s\w+/, "")
             .then((value) => +value);
     }
@@ -62,6 +64,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
             .should("exist")
             .find("[data-cy=dp-jobs-executions-status-gauge-widget-total]")
             .invoke("text")
+            .invoke("trim")
             .invoke("replace", /\s\w+/, "")
             .then((value) => +value);
     }

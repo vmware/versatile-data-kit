@@ -4,6 +4,7 @@
   -->
 
 <clr-modal
+    *ngIf="options.opened"
     id="delete-modal"
     [(clrModalOpen)]="options.opened"
     [clrModalClosable]="options.showCloseX"

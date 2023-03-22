@@ -18,42 +18,40 @@ import { RouterState, RouteState } from '../model';
 
 /**
  * ** Router Service.
- *
- *
  */
 @Directive()
 // eslint-disable-next-line @angular-eslint/directive-class-suffix
 export abstract class RouterService extends TaurusObject {
-	protected static _routerState: RouterState = RouterState.empty();
+    protected static _routerState: RouterState = RouterState.empty();
 
-	/**
-	 * ** Will return current Router.
-	 */
-	static get(): RouterState {
-		return RouterService._routerState;
-	}
+    /**
+     * ** Will return current Router.
+     */
+    static get(): RouterState {
+        return RouterService._routerState;
+    }
 
-	/**
-	 * ** Will return current Route State.
-	 */
-	static getState(): RouteState {
-		return RouterService._routerState.state;
-	}
+    /**
+     * ** Will return current Route State.
+     */
+    static getState(): RouteState {
+        return RouterService._routerState.state;
+    }
 
-	/**
-	 * ** Will return Observable with NgRx Route State.
-	 */
-	abstract get(): Observable<RouterState>;
+    /**
+     * ** Will return Observable with NgRx Route State.
+     */
+    abstract get(): Observable<RouterState>;
 
-	/**
-	 * ** Will return Observable with Route State.
-	 */
-	abstract getState(): Observable<RouteState>;
+    /**
+     * ** Will return Observable with Route State.
+     */
+    abstract getState(): Observable<RouteState>;
 
-	/**
-	 * ** Will initialize service.
-	 */
-	abstract initialize(): void;
+    /**
+     * ** Will initialize service.
+     */
+    abstract initialize(): void;
 }
 
 /**
@@ -61,34 +59,34 @@ export abstract class RouterService extends TaurusObject {
  */
 @Injectable()
 export class RouterServiceImpl extends RouterService {
-	constructor(private readonly store$: Store<StoreState>) {
-		super();
-	}
+    constructor(private readonly store$: Store<StoreState>) {
+        super();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	get(): Observable<RouterState> {
-		return this.store$.select(STORE_ROUTER);
-	}
+    /**
+     * @inheritDoc
+     */
+    get(): Observable<RouterState> {
+        return this.store$.select(STORE_ROUTER);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	getState(): Observable<RouteState> {
-		return this.get().pipe(map((data) => data.state));
-	}
+    /**
+     * @inheritDoc
+     */
+    getState(): Observable<RouteState> {
+        return this.get().pipe(map((data) => data.state));
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	initialize(): void {
-		this.cleanSubscriptions();
+    /**
+     * @inheritDoc
+     */
+    initialize(): void {
+        this.cleanSubscriptions();
 
-		this.subscriptions.push(
-			this.get().subscribe((state) => {
-				RouterService._routerState = state;
-			})
-		);
-	}
+        this.subscriptions.push(
+            this.get().subscribe((state) => {
+                RouterService._routerState = state;
+            })
+        );
+    }
 }

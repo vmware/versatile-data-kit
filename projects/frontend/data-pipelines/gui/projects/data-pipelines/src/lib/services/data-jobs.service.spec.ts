@@ -21,10 +21,7 @@ import {
     FETCH_DATA_JOBS,
     UPDATE_DATA_JOB,
 } from '../state/actions';
-import {
-    TASK_LOAD_JOB_EXECUTIONS,
-    TASK_UPDATE_JOB_DESCRIPTION,
-} from '../state/tasks';
+import { TASK_UPDATE_JOB_DESCRIPTION } from '../state/tasks';
 
 import { DataJobsService, DataJobsServiceImpl } from './data-jobs.service';
 
@@ -129,7 +126,6 @@ describe('DataJobsService -> DataJobsServiceImpl', () => {
                 ).toHaveBeenCalledWith(
                     FETCH_DATA_JOB_EXECUTIONS,
                     model.getComponentState(),
-                    TASK_LOAD_JOB_EXECUTIONS,
                 );
             });
         });

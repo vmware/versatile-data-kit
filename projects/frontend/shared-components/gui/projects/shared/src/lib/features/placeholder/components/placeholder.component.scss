@@ -1,0 +1,87 @@
+/*!
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+$text-dark: var(--clr-h2-color, black);
+$text-light: #eaedf0;
+
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.shared__placeholder {
+    ::ng-deep vmw-empty-state-placeholder {
+        margin-top: 3rem;
+        margin-bottom: 20px;
+
+        .empty-placeholder-heading {
+            line-height: 30px;
+            margin-bottom: 18px;
+        }
+
+        .empty-placeholder-description {
+            white-space: pre-wrap;
+            text-align: center;
+        }
+    }
+
+    .shared__placeholder-error-container {
+        &:not(.shared__placeholder-error-container--system-default) {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 24px 0;
+        }
+    }
+
+    .shared__placeholder-error-template--system-default,
+    ::ng-deep .shared__placeholder-error-template--custom {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 1rem 0;
+
+        h2 {
+            font-size: 18px;
+            line-height: 24px;
+            text-align: center;
+            color: $text-dark;
+            margin: 24px 0 18px 0;
+        }
+
+        h3 {
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            color: $text-dark;
+            margin: 0 0 12px 0;
+
+            .shared__placeholder-error-template-escalation {
+                ::ng-deep a {
+                    text-decoration: underline !important;
+                }
+            }
+        }
+
+        h4 {
+            font-size: 13px;
+            line-height: 24px;
+            text-align: center;
+            color: $text-dark;
+            margin: 0;
+        }
+    }
+}
+
+:host-context(.dark) {
+    .shared__placeholder-error-template--system-default,
+    ::ng-deep .shared__placeholder-error-template--custom {
+        h2,
+        h3,
+        h4 {
+            color: $text-light;
+        }
+    }
+}

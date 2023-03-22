@@ -12,10 +12,8 @@ import { componentReducer } from '../../component/state';
 
 /**
  * ** Root reducers for Shared.
- *
- *
  */
 export const SHARED_ROOT_REDUCERS: ActionReducerMap<StoreState> = {
-	[STORE_ROUTER]: routerReducer,
-	[STORE_COMPONENTS]: componentReducer
+    [STORE_ROUTER]: routerReducer,
+    [STORE_COMPONENTS]: componentReducer
 };
