@@ -95,7 +95,6 @@ public class JobImageDeployer {
       String lastDeployedBy) {
     Validate.notNull(jobDeployment, "jobDeployment should not be null");
     Validate.notNull(jobDeployment.getImageName(), "Image name is expected in jobDeployment");
-
     try {
       return updateCronJobWithNotification(
           dataJob, jobDeployment, sendNotification, lastDeployedBy);
