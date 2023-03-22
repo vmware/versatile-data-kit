@@ -4,30 +4,17 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRunRequest } from '../serverRequests';
+import { IJobFullProps } from './props';
 
-export interface IDeployJobDialogProps {
-  /**
-   * Current Job name
-   */
-  jobName: string;
-  /**
-   * Current Team name
-   */
-  jobTeam: string;
-  /**
-   * Current Job path
-   */
-  jobPath: string;
-}
 
-export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
+export default class DeployJobDialog extends Component<(IJobFullProps)> {
   /**
    * Returns a React component for rendering a Deploy menu.
    *
    * @param props - component properties
    * @returns React component
    */
-  constructor(props: IDeployJobDialogProps) {
+  constructor(props: IJobFullProps) {
     super(props);
   }
   /**
@@ -40,12 +27,12 @@ export default class DeployJobDialog extends Component<IDeployJobDialogProps> {
       <>
         <VDKTextInput
           option={VdkOption.NAME}
-          value="default-name"
+          value={this.props.jobName}
           label="Job Name:"
         ></VDKTextInput>
         <VDKTextInput
           option={VdkOption.TEAM}
-          value="default-team"
+          value={this.props.jobTeam}
           label="Job Team:"
         ></VDKTextInput>
         <VDKTextInput
@@ -100,9 +87,9 @@ export async function showCreateDeploymentDialog() {
     title: 'Create Deployment',
     body: (
       <DeployJobDialog
-        jobName="job-to-deploy"
-        jobPath={sessionStorage.getItem('current-path')!}
-        jobTeam="my-team"
+        jobName={jobData.get(VdkOption.NAME)!}
+        jobPath={jobData.get(VdkOption.PATH)!}
+        jobTeam={jobData.get(VdkOption.TEAM)!}
       ></DeployJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]

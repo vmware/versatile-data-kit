@@ -4,26 +4,17 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
+import { IJobFullProps } from './props';
 
-export interface ICreateJobDialogProps {
-  /**
-   * Current Job path
-   */
-  jobPath: string;
-  /**
-   * Current Job name
-   */
-  jobName: string;
-}
 
-export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
+export default class CreateJobDialog extends Component<(IJobFullProps)> {
   /**
    * Returns a React component for rendering a create menu.
    *
    * @param props - component properties
    * @returns React component
    */
-  constructor(props: ICreateJobDialogProps) {
+  constructor(props: IJobFullProps) {
     super(props);
   }
   /**
@@ -62,12 +53,12 @@ export default class CreateJobDialog extends Component<ICreateJobDialogProps> {
         </div>
         <VDKTextInput
           option={VdkOption.NAME}
-          value="default-name"
+          value={this.props.jobName}
           label="Job Name:"
         ></VDKTextInput>
         <VDKTextInput
           option={VdkOption.TEAM}
-          value="default-team"
+          value={this.props.jobTeam}
           label="Job Team:"
         ></VDKTextInput>
         <VDKTextInput
@@ -130,8 +121,9 @@ export async function showCreateJobDialog() {
     title: 'Create Job',
     body: (
       <CreateJobDialog
-        jobPath={sessionStorage.getItem('current-path')!}
-        jobName="default-name"
+        jobPath={jobData.get(VdkOption.PATH)!}
+        jobName={jobData.get(VdkOption.NAME)!}
+        jobTeam={jobData.get(VdkOption.TEAM)!}
       ></CreateJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
