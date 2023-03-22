@@ -254,7 +254,26 @@ In total, the vdk-meta-jobs plugin will perform 80 requests for the whole workfl
 
 ### Troubleshooting
 
-  * Diagnostics: All the main operations such as building
+* What are the possible failure modes.
+
+  * There are a few ways in which the plugin may fail:
+
+    * If an orchestrated job is being finalized and its status is not the expected "succeeded" one and the configuration
+    value of "fail_meta_job_on_error" is set to TRUE, then a USER ERROR is raised for the Meta Job and its execution
+    is interrupted.
+    * If any kind of platform error occurs, a Meta Job would retry up to N (configurable by the Control Service) times
+      for each job it is orchestrating.
+    * If a non-registered job is attempted to be accessed, the plugin would raise Index Error with some suggestions.
+    * If a job is starting but a conflict is detected with another running job (409) or an internal server error (>=500)
+      has occurred, the execution of the job would be delayed.
+    * In the event of circular dependency (e.g. job1 depends on job2 and job2 depends on job1), violating the
+      requirements, the plugin would raise User Error.
+
+  * Diagnostics: All the main operations from the creation of the Meta Jobs DAG to the very end of the execution are
+    logged.
+
+  * Testing: There are [tests](/projects/vdk-plugins/vdk-meta-jobs/tests/test_meta_job.py) for all the aforementioned
+    failure scenarios.
 
 ### Test Plan
 
