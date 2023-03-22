@@ -210,15 +210,31 @@ There are more settings that are configurable by the user, that can be explored 
 
 ### Capacity Estimation and Constraints
 
-The load to the Control Service APIs from the Meta Jobs plugin mostly depends on two factors:
+The load to the Control Service APIs from the Meta Jobs plugin mostly depends on three factors:
 
-* Number of concurrent Data Job Executions (there is a reasonable default limit, but the value is
+* Number of Data Jobs in the DAG (there is a reasonable default limit, but the value is
   [configurable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87);
 * Data Job Executions duration;
 * Configuration value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76).
 
-A workflow that consists of one Data Job is going to perform 2 requests per minute to the
-Control Service APIs.
+The main resource Meta Jobs consume is API requests. Here are the different cases in which an API request is sent:
+
+* To start a job
+* To check the status of a job (based on META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS)
+* To get details after a job is completed
+* On retries (if a job start failed)
+
+Let's create a formula for calculating the number of API requests in a DAG run. We'll use the following variables:
+
+J: Number of Data Jobs in the DAG
+E: Average Data Job Execution duration
+S: The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS
+
+Generally, job1 is independent of job2 in terms of requests - job1 would not impact the number of requests job2 would
+send throughout its duration.
+
+Thus, 1 job would send (1 + E/S + 1) API request for its run.
+Hence, the DAG would make J * (1 + E/S + 1) total requests.
 
 For example, the following workflow consists of 6 Data Jobs:
 
@@ -229,28 +245,12 @@ For example, the following workflow consists of 6 Data Jobs:
 * The execution time of each of the following jobs is about 15 min: `Job 3`, `Job 4` and `Job 6`;
 * The execution time of each of the following jobs is about 20 min: `Job 5`;
 * The concurrent running jobs limit is configured to 2.
-* The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS is configured to 60 (sec).
+* The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS is configured to the default 40 (seconds).
 
 ![sample-execution.png](sample-execution.png)
 
-Let's estimate the number of requests the Meta Jobs plugin would send after certain time of the workflow execution.
-For our convenience, let's assume that finalizing one job and starting another takes no time (~0 sec).
-The following time intervals "X - Y" mean from moment X until moment Y (measured in minutes), where X = 0 is the start:
-
-* 0 - 10: about 1 (1 job * 1 reqs/min) requests per minute or 10 requests in total.
-  Running: `Job 1`;
-* 10 - 20: about 2 (2 jobs * 1 reqs/min) requests per minute or 20 requests in total.
-  Running jobs: `Job 2` and `Job 3`;
-* 20 - 25: about 2 (2 jobs * 1 reqs/min) requests per minute or 10 requests in total.
-  Running jobs: `Job 3` and `Job 4`;
-* 25 - 35: about 2 (2 jobs * 1 reqs/min) requests per minute or 20 requests in total.
-  Running jobs: `Job 4` and `Job 5`;
-* 35 - 40: about 2 (2 jobs * 1 reqs/min) requests per minute or 10 requests in total.
-  Running jobs: `Job 5` and `Job 6`;
-* 40 - 50: about 1 (1 job * 1 reqs/min) requests per minute or 10 requests in total.
-  Running jobs: `Job 6`.
-
-In total, the vdk-meta-jobs plugin will perform 80 requests for the whole workflow execution.
+In this scenario, the vdk-meta-jobs plugin will perform a total of 147 requests for the whole workflow execution.
+See Appendix A for more details about this example.
 
 ### Troubleshooting
 
@@ -306,3 +306,30 @@ Keep it short - if needed link to more detailed research document.
 
 Apache Airflow was the alternative workflow management platform that was taken into consideration.
 However, a VDK integration with Airflow proved to be costly mainly due to the management of external infrastructure.
+
+## Appendix A: Calculating the load to the Control Service APIs
+
+Let's estimate the number of API requests needed to be sent by the Meta Jobs plugin for the entire the workflow
+execution.
+We know that one Data Job is going to perform 1 request per 40 seconds to the Control Service APIs.
+Also, the concurrent running job limit is set to 2.
+For our convenience, let's make the following assumptions:
+1. Finalizing one job and starting another takes no time (~0 sec).
+2. Each job starts successfully from the first try - no retries are needed.
+
+Here is the formula we defined earlier for a total amount of requests a DAG would need to send:
+
+TR (total requests) = J * (2 + E/S)
+
+In our DAG: J = 6, E = (2*600 + 2*900 + 2*1200)/6 = 900, S = 40.
+Hence, TR = 6 * (2 + 900/40) = 6 * 24.5 = 147
+
+Additionally, the following time intervals "X - Y" show which jobs would be running
+from moment X until moment Y (measured in minutes), where X = 0 is the start:
+
+* 0 - 10: `Job 1`;
+* 10 - 20: `Job 2` and `Job 3`;
+* 20 - 25: `Job 3` and `Job 4`;
+* 25 - 35: `Job 4` and `Job 5`;
+* 35 - 40: `Job 5` and `Job 6`;
+* 40 - 50: `Job 6`.
