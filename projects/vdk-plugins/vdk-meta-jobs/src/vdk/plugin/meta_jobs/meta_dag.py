@@ -115,7 +115,7 @@ class MetaJobsDag:
             curr_running_jobs = len(self._job_executor.get_currently_running_jobs())
             if curr_running_jobs >= self._max_concurrent_running_jobs:
                 log.info(
-                    "Starting job fail - too many concurrently running jobs. Currently running: "
+                    f"Starting job {node} fail - too many concurrently running jobs. Currently running: "
                     f"{curr_running_jobs}, limit: {self._max_concurrent_running_jobs}. Will be re-tried later"
                 )
                 self._delayed_starting_jobs.enqueue(node)
