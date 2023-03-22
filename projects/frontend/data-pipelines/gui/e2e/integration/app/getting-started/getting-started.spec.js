@@ -59,9 +59,11 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
     it("Main Title Component have text: Get Started with Data Pipelines", () => {
         GettingStartedPage.navigateTo()
             .getMainTitle()
-            //TODO : Discuss/agree what should be the assertion strategy of the UI Components.
-            // Do we assert text directly, or use some other form?
-            .should("have.text", "Get Started with Data Pipelines");
+            .should(($el) =>
+                expect($el.text().trim()).to.equal(
+                    "Get Started with Data Pipelines",
+                ),
+            );
     });
 
     describe("Data Jobs Health Overview Panel", () => {
