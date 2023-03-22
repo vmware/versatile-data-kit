@@ -2,15 +2,14 @@
  * Copyright 2023-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-import DownloadJobDialog, {
-  IDownloadJobDialogProps
-} from '../components/DownloadJob';
+import DownloadJobDialog from '../components/DownloadJob';
 import { render, fireEvent } from '@testing-library/react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
+import { IJobPathProp } from '../components/props';
 
-const defaultProps: IDownloadJobDialogProps = {
-  parentPath: 'test-path'
+const defaultProps: IJobPathProp = {
+  jobPath: 'test-path'
 };
 
 // created with the expectation to compare a rendered value with expected value parsed from config.ini
@@ -30,7 +29,7 @@ describe('#render()', () => {
 
   it('should return contain job path input with placeholder equal to jobPath from props', () => {
     const component = render(new DownloadJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.parentPath);
+    const input = component.getByPlaceholderText(defaultProps.jobPath);
     expect(input).toBe(
       component.getAllByLabelText('Path to job directory:')[0]
     );
@@ -67,7 +66,7 @@ describe('#onRestApiUrlChange', () => {
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
     const component = render(new DownloadJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.parentPath);
+    const input = component.getByPlaceholderText(defaultProps.jobPath);
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
   });

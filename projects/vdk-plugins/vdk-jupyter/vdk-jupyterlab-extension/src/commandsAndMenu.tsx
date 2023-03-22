@@ -1,11 +1,14 @@
 import { CommandRegistry } from '@lumino/commands';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 import { showRunJobDialog } from './components/RunJob';
-import { setJobDataToDefault } from './jobData';
+import { jobData, setJobDataToDefault } from './jobData';
 import { showCreateDeploymentDialog } from './components/DeployJob';
 import { showCreateJobDialog } from './components/CreateJob';
 import { showDownloadJobDialog } from './components/DownloadJob';
 import { showDeleteJobDialog } from './components/DeleteJob';
+import { jobdDataRequest } from './serverRequests';
+import { VdkOption } from './vdkOptions/vdk_options';
+import { workingDirectory } from '.';
 
 var runningVdkOperation = false;
 
@@ -41,6 +44,8 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
       try {
         if (!runningVdkOperation) {
           runningVdkOperation = true;
+          jobData.set(VdkOption.PATH, workingDirectory);
+          await jobdDataRequest();
           await getOperationDialog();
           setJobDataToDefault();
           runningVdkOperation = false;

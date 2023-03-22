@@ -2,12 +2,13 @@
  * Copyright 2023-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-import RunJobDialog, { IRunJobDialogProps } from '../components/RunJob';
+import RunJobDialog from '../components/RunJob';
 import { render, fireEvent } from '@testing-library/react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
+import { IJobPathProp } from '../components/props';
 
-const defaultProps: IRunJobDialogProps = {
+const defaultProps: IJobPathProp = {
   jobPath: 'test-path'
 };
 
