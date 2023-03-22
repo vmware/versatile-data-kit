@@ -219,6 +219,44 @@ Changes to the properties cli command:
 * change the explanation of the command from "store credentials securely" to "store credentials"
 
 ## Detailed design
+
+
+### Configuration changes
+
+We are going to enhance the VDK-CS configuration with an optional Spring Vault Configuration.
+
+```yaml
+spring.cloud.vault:
+    host: localhost
+    port: 8200
+    scheme: https
+    uri: https://localhost:8200
+    connection-timeout: 5000
+    read-timeout: 15000
+    config:
+    token: 19aefa97-cccc-bbbb-aaaa-225940e63d76
+```
+The configuration can be marked optional as outlined in the 
+[documentation](https://docs.spring.io/spring-cloud-vault/docs/current/reference/html/#vault.configdata.location.optional) 
+which allows users who are not interested in using a secret storage, to simply disable this feature. 
+
+### Secrets service
+
+We are going to introduce a new Secrets Service class, similar to the existing 
+[Properties Service](https://github.com/vmware/versatile-data-kit/tree/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/properties)
+which handles requests for the Secrets functionality. 
+We are going to implement changes in VDK-CS API as outlined [API Design]((#api-design)) section.
+
+### VDK SDK changes
+
+Once the changes in the API have been introduced, we are going to implement the changes in the VDK SDK, e.g.
+introduce the secrets related methods in classes, similar to the existing 
+[job_properties built-in plugin](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-core/src/vdk/internal/builtin_plugins/job_properties)
+
+### VDK CLI changes
+
+As soon as the changes in the VDK SDK are completed, we can introduce the secrets related commands in the VDK SDK.
+
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
@@ -265,3 +303,30 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+
+## Alternatives
+
+### "Separate secrets and properties API" vs "Secrets as part of the existing  properties API"
+
+During the initial architecture of this feature we had a discussion on whether the secrets should be part of the existing
+properties api/interface. We also reached out to several people whom we consider power users of VDK and everyone agreed
+that the secrets should be part of a separate interface as this would eliminate ambiguity and provide clear separation
+between the two types of data. 
+
+Also storing secrets separately would overall decrease the number of updates of secrets which is generally undesirable 
+due to Vault's characteristics where frequent updates of secrets could lead to high latency and reduced performance. 
+
+### Storing all properties in Vault
+
+We are not going to start storing all properties in vault as secrets as Vault is not designed to handle frequent updates 
+of the entries stored within. 
+
+Our general guidance for properties is that they should be used to store state, e.g. last time stamp or last record of 
+processed data which could change frequently. We have observed data jobs where users update the properties quite often,
+multiple times per single data job run, which is not suitable for secrets stored in Vault.
+
+To that end we are going to keep the two functionalities separate. 
+
+
+
+
