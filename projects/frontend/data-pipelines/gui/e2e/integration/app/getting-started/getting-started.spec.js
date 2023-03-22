@@ -45,7 +45,11 @@ describe("Getting Started Page", { tags: ["@dataPipelines"] }, () => {
     it("Main Title Component have text: Get Started with Data Pipelines", () => {
         GettingStartedPage.navigateTo()
             .getMainTitle()
-            .should("have.text", "Get Started with Data Pipelines");
+            .should(($el) =>
+                expect($el.text().trim()).to.equal(
+                    "Get Started with Data Pipelines",
+                ),
+            );
     });
 
     describe("Data Jobs Health Overview Panel", () => {

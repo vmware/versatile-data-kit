@@ -1,20 +1,45 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import os
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
+from .job_data import JobDataLoader
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
 
-class RunJobHandler(APIHandler):
+class LoadJobDataHandler(APIHandler):
+    """
+    Class responsible for handling POST request for retrieving data(full path, job's name and team)
+     about job of directory
+     Response: return a json formatted str providing the data about the job
+    """
+
     @tornado.web.authenticated
-    def get(self):
-        self.finish(json.dumps({"path": f"{os.getcwd()}"}))
+    def post(self):
+        working_directory = json.loads(self.get_json_body())[VdkOption.PATH.value]
+        data = JobDataLoader(working_directory)
+        self.finish(
+            json.dumps(
+                {
+                    VdkOption.PATH.value: data.get_job_path(),
+                    VdkOption.NAME.value: data.get_job_name(),
+                    VdkOption.TEAM.value: data.get_team_name(),
+                }
+            )
+        )
+
+
+class RunJobHandler(APIHandler):
+    """
+    Class responsible for handling POST request for running a Data Job given its path and arguments to run with
+    Response: return a json formatted str including:
+     ::error field with error message if an error exists
+     ::message field with status of the VDK operation
+    """
 
     @tornado.web.authenticated
     def post(self):
@@ -27,6 +52,13 @@ class RunJobHandler(APIHandler):
 
 
 class DeleteJobHandler(APIHandler):
+    """
+    Class responsible for handling POST request for deleting a Data Job given its name, team and Rest API URL
+    Response: return a json formatted str including:
+        ::error field with error message if an error exists
+        ::message field with status of the Vdk operation
+    """
+
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
@@ -42,6 +74,14 @@ class DeleteJobHandler(APIHandler):
 
 
 class DownloadJobHandler(APIHandler):
+    """
+    Class responsible for handling POST request for downloading a Data Job given its name, team,
+    Rest API URL, and the path to where the job will be downloaded
+    Response: return a json formatted str including:
+        ::error field with error message if an error exists
+        ::message field with status of the Vdk operation
+    """
+
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
@@ -58,6 +98,15 @@ class DownloadJobHandler(APIHandler):
 
 
 class CreateJobHandler(APIHandler):
+    """
+    Class responsible for handling POST request for creating a Data Job given its name, team,
+    flags whether it will be created locally or in the cloud, path to where job will be created (if local),
+    Rest API URL (if cloud)
+    Response: return a json formatted str including:
+        ::error field with error message if an error exists
+        ::message field with status of the Vdk operation
+    """
+
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
@@ -83,20 +132,15 @@ def setup_handlers(web_app):
     run_job_handlers = [(run_job_route_pattern, RunJobHandler)]
     web_app.add_handlers(host_pattern, run_job_handlers)
 
-    delete_job_route_pattern = url_path_join(
-        base_url, "vdk-jupyterlab-extension", "delete"
-    )
-    delete_job_handlers = [(delete_job_route_pattern, DeleteJobHandler)]
-    web_app.add_handlers(host_pattern, delete_job_handlers)
+    def add_handler(handler, endpoint):
+        job_route_pattern = url_path_join(
+            base_url, "vdk-jupyterlab-extension", endpoint
+        )
+        job_handlers = [(job_route_pattern, handler)]
+        web_app.add_handlers(host_pattern, job_handlers)
 
-    download_job_route_pattern = url_path_join(
-        base_url, "vdk-jupyterlab-extension", "download"
-    )
-    download_job_handlers = [(download_job_route_pattern, DownloadJobHandler)]
-    web_app.add_handlers(host_pattern, download_job_handlers)
-
-    create_job_route_pattern = url_path_join(
-        base_url, "vdk-jupyterlab-extension", "create"
-    )
-    create_job_handlers = [(create_job_route_pattern, CreateJobHandler)]
-    web_app.add_handlers(host_pattern, create_job_handlers)
+    add_handler(RunJobHandler, "run")
+    add_handler(DeleteJobHandler, "delete")
+    add_handler(DownloadJobHandler, "download")
+    add_handler(CreateJobHandler, "create")
+    add_handler(LoadJobDataHandler, "job")

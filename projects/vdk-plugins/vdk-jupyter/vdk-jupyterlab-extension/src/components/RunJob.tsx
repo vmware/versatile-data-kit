@@ -4,15 +4,10 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRunRequest } from '../serverRequests';
+import { IJobPathProp } from './props';
 
-export interface IRunJobDialogProps {
-  /**
-   * Current Job path
-   */
-  jobPath: string;
-}
 
-export default class RunJobDialog extends Component<IRunJobDialogProps> {
+export default class RunJobDialog extends Component<IJobPathProp> {
   /**
    * Returns a React component for rendering a run menu.
    *
@@ -20,7 +15,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
    * @returns React component
    */
 
-  constructor(props: IRunJobDialogProps) {
+  constructor(props: IJobPathProp) {
     super(props);
   }
   /**
@@ -80,7 +75,7 @@ export async function showRunJobDialog() {
     title: 'Run Job',
     body: (
       <RunJobDialog
-        jobPath={sessionStorage.getItem('current-path')!}
+        jobPath={jobData.get(VdkOption.PATH)!}
       ></RunJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
