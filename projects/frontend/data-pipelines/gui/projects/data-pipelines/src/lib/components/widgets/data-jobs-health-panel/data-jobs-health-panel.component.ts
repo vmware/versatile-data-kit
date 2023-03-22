@@ -172,9 +172,7 @@ export class DataJobsHealthPanelComponent
      */
     onModelInit(): void {
         this._subscribeForTeamChange();
-        /* eslint-disable @typescript-eslint/no-unsafe-call */
-        // @ts-ignore
-        this.emitNewState();
+        this._emitNewState();
     }
 
     /**
@@ -212,9 +210,8 @@ export class DataJobsHealthPanelComponent
                 : [];
             this.loadingJobs = false;
         }
-        /* eslint-disable @typescript-eslint/no-unsafe-call */
-        // @ts-ignore
-        this.emitNewState();
+
+        this._emitNewState();
     }
 
     /**

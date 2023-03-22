@@ -459,6 +459,10 @@ triggers a pipeline that builds the shared package and runs unit tests on it.
 - Opening a pull request with changes to `@versatiledatakit/shared` triggers a
 pipeline that builds and tests both the data-pipelines and shared packages to
 ensure compatibility.
+- Upon successful build and unit testing of any subcomponent, e2e testing is also
+  performed to verify [end-to-end scenarios](../../projects/frontend/data-pipelines/gui/e2e).
+  _Note: the e2e tests now run in headed mode, as a workaround to auth issues observed
+  with running cypress in headless mode https://github.com/vmware/versatile-data-kit/issues/1766._
 - Opening a pull request with changes to the [VDK Operations UI
 CI/CD](/projects/frontend/cicd) triggers a pipeline that builds and tests both
 packages. Merging changes into `main` requires that these pipelines pass
