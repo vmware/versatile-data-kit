@@ -195,7 +195,7 @@ The structure of the Meta Job is a DAG. Here is an example of the DAG of jobs wo
 2. The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the
 Control Service it addresses as well as any other technical errors.
 3. If there are no errors during step 2., the DAG is built.
-4. The DAG of jobs is executed, taking into account all the order information.
+4. The DAG of jobs is executed - for more details: [Execution flow](#execution-flow).
 5. A summary of the DAG is logged.
 
 ### Configuration details
@@ -208,27 +208,41 @@ This can help to prevent cascading failures and ensure that issues are isolated 
 There are more settings that are configurable by the user, that can be explored in the
 [config](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py).
 
+### Execution flow
+
+The DAG is executed as follows:
+
+1. Jobs that have no unfinished dependencies are started.
+2. If the number of currently running jobs is below the maximum allowed concurrent jobs, additional jobs are started.
+   If a job is attempted to be started but the concurrent running jobs limit is hit, the job is delayed - added
+   to the delay queue and retried later. If there is a Control Service outage or a conflict with another running job,
+   the same delay strategy is applied. Additionally, the configuration variables
+   [META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L45)
+   and [META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L55) define the delay duration.
+3. Finished jobs are marked as completed and removed from the execution queue.
+
+The algorithm continues executing jobs until all jobs in the DAG are completed.
+
 ### Capacity Estimation and Constraints
 
 The load to the Control Service APIs from the Meta Jobs plugin mostly depends on three factors:
 
-* Number of Data Jobs in the DAG (there is a reasonable default limit, but the value is
-  [configurable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87);
+* Number of Data Jobs in the DAG;
 * Data Job Executions duration;
 * Configuration value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76).
 
 The main resource Meta Jobs consume is API requests. Here are the different cases in which an API request is sent:
 
-* To start a job
-* To check the status of a job (based on META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS)
-* To get details after a job is completed
-* On retries (if a job start failed)
+* To start a job;
+* To check the status of a job (based on META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS);
+* To get details after a job is completed;
+* On retries (if a job start failed).
 
 Let's create a formula for calculating the number of API requests in a DAG run. We'll use the following variables:
 
-J: Number of Data Jobs in the DAG
-E: Average Data Job Execution duration
-S: The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS
+J: Number of Data Jobs in the DAG;<br>
+E: Average Data Job Execution duration;<br>
+S: The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS.
 
 Generally, job1 is independent of job2 in terms of requests - job1 would not impact the number of requests job2 would
 send throughout its duration.
