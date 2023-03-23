@@ -6,7 +6,6 @@
 package com.vmware.taurus.service.deploy;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,13 +21,6 @@ public class SupportedPythonVersionsTest {
   private static final String BASE_IMAGE = "baseImage";
 
   @InjectMocks private SupportedPythonVersions supportedPythonVersions;
-
-  @BeforeEach
-  public void setUp() {
-    ReflectionTestUtils.setField(supportedPythonVersions, "vdkImage", "test-vdk-image");
-    ReflectionTestUtils.setField(
-        supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
-  }
 
   @Test
   public void isPythonVersionSupported_noSupportedVersions() {
@@ -92,7 +84,7 @@ public class SupportedPythonVersionsTest {
   @Test
   public void getSupportedPythonVersions_getDefaultVersion() {
     ReflectionTestUtils.setField(
-        supportedPythonVersions, "supportedPythonVersions", new HashMap<>());
+            supportedPythonVersions, "defaultPythonVersion", "3.7");
     var res = new ArrayList<String>();
     res.add("3.7");
 
@@ -101,11 +93,14 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void getJobBaseImage_defaultImage() {
+    var supportedVersions = generateSupportedPythonVersionsConf();
     ReflectionTestUtils.setField(
-        supportedPythonVersions, "supportedPythonVersions", new HashMap<>());
+        supportedPythonVersions, "supportedPythonVersions", supportedVersions);
+    ReflectionTestUtils.setField(
+            supportedPythonVersions, "defaultPythonVersion", "3.7");
     final String defaultBaseImage = "python:3.7-slim";
 
-    Assertions.assertEquals(defaultBaseImage, supportedPythonVersions.getJobBaseImage("3.8"));
+    Assertions.assertEquals(defaultBaseImage, supportedPythonVersions.getJobBaseImage("3.11"));
   }
 
   @Test
@@ -121,11 +116,15 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void getVdkImage_defaultImage() {
+    var supportedVersions = generateSupportedPythonVersionsConf();
     ReflectionTestUtils.setField(
-        supportedPythonVersions, "supportedPythonVersions", new HashMap<>());
-    final String defaultVdkImage = "test-vdk-image";
+        supportedPythonVersions, "supportedPythonVersions", supportedVersions);
+    ReflectionTestUtils.setField(
+            supportedPythonVersions, "defaultPythonVersion", "3.7");
 
-    Assertions.assertEquals(defaultVdkImage, supportedPythonVersions.getVdkImage("3.8"));
+    final String defaultVdkImage = "test_vdk_image_3.7";
+
+    Assertions.assertEquals(defaultVdkImage, supportedPythonVersions.getVdkImage("3.11"));
   }
 
   @Test

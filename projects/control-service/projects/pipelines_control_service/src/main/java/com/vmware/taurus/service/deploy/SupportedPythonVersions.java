@@ -5,12 +5,8 @@
 
 package com.vmware.taurus.service.deploy;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.security.InvalidParameterException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -32,24 +28,23 @@ public class SupportedPythonVersions {
   @Value("#{${datajobs.deployment.supportedPythonVersions}}")
   private Map<String, Map<String, String>> supportedPythonVersions;
 
-  @Value("${datajobs.vdk.image}")
-  private String vdkImage;
+  @Value("${datajobs.deployment.defaultPythonVersion}")
+  private String defaultPythonVersion;
 
-  @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
-  private String deploymentDataJobBaseImage;
 
   private static final String VDK_IMAGE = "vdkImage";
 
   private static final String BASE_IMAGE = "baseImage";
 
+
   /**
-   * Check if the python_version passed by the user is supported by the Control Service.
+   * Check if the pythonVersion passed by the user is supported by the Control Service.
    *
    * @param pythonVersion python version passed by the user.
    * @return true if the version is supported, and false otherwise.
    */
   public boolean isPythonVersionSupported(String pythonVersion) {
-    if (!supportedPythonVersions.isEmpty()) {
+    if (supportedPythonVersions != null) {
       return supportedPythonVersions.containsKey(pythonVersion);
     } else {
       return false;
@@ -57,31 +52,27 @@ public class SupportedPythonVersions {
   }
 
   /**
-   * Returns a string of the python versions supported by the Control Service, in the format: [3.7,
+   * Returns a list of the python versions supported by the Control Service, in the format: [3.7,
    * 3.8, ...]. If the supportedPythonVersions configuration is not set, the method returns the
-   * default python version set in the deploymentDataJobBaseImage configuration property.
+   * default python version set in the defaultPythonVersion configuration property.
    *
-   * @return A string of all python versions supported by the Control Service
+   * @return A list of all python versions supported by the Control Service.
    */
   public List<String> getSupportedPythonVersions() {
-    if (!supportedPythonVersions.isEmpty()) {
+    if (supportedPythonVersions != null && !supportedPythonVersions.isEmpty()) {
       return supportedPythonVersions.keySet().stream()
           .map((obj) -> Objects.toString(obj, null))
           .collect(Collectors.toList());
     } else {
-      try {
-        return Arrays.asList(getDefaultPythonVersion());
-      } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException(e);
-      }
+      return Arrays.asList(getDefaultPythonVersion());
     }
   }
 
   /**
    * Returns the name of the data job base image as stored in the docker registry. If
-   * supportedPythonVersions is set, and the python_version passed by the user is supported
-   * according to the configuration, the base image corresponding to the python_version is returned.
-   * Otherwise, the default base image name as set in deploymentDataJobBaseImage is returned.
+   * supportedPythonVersions is set, and the pythonVersion passed by the user is supported
+   * according to the configuration, the base image corresponding to the pythonVersion is returned.
+   * Otherwise, the default base image is returned.
    *
    * @param pythonVersion a string indicating the python version passed by the user
    * @return a string of the data job base image.
@@ -90,52 +81,49 @@ public class SupportedPythonVersions {
     if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
     } else {
-      return deploymentDataJobBaseImage;
+      log.warn("An issue with the passed pythonVersion or supportedPythonVersions configuration has occurred. Returning default job base image");
+      return getDefaultJobBaseImage();
     }
   }
 
   public String getDefaultJobBaseImage() {
-    return deploymentDataJobBaseImage;
+    return supportedPythonVersions.get(defaultPythonVersion).get(BASE_IMAGE);
   }
 
   /**
    * Returns the name of the vdk image as stored in the docker registry. If supportedPythonVersions
-   * is set, and the python_version, passed by the user, is supported according to the
-   * configuration, the vdk image corresponding to the python_version is returned. Otherwise, the
-   * default vdk image name as set in vdkImage is returned.
+   * is set, and the pythonVersion, passed by the user, is supported according to the
+   * configuration, the vdk image corresponding to the pythonVersion is returned. Otherwise, the
+   * default vdk image is returned.
    *
    * @param pythonVersion a string indicating the python version passed by the user
-   * @return a string of the data job base image.
+   * @return a string of the vdk image.
    */
   public String getVdkImage(String pythonVersion) {
     if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(VDK_IMAGE);
     } else {
-      return vdkImage;
+      log.warn("An issue with the passed pythonVersion or supportedPythonVersions configuration has occurred. Returning default vdk image");
+      return getDefaultVdkImage();
     }
   }
 
   public String getDefaultVdkImage() {
-    return vdkImage;
+    return supportedPythonVersions.get(defaultPythonVersion).get(VDK_IMAGE);
   }
 
   /**
    * Returns the default python version supported by the Control Service. The version number is
-   * extracted from the datajobs.deployment.dataJobBaseImage application property. The property is
-   * set as for example, `python:3.9-slim`, and we use a regex to match `3.9` and return it to the
-   * caller.
+   * read from the datajobs.deployment.defaultPythonVersion application property.
    *
    * @return a string indicating the default python version supported by the Control Service.
-   * @throws IllegalArgumentException
+   * @throws InvalidParameterException
    */
-  public String getDefaultPythonVersion() throws IllegalArgumentException {
-    Pattern pattern = Pattern.compile("(\\d+\\.\\d+)");
-    Matcher matcher = pattern.matcher(deploymentDataJobBaseImage);
-    if (matcher.find()) {
-      return matcher.group(1);
+  public String getDefaultPythonVersion() throws InvalidParameterException {
+    if (defaultPythonVersion != null) {
+      return defaultPythonVersion;
     } else {
-      throw new IllegalArgumentException(
-          "Could not extract python version number from datajobs.deployment.dataJobBaseImage.");
+      throw new InvalidParameterException("Missing value for defaultPythonVersion!");
     }
   }
 }
