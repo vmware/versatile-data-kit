@@ -169,8 +169,30 @@ When storing secrets, the request body is expected to provide a JSON object, con
 
 We are going to introduce Secrets API similar to the existing Properties API in the
 [JobInput class](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L11)
-which allow data jobs to get and set properties
+which allow data jobs to get and set secrets:
 
+```python
+
+class ISecrets:
+    """
+    Allows for Data Job to store and retrieve secrets.
+    Secrets are a solution for securely storing API keys, tokens and passwords necessary to connect to different systems
+    """
+
+    @abstractmethod
+    def get_secret(self, name: str, default_value: Any = None) -> str:
+        pass
+
+    @abstractmethod
+    def get_all_secrets(self) -> dict:
+        pass
+
+    @abstractmethod
+    def set_all_secrets(self, properties: dict):
+        pass
+```
+
+And here are examples of the usage:
 
 Get a single secret:
 ```python
@@ -262,6 +284,7 @@ We are going to implement changes in VDK-CS API as outlined [API Design]((#api-d
 Once the changes in the API have been introduced, we are going to implement the changes in the VDK SDK, e.g.
 introduce the secrets related methods in classes, similar to the existing
 [job_properties built-in plugin](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-core/src/vdk/internal/builtin_plugins/job_properties)
+as outlined [API Design]((#api-design)) section.
 
 ### VDK CLI changes
 
