@@ -215,7 +215,7 @@ We are going to introduce a new set of commands for secrets, similar to "vdk pro
 
 
 Changes to the properties cli command:
-* remove the --set-secret option
+* remove the `--set-secret` option
 * change the explanation of the command from "store credentials securely" to "store credentials"
 
 ## Detailed design
