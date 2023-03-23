@@ -336,6 +336,10 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+### Performance
+
+To improve data job performance, the secrets will be loaded and cached at the start of the SDK run job - the same 
+functionality we currently have for properties. 
 
 ## Alternatives
 
