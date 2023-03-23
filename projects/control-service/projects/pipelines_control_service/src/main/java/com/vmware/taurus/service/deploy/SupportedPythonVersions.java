@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,14 +14,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
-/** Handles operations related to supported python versions for data job deployments. */
+/**
+ * Handles operations related to supported python versions for data job deployments.
+ * The class contains utility methods which provide functionality to read the configuration
+ * related to the python versions supported by the Control Service.
+ * These utility methods are meant to be used in other components, as needed.
+ * */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class SupportedPythonVersions {
 
   @Value("#{${datajobs.deployment.supportedPythonVersions}}")
-  private HashMap<String, HashMap<String, String>> supportedPythonVersions;
+  private Map<String, Map<String, String>> supportedPythonVersions;
 
   @Value("${datajobs.vdk.image}")
   private String vdkImage;
@@ -36,12 +41,12 @@ public class SupportedPythonVersions {
   /**
    * Check if the python_version passed by the user is supported by the Control Service.
    *
-   * @param python_version python version passed by the user.
+   * @param pythonVersion python version passed by the user.
    * @return true if the version is supported, and false otherwise.
    */
-  public boolean isPythonVersionSupported(String python_version) {
+  public boolean isPythonVersionSupported(String pythonVersion) {
     if (!supportedPythonVersions.isEmpty()) {
-      return supportedPythonVersions.containsKey(python_version);
+      return supportedPythonVersions.containsKey(pythonVersion);
     } else {
       return false;
     }
@@ -72,12 +77,12 @@ public class SupportedPythonVersions {
    * according to the configuration, the base image corresponding to the python_version is returned.
    * Otherwise, the default base image name as set in deploymentDataJobBaseImage is returned.
    *
-   * @param python_version a string indicating the python version passed by the user
+   * @param pythonVersion a string indicating the python version passed by the user
    * @return a string of the data job base image.
    */
-  public String getJobBaseImage(String python_version) {
-    if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(python_version)) {
-      return supportedPythonVersions.get(python_version).get(BASE_IMAGE);
+  public String getJobBaseImage(String pythonVersion) {
+    if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
+      return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
     } else {
       return deploymentDataJobBaseImage;
     }
@@ -93,12 +98,12 @@ public class SupportedPythonVersions {
    * configuration, the vdk image corresponding to the python_version is returned. Otherwise, the
    * default vdk image name as set in vdkImage is returned.
    *
-   * @param python_version a string indicating the python version passed by the user
+   * @param pythonVersion a string indicating the python version passed by the user
    * @return a string of the data job base image.
    */
-  public String getVdkImage(String python_version) {
-    if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(python_version)) {
-      return supportedPythonVersions.get(python_version).get(VDK_IMAGE);
+  public String getVdkImage(String pythonVersion) {
+    if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
+      return supportedPythonVersions.get(pythonVersion).get(VDK_IMAGE);
     } else {
       return vdkImage;
     }
