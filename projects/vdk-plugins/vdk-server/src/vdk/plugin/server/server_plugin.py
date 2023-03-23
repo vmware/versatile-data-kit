@@ -58,4 +58,3 @@ def server(install, uninstall, status):
             installer.uninstall()
         else:
             installer.check_status()
-
