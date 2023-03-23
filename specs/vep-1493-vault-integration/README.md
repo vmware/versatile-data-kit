@@ -202,7 +202,7 @@ def run(job_input):
 
 We are going to introduce a new set of commands for secrets, similar to "vdk properties":
 * Will prompt for the value so it's not printed on the screen
-  vdk secrets --set "my-password"
+  `vdk secrets --set "my-password"`
 
 * Return the secret value associated with the given key "my-password"
   vdk secrets --get "my-password"
