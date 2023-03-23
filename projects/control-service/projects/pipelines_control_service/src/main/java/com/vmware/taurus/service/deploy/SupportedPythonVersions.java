@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Handles operations related to supported python versions for data job deployments.
- * The class contains utility methods which provide functionality to read the configuration
- * related to the python versions supported by the Control Service.
- * These utility methods are meant to be used in other components, as needed.
- * */
+ * Handles operations related to supported python versions for data job deployments. The class
+ * contains utility methods which provide functionality to read the configuration related to the
+ * python versions supported by the Control Service. These utility methods are meant to be used in
+ * other components, as needed.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
