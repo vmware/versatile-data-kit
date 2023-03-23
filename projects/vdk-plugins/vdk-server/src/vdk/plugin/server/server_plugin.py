@@ -63,7 +63,3 @@ def server(install, uninstall, status):
 @hookimpl
 def vdk_command_line(root_command: click.Group):
     root_command.add_command(server)
-
-
-if __name__ == "__main__":
-    Installer().install()
