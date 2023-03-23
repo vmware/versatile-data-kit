@@ -223,7 +223,7 @@ def run(job_input):
 #### Storing/retrieving secrets via the CLI
 
 We are going to introduce a new set of commands for secrets, similar to "vdk properties" where users will be prompted to
-set to enter each password. 
+set to enter each password.
 * Will prompt for the value so it's not printed on the screen
   `vdk secrets --set "my-password"`
 
