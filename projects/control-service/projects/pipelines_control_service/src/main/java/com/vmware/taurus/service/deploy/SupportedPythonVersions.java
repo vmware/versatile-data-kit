@@ -65,11 +65,9 @@ public class SupportedPythonVersions {
    */
   public List<String> getSupportedPythonVersions() {
     if (!supportedPythonVersions.isEmpty()) {
-      return supportedPythonVersions
-              .keySet()
-              .stream()
-              .map((obj) -> Objects.toString(obj, null))
-              .collect(Collectors.toList());
+      return supportedPythonVersions.keySet().stream()
+          .map((obj) -> Objects.toString(obj, null))
+          .collect(Collectors.toList());
     } else {
       try {
         return Arrays.asList(getDefaultPythonVersion());

@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.deploy;
 
-import okhttp3.internal.http2.Http2Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class SupportedPythonVersionsTest {
