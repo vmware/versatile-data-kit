@@ -5,9 +5,13 @@
 
 package com.vmware.taurus.service.deploy;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import lombok.RequiredArgsConstructor;
@@ -59,12 +63,16 @@ public class SupportedPythonVersions {
    *
    * @return A string of all python versions supported by the Control Service
    */
-  public String getSupportedPythonVersions() {
+  public List<String> getSupportedPythonVersions() {
     if (!supportedPythonVersions.isEmpty()) {
-      return supportedPythonVersions.keySet().toString();
+      return supportedPythonVersions
+              .keySet()
+              .stream()
+              .map((obj) -> Objects.toString(obj, null))
+              .collect(Collectors.toList());
     } else {
       try {
-        return "[" + getDefaultPythonVersion() + "]";
+        return Arrays.asList(getDefaultPythonVersion());
       } catch (IllegalArgumentException e) {
         throw new IllegalArgumentException(e);
       }

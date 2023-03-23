@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
+import okhttp3.internal.http2.Http2Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class SupportedPythonVersionsTest {
@@ -77,21 +80,25 @@ public class SupportedPythonVersionsTest {
   public void getSupportedPythonVersions_multipleSupportedVersions() {
     var supportedVersions = generateSupportedPythonVersionsConf();
 
-    final String resultStr = "[3.7, 3.8, 3.9]";
+    var res = new ArrayList<String>();
+    res.add("3.7");
+    res.add("3.8");
+    res.add("3.9");
 
     ReflectionTestUtils.setField(
         supportedPythonVersions, "supportedPythonVersions", supportedVersions);
 
-    Assertions.assertEquals(resultStr, supportedPythonVersions.getSupportedPythonVersions());
+    Assertions.assertEquals(res, supportedPythonVersions.getSupportedPythonVersions());
   }
 
   @Test
   public void getSupportedPythonVersions_getDefaultVersion() {
     ReflectionTestUtils.setField(
         supportedPythonVersions, "supportedPythonVersions", new HashMap<>());
-    final String resultStr = "[3.7]";
+    var res = new ArrayList<String>();
+    res.add("3.7");
 
-    Assertions.assertEquals(resultStr, supportedPythonVersions.getSupportedPythonVersions());
+    Assertions.assertEquals(res, supportedPythonVersions.getSupportedPythonVersions());
   }
 
   @Test
