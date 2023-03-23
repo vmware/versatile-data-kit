@@ -788,18 +788,20 @@ public abstract class KubernetesService implements InitializingBean {
 
     try {
       var v1CronJobs =
-              initBatchV1Api()
-                      .listNamespacedCronJob(
-                              namespace, null, null, null, null, null, null, null, null, null, null);
+          initBatchV1Api()
+              .listNamespacedCronJob(
+                  namespace, null, null, null, null, null, null, null, null, null, null);
       v1CronJobNames =
-              v1CronJobs.getItems().stream()
-                      .map(j -> j.getMetadata().getName())
-                      .collect(Collectors.toSet());
+          v1CronJobs.getItems().stream()
+              .map(j -> j.getMetadata().getName())
+              .collect(Collectors.toSet());
       log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
-    }catch(ApiException e){
-      if(e.getCode() == 404){ // as soon as the minimum supported k8s version is >=1.21 then we should remove this.
-        log.debug("Unable to query for v1 batch jobs",e);
-      }else{
+    } catch (ApiException e) {
+      if (e.getCode()
+          == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
+                    // this.
+        log.debug("Unable to query for v1 batch jobs", e);
+      } else {
         throw e;
       }
     }
@@ -1370,8 +1372,9 @@ public abstract class KubernetesService implements InitializingBean {
     // We want to track those jobs as submitted as well.
     // The getConditions() returns result only if the job is completed.
     return Optional.ofNullable(v1JobList).map(V1JobList::getItems).stream()
-            .flatMap(Collection::stream)
-            .map(V1Job::getStatus).filter(Objects::nonNull)
+        .flatMap(Collection::stream)
+        .map(V1Job::getStatus)
+        .filter(Objects::nonNull)
         .map(V1JobStatus::getConditions)
         .anyMatch(CollectionUtils::isEmpty);
   }
