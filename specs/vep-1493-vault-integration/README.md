@@ -211,7 +211,7 @@ We are going to introduce a new set of commands for secrets, similar to "vdk pro
   vdk secret --list
 
 * List all secret keys and values
-  vdk secret --list --show-secrets
+  `vdk secret --list --show-secrets`
 
 
 Changes to the properties cli command:
