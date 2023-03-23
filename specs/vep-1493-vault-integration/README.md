@@ -200,7 +200,8 @@ def run(job_input):
 
 #### Storing/retrieving secrets via the CLI
 
-We are going to introduce a new set of commands for secrets, similar to "vdk properties":
+We are going to introduce a new set of commands for secrets, similar to "vdk properties" where users will be prompted to
+set to enter each password. 
 * Will prompt for the value so it's not printed on the screen
   `vdk secrets --set "my-password"`
 
@@ -208,10 +209,19 @@ We are going to introduce a new set of commands for secrets, similar to "vdk pro
   `vdk secrets --get "my-password"`
 
 * List all secret keys
-  `vdk secret --list`
+  `vdk secrets --list`
 
 * List all secret keys and values
-  `vdk secret --list --show-secrets`
+  `vdk secrets --list --show-secrets`
+
+* Delete a secret
+  `vdk secrets --delete "my-password"`
+
+* Delete all job secrets
+  `vdk secrets --delete-all-job-properties`
+
+* Overwrite all job secrets by passing a JSON file
+  `vdk secrets --overwrite-all-job-secrets`
 
 
 Changes to the properties cli command:
