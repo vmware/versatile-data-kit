@@ -40,7 +40,7 @@ Optional section which defines terms and abbreviations used in the rest of the d
 * **Data Job Step**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-step
 * **Data Job Execution**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-execution
 * **Apache Airflow (Airflow)**: https://airflow.apache.org/
-* **DAG**: Directed Acyclic Graph
+* **DAG**: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 * **reqs/min**: requests per minute
 
 ## Motivation
@@ -84,10 +84,10 @@ One example is features that were cut during scoping.
 
 * **Introduce a vdk-meta-jobs plugin**
 
-* **Provide a way to manage job dependencies**
+* **Provide a way to manage job interdependencies**
     - Execute jobs in a strict order. For example, one wants to ingest data from two different sources
       into the same database table and read all the data only when both ingests are successful.
-    - Execute a job from another job with some specified arguments
+    - Execute a job from another job with some specified arguments.
 
 ### Non-Goals
 
@@ -112,7 +112,7 @@ In this context, a component is any separate software process.
 
 ![high-level-diagram.png](high-level-diagram.png)
 
-The vdk-meta-jobs plugin is a VDK component that enables the orchestration of Data Jobs.
+The plugin is a VDK component that enables the orchestration of Data Jobs.
 Simply put, the Meta Job is a regular Data Job that invokes other Data Jobs using the Control Service Execution API.
 The plugin allows users to define job dependencies and orchestrates the execution of multiple Data Jobs in a specific
 order. The Data Jobs themselves perform specific ETL tasks. The plugin is designed in a way that is native to VDK’s
@@ -191,12 +191,15 @@ Consider at least the below topics but you do not need to cover those that are n
 ### Workflow
 
 The structure of the Meta Job is a DAG. Here is an example of the DAG of jobs workflow:
-1. The Meta Job(DAG) is initialized, following the preset configuration.
-2. The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the
-Control Service it addresses as well as any other technical errors.
-3. If there are no errors during step 2., the DAG is built.
-4. The DAG of jobs is executed - for more details: [Execution flow](#execution-flow).
-5. A summary of the DAG is logged.
+
+|     Phase      |                                                                                Description                                                                                 |
+|:--------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Initialization |                                                   The Meta Job(DAG) is initialized, following the preset configuration.                                                    |
+|   Validation   | The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the Control Service it addresses as well as any other technical errors. |
+|     Build      |                                                   If there are no errors during the Validation phase, the DAG is built.                                                    |
+|   Execution    |                                             The DAG of jobs is executed - for more details: [Execution flow](#execution-flow).                                             |
+| Summarization  |                                                                      A summary of the DAG is logged.                                                                       |
+
 
 ### Configuration details
 
@@ -263,7 +266,7 @@ For example, the following workflow consists of 6 Data Jobs:
 
 ![sample-execution.png](sample-execution.png)
 
-In this scenario, the vdk-meta-jobs plugin will perform a total of 147 requests for the whole workflow execution.
+In this scenario, the plugin will perform a total of 147 requests for the whole workflow execution.
 See Appendix A for more details about this example.
 
 ### Troubleshooting
