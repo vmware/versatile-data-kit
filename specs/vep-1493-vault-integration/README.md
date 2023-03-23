@@ -205,7 +205,7 @@ We are going to introduce a new set of commands for secrets, similar to "vdk pro
   `vdk secrets --set "my-password"`
 
 * Return the secret value associated with the given key "my-password"
-  vdk secrets --get "my-password"
+  `vdk secrets --get "my-password"`
 
 * List all secret keys
   `vdk secret --list`
