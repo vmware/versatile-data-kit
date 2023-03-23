@@ -59,7 +59,3 @@ def server(install, uninstall, status):
         else:
             installer.check_status()
 
-
-@hookimpl
-def vdk_command_line(root_command: click.Group):
-    root_command.add_command(server)
