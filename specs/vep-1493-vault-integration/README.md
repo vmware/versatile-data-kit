@@ -195,7 +195,7 @@ Set a secrets:
 def run(job_input):
    secrets = job_input.get_all_secrets()
    secrets['MY_TOKEN'] = get_new_token()
-   job_input.set_all_secrets()
+   job_input.set_all_secrets(secrets)
 ```
 
 #### Storing/retrieving secrets via the CLI
