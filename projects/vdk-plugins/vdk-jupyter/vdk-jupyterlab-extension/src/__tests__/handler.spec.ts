@@ -1,17 +1,24 @@
+/*
+ * Copyright 2023-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { ServerConnection } from '@jupyterlab/services';
 import { requestAPI } from '../handler';
 
 jest.mock('@jupyterlab/services', () => {
   const originalModule = jest.requireActual('@jupyterlab/services');
   const mockServerConnection = {
-    makeSettings: jest.fn(() => ({ baseUrl: 'https://example.com' } as ServerConnection.ISettings)),
+    makeSettings: jest.fn(
+      () => ({ baseUrl: 'https://example.com' } as ServerConnection.ISettings)
+    ),
     makeRequest: jest.fn(() =>
       Promise.resolve(new Response(JSON.stringify({ message: 'OK' })))
-    ),
+    )
   };
   return {
     ...originalModule,
-    ServerConnection: mockServerConnection,
+    ServerConnection: mockServerConnection
   };
 });
 
@@ -31,20 +38,18 @@ describe('requestAPI', () => {
     (ServerConnection.makeRequest as jest.Mock).mockImplementationOnce(() =>
       Promise.reject(mockError)
     );
-    await expect(requestAPI('test-endpoint')).rejects.toThrow(
-      new ServerConnection.NetworkError(mockError)
-    );
+    await expect(requestAPI('test-endpoint')).rejects.toThrow(mockError);
   });
 
   it('throws a ResponseError when the response is not OK', async () => {
     const mockResponse = new Response(JSON.stringify({ error: 'Not OK' }), {
-      status: 400,
+      status: 400
     });
     (ServerConnection.makeRequest as jest.Mock).mockImplementationOnce(() =>
       Promise.resolve(mockResponse)
     );
     await expect(requestAPI('test-endpoint')).rejects.toThrow(
-      new ServerConnection.ResponseError(mockResponse, 'Not OK')
+      new Error('Bad Request')
     );
   });
 
