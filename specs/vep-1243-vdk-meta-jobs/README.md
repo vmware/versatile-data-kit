@@ -34,6 +34,11 @@ service. Meta Jobs provide a more lightweight alternative that simplifies the pr
 Optional section which defines terms and abbreviations used in the rest of the document.
 -->
 
+* **VDK Terms Dictionary**: https://github.com/vmware/versatile-data-kit/wiki/dictionary
+* **Apache Airflow (Airflow)**: https://airflow.apache.org/
+* **DAG**: https://en.wikipedia.org/wiki/Directed_acyclic_graph
+* **reqs/min**: requests per minute
+
 ## Motivation
 <!--
 It tells **why** do we need X?
@@ -71,6 +76,17 @@ Non-goals are only features, which a contributor can reasonably assume were a go
 One example is features that were cut during scoping.
 -->
 
+### Goals
+
+* **Introduce a vdk-meta-jobs plugin**
+
+* **Provide a way to manage job interdependencies**
+    - Execute jobs in a strict order. For example, one wants to ingest data from two different sources
+      into the same database table and read all the data only when both ingests are successful.
+    - Execute a job from another job with some specified arguments.
+
+### Non-Goals
+
 ## High-level design
 
 <!--
@@ -90,6 +106,20 @@ In this context, a component is any separate software process.
 
 -->
 
+![high-level-diagram.png](high-level-diagram.png)
+
+For the proposed design, a vdk-meta-jobs plugin will be introduced. The plugin is a VDK component that enables
+the orchestration of Data Jobs. Simply put, the Meta Job is a regular Data Job that invokes other Data Jobs using
+the Control Service Execution API. The plugin allows users to define job interdependencies and orchestrates the
+execution of multiple Data Jobs in a specific order. The Data Jobs themselves perform specific ETL tasks.
+The plugin is designed in a way that is native to VDK’s ecosystem.
+
+#### Folder structure
+
+* [vdk-meta-jobs](/projects/vdk-plugins/vdk-meta-jobs): the root folder for all the code
+* [src](/projects/vdk-plugins/vdk-meta-jobs/src): the root folder for all the core python code
+* [tests](/projects/vdk-plugins/vdk-meta-jobs/tests): the root folder for the e2e tests
+* [config](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py): contains configuration variables
 
 ## API design
 
@@ -104,6 +134,7 @@ PyDoc/Javadoc (or similar) for Python/Java changes.
 Explain how does the system handle API violations.
 -->
 
+No changes to the public API.
 
 ## Detailed design
 <!--
@@ -153,8 +184,126 @@ Consider at least the below topics but you do not need to cover those that are n
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
 
+### Workflow
+
+The structure of the Meta Job is a DAG. Here is an example of the DAG of jobs workflow:
+
+|     Phase      |                                                                                Description                                                                                 |
+|:--------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Initialization |                                                   The Meta Job(DAG) is initialized, following the preset configuration.                                                    |
+|   Validation   | The DAG is being validated that there are no conflicts regarding the existence of the team/jobs in the Control Service it addresses as well as any other technical errors. |
+|     Build      |                                                   If there are no errors during the Validation phase, the DAG is built.                                                    |
+|   Execution    |                                             The DAG of jobs is executed - for more details: [Execution flow](#execution-flow).                                             |
+| Summarization  |                                                                      A summary of the DAG is logged.                                                                       |
+
+
+### Configuration details
+
+You are allowed to specify whether the Meta Job itself should fail if any of its orchestrated jobs encounter errors.
+This is achieved by adding the Data Job attribute **fail_meta_job_on_error**. Set to true, as by default, would mean
+that in the event of a failing orchestrated job, the Meta Job would also fail - with USER error.
+This can help to prevent cascading failures and ensure that issues are isolated and addressed as soon as possible.
+
+There are more settings that are configurable by the user, that can be explored in the
+[config](/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py).
+
+### Execution flow
+
+The DAG is executed as follows:
+
+1. Jobs that have no unfinished dependencies are started.
+2. If the number of currently running jobs is below the maximum allowed concurrent jobs, additional jobs are started.
+   If a job is attempted to be started but the concurrent running jobs limit is hit, the job is delayed - added
+   to the delay queue and retried later. If there is a Control Service outage or a conflict with another running job,
+   the same delay strategy is applied. Additionally, the configuration variables
+   [META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L45)
+   and [META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L55) define the delay duration.
+3. Finished jobs are marked as completed and removed from the execution queue.
+
+The algorithm continues executing jobs until all jobs in the DAG are completed.
+
+### Capacity Estimation and Constraints
+
+The load to the Control Service APIs from the Meta Jobs plugin mostly depends on three factors:
+
+* Number of Data Jobs in the DAG;
+* Data Job Executions duration;
+* Configuration value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76).
+
+The main resource Meta Jobs consume is API requests. Here are the different cases in which an API request is sent:
+
+* To start a job;
+* To check the status of a job (based on META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS);
+* To get details after a job is completed;
+* On retries (if a job start failed).
+
+Let's create a formula for calculating the number of API requests in a DAG run. We'll use the following variables:
+
+J: Number of Data Jobs in the DAG;<br>
+E: Average Data Job Execution duration;<br>
+S: The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS.
+
+Generally, job1 is independent of job2 in terms of requests - job1 would not impact the number of requests job2 would
+send throughout its duration.
+
+Thus, 1 job would send (1 + E/S + 1) API request for its run.
+Hence, the DAG would make J * (1 + E/S + 1) total requests.
+
+For example, the following workflow consists of 6 Data Jobs:
+
+* `Job 2`, `Job 3` and `Job 4` depend on `Job 1`;
+* `Job 5` depends on `Job 2` and `Job 3`;
+* `Job 6` depends on `Job 4`;
+* The execution time of each of the following jobs is about 10 min: `Job 1` and `Job 2`;
+* The execution time of each of the following jobs is about 15 min: `Job 3`, `Job 4` and `Job 6`;
+* The execution time of each of the following jobs is about 20 min: `Job 5`;
+* The concurrent running jobs limit is configured to 2.
+* The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS is configured to the default 40 (seconds).
+
+![sample-execution.png](sample-execution.png)
+
+In this scenario, the plugin will perform a total of 147 requests for the whole workflow execution.
+See Appendix A for more details about this example.
+
+### Troubleshooting
+
+* What are the possible failure modes.
+
+  * There are a few ways in which the plugin may fail:
+
+    * If an orchestrated job is being finalized and its status is not the expected "succeeded" one and the configuration
+    value of "fail_meta_job_on_error" is set to TRUE, then a USER ERROR is raised for the Meta Job and its execution
+    is interrupted.
+    * If any kind of platform error occurs, a Meta Job would retry up to N (configurable by the Control Service) times
+      for each job it is orchestrating.
+    * If a non-registered job is attempted to be accessed, the plugin would raise Index Error with some suggestions.
+    * If a job is starting but a conflict is detected with another running job (409) or an internal server error (>=500)
+      has occurred, the execution of the job would be delayed.
+    * In the event of circular dependency (e.g. job1 depends on job2 and job2 depends on job1), violating the
+      requirements, the plugin would raise User Error.
+
+  * Diagnostics: All the main operations from the creation of the Meta Jobs DAG to the very end of the execution are
+    logged.
+
+  * Testing: There are [tests](/projects/vdk-plugins/vdk-meta-jobs/tests/test_meta_job.py) for all the aforementioned
+    failure scenarios.
+
+### Test Plan
+
+Unit and functional tests are introduced as part of the VDK Meta Jobs plugin.
+
+### Availability
+
+The plugin will be part of the vdk installation, so the same availability constraints apply.
+
+### Dependencies
+
+There are no external dependencies that the plugin relies on.
+
+### Cons
+
 Although having all these pros, the user should have in mind the cons of the Meta Jobs as well. The limitation that
-have to be considered is that there is a limit on the number of concurrent running jobs in a single DAG. If this
+have to be considered is that there is a limit on the number of parallel running jobs in a single DAG. If this
 limit is exceeded, the upcoming jobs would be delayed for a while until there is an empty spot for them.
 
 ## Implementation stories
@@ -167,3 +316,33 @@ Optionally, describe what are the implementation stories (eventually we'd create
 Optionally, describe what alternatives has been considered.
 Keep it short - if needed link to more detailed research document.
 -->
+
+Apache Airflow was the alternative workflow management platform that was taken into consideration.
+However, a VDK integration with Airflow proved to be costly mainly due to the management of external infrastructure.
+
+## Appendix A: Calculating the load to the Control Service APIs
+
+Let's estimate the number of API requests needed to be sent by the Meta Jobs plugin for the entire the workflow
+execution.
+We know that one Data Job is going to perform 1 request per 40 seconds to the Control Service APIs.
+Also, the concurrent running job limit is set to 2.
+For our convenience, let's make the following assumptions:
+1. Finalizing one job and starting another takes no time (~0 sec).
+2. Each job starts successfully from the first try - no retries are needed.
+
+Here is the formula we defined earlier for a total amount of requests a DAG would need to send:
+
+TR (total requests) = J * (2 + E/S)
+
+In our DAG: J = 6, E = (2*600 + 2*900 + 2*1200)/6 = 900, S = 40.
+Hence, TR = 6 * (2 + 900/40) = 6 * 24.5 = 147
+
+Additionally, the following time intervals "X - Y" show which jobs would be running
+from moment X until moment Y (measured in minutes), where X = 0 is the start:
+
+* 0 - 10: `Job 1`;
+* 10 - 20: `Job 2` and `Job 3`;
+* 20 - 25: `Job 3` and `Job 4`;
+* 25 - 35: `Job 4` and `Job 5`;
+* 35 - 40: `Job 5` and `Job 6`;
+* 40 - 50: `Job 6`.
