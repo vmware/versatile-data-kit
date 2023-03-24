@@ -19,6 +19,7 @@ Ingester Plugins are implemented by inheriting IIngesterPlugin and impelemented 
 See IIngesterPlugin docs for more info.
 """
 
+
 class AnonymizationIngesterPlugin(ColumnLevelTransformer):
     def __init__(
         self, anonymization_fields: Dict[str, List[str]], anonymizer: Anonymizer

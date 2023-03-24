@@ -1,0 +1,4 @@
+# testing dependencies
+
+pytest
+vdk-test-utils
