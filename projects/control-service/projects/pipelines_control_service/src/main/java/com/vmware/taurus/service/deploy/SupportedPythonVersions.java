@@ -31,11 +31,9 @@ public class SupportedPythonVersions {
   @Value("${datajobs.deployment.defaultPythonVersion}")
   private String defaultPythonVersion;
 
-
   private static final String VDK_IMAGE = "vdkImage";
 
   private static final String BASE_IMAGE = "baseImage";
-
 
   /**
    * Check if the pythonVersion passed by the user is supported by the Control Service.
@@ -70,9 +68,9 @@ public class SupportedPythonVersions {
 
   /**
    * Returns the name of the data job base image as stored in the docker registry. If
-   * supportedPythonVersions is set, and the pythonVersion passed by the user is supported
-   * according to the configuration, the base image corresponding to the pythonVersion is returned.
-   * Otherwise, the default base image is returned.
+   * supportedPythonVersions is set, and the pythonVersion passed by the user is supported according
+   * to the configuration, the base image corresponding to the pythonVersion is returned. Otherwise,
+   * the default base image is returned.
    *
    * @param pythonVersion a string indicating the python version passed by the user
    * @return a string of the data job base image.
@@ -81,7 +79,9 @@ public class SupportedPythonVersions {
     if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
     } else {
-      log.warn("An issue with the passed pythonVersion or supportedPythonVersions configuration has occurred. Returning default job base image");
+      log.warn(
+          "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
+              + " occurred. Returning default job base image");
       return getDefaultJobBaseImage();
     }
   }
@@ -92,9 +92,9 @@ public class SupportedPythonVersions {
 
   /**
    * Returns the name of the vdk image as stored in the docker registry. If supportedPythonVersions
-   * is set, and the pythonVersion, passed by the user, is supported according to the
-   * configuration, the vdk image corresponding to the pythonVersion is returned. Otherwise, the
-   * default vdk image is returned.
+   * is set, and the pythonVersion, passed by the user, is supported according to the configuration,
+   * the vdk image corresponding to the pythonVersion is returned. Otherwise, the default vdk image
+   * is returned.
    *
    * @param pythonVersion a string indicating the python version passed by the user
    * @return a string of the vdk image.
@@ -103,7 +103,9 @@ public class SupportedPythonVersions {
     if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(VDK_IMAGE);
     } else {
-      log.warn("An issue with the passed pythonVersion or supportedPythonVersions configuration has occurred. Returning default vdk image");
+      log.warn(
+          "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
+              + " occurred. Returning default vdk image");
       return getDefaultVdkImage();
     }
   }
@@ -113,8 +115,8 @@ public class SupportedPythonVersions {
   }
 
   /**
-   * Returns the default python version supported by the Control Service. The version number is
-   * read from the datajobs.deployment.defaultPythonVersion application property.
+   * Returns the default python version supported by the Control Service. The version number is read
+   * from the datajobs.deployment.defaultPythonVersion application property.
    *
    * @return a string indicating the default python version supported by the Control Service.
    * @throws InvalidParameterException

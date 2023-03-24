@@ -83,8 +83,7 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void getSupportedPythonVersions_getDefaultVersion() {
-    ReflectionTestUtils.setField(
-            supportedPythonVersions, "defaultPythonVersion", "3.7");
+    ReflectionTestUtils.setField(supportedPythonVersions, "defaultPythonVersion", "3.7");
     var res = new ArrayList<String>();
     res.add("3.7");
 
@@ -96,8 +95,7 @@ public class SupportedPythonVersionsTest {
     var supportedVersions = generateSupportedPythonVersionsConf();
     ReflectionTestUtils.setField(
         supportedPythonVersions, "supportedPythonVersions", supportedVersions);
-    ReflectionTestUtils.setField(
-            supportedPythonVersions, "defaultPythonVersion", "3.7");
+    ReflectionTestUtils.setField(supportedPythonVersions, "defaultPythonVersion", "3.7");
     final String defaultBaseImage = "python:3.7-slim";
 
     Assertions.assertEquals(defaultBaseImage, supportedPythonVersions.getJobBaseImage("3.11"));
@@ -119,8 +117,7 @@ public class SupportedPythonVersionsTest {
     var supportedVersions = generateSupportedPythonVersionsConf();
     ReflectionTestUtils.setField(
         supportedPythonVersions, "supportedPythonVersions", supportedVersions);
-    ReflectionTestUtils.setField(
-            supportedPythonVersions, "defaultPythonVersion", "3.7");
+    ReflectionTestUtils.setField(supportedPythonVersions, "defaultPythonVersion", "3.7");
 
     final String defaultVdkImage = "test_vdk_image_3.7";
 
