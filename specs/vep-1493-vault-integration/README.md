@@ -46,7 +46,7 @@ passwords/credentials/tokens/data
 
 * Some data jobs need to use secrets in order to connect to third party systems by providing user credentials or tokens -
 currently these secrets are stored in data jobs properties, which in turn are stored in plain text in the configured Control
-Service DataBase. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into a vault.
+Service Database. This enhancement will allow users to securely store secrets/passwords/credentials/tokens/data into a vault.
 * Compliance: Storing sensitive information such as credentials, tokens, or API keys in plaintext may lead to
 non-compliance with certain industry standards or regulations, such as GDPR, HIPAA. Without it, VDK would be hard to be
 certified to store or process restricted type of data.
