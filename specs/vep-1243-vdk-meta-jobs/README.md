@@ -34,11 +34,7 @@ service. Meta Jobs provide a more lightweight alternative that simplifies the pr
 Optional section which defines terms and abbreviations used in the rest of the document.
 -->
 
-* **VDK**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
-* **Control Service**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#control-service
-* **Data Job**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job
-* **Data Job Step**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-step
-* **Data Job Execution**: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-execution
+* **VDK Terms Dictionary**: https://github.com/vmware/versatile-data-kit/wiki/dictionary
 * **Apache Airflow (Airflow)**: https://airflow.apache.org/
 * **DAG**: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 * **reqs/min**: requests per minute
@@ -112,11 +108,11 @@ In this context, a component is any separate software process.
 
 ![high-level-diagram.png](high-level-diagram.png)
 
-The plugin is a VDK component that enables the orchestration of Data Jobs.
-Simply put, the Meta Job is a regular Data Job that invokes other Data Jobs using the Control Service Execution API.
-The plugin allows users to define job dependencies and orchestrates the execution of multiple Data Jobs in a specific
-order. The Data Jobs themselves perform specific ETL tasks. The plugin is designed in a way that is native to VDK’s
-ecosystem.
+For the proposed design, a vdk-meta-jobs plugin will be introduced. The plugin is a VDK component that enables
+the orchestration of Data Jobs. Simply put, the Meta Job is a regular Data Job that invokes other Data Jobs using
+the Control Service Execution API. The plugin allows users to define job interdependencies and orchestrates the
+execution of multiple Data Jobs in a specific order. The Data Jobs themselves perform specific ETL tasks.
+The plugin is designed in a way that is native to VDK’s ecosystem.
 
 #### Folder structure
 
@@ -307,7 +303,7 @@ There are no external dependencies that the plugin relies on.
 ### Cons
 
 Although having all these pros, the user should have in mind the cons of the Meta Jobs as well. The limitation that
-have to be considered is that there is a limit on the number of concurrent running jobs in a single DAG. If this
+have to be considered is that there is a limit on the number of parallel running jobs in a single DAG. If this
 limit is exceeded, the upcoming jobs would be delayed for a while until there is an empty spot for them.
 
 ## Implementation stories
