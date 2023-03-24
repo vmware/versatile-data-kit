@@ -279,6 +279,15 @@ We are going to introduce a new Secrets Service class, similar to the existing
 which handles requests for the Secrets functionality.
 We are going to implement changes in VDK-CS API as outlined [API Design]((#api-design)) section.
 
+### Storing secrets in Vault
+
+The secrets for a given data job will be stored under "secret/<team>/<data job>" entry in Vault in JSON object format. So
+the secrets for a data job "my-ingestion-job" belonging to the "ingestion" team will be stored under "secret/ingestion/my-ingestion-job".
+
+The maximum size of a secret entry in Vault is 1MiB. Upon calling the store secret method, the VDK-CS will check the size
+of the secret object and will return an error if the secret is above the limit. The VDK SDK will interpret this error as
+a user error.
+
 ### VDK SDK changes
 
 Once the changes in the API have been introduced, we are going to implement the changes in the VDK SDK, e.g.
