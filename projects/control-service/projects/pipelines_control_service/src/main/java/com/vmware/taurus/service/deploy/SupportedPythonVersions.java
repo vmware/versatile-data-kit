@@ -7,7 +7,6 @@ package com.vmware.taurus.service.deploy;
 
 import java.security.InvalidParameterException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import lombok.RequiredArgsConstructor;
@@ -45,15 +44,15 @@ public class SupportedPythonVersions {
 
   /**
    * Returns a set of the python versions supported by the Control Service, in the format: [3.7,
-   * 3.8, ...]. If the supportedPythonVersions configuration is not set, the method returns an
-   * empty set.
+   * 3.8, ...]. If the supportedPythonVersions configuration is not set, the method returns an empty
+   * set.
    *
    * @return A set of all python versions supported by the Control Service.
    */
   public Set<String> getSupportedPythonVersions() {
     return Optional.ofNullable(supportedPythonVersions)
-            .map(Map::keySet)
-            .orElse(Collections.emptySet());
+        .map(Map::keySet)
+        .orElse(Collections.emptySet());
   }
 
   /**

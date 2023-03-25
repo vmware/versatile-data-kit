@@ -25,15 +25,15 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void isPythonVersionSupported_noSupportedVersions() {
-    ReflectionTestUtils.setField(
-        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, Map.of());
+    ReflectionTestUtils.setField(supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, Map.of());
 
     Assertions.assertFalse(supportedPythonVersions.isPythonVersionSupported("3.7"));
   }
 
   @Test
   public void isPythonVersionSupported_versionSupported() {
-    Map<String, DeploymentDetails> supportedVersions = Map.of("3.7", new DeploymentDetails("python:3.7-slim", "test_vdk_image"));
+    Map<String, DeploymentDetails> supportedVersions =
+        Map.of("3.7", new DeploymentDetails("python:3.7-slim", "test_vdk_image"));
 
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
@@ -43,7 +43,8 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void isPythonVersionSupported_versionNotInSupported() {
-    Map<String, DeploymentDetails> supportedVersions = Map.of("3.8", new DeploymentDetails("python:3.8-slim", "test_vdk_image"));
+    Map<String, DeploymentDetails> supportedVersions =
+        Map.of("3.8", new DeploymentDetails("python:3.8-slim", "test_vdk_image"));
 
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
@@ -118,9 +119,8 @@ public class SupportedPythonVersionsTest {
 
   private static Map<String, DeploymentDetails> generateSupportedPythonVersionsConf() {
     return Map.of(
-            "3.7", new DeploymentDetails("python:3.7-slim", "test_vdk_image_3.7"),
-            "3.8", new DeploymentDetails("python:3.8-slim", "test_vdk_image_3.8"),
-            "3.9", new DeploymentDetails("python:3.9-slim", "test_vdk_image_3.9")
-    );
+        "3.7", new DeploymentDetails("python:3.7-slim", "test_vdk_image_3.7"),
+        "3.8", new DeploymentDetails("python:3.8-slim", "test_vdk_image_3.8"),
+        "3.9", new DeploymentDetails("python:3.9-slim", "test_vdk_image_3.9"));
   }
 }
