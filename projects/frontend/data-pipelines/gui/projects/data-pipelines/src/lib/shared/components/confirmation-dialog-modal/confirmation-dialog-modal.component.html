@@ -4,6 +4,7 @@
   -->
 
 <clr-modal
+    *ngIf="options.opened"
     class="schema-confirm-to-prod"
     [(clrModalOpen)]="options.opened"
     [clrModalClosable]="options.showCloseX"

@@ -18,6 +18,7 @@ import {
     ComponentService,
     ComponentStateImpl,
     ErrorHandlerService,
+    generateErrorCodes,
     NavigationService,
     RouterService,
     RouterState,
@@ -45,6 +46,11 @@ import {
 } from '../../../../shared/pipes';
 
 import { DataJobDetailsPageComponent } from './data-job-details-page.component';
+import { LOAD_JOB_ERROR_CODES } from '../../../../state/error-codes';
+import {
+    TASK_LOAD_JOB_DETAILS,
+    TASK_LOAD_JOB_STATE,
+} from '../../../../state/tasks';
 
 const TEST_JOB_EXECUTION = {
     id: 'id002',
@@ -213,6 +219,16 @@ describe('DataJobsDetailsModalComponent', () => {
         navigationServiceStub.navigateBack.and.returnValue(
             Promise.resolve(true),
         );
+
+        generateErrorCodes<DataJobsApiService>(dataJobsApiServiceStub, [
+            'getJob',
+            'getJobDetails',
+        ]);
+
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE] =
+            dataJobsApiServiceStub.errorCodes.getJob;
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS] =
+            dataJobsApiServiceStub.errorCodes.getJobDetails;
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],

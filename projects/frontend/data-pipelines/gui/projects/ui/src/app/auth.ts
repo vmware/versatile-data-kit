@@ -12,7 +12,7 @@ export const authCodeFlowConfig: AuthConfig = {
     requestAccessToken: true,
     oidc: true,
     strictDiscoveryDocumentValidation: false,
-    clientId: 'OqRMdWXWj5niqWsw7sOKvIWEmJqgaUbSHsz',
+    clientId: '8qQgcmhhsXuhGJs58ZW1hQ86h3eZXTpBV6t',
     responseType: 'code',
     scope: 'openid ALL_PERMISSIONS customer_number group_names',
     showDebugInformation: true,

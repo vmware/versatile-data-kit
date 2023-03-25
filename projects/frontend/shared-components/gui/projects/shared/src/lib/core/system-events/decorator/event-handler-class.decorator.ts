@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -44,98 +44,73 @@ import { SYSTEM_EVENTS_METADATA_KEY } from './models';
  *    export class DataJobService {
  *      // some properties, methods and handlers
  *    }
- *
- *
  */
 export function SystemEventHandlerClass(): ClassDecorator {
-	// @ts-ignore
-	return <T extends new (...args: any[]) => InstanceType<T>>(
-		OriginConstructor: T
-	): ((...args: ConstructorParameters<T>) => InstanceType<T>) => {
-		const originMetadataKeys = Reflect.getMetadataKeys(OriginConstructor);
-		const originMetadataRecords: SystemEventMetadataRecords =
-			Reflect.getMetadata(SYSTEM_EVENTS_METADATA_KEY, OriginConstructor) ?? [];
-		const originOnDestroyRef: () => void =
-			getOriginOnDestroyRef<T>(OriginConstructor);
+    // @ts-ignore
+    return <T extends new (...args: any[]) => InstanceType<T>>(
+        OriginConstructor: T
+    ): ((...args: ConstructorParameters<T>) => InstanceType<T>) => {
+        const originMetadataKeys = Reflect.getMetadataKeys(OriginConstructor);
+        const originMetadataRecords: SystemEventMetadataRecords = Reflect.getMetadata(SYSTEM_EVENTS_METADATA_KEY, OriginConstructor) ?? [];
+        const originOnDestroyRef: () => void = getOriginOnDestroyRef<T>(OriginConstructor);
 
-		let instance: InstanceType<T>;
+        let instance: InstanceType<T>;
 
-		const OverriddenConstructor = function (
-			...args: ConstructorParameters<T>
-		): InstanceType<T> {
-			instance = new OriginConstructor(...args);
+        const OverriddenConstructor = function (...args: ConstructorParameters<T>): InstanceType<T> {
+            instance = new OriginConstructor(...args);
 
-			originMetadataRecords.forEach((r) => {
-				SystemEventHandlerRegistry.register<InstanceType<T>>(
-					r.events,
-					r.handler,
-					instance,
-					r.filterExpression
-				);
-			});
+            originMetadataRecords.forEach((r) => {
+                SystemEventHandlerRegistry.register<InstanceType<T>>(r.events, r.handler, instance, r.filterExpression);
+            });
 
-			return instance;
-		};
+            return instance;
+        };
 
-		OriginConstructor.prototype.ngOnDestroy = () => {
-			originMetadataRecords.forEach((r) => {
-				SystemEventHandlerRegistry.unregister(r.events, r.handler);
+        OriginConstructor.prototype.ngOnDestroy = () => {
+            originMetadataRecords.forEach((r) => {
+                SystemEventHandlerRegistry.unregister(r.events, r.handler);
 
-				if (originOnDestroyRef) {
-					originOnDestroyRef.call(instance);
-				}
-			});
-		};
+                if (originOnDestroyRef) {
+                    originOnDestroyRef.call(instance);
+                }
+            });
+        };
 
-		originMetadataKeys.forEach((key) => {
-			Reflect.defineMetadata(
-				key,
-				Reflect.getMetadata(key, OriginConstructor),
-				OverriddenConstructor
-			);
-		});
+        originMetadataKeys.forEach((key) => {
+            Reflect.defineMetadata(key, Reflect.getMetadata(key, OriginConstructor), OverriddenConstructor);
+        });
 
-		copyFromOriginToOverride(OriginConstructor, OverriddenConstructor);
+        copyFromOriginToOverride(OriginConstructor, OverriddenConstructor);
 
-		return OverriddenConstructor;
-	};
+        return OverriddenConstructor;
+    };
 }
 
-const getOriginOnDestroyRef = <
-	T extends new (...args: any[]) => InstanceType<T>
->(
-	classRef: T
-): (() => void | null) => {
-	if (!classRef || !classRef.prototype) {
-		return null;
-	}
+const getOriginOnDestroyRef = <T extends new (...args: any[]) => InstanceType<T>>(classRef: T): (() => void | null) => {
+    if (!classRef || !classRef.prototype) {
+        return null;
+    }
 
-	if (classRef.prototype.ngOnDestroy) {
-		return classRef.prototype.ngOnDestroy as () => void;
-	}
+    if (classRef.prototype.ngOnDestroy) {
+        return classRef.prototype.ngOnDestroy as () => void;
+    }
 
-	return getOriginOnDestroyRef(classRef.prototype);
+    return getOriginOnDestroyRef(classRef.prototype);
 };
 
-const copyFromOriginToOverride = <
-	T extends new (...args: any[]) => InstanceType<T>
->(
-	OriginConstructor: T,
-	OverriddenConstructor: (...args: ConstructorParameters<T>) => InstanceType<T>
+const copyFromOriginToOverride = <T extends new (...args: any[]) => InstanceType<T>>(
+    OriginConstructor: T,
+    OverriddenConstructor: (...args: ConstructorParameters<T>) => InstanceType<T>
 ) => {
-	CollectionsUtil.iterateClassStatics(OriginConstructor, (descriptor, key) => {
-		const overriddenPropertyDescriptor =
-			CollectionsUtil.getObjectPropertyDescriptor(OverriddenConstructor, key);
-		if (
-			overriddenPropertyDescriptor &&
-			!overriddenPropertyDescriptor.writable
-		) {
-			return;
-		}
+    CollectionsUtil.iterateClassStatics(OriginConstructor, (descriptor, key) => {
+        const overriddenPropertyDescriptor = CollectionsUtil.getObjectPropertyDescriptor(OverriddenConstructor, key);
+        if (overriddenPropertyDescriptor && !overriddenPropertyDescriptor.writable) {
+            return;
+        }
 
-		OverriddenConstructor[key] = descriptor.value;
-	});
+        OverriddenConstructor[key] = descriptor.value;
+    });
 
-	OverriddenConstructor.prototype = Object.create(OriginConstructor.prototype);
-	OverriddenConstructor.prototype.constructor = OverriddenConstructor;
+    OverriddenConstructor.prototype = Object.create(OriginConstructor.prototype);
+    OverriddenConstructor.prototype.constructor = OverriddenConstructor;
 };

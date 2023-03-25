@@ -13,6 +13,7 @@ META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS = (
 META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS = (
     "META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS"
 )
+META_JOBS_MAX_CONCURRENT_RUNNING_JOBS = "META_JOBS_MAX_CONCURRENT_RUNNING_JOBS"
 
 
 class MetaPluginConfiguration:
@@ -34,6 +35,9 @@ class MetaPluginConfiguration:
 
     def meta_jobs_time_between_status_check_seconds(self):
         return self.__config.get_value(META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS)
+
+    def meta_jobs_max_concurrent_running_jobs(self):
+        return self.__config.get_value(META_JOBS_MAX_CONCURRENT_RUNNING_JOBS)
 
 
 def add_definitions(config_builder: ConfigurationBuilder):
@@ -77,5 +81,15 @@ def add_definitions(config_builder: ConfigurationBuilder):
             "The frequency of status checks is determined by this configuration option. Setting an "
             "appropriate value helps to monitor job progress without generating too many API calls or "
             "consuming too many resources. It's advisable to use the default value and avoid changing it."
+        ),
+    )
+    config_builder.add(
+        key=META_JOBS_MAX_CONCURRENT_RUNNING_JOBS,
+        default_value=15,
+        description=(
+            "This sets the maximum number of concurrent running jobs. When at full capacity, any ready-to-start job "
+            "would be delayed until a running job is completed. The limit is determined by this configuration option. "
+            "Setting an appropriate value helps to limit the generation of too many API calls or consuming too many "
+            "resources. It's advisable to use the default value for this variable."
         ),
     )

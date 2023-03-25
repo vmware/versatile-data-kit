@@ -18,7 +18,7 @@
                 class="btn btn-link btn-sm"
                 aria-label="add"
                 [attr.id]="addId"
-                [disabled]="addDisabled"
+                [disabled]="addDisabled || disableActionableElements"
                 (click)="add.next(true)"
             >
                 <span>{{ addLabel }}</span>
@@ -40,7 +40,7 @@
                 class="btn btn-link btn-sm"
                 aria-label="edit"
                 [attr.id]="editId"
-                [disabled]="editDisabled"
+                [disabled]="editDisabled || disableActionableElements"
                 (click)="edit.next(selectedValue)"
             >
                 <span>{{ editLabel }}</span>
@@ -62,7 +62,7 @@
                 class="btn btn-link btn-sm btn-link-red"
                 aria-label="remove"
                 [attr.id]="removeId"
-                [disabled]="removeDisabled"
+                [disabled]="removeDisabled || disableActionableElements"
                 (click)="remove.next(selectedValue)"
             >
                 <span>{{ removeLabel }}</span>
@@ -80,6 +80,7 @@
         <lib-quick-filters
             [quickFilters]="quickFilters"
             [suppressQuickFilterChangeEvent]="suppressQuickFilterChangeEvent"
+            [disableActionableElements]="disableActionableElements"
             (quickFilterChange)="quickFilterChange.emit($event)"
         ></lib-quick-filters>
 
@@ -89,8 +90,9 @@
     <div class="btn-search-container">
         <vdk-search
             [attr.id]="id"
-            (search)="search.next($event)"
+            [disabled]="disableActionableElements"
             [searchQueryValue]="queryValue"
+            (search)="search.next($event)"
         ></vdk-search>
 
         <ng-content select=".custom-buttons-search"></ng-content>

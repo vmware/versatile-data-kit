@@ -19,6 +19,8 @@ import {
 import { Apollo, ApolloBase, QueryRef } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 
+import { TaurusBaseApiService } from '@versatiledatakit/shared';
+
 import {
     DataJob,
     DataJobExecutionsPage,
@@ -31,7 +33,17 @@ import {
  * ** Data Jobs Service build on top of Apollo gql client.
  */
 @Injectable()
-export class DataJobsBaseApiService {
+export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApiService> {
+    /**
+     * @inheritDoc
+     */
+    static override readonly CLASS_NAME: string = 'DataJobsBaseApiService';
+
+    /**
+     * @inheritDoc
+     */
+    static override readonly PUBLIC_NAME: string = 'Data-Pipelines-Service';
+
     private static readonly APOLLO_METHOD = 'GET';
     private static readonly APOLLO_DEFAULT_OPTIONS: DefaultOptions = {
         watchQuery: {
@@ -50,7 +62,11 @@ export class DataJobsBaseApiService {
     constructor(
         private readonly apollo: Apollo,
         private readonly httpLink: HttpLink,
-    ) {}
+    ) {
+        super(DataJobsBaseApiService.CLASS_NAME);
+
+        this.registerErrorCodes(DataJobsBaseApiService);
+    }
 
     /**
      * ** Get all DataJobs for provided OwnerTeam and load data based on provided gqlQuery.

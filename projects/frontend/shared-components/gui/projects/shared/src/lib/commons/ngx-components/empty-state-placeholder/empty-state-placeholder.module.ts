@@ -8,9 +8,9 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { VdkEmptyStatePlaceholderComponent } from './empty-state-placeholder.component';
 
 @NgModule({
-	imports: [CommonModule],
-	declarations: [VdkEmptyStatePlaceholderComponent],
-	exports: [VdkEmptyStatePlaceholderComponent],
-	schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    imports: [CommonModule],
+    declarations: [VdkEmptyStatePlaceholderComponent],
+    exports: [VdkEmptyStatePlaceholderComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class VdkEmptyStatePlaceholderModule {}

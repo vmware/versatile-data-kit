@@ -17,20 +17,23 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VdkComponentsModule } from '@versatiledatakit/shared';
-
 import {
     TaurusSharedCoreModule,
     TaurusSharedFeaturesModule,
     TaurusSharedNgRxModule,
+    VdkComponentsModule,
 } from '@versatiledatakit/shared';
 
 import { DataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
-import { AppComponent } from './app.component';
-import { AppRouting } from './app.routing';
 import { authCodeFlowConfig } from './auth';
+
 import { AuthorizationInterceptor } from './http.interceptor';
+
+import { AppRouting } from './app.routing';
+
+import { AppComponent } from './app.component';
+
 import { GettingStartedComponent } from './getting-started/getting-started.component';
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions

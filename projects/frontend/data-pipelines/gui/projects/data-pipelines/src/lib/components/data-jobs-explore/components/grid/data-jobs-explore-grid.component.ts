@@ -32,6 +32,18 @@ export class DataJobsExploreGridComponent
     extends DataJobsBaseGridComponent
     implements OnInit
 {
+    /**
+     * @inheritDoc
+     */
+    static override readonly CLASS_NAME: string =
+        'DataJobsExploreGridComponent';
+
+    /**
+     * @inheritDoc
+     */
+    static override readonly PUBLIC_NAME: string =
+        'DataJobs-ExploreGrid-Component';
+
     //Decorators are not inherited in Angular. If we need @Input() we need to declare it here
     @Input() override teamNameFilter: string;
     @Input() override displayMode: DisplayMode;
@@ -80,6 +92,7 @@ export class DataJobsExploreGridComponent
                     logsUrl: true,
                 },
             },
+            DataJobsExploreGridComponent.CLASS_NAME,
         );
     }
 

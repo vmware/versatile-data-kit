@@ -1,0 +1,27 @@
+@startuml
+!include <awslib/AWSSimplified>
+!include <awslib/General/User>
+!include <awslib/Containers/ElasticContainerRegistry>
+!include <cloudinsight/file>
+
+User(engineer, "User", " ")
+User(admin, "Administrator", " ")
+ElasticContainerRegistry(ecr, "Image\n<b>Registry", " ")
+
+
+rectangle "K8s Cluster" {
+   component "Control Service" as cs
+   rectangle "          Data Jobs\nBuilders/Deployments\n        Namespace" as djn
+   cs - djn
+}
+
+rectangle "<$file>\nData Job" as data_job
+
+
+engineer -- data_job : Set <b>python_version</b> in config.ini
+data_job -- cs : Deploy data job
+admin -- cs : Configure supported\npython versions
+
+cs -- ecr : Pull data job base and \nvdk images based on \nprovided <b>python_version</b>
+
+@enduml

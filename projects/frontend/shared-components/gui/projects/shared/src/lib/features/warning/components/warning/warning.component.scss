@@ -1,0 +1,154 @@
+/*!
+ * Copyright 2021-2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:host {
+    --warning-background-color: var(--clr-alert-warning-bg-color, hsl(48deg, 100%, 89%));
+    --warning-border-color: var(--clr-alert-warning-border-color, hsl(41deg, 100%, 34%));
+    --warning-text-color: var(--clr-alert-warning-font-color, hsl(198deg, 0%, 20%));
+    --warning-icon-tooltip-color: var(--clr-alert-warning-icon-color, #454545);
+    --warning-icon-standard-color: var(--clr-alert-warning-icon-color, #454545);
+
+    ::ng-deep clr-signpost {
+        cds-icon {
+            fill: var(--warning-background-color);
+            margin-top: -2px;
+        }
+
+        clr-signpost-content {
+            &.signpost-content {
+                z-index: 10050;
+                min-width: 300px;
+
+                &.shared-warning__tooltip-size--xs {
+                    min-width: 150px;
+                }
+
+                &.shared-warning__tooltip-size--sm {
+                    min-width: 200px;
+                }
+
+                &.shared-warning__tooltip-size--md {
+                    min-width: 300px;
+                }
+
+                &.shared-warning__tooltip-size--lg {
+                    min-width: 370px;
+                }
+
+                &.shared-warning__tooltip-size--xl {
+                    min-width: 500px;
+                }
+
+                .signpost-wrap {
+                    border-color: var(--warning-border-color);
+                }
+
+                .signpost-content-header {
+                    display: none;
+                }
+
+                .signpost-content-body {
+                    background-color: var(--warning-background-color);
+                    color: var(--warning-text-color);
+                    border-radius: var(--clr-signpost-border-radius, 0.15rem);
+                    font-size: 13px;
+                    font-weight: normal;
+                    padding: 0.6rem;
+
+                    .shared-warning__tooltip-template--default {
+                        font-size: 13px;
+                        text-align: left;
+                        color: var(--warning-text-color);
+                        line-height: 18px;
+                        padding: 0;
+                        margin: 0;
+
+                        > a {
+                            text-decoration: underline;
+                        }
+                    }
+                }
+
+                &.top-left,
+                &.top-middle,
+                &.top-right {
+                    .popover-pointer {
+                        border-top: 0.6rem solid var(--warning-border-color);
+
+                        &::before {
+                            border-top: 0.6rem solid var(--warning-background-color);
+                        }
+                    }
+                }
+
+                &.top-left {
+                    .signpost-content-body {
+                        border-bottom-right-radius: 0;
+                    }
+                }
+
+                &.top-right {
+                    .signpost-content-body {
+                        border-bottom-left-radius: 0;
+                    }
+                }
+
+                &.bottom-right,
+                &.bottom-middle,
+                &.bottom-left {
+                    .popover-pointer {
+                        top: -0.59rem;
+                        border-bottom: 0.6rem solid var(--warning-border-color);
+
+                        &::before {
+                            border-bottom: 0.6rem solid var(--warning-background-color);
+                        }
+                    }
+                }
+
+                &.bottom-right {
+                    .signpost-content-body {
+                        border-top-left-radius: 0;
+                    }
+                }
+
+                &.bottom-left {
+                    .signpost-content-body {
+                        border-top-right-radius: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .shared-warning__icon-tooltip {
+        color: var(--warning-icon-tooltip-color);
+    }
+
+    .shared-warning__icon-standard {
+        color: var(--warning-icon-standard-color);
+    }
+
+    .shared-warning__standard-template--default {
+        font-size: 13px;
+        text-align: left;
+        color: var(--warning-text-color);
+        line-height: 18px;
+        padding: 0;
+        margin: 0;
+
+        > a {
+            text-decoration: underline;
+        }
+    }
+}
+
+:host-context(.dark) {
+    --warning-background-color: #816709;
+    --warning-border-color: #816709;
+    --warning-text-color: #eaedf0;
+    --warning-icon-tooltip-color: #816709;
+    --warning-icon-standard-color: #eaedf0;
+}

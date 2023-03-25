@@ -4,11 +4,15 @@
   -->
 
 <ng-container *ngIf="!initialLoading">
-    <div *ngIf="minJobExecutionTime" class="time-filter__container">
+    <div
+        *ngIf="minJobExecutionTime || isComponentInErrorState"
+        class="time-filter__container"
+    >
         <div>
             <lib-time-period-filter
                 [loading]="loading"
                 [minTime]="minJobExecutionTime"
+                [isComponentInErrorState]="isComponentInErrorState"
                 (filterChanged)="onTimeFilterChange($event)"
             ></lib-time-period-filter>
         </div>
@@ -25,7 +29,7 @@
         </div>
     </div>
 
-    <ng-container *ngIf="jobExecutions?.length > 0">
+    <ng-container *ngIf="!isComponentInErrorState && jobExecutions?.length > 0">
         <div class="clr-row">
             <div class="clr-col-2 execution-statuses-chart">
                 <lib-execution-status-chart
@@ -54,12 +58,24 @@
     </ng-container>
 </ng-container>
 
-<ng-container *ngIf="initialLoading">
+<ng-container
+    *ngIf="!isComponentInErrorState && jobExecutions?.length === 0 && !loading"
+>
+    <h3>No executions found.</h3>
+</ng-container>
+
+<ng-container *ngIf="isComponentInErrorState && !loading">
+    <shared-placeholder
+        errorContext="Data Job Executions"
+        [plural]="true"
+        [errorsQueue]="errors.records"
+        [listenForErrorPatterns]="listenForErrorPatterns"
+    >
+    </shared-placeholder>
+</ng-container>
+
+<ng-container *ngIf="initialLoading || (isComponentInErrorState && loading)">
     <div class="job-executions__spinner">
         <clr-spinner></clr-spinner>
     </div>
-</ng-container>
-
-<ng-container *ngIf="jobExecutions?.length === 0 && !loading">
-    <h3>No executions found.</h3>
 </ng-container>

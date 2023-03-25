@@ -22,8 +22,10 @@
   },
   "env": {
     "hars_folders": "e2e/hars",
+    "csp_url": "https://console-stg.cloud.vmware.com",
     "login_url": "https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize",
     "data_jobs_url": "http://cicd-control-service-svc:8092",
-    "test_environment": "lib"
+    "test_environment": "lib",
+    "grepTags": ""
   }
 }

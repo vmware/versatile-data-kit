@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -25,14 +25,14 @@
  * ```
  */
 @mixin light-theme {
-	:host-context(body:not([cds-theme])) &,
-	:host-context(body[cds-theme='light']) & {
-		@content;
-	}
+    :host-context(body:not([cds-theme])) &,
+    :host-context(body[cds-theme='light']) & {
+        @content;
+    }
 }
 
 @mixin dark-theme {
-	:host-context(body[cds-theme='dark']) & {
-		@content;
-	}
+    :host-context(body[cds-theme='dark']) & {
+        @content;
+    }
 }

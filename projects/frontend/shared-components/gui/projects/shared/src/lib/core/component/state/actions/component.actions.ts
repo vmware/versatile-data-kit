@@ -44,138 +44,124 @@ export const COMPONENT_CLEAR_DATA = '[component] Clear data';
 
 /**
  * ** Action for Component Initialization.
- *
- *
  */
 export class ComponentInit extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_INIT, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_INIT, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentInit(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentInit(payload);
+    }
 }
 
 /**
  * ** Action for Component Idle.
- *
- *
  */
 export class ComponentIdle extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_IDLE, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_IDLE, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentIdle(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentIdle(payload);
+    }
 }
 
 /**
  * ** Action for Component Loading.
- *
- *
  */
 export class ComponentLoading extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_LOADING, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_LOADING, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentLoading(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentLoading(payload);
+    }
 }
 
 /**
  * ** Action for Component Loaded.
- *
- *
  */
 export class ComponentLoaded extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_LOADED, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_LOADED, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentLoaded(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentLoaded(payload);
+    }
 }
 
 /**
  * ** Action for Component Failed.
- *
- *
  */
 export class ComponentFailed extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_FAILED, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_FAILED, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentFailed(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentFailed(payload);
+    }
 }
 
 /**
  * ** Action for Component Update.
- *
- *
  */
 export class ComponentUpdate extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_UPDATE, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_UPDATE, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentUpdate(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentUpdate(payload);
+    }
 }
 
 /**
  * ** Action for Component Clear Data.
- *
- *
  */
 export class ComponentClearData extends BaseActionWithPayload<ComponentState> {
-	constructor(payload: ComponentState) {
-		super(COMPONENT_CLEAR_DATA, payload);
-	}
+    constructor(payload: ComponentState) {
+        super(COMPONENT_CLEAR_DATA, payload);
+    }
 
-	/**
-	 * ** Factory method.
-	 */
-	static override of(payload: ComponentState) {
-		return new ComponentClearData(payload);
-	}
+    /**
+     * ** Factory method.
+     */
+    static override of(payload: ComponentState) {
+        return new ComponentClearData(payload);
+    }
 }
 
 /**
  * ** Union of all Actions that could be use as a type in Effects/Reducers/etc...
  */
 export type ComponentActions =
-	| ComponentInit
-	| ComponentIdle
-	| ComponentLoading
-	| ComponentLoaded
-	| ComponentFailed
-	| ComponentUpdate
-	| ComponentClearData;
+    | ComponentInit
+    | ComponentIdle
+    | ComponentLoading
+    | ComponentLoaded
+    | ComponentFailed
+    | ComponentUpdate
+    | ComponentClearData;

@@ -24,6 +24,9 @@ class DummyMetaPluginConfiguration:
     def meta_jobs_time_between_status_check_seconds(self):
         return 40
 
+    def meta_jobs_max_concurrent_running_jobs(self):
+        return 15
+
 
 def test_execute_dag_happy_case():
     job1 = dict(job_name="job1", depends_on=[])

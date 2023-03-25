@@ -25,7 +25,10 @@ import {
 
 import { VdkComponentsModule } from '@versatiledatakit/shared';
 
-import { TaurusSharedNgRxModule } from '@versatiledatakit/shared';
+import {
+    TaurusSharedFeaturesModule,
+    TaurusSharedNgRxModule,
+} from '@versatiledatakit/shared';
 
 import { AttributesDirective } from './shared/directives';
 
@@ -111,6 +114,7 @@ const routes: Routes = [];
         ReactiveFormsModule,
         TruncateModule,
         TimeagoModule.forRoot(),
+        TaurusSharedFeaturesModule.forChild(),
         TaurusSharedNgRxModule.forFeatureEffects([DataJobsEffects]),
         DpDatePickerModule,
         NgxChartsModule,

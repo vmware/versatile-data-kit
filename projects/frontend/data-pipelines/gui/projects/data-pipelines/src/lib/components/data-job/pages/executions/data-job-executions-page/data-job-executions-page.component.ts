@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { map, take } from 'rxjs/operators';
@@ -14,6 +14,7 @@ import {
     ComponentModel,
     ComponentService,
     ErrorHandlerService,
+    ErrorRecord,
     NavigationService,
     OnTaurusModelChange,
     OnTaurusModelError,
@@ -37,8 +38,12 @@ import {
     ORDER_REQ_PARAM,
     TEAM_NAME_REQ_PARAM,
 } from '../../../../../model';
-import { DataJobsService } from '../../../../../services';
+
 import { TASK_LOAD_JOB_EXECUTIONS } from '../../../../../state/tasks';
+
+import { LOAD_JOB_ERROR_CODES } from '../../../../../state/error-codes';
+
+import { DataJobsService } from '../../../../../services';
 
 import {
     DataJobExecutionToGridDataJobExecution,
@@ -73,6 +78,18 @@ export class DataJobExecutionsPageComponent
         fromTime: null,
         toTime: null,
     };
+
+    /**
+     * ** Array of error code patterns that component should listen for in errors store.
+     */
+    listenForErrorPatterns: string[] = [
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS].All,
+    ];
+
+    /**
+     * ** Flag that indicates there is jobs executions load error.
+     */
+    isComponentInErrorState = false;
 
     constructor(
         componentService: ComponentService,
@@ -178,10 +195,31 @@ export class DataJobExecutionsPageComponent
     /**
      * @inheritDoc
      */
-    onModelError(model: ComponentModel): void {
-        const error = ErrorUtil.extractError(model.getComponentState().error);
+    onModelError(
+        model: ComponentModel,
+        _task: string,
+        newErrorRecords: ErrorRecord[],
+    ): void {
+        newErrorRecords.forEach((errorRecord) => {
+            const error = ErrorUtil.extractError(errorRecord.error);
 
-        this.errorHandlerService.processError(error);
+            this.errorHandlerService.processError(error);
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
+    override ngOnInit(): void {
+        // attach listener to ErrorStore and listen for Errors change
+        this.errors.onChange((store) => {
+            // if there is record for listened error code patterns set component in error state
+            this.isComponentInErrorState = store.hasCodePattern(
+                ...this.listenForErrorPatterns,
+            );
+        });
+
+        super.ngOnInit();
     }
 
     private _initialize(state: RouteState): void {
