@@ -25,15 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SupportedPythonVersions {
 
-  @Value("#{${datajobs.deployment.supportedPythonVersions}}")
-  private Map<String, Map<String, String>> supportedPythonVersions;
+  public record DeploymentDetails(String baseImage, String vdkImage) {}
+
+  @Value("#{${datajobs.deployment.supportedPythonVersions:{}}}")
+  private Map<String, DeploymentDetails> supportedPythonVersions;
 
   @Value("${datajobs.deployment.defaultPythonVersion}")
   private String defaultPythonVersion;
-
-  private static final String VDK_IMAGE = "vdkImage";
-
-  private static final String BASE_IMAGE = "baseImage";
 
   /**
    * Check if the pythonVersion passed by the user is supported by the Control Service.
@@ -42,28 +40,20 @@ public class SupportedPythonVersions {
    * @return true if the version is supported, and false otherwise.
    */
   public boolean isPythonVersionSupported(String pythonVersion) {
-    if (supportedPythonVersions != null) {
-      return supportedPythonVersions.containsKey(pythonVersion);
-    } else {
-      return false;
-    }
+    return supportedPythonVersions.containsKey(pythonVersion);
   }
 
   /**
-   * Returns a list of the python versions supported by the Control Service, in the format: [3.7,
-   * 3.8, ...]. If the supportedPythonVersions configuration is not set, the method returns the
-   * default python version set in the defaultPythonVersion configuration property.
+   * Returns a set of the python versions supported by the Control Service, in the format: [3.7,
+   * 3.8, ...]. If the supportedPythonVersions configuration is not set, the method returns an
+   * empty set.
    *
-   * @return A list of all python versions supported by the Control Service.
+   * @return A set of all python versions supported by the Control Service.
    */
-  public List<String> getSupportedPythonVersions() {
-    if (supportedPythonVersions != null && !supportedPythonVersions.isEmpty()) {
-      return supportedPythonVersions.keySet().stream()
-          .map((obj) -> Objects.toString(obj, null))
-          .collect(Collectors.toList());
-    } else {
-      return Arrays.asList(getDefaultPythonVersion());
-    }
+  public Set<String> getSupportedPythonVersions() {
+    return Optional.ofNullable(supportedPythonVersions)
+            .map(Map::keySet)
+            .orElse(Collections.emptySet());
   }
 
   /**
@@ -76,8 +66,8 @@ public class SupportedPythonVersions {
    * @return a string of the data job base image.
    */
   public String getJobBaseImage(String pythonVersion) {
-    if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
-      return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
+    if (isPythonVersionSupported(pythonVersion)) {
+      return supportedPythonVersions.get(pythonVersion).baseImage;
     } else {
       log.warn(
           "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
@@ -87,7 +77,7 @@ public class SupportedPythonVersions {
   }
 
   public String getDefaultJobBaseImage() {
-    return supportedPythonVersions.get(defaultPythonVersion).get(BASE_IMAGE);
+    return supportedPythonVersions.get(defaultPythonVersion).baseImage;
   }
 
   /**
@@ -100,8 +90,8 @@ public class SupportedPythonVersions {
    * @return a string of the vdk image.
    */
   public String getVdkImage(String pythonVersion) {
-    if (!supportedPythonVersions.isEmpty() && isPythonVersionSupported(pythonVersion)) {
-      return supportedPythonVersions.get(pythonVersion).get(VDK_IMAGE);
+    if (isPythonVersionSupported(pythonVersion)) {
+      return supportedPythonVersions.get(pythonVersion).vdkImage;
     } else {
       log.warn(
           "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
@@ -111,7 +101,7 @@ public class SupportedPythonVersions {
   }
 
   public String getDefaultVdkImage() {
-    return supportedPythonVersions.get(defaultPythonVersion).get(VDK_IMAGE);
+    return supportedPythonVersions.get(defaultPythonVersion).vdkImage;
   }
 
   /**
