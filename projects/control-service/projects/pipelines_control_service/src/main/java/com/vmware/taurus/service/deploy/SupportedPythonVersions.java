@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SupportedPythonVersions {
 
-  public record DeploymentDetails(String baseImage, String vdkImage) {}
+  record DeploymentDetails(String baseImage, String vdkImage) {}
 
   @Value("#{${datajobs.deployment.supportedPythonVersions:{}}}")
   private Map<String, DeploymentDetails> supportedPythonVersions;
@@ -50,9 +50,7 @@ public class SupportedPythonVersions {
    * @return A set of all python versions supported by the Control Service.
    */
   public Set<String> getSupportedPythonVersions() {
-    return Optional.ofNullable(supportedPythonVersions)
-        .map(Map::keySet)
-        .orElse(Collections.emptySet());
+    return supportedPythonVersions.keySet();
   }
 
   /**
