@@ -300,6 +300,115 @@ def test_meta_job_circular_dependency(httpserver: PluginHTTPServer):
             ["run", jobs_path_from_caller_directory("meta-job-circular-dep")]
         )
         cli_assert_equal(1, result)
+        print(result.exception)
+        # no other request should be tried as the meta job fails
+        assert isinstance(result.exception, UserCodeError)
+        assert len(httpserver.log) == 0
+
+
+def test_meta_job_depends_on_itself(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-depends-on-itself")]
+        )
+        cli_assert_equal(1, result)
+        print(result.exception)
+        # no other request should be tried as the meta job fails
+        assert isinstance(result.exception, UserCodeError)
+        assert len(httpserver.log) == 0
+
+
+def test_meta_job_job_already_exists(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-job-already-exists")]
+        )
+        cli_assert_equal(1, result)
+        print(result.exception)
+        # no other request should be tried as the meta job fails
+        assert isinstance(result.exception, UserCodeError)
+        assert len(httpserver.log) == 0
+
+
+def test_meta_job_wrong_job_key_type(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-wrong-job-key-type")]
+        )
+        cli_assert_equal(1, result)
+        print(result.exception)
+        # no other request should be tried as the meta job fails
+        assert isinstance(result.exception, UserCodeError)
+        assert len(httpserver.log) == 0
+
+
+def test_meta_job_wrong_topological_order(httpserver: PluginHTTPServer):
+    jobs = [
+        ("job1", [200], "succeeded"),
+        ("job2", [200], "succeeded"),
+        ("job3", [200], "succeeded"),
+        ("job4", [200], "succeeded"),
+    ]
+    api_url = _prepare(httpserver, jobs)
+
+    with mock.patch.dict(
+        os.environ,
+        {"VDK_CONTROL_SERVICE_REST_API_URL": api_url},
+    ):
+        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
+        # and mock large parts of it - e.g passed our own plugins
+        runner = CliEntryBasedTestRunner(plugin_entry)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("meta-job-wrong-topological-order")]
+        )
+        cli_assert_equal(1, result)
+        print(result.exception)
         # no other request should be tried as the meta job fails
         assert isinstance(result.exception, UserCodeError)
         assert len(httpserver.log) == 0
