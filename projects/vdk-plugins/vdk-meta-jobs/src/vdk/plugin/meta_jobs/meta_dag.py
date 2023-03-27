@@ -45,7 +45,6 @@ class MetaJobsDag:
 
     def build_dag(self, jobs: List[Dict]):
         for job in jobs:
-            # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             self._validate_job(job)
             trackable_job = TrackableJob(
                 job["job_name"],
@@ -147,6 +146,17 @@ class MetaJobsDag:
         ]
         required_job_keys = ["job_name", "depends_on"]
         registered_job_names = [j.job_name for j in self._job_executor.get_all_jobs()]
+        if type(job) != dict:
+            raise UserCodeError(
+                ErrorMessage(
+                    "",
+                    "Meta Job failed due to a data job validation failure.",
+                    f"Validation of Data Job failed. "
+                    f"There is an error with the type of job name.",
+                    "The DAG will not be built and the meta data job will fail.",
+                    f"Check the Data Job type. Expected type is dict.",
+                )
+            )
         if any(key not in allowed_job_keys for key in job.keys()) or any(
             key not in job for key in required_job_keys
         ):
@@ -154,9 +164,9 @@ class MetaJobsDag:
                 ErrorMessage(
                     "",
                     "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
+                    f"Validation of Data Job failed. "
                     "Some keys in the Data Job Dict are not allowed or some of the required ones are missing.",
-                    "The DAG will not be built and the meta data job will fail.",
+                    "The DAG will not be built and the Meta Job will fail.",
                     "Check the Data Job Dict keys for errors and make sure the required ones are present.",
                 )
             )
@@ -165,11 +175,10 @@ class MetaJobsDag:
                 ErrorMessage(
                     "",
                     "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
+                    f"Validation of Data Job failed. "
                     f"There is an error with the type of job name.",
-                    "The DAG will not be built and the meta data job will fail.",
-                    f"Check the Data Job Dict value of job_name. Current type: {type(job['job_name'])}. "
-                    "Expected type is string.",
+                    "The DAG will not be built and the Meta Job will fail.",
+                    f"Check the Data Job Dict value of job_name. Expected type is string.",
                 )
             )
         if job["job_name"] in registered_job_names:
@@ -179,7 +188,7 @@ class MetaJobsDag:
                     "Meta Job failed due to a data job validation failure.",
                     f"Validation of Data Job {job['job_name']} failed. "
                     f"Job with such name already exists.",
-                    "The DAG will not be built and the meta data job will fail.",
+                    "The DAG will not be built and the Meta Job will fail.",
                     "Check the Data Job Dict value of job_name.",
                 )
             )
@@ -193,7 +202,7 @@ class MetaJobsDag:
                     "Meta Job failed due to a data job validation failure.",
                     f"Validation of Data Job {job['job_name']} failed. "
                     f"There is an error with the type of the depends_on value.",
-                    "The DAG will not be built and the meta data job will fail.",
+                    "The DAG will not be built and the Meta Job will fail.",
                     "Check the Data Job Dict value of depends_on. Expected type is list of strings.",
                 )
             )
@@ -204,7 +213,7 @@ class MetaJobsDag:
                     "Meta Job failed due to a data job validation failure.",
                     f"Validation of Data Job {job['job_name']} failed. "
                     f"There is an error with the dependencies {job['depends_on']}.",
-                    "The DAG will not be built and the meta data job will fail.",
+                    "The DAG will not be built and the Meta Job will fail.",
                     "Check the Data Job Dict dependencies.",
                 )
             )
@@ -215,7 +224,7 @@ class MetaJobsDag:
                     "Meta Job failed due to a data job validation failure.",
                     f"Validation of Data Job {job['job_name']} failed. "
                     f"There is an error with the type of team name.",
-                    "The DAG will not be built and the meta data job will fail.",
+                    "The DAG will not be built and the Meta Job will fail.",
                     f"Check the Data Job Dict value of team_name. Expected type is string.",
                 )
             )
@@ -229,7 +238,7 @@ class MetaJobsDag:
                     "Meta Job failed due to a data job validation failure.",
                     f"Validation of Data Job {job['job_name']} failed. "
                     f"There is an error with the type of the fail_meta_job_on_error option.",
-                    "The DAG will not be built and the meta data job will fail.",
+                    "The DAG will not be built and the Meta Job will fail.",
                     "Check the Data Job Dict value of fail_meta_job_on_error. Expected type is bool.",
                 )
             )
