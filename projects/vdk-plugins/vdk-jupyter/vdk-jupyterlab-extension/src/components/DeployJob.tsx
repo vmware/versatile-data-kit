@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { jobData } from '../jobData';
+import { checkIfVdkOptionDataIsDefined, jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
@@ -108,7 +108,9 @@ export async function showCreateDeploymentDialog() {
       if (runConfirmationResult.button.accept) {
         let { message, status } = await jobRunRequest();
         if (status) {
-          jobRequest("deploy");
+          if (await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON)){
+            await jobRequest("deploy");
+          }
         } else {
           showErrorMessage(
             'Encauntered an error while running the job!',
