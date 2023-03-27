@@ -1,5 +1,5 @@
 {
   "packageManager": "python",
-  "packageName": "vdk-jupyterlab-extension",
-  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package vdk-jupyterlab-extension"
+  "packageName": "vdk_jupyterlab_extension",
+  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package vdk_jupyterlab_extension"
 }
