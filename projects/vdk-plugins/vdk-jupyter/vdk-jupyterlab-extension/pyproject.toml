@@ -43,26 +43,26 @@ source = "nodejs"
 fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["vdk-jupyterlab-extension/labextension"]
+artifacts = ["vdk_jupyterlab_extension/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"vdk-jupyterlab-extension/labextension" = "share/jupyter/labextensions/vdk-jupyterlab-extension"
+"vdk_jupyterlab_extension/labextension" = "share/jupyter/labextensions/vdk-jupyterlab-extension"
 "install.json" = "share/jupyter/labextensions/vdk-jupyterlab-extension/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
 [tool.hatch.build.hooks.version]
-path = "vdk-jupyterlab-extension/_version.py"
+path = "vdk_jupyterlab_extension/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "vdk-jupyterlab-extension/labextension/static/style.js",
-    "vdk-jupyterlab-extension/labextension/package.json",
+    "vdk_jupyterlab_extension/labextension/static/style.js",
+    "vdk_jupyterlab_extension/labextension/package.json",
 ]
-skip-if-exists = ["vdk-jupyterlab-extension/labextension/static/style.js"]
+skip-if-exists = ["vdk_jupyterlab_extension/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -72,7 +72,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "vdk-jupyterlab-extension/labextension"
+build_dir = "vdk_jupyterlab_extension/labextension"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"

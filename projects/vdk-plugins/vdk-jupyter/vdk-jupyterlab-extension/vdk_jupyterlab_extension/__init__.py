@@ -9,7 +9,7 @@ def _jupyter_labextension_paths():
 
 
 def _jupyter_server_extension_points():
-    return [{"module": "vdk-jupyterlab-extension"}]
+    return [{"module": "vdk_jupyterlab_extension"}]
 
 
 def _load_jupyter_server_extension(server_app):
@@ -21,7 +21,7 @@ def _load_jupyter_server_extension(server_app):
         JupyterLab application instance
     """
     setup_handlers(server_app.web_app)
-    name = "vdk-jupyterlab-extension"
+    name = "vdk_jupyterlab_extension"
     server_app.log.info(f"Registered {name} server extension")
 
 
