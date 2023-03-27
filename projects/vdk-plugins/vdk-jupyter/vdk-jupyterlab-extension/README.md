@@ -117,7 +117,7 @@ All the requests handlers are located in handlers.py file where the communicatio
 The connection with VDK is done in the vdk_ui.py file - all the vdk operations are handled there.
 
 ### Job data model
-Follows the enum VdkOption from [vdk_options.py](vdk-jupyterlab-extension/vdk_options/vdk_options.py).
+Follows the enum VdkOption from [vdk_options.py](vdk_jupyterlab_extension/vdk_options/vdk_options.py).
 
 In the front-end extension a global storage object (jobData), which holds the information about the current job, is present.
 It holds key value pairs, it's keys are generated automatically from the [enum](src/vdkOptions/vdk_options.ts)
@@ -130,13 +130,13 @@ the values should be set back to default using setJobDataToDefault() function.
 Every Jupyter instance has its own global storage object (jobData) that can only be changed from that instance.
 When a new Jupyter instance is loaded its jobData is set to default.
 
-The [enum](src/vdkOptions/vdk_options.ts) is generated automatically from  [the python enum](vdk-jupyterlab-extension/vdk_options/vdk_options.py)
+The [enum](src/vdkOptions/vdk_options.ts) is generated automatically from  [the python enum](vdk_jupyterlab_extension/vdk_options/vdk_options.py)
 and shall not be changed directly in the .ts file. All the changes must be done in the python file and the .ts file will be automatically reloaded.
 
 
 The front-end sends the data from jobData to the server extension in JSON format.
 In the server extension the JSON is loaded as input_data and the specific data can be accessed
-via the [enum](vdk-jupyterlab-extension/vdk_options/vdk_options.py).
+via the [enum](vdk_jupyterlab_extension/vdk_options/vdk_options.py).
 For example, input_data[VdkOption.NAME.value] would return current job's name.
 
 ### Testing the extension

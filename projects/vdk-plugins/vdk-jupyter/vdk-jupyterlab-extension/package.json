@@ -35,11 +35,11 @@
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
-    "build:interfaces": "pip install py-to-ts-interfaces && py-to-ts-interfaces vdk-jupyterlab-extension/vdk_options/ src/vdkOptions",
+    "build:interfaces": "pip install py-to-ts-interfaces && py-to-ts-interfaces vdk_jupyterlab_extension/vdk_options/ src/vdkOptions",
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-    "clean:labextension": "rimraf vdk-jupyterlab-extension/labextension",
+    "clean:labextension": "rimraf vdk_jupyterlab_extension/labextension",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -106,12 +106,12 @@
           "pip"
         ],
         "base": {
-          "name": "vdk-jupyterlab-extension"
+          "name": "vdk_jupyterlab_extension"
         }
       }
     },
     "extension": true,
-    "outputDir": "vdk-jupyterlab-extension/labextension",
+    "outputDir": "vdk_jupyterlab_extension/labextension",
     "schemaDir": "schema"
   },
   "jupyter-releaser": {
