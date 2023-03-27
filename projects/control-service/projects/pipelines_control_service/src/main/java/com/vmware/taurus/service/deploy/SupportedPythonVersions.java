@@ -52,8 +52,8 @@ public class SupportedPythonVersions {
    */
   public Set<String> getSupportedPythonVersions() {
     return Optional.ofNullable(supportedPythonVersions)
-            .map(Map::keySet)
-            .orElse(Collections.emptySet());
+        .map(Map::keySet)
+        .orElse(Collections.emptySet());
   }
 
   /**
