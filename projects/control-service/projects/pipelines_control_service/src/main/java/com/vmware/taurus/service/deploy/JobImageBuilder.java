@@ -85,19 +85,22 @@ public class JobImageBuilder {
   private final DeploymentNotificationHelper notificationHelper;
   private final KubernetesResources kubernetesResources;
   private final AWSCredentialsService awsCredentialsService;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
       DockerRegistryService dockerRegistryService,
       DeploymentNotificationHelper notificationHelper,
       KubernetesResources kubernetesResources,
-      AWSCredentialsService awsCredentialsService) {
+      AWSCredentialsService awsCredentialsService,
+      SupportedPythonVersions supportedPythonVersions) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
     this.notificationHelper = notificationHelper;
     this.kubernetesResources = kubernetesResources;
     this.awsCredentialsService = awsCredentialsService;
+    this.supportedPythonVersions = supportedPythonVersions;
   }
 
   /**
@@ -253,6 +256,17 @@ public class JobImageBuilder {
   private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
+    String baseImage = null;
+    String pythonVersion = jobDeployment.getPythonVersion();
+
+    // TODO: Remove this part when datajobs.deployment.dataJobBaseImage is deprecated.
+    if (deploymentDataJobBaseImage != null) {
+      baseImage = deploymentDataJobBaseImage;
+    } else if (pythonVersion != null && supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
+      baseImage = supportedPythonVersions.getJobBaseImage(pythonVersion);
+    } else {
+      baseImage = supportedPythonVersions.getDefaultJobBaseImage();
+    }
 
     return Map.ofEntries(
         entry("JOB_NAME", jobName),
@@ -260,7 +274,7 @@ public class JobImageBuilder {
         entry("GIT_COMMIT", jobVersion),
         entry("JOB_GITHASH", jobVersion),
         entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-        entry("BASE_IMAGE", deploymentDataJobBaseImage),
+        entry("BASE_IMAGE", baseImage),
         entry("EXTRA_ARGUMENTS", builderJobExtraArgs),
         entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled)));
   }
