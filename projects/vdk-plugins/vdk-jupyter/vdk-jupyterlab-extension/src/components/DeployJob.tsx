@@ -3,7 +3,7 @@ import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
-import { jobRunRequest } from '../serverRequests';
+import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 
 
@@ -99,7 +99,7 @@ export async function showCreateDeploymentDialog() {
     try {
       const runConfirmationResult = await showDialog({
         title: 'Create deployment',
-        body: 'The job will be executed once before deployment.\n Check the result and decide whether you will continue with the deployment, please!',
+        body: 'The job will be executed once before deployment.',
         buttons: [
           Dialog.cancelButton({ label: 'Cancel' }),
           Dialog.okButton({ label: 'Continue' })
@@ -108,7 +108,7 @@ export async function showCreateDeploymentDialog() {
       if (runConfirmationResult.button.accept) {
         let { message, status } = await jobRunRequest();
         if (status) {
-          // add server request
+          jobRequest("deploy");
         } else {
           showErrorMessage(
             'Encauntered an error while running the job!',
