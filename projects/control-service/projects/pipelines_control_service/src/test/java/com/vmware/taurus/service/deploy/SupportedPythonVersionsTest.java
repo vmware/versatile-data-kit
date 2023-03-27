@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import com.vmware.taurus.service.deploy.SupportedPythonVersions.DeploymentDetails;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +18,8 @@ import java.util.Set;
 @ExtendWith(MockitoExtension.class)
 public class SupportedPythonVersionsTest {
   private static final String SUPPORTED_PYTHON_VERSIONS = "supportedPythonVersions";
+  private static final String BASE_IMAGE = "baseImage";
+  private static final String VDK_IMAGE = "vdkImage";
   private static final String DEFAULT_PYTHON_VERSION = "defaultPythonVersion";
 
   @InjectMocks private SupportedPythonVersions supportedPythonVersions;
@@ -32,8 +33,8 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void isPythonVersionSupported_versionSupported() {
-    Map<String, DeploymentDetails> supportedVersions =
-        Map.of("3.7", new DeploymentDetails("python:3.7-slim", "test_vdk_image"));
+    Map<String, Map<String, String>> supportedVersions =
+        Map.of("3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image"));
 
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
@@ -43,8 +44,8 @@ public class SupportedPythonVersionsTest {
 
   @Test
   public void isPythonVersionSupported_versionNotInSupported() {
-    Map<String, DeploymentDetails> supportedVersions =
-        Map.of("3.8", new DeploymentDetails("python:3.8-slim", "test_vdk_image"));
+    Map<String, Map<String, String>> supportedVersions =
+        Map.of("3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image"));
 
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
@@ -117,10 +118,10 @@ public class SupportedPythonVersionsTest {
     Assertions.assertEquals(resultVdkImg, supportedPythonVersions.getVdkImage("3.8"));
   }
 
-  private static Map<String, DeploymentDetails> generateSupportedPythonVersionsConf() {
+  private static Map<String, Map<String, String>> generateSupportedPythonVersionsConf() {
     return Map.of(
-        "3.7", new DeploymentDetails("python:3.7-slim", "test_vdk_image_3.7"),
-        "3.8", new DeploymentDetails("python:3.8-slim", "test_vdk_image_3.8"),
-        "3.9", new DeploymentDetails("python:3.9-slim", "test_vdk_image_3.9"));
+        "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7"),
+        "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image_3.8"),
+        "3.9", Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"));
   }
 }

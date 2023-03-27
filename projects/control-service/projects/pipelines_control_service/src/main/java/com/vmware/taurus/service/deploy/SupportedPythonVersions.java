@@ -23,10 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SupportedPythonVersions {
 
-  record DeploymentDetails(String baseImage, String vdkImage) {}
+  private static String BASE_IMAGE = "baseImage";
+
+  private static String VDK_IMAGE = "vdkImage";
 
   @Value("#{${datajobs.deployment.supportedPythonVersions:{}}}")
-  private Map<String, DeploymentDetails> supportedPythonVersions;
+  private Map<String, Map<String, String>> supportedPythonVersions;
 
   @Value("${datajobs.deployment.defaultPythonVersion}")
   private String defaultPythonVersion;
@@ -38,7 +40,7 @@ public class SupportedPythonVersions {
    * @return true if the version is supported, and false otherwise.
    */
   public boolean isPythonVersionSupported(String pythonVersion) {
-    return supportedPythonVersions.containsKey(pythonVersion);
+    return !supportedPythonVersions.isEmpty() && supportedPythonVersions.containsKey(pythonVersion);
   }
 
   /**
@@ -49,7 +51,9 @@ public class SupportedPythonVersions {
    * @return A set of all python versions supported by the Control Service.
    */
   public Set<String> getSupportedPythonVersions() {
-    return supportedPythonVersions.keySet();
+    return Optional.ofNullable(supportedPythonVersions)
+            .map(Map::keySet)
+            .orElse(Collections.emptySet());
   }
 
   /**
@@ -63,7 +67,7 @@ public class SupportedPythonVersions {
    */
   public String getJobBaseImage(String pythonVersion) {
     if (isPythonVersionSupported(pythonVersion)) {
-      return supportedPythonVersions.get(pythonVersion).baseImage;
+      return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
     } else {
       log.warn(
           "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
@@ -73,7 +77,7 @@ public class SupportedPythonVersions {
   }
 
   public String getDefaultJobBaseImage() {
-    return supportedPythonVersions.get(defaultPythonVersion).baseImage;
+    return supportedPythonVersions.get(defaultPythonVersion).get(BASE_IMAGE);
   }
 
   /**
@@ -87,7 +91,7 @@ public class SupportedPythonVersions {
    */
   public String getVdkImage(String pythonVersion) {
     if (isPythonVersionSupported(pythonVersion)) {
-      return supportedPythonVersions.get(pythonVersion).vdkImage;
+      return supportedPythonVersions.get(pythonVersion).get(VDK_IMAGE);
     } else {
       log.warn(
           "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
@@ -97,7 +101,7 @@ public class SupportedPythonVersions {
   }
 
   public String getDefaultVdkImage() {
-    return supportedPythonVersions.get(defaultPythonVersion).vdkImage;
+    return supportedPythonVersions.get(defaultPythonVersion).get(VDK_IMAGE);
   }
 
   /**
