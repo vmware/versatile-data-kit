@@ -124,6 +124,25 @@ class CreateJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
+class CreateDeploymentHandler(APIHandler):
+    """
+    Class responsible for handling POST request for creating a deployment of  Data Job given its name, team, path,
+    Rest API URL, deployment reason and flag whether it is enabled (that wil basically un-pause the job)
+    Response: return a json formatted str including:
+        ::error field with error message if an error exists
+        ::message field with status of the Vdk operation
+    """
+
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        try:
+            # add vdkUi operation
+            self.finish(json.dumps({"message": f"", "error": ""}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
 
@@ -144,3 +163,4 @@ def setup_handlers(web_app):
     add_handler(DownloadJobHandler, "download")
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
+    add_handler(CreateDeploymentHandler, "deploy")
