@@ -125,6 +125,8 @@ Sequence of evaluation:
 
 Check out the [connection hook spec](../vdk-core/src/vdk/api/plugin/connection_hook_spec.py) documentation for more details.
 
+[![connection-hooks-activity-diagram](https://user-images.githubusercontent.com/2536458/228051963-8f93f3e4-84f3-4bfb-a791-8c68d84c642f.svg)](https://www.plantuml.com/plantuml/uml/ZPHFQnin4CNl-XG3kTY7-51wgGqb4BiKcaBwf-cXBKPUZRrgjPAHj4a3--4p6Y_MAjc5v9BTVK-_DoEDV1MYzB5jZAZaCMfduNkj0oWj3rus46htG6yoofqC2BURMtZpzXsu8tgPt04UTApXRlq9hfsrM37YetF_ma88WmUqIjpmlwNeuE0HBNHdpcUCjLDm-kl8i3CjGZV6IpfHUgGGtO-0lXDSlW1OLXvbHAZEgrQY8qoNj9zU7WUyLR-Of8kZDCXLBRE-w26pEJdNVUyCsWHwCJhKHGu9Np6stWw-WjlzfQSSbIjiVN1-DHtEUfazZ61v1B_vZrLB_6zVRgYEff5MFG_XfGiy6IaXxz2TD5h9YFbaUQtHXpgcCrcgtJOtjxtlxTkpFT68iyRA-TTp5DjVS78pr8Kye7ebZZihQSKkPd3U8Rs76Nhl_1nYZHPcZnZcvBpyTU5H_RbyJy_zDaq7UwpSFVeok6IadDw6wcKMdz39YIOWpAnBIid8bQHva9fyNFfgn1cYEoQOLNelCh8COtLypZo6riHKjhIFAs7a3WrurhOdRJ1x7p1MDVzCf0KMKU74yEsJqrcQljzs-AcXbEVVf36Jru0Dg3XpU0kkwLnrXEYb3P8FPwAYyixngZ9id5Pa6HVoVHxhjagE4IohQOjTwoiCz6IGH3L2FnSvMVrKIdQC9l60NA5LRMEU0000)
+
 ## Public interfaces
 
 Any backwards compatibility guarantees apply only to public interfaces.
