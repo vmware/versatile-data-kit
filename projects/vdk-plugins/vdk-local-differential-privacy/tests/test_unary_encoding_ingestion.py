@@ -29,7 +29,7 @@ def ingest_data() -> List[int]:
 
     actual_payload = destination_plugin.payloads[0].payload
     aggregated_results = DifferentialPrivateUnaryEncoding(0.75, 0.25).aggregate(
-        [a["customer_os"] for a in actual_payload]
+        [a["blood_type"] for a in actual_payload]
     )
     # within the test all events have the value "WINDOWS". "WINDOWS" is index 1 in the array
     # For this reason we expect that even with noise the value at index 1 should be significantly higher than any of the other properties
@@ -49,7 +49,7 @@ def ingest_data() -> List[int]:
     {
         "VDK_INGEST_METHOD_DEFAULT": "memory",
         "VDK_INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "unary_encoding_differential_privacy",
-        "VDK_DIFFERENTIAL_PRIVACY_UNARY_ENCODING_FIELDS": '{"sample_entity": {"customer_os":["MAC","WINDOWS","LINUX","JAILBROKEN_WINDOWS"]}}',
+        "VDK_DIFFERENTIAL_PRIVACY_UNARY_ENCODING_FIELDS": '{"patient": {"blood_type":["A","B","AB","O"]}}',
     },
 )
 def test_random_sampling_ingestion():
