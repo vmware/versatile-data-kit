@@ -19,16 +19,16 @@ def ingest_data():
     runner = CliEntryBasedTestRunner(differential_privacy_plugin, destination_plugin)
 
     result: Result = runner.invoke(
-        ["run", jobs_path_from_caller_directory("random-sampling")]
+        ["run", jobs_path_from_caller_directory("random-response")]
     )
     cli_assert_equal(0, result)
 
     payload = destination_plugin.payloads[0].payload
-    count_of_true = np.count_nonzero([a["sensitive_key"] for a in payload])
+    count_of_true = np.count_nonzero([a["is_smoker"] for a in payload])
     count_of_false = len(payload) - count_of_true
 
     # assert that the plugins have no unintended impact on other columns.
-    assert list(payload[0].keys()) == ["str_key", "sensitive_key"]
+    assert list(payload[0].keys()) == ["str_key", "is_smoker"]
     assert payload[0]["str_key"] == "str"
 
     # Within the test data the actual of true vs false is 0 to 60.
@@ -43,7 +43,7 @@ def ingest_data():
     {
         "VDK_INGEST_METHOD_DEFAULT": "memory",
         "VDK_INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "random_response_differential_privacy",
-        "VDK_DIFFERENTIAL_PRIVACY_RANDOMIZED_RESPONSE_FIELDS": '{"sample_entity": ["sensitive_key"]}',
+        "VDK_DIFFERENTIAL_PRIVACY_RANDOMIZED_RESPONSE_FIELDS": '{"patient_details": ["is_smoker"]}',
     },
 )
 def test_random_sampling_ingestion():
@@ -52,8 +52,8 @@ def test_random_sampling_ingestion():
     payload_3 = ingest_data()
 
     # assert that there is randomness in the results, that we aren't producing the same result everytime
-    assert [a["sensitive_key"] for a in payload_1] != [
-        a["sensitive_key"] for a in payload_2
-    ] or [a["sensitive_key"] for a in payload_1] != [
-        a["sensitive_key"] for a in payload_3
+    assert [a["is_smoker"] for a in payload_1] != [
+        a["is_smoker"] for a in payload_2
+    ] or [a["is_smoker"] for a in payload_1] != [
+        a["is_smoker"] for a in payload_3
     ]
