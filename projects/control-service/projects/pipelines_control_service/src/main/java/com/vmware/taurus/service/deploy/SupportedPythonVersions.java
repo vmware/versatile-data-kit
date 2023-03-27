@@ -106,13 +106,8 @@ public class SupportedPythonVersions {
    * from the datajobs.deployment.defaultPythonVersion application property.
    *
    * @return a string indicating the default python version supported by the Control Service.
-   * @throws InvalidParameterException
    */
-  public String getDefaultPythonVersion() throws InvalidParameterException {
-    if (defaultPythonVersion != null) {
-      return defaultPythonVersion;
-    } else {
-      throw new InvalidParameterException("Missing value for defaultPythonVersion!");
-    }
+  public String getDefaultPythonVersion() {
+    return defaultPythonVersion;
   }
 }
