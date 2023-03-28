@@ -8,12 +8,12 @@
       - always
 
 .images:dind:
-  image: docker:23.0.1
+  image: docker:19.03.15
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
   services:
-    - docker:23.0.1-dind
+    - docker:19.03.15-dind
 
 # This grouping listens on changes to all code of control service
 # Changes to this group should trigger runs of runs of unit and integration tests.
