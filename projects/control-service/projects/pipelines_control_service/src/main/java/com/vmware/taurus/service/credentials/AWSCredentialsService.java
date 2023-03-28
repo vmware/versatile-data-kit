@@ -21,35 +21,43 @@ public class AWSCredentialsService {
 
   @Value("${datajobs.aws.secretAccessKey:}")
   private String awsSecretAccessKey;
+
   @Value("${datajobs.aws.accessKeyId:}")
   private String awsAccessKeyId;
+
   @Value("${datajobs.aws.RoleArn:}")
   private String awsRoleArn;
+
   @Value("${datajobs.aws.defaultSessionDurationSeconds:}")
   private int sessionDuration;
+
   @Value("${datajobs.aws.region:}")
   private String awsRegion;
 
-
   public BasicSessionCredentials getTemporaryCredentials() {
-    AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard()
-        .withCredentials(new AWSStaticCredentialsProvider(
-            new BasicAWSCredentials(awsSecretAccessKey, awsAccessKeyId)))
-        .withRegion(awsRegion)
-        .build();
+    AWSSecurityTokenService stsClient =
+        AWSSecurityTokenServiceClientBuilder.standard()
+            .withCredentials(
+                new AWSStaticCredentialsProvider(
+                    new BasicAWSCredentials(awsSecretAccessKey, awsAccessKeyId)))
+            .withRegion(awsRegion)
+            .build();
 
-    AssumeRoleRequest assumeRequest = new AssumeRoleRequest()
-        .withRoleArn(awsRoleArn)
-        .withRoleSessionName(
-            "control-service-session-" + UUID.randomUUID().toString().substring(0, 4))
-        .withDurationSeconds(sessionDuration);
+    AssumeRoleRequest assumeRequest =
+        new AssumeRoleRequest()
+            .withRoleArn(awsRoleArn)
+            .withRoleSessionName(
+                "control-service-session-" + UUID.randomUUID().toString().substring(0, 4))
+            .withDurationSeconds(sessionDuration);
 
-    STSAssumeRoleSessionCredentialsProvider credentialsProvider = new STSAssumeRoleSessionCredentialsProvider.Builder(
-        assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
-        .withStsClient(stsClient)
-        .build();
+    STSAssumeRoleSessionCredentialsProvider credentialsProvider =
+        new STSAssumeRoleSessionCredentialsProvider.Builder(
+                assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
+            .withStsClient(stsClient)
+            .build();
 
-    BasicSessionCredentials sessionCredentials = (BasicSessionCredentials) credentialsProvider.getCredentials();
+    BasicSessionCredentials sessionCredentials =
+        (BasicSessionCredentials) credentialsProvider.getCredentials();
 
     return sessionCredentials;
   }

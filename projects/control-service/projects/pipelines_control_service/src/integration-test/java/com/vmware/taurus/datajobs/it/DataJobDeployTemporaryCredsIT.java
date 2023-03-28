@@ -25,7 +25,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +41,10 @@ import org.springframework.test.web.servlet.MvcResult;
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-        "datajobs.aws.assumeIAMRole=true",
-        "datajobs.aws.RoleArn=arn:aws:iam::850879199482:role/svc.supercollider.user",
-        "datajobs.docker.registryType=ecr"
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.aws.assumeIAMRole=true",
+      "datajobs.aws.RoleArn=arn:aws:iam::850879199482:role/svc.supercollider.user",
+      "datajobs.docker.registryType=ecr"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -56,7 +55,6 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
   private static final String TEST_JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private static final Object DEPLOYMENT_ID = "testing-temp-creds";
-
 
   @BeforeEach
   public void setup() throws Exception {
@@ -80,9 +78,7 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
                                 String.format(
                                     "/data-jobs/for-team/%s/jobs/%s",
                                     TEST_TEAM_NAME, TEST_JOB_NAME)))));
-
   }
-
 
   @Test
   public void testDeployment() throws Exception {
@@ -96,7 +92,7 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -118,7 +114,7 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -141,8 +137,8 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
         mockMvc
             .perform(
                 get(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
                     .with(user("user"))
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -162,7 +158,6 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     // just check some valid date is returned. It would be too error-prone/brittle to verify exact
     // time.
     DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
-
   }
 
   @AfterEach
@@ -170,10 +165,9 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     mockMvc
         .perform(
             delete(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user")))
         .andExpect(status().isOk());
   }
-
 }

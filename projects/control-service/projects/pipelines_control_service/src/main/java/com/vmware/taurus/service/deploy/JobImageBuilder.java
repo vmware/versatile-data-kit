@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
-import static java.util.Map.entry;
 
 /**
  * Responsible for building docker images for data jobs. The images are pushed to a docker
@@ -272,7 +271,8 @@ public class JobImageBuilder {
     }
   }
 
-  private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment, String awsSessionToken) {
+  private Map<String, String> getBuildParameters(
+      DataJob dataJob, JobDeployment jobDeployment, String awsSessionToken) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
     var envMap = new HashMap<String, String>();
