@@ -32,7 +32,7 @@
   - projects/control-service/projects/helm_charts/pipelines-control-service/**/*
 
 .control_service_base_build:
-  image: docker:20.10.22
+  image: docker:23.0.1
   variables:
     _JAVA_OPTIONS: "-Xms2048m -Xmx4096m"
   before_script:
@@ -45,6 +45,7 @@ control_service_build_image:
     - .images:dind
   stage: build
   script:
+    - docker info
     - apk --no-cache add git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
