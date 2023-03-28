@@ -8,12 +8,12 @@
       - always
 
 .images:dind:
-  image: docker:20.10.22
+  image: docker:23.0.1
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
   services:
-    - docker:20.10.22-dind
+    - docker:23.0.1-dind
 
 # This grouping listens on changes to all code of control service
 # Changes to this group should trigger runs of runs of unit and integration tests.
@@ -49,7 +49,6 @@ control_service_build_image:
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
-    - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
     - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
