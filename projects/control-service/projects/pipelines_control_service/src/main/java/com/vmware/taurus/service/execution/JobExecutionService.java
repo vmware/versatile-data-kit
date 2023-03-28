@@ -45,7 +45,9 @@ public class JobExecutionService {
 
   @AllArgsConstructor
   public enum ExecutionType {
-    MANUAL("manual"), // "manual" executions are ones ran through the `vdk execute --start` command and the startedBy value of the execution request must always be 'vdk-control-cli'
+    MANUAL(
+        "manual"), // "manual" executions are ones ran through the `vdk execute --start` command and
+                   // the startedBy value of the execution request must always be 'vdk-control-cli'
     SCHEDULED("scheduled");
 
     @Getter private final String value;
