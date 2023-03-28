@@ -48,7 +48,6 @@ control_service_build_image:
     - apk --no-cache add git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
     - cd projects/control-service/projects
-    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
