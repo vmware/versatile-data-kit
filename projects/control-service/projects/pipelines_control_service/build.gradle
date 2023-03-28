@@ -102,6 +102,8 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'com.squareup.okio:okio'
     implementation versions.'io.micrometer:micrometer-core'
     implementation versions.'io.micrometer:micrometer-registry-prometheus'
+    implementation 'com.amazonaws:aws-java-sdk-core:1.11.103'
+    implementation 'com.amazonaws:aws-java-sdk-sts:1.11.103'
 }
 
 task wrapper(type: Wrapper) {

@@ -7,10 +7,13 @@ package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.openapi.ApiException;
+import java.util.Collections;
+import java.util.HashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +40,9 @@ public class JobImageBuilder {
 
   @Value("${datajobs.git.url}")
   private String gitRepo;
+
+  @Value("${datajobs.aws.assumeIAMRole:}")
+  private boolean useRoleCredentials;
 
   @Value("${datajobs.git.username}")
   private String gitUsername;
@@ -93,17 +99,20 @@ public class JobImageBuilder {
   private final DockerRegistryService dockerRegistryService;
   private final DeploymentNotificationHelper notificationHelper;
   private final KubernetesResources kubernetesResources;
+  private final AWSCredentialsService awsCredentialsService;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
       DockerRegistryService dockerRegistryService,
       DeploymentNotificationHelper notificationHelper,
-      KubernetesResources kubernetesResources) {
+      KubernetesResources kubernetesResources,
+      AWSCredentialsService awsCredentialsService) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
     this.notificationHelper = notificationHelper;
     this.kubernetesResources = kubernetesResources;
+    this.awsCredentialsService = awsCredentialsService;
   }
 
   /**
@@ -123,6 +132,19 @@ public class JobImageBuilder {
   public boolean buildImage(
       String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
+
+    String awsSecretAccessKey = this.awsSecretAccessKey;
+    String awsAccessKeyId = this.awsAccessKeyId;
+    String awsSessionToken = "";
+
+    if (useRoleCredentials) {
+      // If temporary credentials flag is enabled we generate role credentials
+      // to use when authenticating against ECR
+      var credentials = awsCredentialsService.getTemporaryCredentials();
+      awsSecretAccessKey = credentials.getAWSSecretKey();
+      awsAccessKeyId = credentials.getAWSAccessKeyId();
+      awsSessionToken = credentials.getSessionToken();
+    }
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
     if (!StringUtils.isBlank(registryType)) {
@@ -166,7 +188,7 @@ public class JobImageBuilder {
             registryUsername,
             registryPassword);
 
-    var envs = getBuildParameters(dataJob, jobDeployment);
+    var envs = getBuildParameters(dataJob, jobDeployment, awsSessionToken);
 
     log.info(
         "Creating builder job {} for data job version {}",
@@ -250,19 +272,24 @@ public class JobImageBuilder {
     }
   }
 
-  private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment) {
+  private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment, String awsSessionToken) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
+    var envMap = new HashMap<String, String>();
+    envMap.put("JOB_NAME", jobName);
+    envMap.put("DATA_JOB_NAME", jobName);
+    envMap.put("GIT_COMMIT", jobVersion);
+    envMap.put("JOB_GITHASH", jobVersion);
+    envMap.put("IMAGE_REGISTRY_PATH", dockerRepositoryUrl);
+    envMap.put("BASE_IMAGE", deploymentDataJobBaseImage);
+    envMap.put("EXTRA_ARGUMENTS", builderJobExtraArgs);
+    envMap.put("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled));
 
-    return Map.ofEntries(
-        entry("JOB_NAME", jobName),
-        entry("DATA_JOB_NAME", jobName),
-        entry("GIT_COMMIT", jobVersion),
-        entry("JOB_GITHASH", jobVersion),
-        entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-        entry("BASE_IMAGE", deploymentDataJobBaseImage),
-        entry("EXTRA_ARGUMENTS", builderJobExtraArgs),
-        entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled)));
+    if (!awsSessionToken.isBlank()) {
+      // Don't include session token in env if blank.
+      envMap.put("AWS_SESSION_TOKEN", awsSessionToken);
+    }
+    return Collections.unmodifiableMap(envMap);
   }
 
   private boolean unsupportedRegistryType(String registry) {
