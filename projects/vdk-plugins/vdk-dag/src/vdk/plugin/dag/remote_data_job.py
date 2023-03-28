@@ -92,7 +92,7 @@ class RemoteDataJob:
 
     def start_job_execution(self) -> str:
         """
-        Triggers a manual Datajob execution.
+        Triggers a Datajob execution.
 
         :param: request_kwargs: Request arguments to be included with the HTTP request
         """
