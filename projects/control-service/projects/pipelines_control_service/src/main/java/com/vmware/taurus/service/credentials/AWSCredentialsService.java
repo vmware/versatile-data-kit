@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class AWSCredentialsService {
 
-  @Value("${datajobs.aws.secretAccessKey:}")
+  @Value("${datajobs.aws.serviceAccountSecretAccessKey:}")
   private String awsSecretAccessKey;
 
-  @Value("${datajobs.aws.accessKeyId:}")
+  @Value("${datajobs.aws.serviceAccountAccessKeyId:}")
   private String awsAccessKeyId;
 
   @Value("${datajobs.aws.RoleArn:}")
@@ -39,7 +39,7 @@ public class AWSCredentialsService {
         AWSSecurityTokenServiceClientBuilder.standard()
             .withCredentials(
                 new AWSStaticCredentialsProvider(
-                    new BasicAWSCredentials(awsSecretAccessKey, awsAccessKeyId)))
+                    new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey)))
             .withRegion(awsRegion)
             .build();
 
@@ -50,11 +50,13 @@ public class AWSCredentialsService {
                 "control-service-session-" + UUID.randomUUID().toString().substring(0, 4))
             .withDurationSeconds(sessionDuration);
 
+
     STSAssumeRoleSessionCredentialsProvider credentialsProvider =
         new STSAssumeRoleSessionCredentialsProvider.Builder(
                 assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
             .withStsClient(stsClient)
             .build();
+
 
     BasicSessionCredentials sessionCredentials =
         (BasicSessionCredentials) credentialsProvider.getCredentials();

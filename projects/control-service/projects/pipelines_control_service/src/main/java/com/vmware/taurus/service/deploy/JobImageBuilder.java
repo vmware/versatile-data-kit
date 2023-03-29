@@ -186,8 +186,8 @@ public class JobImageBuilder {
             registryType,
             registryUsername,
             registryPassword);
-
-    var envs = getBuildParameters(dataJob, jobDeployment, awsSessionToken);
+    var extraEnvs = Map.of("AWS_SESSION_TOKEN", awsSessionToken, "AWS_SECRET_ACCESS_KEY_ID", awsAccessKeyId, "AWS_SECRET_ACCESS_KEY", awsSecretAccessKey);
+    var envs = getBuildParameters(dataJob, jobDeployment, extraEnvs);
 
     log.info(
         "Creating builder job {} for data job version {}",
@@ -272,7 +272,7 @@ public class JobImageBuilder {
   }
 
   private Map<String, String> getBuildParameters(
-      DataJob dataJob, JobDeployment jobDeployment, String awsSessionToken) {
+      DataJob dataJob, JobDeployment jobDeployment, Map<String, String> awsSessionToken) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
     var envMap = new HashMap<String, String>();
@@ -285,9 +285,9 @@ public class JobImageBuilder {
     envMap.put("EXTRA_ARGUMENTS", builderJobExtraArgs);
     envMap.put("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled));
 
-    if (!awsSessionToken.isBlank()) {
-      // Don't include session token in env if blank.
-      envMap.put("AWS_SESSION_TOKEN", awsSessionToken);
+    if (useRoleCredentials) {
+      // Don't include session token if permanent credentials to be used.
+      envMap.putAll(awsSessionToken);
     }
     return Collections.unmodifiableMap(envMap);
   }

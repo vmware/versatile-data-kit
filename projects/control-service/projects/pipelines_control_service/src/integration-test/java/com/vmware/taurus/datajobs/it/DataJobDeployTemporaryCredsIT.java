@@ -44,12 +44,12 @@ import org.springframework.test.web.servlet.MvcResult;
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.aws.assumeIAMRole=true",
       "datajobs.aws.RoleArn=arn:aws:iam::850879199482:role/svc.supercollider.user",
-      "datajobs.docker.registryType=ecr"
+      "datajobs.docker.registryType=ecr",
+      "datajobs.aws.region=us-west-2"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-@Disabled("Draft pull request.")
 public class DataJobDeployTemporaryCredsIT extends BaseIT {
 
   private static final String TEST_JOB_NAME =
