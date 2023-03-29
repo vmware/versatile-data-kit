@@ -14,15 +14,14 @@ import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.openapi.ApiException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Responsible for building docker images for data jobs. The images are pushed to a docker
