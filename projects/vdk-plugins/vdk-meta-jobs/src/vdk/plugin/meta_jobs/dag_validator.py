@@ -5,6 +5,7 @@ from collections import namedtuple
 from typing import Dict
 from typing import List
 
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -22,14 +23,16 @@ class DagValidator:
         validated_jobs = list()
         for job in jobs:
             validated_jobs = self._validate_job(job, validated_jobs)
+        self._check_dag_cycles(jobs)
+        log.info("Successfully validated the DAG!")
 
     def _raise_error(self, job, error_type, countermeasures):
         raise UserCodeError(
             ErrorMessage(
                 "",
-                "Meta Job failed due to a data job validation failure.",
+                "Meta Job failed due to a Data Job validation failure.",
                 f"There is a {error_type} error with job {job}.",
-                "The DAG will not be built and the meta data job will fail.",
+                "The DAG will not be built and the Meta Job will fail.",
                 countermeasures,
             )
         )
@@ -95,16 +98,6 @@ class DagValidator:
                 f"{[pred for pred in job['depends_on'] if not isinstance(pred, str)]}. "
                 f"Expected type is string.",
             )
-        if validated_jobs is not None and any(
-            pred not in validated_jobs for pred in job["depends_on"]
-        ):
-            self._raise_error(
-                job,
-                ERROR.CONFLICT,
-                f"Check the Data Job Dict dependencies. The DAG order is not topologically correct. "
-                f"The following job dependencies are expected to be already validated but are not: "
-                f"{[pred not in validated_jobs for pred in job['depends_on']]}.",
-            )
 
     def _validate_team_name(self, job):
         if "team_name" in job and not isinstance(job["team_name"], str):
@@ -124,4 +117,24 @@ class DagValidator:
                 ERROR.TYPE,
                 f"Change the Data Job Dict value of fail_meta_job_on_error. Current type"
                 f" is {type(job['fail_meta_job_on_error'])}. Expected type is bool.",
+            )
+
+    @staticmethod
+    def _check_dag_cycles(jobs):
+        topological_sorter = graphlib.TopologicalSorter()
+        for job in jobs:
+            topological_sorter.add(job["job_name"], *job["depends_on"])
+
+        try:
+            # Preparing the sorter raises CycleError if cycles exist
+            topological_sorter.prepare()
+        except graphlib.CycleError as e:
+            raise UserCodeError(
+                ErrorMessage(
+                    "",
+                    "Meta Job failed due to a Data Job validation failure.",
+                    "There is a cycle in the DAG.",
+                    "The DAG will not be built and the Meta Job will fail.",
+                    f"Change the depends_on list of the jobs that participate in the detected cycle: {e.args[1]}.",
+                )
             )
