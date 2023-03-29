@@ -3,7 +3,6 @@
 import json
 import os
 import time
-import unittest
 from unittest import mock
 
 from click.testing import Result

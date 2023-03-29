@@ -63,7 +63,7 @@ class DagValidator:
             )
 
     def _validate_job_name(self, job, validated_jobs):
-        if type(job["job_name"]) != str:
+        if not isinstance(job["job_name"], str):
             self._raise_error(
                 job,
                 ERROR.TYPE,
@@ -92,7 +92,7 @@ class DagValidator:
                 ERROR.TYPE,
                 f"Check the Data Job Dict values of the depends_on list. "
                 f"There are some non-string values: "
-                f"{[pred for pred in job['depends_on'] if type(pred) != str]}. "
+                f"{[pred for pred in job['depends_on'] if not isinstance(pred, str)]}. "
                 f"Expected type is string.",
             )
         if validated_jobs is not None and any(
@@ -107,7 +107,7 @@ class DagValidator:
             )
 
     def _validate_team_name(self, job):
-        if "team_name" in job and type(job["team_name"]) != str:
+        if "team_name" in job and not isinstance(job["team_name"], str):
             self._raise_error(
                 job,
                 ERROR.TYPE,
@@ -116,9 +116,8 @@ class DagValidator:
             )
 
     def _validate_fail_meta_job_on_error(self, job):
-        if (
-            "fail_meta_job_on_error" in job
-            and type(job["fail_meta_job_on_error"]) != bool
+        if "fail_meta_job_on_error" in job and not isinstance(
+            (job["fail_meta_job_on_error"]), bool
         ):
             self._raise_error(
                 job,

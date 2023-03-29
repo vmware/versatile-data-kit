@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import os
 import pprint
 import sys
 import time
@@ -12,8 +11,6 @@ from typing import Dict
 from typing import List
 
 from taurus_datajob_api import ApiException
-from vdk.internal.core.errors import ErrorMessage
-from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.dag_validator import DagValidator
 from vdk.plugin.meta_jobs.meta import TrackableJob
