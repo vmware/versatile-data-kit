@@ -21,9 +21,9 @@ export class DataJobUtil {
     /**
      * ** Predicate for Job Running.
      */
-    static isJobRunningPredicate(
+    static isJobRunningPredicate = (
         jobExecution: DataJobExecution | DataJobExecutionDetails,
-    ): boolean {
+    ): boolean => {
         return (
             (jobExecution as DataJobExecution).status ===
                 DataJobExecutionStatus.RUNNING ||
@@ -34,7 +34,7 @@ export class DataJobUtil {
             (jobExecution as DataJobExecutionDetails).status ===
                 DataJobExecutionStatusDeprecated.SUBMITTED
         );
-    }
+    };
 
     /**
      * ** Find if some Job is running in provided Executions.

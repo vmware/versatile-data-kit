@@ -61,7 +61,8 @@ export class DataJobExecutionsPageComponent
         OnTaurusModelInit,
         OnTaurusModelLoad,
         OnTaurusModelChange,
-        OnTaurusModelError
+        OnTaurusModelError,
+        OnInit
 {
     readonly uuid = 'DataJobExecutionsPageComponent';
 
