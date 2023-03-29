@@ -2521,6 +2521,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (annotations != null) {
         deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
         deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
       }
 
       List<V1Container> containers =
@@ -2582,6 +2583,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (annotations != null) {
         deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
         deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
       }
 
       List<V1Container> containers =

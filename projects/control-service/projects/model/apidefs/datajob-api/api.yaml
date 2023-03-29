@@ -1077,6 +1077,10 @@ components:
           description: Job version (can be Git commit)
           type: string
           example: 11a403ba
+        python_version:
+          description: A python release version to use for job deployments
+          type: string
+          example: 3.9
         mode:
           $ref: '#/components/schemas/DataJobMode'
         id:
@@ -1110,6 +1114,10 @@ components:
           description: Job version (can be Git commit)
           type: string
           example: 11a403ba
+        python_version:
+          description: A python release version to use for job deployments
+          type: string
+          example: 3.9
         mode:
           $ref: '#/components/schemas/DataJobMode'
         id:

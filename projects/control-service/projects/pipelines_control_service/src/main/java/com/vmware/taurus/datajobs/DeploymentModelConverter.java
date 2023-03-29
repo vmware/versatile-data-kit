@@ -28,6 +28,7 @@ public class DeploymentModelConverter {
     deployment.setMode(jobDeploymentStatus.getMode());
     deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
     deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
+    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
   }
@@ -101,6 +102,9 @@ public class DeploymentModelConverter {
         newDeployment.getVdkVersion() != null
             ? newDeployment.getVdkVersion()
             : oldDeployment.getVdkVersion());
+    mergedDeployment.setPythonVersion(newDeployment.getPythonVersion() != null
+            ? newDeployment.getPythonVersion()
+            : oldDeployment.getPythonVersion());
     return mergedDeployment;
   }
 }
