@@ -10,24 +10,24 @@ import { CookieService } from 'ngx-cookie-service';
 import { NavigationService } from './navigation';
 
 @NgModule({})
-export class TaurusSharedCoreModule {
+export class VdkSharedCoreModule {
     /**
      * ** Constructor.
      */
-    constructor(@Optional() @SkipSelf() readonly taurusSharedCoreModule: TaurusSharedCoreModule) {
-        if (taurusSharedCoreModule) {
-            throw new Error('TaurusSharedCoreModule is already loaded. Import only once in root Module');
+    constructor(@Optional() @SkipSelf() readonly vdkSharedCoreModule: VdkSharedCoreModule) {
+        if (vdkSharedCoreModule) {
+            throw new Error('VdkSharedCoreModule is already loaded. Import only once in root Module');
         }
     }
 
     /**
-     * ** Provides TaurusSharedCore and all Services related to Taurus Core.
+     * ** Provides VDKSharedCore and all Services related to VDK Shared Core.
      *
      *      - Should be executed once for entire project.
      */
-    static forRoot(): ModuleWithProviders<TaurusSharedCoreModule> {
+    static forRoot(): ModuleWithProviders<VdkSharedCoreModule> {
         return {
-            ngModule: TaurusSharedCoreModule,
+            ngModule: VdkSharedCoreModule,
             providers: [CookieService, NavigationService]
         };
     }

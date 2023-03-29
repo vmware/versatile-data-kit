@@ -97,17 +97,11 @@ $red: rgb(194, 84, 0);
             //color: $lightblue !important;
         }
 
-        svg.ngx-charts
-            g[ngx-charts-pie-arc]:not(.background-arc)
-            > g.arc-group
-            > path.arc {
+        svg.ngx-charts g[ngx-charts-pie-arc]:not(.background-arc) > g.arc-group > path.arc {
             //fill: $lightblue !important;
         }
 
-        svg.ngx-charts
-            g[ngx-charts-pie-arc].background-arc
-            > g.arc-group
-            > path.arc {
+        svg.ngx-charts g[ngx-charts-pie-arc].background-arc > g.arc-group > path.arc {
             fill: rgba(0, 0, 0, 0.25);
         }
     }
@@ -119,17 +113,11 @@ $red: rgb(194, 84, 0);
             color: $red !important;
         }
 
-        svg.ngx-charts
-            g[ngx-charts-pie-arc]:not(.background-arc)
-            > g.arc-group
-            > path.arc {
+        svg.ngx-charts g[ngx-charts-pie-arc]:not(.background-arc) > g.arc-group > path.arc {
             fill: $red !important;
         }
 
-        svg.ngx-charts
-            g[ngx-charts-pie-arc].background-arc
-            > g.arc-group
-            > path.arc {
+        svg.ngx-charts g[ngx-charts-pie-arc].background-arc > g.arc-group > path.arc {
             fill: rgba(0, 0, 0, 0.25);
         }
     }

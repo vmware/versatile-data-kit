@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    HostBinding,
+    Inject,
+    Input,
+    OnInit,
+} from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -47,6 +54,9 @@ export class DataJobsExploreGridComponent
     //Decorators are not inherited in Angular. If we need @Input() we need to declare it here
     @Input() override teamNameFilter: string;
     @Input() override displayMode: DisplayMode;
+
+    @HostBinding('attr.data-cy') attributeDataCy =
+        'data-pipelines-explore-data-jobs';
 
     readonly uuid = 'DataJobsExploreGridComponent';
 

@@ -104,8 +104,8 @@ export class GridActionComponent implements AfterViewInit, OnChanges {
     }
 
     /**
-     * vmw-search is being broken for one-way binding related to an input [searchQueryValue]
-     * this fix is a workaround (adding a delay of 1 milisecond to set queryValue, looks like
+     * vdk-search is being broken for one-way binding related to an input [searchQueryValue]
+     * this fix is a workaround (adding a delay of 1 millisecond to set queryValue, looks like
      * needs to run in a separate thread)
      */
     private setQueryValue() {
