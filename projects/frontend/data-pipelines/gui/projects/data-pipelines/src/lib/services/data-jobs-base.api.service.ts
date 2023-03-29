@@ -104,7 +104,6 @@ export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApi
      * ** Get all DataJob Executions for provided OwnerTeam and load data based on provided gqlQuery.
      */
     getExecutions(
-        // NOSONAR
         ownerTeam: string,
         gqlQuery: string,
         variables: DataJobExecutionsReqVariables,

@@ -121,7 +121,7 @@ export class DataJobPageComponent
     private _nonExistingJobMsgShowed = false;
 
     constructor(
-        componentService: ComponentService, // NOSONAR
+        componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,

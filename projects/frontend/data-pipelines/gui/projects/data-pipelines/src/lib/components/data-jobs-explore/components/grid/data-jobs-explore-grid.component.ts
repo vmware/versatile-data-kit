@@ -61,7 +61,6 @@ export class DataJobsExploreGridComponent
     readonly uuid = 'DataJobsExploreGridComponent';
 
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,

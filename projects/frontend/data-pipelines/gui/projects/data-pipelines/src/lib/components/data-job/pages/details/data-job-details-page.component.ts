@@ -159,7 +159,6 @@ export class DataJobDetailsPageComponent
     isComponentInErrorState = false;
 
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,

@@ -85,7 +85,6 @@ export class DataJobsManageGridComponent
     dataPipelinesDocumentationUrl: string;
 
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
