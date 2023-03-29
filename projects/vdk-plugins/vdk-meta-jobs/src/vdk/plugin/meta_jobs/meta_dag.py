@@ -6,15 +6,16 @@ import os
 import pprint
 import sys
 import time
-from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
 from typing import List
 
+from graphlib import TopologicalSorter
 from taurus_datajob_api import ApiException
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.meta_jobs.dag_validator import DagValidator
 from vdk.plugin.meta_jobs.meta import TrackableJob
 from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
@@ -42,10 +43,11 @@ class MetaJobsDag:
             executor=RemoteDataJobExecutor(),
             time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
         )
+        self._dag_validator = DagValidator()
 
     def build_dag(self, jobs: List[Dict]):
+        self._dag_validator.validate(jobs)
         for job in jobs:
-            self._validate_job(job)
             trackable_job = TrackableJob(
                 job["job_name"],
                 job.get("team_name", self._team_name),
@@ -136,110 +138,3 @@ class MetaJobsDag:
                 self._delayed_starting_jobs.enqueue(node)
             else:
                 raise
-
-    def _validate_job(self, job: Dict):
-        allowed_job_keys = [
-            "job_name",
-            "team_name",
-            "fail_meta_job_on_error",
-            "depends_on",
-        ]
-        required_job_keys = ["job_name", "depends_on"]
-        registered_job_names = [j.job_name for j in self._job_executor.get_all_jobs()]
-        if type(job) != dict:
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job failed. "
-                    f"There is an error with the type of job name.",
-                    "The DAG will not be built and the meta data job will fail.",
-                    f"Check the Data Job type. Expected type is dict.",
-                )
-            )
-        if any(key not in allowed_job_keys for key in job.keys()) or any(
-            key not in job for key in required_job_keys
-        ):
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job failed. "
-                    "Some keys in the Data Job Dict are not allowed or some of the required ones are missing.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    "Check the Data Job Dict keys for errors and make sure the required ones are present.",
-                )
-            )
-        if type(job["job_name"]) != str:
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job failed. "
-                    f"There is an error with the type of job name.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    f"Check the Data Job Dict value of job_name. Expected type is string.",
-                )
-            )
-        if job["job_name"] in registered_job_names:
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
-                    f"Job with such name already exists.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    "Check the Data Job Dict value of job_name.",
-                )
-            )
-        if not (
-            isinstance(job["depends_on"], list)
-            and all(isinstance(pred, str) for pred in job["depends_on"])
-        ):
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
-                    f"There is an error with the type of the depends_on value.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    "Check the Data Job Dict value of depends_on. Expected type is list of strings.",
-                )
-            )
-        if any(pred not in registered_job_names for pred in job["depends_on"]):
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
-                    f"There is an error with the dependencies {job['depends_on']}.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    "Check the Data Job Dict dependencies.",
-                )
-            )
-        if "team_name" in job and type(job["team_name"]) != str:
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
-                    f"There is an error with the type of team name.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    f"Check the Data Job Dict value of team_name. Expected type is string.",
-                )
-            )
-        if (
-            "fail_meta_job_on_error" in job
-            and type(job["fail_meta_job_on_error"]) != bool
-        ):
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "Meta Job failed due to a data job validation failure.",
-                    f"Validation of Data Job {job['job_name']} failed. "
-                    f"There is an error with the type of the fail_meta_job_on_error option.",
-                    "The DAG will not be built and the Meta Job will fail.",
-                    "Check the Data Job Dict value of fail_meta_job_on_error. Expected type is bool.",
-                )
-            )
-        log.info(f"Successfully validated job: {job['job_name']}")
