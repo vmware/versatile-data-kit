@@ -18,12 +18,11 @@
 ## Summary
 
 ---
-The Control Service currently uses fixed data job base and vdk images for all job deployments. If a user wants to use a different Python version for their job, they need to ask the Control Service administrator to change the configuration and redeploy the service. This would break existing deployed jobs as the new Python version would be applied, causing unforeseeable consequences.
+Currently, if a user wants to use a different Python version for their job, they had to ask the Control Service administrator to change the configuration and redeploy the service. This process could be time-consuming and disruptive, as it would break other existing deployed jobs (that do not require the new version).
 
-We want to allow users to deploy data jobs with different python versions without needing to re-deploy the Control Service. To do this, we will extend the Control Service logic and API to support multiple python versions for data job
-deployments. This will be done with the addition of an optional **python_version** property to the API. The users would set the property only if they want their job to be executed with a specific python version. If the property is not specified by the user, a default value set by the service administrators would be used.
+Now, we're introducing an optional python_version property to the Control Service API, which allows users to specify the Python version they want to use for their job deployment. This means users no longer have to rely on the service administrator to make changes to the configuration and can deploy their jobs with the version they need. Service administrator only need to define a range of supported python versions. 
 
-Users would be able to see what python version their job uses when they execute `vdk deploy --show` or a GET request to `/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments` or `/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}`
+If the python_version property is not specified, the Control Service will use a default version set by the service administrators. Users can easily see what Python version their job uses by running vdk deploy --show or making a GET request to /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments or /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}.
 
 ## Glossary
 
