@@ -20,7 +20,7 @@
 ---
 Currently, if a user wants to use a different Python version for their job, they had to ask the Control Service administrator to change the configuration and redeploy the service. This process could be time-consuming and disruptive, as it would break other existing deployed jobs (that do not require the new version).
 
-Now, we're introducing an optional python_version property to the Control Service API, which allows users to specify the Python version they want to use for their job deployment. This means users no longer have to rely on the service administrator to make changes to the configuration and can deploy their jobs with the version they need. Service administrator only need to define a range of supported python versions. 
+Now, we're introducing an optional python_version property to the Control Service API, which allows users to specify the Python version they want to use for their job deployment. This means users no longer have to rely on the service administrator to make changes to the configuration and can deploy their jobs with the version they need. Service administrator only need to define a range of supported python versions.
 
 If the python_version property is not specified, the Control Service will use a default version set by the service administrators. Users can easily see what Python version their job uses by running vdk deploy --show or making a GET request to /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments or /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}.
 
