@@ -50,13 +50,11 @@ public class AWSServiceAccountCredentialsService {
                 "control-service-session-" + UUID.randomUUID().toString().substring(0, 4))
             .withDurationSeconds(sessionDuration);
 
-
     STSAssumeRoleSessionCredentialsProvider credentialsProvider =
         new STSAssumeRoleSessionCredentialsProvider.Builder(
                 assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
             .withStsClient(stsClient)
             .build();
-
 
     BasicSessionCredentials sessionCredentials =
         (BasicSessionCredentials) credentialsProvider.getCredentials();
