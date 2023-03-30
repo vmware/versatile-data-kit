@@ -279,7 +279,8 @@ public class JobImageDeployer {
 
     Map<String, String> jobDeploymentAnnotations = new HashMap<>();
     var jobLabels = getJobLabels(dataJob, jobDeployment);
-    var jobAnnotations = getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
+    var jobAnnotations =
+        getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
 
     String cronJobName = getCronJobName(jobName);
     boolean enabled = jobDeployment.getEnabled() == null || jobDeployment.getEnabled();
@@ -379,7 +380,8 @@ public class JobImageDeployer {
     return jobPodLabels;
   }
 
-  private Map<String, String> getJobAnnotations(DataJob dataJob, String deployedBy, String pythonVersion) {
+  private Map<String, String> getJobAnnotations(
+      DataJob dataJob, String deployedBy, String pythonVersion) {
     Map<String, String> jobPodAnnotations = new HashMap<>();
     jobPodAnnotations.put(JobAnnotation.SCHEDULE.getValue(), dataJob.getJobConfig().getSchedule());
     jobPodAnnotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), "scheduled");

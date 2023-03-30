@@ -102,7 +102,8 @@ public class DeploymentModelConverter {
         newDeployment.getVdkVersion() != null
             ? newDeployment.getVdkVersion()
             : oldDeployment.getVdkVersion());
-    mergedDeployment.setPythonVersion(newDeployment.getPythonVersion() != null
+    mergedDeployment.setPythonVersion(
+        newDeployment.getPythonVersion() != null
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
     return mergedDeployment;
