@@ -98,6 +98,10 @@ public class JobExecutionService {
               ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
+
+      // 'Manual' executions must have their `startedBy` follow the structure 'manual/*triggering-mechanism*'
+      // For example, executions started from the CLI would have `startedBy` equal to 'manual/vdk-control-cli'
+      // Additionally we also check if it contains 'vdk-control-cli' here for the purposes of backwards compatibility
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
               (jobExecutionRequest.getStartedBy().contains("vdk-control-cli") ||
