@@ -45,9 +45,7 @@ public class JobExecutionService {
 
   @AllArgsConstructor
   public enum ExecutionType {
-    MANUAL(
-        "manual"), // "manual" executions are ones ran through the `vdk execute --start` command and
-                   // the startedBy value of the execution request must always be 'vdk-control-cli'
+    MANUAL("manual"),
     SCHEDULED("scheduled");
 
     @Getter private final String value;
@@ -101,7 +99,8 @@ public class JobExecutionService {
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
-          jobExecutionRequest.getStartedBy().equals("vdk-control-cli")
+              (jobExecutionRequest.getStartedBy().contains("vdk-control-cli") ||
+                      jobExecutionRequest.getStartedBy().contains("manual"))
               ? ExecutionType.MANUAL.getValue()
               : ExecutionType.SCHEDULED.getValue());
 

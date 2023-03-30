@@ -79,7 +79,7 @@ class JobExecute:
         self, name: str, team: str, output_format: OutputFormat, arguments: str
     ) -> None:
         execution_request = DataJobExecutionRequest(
-            started_by=f"vdk-control-cli",  # 'manual' execution requests must have their started_by parameter have the value 'vdk-control-cli'
+            started_by=f"manual/vdk-control-cli",
             args=self.__validate_and_parse_args(arguments),
         )
         log.debug(f"Starting job with request {execution_request}")
