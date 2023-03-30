@@ -103,8 +103,8 @@ public class JobExecutionService {
       // Additionally we also check if it contains 'vdk-control-cli' here for the purposes of backwards compatibility
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
-              (jobExecutionRequest.getStartedBy().contains("vdk-control-cli") ||
-                      jobExecutionRequest.getStartedBy().contains("manual"))
+          (jobExecutionRequest.getStartedBy().contains("vdk-control-cli")
+                  || jobExecutionRequest.getStartedBy().contains("manual"))
               ? ExecutionType.MANUAL.getValue()
               : ExecutionType.SCHEDULED.getValue());
 
