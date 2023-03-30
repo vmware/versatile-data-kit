@@ -12,7 +12,6 @@ git_repository=$7
 registry_type=$8
 registry_username=$9
 registry_password=${10}
-aws_session_token=${11}
 
 # Within this property docker config should be included to connect to the registry used to pull the image from.
 # it should be prefixed with a comma
