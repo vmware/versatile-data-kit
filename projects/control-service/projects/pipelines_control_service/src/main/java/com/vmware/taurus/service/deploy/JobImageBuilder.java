@@ -44,9 +44,6 @@ public class JobImageBuilder {
   @Value("${datajobs.git.password}")
   private String gitPassword;
 
-  @Value("${datajobs.aws.region:}")
-  private String awsRegion;
-
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
 
@@ -124,6 +121,7 @@ public class JobImageBuilder {
     String builderAwsSecretAccessKey = awsCredentialsService.getAwsSecretAccessKey();
     String builderAwsAccessKeyId = awsCredentialsService.getAwsAccessKeyId();
     String builderAwsSessionToken = "";
+    String awsRegion = awsCredentialsService.getAwsRegion();
 
     if (awsCredentialsService.isAssumeIAMRole()) {
       // Iff temporary credentials flag is enabled we generate role credentials
