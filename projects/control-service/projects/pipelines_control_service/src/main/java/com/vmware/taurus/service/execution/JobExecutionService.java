@@ -99,15 +99,16 @@ public class JobExecutionService {
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
 
+      // 'Scheduled' executions must have their `startedBy` follow the structure 'scheduled/*triggering-mechanism*'
       // 'Manual' executions must have their `startedBy` follow the structure 'manual/*triggering-mechanism*'
-      // For example, executions started from the CLI would have `startedBy` equal to 'manual/vdk-control-cli'
-      // Additionally we also check if it contains 'vdk-control-cli' here for the purposes of backwards compatibility
+      // For example:
+      // - executions started from the CLI would have `startedBy` equal to 'manual/vdk-control-cli'
+      // We default to 'manual'; this also served for the purposes of backwards compatibility
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
-          (jobExecutionRequest.getStartedBy().contains("vdk-control-cli")
-                  || jobExecutionRequest.getStartedBy().contains("manual"))
-              ? ExecutionType.MANUAL.getValue()
-              : ExecutionType.SCHEDULED.getValue());
+              jobExecutionRequest.getStartedBy().contains("scheduled")
+              ? ExecutionType.SCHEDULED.getValue()
+              : ExecutionType.MANUAL.getValue());
 
 
       Map<String, String> envs = new LinkedHashMap<>();
