@@ -212,7 +212,7 @@ There are more settings that are configurable by the user, that can be explored 
 The DAG is executed as follows:
 
 1. Jobs that have no unfinished dependencies are started.
-2. If the number of currently running jobs is below the maximum allowed concurrent jobs, additional jobs are started.
+2. If the number of currently running jobs is below the maximum allowed concurrent jobs (configurable by [META_JOBS_MAX_CONCURRENT_RUNNING_JOBS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)), additional jobs are started.
    If a job is attempted to be started but the concurrent running jobs limit is hit, the job is delayed - added
    to the delay queue and retried later. If there is a Control Service outage or a conflict with another running job,
    the same delay strategy is applied. Additionally, the configuration variables
@@ -233,7 +233,7 @@ The load to the Control Service APIs from the Meta Jobs plugin mostly depends on
 The main resource Meta Jobs consume is API requests. Here are the different cases in which an API request is sent:
 
 * To start a job;
-* To check the status of a job (based on META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS);
+* To check the status of a job (based on [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76));
 * To get details after a job is completed;
 * On retries (if a job start failed).
 
@@ -241,7 +241,7 @@ Let's create a formula for calculating the number of API requests in a DAG run. 
 
 J: Number of Data Jobs in the DAG;<br>
 E: Average Data Job Execution duration;<br>
-S: The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS.
+S: The value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76).
 
 Generally, job1 is independent of job2 in terms of requests - job1 would not impact the number of requests job2 would
 send throughout its duration.
@@ -257,8 +257,8 @@ For example, the following workflow consists of 6 Data Jobs:
 * The execution time of each of the following jobs is about 10 min: `Job 1` and `Job 2`;
 * The execution time of each of the following jobs is about 15 min: `Job 3`, `Job 4` and `Job 6`;
 * The execution time of each of the following jobs is about 20 min: `Job 5`;
-* The concurrent running jobs limit is configured to 2.
-* The value of META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS is configured to the default 40 (seconds).
+* The concurrent running jobs limit is configured to 2 (for more information, check [META_JOBS_MAX_CONCURRENT_RUNNING_JOBS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)).
+* The value of [META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L76) is configured to the default 40 (seconds).
 
 ![sample-execution.png](sample-execution.png)
 
