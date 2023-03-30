@@ -10,7 +10,7 @@ import DownloadJobDialog, {
 import DeployJobDialog, {
   showCreateDeploymentDialog
 } from '../components/DeployJob';
-import { showCreateJobDialog } from '../components/CreateJob';
+import CreateJobDialog, { showCreateJobDialog } from '../components/CreateJob';
 import DeleteJobDialog, { showDeleteJobDialog } from '../components/DeleteJob';
 
 // Mock the showDialog function
@@ -151,7 +151,11 @@ describe('showCreateJobDialog', () => {
 
     expect(showDialog).toHaveBeenCalledWith({
       title: 'Create Job',
-      body: expect.anything(),
+      body:<CreateJobDialog
+      jobPath={jobData.get(VdkOption.PATH)!}
+      jobName={jobData.get(VdkOption.NAME)!}
+      jobTeam={jobData.get(VdkOption.TEAM)!}
+    ></CreateJobDialog>,
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
   });

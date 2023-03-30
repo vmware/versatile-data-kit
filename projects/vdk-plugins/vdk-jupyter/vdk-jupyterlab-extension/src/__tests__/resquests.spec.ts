@@ -22,15 +22,15 @@ describe('jobdDataRequest', () => {
   });
 
   it('should call requestAPI with the correct arguments', async () => {
-    jobData.set(VdkOption.NAME, 'Test Job');
-    jobData.set(VdkOption.TEAM, 'Test Team');
-    jobData.set(VdkOption.PATH, '/test/job/path');
-
     const mockData = {
       [VdkOption.NAME]: 'Test Job',
       [VdkOption.TEAM]: 'Test Team',
       [VdkOption.PATH]: '/test/job/path'
     };
+
+    jobData.set(VdkOption.NAME, mockData[VdkOption.NAME]);
+    jobData.set(VdkOption.TEAM, mockData[VdkOption.TEAM]);
+    jobData.set(VdkOption.PATH, mockData[VdkOption.PATH]);
 
     (requestAPI as jest.Mock).mockResolvedValue(mockData);
 
