@@ -12,20 +12,12 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "datajobs.aws")
 @Component
 public class AWSCredentialsServiceConfig {
-  @Getter
-  private String region;
-  @Getter
-  private String serviceAccountSecretAccessKey;
-  @Getter
-  private String serviceAccountAccessKeyId;
-  @Getter
-  private String RoleArn;
-  @Getter
-  private int defaultSessionDurationSeconds;
-  @Getter
-  private boolean assumeIAMRole;
-  @Getter
-  private String secretAccessKey;
-  @Getter
-  private String accessKeyId;
+  @Getter private String region;
+  @Getter private String serviceAccountSecretAccessKey;
+  @Getter private String serviceAccountAccessKeyId;
+  @Getter private String RoleArn;
+  @Getter private int defaultSessionDurationSeconds;
+  @Getter private boolean assumeIAMRole;
+  @Getter private String secretAccessKey;
+  @Getter private String accessKeyId;
 }

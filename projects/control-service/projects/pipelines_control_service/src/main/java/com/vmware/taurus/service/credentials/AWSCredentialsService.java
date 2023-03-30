@@ -26,10 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AWSCredentialsService {
 
-  public record AWSCredentialsDTO(String awsSecretAccessKey, String awsAccessKeyId,
-                                  String awsSessionToken, String region) {
-
-  }
+  public record AWSCredentialsDTO(
+      String awsSecretAccessKey, String awsAccessKeyId, String awsSessionToken, String region) {}
 
   private STSAssumeRoleSessionCredentialsProvider credentialsProvider;
   private AWSCredentialsServiceConfig awsCredentialsServiceConfig;
@@ -57,7 +55,7 @@ public class AWSCredentialsService {
 
       this.credentialsProvider =
           new STSAssumeRoleSessionCredentialsProvider.Builder(
-              assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
+                  assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
               .withStsClient(stsClient)
               .build();
     }
@@ -73,8 +71,10 @@ public class AWSCredentialsService {
   public AWSCredentialsDTO createTemporaryCredentials() {
 
     if (!awsCredentialsServiceConfig.isAssumeIAMRole()) {
-      return new AWSCredentialsDTO(awsCredentialsServiceConfig.getSecretAccessKey(),
-          awsCredentialsServiceConfig.getAccessKeyId(), "",
+      return new AWSCredentialsDTO(
+          awsCredentialsServiceConfig.getSecretAccessKey(),
+          awsCredentialsServiceConfig.getAccessKeyId(),
+          "",
           awsCredentialsServiceConfig.getRegion());
     }
     AWSSessionCredentials serviceAccountCredentials = credentialsProvider.getCredentials();
@@ -82,7 +82,7 @@ public class AWSCredentialsService {
     var secretAccessKey = serviceAccountCredentials.getAWSSecretKey();
     var sessionToken = serviceAccountCredentials.getSessionToken();
 
-    return new AWSCredentialsDTO(secretAccessKey, accessKeyId, sessionToken,
-        awsCredentialsServiceConfig.getRegion());
+    return new AWSCredentialsDTO(
+        secretAccessKey, accessKeyId, sessionToken, awsCredentialsServiceConfig.getRegion());
   }
 }
