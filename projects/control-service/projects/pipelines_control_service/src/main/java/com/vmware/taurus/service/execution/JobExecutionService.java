@@ -99,8 +99,8 @@ public class JobExecutionService {
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
-              (jobExecutionRequest.getStartedBy().contains("vdk-control-cli") ||
-                      jobExecutionRequest.getStartedBy().contains("manual"))
+          (jobExecutionRequest.getStartedBy().contains("vdk-control-cli")
+                  || jobExecutionRequest.getStartedBy().contains("manual"))
               ? ExecutionType.MANUAL.getValue()
               : ExecutionType.SCHEDULED.getValue());
 
