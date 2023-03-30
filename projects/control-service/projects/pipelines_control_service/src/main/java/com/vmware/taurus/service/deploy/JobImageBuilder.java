@@ -9,7 +9,7 @@ import static java.util.Map.entry;
 
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.service.credentials.AWSServiceAccountCredentialsService;
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeployment;
@@ -38,9 +38,6 @@ public class JobImageBuilder {
   @Value("${datajobs.git.url}")
   private String gitRepo;
 
-  @Value("${datajobs.aws.assumeIAMRole:}")
-  private boolean useRoleCredentials;
-
   @Value("${datajobs.git.username}")
   private String gitUsername;
 
@@ -49,12 +46,6 @@ public class JobImageBuilder {
 
   @Value("${datajobs.aws.region:}")
   private String awsRegion;
-
-  @Value("${datajobs.aws.accessKeyId:}")
-  private String awsAccessKeyId;
-
-  @Value("${datajobs.aws.secretAccessKey:}")
-  private String awsSecretAccessKey;
 
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
@@ -96,20 +87,20 @@ public class JobImageBuilder {
   private final DockerRegistryService dockerRegistryService;
   private final DeploymentNotificationHelper notificationHelper;
   private final KubernetesResources kubernetesResources;
-  private final AWSServiceAccountCredentialsService awsServiceAccountCredentialsService;
+  private final AWSCredentialsService awsCredentialsService;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
       DockerRegistryService dockerRegistryService,
       DeploymentNotificationHelper notificationHelper,
       KubernetesResources kubernetesResources,
-      AWSServiceAccountCredentialsService awsServiceAccountCredentialsService) {
+      AWSCredentialsService awsCredentialsService) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
     this.notificationHelper = notificationHelper;
     this.kubernetesResources = kubernetesResources;
-    this.awsServiceAccountCredentialsService = awsServiceAccountCredentialsService;
+    this.awsCredentialsService = awsCredentialsService;
   }
 
   /**
@@ -130,17 +121,20 @@ public class JobImageBuilder {
       String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
 
-    String builderAwsSecretAccessKey = this.awsSecretAccessKey;
-    String builderAwsAccessKeyId = this.awsAccessKeyId;
+    String builderAwsSecretAccessKey = awsCredentialsService.getAwsSecretAccessKey();
+    String builderAwsAccessKeyId = awsCredentialsService.getAwsAccessKeyId();
     String builderAwsSessionToken = "";
 
-    if (useRoleCredentials) {
-      // If temporary credentials flag is enabled we generate role credentials
+    if (awsCredentialsService.isAssumeIAMRole()) {
+      // Iff temporary credentials flag is enabled we generate role credentials
       // to use when authenticating against ECR
-      var credentials = awsServiceAccountCredentialsService.getTemporaryCredentials();
-      builderAwsSecretAccessKey = credentials.getAWSSecretKey();
-      builderAwsAccessKeyId = credentials.getAWSAccessKeyId();
-      builderAwsSessionToken = credentials.getSessionToken();
+      var credentials = awsCredentialsService.createTemporaryCredentials();
+      builderAwsSecretAccessKey = credentials.get(
+          AWSCredentialsService.AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY);
+      builderAwsAccessKeyId = credentials.get(
+          AWSCredentialsService.AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID);
+      builderAwsSessionToken = credentials.get(
+          AWSCredentialsService.AWS_SERVICE_ACCOUNT_SESSION_TOKEN);
     }
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
