@@ -12,11 +12,7 @@ import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
-import com.vmware.taurus.exception.AuthorizationError;
-import java.util.Map;
 import java.util.UUID;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,88 +26,63 @@ import org.springframework.stereotype.Service;
 @Service
 public class AWSCredentialsService {
 
-  public static final String AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY =
-      "AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY";
-  public static final String AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID =
-      "AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID";
-  public static final String AWS_SERVICE_ACCOUNT_SESSION_TOKEN =
-      "AWS_SERVICE_ACCOUNT_SESSION_TOKEN";
+  public record AWSCredentialsDTO(String awsSecretAccessKey, String awsAccessKeyId,
+                                  String awsSessionToken, String region) {
 
-  @Getter private String awsRegion;
-
-  @Getter private boolean assumeIAMRole;
-
-  @Getter private String awsSecretAccessKey;
-
-  @Getter private String awsAccessKeyId;
+  }
 
   private STSAssumeRoleSessionCredentialsProvider credentialsProvider;
+  private AWSCredentialsServiceConfig awsCredentialsServiceConfig;
 
-  public AWSCredentialsService(
-      @Value("${datajobs.aws.serviceAccountSecretAccessKey:}") String serviceAccountSecretKey,
-      @Value("${datajobs.aws.serviceAccountAccessKeyId:}") String serviceAccountAcessKeyId,
-      @Value("${datajobs.aws.RoleArn:}") String awsServiceAccountRoleArn,
-      @Value("${datajobs.aws.defaultSessionDurationSeconds:}") int serviceAccountSessionDuration,
-      @Value("${datajobs.aws.region:}") String awsRegion,
-      @Value("${datajobs.aws.assumeIAMRole:false}") boolean assumeIAMRole,
-      @Value("${datajobs.aws.secretAccessKey:}") String awsSecretAccessKey,
-      @Value("${datajobs.aws.accessKeyId:}") String awsAccessKeyId) {
+  public AWSCredentialsService(AWSCredentialsServiceConfig awsCredentialsServiceConfig) {
+    this.awsCredentialsServiceConfig = awsCredentialsServiceConfig;
 
-    this.awsRegion = awsRegion;
-    this.assumeIAMRole = assumeIAMRole;
-    this.awsSecretAccessKey = awsSecretAccessKey;
-    this.awsAccessKeyId = awsAccessKeyId;
-
-    if (assumeIAMRole) {
+    if (awsCredentialsServiceConfig.isAssumeIAMRole()) {
       AWSSecurityTokenService stsClient =
           AWSSecurityTokenServiceClientBuilder.standard()
               .withCredentials(
                   new AWSStaticCredentialsProvider(
-                      new BasicAWSCredentials(serviceAccountAcessKeyId, serviceAccountSecretKey)))
-              .withRegion(awsRegion)
+                      new BasicAWSCredentials(
+                          awsCredentialsServiceConfig.getServiceAccountAccessKeyId(),
+                          awsCredentialsServiceConfig.getServiceAccountSecretAccessKey())))
+              .withRegion(awsCredentialsServiceConfig.getRegion())
               .build();
 
       AssumeRoleRequest assumeRequest =
           new AssumeRoleRequest()
-              .withRoleArn(awsServiceAccountRoleArn)
+              .withRoleArn(awsCredentialsServiceConfig.getRoleArn())
               .withRoleSessionName(
                   "control-service-session-" + UUID.randomUUID().toString().substring(0, 4))
-              .withDurationSeconds(serviceAccountSessionDuration);
+              .withDurationSeconds(awsCredentialsServiceConfig.getDefaultSessionDurationSeconds());
 
       this.credentialsProvider =
           new STSAssumeRoleSessionCredentialsProvider.Builder(
-                  assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
+              assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
               .withStsClient(stsClient)
               .build();
     }
   }
 
   /**
-   * Returns a map containing AWS temporary credentials for authorization against AWS API's The keys
-   * to the returned map are: AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
-   * AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID AWS_SERVICE_ACCOUNT_SESSION_TOKEN
+   * DTO object containing the secret access key, access key id and the session token. Return an
+   * empty session token if we are using long term credentials. Values can be accessed through
+   * getters.
+   *
+   * @return
    */
-  public Map<String, String> createTemporaryCredentials() {
-    if (!assumeIAMRole) {
-      throw new AuthorizationError(
-          "createTemporaryCredentials() method called when the datajobs.aws.assumeIAMRole flag is"
-              + " false.",
-          "The call will fail, and no credentials will be returned.",
-          "Please configure all appropriate properties for aws service account pattern in"
-              + " application.properties.",
-          null);
+  public AWSCredentialsDTO createTemporaryCredentials() {
+
+    if (!awsCredentialsServiceConfig.isAssumeIAMRole()) {
+      return new AWSCredentialsDTO(awsCredentialsServiceConfig.getSecretAccessKey(),
+          awsCredentialsServiceConfig.getAccessKeyId(), "",
+          awsCredentialsServiceConfig.getRegion());
     }
     AWSSessionCredentials serviceAccountCredentials = credentialsProvider.getCredentials();
     var accessKeyId = serviceAccountCredentials.getAWSAccessKeyId();
     var secretAccessKey = serviceAccountCredentials.getAWSSecretKey();
     var sessionToken = serviceAccountCredentials.getSessionToken();
 
-    return Map.of(
-        AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID,
-        accessKeyId,
-        AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY,
-        secretAccessKey,
-        AWS_SERVICE_ACCOUNT_SESSION_TOKEN,
-        sessionToken);
+    return new AWSCredentialsDTO(secretAccessKey, accessKeyId, sessionToken,
+        awsCredentialsServiceConfig.getRegion());
   }
 }

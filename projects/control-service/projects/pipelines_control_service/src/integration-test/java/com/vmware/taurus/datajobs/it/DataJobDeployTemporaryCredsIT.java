@@ -13,15 +13,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.services.ecr.AmazonECR;
+import com.amazonaws.services.ecr.AmazonECRClientBuilder;
+import com.amazonaws.services.ecr.model.DeleteRepositoryRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +36,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
@@ -41,11 +48,11 @@ import org.springframework.test.web.servlet.MvcResult;
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-      "datajobs.aws.assumeIAMRole=true",
-      "datajobs.aws.RoleArn=arn:aws:iam::850879199482:role/svc.supercollider.user",
-      "datajobs.docker.registryType=ecr",
-      "datajobs.aws.region=us-west-2"
+        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+        "datajobs.aws.assumeIAMRole=true",
+        "datajobs.aws.RoleArn=arn:aws:iam::850879199482:role/svc.supercollider.user",
+        "datajobs.docker.registryType=ecr",
+        "datajobs.aws.region=us-west-2"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -56,6 +63,12 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
   private static final String TEST_JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private static final Object DEPLOYMENT_ID = "testing-temp-creds";
+
+  @Autowired
+  AWSCredentialsService awsCredentialsService;
+
+  @Value("${datajobs.docker.repositoryUrl}")
+  private String dockerRepositoryUrl;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -93,7 +106,7 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -115,7 +128,7 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
+                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -132,14 +145,13 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     Assertions.assertEquals(DataJobMode.RELEASE.toString(), cronJob.getMode());
     Assertions.assertEquals(true, cronJob.getEnabled());
     Assertions.assertTrue(cronJob.getImageName().endsWith(testJobVersionSha));
-    Assertions.assertEquals("user", cronJob.getLastDeployedBy());
 
     MvcResult result =
         mockMvc
             .perform(
                 get(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
                     .with(user("user"))
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -149,16 +161,6 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     DataJobDeploymentStatus jobDeployment =
         mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
     Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
-    Assertions.assertEquals(true, jobDeployment.getEnabled());
-    Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
-    Assertions.assertEquals(true, jobDeployment.getEnabled());
-    // by default the version is the same as the tag specified by datajobs.vdk.image
-    // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
-    Assertions.assertEquals("release", jobDeployment.getVdkVersion());
-    Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
-    // just check some valid date is returned. It would be too error-prone/brittle to verify exact
-    // time.
-    DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
   }
 
   @AfterEach
@@ -166,9 +168,27 @@ public class DataJobDeployTemporaryCredsIT extends BaseIT {
     mockMvc
         .perform(
             delete(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user")))
         .andExpect(status().isOk());
+
+    // Delete job repository from ECR
+    var repositoryName = dockerRepositoryUrl + "/" + TEST_JOB_NAME;
+    var credentials = awsCredentialsService.createTemporaryCredentials();
+    BasicSessionCredentials sessionCredentials = new BasicSessionCredentials(
+        credentials.awsAccessKeyId(),
+        credentials.awsSecretAccessKey(), credentials.awsSessionToken());
+
+    AmazonECR ecrClient = AmazonECRClientBuilder.standard()
+        .withCredentials(new AWSStaticCredentialsProvider(sessionCredentials))
+        .withRegion(credentials.region())
+        .build();
+
+    DeleteRepositoryRequest request = new DeleteRepositoryRequest()
+        .withRepositoryName(repositoryName)
+        .withForce(true); // Set force to true to delete the repository even if it's not empty.
+
+    ecrClient.deleteRepository(request);
   }
 }

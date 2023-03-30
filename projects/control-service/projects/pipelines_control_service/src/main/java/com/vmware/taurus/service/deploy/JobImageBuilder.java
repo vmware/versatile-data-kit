@@ -117,23 +117,12 @@ public class JobImageBuilder {
   public boolean buildImage(
       String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
+    var credentials = awsCredentialsService.createTemporaryCredentials();
 
-    String builderAwsSecretAccessKey = awsCredentialsService.getAwsSecretAccessKey();
-    String builderAwsAccessKeyId = awsCredentialsService.getAwsAccessKeyId();
-    String builderAwsSessionToken = "";
-    String awsRegion = awsCredentialsService.getAwsRegion();
-
-    if (awsCredentialsService.isAssumeIAMRole()) {
-      // Iff temporary credentials flag is enabled we generate role credentials
-      // to use when authenticating against ECR
-      var credentials = awsCredentialsService.createTemporaryCredentials();
-      builderAwsSecretAccessKey =
-          credentials.get(AWSCredentialsService.AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY);
-      builderAwsAccessKeyId =
-          credentials.get(AWSCredentialsService.AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID);
-      builderAwsSessionToken =
-          credentials.get(AWSCredentialsService.AWS_SERVICE_ACCOUNT_SESSION_TOKEN);
-    }
+    String builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
+    String builderAwsAccessKeyId = credentials.awsAccessKeyId();
+    String builderAwsSessionToken = credentials.awsSessionToken();
+    String awsRegion = credentials.region();
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
     if (!StringUtils.isBlank(registryType)) {

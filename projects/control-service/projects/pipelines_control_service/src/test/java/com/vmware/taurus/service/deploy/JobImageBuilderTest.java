@@ -6,6 +6,9 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
+import com.vmware.taurus.service.credentials.AWSCredentialsService.AWSCredentialsDTO;
+import com.vmware.taurus.service.credentials.AWSCredentialsServiceConfig;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
@@ -45,6 +49,8 @@ public class JobImageBuilderTest {
 
   @Mock private KubernetesResources kubernetesResources;
 
+  @Mock private AWSCredentialsService awsCredentialsService;
+
   @InjectMocks private JobImageBuilder jobImageBuilder;
 
   private DataJob testDataJob;
@@ -55,6 +61,9 @@ public class JobImageBuilderTest {
     ReflectionTestUtils.setField(jobImageBuilder, "registryType", "ecr");
     ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", "python:3.7-slim");
     ReflectionTestUtils.setField(jobImageBuilder, "builderJobExtraArgs", "");
+
+    when(awsCredentialsService.createTemporaryCredentials()).thenReturn(
+        new AWSCredentialsDTO("test", "test", "test", "test"));
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
