@@ -141,12 +141,12 @@ supports customers that want to:
 2. Build their own docker image for data-pipelines
 
 #### Docker
-A Docker image will be published on docker hub under the user https://hub.docker.com/u/versatiledatakit. 
+A Docker image will be published on docker hub under the user https://hub.docker.com/u/versatiledatakit.
 It is built by the CI on any changes to the frontend codebase.
 
 #### Helm(or install helpers)
-There is no use case for having just the frontend installed. 
-Because of this there are no helpers for installing the frontend. 
+There is no use case for having just the frontend installed.
+Because of this there are no helpers for installing the frontend.
 Instead, the frontend will be installed as part of the contrl-service helm chart
 
 
