@@ -1,55 +1,131 @@
 # Pipelines Control Service
-This directory contains the components of Versatile Data Kit. This readme focuses on building the control service.
 
-## Components
-The directory contains:
-* base - Versatile Data Kit skeleton for Java services
-* pipelines_control_service - Control Plane service for Versatile Data Kit
-* helm_charts - contains the helm installation of the Versatile Data Kit bundle
-* model - contains the Open API definitions of the Versatile Data Kit Rest APIs
+## Project Structure
 
-## Prerequisites
-* Java 11+ - make sure JAVA_HOME is set
-* Docker latest - make sure "docker" is on the path
-* (for the helm charts) Helm 3+ - make sure that "helm" is on the path
-* (optional) AWS CLI configured with your account for the Taurus AWS account
-
-* Kerberos related functionality depends on shell and kadmin binary tool  (see Docker image)
-
-## Build and run the Control Plane service
-run `./gradlew tasks` to see all possible tasks and descriptions
-
-### Build
-
-This will build project and create docker image
-```bash
-  ./cicd/build.sh
+```
+control-service
+├── cicd - Configurations and scripts for GitLab pipelines
+└── projects
+    ├── base - VDK skeleton for Java services
+    ├── helm_charts - helm installation of the VDK bundle
+    ├── model - Open API definitions of the VDK Rest APIs
+    └── pipelines_control_service - Control Plance service for VDK
 ```
 
-Or (without creating docker image)
+## HOW TO
+
+### Run the Control Service locally
+
+**Prerequisites**
+
+* Java 11 or greater - make sure JAVA_HOME is set
+* Docker latest - make sure "docker" is on the path
+* A git repository and a docker registry you'll use for the datajobs code and docker images
+  * easiest way is to create a throwaway GitHub account and use the GitHub
+    container registry
+  * note when creating the account that the name has to be lower-case. The registry does not support namespaces that have upper-case symbols. The namespace for the registry is copied from the account name
+  * you should also create a personal access token and make sure the
+`read:packages`, `write:packages` and `delete:packages` scopes are selected
+* A `kind` k8s cluster running locally
+  * https://kind.sigs.k8s.io/
+  * make sure your kubeconfig lists the local cluster at the top
+
+**Required configuration**
+
+Navigate to `application-dev.properties` and set the following properties to match your local setup
+
+```properties
+datajobs.docker.registryUsername=<your-github-username>
+datajobs.docker.registryPassword=<your-personal-access-token>
+​
+datajobs.deployment.k8s.kubeconfig=<path-to-kubeconfig>
+
+datajobs.git.url=github.com/<your-github-username/<your-github-repo>.git
+datajobs.git.username=<your-github-username>
+datajobs.git.password=<your-personal-access-token>
+
+datajobs.proxy.repositoryUrl=ghcr.io/<your-github-username/your-github-repo>
+datajobs.git.read.write.username=<your-github-username>
+datajobs.git.read.write.password=<your-personal-access-token>
+```
+
+**Build the project**
 
 ```bash
 ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
 ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
 ```
 
-### Setup IntelliJ:
-* Install Lombok Plugin
-* Import control-service project from existing sources in IntelliJ
-* Link Gradle Project to control-service/projects/settings.gradle
-* Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
-* Enable Annotation processing (Shift+Shift and search for it)
+**Run the project**
 
-### Run the project
-```
+```bash
 ./gradlew :pipelines_control_service:docker  --info --stacktrace -Pversion=dev
 ./gradlew :pipelines_control_service:bootRun
 ```
 
-## Running the service locally and in IDE
-The service can be run directly in the IDE (by running the `com/vmware/taurus/ServiceApp.java` file),
-and it will start without the need of any modifications.
-However, depending on the intended usage, some external dependencies may need to be additionally configured.
+Note: You can also build and run using IntelliJ by running the
+`com/vmware/taurus/ServiceApp.java` file
+
+### Setup IntelliJ:
+
+* Import `control-service/projects` in IntelliJ
+* Build and upload the model to the Local Maven Repo: `./gradlew -p ./model build publishToMavenLocal`
+
+
+### Run the Control Service using helm and k8s
+
+**Prerequisites**
+
+* Java 11 or greater - make sure JAVA_HOME is set
+* Docker latest - make sure "docker" is on the path
+* (for the helm charts) Helm 3+ - make sure that "helm" is on the path
+* (optional) AWS CLI configured with your account for the Taurus AWS account
+* Kerberos related functionality depends on shell and kadmin binary tool  (see Docker image)
+
+
+Build the project and create a docker image
+
+```bash
+  ./cicd/build.sh
+```
+
+Versatile Data Kit would work in a variety of Kubernetes environments. If you want to get started with a local deployment, we recommend kind.
+To deploy kind follow the `Deploy kubernetes cluster` and `Deploy local image registry` shown in the readme in ./data_pipelines_operator  without the `docker push`.
+
+To install the service, we will push its components to the Docker regsitry and deploy it through helm.
+
+From inside `` run:
+```
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 012285273210.dkr.ecr.us-west-2.amazonaws.com
+./gradlew :pipelines_control_service:dockerPush
+helm dependency update ./helm_charts/pipelines-control-service
+helm install taurus-data-pipelines ./helm_charts/pipelines-control-service
+```
+
+**Call the service**
+Service always run on external port `31108`:
+```
+curl "http://$(KIND IP):31108/data-jobs/debug/servertime"
+```
+
+**Purge the service**
+In order to remove the service from the cluster run:
+
+```
+helm uninstall taurus-data-pipelines
+```
+
+### Release
+
+New releases of the Versatile Data Kit Control Service are done automatically on each PR merge. As part of the PR, make sure to do the following:
+* If necessary, update the version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org, but only the MAJOR and MINOR components are specified. The PATCH component is generated automatically during release.
+* Check if [CHANGELOG.md](CHANGELOG.md) needs to be updated. New entries should include &lt;MAJOR&gt;.&lt;MINOR&gt; - &lt;dd&gt;.&lt;MM&gt;.&lt;yyyy&gt; as a heading.
+* Post review and merge to main.
+* The CI/CD automatically triggers the new release so only monitor the CI/CD pipeline.
+    * https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines
+    * Once released it will be uploaded in Helm repo: https://gitlab.com/api/v4/projects/28814611/packages/helm/stable
+
+## Configuration Guide
 
 ### Datasource
 By default, the service will use an in-memory H2 database for storing the data jobs metadata.
@@ -77,15 +153,24 @@ datajobs.deployment.k8s.kubeconfig=<path_to_kubeconfig_file>
 datajobs.deployment.k8s.namespace=<k8s_namespace>
 ```
 Note:
-If you do not have access to Kubernetes, you could provision it somehow (minikube, kind, ...).
+If you do not have access to Kubernetes, you could provision it somehow (kind, kind, ...).
 
-### GIT repository
-The data jobs are stored in a git repository. Read access to this repository is already configured in `application-dev.properties`.
+### Git Repository
+
+The data jobs are stored in a git repository. Read access to this repository is
+configured using
+
+```properties
+datajobs.git.url=github.com/<your-github-username/<your-github-repo>.git
+datajobs.git.username=<your-github-username>
+datajobs.git.password=<your-personal-access-token>
+```
 If you need to also push, you must configure read/write access to Git via:
 ```properties
 datajobs.git.read.write.username=<username>
 datajobs.git.read.write.password=<password_or_token>
 ```
+
 If you decide to use your own credentials, make sure to generate a token rather than your plain password.
 
 ### VDK options
@@ -110,9 +195,6 @@ You could enable it by specifying the following property in `application-dev.pro
 ```properties
 featureflag.security.enabled=true
 ```
-
-## CICD
-See [.gitlab-ci.yml](../.gitlab-ci.yml)
 
 ## Testing
 * Unit tests (under test folder in each project). Based on JUnit. They are self-contained tests testing the class or method level. All tests should finish in minutes
@@ -167,43 +249,3 @@ To get refresh token go to https://console-stg.cloud.vmware.com/csp/gateway/port
 
 Then add HTTP Header : "Authorization: Bearer $access_token"
 See example for Authentication flow in tools/oauth-curl.sh (the script executes curl with scp authentication)
-
-## Deploy in Kubernetes
-Versatile Data Kit would work in a variety of Kubernetes environments. If you want to get started with a local deployment, we recommend minikube.
-To deploy minikube follow the `Deploy kubernetes cluster` and `Deploy local image registry` shown in the readme in ./data_pipelines_operator  without the `docker push`.
-
-To install the service, we will push its components to the Docker regsitry and deploy it through helm.
-
-From inside `` run:
-```
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 012285273210.dkr.ecr.us-west-2.amazonaws.com
-./gradlew :pipelines_control_service:dockerPush
-helm dependency update ./helm_charts/pipelines-control-service
-helm install taurus-data-pipelines ./helm_charts/pipelines-control-service
-```
-
-### Call the service
-Service always run on external port `31108`:
-```
-curl "http://$(minikube IP):31108/data-jobs/debug/servertime"
-```
-
-### Purge the service
-In order to remove the service from the cluster run:
-
-```
-helm uninstall taurus-data-pipelines
-```
-
-
-## Release
-
-#### Control Service and Helm Chart
-
-New releases of the Versatile Data Kit Control Service are done automatically on each PR merge. As part of the PR, make sure to do the following:
-* If necessary, update the version in [helm_charts/pipelines-control-service/version.txt](projects/helm_charts/pipelines-control-service/version.txt) - follows https://semver.org, but only the MAJOR and MINOR components are specified. The PATCH component is generated automatically during release.
-* Check if [CHANGELOG.md](CHANGELOG.md) needs to be updated. New entries should include &lt;MAJOR&gt;.&lt;MINOR&gt; - &lt;dd&gt;.&lt;MM&gt;.&lt;yyyy&gt; as a heading.
-* Post review and merge to main.
-* The CI/CD automatically triggers the new release so only monitor the CI/CD pipeline.
-    * https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines
-    * Once released it will be uploaded in Helm repo: https://gitlab.com/api/v4/projects/28814611/packages/helm/stable
