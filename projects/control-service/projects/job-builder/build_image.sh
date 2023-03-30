@@ -40,6 +40,7 @@ if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] ; then
       aws configure set aws_session_token "$aws_session_token"
     fi
     # https://stackoverflow.com/questions/1199613/extract-filename-and-path-from-url-in-bash-script
+
     repository_prefix=${docker_registry#*/}
     # Create docker repository if it does not exist
     aws ecr describe-repositories --region $aws_region --repository-names $repository_prefix/${DATA_JOB_NAME} ||
