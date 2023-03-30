@@ -98,7 +98,7 @@ public class JobExecutionService {
               ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
-
+      
       // 'Scheduled' executions must have their `startedBy` follow the structure 'scheduled/*triggering-mechanism*'
       // 'Manual' executions must have their `startedBy` follow the structure 'manual/*triggering-mechanism*'
       // For example:
