@@ -91,6 +91,7 @@ describe(
             cy.restoreLocalStorage('data-jobs-manage');
 
             DataJobsManagePage.initBackendRequestInterceptor();
+            DataJobsManagePage.initPostExecutionInterceptor();
 
             dataJobsManagePage = DataJobsManagePage.navigateTo();
         });
@@ -365,6 +366,8 @@ describe(
                 const team = longLivedTestJob.team;
 
                 dataJobsManagePage.searchByJobName(jobName);
+
+                DataJobsManagePage.initPatchDetailsReqInterceptor();
 
                 //Toggle job status twice, enable to disable and vice versa.
                 dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);

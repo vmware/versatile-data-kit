@@ -1,6 +1,6 @@
 {
   "/data-jobs": {
-    "target": "https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com",
+    "target": "http://cicd-control-service-svc:8092",
     "changeOrigin": true,
     "secure": false,
     "logLevel": "debug"

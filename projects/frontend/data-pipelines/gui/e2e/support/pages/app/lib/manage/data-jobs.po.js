@@ -11,7 +11,15 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     static navigateTo() {
-        return super.navigateTo('[data-cy=navigation-link-manage-datajobs]');
+        const page = super.navigateTo(
+            '[data-cy=navigation-link-manage-datajobs]',
+        );
+
+        // this is temporary fix for test to pass
+        // proper handling with other PR for e2e test stabilization
+        page.waitForBackendRequestCompletion(3);
+
+        return page;
     }
 
     getPageTitle() {
@@ -152,7 +160,9 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
             this.changeStatus(newStatus);
 
-            this.confirmInConfirmDialog();
+            this.confirmInConfirmDialog(() => {
+                this.waitForPatchDetailsReqInterceptor();
+            });
 
             this.getToastTitle()
                 .should('exist')
@@ -195,7 +205,9 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
         this.waitForViewToRenderShort();
 
-        this.confirmInConfirmDialog();
+        this.confirmInConfirmDialog(() => {
+            this.waitForPostExecutionCompletion();
+        });
     }
 
     prepareAdditionalTestJob() {

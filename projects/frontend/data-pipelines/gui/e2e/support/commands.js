@@ -94,6 +94,16 @@ Cypress.Commands.add('waitForInterceptor', (aliasName, retries, predicate) => {
         });
 });
 
+Cypress.Commands.add('initPatchDetailsReqInterceptor', () => {
+    cy.intercept('PATCH', '**/data-jobs/for-team/**/jobs/**/deployments/**').as(
+        'patchJobDetails',
+    );
+});
+
+Cypress.Commands.add('waitForPatchDetailsReqInterceptor', () => {
+    cy.wait('@patchJobDetails');
+});
+
 Cypress.Commands.add('initPostExecutionInterceptor', () => {
     cy.intercept({
         method: 'POST',

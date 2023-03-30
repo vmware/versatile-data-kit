@@ -38,6 +38,14 @@ export class DataPipelinesBasePO {
         cy.initBackendRequestInterceptor();
     }
 
+    static initPostExecutionInterceptor() {
+        cy.initPostExecutionInterceptor();
+    }
+
+    static initPatchDetailsReqInterceptor() {
+        cy.initPatchDetailsReqInterceptor();
+    }
+
     /**
      * ** Wait for API request interceptor.
      */
@@ -86,8 +94,16 @@ export class DataPipelinesBasePO {
         DataPipelinesBasePO.waitForBackendRequestCompletion(numberOfReqToWait);
     }
 
+    waitForPostExecutionCompletion() {
+        cy.waitForPostExecutionCompletion();
+    }
+
     waitForTestJobExecutionCompletion() {
         cy.waitForTestJobExecutionCompletion();
+    }
+
+    waitForPatchDetailsReqInterceptor() {
+        cy.waitForPatchDetailsReqInterceptor();
     }
 
     waitForApiModifyCall() {
@@ -148,12 +164,19 @@ export class DataPipelinesBasePO {
 
     /* Actions */
 
-    confirmInConfirmDialog() {
+    /**
+     * ** Confirm confirmation dialog.
+     *
+     * @param {() => void} interceptors
+     */
+    confirmInConfirmDialog(interceptors) {
         cy.get('[data-cy=confirmation-dialog-ok-btn]')
             .should('exist')
             .click({ force: true });
 
-        this.waitForBackendRequestCompletion();
+        if (interceptors) {
+            interceptors();
+        }
 
         this.waitForViewToRender();
     }

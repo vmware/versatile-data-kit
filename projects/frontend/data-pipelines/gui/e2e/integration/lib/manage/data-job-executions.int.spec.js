@@ -174,7 +174,7 @@ describe(
                         longLivedTestJob.job_name,
                     );
 
-                dataJobExecutionsPage.initPostExecutionInterceptor();
+                DataJobManageExecutionsPage.initPostExecutionInterceptor();
                 dataJobExecutionsPage.initDeleteExecutionInterceptor();
                 dataJobExecutionsPage.initGetExecutionInterceptor();
                 dataJobExecutionsPage.initGetExecutionsInterceptor();

@@ -15,6 +15,9 @@ describe(
     () => {
         const descriptionWordsBeforeTruncate = 12;
 
+        /**
+         * @type {DataJobManageDetailsPage}
+         */
         let dataJobManageDetailsPage;
         let testJobs;
         let longLivedTestJob;
@@ -60,6 +63,7 @@ describe(
             cy.restoreLocalStorage('data-job-manage-details');
 
             DataJobManageDetailsPage.initBackendRequestInterceptor();
+            DataJobManageDetailsPage.initPostExecutionInterceptor();
         });
 
         it(
@@ -128,7 +132,9 @@ describe(
 
             dataJobManageDetailsPage.executeNow();
 
-            dataJobManageDetailsPage.confirmInConfirmDialog();
+            dataJobManageDetailsPage.confirmInConfirmDialog(() => {
+                dataJobManageDetailsPage.waitForPostExecutionCompletion();
+            });
 
             dataJobManageDetailsPage
                 .getToastTitle(10000)

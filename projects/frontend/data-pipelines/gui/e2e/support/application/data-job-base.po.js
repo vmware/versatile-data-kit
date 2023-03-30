@@ -18,16 +18,8 @@ export class DataJobBasePO extends DataPipelinesBasePO {
         cy.initGetExecutionsInterceptor();
     }
 
-    initPostExecutionInterceptor() {
-        cy.initPostExecutionInterceptor();
-    }
-
     initDeleteExecutionInterceptor() {
         cy.initDeleteExecutionInterceptor();
-    }
-
-    waitForPostExecutionCompletion() {
-        cy.waitForPostExecutionCompletion();
     }
 
     waitForDeleteExecutionCompletion() {
