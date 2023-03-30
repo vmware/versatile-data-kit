@@ -30,7 +30,7 @@ export async function requestAPI<T>(
   try {
     response = await ServerConnection.makeRequest(requestUrl, init, settings);
   } catch (error) {
-    throw new ServerConnection.NetworkError(error);
+    throw error as ServerConnection.NetworkError;
   }
 
   let data: any = await response.text();
@@ -44,7 +44,7 @@ export async function requestAPI<T>(
   }
 
   if (!response.ok) {
-    throw new ServerConnection.ResponseError(response, data.message || data);
+    throw new Error(response.statusText) as ServerConnection.ResponseError;
   }
 
   return data;
