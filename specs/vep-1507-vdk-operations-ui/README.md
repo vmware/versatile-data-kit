@@ -15,6 +15,8 @@
   - [High-Level Design](#high-level-design)
       - [Folder Structure](#folder-structure)
       - [Package Publishing](#package-publishing)
+      - [Docker](#docker)
+      - [Helm](#helm--or-install-helpers-)
   - [Detailed Design](#detailed-design)
     - [Front-End Components](#front-end-components)
     - [User Journeys](#user-journeys)
@@ -137,6 +139,16 @@ widely adopted javascript package manager. Publishing to the registry also
 supports customers that want to:
 1. Use the shared component libraries in their projects.
 2. Build their own docker image for data-pipelines
+
+#### Docker
+A Docker image will be published on docker hub under the user https://hub.docker.com/u/versatiledatakit. 
+It is built by the CI on any changes to the frontend codebase.
+
+#### Helm(or install helpers)
+There is no use case for having just the frontend installed. 
+Because of this there are no helpers for installing the frontend. 
+Instead, the frontend will be installed as part of the contrl-service helm chart
+
 
 ## Detailed Design
 <!--
