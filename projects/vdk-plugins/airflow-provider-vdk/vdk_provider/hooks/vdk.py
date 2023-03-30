@@ -101,7 +101,7 @@ class VDKHook(HttpHook):
         :param: request_kwargs: Request arguments to be included with the HTTP request
         """
         execution_request = DataJobExecutionRequest(
-            started_by="airflow-provider-vdk",
+            started_by="scheduled/airflow-provider-vdk",
             args=request_kwargs,
         )
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(

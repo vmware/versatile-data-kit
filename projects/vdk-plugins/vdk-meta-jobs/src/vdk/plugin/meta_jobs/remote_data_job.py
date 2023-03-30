@@ -85,7 +85,7 @@ class RemoteDataJob:
         :param: request_kwargs: Request arguments to be included with the HTTP request
         """
         execution_request = DataJobExecutionRequest(
-            started_by="meta-job",  # TODO: specify name of meta job
+            started_by="scheduled/meta-job",  # TODO: specify name of meta job
             args=request_kwargs,
         )
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
