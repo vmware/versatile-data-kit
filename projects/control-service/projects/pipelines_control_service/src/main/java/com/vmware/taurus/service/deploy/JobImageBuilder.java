@@ -129,12 +129,12 @@ public class JobImageBuilder {
       // Iff temporary credentials flag is enabled we generate role credentials
       // to use when authenticating against ECR
       var credentials = awsCredentialsService.createTemporaryCredentials();
-      builderAwsSecretAccessKey = credentials.get(
-          AWSCredentialsService.AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY);
-      builderAwsAccessKeyId = credentials.get(
-          AWSCredentialsService.AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID);
-      builderAwsSessionToken = credentials.get(
-          AWSCredentialsService.AWS_SERVICE_ACCOUNT_SESSION_TOKEN);
+      builderAwsSecretAccessKey =
+          credentials.get(AWSCredentialsService.AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY);
+      builderAwsAccessKeyId =
+          credentials.get(AWSCredentialsService.AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID);
+      builderAwsSessionToken =
+          credentials.get(AWSCredentialsService.AWS_SERVICE_ACCOUNT_SESSION_TOKEN);
     }
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);

@@ -30,21 +30,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class AWSCredentialsService {
 
-  public static final String AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY = "AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY";
-  public static final String AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID = "AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID";
-  public static final String AWS_SERVICE_ACCOUNT_SESSION_TOKEN = "AWS_SERVICE_ACCOUNT_SESSION_TOKEN";
+  public static final String AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY =
+      "AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY";
+  public static final String AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID =
+      "AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID";
+  public static final String AWS_SERVICE_ACCOUNT_SESSION_TOKEN =
+      "AWS_SERVICE_ACCOUNT_SESSION_TOKEN";
 
-  @Getter
-  private String awsRegion;
+  @Getter private String awsRegion;
 
-  @Getter
-  private boolean assumeIAMRole;
+  @Getter private boolean assumeIAMRole;
 
-  @Getter
-  private String awsSecretAccessKey;
+  @Getter private String awsSecretAccessKey;
 
-  @Getter
-  private String awsAccessKeyId;
+  @Getter private String awsAccessKeyId;
 
   private STSAssumeRoleSessionCredentialsProvider credentialsProvider;
 
@@ -68,8 +67,7 @@ public class AWSCredentialsService {
           AWSSecurityTokenServiceClientBuilder.standard()
               .withCredentials(
                   new AWSStaticCredentialsProvider(
-                      new BasicAWSCredentials(serviceAccountAcessKeyId,
-                          serviceAccountSecretKey)))
+                      new BasicAWSCredentials(serviceAccountAcessKeyId, serviceAccountSecretKey)))
               .withRegion(awsRegion)
               .build();
 
@@ -82,24 +80,25 @@ public class AWSCredentialsService {
 
       this.credentialsProvider =
           new STSAssumeRoleSessionCredentialsProvider.Builder(
-              assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
+                  assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
               .withStsClient(stsClient)
               .build();
-
     }
   }
 
   /**
    * Returns a map containing AWS temporary credentials for authorization against AWS API's The keys
-   * to the returned map are: AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID
-   * AWS_SERVICE_ACCOUNT_SESSION_TOKEN
+   * to the returned map are: AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
+   * AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID AWS_SERVICE_ACCOUNT_SESSION_TOKEN
    */
   public Map<String, String> createTemporaryCredentials() {
     if (!assumeIAMRole) {
       throw new AuthorizationError(
-          "createTemporaryCredentials() method called when the datajobs.aws.assumeIAMRole flag is false.",
+          "createTemporaryCredentials() method called when the datajobs.aws.assumeIAMRole flag is"
+              + " false.",
           "The call will fail, and no credentials will be returned.",
-          "Please configure all appropriate properties for aws service account pattern in application.properties.",
+          "Please configure all appropriate properties for aws service account pattern in"
+              + " application.properties.",
           null);
     }
     AWSSessionCredentials serviceAccountCredentials = credentialsProvider.getCredentials();
@@ -107,8 +106,12 @@ public class AWSCredentialsService {
     var secretAccessKey = serviceAccountCredentials.getAWSSecretKey();
     var sessionToken = serviceAccountCredentials.getSessionToken();
 
-    return Map.of(AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID, accessKeyId,
-        AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY, secretAccessKey, AWS_SERVICE_ACCOUNT_SESSION_TOKEN,
+    return Map.of(
+        AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID,
+        accessKeyId,
+        AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY,
+        secretAccessKey,
+        AWS_SERVICE_ACCOUNT_SESSION_TOKEN,
         sessionToken);
   }
 }
