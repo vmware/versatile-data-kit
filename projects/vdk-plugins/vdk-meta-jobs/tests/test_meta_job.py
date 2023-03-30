@@ -321,8 +321,8 @@ class TestMetaJob:
     def test_meta_job_depends_on_itself(self):
         self._test_meta_job_validation("meta-job-depends-on-itself")
 
-    def test_meta_job_job_already_exists(self):
-        self._test_meta_job_validation("meta-job-job-already-exists")
+    def test_meta_job_duplicate_jobs(self):
+        self._test_meta_job_validation("meta-job-duplicate-jobs")
 
     def test_meta_job_not_allowed_job_key(self):
         self._test_meta_job_validation("meta-job-not-allowed-job-key")
