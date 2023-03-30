@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import os
 import pprint
 import sys
 import time
@@ -13,6 +12,7 @@ from typing import List
 
 from taurus_datajob_api import ApiException
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.meta_jobs.dag_validator import DagValidator
 from vdk.plugin.meta_jobs.meta import TrackableJob
 from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
@@ -40,10 +40,11 @@ class MetaJobsDag:
             executor=RemoteDataJobExecutor(),
             time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
         )
+        self._dag_validator = DagValidator()
 
     def build_dag(self, jobs: List[Dict]):
+        self._dag_validator.validate(jobs)
         for job in jobs:
-            # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             trackable_job = TrackableJob(
                 job["job_name"],
                 job.get("team_name", self._team_name),
