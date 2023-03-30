@@ -98,14 +98,16 @@ public class JobExecutionService {
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
 
-      // 'Scheduled' executions must have their `startedBy` follow the structure 'scheduled/*triggering-mechanism*'
-      // 'Manual' executions must have their `startedBy` follow the structure 'manual/*triggering-mechanism*'
+      // 'Scheduled' executions must have their `startedBy` follow the structure
+      // 'scheduled/*triggering-mechanism*'
+      // 'Manual' executions must have their `startedBy` follow the structure
+      // 'manual/*triggering-mechanism*'
       // For example:
       // - executions started from the CLI would have `startedBy` equal to 'manual/vdk-control-cli'
       // We default to 'manual'; this also served for the purposes of backwards compatibility
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
-              jobExecutionRequest.getStartedBy().contains("scheduled")
+          jobExecutionRequest.getStartedBy().contains("scheduled")
               ? ExecutionType.SCHEDULED.getValue()
               : ExecutionType.MANUAL.getValue());
 
