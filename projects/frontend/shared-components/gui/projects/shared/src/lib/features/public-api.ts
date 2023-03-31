@@ -10,3 +10,6 @@ export * from './pipes/public-api';
 export * from './placeholder/public-api';
 export * from './toasts/public-api';
 export * from './warning/public-api';
+
+// export Features module
+export * from './vdk-shared-features.module';

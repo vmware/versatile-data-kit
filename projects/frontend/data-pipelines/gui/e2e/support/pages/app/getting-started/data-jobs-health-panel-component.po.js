@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { GettingStartedPage } from "./getting-started.po";
+import { GettingStartedPage } from './getting-started.po';
 
 export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
     /**
@@ -21,7 +21,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getExecutionStatusGaugeWidget() {
-        return cy.get("[data-cy=dp-data-jobs-status-gauge-widget]");
+        return cy.get('[data-cy=dp-data-jobs-status-gauge-widget]');
     }
 
     /**
@@ -31,11 +31,11 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      */
     getExecutionsSuccessPercentage() {
         return this.getExecutionStatusGaugeWidget()
-            .should("exist")
-            .find("[data-cy=dp-jobs-executions-status-gauge-widget-percentage]")
-            .invoke("text")
-            .invoke("trim")
-            .invoke("replace", /%/, "")
+            .should('exist')
+            .find('[data-cy=dp-jobs-executions-status-gauge-widget-percentage]')
+            .invoke('text')
+            .invoke('trim')
+            .invoke('replace', /%/, '')
             .then((value) => +value);
     }
 
@@ -46,11 +46,11 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      */
     getNumberOfFailedExecutions() {
         return this.getExecutionStatusGaugeWidget()
-            .should("exist")
-            .find("[data-cy=dp-jobs-executions-status-gauge-widget-failed]")
-            .invoke("text")
-            .invoke("trim")
-            .invoke("replace", /\s\w+/, "")
+            .should('exist')
+            .find('[data-cy=dp-jobs-executions-status-gauge-widget-failed]')
+            .invoke('text')
+            .invoke('trim')
+            .invoke('replace', /\s\w+/, '')
             .then((value) => +value);
     }
 
@@ -61,11 +61,11 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      */
     getExecutionsTotal() {
         return this.getExecutionStatusGaugeWidget()
-            .should("exist")
-            .find("[data-cy=dp-jobs-executions-status-gauge-widget-total]")
-            .invoke("text")
-            .invoke("trim")
-            .invoke("replace", /\s\w+/, "")
+            .should('exist')
+            .find('[data-cy=dp-jobs-executions-status-gauge-widget-total]')
+            .invoke('text')
+            .invoke('trim')
+            .invoke('replace', /\s\w+/, '')
             .then((value) => +value);
     }
 
@@ -75,7 +75,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getFailingJobsWidget() {
-        return cy.get("[data-cy=dp-failed-data-jobs-widget]");
+        return cy.get('[data-cy=dp-failed-data-jobs-widget]');
     }
 
     /**
@@ -85,8 +85,8 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      */
     getAllFailingJobs() {
         return this.getFailingJobsWidget()
-            .should("exist")
-            .find("[data-cy=dp-failed-data-jobs-widget-job-name-link]");
+            .should('exist')
+            .find('[data-cy=dp-failed-data-jobs-widget-job-name-link]');
     }
 
     /**
@@ -95,7 +95,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getMostRecentFailingJobsExecutionsWidget() {
-        return cy.get("[data-cy=dp-failed-data-jobs-executions-widget]");
+        return cy.get('[data-cy=dp-failed-data-jobs-executions-widget]');
     }
 
     /**
@@ -105,9 +105,9 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      */
     getAllMostRecentFailingJobsExecutions() {
         return this.getMostRecentFailingJobsExecutionsWidget()
-            .should("exist")
+            .should('exist')
             .find(
-                "[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]",
+                '[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]',
             );
     }
 
@@ -150,7 +150,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
 
                 return foundElement;
             })
-            .should("exist")
+            .should('exist')
             .click({ force: true });
 
         this.waitForBackendRequestCompletion(numberOfReqToWait);

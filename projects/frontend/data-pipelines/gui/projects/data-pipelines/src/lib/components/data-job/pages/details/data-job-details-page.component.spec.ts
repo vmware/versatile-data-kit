@@ -11,22 +11,28 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { FORM_STATE, VdkFormState } from '@versatiledatakit/shared';
-
 import {
     ComponentModel,
     ComponentService,
     ComponentStateImpl,
     ErrorHandlerService,
+    FORM_STATE,
     generateErrorCodes,
     NavigationService,
     RouterService,
     RouterState,
     RouteState,
     ToastService,
+    VdkFormState,
 } from '@versatiledatakit/shared';
 
 import { DataJobsApiService, DataJobsService } from '../../../../services';
+
+import {
+    ExtractContactsPipe,
+    ExtractJobStatusPipe,
+    FormatSchedulePipe,
+} from '../../../../shared/pipes';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -39,18 +45,15 @@ import {
     DataJobExecutionStatus,
     DataJobExecutionType,
 } from '../../../../model';
-import {
-    ExtractContactsPipe,
-    ExtractJobStatusPipe,
-    FormatSchedulePipe,
-} from '../../../../shared/pipes';
 
-import { DataJobDetailsPageComponent } from './data-job-details-page.component';
 import { LOAD_JOB_ERROR_CODES } from '../../../../state/error-codes';
+
 import {
     TASK_LOAD_JOB_DETAILS,
     TASK_LOAD_JOB_STATE,
 } from '../../../../state/tasks';
+
+import { DataJobDetailsPageComponent } from './data-job-details-page.component';
 
 const TEST_JOB_EXECUTION = {
     id: 'id002',

@@ -24,8 +24,6 @@ import {
 
 import { ClrLoadingState } from '@clr/angular';
 
-import { VmwToastType } from '@versatiledatakit/shared';
-
 import * as fileSaver from 'file-saver';
 
 import {
@@ -42,6 +40,7 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
+    VmwToastType,
 } from '@versatiledatakit/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../shared/utils';
@@ -122,7 +121,7 @@ export class DataJobPageComponent
     private _nonExistingJobMsgShowed = false;
 
     constructor(
-        componentService: ComponentService, // NOSONAR
+        componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,

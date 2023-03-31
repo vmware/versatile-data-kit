@@ -18,13 +18,13 @@ import { ApolloModule } from 'apollo-angular';
 import { ClarityModule } from '@clr/angular';
 
 import {
-    TaurusSharedCoreModule,
-    TaurusSharedFeaturesModule,
-    TaurusSharedNgRxModule,
-    VdkComponentsModule,
+    VdkSharedCoreModule,
+    VdkSharedFeaturesModule,
+    VdkSharedNgRxModule,
+    VdkSharedComponentsModule,
 } from '@versatiledatakit/shared';
 
-import { DataPipelinesModule } from '@versatiledatakit/data-pipelines';
+import { VdkDataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
 import { authCodeFlowConfig } from './auth';
 
@@ -42,31 +42,11 @@ export function lottiePlayerLoader() {
 }
 
 @NgModule({
-    declarations: [AppComponent, GettingStartedComponent],
     imports: [
         AppRouting,
         BrowserModule,
         ClarityModule,
         BrowserAnimationsModule,
-        ApolloModule,
-        TaurusSharedCoreModule.forRoot(),
-        TaurusSharedFeaturesModule.forRoot(),
-        TaurusSharedNgRxModule.forRootWithDevtools(),
-        TimeagoModule.forRoot(),
-        LottieModule.forRoot({ player: lottiePlayerLoader }),
-        VdkComponentsModule.forRoot(),
-        DataPipelinesModule.forRoot({
-            defaultOwnerTeamName: 'taurus',
-            manageConfig: {
-                allowKeyTabDownloads: true,
-            },
-            exploreConfig: {
-                showTeamsColumn: true,
-            },
-            healthStatusUrl: '/explore/data-jobs?search={0}',
-            showExecutionsPage: true,
-            showLineagePage: false,
-        }),
         HttpClientModule,
         OAuthModule.forRoot({
             resourceServer: {
@@ -78,7 +58,28 @@ export function lottiePlayerLoader() {
                 sendAccessToken: true,
             },
         }),
+        ApolloModule,
+        TimeagoModule.forRoot(),
+        LottieModule.forRoot({ player: lottiePlayerLoader }),
+        VdkSharedCoreModule.forRoot(),
+        VdkSharedFeaturesModule.forRoot(),
+        VdkSharedNgRxModule.forRootWithDevtools(),
+        VdkSharedComponentsModule.forRoot(),
+        VdkDataPipelinesModule.forRoot({
+            defaultOwnerTeamName: 'taurus',
+            manageConfig: {
+                allowKeyTabDownloads: true,
+            },
+            exploreConfig: {
+                showTeamsColumn: true,
+            },
+            healthStatusUrl: '/explore/data-jobs?search={0}',
+            showExecutionsPage: true,
+            showLineagePage: false,
+            dataPipelinesDocumentationUrl: '#',
+        }),
     ],
+    declarations: [AppComponent, GettingStartedComponent],
     providers: [
         {
             provide: OAuthStorage,

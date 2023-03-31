@@ -10,12 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 
 import {
-    FORM_STATE,
-    VdkFormState,
-    VmwToastType,
-} from '@versatiledatakit/shared';
-
-import {
     ASC,
     CollectionsUtil,
     ComponentModel,
@@ -23,6 +17,7 @@ import {
     ErrorHandlerConfig,
     ErrorHandlerService,
     ErrorRecord,
+    FORM_STATE,
     NavigationService,
     OnTaurusModelChange,
     OnTaurusModelError,
@@ -32,6 +27,8 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
+    VdkFormState,
+    VmwToastType,
 } from '@versatiledatakit/shared';
 
 import {
@@ -162,7 +159,6 @@ export class DataJobDetailsPageComponent
     isComponentInErrorState = false;
 
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,

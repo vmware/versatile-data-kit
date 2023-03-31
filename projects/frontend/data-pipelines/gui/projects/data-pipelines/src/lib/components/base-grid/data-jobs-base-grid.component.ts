@@ -172,7 +172,6 @@ export abstract class DataJobsBaseGridComponent
     private _isUrlStateManagerExternalDependency = false;
 
     protected constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,

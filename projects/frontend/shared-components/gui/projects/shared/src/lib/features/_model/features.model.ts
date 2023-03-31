@@ -4,8 +4,9 @@
  */
 
 import { WarningConfig } from '../warning';
+import { PlaceholderConfig } from '../placeholder';
 
 /**
  * ** Configuration that should be provided when Shared Features module is injected in the root of the application.
  */
-export type SharedFeaturesConfig = WarningConfig;
+export type SharedFeaturesConfig = WarningConfig & PlaceholderConfig;
