@@ -122,12 +122,7 @@ control_service_test_helm_chart:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_publish_job_base_image:
-  image: docker:19.03.15
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:19.03.15-dind
+  extends: .images:dind
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
@@ -144,12 +139,7 @@ control_service_publish_job_base_image:
         - projects/control-service/projects/job-base-image/**/*
 
 control_service_publish_job_base_image-secure:
-  image: docker:19.03.15
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:19.03.15-dind
+  extends: .images:dind
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
@@ -173,12 +163,7 @@ control_service_publish_job_base_image-secure:
         - projects/control-service/projects/job-base-image-secure/**/*
 
 control_service_publish_job_builder_image:
-  image: docker:19.03.15
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:19.03.15-dind
+  extends: .images:dind
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
