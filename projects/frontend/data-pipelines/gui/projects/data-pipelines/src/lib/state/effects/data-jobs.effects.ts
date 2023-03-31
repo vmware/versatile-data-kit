@@ -472,13 +472,10 @@ export class DataJobsEffects extends TaurusBaseEffects {
                                         .withStatusLoaded()
                                         .getComponentState(),
                                 ),
-                                map(
-                                    (
-                                        state, // NOSONAR
-                                    ) =>
-                                        obsoleteStatus === LOADED
-                                            ? ComponentUpdate.of(state)
-                                            : ComponentLoaded.of(state),
+                                map((state) =>
+                                    obsoleteStatus === LOADED
+                                        ? ComponentUpdate.of(state)
+                                        : ComponentLoaded.of(state),
                                 ),
                             );
                         }),

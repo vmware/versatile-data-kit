@@ -195,10 +195,8 @@
                     </div>
                 </clr-dg-cell>
                 <clr-dg-cell [style.font-size.rem]="0.6">
-                    {{
-                        item.config?.schedule?.scheduleCron
-                            | formatSchedule : "Not scheduled"
-                    }}
+                    {{ item.config?.schedule?.scheduleCron | formatSchedule :
+                    "Not scheduled" }}
                 </clr-dg-cell>
             </clr-dg-row>
             <clr-dg-placeholder

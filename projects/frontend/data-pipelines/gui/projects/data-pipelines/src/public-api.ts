@@ -7,7 +7,7 @@
  * Public API Surface of data-pipelines
  */
 
-export * from './lib/data-pipelines.module';
+export * from './lib/vdk-data-pipelines.module';
 
 // Components / Pages
 export * from './lib/components/public-api';

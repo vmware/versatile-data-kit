@@ -12,7 +12,7 @@ $text-light: #eaedf0;
 }
 
 .shared__placeholder {
-    ::ng-deep vmw-empty-state-placeholder {
+    ::ng-deep shared-empty-state {
         margin-top: 3rem;
         margin-bottom: 20px;
 

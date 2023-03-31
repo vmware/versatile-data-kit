@@ -50,7 +50,7 @@ hr {
 .grid-column-details {
     display: grid;
     height: 100%;
-    grid-template: "a a a b b b" auto "c c c c c c" auto "d d d d d d" auto "f f f f f f" auto/ 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template: 'a a a b b b' auto 'c c c c c c' auto 'd d d d d d' auto 'f f f f f f' auto/ 1fr 1fr 1fr 1fr 1fr 1fr;
 
     .grid-area-a {
         grid-area: a;
@@ -77,11 +77,11 @@ hr {
     }
 }
 
-.clr-timeline-step clr-icon[shape="success-standard"] {
+.clr-timeline-step clr-icon[shape='success-standard'] {
     color: var(--clr-timeline-success-step-color, #5eb715);
 }
 
-.clr-timeline-step clr-icon[shape="error-standard"] {
+.clr-timeline-step clr-icon[shape='error-standard'] {
     color: var(--clr-timeline-error-step-color, #c21d00);
 }
 
