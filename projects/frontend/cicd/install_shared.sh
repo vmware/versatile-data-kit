@@ -4,14 +4,18 @@
 
 echo "Logging npm engines version..."
 npm version
+
 echo "Installing dependencies..."
-npm install --max_old_space_size=1000
+node --max-old-space-size=2048 $(which npm) install
+
 echo "Building package..."
 npm run build
+
 echo "Linking package..."
 cd dist/shared/
 npm link
 cd ../../
 npm link @versatiledatakit/shared
+
 echo "Starting unit tests..."
 npm run test:headless

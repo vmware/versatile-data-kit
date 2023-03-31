@@ -33,7 +33,7 @@ else
 fi
 
 echo "Install Dependencies..."
-npm install
+node --max-old-space-size=2048 $(which npm) install
 
 echo "Running linking script..."
 sh "../../cicd/build_data_pipelines.sh"
