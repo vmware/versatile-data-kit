@@ -20,7 +20,7 @@ import { NGRX_STORE_CONFIG } from '../config';
 import { STORE_ROUTER } from '../state';
 
 /**
- * ** Taurus NgRx Redux module recommended for use in Production builds.
+ * ** VDK NgRx Redux module recommended for use in Production builds.
  */
 @NgModule({
     imports: [
@@ -33,10 +33,10 @@ import { STORE_ROUTER } from '../state';
     ],
     exports: [StoreModule, EffectsModule, StoreRouterConnectingModule]
 })
-export class TaurusSharedNgrxProdModule {
-    static forRoot(): ModuleWithProviders<TaurusSharedNgrxProdModule> {
+export class VdkSharedNgrxProdModule {
+    static forRoot(): ModuleWithProviders<VdkSharedNgrxProdModule> {
         return {
-            ngModule: TaurusSharedNgrxProdModule,
+            ngModule: VdkSharedNgrxProdModule,
             providers: [
                 { provide: RouterService, useClass: RouterServiceImpl },
                 { provide: ComponentService, useClass: ComponentServiceImpl }

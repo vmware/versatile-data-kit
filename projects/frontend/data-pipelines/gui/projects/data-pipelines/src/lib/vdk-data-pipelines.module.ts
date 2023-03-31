@@ -17,17 +17,12 @@ import { LottieModule } from 'ngx-lottie';
 
 import { DpDatePickerModule } from 'ng2-date-picker';
 
-import {
-    ClarityModule,
-    ClrDatagridModule,
-    ClrSpinnerModule,
-} from '@clr/angular';
-
-import { VdkComponentsModule } from '@versatiledatakit/shared';
+import { ClarityModule } from '@clr/angular';
 
 import {
-    TaurusSharedFeaturesModule,
-    TaurusSharedNgRxModule,
+    VdkSharedComponentsModule,
+    VdkSharedFeaturesModule,
+    VdkSharedNgRxModule,
 } from '@versatiledatakit/shared';
 
 import { AttributesDirective } from './shared/directives';
@@ -105,19 +100,17 @@ const routes: Routes = [];
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        VdkComponentsModule.forRoot(),
-        ClrDatagridModule,
-        ClrSpinnerModule,
-        ClarityModule,
-        LottieModule,
         FormsModule,
         ReactiveFormsModule,
+        LottieModule,
         TruncateModule,
         TimeagoModule.forRoot(),
-        TaurusSharedFeaturesModule.forChild(),
-        TaurusSharedNgRxModule.forFeatureEffects([DataJobsEffects]),
+        ClarityModule,
         DpDatePickerModule,
         NgxChartsModule,
+        VdkSharedComponentsModule.forChild(),
+        VdkSharedFeaturesModule.forChild(),
+        VdkSharedNgRxModule.forFeatureEffects([DataJobsEffects]),
     ],
     declarations: [
         AttributesDirective,
@@ -178,13 +171,13 @@ const routes: Routes = [];
         DataJobsHealthPanelComponent,
     ],
 })
-export class DataPipelinesModule {
+export class VdkDataPipelinesModule {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static forRoot(
         config: DataPipelinesConfig = {} as any,
-    ): ModuleWithProviders<DataPipelinesModule> {
+    ): ModuleWithProviders<VdkDataPipelinesModule> {
         return {
-            ngModule: DataPipelinesModule,
+            ngModule: VdkDataPipelinesModule,
             providers: [
                 DataJobsBaseApiService,
                 DataJobsPublicApiService,

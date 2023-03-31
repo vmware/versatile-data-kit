@@ -11,33 +11,33 @@ import { Action, ActionReducer, ActionReducerMap, StoreConfig, StoreFeatureModul
 import { EffectsFeatureModule, EffectsModule } from '@ngrx/effects';
 
 import { TaurusNgRxConfig } from './config';
-import { TaurusSharedNgrxProdModule, TaurusSharedNgrxDevModule } from './helper-modules';
+import { VdkSharedNgrxProdModule, VdkSharedNgrxDevModule } from './helper-modules';
 
 /**
  * ** Integration Class module for NgRx Redux.
  */
 @NgModule({})
-export class TaurusSharedNgRxModule {
+export class VdkSharedNgRxModule {
     /**
-     * ** Provides TaurusSharedNgrxProdModule and all Services related to Taurus Redux.
+     * ** Provides VdkSharedNgrxProdModule and all Services related to VDK Redux.
      *
      *      - Recommended for Prod (release) builds.
-     *      - Should be invoke at Root and only once for entire project.
+     *      - Should be invoked at Root and only once for entire project.
      *      - In FeaturesModules (lazy loaded Modules) invoke one of the methods <b>forFeatureEffects/forFeatureStore</b>.
      */
-    static forRoot(): ModuleWithProviders<TaurusSharedNgrxProdModule> {
-        return TaurusSharedNgrxProdModule.forRoot();
+    static forRoot(): ModuleWithProviders<VdkSharedNgrxProdModule> {
+        return VdkSharedNgrxProdModule.forRoot();
     }
 
     /**
-     * ** Provides TaurusSharedNgrxDevModule including StoreDevTools and all Services related to Taurus Redux.
+     * ** Provides VdkSharedNgrxDevModule including StoreDevTools and all Services related to VDK Redux.
      *
      *      - Recommended for Dev (local) builds.
-     *      - Should be invoke at Root and only once for entire project.
+     *      - Should be invoked at Root and only once for entire project.
      *      - In FeaturesModules (lazy loaded Modules) invoke one of the methods <b>forFeatureEffects/forFeatureStore</b>.
      */
-    static forRootWithDevtools(config: TaurusNgRxConfig = {}): ModuleWithProviders<TaurusSharedNgrxDevModule> {
-        return TaurusSharedNgrxDevModule.forRoot(config.storeDevToolsConfig);
+    static forRootWithDevtools(config: TaurusNgRxConfig = {}): ModuleWithProviders<VdkSharedNgrxDevModule> {
+        return VdkSharedNgrxDevModule.forRoot(config.storeDevToolsConfig);
     }
 
     /**

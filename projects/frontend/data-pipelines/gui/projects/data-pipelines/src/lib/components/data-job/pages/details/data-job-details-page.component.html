@@ -110,11 +110,8 @@
                                         description.value
                                     "
                                     data-cy="data-pipelines-job-details-description"
-                                    >{{
-                                        description.value
-                                            | words
-                                                : descriptionWordsBeforeTruncate
-                                    }}
+                                    >{{ description.value | words :
+                                    descriptionWordsBeforeTruncate }}
                                     <button
                                         *ngIf="
                                             description.value?.split(' ')
@@ -137,7 +134,8 @@
                                         class="w-100"
                                         formControlName="description"
                                         name="description"
-                                        >{{ description.value }}</textarea
+                                    >
+{{ description.value }}</textarea
                                     >
                                     <input class="modal-submit" type="submit" />
                                 </clr-textarea-container>
@@ -185,10 +183,8 @@
                                 class="form-section-readonly"
                                 data-cy="data-pipelines-job-details-schedule"
                             >
-                                {{
-                                    jobDetails?.config?.schedule?.schedule_cron
-                                        | formatSchedule : "Not scheduled"
-                                }}
+                                {{ jobDetails?.config?.schedule?.schedule_cron |
+                                formatSchedule : "Not scheduled" }}
 
                                 <clr-signpost
                                     *ngIf="
@@ -201,10 +197,8 @@
                                         *clrIfOpen
                                     >
                                         <strong>Cron expression</strong><br />
-                                        {{
-                                            jobDetails?.config?.schedule
-                                                ?.schedule_cron
-                                        }}
+                                        {{ jobDetails?.config?.schedule
+                                        ?.schedule_cron }}
                                         <br />
                                         <br />
                                         <strong>Next 5 executions</strong>
@@ -214,15 +208,10 @@
                                                     let times of [1, 2, 3, 4, 5]
                                                 "
                                             >
-                                                {{
-                                                    jobDetails?.config?.schedule
-                                                        ?.schedule_cron
-                                                        | parseNextRun : times
-                                                        | date
-                                                            : "MMM d, y, hh:mm a"
-                                                            : "UTC"
-                                                }}
-                                                UTC
+                                                {{ jobDetails?.config?.schedule
+                                                ?.schedule_cron | parseNextRun :
+                                                times | date : "MMM d, y, hh:mm
+                                                a" : "UTC" }} UTC
                                             </li>
                                         </ol>
                                         <em *ngIf="cronError"
@@ -349,9 +338,10 @@
                                                                 | slice : 0 : 3
                                                         "
                                                     >
-                                                        <span>{{
-                                                            contacts
-                                                        }}</span>
+                                                        <span
+                                                            >{{ contacts
+                                                            }}</span
+                                                        >
                                                     </div>
                                                 </div>
                                             </ng-container>
@@ -371,15 +361,11 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{
-                                                            (
-                                                                jobDetails
-                                                                    ?.config
-                                                                    ?.contacts
-                                                                    ?.notified_on_job_deploy
-                                                                | extractContacts
-                                                            ).length - 3
-                                                        }})
+                                                        ...(+{{ ( jobDetails
+                                                        ?.config ?.contacts
+                                                        ?.notified_on_job_deploy
+                                                        | extractContacts
+                                                        ).length - 3 }})
                                                     </button>
                                                     <clr-signpost-content
                                                         [clrPosition]="
@@ -397,9 +383,10 @@
                                                                         | extractContacts
                                                                 "
                                                             >
-                                                                <span>{{
-                                                                    contacts
-                                                                }}</span>
+                                                                <span
+                                                                    >{{ contacts
+                                                                    }}</span
+                                                                >
                                                             </li>
                                                         </ul>
                                                     </clr-signpost-content>
@@ -454,9 +441,10 @@
                                                                 | slice : 0 : 3
                                                         "
                                                     >
-                                                        <span>{{
-                                                            contacts
-                                                        }}</span>
+                                                        <span
+                                                            >{{ contacts
+                                                            }}</span
+                                                        >
                                                     </div>
                                                 </div>
                                             </ng-container>
@@ -476,15 +464,11 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{
-                                                            (
-                                                                jobDetails
-                                                                    ?.config
-                                                                    ?.contacts
-                                                                    ?.notified_on_job_failure_platform_error
-                                                                | extractContacts
-                                                            ).length - 3
-                                                        }})
+                                                        ...(+{{ ( jobDetails
+                                                        ?.config ?.contacts
+                                                        ?.notified_on_job_failure_platform_error
+                                                        | extractContacts
+                                                        ).length - 3 }})
                                                     </button>
                                                     <clr-signpost-content
                                                         [clrPosition]="
@@ -502,9 +486,10 @@
                                                                         | extractContacts
                                                                 "
                                                             >
-                                                                <span>{{
-                                                                    contacts
-                                                                }}</span>
+                                                                <span
+                                                                    >{{ contacts
+                                                                    }}</span
+                                                                >
                                                             </li>
                                                         </ul>
                                                     </clr-signpost-content>
@@ -559,9 +544,10 @@
                                                                 | slice : 0 : 3
                                                         "
                                                     >
-                                                        <span>{{
-                                                            contacts
-                                                        }}</span>
+                                                        <span
+                                                            >{{ contacts
+                                                            }}</span
+                                                        >
                                                     </div>
                                                 </div>
                                             </ng-container>
@@ -581,15 +567,11 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{
-                                                            (
-                                                                jobDetails
-                                                                    ?.config
-                                                                    ?.contacts
-                                                                    ?.notified_on_job_failure_user_error
-                                                                | extractContacts
-                                                            ).length - 3
-                                                        }})
+                                                        ...(+{{ ( jobDetails
+                                                        ?.config ?.contacts
+                                                        ?.notified_on_job_failure_user_error
+                                                        | extractContacts
+                                                        ).length - 3 }})
                                                     </button>
                                                     <clr-signpost-content
                                                         [clrPosition]="
@@ -607,9 +589,10 @@
                                                                         | extractContacts
                                                                 "
                                                             >
-                                                                <span>{{
-                                                                    contacts
-                                                                }}</span>
+                                                                <span
+                                                                    >{{ contacts
+                                                                    }}</span
+                                                                >
                                                             </li>
                                                         </ul>
                                                     </clr-signpost-content>
@@ -664,9 +647,10 @@
                                                                 | slice : 0 : 3
                                                         "
                                                     >
-                                                        <span>{{
-                                                            contacts
-                                                        }}</span>
+                                                        <span
+                                                            >{{ contacts
+                                                            }}</span
+                                                        >
                                                     </div>
                                                 </div>
                                             </ng-container>
@@ -686,15 +670,11 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{
-                                                            (
-                                                                jobDetails
-                                                                    ?.config
-                                                                    ?.contacts
-                                                                    ?.notified_on_job_success
-                                                                | extractContacts
-                                                            ).length - 3
-                                                        }})
+                                                        ...(+{{ ( jobDetails
+                                                        ?.config ?.contacts
+                                                        ?.notified_on_job_success
+                                                        | extractContacts
+                                                        ).length - 3 }})
                                                     </button>
                                                     <clr-signpost-content
                                                         [clrPosition]="
@@ -712,9 +692,10 @@
                                                                         | extractContacts
                                                                 "
                                                             >
-                                                                <span>{{
-                                                                    contacts
-                                                                }}</span>
+                                                                <span
+                                                                    >{{ contacts
+                                                                    }}</span
+                                                                >
                                                             </li>
                                                         </ul>
                                                     </clr-signpost-content>
@@ -746,7 +727,8 @@
                                         class="w-100"
                                         clrTextarea
                                         name="onPlatformErrorTextArea"
-                                        >{{
+                                    >
+{{
                                             jobDetails?.config?.contacts
                                                 ?.notified_on_job_deploy
                                         }}</textarea
@@ -761,7 +743,8 @@
                                         class="w-100"
                                         clrTextarea
                                         name="onJobDeployTextArea"
-                                        >{{
+                                    >
+{{
                                             jobDetails?.config?.contacts
                                                 ?.notified_on_job_failure_platform_error
                                         }}</textarea
@@ -776,7 +759,8 @@
                                         class="w-100"
                                         clrTextarea
                                         name="onUserErrorTextArea"
-                                        >{{
+                                    >
+{{
                                             jobDetails?.config?.contacts
                                                 ?.notified_on_job_failure_user_error
                                         }}</textarea
@@ -791,7 +775,8 @@
                                         class="w-100"
                                         clrTextarea
                                         name="onJobSuccessTextArea"
-                                        >{{
+                                    >
+{{
                                             jobDetails?.config?.contacts
                                                 ?.notified_on_job_success
                                         }}</textarea

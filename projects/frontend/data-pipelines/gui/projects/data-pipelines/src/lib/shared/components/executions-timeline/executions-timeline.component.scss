@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-.clr-timeline-step clr-icon[shape="success-standard"] {
+.clr-timeline-step clr-icon[shape='success-standard'] {
     color: var(--clr-timeline-success-step-color, #5eb715);
 }
 
-.clr-timeline-step clr-icon[shape="error-standard"] {
+.clr-timeline-step clr-icon[shape='error-standard'] {
     color: var(--clr-timeline-error-step-color, #c21d00);
 }
 

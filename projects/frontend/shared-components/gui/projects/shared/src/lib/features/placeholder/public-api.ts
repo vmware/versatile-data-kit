@@ -4,5 +4,4 @@
  */
 
 export { EmptyStateComponent, PlaceholderComponent } from './components';
-export { PlaceholderService } from './services';
 export { PlaceholderModule } from './placeholder.module';
