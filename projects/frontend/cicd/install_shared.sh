@@ -5,8 +5,7 @@
 echo "Logging npm engines version..."
 npm version
 echo "Installing dependencies..."
-NODE_OPTIONS=--max_old_space_size=1000
-npm install
+npm install --max_old_space_size=1000
 echo "Building package..."
 npm run build
 echo "Linking package..."
