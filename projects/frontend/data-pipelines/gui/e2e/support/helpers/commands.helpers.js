@@ -3,26 +3,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const DEFAULT_TEST_ENV_VAR = "lib";
+const DEFAULT_TEST_ENV_VAR = 'lib';
 
 const applyGlobalEnvSettings = (loadedElement, injectedTestEnvVar = null) => {
     const TEST_ENV_VAR = injectedTestEnvVar ?? _loadTestEnvironmentVar();
 
-    if (typeof loadedElement === "string") {
-        return loadedElement.replace("$env-placeholder$", TEST_ENV_VAR);
+    if (typeof loadedElement === 'string') {
+        return loadedElement.replace('$env-placeholder$', TEST_ENV_VAR);
     }
 
-    if (typeof loadedElement === "object") {
+    if (typeof loadedElement === 'object') {
         Object.entries(loadedElement).forEach(([key, value]) => {
-            if (typeof value === "string") {
-                if (value.includes("$env-placeholder$")) {
-                    value = value.replace("$env-placeholder$", TEST_ENV_VAR);
+            if (typeof value === 'string') {
+                if (value.includes('$env-placeholder$')) {
+                    value = value.replace('$env-placeholder$', TEST_ENV_VAR);
                 }
 
                 loadedElement[key] = value;
             }
 
-            if (typeof value === "object") {
+            if (typeof value === 'object') {
                 loadedElement[key] = applyGlobalEnvSettings(value);
             }
         });
@@ -52,8 +52,8 @@ const createExecutionsForJob = (
             );
 
             return cy.wrap({
-                context: "commands.helpers::1::createExecutionsForJob()",
-                action: "continue",
+                context: 'commands.helpers::1::createExecutionsForJob()',
+                action: 'continue',
             });
         }
 
@@ -77,8 +77,8 @@ const createExecutionsForJob = (
 
                     return cy.wrap({
                         context:
-                            "commands.helpers::2::createExecutionsForJob()",
-                        action: "continue",
+                            'commands.helpers::2::createExecutionsForJob()',
+                        action: 'continue',
                     });
                 },
             );
@@ -97,11 +97,11 @@ const waitForJobExecutionCompletion = (
     return cy
         .request({
             url:
-                Cypress.env("data_jobs_url") +
+                Cypress.env('data_jobs_url') +
                 `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions`,
-            method: "get",
+            method: 'get',
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
         })
         .then((response) => {
@@ -112,8 +112,8 @@ const waitForJobExecutionCompletion = (
 
                 return cy.wrap({
                     context:
-                        "commands.helpers::1::waitForJobExecutionCompletion()",
-                    action: "continue",
+                        'commands.helpers::1::waitForJobExecutionCompletion()',
+                    action: 'continue',
                 });
             }
 
@@ -126,8 +126,8 @@ const waitForJobExecutionCompletion = (
 
                 return cy.wrap({
                     context:
-                        "commands.helpers::2::waitForJobExecutionCompletion()",
-                    action: "continue",
+                        'commands.helpers::2::waitForJobExecutionCompletion()',
+                    action: 'continue',
                 });
             }
 
@@ -135,16 +135,16 @@ const waitForJobExecutionCompletion = (
             const lastExecutionStatus = lastExecution.status.toLowerCase();
 
             if (
-                lastExecutionStatus !== "running" &&
-                lastExecutionStatus !== "submitted"
+                lastExecutionStatus !== 'running' &&
+                lastExecutionStatus !== 'submitted'
             ) {
                 return (
                     loopStep > 0
                         ? cy.wait(pollInterval)
                         : cy.wrap({
                               context:
-                                  "commands.helpers::3::waitForJobExecutionCompletion()",
-                              action: "continue",
+                                  'commands.helpers::3::waitForJobExecutionCompletion()',
+                              action: 'continue',
                           })
                 ).then(() => {
                     cy.log(
@@ -153,21 +153,21 @@ const waitForJobExecutionCompletion = (
 
                     return cy.wrap({
                         context:
-                            "commands.helpers::4::waitForJobExecutionCompletion()",
-                        action: "continue",
+                            'commands.helpers::4::waitForJobExecutionCompletion()',
+                        action: 'continue',
                     });
                 });
             }
 
             if (jobExecutionTimeout <= 0) {
                 cy.log(
-                    "Time to wait exceeded! Will not wait for job execution to finish any longer.",
+                    'Time to wait exceeded! Will not wait for job execution to finish any longer.',
                 );
 
                 return cy.wrap({
                     context:
-                        "commands.helpers::5::waitForJobExecutionCompletion()",
-                    action: "continue",
+                        'commands.helpers::5::waitForJobExecutionCompletion()',
+                    action: 'continue',
                 });
             }
 
@@ -197,12 +197,12 @@ const createTestJob = (testJob) => {
         .request({
             // TODO: use jobsQuery - deprecated jobsList in favour of jobsQuery
             url:
-                Cypress.env("data_jobs_url") +
+                Cypress.env('data_jobs_url') +
                 `/data-jobs/for-team/${teamName}/jobs`,
-            method: "post",
+            method: 'post',
             body: testJob,
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
             failOnStatusCode: false,
         })
@@ -227,11 +227,11 @@ const deleteTestJobIfExists = (testJob) => {
     return cy
         .request({
             url:
-                Cypress.env("data_jobs_url") +
+                Cypress.env('data_jobs_url') +
                 `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
-            method: "get",
+            method: 'get',
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
             failOnStatusCode: false,
         })
@@ -240,11 +240,11 @@ const deleteTestJobIfExists = (testJob) => {
                 return cy
                     .request({
                         url:
-                            Cypress.env("data_jobs_url") +
+                            Cypress.env('data_jobs_url') +
                             `/data-jobs/for-team/${teamName}/jobs/${jobName}`,
-                        method: "delete",
+                        method: 'delete',
                         auth: {
-                            bearer: window.localStorage.getItem("access_token"),
+                            bearer: window.localStorage.getItem('access_token'),
                         },
                         failOnStatusCode: false,
                     })
@@ -260,8 +260,8 @@ const deleteTestJobIfExists = (testJob) => {
 
                         return cy.wrap({
                             context:
-                                "commands.helpers::1::deleteTestJobIfExists()",
-                            action: "continue",
+                                'commands.helpers::1::deleteTestJobIfExists()',
+                            action: 'continue',
                         });
                     });
             } else if (outerResponse.status >= 400) {
@@ -274,8 +274,8 @@ const deleteTestJobIfExists = (testJob) => {
             }
 
             return cy.wrap({
-                context: "commands.helpers::2::deleteTestJobIfExists()",
-                action: "continue",
+                context: 'commands.helpers::2::deleteTestJobIfExists()',
+                action: 'continue',
             });
         });
 };
@@ -290,11 +290,11 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
         return cy
             .request({
                 url:
-                    Cypress.env("data_jobs_url") +
+                    Cypress.env('data_jobs_url') +
                     `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
-                method: "get",
+                method: 'get',
                 auth: {
-                    bearer: window.localStorage.getItem("access_token"),
+                    bearer: window.localStorage.getItem('access_token'),
                 },
                 failOnStatusCode: false,
             })
@@ -305,7 +305,7 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                 ) {
                     cy.log(
                         jobName +
-                            " is already existing, therefore skipping creation and deployment.",
+                            ' is already existing, therefore skipping creation and deployment.',
                     );
                 } else if (
                     outerResponse.status === 200 &&
@@ -313,7 +313,7 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                 ) {
                     cy.log(
                         jobName +
-                            " exists, but it is not deployed. Deploying...",
+                            ' exists, but it is not deployed. Deploying...',
                     );
 
                     return _deployTestDataJob(
@@ -330,7 +330,7 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                                 );
                             } else {
                                 throw new Error(
-                                    "Failed to create job: " + jobName,
+                                    'Failed to create job: ' + jobName,
                                 );
                             }
                         },
@@ -345,15 +345,15 @@ const deployTestJobIfNotExists = (pathToJobData, pathToJobBinary) => {
                 }
 
                 return cy.wrap({
-                    context: "commands.helpers::deployTestJobIfNotExists()",
-                    action: "continue",
+                    context: 'commands.helpers::deployTestJobIfNotExists()',
+                    action: 'continue',
                 });
             });
     });
 };
 
 function _loadTestEnvironmentVar() {
-    let testEnv = Cypress?.env("test_environment");
+    let testEnv = Cypress?.env('test_environment');
 
     if (!testEnv) {
         console.log(
@@ -388,8 +388,8 @@ function _executeCreateExecutionsForJob(
 
     if (neededExecutions === counterOfExecutions) {
         return cy.wrap({
-            context: "commands.helpers::1::_executeCreateExecutionsForJob()",
-            action: "continue",
+            context: 'commands.helpers::1::_executeCreateExecutionsForJob()',
+            action: 'continue',
         });
     }
 
@@ -398,8 +398,8 @@ function _executeCreateExecutionsForJob(
             return cy.wait(5000).then(() =>
                 cy.wrap({
                     context:
-                        "commands.helpers::2::_executeCreateExecutionsForJob()",
-                    action: "continue",
+                        'commands.helpers::2::_executeCreateExecutionsForJob()',
+                    action: 'continue',
                 }),
             );
         })
@@ -429,9 +429,9 @@ function _getJobExecutions(teamName, jobName) {
     return cy
         .request({
             url: `/data-jobs/for-team/${teamName}/jobs/${jobName}/executions`,
-            method: "get",
+            method: 'get',
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
         })
         .then((response) => {
@@ -455,11 +455,11 @@ function _getJobLastDeployment(teamName, jobName) {
     return cy
         .request({
             url:
-                Cypress.env("data_jobs_url") +
+                Cypress.env('data_jobs_url') +
                 `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
-            method: "get",
+            method: 'get',
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
         })
         .then((response) => {
@@ -485,11 +485,11 @@ function _executeJob(teamName, jobName, deploymentId) {
     return cy
         .request({
             url:
-                Cypress.env("data_jobs_url") +
+                Cypress.env('data_jobs_url') +
                 `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
-            method: "post",
+            method: 'post',
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
             body: {},
         })
@@ -501,8 +501,8 @@ function _executeJob(teamName, jobName, deploymentId) {
             }
 
             return cy.wrap({
-                context: "commands.helpers::_executeJob()",
-                action: "continue",
+                context: 'commands.helpers::_executeJob()',
+                action: 'continue',
             });
         });
 }
@@ -524,19 +524,19 @@ function _deployTestDataJob(testJob, pathToJobBinary) {
     cy.log(`Deploying Job ${jobName}`);
 
     // Upload Data Job code
-    return cy.fixture(pathToJobBinary, "binary").then((zippedDataJob) => {
+    return cy.fixture(pathToJobBinary, 'binary').then((zippedDataJob) => {
         return cy
             .request({
                 url:
-                    Cypress.env("data_jobs_url") +
-                    "/data-jobs/for-team/" +
+                    Cypress.env('data_jobs_url') +
+                    '/data-jobs/for-team/' +
                     teamName +
-                    "/jobs/" +
+                    '/jobs/' +
                     jobName +
-                    "/sources",
-                method: "post",
+                    '/sources',
+                method: 'post',
                 auth: {
-                    bearer: window.localStorage.getItem("access_token"),
+                    bearer: window.localStorage.getItem('access_token'),
                 },
                 body: Cypress.Blob.binaryStringToBlob(zippedDataJob),
             })
@@ -549,19 +549,19 @@ function _deployTestDataJob(testJob, pathToJobBinary) {
                 return cy
                     .request({
                         url:
-                            Cypress.env("data_jobs_url") +
-                            "/data-jobs/for-team/" +
+                            Cypress.env('data_jobs_url') +
+                            '/data-jobs/for-team/' +
                             teamName +
-                            "/jobs/" +
+                            '/jobs/' +
                             jobName +
-                            "/deployments",
-                        method: "post",
+                            '/deployments',
+                        method: 'post',
                         auth: {
-                            bearer: window.localStorage.getItem("access_token"),
+                            bearer: window.localStorage.getItem('access_token'),
                         },
                         body: {
                             job_version: jsonResponse.version_sha,
-                            mode: "release",
+                            mode: 'release',
                             enabled: true,
                         },
                     })
@@ -578,8 +578,8 @@ function _deployTestDataJob(testJob, pathToJobBinary) {
                         }
 
                         return cy.wrap({
-                            context: "commands.helpers::_deployTestDataJob()",
-                            action: "continue",
+                            context: 'commands.helpers::_deployTestDataJob()',
+                            action: 'continue',
                         });
                     });
             });
@@ -594,37 +594,37 @@ function _waitForDeploymentToFinish(testJob, timeout) {
     return cy
         .request({
             url:
-                Cypress.env("data_jobs_url") +
-                "/data-jobs/for-team/" +
+                Cypress.env('data_jobs_url') +
+                '/data-jobs/for-team/' +
                 teamName +
-                "/jobs/" +
+                '/jobs/' +
                 jobName +
-                "/deployments",
-            method: "get",
+                '/deployments',
+            method: 'get',
             auth: {
-                bearer: window.localStorage.getItem("access_token"),
+                bearer: window.localStorage.getItem('access_token'),
             },
         })
         .then((resp) => {
             if (resp.status === 200 && resp.body.length > 0) {
-                cy.log("Job deployment finished!");
+                cy.log('Job deployment finished!');
 
                 return cy.wrap({
                     context:
-                        "commands.helpers::1::_waitForDeploymentToFinish()",
-                    action: "continue",
+                        'commands.helpers::1::_waitForDeploymentToFinish()',
+                    action: 'continue',
                 });
             }
 
             if (timeout <= 0) {
                 cy.log(
-                    "Time to wait exceeded! Will not wait for job deployment to finish any longer.",
+                    'Time to wait exceeded! Will not wait for job deployment to finish any longer.',
                 );
 
                 return cy.wrap({
                     context:
-                        "commands.helpers::2::_waitForDeploymentToFinish()",
-                    action: "continue",
+                        'commands.helpers::2::_waitForDeploymentToFinish()',
+                    action: 'continue',
                 });
             }
 

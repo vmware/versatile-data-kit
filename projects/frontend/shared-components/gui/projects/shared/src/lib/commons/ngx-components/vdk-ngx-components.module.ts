@@ -57,16 +57,16 @@ import { VdkSearchModule } from './search';
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class VdkComponentsModule {
-    static forRoot(): ModuleWithProviders<VdkComponentsModule> {
+export class VdkSharedComponentsModule {
+    static forRoot(): ModuleWithProviders<VdkSharedComponentsModule> {
         return {
-            ngModule: VdkComponentsModule
+            ngModule: VdkSharedComponentsModule
         };
     }
 
-    static forChild(): ModuleWithProviders<VdkComponentsModule> {
+    static forChild(): ModuleWithProviders<VdkSharedComponentsModule> {
         return {
-            ngModule: VdkComponentsModule
+            ngModule: VdkSharedComponentsModule
         };
     }
 
