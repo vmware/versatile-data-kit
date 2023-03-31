@@ -10,12 +10,12 @@ import { ClipboardModule } from 'ngx-clipboard';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VdkComponentsModule } from '../../commons';
+import { VdkSharedComponentsModule } from '../../commons';
 
 import { ToastsComponent } from './widget';
 
 @NgModule({
-    imports: [CommonModule, ClarityModule, VdkComponentsModule, ClipboardModule],
+    imports: [CommonModule, ClarityModule, VdkSharedComponentsModule, ClipboardModule],
     declarations: [ToastsComponent],
     exports: [ToastsComponent]
 })

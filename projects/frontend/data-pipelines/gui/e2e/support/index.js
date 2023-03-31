@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import "./commands";
+import './commands';
 
-require("@neuralegion/cypress-har-generator/commands");
-require("cypress-grep")();
-require("cypress-terminal-report/src/installLogsCollector")();
+require('@neuralegion/cypress-har-generator/commands');
+require('cypress-grep')();
+require('cypress-terminal-report/src/installLogsCollector')();
 
 Cypress.Server.defaults({
     delay: 500,

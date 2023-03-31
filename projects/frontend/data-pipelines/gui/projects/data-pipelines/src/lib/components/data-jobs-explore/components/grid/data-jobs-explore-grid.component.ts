@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    HostBinding,
+    Inject,
+    Input,
+    OnInit,
+} from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -48,10 +55,12 @@ export class DataJobsExploreGridComponent
     @Input() override teamNameFilter: string;
     @Input() override displayMode: DisplayMode;
 
+    @HostBinding('attr.data-cy') attributeDataCy =
+        'data-pipelines-explore-data-jobs';
+
     readonly uuid = 'DataJobsExploreGridComponent';
 
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataJobsBasePO } from "../../../../application/data-jobs-base.po";
+import { DataJobsBasePO } from '../../../../application/data-jobs-base.po';
 
 export class DataJobsManagePage extends DataJobsBasePO {
     static getPage() {
@@ -11,15 +11,23 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     static navigateTo() {
-        return super.navigateTo("[data-cy=navigation-link-manage-datajobs]");
+        const page = super.navigateTo(
+            '[data-cy=navigation-link-manage-datajobs]',
+        );
+
+        // this is temporary fix for test to pass
+        // proper handling with other PR for e2e test stabilization
+        page.waitForBackendRequestCompletion(3);
+
+        return page;
     }
 
     getPageTitle() {
-        return cy.get("[data-cy=data-pipelines-manage-page-main-title]");
+        return cy.get('[data-cy=data-pipelines-manage-page-main-title]');
     }
 
     getDataGrid() {
-        return cy.get("[data-cy=data-pipelines-manage-grid]");
+        return cy.get('[data-cy=data-pipelines-manage-grid]');
     }
 
     getDataGridCell(content, timeout) {
@@ -35,21 +43,21 @@ export class DataJobsManagePage extends DataJobsBasePO {
     getDataGridRow(jobName) {
         cy.log(`Looking for Job row: ${jobName}`);
 
-        return this.getDataGridCell(jobName).parents("clr-dg-row");
+        return this.getDataGridCell(jobName).parents('clr-dg-row');
     }
 
     getDataGridNavigateBtn(team, job) {
         return cy.get(
             '[data-cy=data-pipelines-manage-grid-details-link][data-job-params="' +
                 team +
-                ";" +
+                ';' +
                 job +
                 '"]',
         );
     }
 
     getDataGridSearchInput() {
-        return cy.get("[data-test-id=search-input]").first();
+        return cy.get('[data-test-id=search-input]').first();
     }
 
     getDataGridClearSearchButton() {
@@ -65,7 +73,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     clearSearchField() {
-        this.getDataGridSearchInput().should("be.visible").clear();
+        this.getDataGridSearchInput().should('be.visible').clear();
 
         this.waitForBackendRequestCompletion();
 
@@ -74,7 +82,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
     clearSearchFieldWithButton() {
         this.getDataGridClearSearchButton()
-            .should("be.visible")
+            .should('be.visible')
             .click({ force: true });
 
         this.waitForBackendRequestCompletion();
@@ -83,7 +91,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     refreshDataGrid() {
-        cy.get("[data-cy=data-pipelines-manage-refresh-btn]").click({
+        cy.get('[data-cy=data-pipelines-manage-refresh-btn]').click({
             force: true,
         });
 
@@ -95,44 +103,44 @@ export class DataJobsManagePage extends DataJobsBasePO {
     openJobDetails(teamName, jobName) {
         this.getDataGridNavigateBtn(teamName, jobName)
             .scrollIntoView()
-            .should("exist")
+            .should('exist')
             .click({ force: true });
 
         this.waitForBackendRequestCompletion();
 
         this.waitForViewToRenderShort();
 
-        cy.get("[data-cy=data-pipelines-job-page]").should("be.visible");
+        cy.get('[data-cy=data-pipelines-job-page]').should('be.visible');
     }
 
     selectRow(jobName) {
         this.getDataGridRow(jobName)
-            .find(".datagrid-select input")
+            .find('.datagrid-select input')
             .check({ force: true });
     }
 
     getExecuteNowGridButton() {
-        return cy.get("[data-cy=data-pipelines-manage-grid-execute-btn]");
+        return cy.get('[data-cy=data-pipelines-manage-grid-execute-btn]');
     }
 
     changeStatus(newStatus) {
         cy.get(`[data-cy=data-pipelines-job-${newStatus}-btn]`)
-            .should("exist")
-            .should("be.enabled")
+            .should('exist')
+            .should('be.enabled')
             .click({ force: true });
     }
 
     getJobStatus(jobName) {
         return this.getDataGridRow(jobName).then(($row) => {
-            if ($row.find("[data-cy=data-pipelines-job-disabled]").length) {
-                return "disable";
+            if ($row.find('[data-cy=data-pipelines-job-disabled]').length) {
+                return 'disable';
             }
 
-            if ($row.find("[data-cy=data-pipelines-job-enabled]").length) {
-                return "enable";
+            if ($row.find('[data-cy=data-pipelines-job-enabled]').length) {
+                return 'enable';
             }
 
-            return "not_deployed";
+            return 'not_deployed';
         });
     }
 
@@ -140,11 +148,11 @@ export class DataJobsManagePage extends DataJobsBasePO {
         this.selectRow(jobName);
 
         this.getJobStatus(jobName).then((currentStatus) => {
-            if (currentStatus === "not_deployed") {
-                throw new Error("Data job is not Deployed.");
+            if (currentStatus === 'not_deployed') {
+                throw new Error('Data job is not Deployed.');
             }
 
-            const newStatus = currentStatus === "enable" ? "disable" : "enable";
+            const newStatus = currentStatus === 'enable' ? 'disable' : 'enable';
 
             cy.log(
                 `Current status: ${currentStatus}, new status: ${newStatus}`,
@@ -152,13 +160,15 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
             this.changeStatus(newStatus);
 
-            this.confirmInConfirmDialog();
+            this.confirmInConfirmDialog(() => {
+                this.waitForPatchDetailsReqInterceptor();
+            });
 
             this.getToastTitle()
-                .should("exist")
-                .should("contain.text", "Status update completed");
+                .should('exist')
+                .should('contain.text', 'Status update completed');
 
-            this.getToastDismiss().should("exist").click({ force: true });
+            this.getToastDismiss().should('exist').click({ force: true });
 
             this.waitForClickThinkingTime(); // Natural wait for User action
 
@@ -172,14 +182,14 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
     filterByJobName(jobName) {
         cy.get(
-            "[data-cy=data-pipelines-jobs-name-column] > .datagrid-column-flex > clr-dg-string-filter.ng-star-inserted > clr-dg-filter > .datagrid-filter-toggle > cds-icon",
+            '[data-cy=data-pipelines-jobs-name-column] > .datagrid-column-flex > clr-dg-string-filter.ng-star-inserted > clr-dg-filter > .datagrid-filter-toggle > cds-icon',
         ).click({ force: true });
 
-        cy.get("div.datagrid-filter > input")
-            .should("be.visible")
+        cy.get('div.datagrid-filter > input')
+            .should('be.visible')
             .type(jobName);
 
-        this.getPageTitle().should("be.visible").click({ force: true });
+        this.getPageTitle().should('be.visible').click({ force: true });
 
         this.waitForBackendRequestCompletion();
 
@@ -191,11 +201,13 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
         this.waitForClickThinkingTime();
 
-        this.getExecuteNowGridButton().should("exist").click({ force: true });
+        this.getExecuteNowGridButton().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
 
-        this.confirmInConfirmDialog();
+        this.confirmInConfirmDialog(() => {
+            this.waitForPostExecutionCompletion();
+        });
     }
 
     prepareAdditionalTestJob() {
