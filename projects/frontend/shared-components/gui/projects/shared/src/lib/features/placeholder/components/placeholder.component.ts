@@ -7,6 +7,7 @@ import {
     Component,
     ContentChild,
     ElementRef,
+    Inject,
     Input,
     OnChanges,
     OnInit,
@@ -23,9 +24,28 @@ import { ApiErrorMessage, ErrorRecord, TaurusObject } from '../../../common';
 
 import { filterErrorRecords } from '../../../core';
 
+import { SHARED_FEATURES_CONFIG_TOKEN } from '../../_token';
+
+import { PlaceholderConfig } from '../model';
+
 import { PlaceholderService } from '../services';
 
 /* eslint-disable @typescript-eslint/naming-convention */
+
+interface PlaceholderAutoSupportedStates {
+    /**
+     * ** Fallback state.
+     */
+    Generic: string;
+    /**
+     * ** When there is no internet connection (offline).
+     */
+    Offline: string;
+    /**
+     * ** When asset/entity is not found.
+     */
+    NotFound: string;
+}
 
 // empty state
 const EmptyMessage = {
@@ -54,25 +74,30 @@ const ErrorDescription = {
     NotFound: `%s for requested identifier does not exist in the system.`
 };
 
-const ErrorMitigation = {
+const ErrorMitigation: PlaceholderAutoSupportedStates = {
     Generic: 'Please try again later.',
     Offline: 'Please check your internet connection.',
     NotFound: ''
 };
 
-const ErrorEscalation = {
-    Generic: `If the issue persists, please <a href="https://servicedesk.eng.vmware.com/servicedesk/customer/portal/3/group/157?groupId=157" target="_blank" rel="noopener">open a service request.</a>`,
+const ErrorEscalation: PlaceholderAutoSupportedStates = {
+    // anchor href interpolated in Component constructor with provided config
+    Generic: `If the issue persists, please <a href="%service_req_url%" target="_blank" rel="noopener">open a service request.</a>`,
     Offline: '',
-    NotFound: `If you think it is a bug, please <a href="https://servicedesk.eng.vmware.com/servicedesk/customer/portal/3/group/157?groupId=157" target="_blank">open a service request.</a>`
+    // anchor href interpolated in Component constructor with provided config
+    NotFound: `If you think it is a bug, please <a href="%service_req_url%" target="_blank">open a service request.</a>`
 };
 
-const ErrorImgSource = {
+const ErrorImgSource: PlaceholderAutoSupportedStates = {
     Generic: 'assets/images/placeholder/server-error.svg',
     Offline: null,
     NotFound: 'assets/images/placeholder/not-found.svg'
 };
 
-const ErrorImgStyle = {
+const ErrorImgStyle: {
+    Opacity: number;
+    Width: PlaceholderAutoSupportedStates;
+} = {
     Opacity: 1,
     Width: {
         Generic: '200px',
@@ -493,9 +518,22 @@ export class PlaceholderComponent extends TaurusObject implements OnInit, OnChan
     constructor(
         private readonly elementRef: ElementRef<HTMLElement>,
         private readonly renderer2: Renderer2,
-        private readonly placeholderService: PlaceholderService
+        private readonly placeholderService: PlaceholderService,
+        @Inject(SHARED_FEATURES_CONFIG_TOKEN) private readonly featureConfig: PlaceholderConfig
     ) {
         super();
+
+        const serviceRequestUrl = featureConfig?.placeholder?.serviceRequestUrl ? featureConfig.placeholder.serviceRequestUrl : '#';
+
+        ErrorEscalation.Generic = CollectionsUtil.interpolateString(ErrorEscalation.Generic, {
+            searchValue: '%service_req_url%',
+            replaceValue: serviceRequestUrl
+        });
+
+        ErrorEscalation.NotFound = CollectionsUtil.interpolateString(ErrorEscalation.NotFound, {
+            searchValue: '%service_req_url%',
+            replaceValue: serviceRequestUrl
+        });
     }
 
     /**

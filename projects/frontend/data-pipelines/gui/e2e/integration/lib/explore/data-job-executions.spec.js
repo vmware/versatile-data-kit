@@ -5,32 +5,32 @@
 
 /// <reference types="cypress" />
 
-import { DataJobsExplorePage } from "../../../support/pages/app/lib/explore/data-jobs.po";
-import { DataJobBasePO } from "../../../support/application/data-job-base.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
+import { DataJobsExplorePage } from '../../../support/pages/app/lib/explore/data-jobs.po';
+import { DataJobBasePO } from '../../../support/application/data-job-base.po';
+import { applyGlobalEnvSettings } from '../../../support/helpers/commands.helpers';
 
 describe(
-    "Data Job Explore Executions Page",
-    { tags: ["@dataPipelines", "@exploreDataJobExecutions"] },
+    'Data Job Explore Executions Page',
+    { tags: ['@dataPipelines', '@exploreDataJobExecutions'] },
     () => {
         let testJobs;
 
         before(() => {
             return DataJobBasePO.recordHarIfSupported()
                 .then(() =>
-                    cy.clearLocalStorageSnapshot("data-job-explore-executions"),
+                    cy.clearLocalStorageSnapshot('data-job-explore-executions'),
                 )
                 .then(() => DataJobBasePO.login())
-                .then(() => cy.saveLocalStorage("data-job-explore-executions"))
+                .then(() => cy.saveLocalStorage('data-job-explore-executions'))
                 .then(() => cy.cleanTestJobs())
                 .then(() => cy.prepareBaseTestJobs())
-                .then(() => cy.fixture("lib/explore/test-jobs.json"))
+                .then(() => cy.fixture('lib/explore/test-jobs.json'))
                 .then((loadedTestJobs) => {
                     testJobs = applyGlobalEnvSettings(loadedTestJobs);
 
                     return cy.wrap({
-                        context: "explore::data-job-executions.spec::before()",
-                        action: "continue",
+                        context: 'explore::data-job-executions.spec::before()',
+                        action: 'continue',
                     });
                 });
         });
@@ -42,13 +42,13 @@ describe(
         });
 
         beforeEach(() => {
-            cy.restoreLocalStorage("data-job-explore-executions");
+            cy.restoreLocalStorage('data-job-explore-executions');
 
             DataJobBasePO.initBackendRequestInterceptor();
         });
 
         it(`Data Job Explore Executions Page - should open Details and verify Executions tab is not displayed`, () => {
-            cy.log("Fixture for name: " + testJobs[0].job_name);
+            cy.log('Fixture for name: ' + testJobs[0].job_name);
 
             const dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
@@ -61,34 +61,34 @@ describe(
 
             dataJobBasePage
                 .getMainTitle()
-                .should("be.visible")
-                .should("contains.text", testJobs[0].job_name);
+                .should('be.visible')
+                .should('contains.text', testJobs[0].job_name);
 
-            dataJobBasePage.getDetailsTab().should("have.class", "active");
+            dataJobBasePage.getDetailsTab().should('have.class', 'active');
 
-            dataJobBasePage.getExecutionsTab().should("not.exist");
+            dataJobBasePage.getExecutionsTab().should('not.exist');
         });
 
-        it("Data Job Explore Executions Page - should verify on URL navigate to Executions will redirect to Details", () => {
+        it('Data Job Explore Executions Page - should verify on URL navigate to Executions will redirect to Details', () => {
             const dataJobBasePage = DataJobBasePO.navigateToUrl(
                 `/explore/data-jobs/${testJobs[0].team}/${testJobs[0].job_name}/executions`,
             );
 
             dataJobBasePage
                 .getMainTitle()
-                .should("be.visible")
-                .should("contains.text", testJobs[0].job_name);
+                .should('be.visible')
+                .should('contains.text', testJobs[0].job_name);
 
             dataJobBasePage
                 .getCurrentUrl()
                 .should(
-                    "match",
+                    'match',
                     new RegExp(
                         `\\/explore\\/data-jobs\\/${testJobs[0].team}\\/${testJobs[0].job_name}\\/details$`,
                     ),
                 );
 
-            dataJobBasePage.getDetailsTab().should("have.class", "active");
+            dataJobBasePage.getDetailsTab().should('have.class', 'active');
         });
     },
 );

@@ -18,10 +18,8 @@
             <div class="clr-col-4">
                 <h6>Deployed at (UTC)</h6>
                 <p>
-                    {{
-                        dataJobDeployment.deployedDate
-                            | date : "MMM d, y, hh:mm a" : "UTC"
-                    }}
+                    {{ dataJobDeployment.deployedDate | date : "MMM d, y, hh:mm
+                    a" : "UTC" }}
                 </p>
             </div>
         </div>

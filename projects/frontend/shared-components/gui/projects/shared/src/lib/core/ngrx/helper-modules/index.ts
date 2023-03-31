@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './taurus-shared-ngrx-dev.module';
-export * from './taurus-shared-ngrx-prod.module';
+export * from './vdk-shared-ngrx-dev.module';
+export * from './vdk-shared-ngrx-prod.module';
