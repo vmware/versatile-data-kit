@@ -1,0 +1,18 @@
+# Copyright 2023-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ephemeral-storage-limit
+spec:
+  limits:
+    - type: Container
+      max:
+        ephemeral-storage: "3Gi"
+      min:
+        ephemeral-storage: "100Mi"
+      default:
+        ephemeral-storage: "3Gi"
+      defaultRequest:
+        ephemeral-storage: "1Gi"
