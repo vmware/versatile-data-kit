@@ -12,7 +12,7 @@ import { AuthConfig, OAuthModule, OAuthStorage } from 'angular-oauth2-oidc';
 
 import { ClarityModule } from '@clr/angular';
 
-import { TaurusSharedCoreModule, TaurusSharedFeaturesModule, TaurusSharedNgRxModule, VdkComponentsModule } from '@versatiledatakit/shared';
+import { VdkSharedCoreModule, VdkSharedFeaturesModule, VdkSharedNgRxModule, VdkSharedComponentsModule } from '@versatiledatakit/shared';
 
 import { AuthorizationInterceptor } from './http.interceptor';
 
@@ -28,14 +28,17 @@ import { AppComponent } from './app.component';
         BrowserModule,
         ClarityModule,
         BrowserAnimationsModule,
-        VdkComponentsModule.forRoot(),
-        TaurusSharedCoreModule.forRoot(),
-        TaurusSharedFeaturesModule.forRoot({
+        VdkSharedComponentsModule.forRoot(),
+        VdkSharedCoreModule.forRoot(),
+        VdkSharedFeaturesModule.forRoot({
             warning: {
+                serviceRequestUrl: '#'
+            },
+            placeholder: {
                 serviceRequestUrl: '#'
             }
         }),
-        TaurusSharedNgRxModule.forRootWithDevtools(),
+        VdkSharedNgRxModule.forRootWithDevtools(),
         HttpClientModule,
         OAuthModule.forRoot({
             resourceServer: {

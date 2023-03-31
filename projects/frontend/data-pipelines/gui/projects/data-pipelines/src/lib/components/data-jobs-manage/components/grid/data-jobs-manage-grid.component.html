@@ -96,6 +96,7 @@
         <clr-datagrid
             id="dataJobsDataGrid"
             data-cy="data-pipelines-manage-grid"
+            [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
             [clrDgLoading]="loading"
             [clrDgSingleSelected]="selectedJob"
             (clrDgRefresh)="loadDataWithState($event)"
@@ -113,6 +114,7 @@
             <clr-dg-column
                 *ngIf="showTeamsColumn()"
                 class="column__min-width--l"
+                data-cy="data-pipelines-jobs-team-column"
                 [clrDgField]="'config.team'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['config.team']"
                 [(clrFilterValue)]="clrGridUIState.filter['config.team']"
@@ -368,21 +370,14 @@
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--l">
-                    {{
-                        job.deployments
-                            ? (job.deployments[0]?.lastExecutionTime
-                              | date : "MMM d, y, hh:mm a" : "utc")
-                            : null
-                    }}
+                    {{ job.deployments ? (job.deployments[0]?.lastExecutionTime
+                    | date : "MMM d, y, hh:mm a" : "utc") : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--xs column__max-width--l">
-                    {{
-                        job.deployments
-                            ? (job.deployments[0]?.lastExecutionDuration
-                              | formatDuration)
-                            : null
-                    }}
+                    {{ job.deployments ?
+                    (job.deployments[0]?.lastExecutionDuration | formatDuration)
+                    : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--m column__max-width--l">
@@ -399,8 +394,7 @@
                 >
 
                 <clr-dg-cell class="column__min-width--xl">
-                    {{
-                        job.config?.schedule?.scheduleCron | formatSchedule : ""
+                    {{ job.config?.schedule?.scheduleCron | formatSchedule : ""
                     }}
                 </clr-dg-cell>
 
@@ -422,11 +416,8 @@
                             dataJobStatus.ENABLED
                         "
                     >
-                        {{
-                            job.config?.schedule?.nextRunEpochSeconds
-                                | parseEpoch
-                                | date : "MMM d, y, hh:mm a" : "UTC"
-                        }}
+                        {{ job.config?.schedule?.nextRunEpochSeconds |
+                        parseEpoch | date : "MMM d, y, hh:mm a" : "UTC" }}
                     </span>
                 </clr-dg-cell>
 
@@ -440,20 +431,14 @@
                             : null
                     "
                 >
-                    {{
-                        job.deployments && job.deployments[0]?.lastDeployedDate
-                            ? (job.deployments[0]?.lastDeployedDate
-                              | date : "MMM d, y, hh:mm a" : "UTC")
-                            : null
-                    }}
+                    {{ job.deployments && job.deployments[0]?.lastDeployedDate ?
+                    (job.deployments[0]?.lastDeployedDate | date : "MMM d, y,
+                    hh:mm a" : "UTC") : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell>
-                    {{
-                        job.deployments
-                            ? job.deployments[0]?.lastDeployedBy
-                            : null
-                    }}
+                    {{ job.deployments ? job.deployments[0]?.lastDeployedBy :
+                    null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell
@@ -538,6 +523,7 @@
                 <shared-placeholder
                     errorContext="Data Jobs"
                     [plural]="true"
+                    [loading]="loading"
                     [errorsQueue]="errors.records"
                     [listenForErrorPatterns]="listenForErrorPatterns"
                 >
@@ -548,10 +534,11 @@
                         >
                             <div>No data jobs created!</div>
                             <a
+                                *ngIf="dataPipelinesDocumentationUrl"
                                 class="btn btn-primary btn-doc"
                                 target="_blank"
                                 rel="noopener"
-                                href="https://confluence.eng.vmware.com/display/SuperCollider/Data+Pipelines"
+                                href="{{ dataPipelinesDocumentationUrl }}"
                             >
                                 <clr-icon shape="pop-out"></clr-icon> Learn
                                 about Data Jobs
@@ -578,9 +565,8 @@
                     <clr-dg-page-size [clrPageSizeOptions]="[25, 50, 100]"
                         >Data Jobs per page</clr-dg-page-size
                     >
-                    {{ pagination.firstItem + 1 }} -
-                    {{ pagination.lastItem + 1 }} of
-                    {{ pagination.totalItems }} Data Jobs
+                    {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1
+                    }} of {{ pagination.totalItems }} Data Jobs
                 </clr-dg-pagination>
             </clr-dg-footer>
         </clr-datagrid>

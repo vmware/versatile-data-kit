@@ -38,6 +38,7 @@
         <clr-datagrid
             id="dataJobsDataGrid"
             data-cy="data-pipelines-explore-grid"
+            [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
             [clrDgLoading]="loading"
             (clrDgRefresh)="loadDataWithState($event)"
         >
@@ -53,6 +54,7 @@
             <clr-dg-column
                 *ngIf="showTeamsColumn() && isStandardDisplayMode()"
                 class="column__min-width--l"
+                data-cy="data-pipelines-jobs-team-column"
                 [clrDgField]="'config.team'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['config.team']"
                 [(clrFilterValue)]="clrGridUIState.filter['config.team']"
@@ -286,9 +288,9 @@
                         <a class="label-link">{{ job.jobName }}</a>
                     </span>
 
-                    <span *ngIf="isStandardDisplayMode()">{{
-                        job.jobName
-                    }}</span>
+                    <span *ngIf="isStandardDisplayMode()"
+                        >{{ job.jobName }}</span
+                    >
                 </clr-dg-cell>
 
                 <clr-dg-cell
@@ -300,9 +302,9 @@
                         class="label label-light-blue tag"
                         [routerLink]="['/explore/teams', job.config.team]"
                     >
-                        <a class="label-link label-link-suppress-decoration">{{
-                            job.config.team
-                        }}</a>
+                        <a class="label-link label-link-suppress-decoration"
+                            >{{ job.config.team }}</a
+                        >
                     </span>
                 </clr-dg-cell>
 
@@ -319,21 +321,14 @@
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--l">
-                    {{
-                        job.deployments
-                            ? (job.deployments[0]?.lastExecutionTime
-                              | date : "MMM d, y, hh:mm a" : "utc")
-                            : null
-                    }}
+                    {{ job.deployments ? (job.deployments[0]?.lastExecutionTime
+                    | date : "MMM d, y, hh:mm a" : "utc") : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--xs column__max-width--l">
-                    {{
-                        job.deployments
-                            ? (job.deployments[0]?.lastExecutionDuration
-                              | formatDuration)
-                            : null
-                    }}
+                    {{ job.deployments ?
+                    (job.deployments[0]?.lastExecutionDuration | formatDuration)
+                    : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--m column__max-width--l">
@@ -349,15 +344,10 @@
                     >{{ job.deployments | executionSuccessRate }}</clr-dg-cell
                 >
 
-                <clr-dg-cell
-                    class="column__min-width--l"
-                    [title]="getJobSuccessRateTitle(job)"
-                    >{{ job.deployments | executionSuccessRate }}</clr-dg-cell
+                <clr-dg-cell class="column__min-width--xl"
+                    >{{ job.config?.schedule?.scheduleCron | formatSchedule : ""
+                    }}</clr-dg-cell
                 >
-
-                <clr-dg-cell class="column__min-width--xl">{{
-                    job.config?.schedule?.scheduleCron | formatSchedule : ""
-                }}</clr-dg-cell>
 
                 <clr-dg-cell
                     class="column__min-width--xl"
@@ -376,12 +366,8 @@
                             (job.deployments | extractJobStatus) ===
                             dataJobStatus.ENABLED
                         "
-                    >
-                        {{
-                            job.config?.schedule?.nextRunEpochSeconds
-                                | parseEpoch
-                                | date : "MMM d, y, hh:mm a" : "UTC"
-                        }}
+                        >{{ job.config?.schedule?.nextRunEpochSeconds |
+                        parseEpoch | date : "MMM d, y, hh:mm a" : "UTC" }}
                     </span>
                 </clr-dg-cell>
 
@@ -395,20 +381,14 @@
                             : null
                     "
                 >
-                    {{
-                        job.deployments && job.deployments[0]?.lastDeployedDate
-                            ? (job.deployments[0]?.lastDeployedDate
-                              | date : "MMM d, y, hh:mm a" : "UTC")
-                            : null
-                    }}
+                    {{ job.deployments && job.deployments[0]?.lastDeployedDate ?
+                    (job.deployments[0]?.lastDeployedDate | date : "MMM d, y,
+                    hh:mm a" : "UTC") : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell>
-                    {{
-                        job.deployments
-                            ? job.deployments[0]?.lastDeployedBy
-                            : null
-                    }}
+                    {{ job.deployments ? job.deployments[0]?.lastDeployedBy :
+                    null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell
@@ -478,6 +458,7 @@
                 <shared-placeholder
                     errorContext="Data Jobs"
                     [plural]="true"
+                    [loading]="loading"
                     [errorsQueue]="errors.records"
                     [listenForErrorPatterns]="listenForErrorPatterns"
                 >
@@ -506,9 +487,8 @@
                     <clr-dg-page-size [clrPageSizeOptions]="[25, 50, 100]"
                         >Data Jobs per page</clr-dg-page-size
                     >
-                    {{ pagination.firstItem + 1 }} -
-                    {{ pagination.lastItem + 1 }} of
-                    {{ pagination.totalItems }} Data Jobs
+                    {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1
+                    }} of {{ pagination.totalItems }} Data Jobs
                 </clr-dg-pagination>
             </clr-dg-footer>
         </clr-datagrid>

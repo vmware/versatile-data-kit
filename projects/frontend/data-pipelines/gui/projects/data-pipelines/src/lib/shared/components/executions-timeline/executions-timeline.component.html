@@ -19,6 +19,7 @@
         <div
             *ngIf="execution.startTime"
             class="clr-timeline-step-header clr-timeline__step-header--underline-dotted"
+            data-cy="data-pipelines-executions-timeline-started"
             timeago
             [date]="execution.startTime"
             [live]="true"
@@ -46,7 +47,7 @@
                 execution.status === dataJobExecutionStatus.SUCCEEDED
             "
             shape="success-standard"
-            aria-label="Failed execution"
+            aria-label="Successful execution"
         ></clr-icon>
         <clr-icon
             *ngIf="execution.status === dataJobExecutionStatus.CANCELLED"
@@ -78,18 +79,17 @@
         ></clr-icon>
 
         <div class="clr-timeline-step-body">
-            <span class="clr-timeline-step-title">{{
-                (execution.status
-                    ? execution.status.replace("_", " ")
-                    : execution.status
-                ) | titlecase
-            }}</span>
+            <span class="clr-timeline-step-title"
+                >{{ (execution.status ? execution.status.replace("_", " ") :
+                execution.status ) | titlecase }}</span
+            >
 
             <div class="clr-timeline-step-description">
                 <div class="clr-timeline__element--display-block">
                     <span>Duration: </span>
                     <span
                         class="clr-timeline__duration-tag"
+                        data-cy="data-pipelines-executions-timeline-ended"
                         [attr.title]="
                             execution.endTime
                                 ? 'Ended ' +
@@ -127,6 +127,7 @@
                     *ngIf="isExecutionManual(execution)"
                     class="label manual-execution-label label-info"
                     title="'{{ getManualExecutedByTitle(execution) }}'"
+                    data-cy="data-pipelines-executions-timeline-manual-start"
                     >Manual</span
                 >
             </div>
@@ -134,10 +135,11 @@
     </li>
 
     <!-- Next Scheduled execution -->
-    <li class="clr-timeline-step" *ngIf="next">
+    <li *ngIf="next" class="clr-timeline-step">
         <div
             class="clr-timeline-step-header"
             style="text-decoration: underline; text-decoration-style: dotted"
+            data-cy="data-pipelines-executions-timeline-started"
             timeago
             [attr.title]="(next | date : 'MMM d, y, hh:mm a' : 'UTC') + ' UTC'"
             [date]="next"
