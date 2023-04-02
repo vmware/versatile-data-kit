@@ -5,23 +5,23 @@
 
 package com.vmware.taurus.service.deploy;
 
+import static java.util.Map.entry;
+
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.openapi.ApiException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-
-import static java.util.Map.entry;
 
 /**
  * Responsible for building docker images for data jobs. The images are pushed to a docker
@@ -43,15 +43,6 @@ public class JobImageBuilder {
 
   @Value("${datajobs.git.password}")
   private String gitPassword;
-
-  @Value("${datajobs.aws.region:}")
-  private String awsRegion;
-
-  @Value("${datajobs.aws.accessKeyId:}")
-  private String awsAccessKeyId;
-
-  @Value("${datajobs.aws.secretAccessKey:}")
-  private String awsSecretAccessKey;
 
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
@@ -93,17 +84,20 @@ public class JobImageBuilder {
   private final DockerRegistryService dockerRegistryService;
   private final DeploymentNotificationHelper notificationHelper;
   private final KubernetesResources kubernetesResources;
+  private final AWSCredentialsService awsCredentialsService;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
       DockerRegistryService dockerRegistryService,
       DeploymentNotificationHelper notificationHelper,
-      KubernetesResources kubernetesResources) {
+      KubernetesResources kubernetesResources,
+      AWSCredentialsService awsCredentialsService) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
     this.notificationHelper = notificationHelper;
     this.kubernetesResources = kubernetesResources;
+    this.awsCredentialsService = awsCredentialsService;
   }
 
   /**
@@ -123,6 +117,12 @@ public class JobImageBuilder {
   public boolean buildImage(
       String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
+    var credentials = awsCredentialsService.createTemporaryCredentials();
+
+    String builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
+    String builderAwsAccessKeyId = credentials.awsAccessKeyId();
+    String builderAwsSessionToken = credentials.awsSessionToken();
+    String awsRegion = credentials.region();
 
     log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
     if (!StringUtils.isBlank(registryType)) {
@@ -155,8 +155,8 @@ public class JobImageBuilder {
 
     var args =
         Arrays.asList(
-            awsAccessKeyId,
-            awsSecretAccessKey,
+            builderAwsAccessKeyId,
+            builderAwsSecretAccessKey,
             awsRegion,
             dockerRepositoryUrl,
             gitUsername,
@@ -164,8 +164,8 @@ public class JobImageBuilder {
             gitRepo,
             registryType,
             registryUsername,
-            registryPassword);
-
+            registryPassword,
+            builderAwsSessionToken);
     var envs = getBuildParameters(dataJob, jobDeployment);
 
     log.info(
