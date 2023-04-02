@@ -12,7 +12,7 @@ git_repository=$7
 registry_type=$8
 registry_username=$9
 registry_password=${10}
-
+aws_session_token=${11}
 # Within this property docker config should be included to connect to the registry used to pull the image from.
 # it should be prefixed with a comma
 # example: ,"ghcr.io/versatile-data-kit-dev/dp/versatiledatakit":{"auth":"dmVyc2F0aWxlLWRhdGEta2l0LWRldjo8bXlUb2tlbj4="}}
@@ -40,7 +40,6 @@ if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] ; then
       aws configure set aws_session_token "$aws_session_token"
     fi
     # https://stackoverflow.com/questions/1199613/extract-filename-and-path-from-url-in-bash-script
-
     repository_prefix=${docker_registry#*/}
     # Create docker repository if it does not exist
     aws ecr describe-repositories --region $aws_region --repository-names $repository_prefix/${DATA_JOB_NAME} ||

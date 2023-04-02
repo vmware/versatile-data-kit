@@ -12,7 +12,7 @@ git_repository=$7
 registry_type=$8
 registry_username=$9
 registry_password=${10}
-
+aws_session_token=${11}
 # Echo selected data to be logged
 echo "AWS_REGION=$aws_region"
 echo "DOCKER_REGISTRY=$docker_registry"
@@ -31,6 +31,10 @@ if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] ; then
     aws configure set aws_access_key_id $aws_access_key_id
     aws configure set aws_secret_access_key $aws_secret_access_key
 
+    # Check if aws_session_token is set and not empty.
+    if [ -n "$aws_session_token" ] ; then
+      aws configure set aws_session_token "$aws_session_token"
+    fi
     # https://stackoverflow.com/questions/1199613/extract-filename-and-path-from-url-in-bash-script
     repository_prefix=${docker_registry#*/}
     # Create docker repository if it does not exist
