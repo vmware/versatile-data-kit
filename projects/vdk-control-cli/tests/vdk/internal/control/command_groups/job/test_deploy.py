@@ -345,9 +345,7 @@ def test_deploy_show_with_json_output(httpserver: PluginHTTPServer, tmpdir: Loca
     ), f"expected data not found in output: {result.output}"
 
 
-def test_deploy_show_with_json_output_and_no_deployments(
-    httpserver: PluginHTTPServer, tmpdir: LocalPath
-):
+def test_deploy_show_with_json_output_and_no_deployments(httpserver: PluginHTTPServer):
     rest_api_url = httpserver.url_for("")
 
     response = None
@@ -376,8 +374,12 @@ def test_deploy_show_with_json_output_and_no_deployments(
         json_result = json.loads(result.output)
     except JSONDecodeError as error:
         assert False, f"failed to parse the response as a JSON object, error: {error}"
-    assert isinstance(json_result, list)
-    assert len(list(json_result)) == 0
+    assert isinstance(
+        json_result, list
+    ), f"expected a list, got: {type(json_result)}, output: {result.output}"
+    assert (
+        len(list(json_result)) == 0
+    ), f"expected an empty list, got: {json_result}, output: {result.output}"
 
 
 def test_deploy_show_with_missing_output_and_no_deployments(
@@ -396,7 +398,7 @@ def test_deploy_show_with_missing_output_and_no_deployments(
     )
     test_utils.assert_click_status(result, 0)
     assert (
-        "No deployments." in result.output
+        "No Data." in result.output
     ), f"expected data not found in output: {result.output}"
 
 
