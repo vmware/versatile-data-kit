@@ -1,14 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import glob
-import json
 import logging
 import os
 from typing import Optional
 
 import click
 import click_spinner
-from tabulate import tabulate
 from taurus_datajob_api import ApiException
 from taurus_datajob_api import DataJob
 from taurus_datajob_api import DataJobConfig
@@ -21,8 +19,9 @@ from vdk.internal.control.job.job_archive import JobArchive
 from vdk.internal.control.job.job_config import JobConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
+from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.cli_utils import get_or_prompt
-from vdk.internal.control.utils.cli_utils import OutputFormat
+from vdk.internal.control.utils.output_printer import OutputFormat
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ class JobDeploy:
     ZIP_ARCHIVE_TYPE = "zip"
     ARCHIVE_SUFFIX = "-archive"
 
-    def __init__(self, rest_api_url: str, output):
+    def __init__(self, rest_api_url: str, output: str):
         self.deploy_api = ApiClientFactory(rest_api_url).get_deploy_api()
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
         self.job_sources_api = ApiClientFactory(rest_api_url).get_jobs_sources_api()
@@ -39,6 +38,8 @@ class JobDeploy:
         # Ultimately this will be user facing parameter (possibly fetched from config.ini)
         self.__deployment_id = "production"
         self.__job_archive = JobArchive()
+        self.__output = output
+        self.__printer = output_printer.create_printer(self.__output)
 
     @staticmethod
     def __detect_keytab_files_in_job_directory(job_path: str) -> None:
@@ -153,7 +154,6 @@ class JobDeploy:
         enabled: Optional[bool],  # true, false or None
         job_version: Optional[str],
         vdk_version: Optional[str],
-        output: str,
     ) -> None:
         deployment = DataJobDeployment(enabled=None)
         if job_version:
@@ -163,7 +163,7 @@ class JobDeploy:
         deployment.enabled = enabled
 
         if job_version:
-            self.__update_job_version(name, team, deployment, output)
+            self.__update_job_version(name, team, deployment)
         elif vdk_version or enabled is not None:
             self.__update_deployment(name, team, deployment)
             msg = f"Deployment of Data Job {name} updated; "
@@ -186,16 +186,14 @@ class JobDeploy:
             data_job_deployment=deployment,
         )
 
-    def __update_job_version(
-        self, name: str, team: str, deployment: DataJobDeployment, output: str
-    ):
+    def __update_job_version(self, name: str, team: str, deployment: DataJobDeployment):
         log.debug(
             f"Update Deployment version of a job {name} of team {team} : {deployment}"
         )
         self.deploy_api.deployment_update(
             team_name=team, job_name=name, data_job_deployment=deployment
         )
-        if output == OutputFormat.TEXT.value:
+        if self.__output == OutputFormat.TEXT.value:
             log.info(
                 f"Request to deploy Data Job {name} using version {deployment.job_version} finished successfully.\n"
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
@@ -210,7 +208,7 @@ class JobDeploy:
                 "job_name": name,
                 "job_version": deployment.job_version,
             }
-            click.echo(json.dumps(result))
+            self.__printer.print_dict(result)
 
     @ApiClientErrorDecorator()
     def remove(self, name: str, team: str) -> None:
@@ -221,7 +219,7 @@ class JobDeploy:
         log.info(f"Deployment of Data Job {name} removed.")
 
     @ApiClientErrorDecorator()
-    def show(self, name: str, team: str, output: str) -> None:
+    def show(self, name: str, team: str) -> None:
         log.debug(f"Get list of deployments for job {name} of team {team} ")
         deployments = self.deploy_api.deployment_list(team_name=team, job_name=name)
         log.debug(
@@ -239,20 +237,17 @@ class JobDeploy:
                 ),
                 deployments,
             )
-            if output == OutputFormat.TEXT.value:
+            if self.__output == OutputFormat.TEXT.value:
                 click.echo(
                     "You can compare the version seen here to the one seen when "
                     "deploying to verify your deployment was successful."
                 )
                 click.echo("")
-                click.echo(tabulate(deployments, headers="keys"))
+                self.__printer.print_table(list(deployments))
             else:
-                click.echo(json.dumps(list(deployments)))
+                self.__printer.print_table(list(deployments))
         else:
-            if output == OutputFormat.TEXT.value:
-                click.echo("No deployments.")
-            else:
-                click.echo(json.dumps([]))
+            self.__printer.print_table(list(deployments))
 
     @ApiClientErrorDecorator()
     def create(
@@ -261,7 +256,6 @@ class JobDeploy:
         team: str,
         job_path: str,
         reason: str,
-        output: str,
         vdk_version: Optional[str],
         enabled: Optional[bool],
     ) -> None:
@@ -287,7 +281,7 @@ class JobDeploy:
             "Team Name", team or job_config.get_team() or load_default_team_name()
         )
 
-        if output == OutputFormat.TEXT.value:
+        if self.__output == OutputFormat.TEXT.value:
             log.info(
                 f"Deploy Data Job with name {name} from directory {job_path} ... \n"
             )
@@ -298,9 +292,11 @@ class JobDeploy:
         try:
             job_archive_binary = self.__archive_binary(archive_path)
 
-            if output == OutputFormat.TEXT.value:
+            if self.__output == OutputFormat.TEXT.value:
                 log.info("Uploading the data job might take some time ...")
-            with click_spinner.spinner(disable=(output == OutputFormat.JSON.value)):
+            with click_spinner.spinner(
+                disable=(self.__output == OutputFormat.JSON.value)
+            ):
                 data_job_version = self.job_sources_api.sources_upload(
                     team_name=team,
                     job_name=name,
@@ -309,8 +305,6 @@ class JobDeploy:
                 )
 
             self.__update_data_job_deploy_configuration(job_path, name, team)
-            self.update(
-                name, team, enabled, data_job_version.version_sha, vdk_version, output
-            )
+            self.update(name, team, enabled, data_job_version.version_sha, vdk_version)
         finally:
             self.__cleanup_archive(archive_path=archive_path)
