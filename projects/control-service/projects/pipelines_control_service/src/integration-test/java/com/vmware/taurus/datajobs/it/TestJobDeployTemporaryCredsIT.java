@@ -58,7 +58,7 @@ import org.springframework.test.web.servlet.MvcResult;
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 @Disabled("Disabled until we create an IAM user for testing purposes.")
-public class DataJobDeployTemporaryCredsIT extends BaseIT {
+public class TestJobDeployTemporaryCredsIT extends BaseIT {
 
   private static final String TEST_JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);

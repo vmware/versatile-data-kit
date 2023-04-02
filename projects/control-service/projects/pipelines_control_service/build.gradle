@@ -98,7 +98,6 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation 'org.apache.kerby:kerb-simplekdc:2.0.3'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.15'
     testImplementation versions.'com.amazonaws:aws-java-sdk-ecr'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
     implementation 'org.springdoc:springdoc-openapi-core:1.1.49'
     // transitive dependencies version force
     // on next upgrade, revise if those still need to be set explicitly
