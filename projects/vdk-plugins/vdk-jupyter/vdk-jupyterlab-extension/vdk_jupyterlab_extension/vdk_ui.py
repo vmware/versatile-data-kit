@@ -6,8 +6,10 @@ import subprocess
 
 from vdk.internal.control.command_groups.job.create import JobCreate
 from vdk.internal.control.command_groups.job.delete import JobDelete
+from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils.cli_utils import get_or_prompt
 
 
 class VdkUI:
@@ -95,3 +97,34 @@ class VdkUI:
 
         cmd.create_job(name, team, path, cloud, local)
         return f"Job with name {name} was created."
+
+    @staticmethod
+    def create_deployment(
+        name: str, team: str, rest_api_url: str, path: str, reason: str, enabled: bool
+    ):
+        """
+        Execute `download job`.
+        :param name: the name of the data job that will be deployed
+        :param team: the team of the data job that will be depployed
+        :param rest_api_url: The base REST API URL
+        :param path: the path to the job's directory
+        :param reason: the reason of deployment
+        :param enabled: flag whether the job is enabled (that will basically un-pause the job)
+        :return: output string of the operation
+        """
+        output = ""
+        cmd = JobDeploy(rest_api_url, output)
+        path = get_or_prompt("Job Path", path)
+        default_name = os.path.basename(path)
+        name = get_or_prompt("Job Name", name, default_name)
+        reason = get_or_prompt("Reason", reason)
+        cmd.create(
+            name=name,
+            team=team,
+            job_path=path,
+            reason=reason,
+            output=output,
+            vdk_version=None,
+            enabled=enabled,
+        )
+        return output
