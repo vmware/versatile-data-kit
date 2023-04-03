@@ -85,6 +85,16 @@ spec:
               value: "{{ .Values.deploymentEcrAwsAccessKeyId }}"
             - name: AWS_ACCESS_KEY_SECRET
               value: "{{ .Values.deploymentEcrAwsAccessKeySecret }}"
+            - name: DATAJOBS_AWS_ASSUME_IAM_ROLE
+              value: "{{ .Values.deploymentEcrAwsAssumeIamRole }}"
+            - name: DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID
+              value: "{{ .Values.deploymentEcrAwsServiceAccountAccessKeyId }}"
+            - name: DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
+              value: "{{ .Values.deploymentEcrAwsServiceAccountSecretAccessKey }}"
+            - name: DATAJOBS_AWS_ROLE_ARN
+              value: "{{ .Values.deploymentEcrAwsRoleArn }}"
+            - name: DATAJOBS_AWS_DEFAULT_SESSION_DURATION_SECONDS
+              value: "{{ .Values.deploymentEcrAwsDefaultSessionDurationSeconds }}"
             - name: DOCKER_REGISTRY_TYPE
               value: "{{ .Values.deploymentDockerRegistryType }}"
             - name: DOCKER_REGISTRY_USERNAME

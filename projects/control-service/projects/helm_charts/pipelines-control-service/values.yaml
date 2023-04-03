@@ -185,11 +185,32 @@ proxyRepositoryURL: "012285273210.dkr.ecr.us-west-2.amazonaws.com/taurus/dp"
 deploymentDockerRegistryType: "ecr"
 
 ## [Required if deploymentDockerRegistryType=ecr]
+## These values also set the default Amazon ENV variables by convention.
 ## AWS ECR Credentials and repository to store and read images of the deployed data jobs
 ## The configuration should be set in case deploymentDockerRegistryType is ecr
 deploymentEcrAwsRegion: ""
 deploymentEcrAwsAccessKeyId: ""
 deploymentEcrAwsAccessKeySecret: ""
+
+##
+deploymentEcrAwsAssumeIamRole: false
+
+## [Required if deploymentEcrAwsAssumeIamRole=true and deploymentDockerRegistryType=ecr]
+## Values that will enable the service pattern to be used by the control-service.
+## The pattern involves creating an AWS Identity and Access Management (IAM)
+## user account with a unique access key and secret key. The access key and secret key are then
+## stored in a secure location, such as an encrypted file, on the EC2 instance.
+## The IAM user is then given specific permissions to only access the ECR registry - read/write images
+## and create repositories.
+## More information: # https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html
+## These properties need to be stored in different env variables than the ones not belonging to the
+## service user - e.g. defined above, because if the data jobs K8S cluster is hosted on a EKS
+## instance, some API calls to the instance made by the control-service could fail since we set
+## the default AWS environment variable names above which are used by default on some k8s api calls.
+deploymentEcrAwsServiceAccountAccessKeyId: ""
+deploymentEcrAwsServiceAccountSecretAccessKey: ""
+deploymentEcrAwsRoleArn: ""
+deploymentEcrAwsDefaultSessionDurationSeconds: 1800
 
 ## [Required if deploymentDockerRegistryType=generic and registry requires authentication]
 ## Username and Password credentials in case the deploymentDockerRegistryType is generic.
