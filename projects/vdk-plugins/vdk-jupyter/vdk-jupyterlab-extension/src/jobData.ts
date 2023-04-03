@@ -26,6 +26,7 @@ export function setJobDataToDefault() {
   for (const option of Object.values(VdkOption)) {
     jobData.set(option as VdkOption, '');
   }
+  console.log('I have been called');
 }
 
 /*
@@ -45,8 +46,11 @@ export function getJobDataJsonObject() {
     jobPath: jobData.get(VdkOption.PATH),
     cloud: jobData.get(VdkOption.CLOUD),
     local: jobData.get(VdkOption.LOCAL),
-    jobArguments: jobData.get(VdkOption.ARGUMENTS)
+    jobArguments: jobData.get(VdkOption.ARGUMENTS),
+    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON),
+    enableDeploy: jobData.get(VdkOption.DEPLOY_ENABLE)
   };
+  console.log(jsObj);
   return jsObj;
 }
 
