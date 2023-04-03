@@ -18,6 +18,10 @@
         <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCasf2Q7X8nF7S4VEmcTHJ0Q?style=social"></a>
 
 <!-- TODO: code coverage -->
+### Versatile Data Kit consists of two main components
+
+![versatile-data-kit-componenets](https://user-images.githubusercontent.com/11227374/229588579-7c8d1d51-206e-48d4-8957-a6c9d2190c94.svg)
+
 </p>
 
 
@@ -30,11 +34,12 @@ VDK is built for resiliency and can recover in mid-process or restart entirely f
 
 
 # Data Journey and Versatile Data Kit
+
 VDK creates data processing workflows to:
+
 - Ingest data (extract)
 - Transform data (transform)
 - Export data (load)
-
 
 ![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
 ![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
