@@ -3,20 +3,20 @@
 
 image: "python:3.7"
 
-.build-vdk-meta-jobs:
+.build-vdk-dags:
   variables:
-    PLUGIN_NAME: vdk-meta-jobs
+    PLUGIN_NAME: vdk-dags
   extends: .build-plugin
 
-build-py37-vdk-meta-jobs:
-  extends: .build-vdk-meta-jobs
+build-py37-vdk-dags:
+  extends: .build-vdk-dags
   image: "python:3.7"
 
-build-py311-vdk-meta-jobs:
-  extends: .build-vdk-meta-jobs
+build-py311-vdk-dags:
+  extends: .build-vdk-dags
   image: "python:3.11"
 
-release-vdk-meta-jobs:
+release-vdk-dags:
   variables:
-    PLUGIN_NAME: vdk-meta-jobs
+    PLUGIN_NAME: vdk-dags
   extends: .release-plugin

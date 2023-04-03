@@ -6,8 +6,8 @@ from unittest.mock import patch
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
 from urllib3.exceptions import ReadTimeoutError
-from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
-from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
+from vdk.plugin.dags.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.dags.remote_data_job_executor import RemoteDataJobExecutor
 
 
 def test_get_latest_available_execution_id():
@@ -43,7 +43,7 @@ def test_get_latest_available_execution_id_return_none():
     )
 
 
-@patch("vdk.plugin.meta_jobs.cached_data_job_executor.SLEEP_TIME", return_value=1)
+@patch("vdk.plugin.dags.cached_data_job_executor.SLEEP_TIME", return_value=1)
 def test_start_new_job_execution_timeout_error(patched_timeout):
     test_job_id = "awesome-test-job"
     test_timeout_exception = ReadTimeoutError(
