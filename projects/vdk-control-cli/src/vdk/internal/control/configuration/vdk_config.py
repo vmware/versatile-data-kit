@@ -8,8 +8,8 @@ import sys
 from configparser import ConfigParser
 from pathlib import Path
 
-from vdk.internal.control.command_groups.version_group import version
 from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.internal.control.utils import version_utils
 from vdk.internal.control.utils.control_utils import read_config_ini_file
 
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class VDKConfig:
 
     _user_agent = os.environ.get(
         "VDK_CONTROL_SERVICE_USER_AGENT",
-        f"vdk-control-cli/{version.__version__} ({sys.platform}; {platform.platform()}; ) Python {platform.python_version()}",
+        f"vdk-control-cli/{version_utils.__version__} ({sys.platform}; {platform.platform()}; ) Python {platform.python_version()}",
     )
 
     @property
