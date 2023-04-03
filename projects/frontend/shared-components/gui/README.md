@@ -24,7 +24,7 @@ Bug in general the steps are:
    ```
 1. Install Angular Cli and all other dependencies except '@versatiledatakit/shared'
    ```bash
-   npm i -g @angular/cli
+   npm i -g @angular/cli@13
    ```
    ```bash
    npm i --omit=optional

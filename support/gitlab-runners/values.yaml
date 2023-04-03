@@ -99,9 +99,18 @@ runners:
   ## You can specify helm values inside the config.
   ## tpl: https://helm.sh/docs/howto/charts_tips_and_tricks/#using-the-tpl-function
   ## runner configuration: https://docs.gitlab.com/runner/configuration/advanced-configuration.html
+  ## executor configuration: https://docs.gitlab.com/runner/executors/kubernetes.html
   config: |
     [[runners]]
       [runners.kubernetes]
+        helper_ephemeral_storage_request_overwrite_max_allowed = "1Gi"
+        helper_ephemeral_storage_limit_overwrite_max_allowed = "3Gi"
+        ephemeral_storage_limit = "3Gi"
+        ephemeral_storage_request = "1Gi"
+        ephemeral_storage_limit_overwrite_max_allowed = "5Gi"
+        ephemeral_storage_request_overwrite_max_allowed = "4Gi"
+        service_ephemeral_storage_request = "100Mi"
+        service_ephemeral_storage_limit = "1Gi"
         [[runners.kubernetes.host_aliases]]
           ip = "127.0.0.1"
           hostnames = ["localhost.vmware.com"]

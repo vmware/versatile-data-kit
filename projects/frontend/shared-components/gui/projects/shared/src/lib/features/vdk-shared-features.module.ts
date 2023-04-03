@@ -11,7 +11,7 @@ import { ClarityModule } from '@clr/angular';
 
 import { SharedFeaturesConfig } from './_model';
 
-import { VdkComponentsModule } from '../commons';
+import { VdkSharedComponentsModule } from '../commons';
 
 import { SHARED_FEATURES_CONFIG_TOKEN } from './_token';
 
@@ -33,7 +33,7 @@ import { PipesModule } from './pipes/pipes.module';
         CommonModule,
         RouterModule,
         ClarityModule,
-        VdkComponentsModule.forChild(),
+        VdkSharedComponentsModule.forChild(),
         ToastsModule,
         WarningModule,
         PlaceholderModule,
@@ -42,29 +42,29 @@ import { PipesModule } from './pipes/pipes.module';
     ],
     exports: [ToastsModule, WarningModule, PlaceholderModule, DirectivesModule, PipesModule]
 })
-export class TaurusSharedFeaturesModule {
+export class VdkSharedFeaturesModule {
     /**
-     * ** Provides TaurusSharedFeaturesModule and all Services related to Shared Module features.
+     * ** Provides VdkSharedFeaturesModule and all Services related to Shared Module features.
      *
-     *      - Should be invoke only once for entire project.
+     *      - Should be invoked only once for entire project.
      *      - Not inside FeatureModule (lazy loaded Module).
-     *      - In other modules import only TaurusSharedFeaturesModule.
+     *      - In other modules import only VdkSharedFeaturesModule or VdkSharedFeaturesModule.forChild().
      */
-    static forRoot(featuresConfig?: SharedFeaturesConfig): ModuleWithProviders<TaurusSharedFeaturesModule> {
+    static forRoot(featuresConfig?: SharedFeaturesConfig): ModuleWithProviders<VdkSharedFeaturesModule> {
         return {
-            ngModule: TaurusSharedFeaturesModule,
+            ngModule: VdkSharedFeaturesModule,
             providers: [{ provide: SHARED_FEATURES_CONFIG_TOKEN, useValue: featuresConfig ?? {} }, ErrorHandlerService, ToastService]
         };
     }
 
     /**
-     * ** Provides TaurusSharedFeaturesModule.
+     * ** Provides VdkSharedFeaturesModule.
      *
      *      - Should be invoked in FeatureModules (lazy loaded Modules).
      */
-    static forChild(): ModuleWithProviders<TaurusSharedFeaturesModule> {
+    static forChild(): ModuleWithProviders<VdkSharedFeaturesModule> {
         return {
-            ngModule: TaurusSharedFeaturesModule
+            ngModule: VdkSharedFeaturesModule
         };
     }
 }

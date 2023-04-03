@@ -27,6 +27,10 @@ export interface DataPipelinesConfig {
      * ** Flag instruction to show or hide tab for lineage page.
      */
     showLineagePage?: boolean;
+    /**
+     * ** Documentation url for Data Pipelines.
+     */
+    dataPipelinesDocumentationUrl?: string;
 }
 
 export interface ExploreConfig {

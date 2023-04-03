@@ -8,15 +8,15 @@
 
 module.exports = function (config) {
     config.set({
-        basePath: "",
-        frameworks: ["jasmine", "@angular-devkit/build-angular"],
+        basePath: '',
+        frameworks: ['jasmine', '@angular-devkit/build-angular'],
         plugins: [
-            require("karma-jasmine"),
-            require("karma-chrome-launcher"),
-            require("karma-jasmine-html-reporter"),
-            require("karma-junit-reporter"),
-            require("karma-coverage"),
-            require("@angular-devkit/build-angular/plugins/karma"),
+            require('karma-jasmine'),
+            require('karma-chrome-launcher'),
+            require('karma-jasmine-html-reporter'),
+            require('karma-junit-reporter'),
+            require('karma-coverage'),
+            require('@angular-devkit/build-angular/plugins/karma'),
         ],
         client: {
             jasmine: {
@@ -31,16 +31,16 @@ module.exports = function (config) {
             suppressAll: true, // removes the duplicated traces
         },
         coverageReporter: {
-            dir: require("path").join(
+            dir: require('path').join(
                 __dirname,
-                "../../reports/coverage/data-pipelines-lib",
+                '../../reports/coverage/data-pipelines-lib',
             ),
-            subdir: ".",
+            subdir: '.',
             reporters: [
                 //Code coverage - output in HTML file and Console(to be parsed in the CI/CD badge)
-                { type: "html" },
-                { type: "text-summary" },
-                { type: "lcovonly" },
+                { type: 'html' },
+                { type: 'text-summary' },
+                { type: 'lcovonly' },
             ],
             check: {
                 global: {
@@ -48,24 +48,24 @@ module.exports = function (config) {
                 },
             },
         },
-        reporters: ["progress", "junit", "coverage"],
+        reporters: ['progress', 'junit', 'coverage'],
         junitReporter: {
-            outputDir: require("path").join(
+            outputDir: require('path').join(
                 __dirname,
-                "../../reports/test-results/data-pipelines-lib",
+                '../../reports/test-results/data-pipelines-lib',
             ),
-            outputFile: "unit-tests.xml",
+            outputFile: 'unit-tests.xml',
             useBrowserName: false,
         },
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ["ChromeHeadless"],
+        browsers: ['ChromeHeadless'],
         customLaunchers: {
             ChromeHeadless_No_Sandbox: {
-                base: "ChromeHeadless",
-                flags: ["--no-sandbox"],
+                base: 'ChromeHeadless',
+                flags: ['--no-sandbox'],
             },
         },
         singleRun: false,
