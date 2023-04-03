@@ -47,7 +47,7 @@ export async function jobRunRequest(): Promise<{
         'Job execution has finished with status ' +
         data['message'] +
         ' \n See vdk_logs.txt file for more!';
-      return { message: message, status: true };
+      return { message: message, status: data['message'] == '0' };
     } catch (error) {
       await showErrorMessage(
         'Encountered an error when trying to run the job. Error:',

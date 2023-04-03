@@ -45,11 +45,11 @@ def get_table_lineage_from_query(
 
     runner = LineageRunner(query)
 
-    if len(runner.statements_parsed) == 0:
+    if len(runner.statements()) == 0:
         # log.debug("No statement passed")
         return None
 
-    if len(runner.statements_parsed) > 1:
+    if len(runner.statements()) > 1:
         raise RuntimeError(
             "Query with more than one statement is passed. "
             "Make sure that multiple query statements (separated) are not passed to this method."
@@ -74,7 +74,7 @@ def get_table_lineage_from_query(
 
     return LineageData(
         query=query,
-        query_type=runner.statements_parsed[0].get_type(),
+        query_type="not implemented",
         query_status="",
         input_tables=input_tables,
         output_table=output_table,
