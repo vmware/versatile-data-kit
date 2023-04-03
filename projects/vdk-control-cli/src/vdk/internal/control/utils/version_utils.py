@@ -8,7 +8,6 @@ try:
     # Change here if project is renamed and does not equal the setuptools metadata.name
     dist_name = "vdk-control-cli"
     __version__ = get_distribution(dist_name).version
-    pass
 except DistributionNotFound:  # pragma: no cover
     __version__ = "unknown"
 
