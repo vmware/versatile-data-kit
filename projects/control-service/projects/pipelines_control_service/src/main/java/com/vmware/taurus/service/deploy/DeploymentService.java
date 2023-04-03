@@ -46,6 +46,7 @@ public class DeploymentService {
   private final OperationContext operationContext;
   private final JobsRepository jobsRepository;
   private final DataJobMetrics dataJobMetrics;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public Optional<JobDeploymentStatus> readDeployment(String jobName) {
     return jobImageDeployer.readScheduledJob(jobName);
@@ -64,6 +65,8 @@ public class DeploymentService {
    *     are null)
    */
   public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+    validatePythonVersionIsSupported(jobDeployment.getPythonVersion());
+
     var deploymentStatus = readDeployment(dataJob.getName());
     if (deploymentStatus.isPresent()) {
       var oldDeployment =
@@ -141,12 +144,18 @@ public class DeploymentService {
     try {
       log.info("Starting deployment of job {}", jobDeployment.getDataJobName());
       deploymentProgress.started(dataJob.getJobConfig(), jobDeployment);
+      validatePythonVersionIsSupported(jobDeployment.getPythonVersion());
+
       var deploymentStatus = readDeployment(dataJob.getName());
       if (deploymentStatus.isPresent()) {
         var oldDeployment =
             DeploymentModelConverter.toJobDeployment(
                 dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
         jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+      }
+
+      if (jobDeployment.getPythonVersion() == null) {
+        jobDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
       }
 
       String imageName =
@@ -190,6 +199,24 @@ public class DeploymentService {
           "The deployment of the data job {} has been {}",
           dataJob.getName(),
           Boolean.TRUE.equals(dataJob.getEnabled()) ? "ENABLED" : "DISABLED");
+    }
+  }
+
+  /**
+   * As pythonVersion is optional, we need to check if it is passed. And if it is, we need to
+   * validate that the python version is supported by the Control Service. If it is not, we need
+   * to fail the operation, as we don't have sufficient information for the user's intent to deploy
+   * the data job.
+   *
+   * @param pythonVersion The python version to be used for the data job deployment.
+   * */
+  private void validatePythonVersionIsSupported(String pythonVersion) {
+    if (pythonVersion != null && !supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
+      throw new ApiConstraintError(
+              "python_version",
+              "not in the list of supported python versions.",
+              supportedPythonVersions.getSupportedPythonVersions(),
+              "Pass one of the supported python versions to the python_version property.");
     }
   }
 
