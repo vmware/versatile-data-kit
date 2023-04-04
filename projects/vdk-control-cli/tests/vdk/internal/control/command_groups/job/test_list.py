@@ -12,6 +12,7 @@ from pytest_httpserver.httpserver import QueryMatcher
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
 from vdk.internal.control.command_groups.job.list import list_command
+from vdk.internal.test_utils import assert_click_status
 
 test_utils.disable_vdk_authentication()
 
@@ -63,9 +64,7 @@ def test_list_default_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output and "test-job-2" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -92,9 +91,7 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-a", "-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -102,9 +99,7 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     result = runner.invoke(
         list_command, ["-t", "test-team", "--all", "-u", rest_api_url]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -114,9 +109,7 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     ).respond_with_json(response)
 
     result = runner.invoke(list_command, ["-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -125,20 +118,14 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 def test_list_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team"])
-
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 
 def test_list_with_empty_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-u", ""])
-
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 
@@ -155,9 +142,7 @@ def test_list_with_json_output(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     result = runner.invoke(
         list_command, ["-t", "test-team", "-u", rest_api_url, "-o", "json"]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
 
     try:
         json_result = json.loads(result.output)
@@ -175,9 +160,7 @@ def test_list_with_invalid_output(httpserver: PluginHTTPServer, tmpdir: LocalPat
     result = runner.invoke(
         list_command, ["-t", "test-team", "-u", rest_api_url, "-o", "invalid"]
     )
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 2)
     assert (
         "Error: Invalid value for '--output'" in result.output
     ), f"expected data not found in output: {result.output}"
@@ -223,9 +206,7 @@ def test_list_with_multiple_pages(httpserver: PluginHTTPServer, tmpdir: LocalPat
 
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-a", "-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job-1" in result.output and "test-job-120" in result.output
     ), f"expected data not found in output: {result.output}"
