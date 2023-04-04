@@ -40,7 +40,7 @@ public class DataJobsServiceController implements DataJobsServiceApi {
   public ResponseEntity<DataJobApiInfo> info(String teamName) {
     DataJobApiInfo result = new DataJobApiInfo();
     result.setApiVersion(userAgentService.getUserAgentDetails());
-    result.setSupportedPythonVersion(
+    result.setSupportedPythonVersions(
         new ArrayList<String>(supportedPythonVersions.getSupportedPythonVersions()));
     return ResponseEntity.ok(result);
   }
