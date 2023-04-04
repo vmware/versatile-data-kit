@@ -49,12 +49,14 @@ class RemoteDataJob:
         job_name: str,
         team_name: str,
         rest_api_url: str,
+        arguments: dict = None,
         timeout: int = 5,  # TODO: Set reasonable default
         **kwargs,
     ) -> None:
         self.job_name = job_name
         self.team_name = team_name
         self._rest_api_url = rest_api_url
+        self.arguments = arguments
         self.timeout = timeout
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
         self.auth: Optional[Authentication] = kwargs.pop("auth", None)
@@ -78,7 +80,7 @@ class RemoteDataJob:
 
         self.__execution_api = self._get_execution_api()
 
-    def start_job_execution(self, **request_kwargs) -> str:
+    def start_job_execution(self) -> str:
         """
         Triggers a manual Datajob execution.
 
@@ -86,7 +88,7 @@ class RemoteDataJob:
         """
         execution_request = DataJobExecutionRequest(
             started_by="meta-job",  # TODO: specify name of meta job
-            args=request_kwargs,
+            args=self.arguments,
         )
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
             team_name=self.team_name,

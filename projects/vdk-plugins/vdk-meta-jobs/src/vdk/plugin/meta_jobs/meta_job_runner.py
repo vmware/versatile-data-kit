@@ -11,6 +11,7 @@ from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 
 TEAM_NAME: Optional[str] = None
 META_CONFIG = None
+ARGUMENTS = None
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ def get_json(obj):
 
 class MetaJobInput(IMetaJobInput):
     def run_meta_job(self, jobs: List[Dict]):
-        dag = MetaJobsDag(TEAM_NAME, META_CONFIG)
+        dag = MetaJobsDag(TEAM_NAME, META_CONFIG, ARGUMENTS)
         dag.build_dag(jobs)
         dag.execute_dag()
         log.info(f"Meta job summary:\n{dag}")

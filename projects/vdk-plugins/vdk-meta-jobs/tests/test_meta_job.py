@@ -119,7 +119,7 @@ class TestMetaJob:
         if additional_env_vars is not None:
             self.env_vars.update(additional_env_vars)
 
-    def _run_meta_job(self, meta_job_name):
+    def _run_meta_job(self, meta_job_name, arguments: str = None):
         with mock.patch.dict(
             os.environ,
             self.env_vars,
@@ -127,7 +127,12 @@ class TestMetaJob:
             # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
             # and mock large parts of it - e.g passed our own plugins
             result: Result = self.runner.invoke(
-                ["run", jobs_path_from_caller_directory(meta_job_name)]
+                [
+                    "run",
+                    jobs_path_from_caller_directory(meta_job_name),
+                    "--arguments",
+                    arguments,
+                ]
             )
 
             return result
@@ -148,7 +153,7 @@ class TestMetaJob:
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(plugin_entry)
-            result = self._run_meta_job("meta-job")
+            result = self._run_meta_job("meta-job", '{"table_name": "test_table"}')
             cli_assert_equal(0, result)
             self.httpserver.stop()
 
@@ -303,14 +308,14 @@ class TestMetaJob:
             assert len(running_jobs) == 0
             self.httpserver.stop()
 
-    def _test_meta_job_validation(self, meta_job_name):
+    def _test_meta_job_validation(self, meta_job_name, arguments=None):
         self._set_up()
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(plugin_entry)
-            result = self._run_meta_job(meta_job_name)
+            result = self._run_meta_job(meta_job_name, arguments)
             cli_assert_equal(1, result)
             self._assert_meta_job_fails_with_error(result, UserCodeError)
             self.httpserver.stop()
@@ -326,6 +331,11 @@ class TestMetaJob:
 
     def test_meta_job_not_allowed_job_key(self):
         self._test_meta_job_validation("meta-job-not-allowed-job-key")
+
+    def test_meta_job_wrong_job_arguments_json(self):
+        self._test_meta_job_validation(
+            "meta-job-wrong-job-arguments-json", '{"table_name": "test_table_override"}'
+        )
 
     def test_meta_job_wrong_job_key_type(self):
         self._test_meta_job_validation("meta-job-wrong-job-key-type")

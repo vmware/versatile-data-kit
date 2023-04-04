@@ -1,11 +1,12 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import graphlib
+import json
 import logging
 from collections import namedtuple
 from typing import Dict
 from typing import List
 
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -14,7 +15,13 @@ Error = namedtuple("Error", ["TYPE", "PERMISSION", "REQUIREMENT", "CONFLICT"])
 ERROR = Error(
     TYPE="type", PERMISSION="permission", REQUIREMENT="requirement", CONFLICT="conflict"
 )
-allowed_job_keys = {"job_name", "team_name", "fail_meta_job_on_error", "depends_on"}
+allowed_job_keys = {
+    "job_name",
+    "team_name",
+    "fail_meta_job_on_error",
+    "depends_on",
+    "arguments",
+}
 required_job_keys = {"job_name", "depends_on"}
 
 
@@ -66,6 +73,7 @@ class DagValidator:
         self._validate_dependencies(job)
         self._validate_team_name(job)
         self._validate_fail_meta_job_on_error(job)
+        self._validate_arguments(job)
         log.info(f"Successfully validated job: {job['job_name']}")
 
     def _validate_allowed_and_required_keys(self, job: Dict):
@@ -140,6 +148,28 @@ class DagValidator:
                 f"Change the Data Job Dict value of fail_meta_job_on_error. Current type"
                 f" is {type(job['fail_meta_job_on_error'])}. Expected type is bool.",
             )
+
+    def _validate_arguments(self, job: Dict):
+        if "arguments" in job:
+            if not isinstance(job["arguments"], Dict):
+                self._raise_error(
+                    list(job["job_name"]),
+                    ERROR.TYPE,
+                    "The type of the job dict key arguments is not str.",
+                    f"Change the Data Job Dict value of arguments. "
+                    f"Current type is {type(job['arguments'])}. Expected type is JSON-formatted str.",
+                )
+            try:
+                json.loads(job["arguments"])
+            except json.JSONDecodeError as e:
+                # Handle the case where the string is not valid JSON
+                self._raise_error(
+                    list(job),
+                    ERROR.TYPE,
+                    e.msg,
+                    f"Change the Data Job Dict value of arguments. "
+                    f"Current type is {type(job['arguments'])} but not in JSON format.",
+                )
 
     def _check_dag_cycles(self, jobs: List[Dict]):
         topological_sorter = graphlib.TopologicalSorter()

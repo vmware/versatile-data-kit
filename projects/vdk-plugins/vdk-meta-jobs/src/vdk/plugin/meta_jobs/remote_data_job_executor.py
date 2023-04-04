@@ -1,5 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -10,9 +11,11 @@ from vdk.plugin.meta_jobs.remote_data_job import RemoteDataJob
 
 
 class RemoteDataJobExecutor(IDataJobExecutor):
-    def start_job(self, job_name: str, team_name: str):
+    def start_job(self, job_name: str, team_name: str, arguments: Dict = None):
         vdk_cfg = VDKConfig()
-        job = RemoteDataJob(job_name, team_name, vdk_cfg.control_service_rest_api_url)
+        job = RemoteDataJob(
+            job_name, team_name, vdk_cfg.control_service_rest_api_url, arguments
+        )
         return job.start_job_execution()
         # catch error on 409
 

@@ -23,6 +23,7 @@ class MetaJobsPlugin:
         meta_job_runner.META_CONFIG = MetaPluginConfiguration(
             context.core_context.configuration
         )
+        meta_job_runner.ARGUMENTS = context.job_args.get_arguments()
 
     @staticmethod
     @hookimpl
