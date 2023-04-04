@@ -6,10 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
-import com.vmware.taurus.exception.ApiConstraintError;
-import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
-import com.vmware.taurus.exception.ErrorMessage;
-import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.exception.*;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
@@ -65,13 +62,13 @@ public class DeploymentService {
    *     are null)
    */
   public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
-    validatePythonVersionIsSupported(jobDeployment.getPythonVersion());
 
     var deploymentStatus = readDeployment(dataJob.getName());
     if (deploymentStatus.isPresent()) {
       var oldDeployment =
           DeploymentModelConverter.toJobDeployment(
               dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
+      setPythonVersionIfNull(oldDeployment, jobDeployment);
       var mergedDeployment =
           DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
       validateFieldsCanBePatched(oldDeployment, mergedDeployment);
@@ -144,13 +141,13 @@ public class DeploymentService {
     try {
       log.info("Starting deployment of job {}", jobDeployment.getDataJobName());
       deploymentProgress.started(dataJob.getJobConfig(), jobDeployment);
-      validatePythonVersionIsSupported(jobDeployment.getPythonVersion());
 
       var deploymentStatus = readDeployment(dataJob.getName());
       if (deploymentStatus.isPresent()) {
         var oldDeployment =
             DeploymentModelConverter.toJobDeployment(
                 dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
+        setPythonVersionIfNull(oldDeployment, jobDeployment);
         jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
       }
 
@@ -210,13 +207,9 @@ public class DeploymentService {
    *
    * @param pythonVersion The python version to be used for the data job deployment.
    */
-  private void validatePythonVersionIsSupported(String pythonVersion) {
+  public void validatePythonVersionIsSupported(String pythonVersion) {
     if (pythonVersion != null && !supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
-      throw new ApiConstraintError(
-          "python_version",
-          "not in the list of supported python versions.",
-          supportedPythonVersions.getSupportedPythonVersions(),
-          "Pass one of the supported python versions to the python_version property.");
+      throw new UnsupportedPythonVersionException(pythonVersion, supportedPythonVersions.getSupportedPythonVersions().toString());
     }
   }
 
@@ -256,5 +249,12 @@ public class DeploymentService {
   private boolean deploymentExistsOrInProgress(String dataJobName) {
     return jobImageBuilder.isBuildingJobInProgress(dataJobName)
         || readDeployment(dataJobName).isPresent();
+  }
+
+  private JobDeployment setPythonVersionIfNull(JobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
+      newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
+    }
+    return newDeployment;
   }
 }
