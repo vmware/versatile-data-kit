@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * REST controller for operations on data job
@@ -41,7 +40,8 @@ public class DataJobsServiceController implements DataJobsServiceApi {
   public ResponseEntity<DataJobApiInfo> info(String teamName) {
     DataJobApiInfo result = new DataJobApiInfo();
     result.setApiVersion(userAgentService.getUserAgentDetails());
-    result.setSupportedPythonVersion(new ArrayList<String>(supportedPythonVersions.getSupportedPythonVersions()));
+    result.setSupportedPythonVersion(
+        new ArrayList<String>(supportedPythonVersions.getSupportedPythonVersions()));
     return ResponseEntity.ok(result);
   }
 }
