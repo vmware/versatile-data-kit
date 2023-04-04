@@ -153,7 +153,7 @@ class TestMetaJob:
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(plugin_entry)
-            result = self._run_meta_job("meta-job", '{"table_name": "test_table"}')
+            result = self._run_meta_job("meta-job")
             cli_assert_equal(0, result)
             self.httpserver.stop()
 
@@ -332,10 +332,32 @@ class TestMetaJob:
     def test_meta_job_not_allowed_job_key(self):
         self._test_meta_job_validation("meta-job-not-allowed-job-key")
 
-    def test_meta_job_wrong_job_arguments_json(self):
+    def test_meta_job_wrong_job_arguments_type(self):
         self._test_meta_job_validation(
-            "meta-job-wrong-job-arguments-json", '{"table_name": "test_table_override"}'
+            "meta-job-wrong-job-arguments-type", '{"table_name": "test_table_override"}'
         )
+
+    def test_meta_job_arguments(self):
+        self._set_up()
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            result = self._run_meta_job("meta-job-arguments")
+            cli_assert_equal(0, result)
+            self.httpserver.stop()
+
+    def test_meta_job_empty_arguments(self):
+        self._set_up()
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            result = self._run_meta_job("meta-job-empty-arguments")
+            cli_assert_equal(0, result)
+            self.httpserver.stop()
 
     def test_meta_job_wrong_job_key_type(self):
         self._test_meta_job_validation("meta-job-wrong-job-key-type")

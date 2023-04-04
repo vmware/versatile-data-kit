@@ -1,12 +1,12 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import graphlib
 import json
 import logging
 from collections import namedtuple
 from typing import Dict
 from typing import List
 
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -151,24 +151,23 @@ class DagValidator:
 
     def _validate_arguments(self, job: Dict):
         if "arguments" in job:
-            if not isinstance(job["arguments"], Dict):
-                self._raise_error(
-                    list(job["job_name"]),
-                    ERROR.TYPE,
-                    "The type of the job dict key arguments is not str.",
-                    f"Change the Data Job Dict value of arguments. "
-                    f"Current type is {type(job['arguments'])}. Expected type is JSON-formatted str.",
-                )
-            try:
-                json.loads(job["arguments"])
-            except json.JSONDecodeError as e:
-                # Handle the case where the string is not valid JSON
+            if not isinstance(job["arguments"], dict):
                 self._raise_error(
                     list(job),
                     ERROR.TYPE,
-                    e.msg,
+                    "The type of the job dict key arguments is not dict.",
                     f"Change the Data Job Dict value of arguments. "
-                    f"Current type is {type(job['arguments'])} but not in JSON format.",
+                    f"Current type is {type(job['arguments'])}. Expected type is dict.",
+                )
+            try:
+                json.dumps(job["arguments"])
+            except TypeError as e:
+                self._raise_error(
+                    list(job),
+                    ERROR.TYPE,
+                    str(e),
+                    f"Change the Data Job Dict value of arguments. "
+                    f"Current type is {type(job['arguments'])} but not serializable as JSON.",
                 )
 
     def _check_dag_cycles(self, jobs: List[Dict]):

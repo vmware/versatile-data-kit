@@ -12,7 +12,9 @@ from vdk.plugin.meta_jobs.api import meta_job
 
 class IDataJobExecutor(abc.ABC):
     @abc.abstractmethod
-    def start_job(self, job_name: str, team_name: str, arguments: Dict):
+    def start_job(
+        self, job_name: str, team_name: str, arguments: Optional[Dict] = None
+    ):
         """
         Start an execution of a data job and returns its execution id
         :param arguments:
