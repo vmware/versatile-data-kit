@@ -209,8 +209,7 @@ public class DeploymentService {
    */
   public void validatePythonVersionIsSupported(String pythonVersion) {
     if (pythonVersion != null && !supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
-      throw new UnsupportedPythonVersionException(
-          pythonVersion, supportedPythonVersions.getSupportedPythonVersions().toString());
+      throw new UnsupportedPythonVersionException(pythonVersion, supportedPythonVersions.getSupportedPythonVersions());
     }
   }
 
