@@ -1002,7 +1002,7 @@ components:
         api_version:
           description: ''
           type: string
-        supported_python_version:
+        supported_python_versions:
           description: 'list of supported python versions'
           type: array
           items:
