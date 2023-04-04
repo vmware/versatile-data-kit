@@ -17,33 +17,34 @@ import static org.mockito.Mockito.when;
 
 public class DataJobsServiceControllerTest {
 
-    @Test
-    public void testInfo() {
-        // Mock dependencies
-        UserAgentService userAgentService = Mockito.mock(UserAgentService.class);
-        SupportedPythonVersions supportedPythonVersions = Mockito.mock(SupportedPythonVersions.class);
+  @Test
+  public void testInfo() {
+    // Mock dependencies
+    UserAgentService userAgentService = Mockito.mock(UserAgentService.class);
+    SupportedPythonVersions supportedPythonVersions = Mockito.mock(SupportedPythonVersions.class);
 
-        // Create instance of DataJobsServiceController
-        DataJobsServiceController controller = new DataJobsServiceController(userAgentService, supportedPythonVersions);
+    // Create instance of DataJobsServiceController
+    DataJobsServiceController controller =
+        new DataJobsServiceController(userAgentService, supportedPythonVersions);
 
-        // Prepare test data
-        Set<String> supportedVersions = new HashSet<>();
-        supportedVersions.add("python3.6");
-        supportedVersions.add("python3.7");
-        supportedVersions.add("python3.8");
-        supportedVersions.add("python3.9");
-        when(supportedPythonVersions.getSupportedPythonVersions()).thenReturn(supportedVersions);
-        when(userAgentService.getUserAgentDetails()).thenReturn("1.0.0");
+    // Prepare test data
+    Set<String> supportedVersions = new HashSet<>();
+    supportedVersions.add("python3.6");
+    supportedVersions.add("python3.7");
+    supportedVersions.add("python3.8");
+    supportedVersions.add("python3.9");
+    when(supportedPythonVersions.getSupportedPythonVersions()).thenReturn(supportedVersions);
+    when(userAgentService.getUserAgentDetails()).thenReturn("1.0.0");
 
-        // Call the API method
-        ResponseEntity<DataJobApiInfo> responseEntity = controller.info("myteam");
+    // Call the API method
+    ResponseEntity<DataJobApiInfo> responseEntity = controller.info("myteam");
 
-        // Verify the response status code
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    // Verify the response status code
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
-        // Verify the response body
-        DataJobApiInfo response = responseEntity.getBody();
-        assertEquals("1.0.0", response.getApiVersion());
-        assertEquals(new ArrayList<>(supportedVersions), response.getSupportedPythonVersions());
-    }
+    // Verify the response body
+    DataJobApiInfo response = responseEntity.getBody();
+    assertEquals("1.0.0", response.getApiVersion());
+    assertEquals(new ArrayList<>(supportedVersions), response.getSupportedPythonVersions());
+  }
 }
