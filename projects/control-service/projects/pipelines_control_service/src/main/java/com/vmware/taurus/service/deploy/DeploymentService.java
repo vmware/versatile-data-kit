@@ -204,19 +204,19 @@ public class DeploymentService {
 
   /**
    * As pythonVersion is optional, we need to check if it is passed. And if it is, we need to
-   * validate that the python version is supported by the Control Service. If it is not, we need
-   * to fail the operation, as we don't have sufficient information for the user's intent to deploy
-   * the data job.
+   * validate that the python version is supported by the Control Service. If it is not, we need to
+   * fail the operation, as we don't have sufficient information for the user's intent to deploy the
+   * data job.
    *
    * @param pythonVersion The python version to be used for the data job deployment.
-   * */
+   */
   private void validatePythonVersionIsSupported(String pythonVersion) {
     if (pythonVersion != null && !supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
       throw new ApiConstraintError(
-              "python_version",
-              "not in the list of supported python versions.",
-              supportedPythonVersions.getSupportedPythonVersions(),
-              "Pass one of the supported python versions to the python_version property.");
+          "python_version",
+          "not in the list of supported python versions.",
+          supportedPythonVersions.getSupportedPythonVersions(),
+          "Pass one of the supported python versions to the python_version property.");
     }
   }
 

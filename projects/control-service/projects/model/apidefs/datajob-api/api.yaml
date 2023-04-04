@@ -1078,7 +1078,7 @@ components:
           type: string
           example: 11a403ba
         python_version:
-          description: A python release version to use for job deployments
+          description: A python release version (supported by the service) to be used for job deployments.
           type: string
           example: 3.9
         mode:
@@ -1115,7 +1115,7 @@ components:
           type: string
           example: 11a403ba
         python_version:
-          description: A python release version to use for job deployments
+          description: A python release version (supported by the service) to be used for job deployments.
           type: string
           example: 3.9
         mode:

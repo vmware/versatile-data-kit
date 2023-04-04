@@ -110,9 +110,9 @@ public class DeploymentModelConverter {
       mergedDeployment.setPythonVersion(new SupportedPythonVersions().getDefaultPythonVersion());
     } else {
       mergedDeployment.setPythonVersion(
-              newDeployment.getPythonVersion() != null
-                      ? newDeployment.getPythonVersion()
-                      : oldDeployment.getPythonVersion());
+          newDeployment.getPythonVersion() != null
+              ? newDeployment.getPythonVersion()
+              : oldDeployment.getPythonVersion());
     }
     return mergedDeployment;
   }
