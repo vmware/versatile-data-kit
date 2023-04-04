@@ -12,7 +12,6 @@ from vdk.internal.core import errors
 
 log = logging.getLogger(__name__)
 
-
 # consists may duplicates of
 # https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/file_based_step.py
 
@@ -42,20 +41,22 @@ class NotebookStep(Step):
     """
 
     def __init__(
-        self,
-        name,
-        type,
-        runner_func,
-        file_path,
-        job_dir,
-        code,
-        module=None,
-        parent=None,
+            self,
+            name,
+            type,
+            runner_func,
+            file_path,
+            job_dir,
+            code,
+            cell_id,
+            module=None,
+            parent=None,
     ):
         super().__init__(name, type, runner_func, file_path, job_dir, parent)
         self.runner_func = runner_func
         self.code = code
         self.module = module
+        self.cell_id = cell_id
 
 
 class NotebookStepFuncFactory:
@@ -79,7 +80,8 @@ class NotebookStepFuncFactory:
                 errors.log_and_rethrow(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from {step.file_path.name}",
+                    what_happened=f"Failed loading job sources of {step.name} from cell with id:{step.cell_id}"
+                                  f" from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
                     f": {e.args[0]}",
                     consequences=f"Current Step {step.name} from {step.file_path}"
@@ -94,7 +96,8 @@ class NotebookStepFuncFactory:
                 errors.log_and_rethrow(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from {step.file_path.name}",
+                    what_happened=f"Failed loading job sources of {step.name} from cell with id:{step.cell_id}"
+                                  f" from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {line_number} of {step.name}"
                     f": {e.args[0]}",
                     consequences=f"Current Step {step.name} from {step.file_path}"
