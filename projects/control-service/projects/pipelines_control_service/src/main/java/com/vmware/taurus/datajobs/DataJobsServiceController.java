@@ -8,12 +8,16 @@ package com.vmware.taurus.datajobs;
 import com.vmware.taurus.controlplane.model.api.DataJobsServiceApi;
 import com.vmware.taurus.controlplane.model.data.DataJobApiInfo;
 import com.vmware.taurus.service.UserAgentService;
+import com.vmware.taurus.service.deploy.SupportedPythonVersions;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * REST controller for operations on data job
@@ -31,11 +35,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class DataJobsServiceController implements DataJobsServiceApi {
 
   @Autowired UserAgentService userAgentService;
+  @Autowired SupportedPythonVersions supportedPythonVersions;
 
   @Override
   public ResponseEntity<DataJobApiInfo> info(String teamName) {
     DataJobApiInfo result = new DataJobApiInfo();
     result.setApiVersion(userAgentService.getUserAgentDetails());
+    result.setSupportedPythonVersion(new ArrayList<String>(supportedPythonVersions.getSupportedPythonVersions()));
     return ResponseEntity.ok(result);
   }
 }
