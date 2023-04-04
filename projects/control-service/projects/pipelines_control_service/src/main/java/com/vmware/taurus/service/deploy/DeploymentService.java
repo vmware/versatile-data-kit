@@ -209,7 +209,8 @@ public class DeploymentService {
    */
   public void validatePythonVersionIsSupported(String pythonVersion) {
     if (pythonVersion != null && !supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
-      throw new UnsupportedPythonVersionException(pythonVersion, supportedPythonVersions.getSupportedPythonVersions().toString());
+      throw new UnsupportedPythonVersionException(
+          pythonVersion, supportedPythonVersions.getSupportedPythonVersions().toString());
     }
   }
 
@@ -251,7 +252,8 @@ public class DeploymentService {
         || readDeployment(dataJobName).isPresent();
   }
 
-  private JobDeployment setPythonVersionIfNull(JobDeployment oldDeployment, JobDeployment newDeployment) {
+  private JobDeployment setPythonVersionIfNull(
+      JobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
       newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
     }
