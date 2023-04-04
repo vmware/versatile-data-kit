@@ -1,12 +1,12 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import graphlib
 import json
 import logging
 from collections import namedtuple
 from typing import Dict
 from typing import List
 
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -153,7 +153,7 @@ class DagValidator:
         if "arguments" in job:
             if not isinstance(job["arguments"], dict):
                 self._raise_error(
-                    list(job),
+                    job["job_name"],
                     ERROR.TYPE,
                     "The type of the job dict key arguments is not dict.",
                     f"Change the Data Job Dict value of arguments. "

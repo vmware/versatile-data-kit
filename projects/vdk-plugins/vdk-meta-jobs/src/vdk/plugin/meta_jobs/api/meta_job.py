@@ -4,7 +4,9 @@ import abc
 from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Dict
 from typing import List
+from typing import Optional
 
 
 @dataclass
@@ -16,7 +18,7 @@ class SingleJob:
     job_name: str
     team_name: str = None
     fail_meta_job_on_error: bool = True
-    arguments: str = None
+    arguments: Optional[Dict] = None
     depends_on: List[str] = field(default_factory=list)
 
 

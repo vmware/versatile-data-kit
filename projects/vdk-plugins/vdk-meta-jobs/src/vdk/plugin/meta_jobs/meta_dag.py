@@ -5,11 +5,11 @@ import logging
 import pprint
 import sys
 import time
-from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
 from typing import List
 
+from graphlib import TopologicalSorter
 from taurus_datajob_api import ApiException
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.dag_validator import DagValidator
@@ -26,7 +26,6 @@ class MetaJobsDag:
         self,
         team_name: str,
         meta_config: MetaPluginConfiguration,
-        arguments: Dict = None,
     ):
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
@@ -46,7 +45,6 @@ class MetaJobsDag:
             time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
         )
         self._dag_validator = DagValidator()
-        self._arguments = arguments
 
     def build_dag(self, jobs: List[Dict]):
         self._dag_validator.validate(jobs)
@@ -55,7 +53,7 @@ class MetaJobsDag:
                 job["job_name"],
                 job.get("team_name", self._team_name),
                 job.get("fail_meta_job_on_error", True),
-                job.get("arguments", self._arguments),
+                job.get("arguments", None),
             )
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])

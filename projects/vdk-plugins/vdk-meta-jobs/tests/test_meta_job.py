@@ -119,7 +119,7 @@ class TestMetaJob:
         if additional_env_vars is not None:
             self.env_vars.update(additional_env_vars)
 
-    def _run_meta_job(self, meta_job_name, arguments: str = None):
+    def _run_meta_job(self, meta_job_name):
         with mock.patch.dict(
             os.environ,
             self.env_vars,
@@ -130,8 +130,6 @@ class TestMetaJob:
                 [
                     "run",
                     jobs_path_from_caller_directory(meta_job_name),
-                    "--arguments",
-                    arguments,
                 ]
             )
 
@@ -308,14 +306,14 @@ class TestMetaJob:
             assert len(running_jobs) == 0
             self.httpserver.stop()
 
-    def _test_meta_job_validation(self, meta_job_name, arguments=None):
+    def _test_meta_job_validation(self, meta_job_name):
         self._set_up()
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(plugin_entry)
-            result = self._run_meta_job(meta_job_name, arguments)
+            result = self._run_meta_job(meta_job_name)
             cli_assert_equal(1, result)
             self._assert_meta_job_fails_with_error(result, UserCodeError)
             self.httpserver.stop()
@@ -333,9 +331,7 @@ class TestMetaJob:
         self._test_meta_job_validation("meta-job-not-allowed-job-key")
 
     def test_meta_job_wrong_job_arguments_type(self):
-        self._test_meta_job_validation(
-            "meta-job-wrong-job-arguments-type", '{"table_name": "test_table_override"}'
-        )
+        self._test_meta_job_validation("meta-job-wrong-job-arguments-type")
 
     def test_meta_job_arguments(self):
         self._set_up()
@@ -346,6 +342,15 @@ class TestMetaJob:
             self.runner = CliEntryBasedTestRunner(plugin_entry)
             result = self._run_meta_job("meta-job-arguments")
             cli_assert_equal(0, result)
+            job2_post_req = [
+                req
+                for req, res in self.httpserver.log
+                if req.method == "POST"
+                and req.path.split("/jobs/")[1].split("/")[0] == "job2"
+            ]
+            job2_arguments = job2_post_req[0].json["args"]
+            assert len(job2_arguments) == 2
+            assert job2_arguments == {"table_name": "test_table", "counter": 123}
             self.httpserver.stop()
 
     def test_meta_job_empty_arguments(self):
@@ -357,6 +362,14 @@ class TestMetaJob:
             self.runner = CliEntryBasedTestRunner(plugin_entry)
             result = self._run_meta_job("meta-job-empty-arguments")
             cli_assert_equal(0, result)
+            job2_post_req = [
+                req
+                for req, res in self.httpserver.log
+                if req.method == "POST"
+                and req.path.split("/jobs/")[1].split("/")[0] == "job2"
+            ]
+            job2_arguments = job2_post_req[0].json["args"]
+            assert len(job2_arguments) == 0
             self.httpserver.stop()
 
     def test_meta_job_wrong_job_key_type(self):

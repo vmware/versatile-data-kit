@@ -136,7 +136,7 @@ class TrackingDataJobExecutor:
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
 
     def start_new_job_execution(
-        self, job_name: str, team_name: str, arguments: Dict = None
+        self, job_name: str, team_name: str, arguments: Optional[Dict] = None
     ) -> str:
         """
         Start a new data job execution.
