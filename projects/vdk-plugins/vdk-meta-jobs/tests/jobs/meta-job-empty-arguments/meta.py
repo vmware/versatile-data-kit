@@ -16,7 +16,7 @@ def run(job_input: IJobInput):
         job_name="job2",
         depends_on=["job1"],
         fail_meta_job_on_error=False,
-        arguments=dict(),
+        arguments={},
     )
     job3 = dict(job_name="job3", depends_on=["job1"])
     job4 = dict(job_name="job4", depends_on=["job2", "job3"])
