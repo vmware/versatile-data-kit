@@ -31,15 +31,16 @@ class NotebookPlugin:
         out: HookCallResult
         out = yield
         result: ExecutionResult = out.get_result()
-        step_results = result.__dict__['steps_list']
+        step_results = result.steps_list
         for step_result in step_results:
-            if step_result.__dict__['status'] == ExecutionStatus.ERROR:
+            if step_result.status == ExecutionStatus.ERROR:
                 error_info = {
-                    'step_name': step_result.__dict__['name'],
-                    'blamee': step_result.__dict__['blamee'].__str__(),
-                    'details': step_result.__dict__['details']
+                    'step_name': step_result.name,
+                    'blamee': step_result.blamee.value.__str__(),
+                    'details': step_result.details
                 }
-                with open("error.json", "w") as outfile:
+                output_path = context.job_directory.parent / f".{result.data_job_name}_error.json"
+                with open(output_path, "w") as outfile:
                     outfile.write(json.dumps(error_info))
 
 
