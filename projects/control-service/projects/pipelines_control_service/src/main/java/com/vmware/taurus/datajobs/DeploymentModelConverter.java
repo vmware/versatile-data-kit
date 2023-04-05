@@ -6,6 +6,7 @@
 package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.service.deploy.SupportedPythonVersions;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class DeploymentModelConverter {
+
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public static JobDeployment toJobDeployment(
       String teamName, String jobName, JobDeploymentStatus jobDeploymentStatus) {
@@ -28,6 +31,7 @@ public class DeploymentModelConverter {
     deployment.setMode(jobDeploymentStatus.getMode());
     deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
     deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
+    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
   }
@@ -101,6 +105,11 @@ public class DeploymentModelConverter {
         newDeployment.getVdkVersion() != null
             ? newDeployment.getVdkVersion()
             : oldDeployment.getVdkVersion());
+    mergedDeployment.setPythonVersion(
+        newDeployment.getPythonVersion() != null
+            ? newDeployment.getPythonVersion()
+            : oldDeployment.getPythonVersion());
+
     return mergedDeployment;
   }
 }
