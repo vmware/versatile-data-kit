@@ -342,13 +342,7 @@ class TestMetaJob:
             self.runner = CliEntryBasedTestRunner(plugin_entry)
             result = self._run_meta_job("meta-job-arguments")
             cli_assert_equal(0, result)
-            job2_post_req = [
-                req
-                for req, res in self.httpserver.log
-                if req.method == "POST"
-                and req.path.split("/jobs/")[1].split("/")[0] == "job2"
-            ]
-            job2_arguments = job2_post_req[0].json["args"]
+            job2_arguments = self._get_job_arguments("job2")
             assert len(job2_arguments) == 2
             assert job2_arguments == {"table_name": "test_table", "counter": 123}
             self.httpserver.stop()
@@ -362,13 +356,7 @@ class TestMetaJob:
             self.runner = CliEntryBasedTestRunner(plugin_entry)
             result = self._run_meta_job("meta-job-empty-arguments")
             cli_assert_equal(0, result)
-            job2_post_req = [
-                req
-                for req, res in self.httpserver.log
-                if req.method == "POST"
-                and req.path.split("/jobs/")[1].split("/")[0] == "job2"
-            ]
-            job2_arguments = job2_post_req[0].json["args"]
+            job2_arguments = self._get_job_arguments("job2")
             assert len(job2_arguments) == 0
             self.httpserver.stop()
 
@@ -380,3 +368,12 @@ class TestMetaJob:
 
     def test_meta_job_wrong_topological_order(self):
         self._test_meta_job_validation("meta-job-wrong-topological-order")
+
+    def _get_job_arguments(self, job_name: str):
+        job_post_req = [
+            req
+            for req, res in self.httpserver.log
+            if req.method == "POST"
+            and req.path.split("/jobs/")[1].split("/")[0] == job_name
+        ]
+        return job_post_req[0].json["args"]
