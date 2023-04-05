@@ -15,6 +15,7 @@ public enum JobAnnotation {
   DEPLOYED_BY("deployed-by"),
   EXECUTION_TYPE("execution-type"),
   OP_ID("op-id"),
+  PYTHON_VERSION("python-version"),
   UNSCHEDULED("unscheduled");
 
   @Getter private String value;
