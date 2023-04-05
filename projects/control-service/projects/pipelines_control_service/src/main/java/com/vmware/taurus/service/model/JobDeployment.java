@@ -23,6 +23,8 @@ public class JobDeployment {
 
   private String vdkVersion;
 
+  private String pythonVersion;
+
   private String imageName;
 
   private String cronJobName;
