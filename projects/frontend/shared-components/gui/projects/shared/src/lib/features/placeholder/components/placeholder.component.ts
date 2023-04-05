@@ -90,7 +90,7 @@ const ErrorEscalation: PlaceholderAutoSupportedStates = {
 
 const ErrorImgSource: PlaceholderAutoSupportedStates = {
     Generic: 'assets/images/placeholder/server-error.svg',
-    Offline: null,
+    Offline: '',
     NotFound: 'assets/images/placeholder/not-found.svg'
 };
 
