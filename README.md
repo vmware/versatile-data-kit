@@ -18,19 +18,25 @@
         <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCasf2Q7X8nF7S4VEmcTHJ0Q?style=social"></a>
 
 <!-- TODO: code coverage -->
-### Versatile Data Kit consists of two main components
-
-![versatile-data-kit-componenets](https://user-images.githubusercontent.com/11227374/229588579-7c8d1d51-206e-48d4-8957-a6c9d2190c94.svg)
-
 </p>
 
 
 # Overview
-Versatile Data Kit (VDK) is an open source framework that enables anyone with basic SQL or Python knowledge to build, run, and manage their own data workflows.
 
-Data processing instructions use plain text SQL or python files that are executed sequentially in alphanumeric order, allowing you to easily build your data workflows.
+Versatile Data Kit (VDK) is a data framework that enables Data Engineers to
+- develop,
+- run,
+- manage data workloads or [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job)
 
-VDK is built for resiliency and can recover in mid-process or restart entirely from the start.
+Its Lego-like design consists of lightweight Python modules installed via `pip` package manager. All VDK plugins are easy to combine.
+
+VDK CLI can generate a data job and run your Python code and SQL queries. 
+
+**VDK SDK makes your code shorter, more readable, and faster to create.**
+
+**Because of ready-to-use data ETL/ELT patterns, Data Science with VDK becomes efficient.**
+
+Data Engineers use VDK to implement automatic pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any other data storage.
 
 
 # Data Journey and Versatile Data Kit
