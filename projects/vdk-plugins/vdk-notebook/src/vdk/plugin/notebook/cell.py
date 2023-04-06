@@ -7,7 +7,7 @@ from dataclasses import dataclass
 class Cell:
     """
     A class that represents Jupyter code cell
-    See Jupyter cell in his json schema:
+    See Jupyter cell in this json schema:
              https://github.com/jupyter/nbformat/blob/main/nbformat/v4/nbformat.v4.schema.json
     """
 
