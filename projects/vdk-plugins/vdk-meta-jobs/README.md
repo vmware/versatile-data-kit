@@ -40,7 +40,7 @@ When defining a job to be run following attributes are supported:
 * **job_name**: required, the name of the data job
 * **team_name:**: optional, the team of the data job. If omitted , it will use the meta job's team
 * **fail_meta_job_on_error**: optional, default is true. If true, the meta job will abort and fail if the orchestrated job fails, if false, meta job won't fail and continue.
-* **arguments**: optional, the arguments that are passed to the data job. The arguments could be used for parameter substitution in queries.
+* **arguments**: optional, the arguments that are passed to the underlying orchestrated data job.
 * **depends_on**: required (can be empty), list of other jobs that the orchestrated job depends on. The job will not be started until depends_on job have finished.
 
 
