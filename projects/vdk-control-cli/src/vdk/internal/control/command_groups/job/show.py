@@ -14,7 +14,7 @@ from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
-from vdk.internal.control.utils.cli_utils import OutputFormat
+from vdk.internal.control.utils.output_printer import json_format
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class JobShow:
         job_as_dict["deployments"] = list(map(lambda d: d.to_dict(), deployments))
         job_as_dict["executions"] = list(map(lambda e: e.to_dict(), executions))[:2]
 
-        click.echo(cli_utils.json_format(job_as_dict, indent=2))
+        click.echo(json_format(job_as_dict, indent=2))
 
 
 @click.command(
