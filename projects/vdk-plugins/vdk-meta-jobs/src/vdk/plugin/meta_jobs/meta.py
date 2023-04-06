@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import abc
 from dataclasses import dataclass
-from typing import Dict
 from typing import List
 from typing import Optional
 

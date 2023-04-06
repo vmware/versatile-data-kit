@@ -4,9 +4,7 @@ import abc
 from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Dict
 from typing import List
-from typing import Optional
 
 from vdk.api.job_input import IJobArguments
 
