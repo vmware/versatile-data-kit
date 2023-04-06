@@ -30,7 +30,7 @@ Versatile Data Kit (VDK) is a data framework that enables Data Engineers to
 
 Its Lego-like design consists of lightweight Python modules installed via `pip` package manager. All VDK plugins are easy to combine.
 
-VDK CLI can generate a data job and run your Python code and SQL queries. 
+VDK CLI can generate a data job and run your Python code and SQL queries.
 
 **VDK SDK makes your code shorter, more readable, and faster to create.**
 
