@@ -3,12 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    HostBinding,
+    Inject,
+    OnInit,
+} from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-
-import { VmwToastType } from '@versatiledatakit/shared';
 
 import {
     ComponentService,
@@ -16,6 +20,7 @@ import {
     NavigationService,
     RouterService,
     ToastService,
+    VmwToastType,
 } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../../../shared/utils';
@@ -58,6 +63,9 @@ export class DataJobsManageGridComponent
     static override readonly PUBLIC_NAME: string =
         'DataJobs-ManageGrid-Component';
 
+    @HostBinding('attr.data-cy') attributeDataCy =
+        'data-pipelines-manage-data-jobs';
+
     readonly uuid = 'DataJobsManageGridComponent';
 
     confirmStatusOptions: ModalOptions;
@@ -74,8 +82,9 @@ export class DataJobsManageGridComponent
 
     override quickFiltersDefaultActiveIndex = 1;
 
+    dataPipelinesDocumentationUrl: string;
+
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
@@ -262,6 +271,11 @@ export class DataJobsManageGridComponent
                     },
                 ),
             );
+        }
+
+        if (dataPipelinesModuleConfig?.dataPipelinesDocumentationUrl) {
+            this.dataPipelinesDocumentationUrl =
+                dataPipelinesModuleConfig.dataPipelinesDocumentationUrl;
         }
     }
 }

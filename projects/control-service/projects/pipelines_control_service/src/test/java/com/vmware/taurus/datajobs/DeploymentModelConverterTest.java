@@ -43,6 +43,19 @@ public class DeploymentModelConverterTest {
     Assertions.assertEquals(2, mergedDeployment.getResources().getMemoryLimit());
   }
 
+  @Test
+  void test_mergeDeployments_pythonVersion() {
+    var oldDeployment = getTestJobDeployment();
+    var newDeployment = new JobDeployment();
+    newDeployment.setDataJobTeam(oldDeployment.getDataJobTeam());
+    newDeployment.setDataJobName(oldDeployment.getDataJobName());
+    newDeployment.setGitCommitSha("new-version");
+    newDeployment.setPythonVersion("3.9");
+
+    var mergedDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, newDeployment);
+    Assertions.assertEquals("3.9", mergedDeployment.getPythonVersion());
+  }
+
   private static JobDeployment getTestJobDeployment() {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam("job-team");

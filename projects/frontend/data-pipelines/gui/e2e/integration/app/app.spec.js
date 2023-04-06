@@ -5,14 +5,14 @@
 
 /// <reference types="cypress" />
 
-import { AppPage } from "../../support/pages/app/app.po";
+import { AppPage } from '../../support/pages/app/app.po';
 
-describe("App Page", { tags: ["@dataPipelines"] }, () => {
+describe('App Page', { tags: ['@dataPipelines'] }, () => {
     before(() => {
         return AppPage.recordHarIfSupported()
-            .then(() => cy.clearLocalStorageSnapshot("app"))
+            .then(() => cy.clearLocalStorageSnapshot('app'))
             .then(() => AppPage.login())
-            .then(() => cy.saveLocalStorage("app"));
+            .then(() => cy.saveLocalStorage('app'));
     });
 
     after(() => {
@@ -20,16 +20,16 @@ describe("App Page", { tags: ["@dataPipelines"] }, () => {
     });
 
     beforeEach(() => {
-        cy.restoreLocalStorage("app");
+        cy.restoreLocalStorage('app');
     });
 
-    it("App Page - Main Title Component have text: Data Pipelines", () => {
+    it('App Page - Main Title Component have text: Data Pipelines', () => {
         AppPage.navigateTo();
 
         const page = AppPage.getPage();
 
         page.waitForInitialPageLoad();
 
-        page.getMainTitle().should("have.text", "Data Pipelines");
+        page.getMainTitle().should('have.text', 'Data Pipelines');
     });
 });

@@ -83,6 +83,8 @@ public class DeploymentServiceTest {
 
   @Mock private JobsRepository jobsRepository;
 
+  @Mock private SupportedPythonVersions supportedPythonVersions;
+
   private DataJob testDataJob;
 
   @BeforeEach
@@ -114,7 +116,8 @@ public class DeploymentServiceTest {
             jobImageDeployer,
             operationContext,
             jobsRepository,
-            dataJobMetrics);
+            dataJobMetrics,
+            supportedPythonVersions);
 
     Mockito.when(vdkOptionsReader.readVdkOptions(TEST_JOB_NAME)).thenReturn(TEST_VDK_OPTS);
     Mockito.when(jobCredentialsService.getJobPrincipalName(TEST_JOB_NAME))

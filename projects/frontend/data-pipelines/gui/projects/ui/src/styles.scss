@@ -55,7 +55,7 @@ html {
 }
 
 /* vmw search component */
-vmw-search .search-container cds-icon[shape="search"] {
+vdk-search .search-container cds-icon[shape='search'] {
     top: 2px !important;
 }
 
@@ -72,21 +72,21 @@ vmw-search .search-container cds-icon[shape="search"] {
     visibility: hidden;
 }
 
-vmw-form-section-container.p-header-section .form-header {
+vdk-form-section-container.p-header-section .form-header {
     padding-bottom: 0 !important;
     margin-top: 0;
 }
 
-vmw-form-section-container.p-header-section .form-header .section-title {
+vdk-form-section-container.p-header-section .form-header .section-title {
     font-size: 0.7rem;
     font-weight: 500;
 }
 
-vmw-form-section-container.p-header-section .vmw-vertical-line {
+vdk-form-section-container.p-header-section .vmw-vertical-line {
     margin-top: 0 !important;
 }
 
-vmw-form-section-container.p-header-section .csp-edit-button {
+vdk-form-section-container.p-header-section .csp-edit-button {
     margin-left: 1rem !important;
 }
 

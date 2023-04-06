@@ -62,23 +62,11 @@
             --date-picker-box-shadow: 1px 1px 5px #0000001a;
 
             --date-picker-background-color: #fff;
-            --date-picker-selected-background-color: var(
-                --clr-calendar-active-cell-background-color,
-                #d8e3e9
-            );
-            --date-picker-hover-background-color: var(
-                --clr-calendar-btn-hover-focus-color,
-                #e8e8e8
-            );
+            --date-picker-selected-background-color: var(--clr-calendar-active-cell-background-color, #d8e3e9);
+            --date-picker-hover-background-color: var(--clr-calendar-btn-hover-focus-color, #e8e8e8);
             --date-picker-text-color: var(--clr-p1-color, #666666);
-            --date-picker-selected-text-color: var(
-                --clr-calendar-active-cell-color,
-                black
-            );
-            --date-picker-current-text-color: var(
-                --clr-calendar-today-date-cell-color,
-                black
-            );
+            --date-picker-selected-text-color: var(--clr-calendar-active-cell-color, black);
+            --date-picker-current-text-color: var(--clr-calendar-today-date-cell-color, black);
 
             .dp-popup {
                 background: var(--date-picker-background-color);
@@ -107,23 +95,15 @@
                         margin: 0;
                         border: 0;
                         width: auto;
-                        font-size: var(
-                            --clr-calendar-picker-btn-font-size,
-                            0.9rem
-                        );
-                        font-weight: var(
-                            --clr-calendar-picker-btn-font-weight,
-                            200
-                        );
+                        font-size: var(--clr-calendar-picker-btn-font-size, 0.9rem);
+                        font-weight: var(--clr-calendar-picker-btn-font-weight, 200);
                         line-height: 1.8rem;
                         border-radius: var(--clr-global-borderradius, 0.15rem);
                         color: var(--clr-calendar-btn-color, #0072a3);
                         background: var(--date-picker-background-color);
 
                         &:hover {
-                            background: var(
-                                --date-picker-hover-background-color
-                            );
+                            background: var(--date-picker-hover-background-color);
                         }
                     }
 
@@ -152,9 +132,7 @@
                         }
 
                         &:hover {
-                            background: var(
-                                --date-picker-hover-background-color
-                            );
+                            background: var(--date-picker-hover-background-color);
                         }
                     }
 
@@ -201,23 +179,16 @@
 
                         &.dp-current-day {
                             color: var(--date-picker-current-text-color);
-                            font-weight: var(
-                                --clr-calendar-today-date-cell-font-weight,
-                                600
-                            );
+                            font-weight: var(--clr-calendar-today-date-cell-font-weight, 600);
                         }
 
                         &.dp-selected {
                             color: var(--date-picker-selected-text-color);
-                            background: var(
-                                --date-picker-selected-background-color
-                            );
+                            background: var(--date-picker-selected-background-color);
                         }
 
                         &:hover {
-                            background: var(
-                                --date-picker-hover-background-color
-                            );
+                            background: var(--date-picker-hover-background-color);
                         }
 
                         &:disabled {
@@ -270,10 +241,7 @@
                             border: 0;
                             width: 36px;
                             height: 36px;
-                            border-radius: var(
-                                --clr-global-borderradius,
-                                0.15rem
-                            );
+                            border-radius: var(--clr-global-borderradius, 0.15rem);
                             color: var(--clr-calendar-btn-color, #0072a3);
 
                             &:before {
@@ -282,9 +250,7 @@
                             }
 
                             &:hover {
-                                background: var(
-                                    --date-picker-hover-background-color
-                                );
+                                background: var(--date-picker-hover-background-color);
                             }
                         }
                     }
@@ -314,23 +280,16 @@
 
                         &.dp-current-month {
                             color: var(--date-picker-current-text-color);
-                            font-weight: var(
-                                --clr-calendar-today-date-cell-font-weight,
-                                600
-                            );
+                            font-weight: var(--clr-calendar-today-date-cell-font-weight, 600);
                         }
 
                         &.dp-selected {
                             color: var(--date-picker-selected-text-color);
-                            background: var(
-                                --date-picker-selected-background-color
-                            );
+                            background: var(--date-picker-selected-background-color);
                         }
 
                         &:hover {
-                            background: var(
-                                --date-picker-hover-background-color
-                            );
+                            background: var(--date-picker-hover-background-color);
                         }
 
                         &:disabled {

@@ -80,15 +80,17 @@
                 [jobExecution]="jobExecution"
             ></lib-data-job-execution-type>
         </clr-dg-cell>
-        <clr-dg-cell data-cy="data-pipelines-job-executions-duration-cell">{{
-            jobExecution.duration
-        }}</clr-dg-cell>
-        <clr-dg-cell data-cy="data-pipelines-job-executions-start-cell">{{
-            jobExecution.startTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
-        }}</clr-dg-cell>
-        <clr-dg-cell data-cy="data-pipelines-job-executions-end-cell">{{
-            jobExecution.endTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
-        }}</clr-dg-cell>
+        <clr-dg-cell data-cy="data-pipelines-job-executions-duration-cell"
+            >{{ jobExecution.duration }}</clr-dg-cell
+        >
+        <clr-dg-cell data-cy="data-pipelines-job-executions-start-cell"
+            >{{ jobExecution.startTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
+            }}</clr-dg-cell
+        >
+        <clr-dg-cell data-cy="data-pipelines-job-executions-end-cell"
+            >{{ jobExecution.endTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
+            }}</clr-dg-cell
+        >
         <clr-dg-cell>{{ jobExecution.id }}</clr-dg-cell>
         <clr-dg-cell>{{ jobExecution.jobVersion | slice : 0 : 8 }}</clr-dg-cell>
         <clr-dg-cell
@@ -127,8 +129,8 @@
             <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]"
                 >Executions per page</clr-dg-page-size
             >
-            {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of
-            {{ pagination.totalItems }} executions
+            {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of {{
+            pagination.totalItems }} executions
         </clr-dg-pagination>
     </clr-dg-footer>
 </clr-datagrid>
