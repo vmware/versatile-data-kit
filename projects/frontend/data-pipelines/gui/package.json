@@ -46,7 +46,6 @@
     "@ngrx/store": "13.2.0",
     "@swimlane/ngx-charts": "16.0.0",
     "@swimlane/ngx-graph": "8.0.0",
-    "@versatiledatakit/shared": ">=0.0.0",
     "@webcomponents/custom-elements": "1.5.0",
     "@yellowspot/ng-truncate": "2.0.1",
     "angular-ng-autocomplete": "2.0.8",
@@ -86,6 +85,7 @@
     "zone.js": "0.11.5"
   },
   "optionalDependencies": {
+    "@versatiledatakit/shared": "0.0.0",
     "@versatiledatakit/data-pipelines": "0.0.0"
   },
   "devDependencies": {

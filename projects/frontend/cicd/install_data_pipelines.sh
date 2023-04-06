@@ -9,6 +9,19 @@
 # lints them to verify format, builds the UI application and runs the unit tests.
 ###
 
+link_shared () {
+  shared_dist_dir="../../shared-components/gui/dist/shared"
+  if [ -d "$shared_dist_dir" ]
+  then
+    echo "Linking the shared-components dist rebuild found..."
+    npm link $shared_dist_dir
+    npm link @versatiledatakit/shared
+  else
+    echo "No shared-components dist rebuild found."
+    exit 1
+  fi
+}
+
 if ! which npm >/dev/null 2>&1 ; then
   echo "ERROR:"
   echo "Please install npm 8.5.5+. Install cannot continue without it."
@@ -23,20 +36,15 @@ cd "../data-pipelines/gui"
 echo "Removing package lock if available..."
 rm -f "package-lock.json"
 
-shared_dist_dir="../../shared-components/gui/dist/shared"
-if [ -d "$shared_dist_dir" ]
-then
-  echo "Linking the shared-components dist rebuild found..."
-  npm link "$shared_dist_dir"
-else
-  echo "No shared-components dist rebuild found."
-fi
-
 echo "Install Dependencies..."
-npm install
+npm install --omit=optional
+
+link_shared
 
 echo "Running linking script..."
 sh "../../cicd/build_data_pipelines.sh"
+
+link_shared
 
 echo "Linting all projects & sub-projects..."
 npm run lint

@@ -5,7 +5,7 @@
 echo "Logging npm engines version..."
 npm version
 echo "Installing dependencies..."
-npm install
+npm install --omit=optional
 echo "Building package..."
 npm run build
 echo "Linking package..."
