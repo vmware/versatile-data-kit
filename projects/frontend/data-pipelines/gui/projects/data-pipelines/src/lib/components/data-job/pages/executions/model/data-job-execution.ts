@@ -38,9 +38,9 @@ export class DataJobExecutionToGridDataJobExecution {
         }
     }
 
-    static convertToDataJobExecution(
+    static convertToDataJobExecution = (
         dataJobExecution: DataJobExecutions,
-    ): GridDataJobExecution[] {
+    ): GridDataJobExecution[] => {
         const formatDeltaPipe = new FormatDeltaPipe();
 
         return dataJobExecution.reduce((accumulator, execution) => {
@@ -65,7 +65,7 @@ export class DataJobExecutionToGridDataJobExecution {
 
             return accumulator;
         }, [] as GridDataJobExecution[]);
-    }
+    };
 
     static getStatusColorsMap() {
         return {

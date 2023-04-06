@@ -16,7 +16,7 @@ from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import GqlQueryBuilder
-from vdk.internal.control.utils.cli_utils import OutputFormat
+from vdk.internal.control.utils.output_printer import OutputFormat
 
 log = logging.getLogger(__name__)
 
@@ -92,6 +92,12 @@ class JobList:
                 res["deployed_by"] = deployments[0]["lastDeployedBy"]
             if "lastDeployedDate" in deployments[0]:
                 res["deployed_date"] = deployments[0]["lastDeployedDate"]
+            if "executions" in deployments[0] and len(deployments[0]["executions"]) > 0:
+                last_execution = deployments[0]["executions"][0]
+                res["last_execution_status"] = last_execution.get("status")
+                res["last_execution_date"] = last_execution.get("startTime")
+                res["last_execution_type"] = last_execution.get("type")
+                res["last_execution_started_by"] = last_execution.get("startedBy")
         else:
             res["status"] = "NOT_DEPLOYED"
         if "contacts" in job["config"]:
@@ -157,6 +163,11 @@ class JobList:
             job_contacts.add("notifiedOnJobDeploy").add("notifiedOnJobSuccess").add(
                 "notifiedOnJobFailurePlatformError"
             ).add("notifiedOnJobFailureUserError")
+        if more_details >= 3:
+            executions = jobs_deployments.add_return_new("executions")
+            executions.add("id").add("type").add("status").add("startTime").add(
+                "endTime"
+            ).add("opId").add("startedBy")
 
         query = jobs_builder.build()
         log.debug("Jobs list (graphql) query: " + query)

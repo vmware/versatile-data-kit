@@ -68,6 +68,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   @Override
   public ResponseEntity<Void> deploymentPatch(
       String teamName, String jobName, String deploymentId, DataJobDeployment dataJobDeployment) {
+    deploymentService.validatePythonVersionIsSupported(dataJobDeployment.getPythonVersion());
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId not implemented
       Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName);
@@ -120,6 +121,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       String jobName,
       Boolean sendNotification,
       DataJobDeployment dataJobDeployment) {
+    deploymentService.validatePythonVersionIsSupported(dataJobDeployment.getPythonVersion());
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       Optional<com.vmware.taurus.service.model.DataJob> job =
           jobsService.getByName(jobName.toLowerCase());

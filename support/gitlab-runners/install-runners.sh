@@ -49,6 +49,9 @@ if [ -n "$IMAGE_PULL_DOCKER_USERNAME" ]; then
     --docker-server="https://index.docker.io/v1/" --namespace="$NAMESPACE"
 fi
 
+echo "Apply limit ranges"
+kubectl apply -f limitranges.yaml --namespace="$NAMESPACE"
+
 helm repo add gitlab https://charts.gitlab.io
 
 # Before updating version, review changelog at https://docs.gitlab.com/runner/install/kubernetes.html .
