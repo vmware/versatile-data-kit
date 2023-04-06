@@ -8,6 +8,7 @@ from typing import Dict
 from typing import Optional
 
 import urllib3.exceptions as url_exception
+from vdk.api.job_input import IJobArguments
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.meta import IDataJobExecutor
@@ -136,7 +137,7 @@ class TrackingDataJobExecutor:
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
 
     def start_new_job_execution(
-        self, job_name: str, team_name: str, arguments: Optional[Dict] = None
+        self, job_name: str, team_name: str, arguments: IJobArguments = None
     ) -> str:
         """
         Start a new data job execution.

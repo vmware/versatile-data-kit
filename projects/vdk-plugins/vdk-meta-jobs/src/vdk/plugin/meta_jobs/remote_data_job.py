@@ -15,6 +15,7 @@ from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
 from taurus_datajob_api import DataJobsExecutionApi
 from urllib3 import Retry
+from vdk.api.job_input import IJobArguments
 from vdk.plugin.control_api_auth.authentication import Authentication
 
 log = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ class RemoteDataJob:
         job_name: str,
         team_name: str,
         rest_api_url: str,
-        arguments: Optional[Dict] = None,
+        arguments: IJobArguments = None,
         timeout: int = 5,  # TODO: Set reasonable default
         **kwargs,
     ) -> None:

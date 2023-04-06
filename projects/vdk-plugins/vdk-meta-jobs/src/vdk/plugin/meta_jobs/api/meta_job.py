@@ -8,6 +8,8 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+from vdk.api.job_input import IJobArguments
+
 
 @dataclass
 class SingleJob:
@@ -18,7 +20,7 @@ class SingleJob:
     job_name: str
     team_name: str = None
     fail_meta_job_on_error: bool = True
-    arguments: Optional[Dict] = None
+    arguments: IJobArguments = None
     depends_on: List[str] = field(default_factory=list)
 
 
