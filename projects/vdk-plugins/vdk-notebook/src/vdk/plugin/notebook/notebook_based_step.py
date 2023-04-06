@@ -35,7 +35,7 @@ class NotebookStep(Step):
     ::parent: Step | None = None - parent Step
 
     Additional attributes:
-    ::code: str - the code string retrieved from Jupyter code cell
+    ::source: str - the code string retrieved from Jupyter code cell
     ::module: module object - the module the code belongs to
     (see imp.new_module in https://docs.python.org/3/library/imp.html)
     """
@@ -47,14 +47,14 @@ class NotebookStep(Step):
         runner_func,
         file_path,
         job_dir,
-        code,
+        source,
         cell_id,
         module=None,
         parent=None,
     ):
         super().__init__(name, type, runner_func, file_path, job_dir, parent)
         self.runner_func = runner_func
-        self.code = code
+        self.source = source
         self.module = module
         self.cell_id = cell_id
 
@@ -72,7 +72,7 @@ class NotebookStepFuncFactory:
             try:
                 log.debug("Loading %s ..." % step.name)
                 step.module.job_input = job_input
-                exec(step.code, step.module.__dict__)
+                exec(step.source, step.module.__dict__)
                 log.debug("Loading %s SUCCESS" % step.name)
                 success = True
             except SyntaxError as e:

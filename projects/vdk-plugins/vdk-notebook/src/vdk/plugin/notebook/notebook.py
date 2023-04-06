@@ -27,7 +27,7 @@ class JobNotebookLocator:
         """Locates the files in a directory, that are supported for execution.
         Files supported for execution are: .ipynb
         Other files in the directory are ignored.
-        :return: List of files from the directory that supported for execution, sorted alphabetically by name.
+        :return: List of files from the directory that supported for execution, sorted alphabetically by name.s
         :rtype: :class:`.list`
         """
         script_files = [
@@ -75,7 +75,7 @@ class Notebook:
                             runner_func=NotebookStepFuncFactory.run_python_step,
                             file_path=file_path,
                             job_dir=context.job_directory,
-                            code=cell.source,
+                            source=cell.source,
                             cell_id=cell.id,
                             module=python_module,
                         )
