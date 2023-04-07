@@ -4,7 +4,7 @@ The goal of the tests is to validate that the functionality of the service
 works in combination with other dependant components (KDC, Kubernetes, DB, Git repo, etc).
 
 # Prerequisites
-[please see here for versions](/projects/control-service/projects/helm_charts/pipelines-control-service/README.md)
+[please see here for versions](/projects/control-service/projects/helm_charts/pipelines-control-service/README.md#Prerequisites)
 * Valid kubeconfig.yaml in ```${HOME}/.kube/config``` or set the ```datajobs.deployment.k8s.kubeconfig``` and ```datajobs.control.k8s.kubeconfig``` property
   in [integration-test/resources/application-test.properties](./resources/application-test.properties)
 * Git server and Git repo for storing the jobs, using public github as the git server is the most straight forward approach

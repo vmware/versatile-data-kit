@@ -9,7 +9,6 @@ metadata:
   name: {{ include "common.names.fullname" . }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
   annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
 apiVersion: networking.k8s.io/v1
 spec:
   rules:
@@ -23,18 +22,6 @@ spec:
             name: {{ .Release.Name }}-svc
             port:
               number: {{ .Values.service.internalPort }}
-{{- else }}
-apiVersion: networking.k8s.io/v1beta1
-spec:
-  rules:
-  - host: {{ .Values.ingress.host | quote }}
-    http:
-      paths:
-        - path: {{ .Values.ingress.path }}
-          backend:
-            serviceName: {{ .Release.Name }}-svc
-            servicePort: {{ .Values.service.internalPort }}
-{{- end }}
 {{- if .Values.ingress.tls_secret }}
   tls:
     - hosts:
