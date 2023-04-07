@@ -12,7 +12,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
     static navigateTo() {
         const page = super.navigateTo(
-            '[data-cy=navigation-link-manage-datajobs]',
+            '[data-cy=navigation-link-manage-datajobs]'
         );
 
         // this is temporary fix for test to pass
@@ -33,10 +33,10 @@ export class DataJobsManagePage extends DataJobsBasePO {
     getDataGridCell(content, timeout) {
         return cy
             .get(
-                '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted',
+                '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted'
             )
             .contains(new RegExp(`^\\s*${content}\\s*$`), {
-                timeout: this.resolveTimeout(timeout),
+                timeout: this.resolveTimeout(timeout)
             });
     }
 
@@ -52,7 +52,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
                 team +
                 ';' +
                 job +
-                '"]',
+                '"]'
         );
     }
 
@@ -92,7 +92,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
     refreshDataGrid() {
         cy.get('[data-cy=data-pipelines-manage-refresh-btn]').click({
-            force: true,
+            force: true
         });
 
         this.waitForBackendRequestCompletion();
@@ -155,7 +155,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
             const newStatus = currentStatus === 'enable' ? 'disable' : 'enable';
 
             cy.log(
-                `Current status: ${currentStatus}, new status: ${newStatus}`,
+                `Current status: ${currentStatus}, new status: ${newStatus}`
             );
 
             this.changeStatus(newStatus);
@@ -182,7 +182,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
     filterByJobName(jobName) {
         cy.get(
-            '[data-cy=data-pipelines-jobs-name-column] > .datagrid-column-flex > clr-dg-string-filter.ng-star-inserted > clr-dg-filter > .datagrid-filter-toggle > cds-icon',
+            '[data-cy=data-pipelines-jobs-name-column] > .datagrid-column-flex > clr-dg-string-filter.ng-star-inserted > clr-dg-filter > .datagrid-filter-toggle > cds-icon'
         ).click({ force: true });
 
         cy.get('div.datagrid-filter > input')
