@@ -25,6 +25,9 @@
         - [Quickstart-vdk image](#quickstart-vdk-image)
       - [Release](#release)
   - [Implementation Stories](#implementation-stories)
+>>>>>>> 9e772dc5 (frontend: create dockerfile for vdk operations ui)
+      - [Release](#release)
+  - [Implementation Stories](#implementation-stories)
 
 ## Summary
 
