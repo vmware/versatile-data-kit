@@ -17,7 +17,7 @@ type StatusPropertiesMapping = {
 @Component({
     selector: 'lib-data-job-execution-status',
     templateUrl: './data-job-execution-status.component.html',
-    styleUrls: ['./data-job-execution-status.component.scss'],
+    styleUrls: ['./data-job-execution-status.component.scss']
 })
 export class DataJobExecutionStatusComponent {
     @HostListener('mouseenter') onMouseEnter(): void {
@@ -38,57 +38,54 @@ export class DataJobExecutionStatusComponent {
             shape: 'hourglass',
             status: '',
             direction: '',
-            text: 'Submitted',
+            text: 'Submitted'
         },
         [DataJobExecutionStatus.RUNNING]: {
             shape: 'play',
             status: '',
             direction: '',
-            text: 'Running',
+            text: 'Running'
         },
         [DataJobExecutionStatus.SUCCEEDED]: {
             shape: 'success-standard',
             status: 'is-success',
             direction: '',
-            text: 'Success',
+            text: 'Success'
         },
         [DataJobExecutionStatus.CANCELLED]: {
             shape: 'ban',
             status: '',
             direction: '',
-            text: 'Canceled',
+            text: 'Canceled'
         },
         [DataJobExecutionStatus.SKIPPED]: {
             shape: 'angle-double',
             status: '',
             direction: 'right',
-            text: 'Skipped',
+            text: 'Skipped'
         },
         [DataJobExecutionStatus.USER_ERROR]: {
             shape: 'error-standard',
             status: 'is-danger',
             direction: '',
-            text: 'User Error',
+            text: 'User Error'
         },
         [DataJobExecutionStatus.PLATFORM_ERROR]: {
             shape: 'error-standard',
             status: 'is-warning',
             direction: '',
-            text: 'Platform Error',
+            text: 'Platform Error'
         },
         [DataJobExecutionStatus.FAILED]: {
             shape: 'error-standard',
             status: 'is-danger',
             direction: '',
-            text: 'Error',
-        },
+            text: 'Error'
+        }
     };
 
     get executionStatusProperties(): StatusPropertiesMapping {
-        return (
-            this.statusPropertiesMapping[this.jobStatus] ??
-            ({} as StatusPropertiesMapping)
-        );
+        return this.statusPropertiesMapping[this.jobStatus] ?? ({} as StatusPropertiesMapping);
     }
 
     isJobStatusSuitableForMessageTooltip(): boolean {
@@ -101,11 +98,6 @@ export class DataJobExecutionStatusComponent {
 
     isJobMessageDifferentFromStatus(): boolean {
         const message = this.jobMessage?.toLowerCase();
-        return (
-            message !== 'user error' &&
-            message !== 'platform error' &&
-            message !== 'skipped' &&
-            message !== ''
-        );
+        return message !== 'user error' && message !== 'platform error' && message !== 'skipped' && message !== '';
     }
 }

@@ -20,16 +20,13 @@ const CONSOLE_CLOUD_URL = 'https://console-stg.cloud.vmware.com/';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
+    styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
     title = 'core';
     collapsed = false;
 
-    constructor(
-        private readonly oauthService: OAuthService,
-        private readonly navigationService: NavigationService,
-    ) {
+    constructor(private readonly oauthService: OAuthService, private readonly navigationService: NavigationService) {
         this.oauthService.configure(authCodeFlowConfig);
         this.oauthService
             .loadDiscoveryDocumentAndLogin()
@@ -50,9 +47,7 @@ export class AppComponent implements OnInit {
     }
 
     get userName(): string {
-        return this.oauthService.getIdentityClaims()
-            ? this.getIdentityClaim('username')
-            : 'N/A';
+        return this.oauthService.getIdentityClaims() ? this.getIdentityClaim('username') : 'N/A';
     }
 
     /**
@@ -71,18 +66,9 @@ export class AppComponent implements OnInit {
     }
 
     private initTokenRefresh() {
-        timer(
-            REFRESH_TOKEN_START,
-            AppComponent.toMillis(refreshTokenConfig.refreshTokenCheckInterval),
-        ).subscribe(() => {
-            const remainiTimeMillis =
-                this.oauthService.getAccessTokenExpiration() - Date.now();
-            if (
-                remainiTimeMillis <=
-                AppComponent.toMillis(
-                    refreshTokenConfig.refreshTokenRemainingTime,
-                )
-            ) {
+        timer(REFRESH_TOKEN_START, AppComponent.toMillis(refreshTokenConfig.refreshTokenCheckInterval)).subscribe(() => {
+            const remainiTimeMillis = this.oauthService.getAccessTokenExpiration() - Date.now();
+            if (remainiTimeMillis <= AppComponent.toMillis(refreshTokenConfig.refreshTokenRemainingTime)) {
                 this.setCustomTokenAttributes(false, null);
                 this.oauthService.refreshToken().finally(() => {
                     // No-op.
@@ -91,16 +77,11 @@ export class AppComponent implements OnInit {
         });
     }
 
-    private setCustomTokenAttributes(
-        redirectToConsole: boolean,
-        defaultOrg: { refLink: string },
-    ) {
+    private setCustomTokenAttributes(redirectToConsole: boolean, defaultOrg: { refLink: string }) {
         const linkOrgQuery = AppComponent.getOrgLinkFromQueryParams(defaultOrg);
         this.oauthService.customQueryParams = {
             orgLink: linkOrgQuery,
-            targetUri: redirectToConsole
-                ? CONSOLE_CLOUD_URL
-                : window.location.href,
+            targetUri: redirectToConsole ? CONSOLE_CLOUD_URL : window.location.href
         };
         if (redirectToConsole) {
             // Redirect to console cloud because we dont know the tenant url, but console does
@@ -108,9 +89,7 @@ export class AppComponent implements OnInit {
         }
     }
 
-    private static getOrgLinkFromQueryParams(defaultOrg: {
-        refLink: string;
-    }): string {
+    private static getOrgLinkFromQueryParams(defaultOrg: { refLink: string }): string {
         const params = new URLSearchParams(window.location.search);
         const orgLinkUnderscored = params.get('org_link');
         const orgLinkBase = params.get('orgLink');

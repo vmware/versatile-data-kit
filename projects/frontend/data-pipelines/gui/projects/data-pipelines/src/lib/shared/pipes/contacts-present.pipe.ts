@@ -10,7 +10,7 @@ import { CollectionsUtil } from '@versatiledatakit/shared';
 import { DataJobContacts } from '../../model';
 
 @Pipe({
-    name: 'contactsPresent',
+    name: 'contactsPresent'
 })
 export class ContactsPresentPipe implements PipeTransform {
     /**
@@ -19,18 +19,10 @@ export class ContactsPresentPipe implements PipeTransform {
     transform(contacts: DataJobContacts): boolean {
         return (
             CollectionsUtil.isDefined(contacts) &&
-            (ContactsPresentPipe.contactIsPresent(
-                contacts.notifiedOnJobSuccess,
-            ) ||
-                ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobDeploy,
-                ) ||
-                ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobFailureUserError,
-                ) ||
-                ContactsPresentPipe.contactIsPresent(
-                    contacts.notifiedOnJobFailurePlatformError,
-                ))
+            (ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobSuccess) ||
+                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobDeploy) ||
+                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobFailureUserError) ||
+                ContactsPresentPipe.contactIsPresent(contacts.notifiedOnJobFailurePlatformError))
         );
     }
 

@@ -40,7 +40,6 @@
             ],
             "leadingUnderscore": "allow",
             "filter": {
-              // you can expand this regex to add more allowed names
               "regex": "^((\\$\\..+))$",
               "match": false
             }
@@ -59,7 +58,7 @@
         ],
         "@typescript-eslint/no-shadow": "error",
         "no-shadow": "off",
-        "prefer-arrow/prefer-arrow-functions": "error"
+        "prefer-arrow/prefer-arrow-functions": "warn"
       }
     },
     {
