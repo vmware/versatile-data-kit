@@ -262,7 +262,8 @@ public class JobImageBuilder {
     // TODO: Remove this part when datajobs.deployment.dataJobBaseImage is deprecated.
     if (deploymentDataJobBaseImage != null) {
       baseImage = deploymentDataJobBaseImage;
-    } else if (pythonVersion != null && supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
+    } else if (pythonVersion != null
+        && supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
       baseImage = supportedPythonVersions.getJobBaseImage(pythonVersion);
     } else {
       baseImage = supportedPythonVersions.getDefaultJobBaseImage();
