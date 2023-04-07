@@ -3,19 +3,16 @@
 from __future__ import annotations
 
 import functools
-import json
 import logging
 import os
 import shutil
 from dataclasses import dataclass
-from enum import Enum
-from enum import unique
 
 import click
 from vdk.internal.control.configuration.defaults_config import load_default_rest_api_url
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.internal.control.exception.vdk_exception import VDKException
-
+from vdk.internal.control.utils import output_printer
 
 log = logging.getLogger(__name__)
 
@@ -96,16 +93,6 @@ def check_required_parameters(f):
     return check
 
 
-@unique
-class OutputFormat(str, Enum):
-    """
-    An enum used to specify the output formatting of a command.
-    """
-
-    TEXT = "TEXT"
-    JSON = "JSON"
-
-
 def output_option(*names, **kwargs):
     """
     A decorator that adds an `--output, -o` option to the decorated command.
@@ -118,27 +105,17 @@ def output_option(*names, **kwargs):
     def decorator(f):
         return click.option(
             *names,
-            type=click.Choice([e.value for e in OutputFormat], case_sensitive=False),
-            default=OutputFormat.TEXT.value,
+            type=click.Choice(
+                [e.upper() for e in output_printer._registered_printers.keys()],
+                case_sensitive=False,
+            ),
+            default="text",
             cls=extended_option(hide_if_default=True),
             help="The desirable format of the result. Supported formats include text and json.",
             **kwargs,
         )(f)
 
     return decorator
-
-
-def json_format(data, indent=None):
-    from datetime import date, datetime
-
-    def json_serial(obj):
-        """JSON serializer for objects not serializable by default json code"""
-
-        if isinstance(obj, (datetime, date)):
-            return obj.isoformat()
-        raise TypeError("Type %s not serializable" % type(obj))
-
-    return json.dumps(data, default=json_serial, indent=indent)
 
 
 def copy_directory(src, dst):

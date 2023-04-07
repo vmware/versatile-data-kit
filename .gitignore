@@ -12,6 +12,7 @@ __pycache__/*
 .cache/*
 .*.swp
 */.ipynb_checkpoints/*
+out
 .DS_Store
 .eggs
 build

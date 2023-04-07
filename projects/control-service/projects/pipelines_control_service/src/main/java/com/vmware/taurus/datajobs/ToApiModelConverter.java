@@ -109,6 +109,7 @@ public class ToApiModelConverter {
     deployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
     deployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
     deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
+    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
   }
