@@ -54,17 +54,32 @@ VDK creates data processing workflows to:
 ![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
 
 
-# Versatile Data Kit Components
-- Software Development Kit (SDK):
-    - Tools to automate the extraction, transformation, and loading of data.
-    - A plugin framework that allows users to extend the framework according to their specific requirements.
-- Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
+# What VDK can do
+Review images to be added in [TEXTBOX]:
+https://www.canva.com/design/DAFfO0_vC6g/vX3O0yYOc1nTcPuoBlp6qQ/edit?utm_content=DAFfO0_vC6g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+Each image will be a link to a dedicated Wiki page.
+TODO: export those to SVGs
 
+
+
+
+# [VDK SDK]
+[Properties] [Job Arguments] [Managed Connections] [Data Ingesters] [Templates] [Plugin API] [Plugin Registry]
+
+<!-- TODO: [[VDK CLI]](link to wiki page) -->
+# [VDK CLI]
+
+<!-- This is going to be transferred to the VDK CLI page to be linked:
 A preview of the VDK CLI commands:
 - `vdk create`
 - `vdk run`
 - `vdk deploy`<br>
-<br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
+  <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto/>
+-->
+
+# [Control Service]
+[Swagger UI] [Frontend UI]
+
 
 # Getting Started
 Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
