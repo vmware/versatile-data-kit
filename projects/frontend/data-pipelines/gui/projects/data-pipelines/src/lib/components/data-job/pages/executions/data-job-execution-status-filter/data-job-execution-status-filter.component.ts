@@ -15,11 +15,9 @@ import { GridDataJobExecution } from '../model';
 
 @Component({
     selector: 'lib-data-job-execution-status-filter',
-    templateUrl: './data-job-execution-status-filter.component.html',
+    templateUrl: './data-job-execution-status-filter.component.html'
 })
-export class DataJobExecutionStatusFilterComponent
-    implements ClrDatagridFilterInterface<GridDataJobExecution>
-{
+export class DataJobExecutionStatusFilterComponent implements ClrDatagridFilterInterface<GridDataJobExecution> {
     allStatuses = [
         DataJobExecutionStatus.SUCCEEDED,
         DataJobExecutionStatus.PLATFORM_ERROR,
@@ -27,7 +25,7 @@ export class DataJobExecutionStatusFilterComponent
         DataJobExecutionStatus.RUNNING,
         DataJobExecutionStatus.SUBMITTED,
         DataJobExecutionStatus.SKIPPED,
-        DataJobExecutionStatus.CANCELLED,
+        DataJobExecutionStatus.CANCELLED
     ];
 
     selectedStatuses: string[] = [];
@@ -48,9 +46,7 @@ export class DataJobExecutionStatusFilterComponent
         if (checkbox.checked) {
             this.selectedStatuses.push(checkbox.value);
         } else {
-            const statusToRemoveIndex = this.selectedStatuses.indexOf(
-                checkbox.value,
-            );
+            const statusToRemoveIndex = this.selectedStatuses.indexOf(checkbox.value);
             if (statusToRemoveIndex > -1) {
                 this.selectedStatuses.splice(statusToRemoveIndex, 1);
             }
