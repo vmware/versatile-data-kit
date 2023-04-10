@@ -13,6 +13,8 @@ import { updateVDKMenu } from './commandsAndMenu';
 
 import { FileBrowserModel, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IChangedArgs } from '@jupyterlab/coreutils';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { trackVdkTags } from './vdkTags';
 
 /**
  * Current working directory in Jupyter
@@ -26,11 +28,12 @@ export let workingDirectory: string = '';
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'vdk-jupyterlab-extension:plugin',
   autoStart: true,
-  optional: [ISettingRegistry, IFileBrowserFactory],
+  optional: [ISettingRegistry, IFileBrowserFactory, INotebookTracker],
   activate: async (
     app: JupyterFrontEnd,
     settingRegistry: ISettingRegistry | null,
-    factory: IFileBrowserFactory
+    factory: IFileBrowserFactory,
+    notebookTracker: INotebookTracker
   ) => {
     const { commands } = app;
 
@@ -38,6 +41,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const fileBrowser = factory.defaultBrowser;
     fileBrowser.model.pathChanged.connect(onPathChanged);
+
+    trackVdkTags(notebookTracker);
   }
 };
 

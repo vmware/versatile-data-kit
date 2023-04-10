@@ -8,3 +8,7 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 @import url('vdkDialogs.css');
+
+.jp-vdk-cell {
+  --jp-cell-editor-background: rgb(240, 246, 255);
+}
