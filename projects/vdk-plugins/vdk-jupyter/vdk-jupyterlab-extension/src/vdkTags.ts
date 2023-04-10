@@ -13,6 +13,13 @@ function addNumberElement(number: Number, node: Element): void {
 }
 
 function makeVdkCell(cells: Element[], vdkCellIndices: Array<Number>): void {
+  // delete previous numbering in case of untagging elements
+  let vdkCellNums = Array.from(
+    document.getElementsByClassName('jp-vdk-cell-num')
+  );
+  vdkCellNums.forEach(element => {
+    element.remove();
+  });
   let vdkCellCounter = 0;
   for (let i = 0; i < cells.length; i++) {
     if (vdkCellIndices.includes(i)) {
