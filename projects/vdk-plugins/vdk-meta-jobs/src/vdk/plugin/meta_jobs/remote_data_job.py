@@ -41,7 +41,7 @@ class JobStatus(str, Enum):
 
 class RemoteDataJob:
     """
-    Interact with Verstile Data Kit (VDK) Control Service
+    Interact with Versatile Data Kit (VDK) Control Service
     """
 
     def __init__(
