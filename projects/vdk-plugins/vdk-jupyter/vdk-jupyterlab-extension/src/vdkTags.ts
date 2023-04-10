@@ -5,10 +5,19 @@
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 
-function addVdkClass(cells: Element[], vdkCellIndices: Array<Number>) {
+function addNumberElement(number: Number, node: Element): void {
+  const numberElement = document.createElement('div');
+  numberElement.innerText = String(number);
+  numberElement.classList.add('jp-vdk-cell-num');
+  node.appendChild(numberElement);
+}
+
+function makeVdkCell(cells: Element[], vdkCellIndices: Array<Number>): void {
+  let vdkCellCounter = 0;
   for (let i = 0; i < cells.length; i++) {
     if (vdkCellIndices.includes(i)) {
       cells[i].classList.add('jp-vdk-cell');
+      addNumberElement(vdkCellCounter++, cells[i]);
     } else {
       cells[i].classList.remove('jp-vdk-cell');
     }
@@ -30,7 +39,7 @@ export function trackVdkTags(notebookTracker: INotebookTracker): void {
         cellIndex++;
       }
       if (notebookTracker.activeCell?.parent?.node.children) {
-        addVdkClass(
+        makeVdkCell(
           Array.from(notebookTracker.activeCell?.parent?.node.children!),
           vdkCellIndices
         );

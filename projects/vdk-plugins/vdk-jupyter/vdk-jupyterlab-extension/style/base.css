@@ -12,3 +12,12 @@
 .jp-vdk-cell {
   --jp-cell-editor-background: rgb(240, 246, 255);
 }
+
+.jp-vdk-cell-num {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: darkblue;
+  color: aliceblue;
+  padding: 4px;
+}
