@@ -39,3 +39,8 @@ build_and_push_image \
     "data-job-base-python-3.10" \
     Dockerfile-data-job-base \
     "--build-arg base_image=python:3.10-slim"
+
+build_and_push_image \
+    "data-job-base-python-3.11" \
+    Dockerfile-data-job-base \
+    "--build-arg base_image=python:3.11-slim"
