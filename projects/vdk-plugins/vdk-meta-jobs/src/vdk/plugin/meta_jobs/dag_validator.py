@@ -1,11 +1,11 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import graphlib
 import logging
 from collections import namedtuple
 from typing import Dict
 from typing import List
 
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -27,6 +27,7 @@ class DagValidator:
     def validate(self, jobs: List[Dict]):
         """
         Validate the structure and the order of the DAG of Data Jobs.
+
         :param jobs: List of Data Jobs (DAG vertices) to be validated
         :return:
         """

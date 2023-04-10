@@ -18,29 +18,64 @@ META_JOBS_MAX_CONCURRENT_RUNNING_JOBS = "META_JOBS_MAX_CONCURRENT_RUNNING_JOBS"
 
 class MetaPluginConfiguration:
     def __init__(self, config: Configuration):
+        """
+
+        :param config: the DAG plugin configuration
+        """
         self.__config = config
 
     def meta_jobs_delayed_jobs_min_delay_seconds(self):
+        """
+        Returns the minimum delay time for a delayed job to be executed in seconds.
+
+        :return: the number of seconds for the minimum delay of a delayed job
+        """
         return self.__config.get_value(META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS)
 
     def meta_jobs_delayed_jobs_randomized_added_delay_seconds(self):
+        """
+        Returns the additional randomized delay time in seconds to the minimum delay time of a delayed job.
+
+        :return: the number of seconds for the additional randomized delay of the delayed jobs
+        """
         return self.__config.get_value(
             META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS
         )
 
     def meta_jobs_dag_execution_check_time_period_seconds(self):
+        """
+        Returns the frequency at which the system checks a DAG execution's status.
+
+        :return: the frequency in seconds at which the system checks a DAG execution's status
+        """
         return self.__config.get_value(
             META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS
         )
 
     def meta_jobs_time_between_status_check_seconds(self):
+        """
+        Returns the time interval in seconds between status checks for a job.
+
+        :return: the number of seconds between status checks for a job.
+        """
         return self.__config.get_value(META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS)
 
     def meta_jobs_max_concurrent_running_jobs(self):
+        """
+        Returns the limit of concurrent running jobs.
+
+        :return: the number of maximum concurrent running jobs
+        """
         return self.__config.get_value(META_JOBS_MAX_CONCURRENT_RUNNING_JOBS)
 
 
 def add_definitions(config_builder: ConfigurationBuilder):
+    """
+    Defines what configuration settings are needed for the DAGs plugin with reasonable defaults.
+
+    :param config_builder: the builder used to add the configuration variables
+    :return:
+    """
     config_builder.add(
         key=META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS,
         default_value=30,

@@ -36,6 +36,12 @@ class TimeBasedQueue:
         self._dequeue_timeout_seconds = dequeue_timeout_seconds
 
     def enqueue(self, element):
+        """
+        Adds an element to the queue.
+
+        :param element: the element to be added to the queue
+        :return:
+        """
         ready_time = self._min_ready_time_seconds + randint(
             0, self._randomize_delay_seconds
         )
@@ -58,6 +64,11 @@ class TimeBasedQueue:
         return None
 
     def size(self):
+        """
+        Returns the size of the queue.
+
+        :return:
+        """
         return len(self._elements)
 
     def __wait_for_entry_to_be_ready(self, ready_time: float):

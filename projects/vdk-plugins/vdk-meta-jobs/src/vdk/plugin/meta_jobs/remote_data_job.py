@@ -52,6 +52,14 @@ class RemoteDataJob:
         timeout: int = 5,  # TODO: Set reasonable default
         **kwargs,
     ) -> None:
+        """
+
+        :param job_name: the name of the job
+        :param team_name: the name of the owning team
+        :param rest_api_url: the Control Service REST API URL
+        :param timeout: timeout
+        :param kwargs: extra parameters
+        """
         self.job_name = job_name
         self.team_name = team_name
         self._rest_api_url = rest_api_url
