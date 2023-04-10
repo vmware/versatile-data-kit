@@ -17,9 +17,7 @@ export interface GraphQLResponsePage<T> {
 
 // Deployment
 
-export interface BaseDataJobDeployment<
-    E extends DataJobExecution = DataJobExecution,
-> extends StatusDetails {
+export interface BaseDataJobDeployment<E extends DataJobExecution = DataJobExecution> extends StatusDetails {
     id: string;
     contacts?: DataJobContacts;
     jobVersion?: string;
@@ -37,7 +35,7 @@ export enum DataJobDeploymentStatus {
     NONE = 'NONE',
     SUCCESS = 'SUCCESS',
     PLATFORM_ERROR = 'PLATFORM_ERROR',
-    USER_ERROR = 'USER_ERROR',
+    USER_ERROR = 'USER_ERROR'
 }
 
 export interface DataJobContacts {
@@ -80,7 +78,7 @@ export interface DataJobExecution {
 
 export enum DataJobExecutionType {
     MANUAL = 'MANUAL',
-    SCHEDULED = 'SCHEDULED',
+    SCHEDULED = 'SCHEDULED'
 }
 
 /**
@@ -95,5 +93,5 @@ export enum DataJobExecutionStatus {
     SKIPPED = 'SKIPPED',
     FAILED = 'FAILED', // Keep for backward compatibility
     USER_ERROR = 'USER_ERROR',
-    PLATFORM_ERROR = 'PLATFORM_ERROR',
+    PLATFORM_ERROR = 'PLATFORM_ERROR'
 }

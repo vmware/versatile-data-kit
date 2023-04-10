@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Input,
-    OnChanges,
-    SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NavigationService } from '@versatiledatakit/shared';
 
@@ -19,7 +13,7 @@ import { DataJob, DataJobExecution, DataJobExecutions } from '../../../model';
     selector: 'lib-data-jobs-executions-widget',
     templateUrl: './data-jobs-executions-widget.component.html',
     styleUrls: ['./data-jobs-executions-widget.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataJobsExecutionsWidgetComponent implements OnChanges {
     @Input() manageLink: string;
@@ -43,10 +37,7 @@ export class DataJobsExecutionsWidgetComponent implements OnChanges {
      * @inheritDoc
      */
     ngOnChanges(changes: SimpleChanges) {
-        if (
-            changes['jobExecutions'] !== undefined &&
-            changes['jobExecutions'].currentValue !== undefined
-        ) {
+        if (changes['jobExecutions'] !== undefined && changes['jobExecutions'].currentValue !== undefined) {
             this.loading = false;
         }
     }

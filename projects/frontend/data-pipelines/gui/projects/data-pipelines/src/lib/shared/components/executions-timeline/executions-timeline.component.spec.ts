@@ -7,11 +7,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ExecutionsTimelineComponent } from './executions-timeline.component';
 
-import {
-    DATA_PIPELINES_CONFIGS,
-    DataJobExecution,
-    DataJobExecutionType,
-} from '../../../model';
+import { DATA_PIPELINES_CONFIGS, DataJobExecution, DataJobExecutionType } from '../../../model';
 
 describe('ExecutionsTimelineComponent', () => {
     let component: ExecutionsTimelineComponent;
@@ -27,12 +23,12 @@ describe('ExecutionsTimelineComponent', () => {
                         defaultOwnerTeamName: 'all',
                         manageConfig: {
                             allowKeyTabDownloads: true,
-                            allowExecuteNow: true,
+                            allowExecuteNow: true
                         },
-                        healthStatusUrl: 'baseUrl',
-                    }),
-                },
-            ],
+                        healthStatusUrl: 'baseUrl'
+                    })
+                }
+            ]
         }).compileComponents();
     });
 
@@ -49,29 +45,21 @@ describe('ExecutionsTimelineComponent', () => {
     it('should create', () => {
         const mockExec = {
             /* eslint-disable-next-line @typescript-eslint/naming-convention */
-            startedBy: 'manual/auser',
+            startedBy: 'manual/auser'
         } as DataJobExecution;
-        expect(component.getManualExecutedByTitle(mockExec)).toBe(
-            ExecutionsTimelineComponent.manualRunKnownUser + ' auser',
-        );
+        expect(component.getManualExecutedByTitle(mockExec)).toBe(ExecutionsTimelineComponent.manualRunKnownUser + ' auser');
 
         mockExec.startedBy = 'manual/manual';
         mockExec.type = DataJobExecutionType.MANUAL;
-        expect(component.getManualExecutedByTitle(mockExec)).toBe(
-            ExecutionsTimelineComponent.manualRunKnownUser + ' manual',
-        );
+        expect(component.getManualExecutedByTitle(mockExec)).toBe(ExecutionsTimelineComponent.manualRunKnownUser + ' manual');
 
         mockExec.startedBy = 'scheduled/runtime';
         mockExec.type = DataJobExecutionType.SCHEDULED;
-        expect(component.getManualExecutedByTitle(mockExec)).toContain(
-            ExecutionsTimelineComponent.manualRunNoUser,
-        );
+        expect(component.getManualExecutedByTitle(mockExec)).toContain(ExecutionsTimelineComponent.manualRunNoUser);
 
         mockExec.startedBy = 'scheduled/runtime';
         mockExec.type = null;
-        expect(component.getManualExecutedByTitle(mockExec)).toContain(
-            ExecutionsTimelineComponent.manualRunNoUser,
-        );
+        expect(component.getManualExecutedByTitle(mockExec)).toContain(ExecutionsTimelineComponent.manualRunNoUser);
     });
 
     describe('Methods::', () => {

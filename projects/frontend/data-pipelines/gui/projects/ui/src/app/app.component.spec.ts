@@ -21,10 +21,7 @@ describe('AppComponent', () => {
     let navigationServiceStub: jasmine.SpyObj<NavigationService>;
 
     beforeEach(() => {
-        routerServiceStub = jasmine.createSpyObj<RouterService>(
-            'routerService',
-            ['getState'],
-        );
+        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState']);
         oAuthServiceStub = jasmine.createSpyObj<OAuthService>('oAuthService', [
             'configure',
             'loadDiscoveryDocumentAndLogin',
@@ -32,22 +29,15 @@ describe('AppComponent', () => {
             'refreshToken',
             'logOut',
             'getIdToken',
-            'getIdentityClaims',
+            'getIdentityClaims'
         ]);
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
-            'navigationService',
-            ['initialize'],
-        );
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['initialize']);
 
         routerServiceStub.getState.and.returnValue(new Subject());
         oAuthServiceStub.getIdentityClaims.and.returnValue({});
-        oAuthServiceStub.loadDiscoveryDocumentAndLogin.and.returnValue(
-            Promise.resolve(true),
-        );
+        oAuthServiceStub.loadDiscoveryDocumentAndLogin.and.returnValue(Promise.resolve(true));
         oAuthServiceStub.getAccessTokenExpiration.and.returnValue(0);
-        oAuthServiceStub.refreshToken.and.returnValue(
-            Promise.resolve({} as TokenResponse),
-        );
+        oAuthServiceStub.refreshToken.and.returnValue(Promise.resolve({} as TokenResponse));
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
@@ -57,8 +47,8 @@ describe('AppComponent', () => {
                 UrlHelperService,
                 { provide: OAuthService, useValue: oAuthServiceStub },
                 { provide: NavigationService, useValue: navigationServiceStub },
-                { provide: RouterService, useValue: routerServiceStub },
-            ],
+                { provide: RouterService, useValue: routerServiceStub }
+            ]
         });
     });
 
