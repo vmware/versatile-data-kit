@@ -1,0 +1,80 @@
+/*!
+ * Copyright 2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.confirmation__header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: none;
+    padding: 0.5rem 0.5rem 0 0.5rem;
+
+    .confirmation__header-title-container {
+        flex: 1;
+
+        .confirmation__header-title {
+            font-size: 1.1rem;
+            font-weight: var(--clr-modal-title-font-weight, 200);
+            line-height: 1.2rem;
+            letter-spacing: normal;
+            margin: 0;
+            padding: 0 0.15rem 0 0;
+        }
+    }
+
+    .confirmation__header-close-btn {
+        margin-top: -0.05rem;
+        margin-right: -0.25rem;
+        font-size: 1.3rem;
+        line-height: 1.2rem;
+        padding: 0;
+        cursor: pointer;
+        background: 0 0;
+        border: 0;
+        -webkit-appearance: none;
+        float: right;
+        transition: color linear 0.2s;
+        font-weight: 200;
+        text-shadow: none;
+        color: var(--clr-close-color--normal, #8c8c8c);
+
+        cds-icon {
+            fill: var(--clr-modal-close-color, #8c8c8c);
+            height: 1.2rem;
+            width: 1.2rem;
+        }
+    }
+}
+
+.confirmation__body-container {
+    padding: 1.2rem 0.5rem 0 0.5rem;
+
+    .confirmation__body-message {
+        margin: 0;
+    }
+
+    .confirmation__body-form {
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.confirmation__footer-container {
+    display: flex;
+    justify-content: right;
+    padding: 1.2rem 0.5rem 0.5rem 0.5rem;
+
+    button {
+        margin: 0;
+
+        &.confirmation__footer-cancel-btn {
+            margin-right: 0.6rem;
+        }
+    }
+}
