@@ -107,7 +107,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
         return this.getMostRecentFailingJobsExecutionsWidget()
             .should('exist')
             .find(
-                '[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]',
+                '[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]'
             );
     }
 
@@ -121,7 +121,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
         this._navigateToDataJob(
             this.getAllMostRecentFailingJobsExecutions(),
             jobName,
-            2,
+            2
         );
     }
 

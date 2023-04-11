@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 @Component({
     selector: 'lib-widget-value',
     templateUrl: './widget-value.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WidgetValueComponent {
     @Input() observable$: Observable<unknown>;

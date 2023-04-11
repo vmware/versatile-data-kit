@@ -13,7 +13,7 @@ describe('WidgetValueComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [WidgetValueComponent],
+            declarations: [WidgetValueComponent]
         }).compileComponents();
     });
 

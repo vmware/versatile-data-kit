@@ -40,7 +40,6 @@
             ],
             "leadingUnderscore": "allow",
             "filter": {
-              // you can expand this regex to add more allowed names
               "regex": "^((\\$\\..+))$",
               "match": false
             }
@@ -80,7 +79,6 @@
             ],
             "leadingUnderscore": "allow",
             "filter": {
-              // you can expand this regex to add more allowed names
               "regex": "^((\\$\\..+)|(test_)|(data-)|(aria-))",
               "match": false
             }

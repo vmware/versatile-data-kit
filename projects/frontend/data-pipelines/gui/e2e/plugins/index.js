@@ -19,7 +19,7 @@
 
 const {
     install,
-    ensureBrowserFlags,
+    ensureBrowserFlags
 } = require('@neuralegion/cypress-har-generator');
 const path = require('path');
 
@@ -33,15 +33,15 @@ module.exports = (on, config) => {
         // generated output directory.
         specRoot: path.relative(
             config.fileServerFolder,
-            config.integrationFolder,
+            config.integrationFolder
         ),
         outputTarget: {
-            'cypress-logs|json': 'json',
+            'cypress-logs|json': 'json'
         },
         printLogsToConsole: 'always',
         printLogsToFile: 'always',
         includeSuccessfulHookLogs: true,
-        logToFilesOnAfterRun: true,
+        logToFilesOnAfterRun: true
     };
 
     require('cypress-terminal-report/src/installLogsPrinter')(on, options);
