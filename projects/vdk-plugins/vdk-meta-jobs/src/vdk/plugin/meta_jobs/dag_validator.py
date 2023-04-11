@@ -1,13 +1,12 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import graphlib
 import json
 import logging
 from collections import namedtuple
 from typing import Dict
 from typing import List
 
-from vdk.api.job_input import IJobArguments
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -121,16 +120,18 @@ class DagValidator:
                 ["".join(list(job))],
             )
 
-    def _validate_dependencies(self, job_name: str, deps: List[str]):
-        if not (isinstance(deps, List)):
+    def _validate_dependencies(self, job_name: str, dependencies: List[str]):
+        if not (isinstance(dependencies, List)):
             self._raise_error(
                 ERROR.TYPE,
                 "The type of the job dict depends_on key is not list.",
                 f"Check the Data Job Dict type of the depends_on key. Current type "
-                f"is {type(deps)}. Expected type is list.",
+                f"is {type(dependencies)}. Expected type is list.",
                 [job_name],
             )
-        non_string_dependencies = [pred for pred in deps if not isinstance(pred, str)]
+        non_string_dependencies = [
+            pred for pred in dependencies if not isinstance(pred, str)
+        ]
         if non_string_dependencies:
             self._raise_error(
                 ERROR.TYPE,
