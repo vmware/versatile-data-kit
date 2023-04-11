@@ -1,5 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import json
 import os
 import shlex
 import subprocess
@@ -44,6 +45,24 @@ class VdkUI:
                 shell=False,
             )
             process.wait()
+            if process.returncode != "0":
+                job_name = (
+                    os.path.basename(path[:-1])
+                    if path.endswith("/")
+                    else os.path.basename(path)
+                )
+                error_file = os.path.join(
+                    os.path.dirname(path), f".{job_name}_error.json"
+                )
+                with open(error_file) as file:
+                    # the json is generated in vdk-notebook plugin
+                    # you can see /vdk-notebook/src/vdk/notebook-plugin.py
+                    error = json.load(file)
+                    return (
+                        f"{error['details']}\n"
+                        f"Step: {error['step_name']}\n"
+                        f"Blamee: {error['blamee']}"
+                    )
             return f"{process.returncode}"
 
     @staticmethod
