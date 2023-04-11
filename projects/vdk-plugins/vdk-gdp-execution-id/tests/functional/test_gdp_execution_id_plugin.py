@@ -23,7 +23,7 @@ class GdpExecutionIdTest(unittest.TestCase):
         os.environ,
         {
             "VDK_INGEST_METHOD_DEFAULT": "memory",
-            "VDK_INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "gdp-execution-id",
+            "VDK_INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "vdk-gdp-execution-id",
         },
     )
     def test_ingested_payload_expansion(self) -> None:
@@ -44,7 +44,7 @@ class GdpExecutionIdTest(unittest.TestCase):
         os.environ,
         {
             "VDK_INGEST_METHOD_DEFAULT": "memory",
-            "VDK_INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "gdp-execution-id",
+            "VDK_INGEST_PAYLOAD_PREPROCESS_SEQUENCE": "vdk-gdp-execution-id",
             "VDK_GDP_EXECUTION_ID_MICRO_DIMENSION_NAME": "micro_dimension_name_customized",
         },
     )

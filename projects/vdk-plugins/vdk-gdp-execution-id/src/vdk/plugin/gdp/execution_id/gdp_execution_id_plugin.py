@@ -49,7 +49,9 @@ class GdpExecutionIdPlugin(IIngesterPlugin):
         self.__execution_id = context.core_context.state.get(
             CommonStoreKeys.EXECUTION_ID
         )
-        context.ingester.add_ingester_factory_method("gdp-execution-id", lambda: self)
+        context.ingester.add_ingester_factory_method(
+            "vdk-gdp-execution-id", lambda: self
+        )
 
     @staticmethod
     @hookimpl
