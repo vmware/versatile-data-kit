@@ -331,7 +331,7 @@ class TestMetaJob:
         self._test_meta_job_validation("meta-job-not-allowed-job-key")
 
     def test_meta_job_wrong_job_arguments_type(self):
-        self._test_meta_job_validation("meta-job-wrong-job-arguments-type")
+        self._test_meta_job_validation("dag-wrong-job-arguments-type")
 
     def test_meta_job_arguments(self):
         self._set_up()
@@ -340,7 +340,7 @@ class TestMetaJob:
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(plugin_entry)
-            result = self._run_meta_job("meta-job-arguments")
+            result = self._run_meta_job("dag-arguments")
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
             assert len(job2_arguments) == 2
@@ -354,7 +354,7 @@ class TestMetaJob:
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(plugin_entry)
-            result = self._run_meta_job("meta-job-empty-arguments")
+            result = self._run_meta_job("dag-empty-arguments")
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
             assert len(job2_arguments) == 0
