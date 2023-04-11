@@ -17,12 +17,7 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import {
-    VdkSharedCoreModule,
-    VdkSharedFeaturesModule,
-    VdkSharedNgRxModule,
-    VdkSharedComponentsModule,
-} from '@versatiledatakit/shared';
+import { VdkSharedCoreModule, VdkSharedFeaturesModule, VdkSharedNgRxModule, VdkSharedComponentsModule } from '@versatiledatakit/shared';
 
 import { VdkDataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
@@ -50,13 +45,9 @@ export function lottiePlayerLoader() {
         HttpClientModule,
         OAuthModule.forRoot({
             resourceServer: {
-                allowedUrls: [
-                    'https://console-stg.cloud.vmware.com/',
-                    'https://gaz-preview.csp-vidm-prod.com/',
-                    '/data-jobs',
-                ],
-                sendAccessToken: true,
-            },
+                allowedUrls: ['https://console-stg.cloud.vmware.com/', 'https://gaz-preview.csp-vidm-prod.com/', '/data-jobs'],
+                sendAccessToken: true
+            }
         }),
         ApolloModule,
         TimeagoModule.forRoot(),
@@ -68,33 +59,33 @@ export function lottiePlayerLoader() {
         VdkDataPipelinesModule.forRoot({
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
-                allowKeyTabDownloads: true,
+                allowKeyTabDownloads: true
             },
             exploreConfig: {
-                showTeamsColumn: true,
+                showTeamsColumn: true
             },
             healthStatusUrl: '/explore/data-jobs?search={0}',
             showExecutionsPage: true,
             showLineagePage: false,
-            dataPipelinesDocumentationUrl: '#',
-        }),
+            dataPipelinesDocumentationUrl: '#'
+        })
     ],
     declarations: [AppComponent, GettingStartedComponent],
     providers: [
         {
             provide: OAuthStorage,
-            useValue: localStorage,
+            useValue: localStorage
         },
         {
             provide: AuthConfig,
-            useValue: authCodeFlowConfig,
+            useValue: authCodeFlowConfig
         },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthorizationInterceptor,
-            multi: true,
-        },
+            multi: true
+        }
     ],
-    bootstrap: [AppComponent],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}

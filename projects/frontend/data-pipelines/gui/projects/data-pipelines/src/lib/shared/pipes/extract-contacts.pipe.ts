@@ -6,7 +6,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'extractContacts',
+    name: 'extractContacts'
 })
 export class ExtractContactsPipe implements PipeTransform {
     static transform(contacts: string[]): string[] {

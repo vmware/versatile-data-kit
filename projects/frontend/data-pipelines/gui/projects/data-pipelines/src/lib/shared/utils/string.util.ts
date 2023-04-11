@@ -4,6 +4,5 @@
  */
 
 export class StringUtil {
-    static stringFormat = (str: string, ...args: string[]) =>
-        str.replace(/{(\d+)}/g, (match, index: number) => args[index] || '');
+    static stringFormat = (str: string, ...args: string[]) => str.replace(/{(\d+)}/g, (match, index: number) => args[index] || '');
 }

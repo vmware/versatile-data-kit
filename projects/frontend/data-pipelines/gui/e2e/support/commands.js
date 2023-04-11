@@ -11,7 +11,7 @@ import {
     createTestJob,
     deleteTestJobIfExists,
     deployTestJobIfNotExists,
-    waitForJobExecutionCompletion,
+    waitForJobExecutionCompletion
 } from './helpers/commands.helpers';
 
 Cypress.Commands.add('login', () => {
@@ -23,10 +23,10 @@ Cypress.Commands.add('login', () => {
             form: true,
             body: {
                 // See project README.md how to set this token
-                api_token: Cypress.env('OAUTH2_API_TOKEN'),
+                api_token: Cypress.env('OAUTH2_API_TOKEN')
             },
             followRedirect: false,
-            failOnStatusCode: false,
+            failOnStatusCode: false
         })
         .its('body')
         .then((body) => {
@@ -46,7 +46,7 @@ Cypress.Commands.add('login', () => {
 
             return cy.wrap({
                 context: 'commands::login()',
-                action: 'continue',
+                action: 'continue'
             });
         });
 });
@@ -54,7 +54,7 @@ Cypress.Commands.add('login', () => {
 Cypress.Commands.add('initBackendRequestInterceptor', () => {
     cy.intercept({
         method: 'GET',
-        url: '**/data-jobs/for-team/**',
+        url: '**/data-jobs/for-team/**'
     }).as('getJobsRequest');
 });
 
@@ -76,7 +76,7 @@ Cypress.Commands.add('initGetExecutionsInterceptor', () => {
 Cypress.Commands.add('initGetExecutionInterceptor', () => {
     cy.intercept({
         method: 'GET',
-        url: '**/data-jobs/for-team/**/executions/**',
+        url: '**/data-jobs/for-team/**/executions/**'
     }).as('getExecutionRequest');
 });
 
@@ -96,7 +96,7 @@ Cypress.Commands.add('waitForInterceptor', (aliasName, retries, predicate) => {
 
 Cypress.Commands.add('initPatchDetailsReqInterceptor', () => {
     cy.intercept('PATCH', '**/data-jobs/for-team/**/jobs/**/deployments/**').as(
-        'patchJobDetails',
+        'patchJobDetails'
     );
 });
 
@@ -107,7 +107,7 @@ Cypress.Commands.add('waitForPatchDetailsReqInterceptor', () => {
 Cypress.Commands.add('initPostExecutionInterceptor', () => {
     cy.intercept({
         method: 'POST',
-        url: '**/data-jobs/for-team/**/executions',
+        url: '**/data-jobs/for-team/**/executions'
     }).as('postExecuteNow');
 });
 
@@ -118,7 +118,7 @@ Cypress.Commands.add('waitForPostExecutionCompletion', () => {
 Cypress.Commands.add('initDeleteExecutionInterceptor', () => {
     cy.intercept({
         method: 'DELETE',
-        url: '**/data-jobs/for-team/**/executions/**',
+        url: '**/data-jobs/for-team/**/executions/**'
     }).as('deleteExecution');
 });
 
@@ -133,14 +133,14 @@ Cypress.Commands.add('recordHarIfSupported', () => {
                 'vendor.js$',
                 'clr-ui.min.css$',
                 'scripts.js$',
-                'polyfills.js$',
-            ],
+                'polyfills.js$'
+            ]
         });
     }
 
     return cy.wrap({
         context: 'commands::recordHarIfSupported()',
-        action: 'continue',
+        action: 'continue'
     });
 });
 
@@ -151,7 +151,7 @@ Cypress.Commands.add('saveHarIfSupported', () => {
 
     return cy.wrap({
         context: 'commands::saveHarIfSupported()',
-        action: 'continue',
+        action: 'continue'
     });
 });
 
@@ -162,7 +162,7 @@ Cypress.Commands.add('prepareBaseTestJobs', () => {
                 const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
                 return createTestJob(normalizedTestJob);
-            }),
+            })
         );
     });
 });
@@ -180,14 +180,14 @@ Cypress.Commands.add('prepareAdditionalTestJobs', () => {
 Cypress.Commands.add('prepareLongLivedTestJob', () => {
     return deployTestJobIfNotExists(
         'lib/manage/e2e-cypress-dp-test.json',
-        'lib/manage/e2e-cypress-dp-test.zip',
+        'lib/manage/e2e-cypress-dp-test.zip'
     );
 });
 
 Cypress.Commands.add('prepareLongLivedFailingTestJob', () => {
     return deployTestJobIfNotExists(
         'e2e-cy-dp-failing.job.json',
-        'e2e-cy-dp-failing.job.zip',
+        'e2e-cy-dp-failing.job.zip'
     );
 });
 
@@ -200,7 +200,7 @@ Cypress.Commands.add('cleanTestJobs', () => {
                     const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
                     return deleteTestJobIfExists(normalizedTestJob);
-                }),
+                })
             );
         })
         .then(() => {
@@ -223,7 +223,7 @@ Cypress.Commands.add('waitForTestJobExecutionCompletion', () => {
         return waitForJobExecutionCompletion(
             normalizedTestJob.team,
             normalizedTestJob.job_name,
-            waitForJobExecutionTimeout,
+            waitForJobExecutionTimeout
         );
     });
 });
@@ -238,7 +238,7 @@ Cypress.Commands.add('createTwoExecutionsLongLivedTestJob', () => {
             normalizedTestJob.team,
             normalizedTestJob.job_name,
             waitForJobExecutionTimeout,
-            2,
+            2
         );
     });
 });
@@ -253,7 +253,7 @@ Cypress.Commands.add('createExecutionsLongLivedFailingTestJob', () => {
             normalizedTestJob.team,
             normalizedTestJob.job_name,
             waitForJobExecutionTimeout,
-            2,
+            2
         );
     });
 });
@@ -268,9 +268,9 @@ Cypress.Commands.add(
                     `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
                 method: 'get',
                 auth: {
-                    bearer: window.localStorage.getItem('access_token'),
+                    bearer: window.localStorage.getItem('access_token')
                 },
-                failOnStatusCode: false,
+                failOnStatusCode: false
             })
             .then((outerResponse) => {
                 if (outerResponse.status === 200) {
@@ -287,10 +287,10 @@ Cypress.Commands.add(
                             body: { enabled: status },
                             auth: {
                                 bearer: window.localStorage.getItem(
-                                    'access_token',
-                                ),
+                                    'access_token'
+                                )
                             },
-                            failOnStatusCode: false,
+                            failOnStatusCode: false
                         })
                         .then((innerResponse) => {
                             if (
@@ -298,11 +298,11 @@ Cypress.Commands.add(
                                 innerResponse.status < 300
                             ) {
                                 cy.log(
-                                    `Change enable status to [${status}] for data job [${jobName}]`,
+                                    `Change enable status to [${status}] for data job [${jobName}]`
                                 );
                             } else {
                                 cy.log(
-                                    `Cannot change enabled status to [${status}] for data job [${jobName}]`,
+                                    `Cannot change enabled status to [${status}] for data job [${jobName}]`
                                 );
 
                                 console.log(`Http request:`, innerResponse);
@@ -311,21 +311,21 @@ Cypress.Commands.add(
                             return cy.wrap({
                                 context:
                                     'commands::1::changeDataJobEnabledStatus()',
-                                action: 'continue',
+                                action: 'continue'
                             });
                         });
                 } else {
                     cy.log(
-                        `Cannot change enabled status to [${status}] for data job [${jobName}]`,
+                        `Cannot change enabled status to [${status}] for data job [${jobName}]`
                     );
 
                     console.log(`Http request:`, outerResponse);
 
                     return cy.wrap({
                         context: 'commands::2::changeDataJobEnabledStatus()',
-                        action: 'continue',
+                        action: 'continue'
                     });
                 }
             });
-    },
+    }
 );
