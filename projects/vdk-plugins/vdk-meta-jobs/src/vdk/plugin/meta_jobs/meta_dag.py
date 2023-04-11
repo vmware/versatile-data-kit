@@ -22,7 +22,11 @@ log = logging.getLogger(__name__)
 
 
 class MetaJobsDag:
-    def __init__(self, team_name: str, meta_config: MetaPluginConfiguration):
+    def __init__(
+        self,
+        team_name: str,
+        meta_config: MetaPluginConfiguration,
+    ):
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(
@@ -49,6 +53,7 @@ class MetaJobsDag:
                 job["job_name"],
                 job.get("team_name", self._team_name),
                 job.get("fail_meta_job_on_error", True),
+                job.get("arguments", None),
             )
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])
