@@ -1744,7 +1744,7 @@ public abstract class KubernetesService implements InitializingBean {
             .orElse(null));
 
     jobExecutionStatusBuilder.jobPythonVersion(
-            annotations
+        annotations
             .map(stringStringMap -> stringStringMap.get(JobAnnotation.PYTHON_VERSION.getValue()))
             .orElse(null));
 

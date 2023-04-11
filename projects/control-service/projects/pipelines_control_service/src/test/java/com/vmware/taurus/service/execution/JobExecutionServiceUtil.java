@@ -57,7 +57,7 @@ public class JobExecutionServiceUtil {
     Assertions.assertEquals(
         expectedDataJobExecution.getJobVersion(), actualDeployment.getJobVersion());
     Assertions.assertEquals(
-            expectedDataJobExecution.getJobPythonVersion(), actualDeployment.getPythonVersion());
+        expectedDataJobExecution.getJobPythonVersion(), actualDeployment.getPythonVersion());
 
     DataJobResources actualDeploymentResources = actualDeployment.getResources();
     Assertions.assertNotNull(actualDeploymentResources);
