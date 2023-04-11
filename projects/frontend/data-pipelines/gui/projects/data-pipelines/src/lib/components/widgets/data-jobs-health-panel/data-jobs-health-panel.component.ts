@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Component,
-    EventEmitter,
-    Inject,
-    Input,
-    OnInit,
-    Output,
-} from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import {
@@ -26,7 +19,7 @@ import {
     OnTaurusModelInit,
     OnTaurusModelLoad,
     RouterService,
-    TaurusBaseComponent,
+    TaurusBaseComponent
 } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../../shared/utils';
@@ -46,17 +39,11 @@ import {
     JOB_NAME_REQ_PARAM,
     JOBS_DATA_KEY,
     ORDER_REQ_PARAM,
-    TEAM_NAME_REQ_PARAM,
+    TEAM_NAME_REQ_PARAM
 } from '../../../model';
 
-import {
-    TASK_LOAD_JOB_EXECUTIONS,
-    TASK_LOAD_JOBS_STATE,
-} from '../../../state/tasks';
-import {
-    LOAD_JOB_ERROR_CODES,
-    LOAD_JOBS_ERROR_CODES,
-} from '../../../state/error-codes';
+import { TASK_LOAD_JOB_EXECUTIONS, TASK_LOAD_JOBS_STATE } from '../../../state/tasks';
+import { LOAD_JOB_ERROR_CODES, LOAD_JOBS_ERROR_CODES } from '../../../state/error-codes';
 
 import { DataJobExecutionToGridDataJobExecution } from '../../data-job/pages/executions';
 
@@ -64,22 +51,17 @@ enum State {
     loading = 'loading',
     ready = 'ready',
     empty = 'empty',
-    error = 'error',
+    error = 'error'
 }
 
 @Component({
     selector: 'lib-data-jobs-health-panel',
     templateUrl: './data-jobs-health-panel.component.html',
-    styleUrls: ['./data-jobs-health-panel.component.scss'],
+    styleUrls: ['./data-jobs-health-panel.component.scss']
 })
 export class DataJobsHealthPanelComponent
     extends TaurusBaseComponent
-    implements
-        OnInit,
-        OnTaurusModelInit,
-        OnTaurusModelLoad,
-        OnTaurusModelChange,
-        OnTaurusModelError
+    implements OnInit, OnTaurusModelInit, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError
 {
     @Input() manageLink: string;
     @Output() componentStateEvent = new EventEmitter<string>();
@@ -104,7 +86,7 @@ export class DataJobsHealthPanelComponent
      */
     listenForErrorPatterns: string[] = [
         LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS].All,
-        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE].All,
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE].All
     ];
 
     constructor(
@@ -114,7 +96,7 @@ export class DataJobsHealthPanelComponent
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
         @Inject(DATA_PIPELINES_CONFIGS)
-        public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
     ) {
         super(componentService, navigationService, activatedRoute);
     }
@@ -127,7 +109,7 @@ export class DataJobsHealthPanelComponent
             filters.push({
                 property: 'config.team',
                 pattern: this.teamName,
-                sort: null,
+                sort: null
             });
         }
 
@@ -138,9 +120,9 @@ export class DataJobsHealthPanelComponent
                 .withFilter(filters)
                 .withRequestParam(ORDER_REQ_PARAM, {
                     property: 'startTime',
-                    direction: DESC,
+                    direction: DESC
                 })
-                .withPage(1, 1000),
+                .withPage(1, 1000)
         );
     }
 
@@ -153,17 +135,14 @@ export class DataJobsHealthPanelComponent
                 .withRequestParam(TEAM_NAME_REQ_PARAM, 'no-team-specified')
                 .withRequestParam(JOB_NAME_REQ_PARAM, '')
                 .withRequestParam(FILTER_REQ_PARAM, {
-                    statusIn: [
-                        DataJobExecutionStatus.USER_ERROR,
-                        DataJobExecutionStatus.PLATFORM_ERROR,
-                    ],
+                    statusIn: [DataJobExecutionStatus.USER_ERROR, DataJobExecutionStatus.PLATFORM_ERROR],
                     startTimeGte: d,
-                    teamNameIn: this.teamName ? [this.teamName] : [],
+                    teamNameIn: this.teamName ? [this.teamName] : []
                 } as DataJobExecutionFilter)
                 .withRequestParam(ORDER_REQ_PARAM, {
                     property: 'startTime',
-                    direction: DESC,
-                } as DataJobExecutionOrder),
+                    direction: DESC
+                } as DataJobExecutionOrder)
         );
     }
 
@@ -187,27 +166,17 @@ export class DataJobsHealthPanelComponent
      */
     onModelChange(model: ComponentModel, task: string): void {
         if (task === TASK_LOAD_JOB_EXECUTIONS) {
-            const executions: DataJobExecutions = model
-                .getComponentState()
-                .data.get(JOB_EXECUTIONS_DATA_KEY);
+            const executions: DataJobExecutions = model.getComponentState().data.get(JOB_EXECUTIONS_DATA_KEY);
             if (executions) {
-                const remappedExecutions =
-                    DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(
-                        [...executions],
-                    );
-                this.jobExecutions = remappedExecutions.filter(
-                    (ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED,
-                );
+                const remappedExecutions = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution([...executions]);
+                this.jobExecutions = remappedExecutions.filter((ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED);
                 this.loadingExecutions = false;
             }
         } else if (task === TASK_LOAD_JOBS_STATE) {
             const componentState = model.getComponentState();
-            const dataJobsData: DataJobPage =
-                componentState.data.get(JOBS_DATA_KEY);
+            const dataJobsData: DataJobPage = componentState.data.get(JOBS_DATA_KEY);
 
-            this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content)
-                ? [...dataJobsData?.content]
-                : [];
+            this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content) ? [...dataJobsData?.content] : [];
             this.loadingJobs = false;
         }
 
@@ -217,11 +186,7 @@ export class DataJobsHealthPanelComponent
     /**
      * @inheritDoc
      */
-    onModelError(
-        model: ComponentModel,
-        task: string,
-        newErrorRecords: ErrorRecord[],
-    ): void {
+    onModelError(model: ComponentModel, task: string, newErrorRecords: ErrorRecord[]): void {
         newErrorRecords.forEach((errorRecord) => {
             const error = ErrorUtil.extractError(errorRecord.error);
 
@@ -245,9 +210,7 @@ export class DataJobsHealthPanelComponent
         // attach listener to ErrorStore and listen for Errors change
         this.errors.onChange((store) => {
             // if there is record for listened error code patterns set component in error state
-            this.isComponentInErrorState = store.hasCodePattern(
-                ...this.listenForErrorPatterns,
-            );
+            this.isComponentInErrorState = store.hasCodePattern(...this.listenForErrorPatterns);
         });
 
         super.ngOnInit();
@@ -256,10 +219,7 @@ export class DataJobsHealthPanelComponent
     private _emitNewState() {
         if (this.loadingJobs || this.loadingExecutions) {
             this.componentStateEvent.emit(State.loading);
-        } else if (
-            this.jobExecutions.length === 0 &&
-            this.dataJobs.length === 0
-        ) {
+        } else if (this.jobExecutions.length === 0 && this.dataJobs.length === 0) {
             this.componentStateEvent.emit(State.empty);
         } else if (this.isComponentInErrorState) {
             this.componentStateEvent.emit(State.error);
@@ -269,29 +229,24 @@ export class DataJobsHealthPanelComponent
     }
 
     private _subscribeForTeamChange(): void {
-        if (
-            this.dataPipelinesModuleConfig.manageConfig
-                ?.selectedTeamNameObservable
-        ) {
+        if (this.dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable) {
             this.subscriptions.push(
-                this.dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable.subscribe(
-                    {
-                        next: (newTeamName: string) => {
-                            if (newTeamName !== this.teamName) {
-                                if (newTeamName && newTeamName !== '') {
-                                    this.teamName = newTeamName;
-                                    this.fetchDataJobExecutions();
-                                    this.fetchDataJobs();
-                                }
+                this.dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable.subscribe({
+                    next: (newTeamName: string) => {
+                        if (newTeamName !== this.teamName) {
+                            if (newTeamName && newTeamName !== '') {
+                                this.teamName = newTeamName;
+                                this.fetchDataJobExecutions();
+                                this.fetchDataJobs();
                             }
-                        },
-                        error: (error: unknown) => {
-                            this.jobExecutions = [];
-                            this.dataJobs = [];
-                            console.error('Error loading selected team', error);
-                        },
+                        }
                     },
-                ),
+                    error: (error: unknown) => {
+                        this.jobExecutions = [];
+                        this.dataJobs = [];
+                        console.error('Error loading selected team', error);
+                    }
+                })
             );
         } else {
             this.fetchDataJobExecutions();

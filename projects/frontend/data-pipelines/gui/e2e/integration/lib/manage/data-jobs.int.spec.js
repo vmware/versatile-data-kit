@@ -45,9 +45,9 @@ describe(
                             return cy.wrap({
                                 context:
                                     'manage::1::data-jobs.int.spec::before()',
-                                action: 'continue',
+                                action: 'continue'
                             });
-                        }),
+                        })
                 )
                 .then(() =>
                     cy
@@ -59,9 +59,9 @@ describe(
                             return cy.wrap({
                                 context:
                                     'manage::2::data-jobs.int.spec::before()',
-                                action: 'continue',
+                                action: 'continue'
                             });
-                        }),
+                        })
                 )
                 .then(() =>
                     cy
@@ -73,17 +73,17 @@ describe(
                             return cy.wrap({
                                 context:
                                     'manage::3::data-jobs.int.spec::before()',
-                                action: 'continue',
+                                action: 'continue'
                             });
-                        }),
+                        })
                 )
                 .then(() =>
                     // Enable data job after job end
                     DataJobsManagePage.changeJobStatus(
                         longLivedTestJob.team,
                         longLivedTestJob.job_name,
-                        true,
-                    ),
+                        true
+                    )
                 );
         });
 
@@ -103,7 +103,7 @@ describe(
             DataJobsManagePage.changeJobStatus(
                 longLivedTestJob.team,
                 longLivedTestJob.job_name,
-                true,
+                true
             );
 
             DataJobsManagePage.saveHarIfSupported();
@@ -145,7 +145,7 @@ describe(
                 dataJobsManagePage
                     .getDataGridCell(testJobs[1].job_name)
                     .should('not.exist');
-            },
+            }
         );
 
         it(
@@ -165,7 +165,7 @@ describe(
                 dataJobsManagePage
                     .getDataGridCell(testJobs[1].job_name)
                     .should('be.visible');
-            },
+            }
         );
 
         it('Data Jobs Manage Page - grid search parameter goes into URL', () => {
@@ -203,8 +203,8 @@ describe(
                 .should(
                     'match',
                     new RegExp(
-                        `\\/manage\\/data-jobs\\?search=${testJobs[0].job_name}$`,
-                    ),
+                        `\\/manage\\/data-jobs\\?search=${testJobs[0].job_name}$`
+                    )
                 );
 
             // clear search with clear() method
@@ -231,7 +231,7 @@ describe(
         it('Data Jobs Manage Page - grid search perform search when URL contains search parameter', () => {
             // navigate with search value in URL
             dataJobsManagePage = DataJobsManagePage.navigateToUrl(
-                `/manage/data-jobs?search=${testJobs[1].job_name}`,
+                `/manage/data-jobs?search=${testJobs[1].job_name}`
             );
 
             dataJobsManagePage.chooseQuickFilter(0);
@@ -244,8 +244,8 @@ describe(
                 .should(
                     'match',
                     new RegExp(
-                        `\\/manage\\/data-jobs\\?search=${testJobs[1].job_name}$`,
-                    ),
+                        `\\/manage\\/data-jobs\\?search=${testJobs[1].job_name}$`
+                    )
                 );
 
             // verify 1 test row visible
@@ -301,13 +301,13 @@ describe(
                     dataJobsManagePage.refreshDataGrid();
 
                     dataJobsManagePage.filterByJobName(
-                        normalizedTestJob.job_name,
+                        normalizedTestJob.job_name
                     );
 
                     dataJobsManagePage
                         .getDataGridCell(normalizedTestJob.job_name)
                         .should('have.text', normalizedTestJob.job_name);
-                },
+                }
             );
         });
 
@@ -323,7 +323,7 @@ describe(
 
                 dataJobsManagePage.openJobDetails(
                     testJobs[0].team,
-                    testJobs[0].job_name,
+                    testJobs[0].job_name
                 );
 
                 const dataJobManageDetailsPage =
@@ -342,7 +342,7 @@ describe(
                         testJobs[0].description
                             .split(' ')
                             .slice(0, descriptionWordsBeforeTruncate)
-                            .join(' '),
+                            .join(' ')
                     );
 
                 dataJobManageDetailsPage.getSchedule().should('be.visible');
@@ -351,7 +351,7 @@ describe(
                     .getDeploymentStatus('not-deployed')
                     .should('be.visible')
                     .should('have.text', 'Not Deployed');
-            },
+            }
         );
 
         it(
@@ -372,7 +372,7 @@ describe(
                 //Toggle job status twice, enable to disable and vice versa.
                 dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);
                 dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);
-            },
+            }
         );
 
         it(
@@ -383,14 +383,14 @@ describe(
                 DataJobsManagePage.changeJobStatus(
                     longLivedFailingTestJob.team,
                     longLivedFailingTestJob.job_name,
-                    true,
+                    true
                 )
                     .then(() =>
                         DataJobsManagePage.changeJobStatus(
                             longLivedTestJob.team,
                             longLivedTestJob.job_name,
-                            false,
-                        ),
+                            false
+                        )
                     )
                     .then(() => {
                         dataJobsManagePage.clickOnContentContainer();
@@ -408,8 +408,8 @@ describe(
                                         .should(
                                             'match',
                                             new RegExp(
-                                                'data-pipelines-job-(enabled|disabled|not-deployed)',
-                                            ),
+                                                'data-pipelines-job-(enabled|disabled|not-deployed)'
+                                            )
                                         );
                                 }
                             });
@@ -425,7 +425,7 @@ describe(
                                     cy.wrap(icon).should(
                                         'have.attr',
                                         'data-cy',
-                                        'data-pipelines-job-enabled',
+                                        'data-pipelines-job-enabled'
                                     );
                                 }
                             });
@@ -441,7 +441,7 @@ describe(
                                     cy.wrap(icon).should(
                                         'have.attr',
                                         'data-cy',
-                                        'data-pipelines-job-disabled',
+                                        'data-pipelines-job-disabled'
                                     );
                                 }
                             });
@@ -457,7 +457,7 @@ describe(
                                     cy.wrap(icon).should(
                                         'have.attr',
                                         'data-cy',
-                                        'data-pipelines-job-not-deployed',
+                                        'data-pipelines-job-not-deployed'
                                     );
                                 }
                             });
@@ -466,10 +466,10 @@ describe(
                         DataJobsManagePage.changeJobStatus(
                             longLivedTestJob.team,
                             longLivedTestJob.job_name,
-                            true,
+                            true
                         );
                     });
-            },
+            }
         );
 
         it('Data Jobs Manage Page - show/hide column when toggling from menu', () => {
@@ -483,7 +483,7 @@ describe(
                 .invoke('join', ',')
                 .should(
                     'eq',
-                    'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Notifications,Source,Logs',
+                    'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Notifications,Source,Logs'
                 );
 
             // verify column is not checked in toggling menu
@@ -548,9 +548,9 @@ describe(
                     .getToastTitle(10000) // Wait up to 10 seconds for Toast to show.
                     .should('exist')
                     .contains(
-                        /Data job Queued for execution|Failed, Data job is already executing/,
+                        /Data job Queued for execution|Failed, Data job is already executing/
                     );
-            },
+            }
         );
-    },
+    }
 );

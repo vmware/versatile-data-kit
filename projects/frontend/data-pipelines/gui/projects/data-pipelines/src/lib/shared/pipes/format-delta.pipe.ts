@@ -24,7 +24,7 @@ import { DataJobExecution } from '../../model';
  *   4: If the duration is more than 1 day, the format is `${days}d ${hours}h`
  */
 @Pipe({
-    name: 'formatDelta',
+    name: 'formatDelta'
 })
 export class FormatDeltaPipe implements PipeTransform {
     static formatDelta(delta: number): string {
@@ -58,10 +58,7 @@ export class FormatDeltaPipe implements PipeTransform {
             return '';
         }
 
-        const delta =
-            (FormatDeltaPipe._getEndTime(execution) -
-                FormatDeltaPipe._getStartTime(execution)) /
-            1000;
+        const delta = (FormatDeltaPipe._getEndTime(execution) - FormatDeltaPipe._getStartTime(execution)) / 1000;
 
         return FormatDeltaPipe.formatDelta(delta);
     }

@@ -28,6 +28,7 @@ def run(job_input):
         "job_name": "name-of-job",
         "team_name": "team-of-job",
         "fail_meta_job_on_error": True or False,
+        "arguments": {"key1": value1, "key2": value2},
         "depends_on": [name-of-job1, name-of-job2]
         },
         ...
@@ -38,7 +39,8 @@ def run(job_input):
 When defining a job to be run following attributes are supported:
 * **job_name**: required, the name of the data job
 * **team_name:**: optional, the team of the data job. If omitted , it will use the meta job's team
-* **fail_meta_job_on_error**: optional, default is true. if true, the meta job will abort and fail if the orchestrated job fails, if false, meta job won't fail and continue.
+* **fail_meta_job_on_error**: optional, default is true. If true, the meta job will abort and fail if the orchestrated job fails, if false, meta job won't fail and continue.
+* **arguments**: optional, the arguments that are passed to the underlying orchestrated data job.
 * **depends_on**: required (can be empty), list of other jobs that the orchestrated job depends on. The job will not be started until depends_on job have finished.
 
 
@@ -65,6 +67,7 @@ JOBS_RUN_ORDER = [
         "job_name": "job1",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": []
     },
 
@@ -72,18 +75,21 @@ JOBS_RUN_ORDER = [
         "job_name": "job2",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job1"]
     },
     {
         "job_name": "job3",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job1"]
     },
     {
         "job_name": "job4",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job1"]
     },
 
@@ -91,12 +97,14 @@ JOBS_RUN_ORDER = [
         "job_name": "job5",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job3"]
     },
     {
         "job_name": "job6",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job3"]
     },
 ]

@@ -11,8 +11,8 @@ import { StatusCellComponent } from './status-cell.component';
 const TEST_JOB = {
     jobName: 'job002',
     config: {
-        description: 'description002',
-    },
+        description: 'description002'
+    }
 };
 
 describe('StatusCellComponent', () => {
@@ -21,7 +21,7 @@ describe('StatusCellComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [StatusCellComponent, ExtractJobStatusPipe],
+            declarations: [StatusCellComponent, ExtractJobStatusPipe]
         }).compileComponents();
     });
 
