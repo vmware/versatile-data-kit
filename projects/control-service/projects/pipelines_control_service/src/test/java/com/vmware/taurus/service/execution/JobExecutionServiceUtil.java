@@ -56,6 +56,8 @@ public class JobExecutionServiceUtil {
         expectedDataJobExecution.getVdkVersion(), actualDeployment.getVdkVersion());
     Assertions.assertEquals(
         expectedDataJobExecution.getJobVersion(), actualDeployment.getJobVersion());
+    Assertions.assertEquals(
+            expectedDataJobExecution.getJobPythonVersion(), actualDeployment.getPythonVersion());
 
     DataJobResources actualDeploymentResources = actualDeployment.getResources();
     Assertions.assertNotNull(actualDeploymentResources);
