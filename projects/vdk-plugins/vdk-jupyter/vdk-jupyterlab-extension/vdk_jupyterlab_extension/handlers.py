@@ -48,7 +48,7 @@ class RunJobHandler(APIHandler):
             input_data[VdkOption.PATH.value],
             input_data[VdkOption.ARGUMENTS.value],
         )
-        self.finish(json.dumps({"message": f"{run_result}"}))
+        self.finish(json.dumps(run_result))
 
 
 class DeleteJobHandler(APIHandler):

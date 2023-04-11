@@ -58,12 +58,8 @@ class VdkUI:
                     # the json is generated in vdk-notebook plugin
                     # you can see /vdk-notebook/src/vdk/notebook-plugin.py
                     error = json.load(file)
-                    return (
-                        f"{error['details']}\n"
-                        f"Step: {error['step_name']}\n"
-                        f"Blamee: {error['blamee']}"
-                    )
-            return f"{process.returncode}"
+                    return {"message": error["details"]}
+            return {"message": process.returncode}
 
     @staticmethod
     def delete_job(name: str, team: str, rest_api_url: str):
