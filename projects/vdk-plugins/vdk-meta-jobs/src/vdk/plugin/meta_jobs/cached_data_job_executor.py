@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import os
 import time
 from typing import Dict
 from typing import Optional
 
 import urllib3.exceptions as url_exception
+from vdk.api.job_input import IJobArguments
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.meta_jobs.meta import IDataJobExecutor
@@ -44,7 +44,7 @@ class TrackingDataJobExecutor:
         job = self.__get_job(job_name)
         job.start_attempt += 1
         execution_id = self.start_new_job_execution(
-            job_name=job.job_name, team_name=job.team_name
+            job_name=job.job_name, team_name=job.team_name, arguments=job.arguments
         )
         log.info(f"Starting new data job execution with id {execution_id}")
         job.execution_id = execution_id
@@ -135,7 +135,9 @@ class TrackingDataJobExecutor:
     def get_currently_running_jobs(self):
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
 
-    def start_new_job_execution(self, job_name: str, team_name: str) -> str:
+    def start_new_job_execution(
+        self, job_name: str, team_name: str, arguments: IJobArguments = None
+    ) -> str:
         """
         Start a new data job execution.
         The stages of the process are:
@@ -152,6 +154,7 @@ class TrackingDataJobExecutor:
 
         :param job_name: name of the data job to be executed
         :param team_name: name of the owning team
+        :param arguments: arguments of the data job
         :return: id of the started job execution
         """
         current_retries = 0
@@ -163,7 +166,7 @@ class TrackingDataJobExecutor:
 
         while current_retries < ALLOWED_RETRIES:
             try:
-                execution_id = self._executor.start_job(job_name, team_name)
+                execution_id = self._executor.start_job(job_name, team_name, arguments)
                 return execution_id
             except url_exception.TimeoutError as e:
                 log.info(
