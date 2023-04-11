@@ -12,7 +12,24 @@ function addNumberElement(number: Number, node: Element): void {
   node.appendChild(numberElement);
 }
 
-function makeVdkCell(cells: Element[], vdkCellIndices: Array<Number>): void {
+function addVdkLogo(node: Element) {
+  const logo = document.createElement('img'); // Create an SVG element
+  logo.setAttribute(
+    'src',
+    'https://raw.githubusercontent.com/vmware/versatile-data-kit/dc15f7489f763a0e0e29370b2e06a714448fc234/support/images/versatile-data-kit-logo.svg'
+  );
+  logo.setAttribute('width', '20');
+  logo.setAttribute('height', '20');
+
+  logo.classList.add('jp-vdk-logo');
+  node.appendChild(logo);
+}
+
+function makeVdkCell(
+  currentCell: Element,
+  cells: Element[],
+  vdkCellIndices: Array<Number>
+): void {
   // delete previous numbering in case of untagging elements
   let vdkCellNums = Array.from(
     document.getElementsByClassName('jp-vdk-cell-num')
@@ -20,10 +37,16 @@ function makeVdkCell(cells: Element[], vdkCellIndices: Array<Number>): void {
   vdkCellNums.forEach(element => {
     element.remove();
   });
+  let vdkCellLogo = Array.from(document.getElementsByClassName('jp-vdk-logo'));
+  vdkCellLogo.forEach(element => {
+    element.remove();
+  });
   let vdkCellCounter = 0;
   for (let i = 0; i < cells.length; i++) {
     if (vdkCellIndices.includes(i)) {
       cells[i].classList.add('jp-vdk-cell');
+      // we do not add logo to the active cell since it blocks other UI elements
+      if (cells[i] != currentCell) addVdkLogo(cells[i]);
       addNumberElement(vdkCellCounter++, cells[i]);
     } else {
       cells[i].classList.remove('jp-vdk-cell');
@@ -47,6 +70,7 @@ export function trackVdkTags(notebookTracker: INotebookTracker): void {
       }
       if (notebookTracker.activeCell?.parent?.node.children) {
         makeVdkCell(
+          notebookTracker.activeCell.node,
           Array.from(notebookTracker.activeCell?.parent?.node.children!),
           vdkCellIndices
         );

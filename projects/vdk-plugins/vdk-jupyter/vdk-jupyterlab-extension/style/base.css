@@ -17,7 +17,14 @@
   position: absolute;
   top: 0;
   right: 0;
-  background-color: darkblue;
+  background-color: #1e488c;
   color: aliceblue;
   padding: 4px;
+}
+
+.jp-vdk-logo {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  padding-right: 25px;
 }
