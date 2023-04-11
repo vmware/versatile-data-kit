@@ -1,12 +1,12 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import graphlib
 import json
 import logging
 from collections import namedtuple
 from typing import Dict
 from typing import List
 
+import graphlib
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 
@@ -44,7 +44,7 @@ class DagValidator:
         log.info("Successfully validated the DAG!")
 
     def _raise_error(
-        self, jobs: List[Dict], error_type: str, reason: str, countermeasures: str
+        self, jobs: List[str], error_type: str, reason: str, countermeasures: str
     ):
         raise UserCodeError(
             ErrorMessage(
@@ -68,13 +68,29 @@ class DagValidator:
             )
 
     def _validate_job(self, job: Dict):
+        self._validate_job_type(job)
         self._validate_allowed_and_required_keys(job)
         self._validate_job_name(job)
-        self._validate_dependencies(job)
-        self._validate_team_name(job)
-        self._validate_fail_meta_job_on_error(job)
-        self._validate_arguments(job)
-        log.info(f"Successfully validated job: {job['job_name']}")
+        job_name = job.get("job_name")
+        self._validate_dependencies(job_name, job["depends_on"])
+        if "team_name" in job:
+            self._validate_team_name(job_name, job["team_name"])
+        if "fail_meta_job_on_error" in job:
+            self._validate_fail_meta_job_on_error(
+                job_name, job["fail_meta_job_on_error"]
+            )
+        if "arguments" in job:
+            self._validate_arguments(job_name, job["arguments"])
+        log.info(f"Successfully validated job: {job_name}")
+
+    def _validate_job_type(self, job: Dict):
+        if not isinstance(job, dict):
+            self._raise_error(
+                ["".join(list(job))],
+                ERROR.TYPE,
+                "The job type is not dict.",
+                f"Change the Data Job type. Current type is {type(job)}. Expected type is dict.",
+            )
 
     def _validate_allowed_and_required_keys(self, job: Dict):
         forbidden_keys = [key for key in job.keys() if key not in allowed_job_keys]
@@ -99,76 +115,73 @@ class DagValidator:
     def _validate_job_name(self, job: Dict):
         if not isinstance(job["job_name"], str):
             self._raise_error(
-                list(job),
+                ["".join(list(job))],
                 ERROR.TYPE,
                 "The type of the job dict key job_name is not string.",
                 f"Change the Data Job Dict value of job_name. "
                 f"Current type is {type(job['job_name'])}. Expected type is string.",
             )
 
-    def _validate_dependencies(self, job: Dict):
-        if not (isinstance(job["depends_on"], List)):
+    def _validate_dependencies(self, job_name: str, deps: List[str]):
+        if not (isinstance(deps, List)):
             self._raise_error(
-                list(job),
+                [job_name],
                 ERROR.TYPE,
                 "The type of the job dict depends_on key is not list.",
                 f"Check the Data Job Dict type of the depends_on key. Current type "
-                f"is {type(job['depends_on'])}. Expected type is list.",
+                f"is {type(deps)}. Expected type is list.",
             )
-        non_string_dependencies = [
-            pred for pred in job["depends_on"] if not isinstance(pred, str)
-        ]
+        non_string_dependencies = [pred for pred in deps if not isinstance(pred, str)]
         if non_string_dependencies:
             self._raise_error(
-                list(job),
+                [job_name],
                 ERROR.TYPE,
                 "One or more items of the job dependencies list are not strings.",
                 f"Check the Data Job Dict values of the depends_on list. "
                 f"There are some non-string values: {non_string_dependencies}. Expected type is string.",
             )
 
-    def _validate_team_name(self, job: Dict):
-        if "team_name" in job and not isinstance(job["team_name"], str):
+    def _validate_team_name(self, job_name: str, team_name: str):
+        if not isinstance(team_name, str):
             self._raise_error(
-                list(job),
+                [job_name],
                 ERROR.TYPE,
                 "The type of the job dict key job_name is not string.",
                 f"Change the Data Job Dict value of team_name. "
-                f"Current type is {type(job['team_name'])}. Expected type is string.",
+                f"Current type is {type(team_name)}. Expected type is string.",
             )
 
-    def _validate_fail_meta_job_on_error(self, job: Dict):
-        if "fail_meta_job_on_error" in job and not isinstance(
-            (job["fail_meta_job_on_error"]), bool
-        ):
+    def _validate_fail_meta_job_on_error(
+        self, job_name: str, fail_meta_job_on_error: bool
+    ):
+        if not isinstance(fail_meta_job_on_error, bool):
             self._raise_error(
-                list(job),
+                [job_name],
                 ERROR.TYPE,
                 "The type of the job dict key fail_meta_job_on_error is not bool (True/False).",
                 f"Change the Data Job Dict value of fail_meta_job_on_error. Current type"
-                f" is {type(job['fail_meta_job_on_error'])}. Expected type is bool.",
+                f" is {type(fail_meta_job_on_error)}. Expected type is bool.",
             )
 
-    def _validate_arguments(self, job: Dict):
-        if "arguments" in job:
-            if not isinstance(job["arguments"], dict):
-                self._raise_error(
-                    job["job_name"],
-                    ERROR.TYPE,
-                    "The type of the job dict key arguments is not dict.",
-                    f"Change the Data Job Dict value of arguments. "
-                    f"Current type is {type(job['arguments'])}. Expected type is dict.",
-                )
-            try:
-                json.dumps(job["arguments"])
-            except TypeError as e:
-                self._raise_error(
-                    list(job),
-                    ERROR.TYPE,
-                    str(e),
-                    f"Change the Data Job Dict value of arguments. "
-                    f"Current type is {type(job['arguments'])} but not serializable as JSON.",
-                )
+    def _validate_arguments(self, job_name: str, job_args: dict):
+        if not isinstance(job_args, dict):
+            self._raise_error(
+                [job_name],
+                ERROR.TYPE,
+                "The type of the job dict key arguments is not dict.",
+                f"Change the Data Job Dict value of arguments. "
+                f"Current type is {type(job_args)}. Expected type is dict.",
+            )
+        try:
+            json.dumps(job_args)
+        except TypeError as e:
+            self._raise_error(
+                [job_name],
+                ERROR.TYPE,
+                str(e),
+                f"Change the Data Job Dict value of arguments. "
+                f"Current type is {type(job_args)} but not serializable as JSON.",
+            )
 
     def _check_dag_cycles(self, jobs: List[Dict]):
         topological_sorter = graphlib.TopologicalSorter()
