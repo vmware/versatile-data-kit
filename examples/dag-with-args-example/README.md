@@ -1,25 +1,30 @@
-Overview
---------
+# Overview
+
+
 DAGs allow VDK users to schedule jobs in a directed acyclic graph.
 This means that jobs can be configured to run only when a set of previous jobs have finished successfully.
 
-In this example we will use the Versatile Data Kit to develop six Data Jobs - two of these jobs will read data
+In this example you will use the Versatile Data Kit to develop six Data Jobs - two of these jobs will read data
 from separate json files, and will subsequently insert the data into Trino tables. The next three jobs will read the
 data inserted by the previous two jobs, and will print the data to the terminal. The sixth Data Job will be a DAG job
 which will manage the other five and ensure that the third, fourth and fifth jobs run only when the previous two finish
-successfully.
+successfully. All the Trino-related details (tables, schema, catalog) will be passed individually to each job as job
+arguments in JSON format.
 
 The DAG Job uses a separate job input object separate from the one usually used for job
 operations in VDK Data Jobs and must be imported.
 
-The graph for our DAG will look like this:
+The graph for the DAG will look like this:
 ![DAG graph](images/dag.png)
 
 Before you continue, make sure you are familiar with the
 [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/Getting-Started) section of the wiki.
 
-Code
-----
+## Estimated time commitment
+
+This tutorial will take you between 15 and 20 minutes.
+
+## Code
 
 The relevant Data Job code is available
 [here](https://github.com/vmware/versatile-data-kit/tree/main/examples).
@@ -28,23 +33,22 @@ You can follow along and run this DAG Job on your machine;
 alternatively, you can use the available code as a template and extend it to
 make a DAG Job that fits your use case more closely.
 
-Data
---------
-We will use two json files which store some data about fictional people: their
+## Data
+
+There are two json files which store some data about fictional people: their
 names, city and country, where they live, and their phone numbers.
 
-Requirements
-------------
+## Requirements
 
-To run this example, you need
+To run this example, you need:
 
 * Versatile Data Kit
 * Trino DB
 * `vdk-trino` - VDK plugin for a connection to a Trino database
-* `vdk-dags` - VDK plugin for DAG functionality
+* [VDK DAGs](https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1243-vdk-meta-jobs)
 
-Configuration
--------------
+## Configuration
+
 If you have not done so already, you can install Versatile Data Kit and the
 plugins required for this example by running the following commands from a terminal:
 ```console
@@ -62,30 +66,31 @@ Please note that this example requires deploying Data Jobs in a Kubernetes
 environment, which means that you would also need to install
 the **VDK Control Service.**
 
-<ins>Prerequisites</ins>:
+### Prerequisites
 
 *   Install [helm](https://helm.sh/docs/intro/install)
 *   Install [docker](https://docs.docker.com/get-docker)
 *   Install [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) (version 0.11.1 or later)
 
-<ins>Then run</ins>:
+#### Then run
 ```console
 vdk server --install
 ```
 
-<ins>The last part is to export the local Control Service REST API URL</ins>:
+#### The last part is to export the local Control Service REST API URL:
 ```console
 export VDK_CONTROL_SERVICE_REST_API_URL=locahost:8092
 ```
 
 After starting vdk-server, you now have a local kubernetes cluster and Versatile
 Data Kit Control Service installation. This means that you can now deploy Data
-Jobs but first we have to create them which is our next step.
+Jobs but first you have to create them which is the next step.
 
-Data Jobs
---------
+## Data Jobs
 
-Our three Data Jobs have the following structure:
+### Data Jobs code structure
+
+The Data Jobs have the following structure:
 
 ```
 ingest-job-table-one/
@@ -312,8 +317,14 @@ def run(job_input: IJobInput):
     db_schema = job_input.get_arguments().get("db_schema")
     db_tables = job_input.get_arguments().get("db_tables")
 
-    job1_data = job_input.execute_query(f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} WHERE Country = 'USA'")
-    job2_data = job_input.execute_query(f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} WHERE Country = 'USA'")
+    job1_data = job_input.execute_query(
+        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} "
+        f"WHERE Country = 'USA'"
+    )
+    job2_data = job_input.execute_query(
+        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} "
+        f"WHERE Country = 'USA'"
+    )
 
     print(f"Job 1 Data ===> {job1_data} \n\n\n Job 2 Data ===> {job2_data}")
 ```
@@ -367,10 +378,14 @@ def run(job_input: IJobInput):
     db_schema = job_input.get_arguments().get("db_schema")
     db_tables = job_input.get_arguments().get("db_tables")
 
-    job1_data = job_input.execute_query(f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} "
-                                        f"WHERE Country = 'Canada'")
-    job2_data = job_input.execute_query(f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} "
-                                        f"WHERE Country = 'Canada'")
+    job1_data = job_input.execute_query(
+        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} "
+        f"WHERE Country = 'Canada'"
+    )
+    job2_data = job_input.execute_query(
+        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} "
+        f"WHERE Country = 'Canada'"
+    )
 
     print(f"Job 1 Data ===> {job1_data} \n\n\n Job 2 Data ===> {job2_data}")
 ```
@@ -427,10 +442,12 @@ def run(job_input: IJobInput):
     db_tables = job_input.get_arguments().get("db_tables")
 
     job1_data = job_input.execute_query(
-        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} WHERE Country NOT IN ('USA', 'Canada')"
+        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} "
+        f"WHERE Country NOT IN ('USA', 'Canada')"
     )
     job2_data = job_input.execute_query(
-        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} WHERE Country NOT IN ('USA', 'Canada')"
+        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} "
+        f"WHERE Country NOT IN ('USA', 'Canada')"
     )
 
     print(f"Job 1 Data ===> {job1_data} \n\n\n Job 2 Data ===> {job2_data}")
@@ -502,38 +519,59 @@ JOBS_RUN_ORDER = [
         "job_name": "ingest-job-table-one",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
-        "arguments": {"db_table": "test_dag_one", "db_schema": "default", "db_catalog": "memory"},
+        "arguments": {
+            "db_table": "test_dag_one",
+            "db_schema": "default",
+            "db_catalog": "memory",
+        },
         "depends_on": [],
     },
     {
         "job_name": "ingest-job-table-two",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
-        "arguments": {"db_table": "test_dag_two", "db_schema": "default", "db_catalog": "memory"},
+        "arguments": {
+            "db_table": "test_dag_two",
+            "db_schema": "default",
+            "db_catalog": "memory",
+        },
         "depends_on": [],
     },
     {
         "job_name": "read-job-usa",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
-        "arguments": {"db_tables": ["test_dag_one", "test_dag_two"], "db_schema": "default", "db_catalog": "memory"},
+        "arguments": {
+            "db_tables": ["test_dag_one", "test_dag_two"],
+            "db_schema": "default",
+            "db_catalog": "memory",
+        },
         "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
     {
         "job_name": "read-job-canada",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
-        "arguments": {"db_tables": ["test_dag_one", "test_dag_two"], "db_schema": "default", "db_catalog": "memory"},
+        "arguments": {
+            "db_tables": ["test_dag_one", "test_dag_two"],
+            "db_schema": "default",
+            "db_catalog": "memory",
+        },
         "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
     {
         "job_name": "read-job-rest-of-world",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
-        "arguments": {"db_tables": ["test_dag_one", "test_dag_two"], "db_schema": "default", "db_catalog": "memory"},
+        "arguments": {
+            "db_tables": ["test_dag_one", "test_dag_two"],
+            "db_schema": "default",
+            "db_catalog": "memory",
+        },
         "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
 ]
+
 
 def run(job_input):
     MetaJobInput().run_meta_job(JOBS_RUN_ORDER)
@@ -567,15 +605,19 @@ meta_jobs_delayed_jobs_min_delay_seconds = 1
 ```
 </details>
 
+### Configuration details
+
 Setting [meta_jobs_max_concurrent_running_jobs](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
-to 2 would mean that the execution of the DAG will be in the following order:
+to 2 in the DAG Job config.ini file would mean that the jobs in the DAG will be executed in the following order:
  * ingest-job-table-one, ingest-job-table-two
  * read-job-usa, read-job-canada
- * read-job-rest-of-world (as soon as any of the previous Data Jobs finishes successfully)
+ * read-job-rest-of-world
 
 When the ingest jobs are both finished, all of the read jobs are ready to start but when the aforementioned limit is
 hit (after read-job-usa and read-job-canada are started), the following message is logged:
+
 ![DAG concurrent running jobs limit hit](images/dag-concurrent-running-jobs-limit-hit.png)
+Then the delayed read-job-rest-of-world is started after any of the currently running Data Jobs finishes.
 
 The other two configurations are set in order to have a short fixed delay for delayed jobs such as the last read job.
 Check the [configuration](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py)
@@ -592,8 +634,10 @@ vdk-meta-jobs
 Note that the VDK DAG Job does not require the `vdk-trino` dependency.
 Component jobs are responsible for their own dependencies, and the DAG Job only handles their triggering.
 
-Execution
----------
+## Execution
+
+### Create and deploy Data Jobs
+
 To do so, open a terminal, navigate to the parent directory of the data job
 folders that you have created, and type the following commands one by one:
 
@@ -627,13 +671,16 @@ vdk create -n dag-job -t my-team --no-template && \
 vdk deploy -n dag-job -t my-team -p dag-job -r "dag-example"
 ```
 
+### Run DAG Job
+
 You can now run your DAG Job through the Execution API by using one of the following commands*:
 ```console
 vdk execute --start -n dag-job -t my-team
 vdk run dag-job
 ```
 
-The log after a successful execution should look similar to this:
+The log message after a successful execution should look similar to this:
+
 ![Success log](images/dag-success.png)
 
 Alternatively, if you would like your DAG Job to run on a set schedule, you can configure
@@ -641,7 +688,13 @@ its cron schedule in its config.ini file as you would with any other Data Job.
 
 *You could also execute DAG Jobs in Jupyter Notebook.
 
-What's next
------------
+## Summary
+
+###
+
+Congratulations! You finished the VDK DAGs tutorial successfully!
+You are now equipped with the necessary skills to handle job interdependencies according to your needs.
+
+### What's next
 
 You can find a list of all Versatile Data Kit examples [here](https://github.com/vmware/versatile-data-kit/wiki/Examples).

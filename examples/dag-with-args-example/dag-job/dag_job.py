@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from vdk.plugin.meta_jobs.meta_job_runner import MetaJobInput
 
+
 JOBS_RUN_ORDER = [
     {
         "job_name": "ingest-job-table-one",
