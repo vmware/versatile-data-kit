@@ -339,7 +339,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("dag-arguments")
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
@@ -353,7 +353,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("dag-empty-arguments")
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
