@@ -26,7 +26,6 @@ spec:
       containers:
         -  name: management-service-ui
            image: {{ template "operations-ui.image" . }}
-           imagePullPolicy: Never
            ports:
              -  name: http
                 containerPort: 8091
