@@ -27,8 +27,6 @@ describe('ParseEpochPipe', () => {
     it('transforms valid epoch to valid result', () => {
         const result = pipe.transform(TEST_EPOCH_SECONDS);
         expect(result).toBeDefined();
-        expect(result).toEqual(
-            new Date(TEST_EPOCH_SECONDS * MILLIS_MULTIPLIER),
-        );
+        expect(result).toEqual(new Date(TEST_EPOCH_SECONDS * MILLIS_MULTIPLIER));
     });
 });

@@ -22,9 +22,8 @@ export const authCodeFlowConfig: AuthConfig = {
     timeoutFactor: 0.25, // For faster testing
     sessionChecksEnabled: true,
     clearHashAfterLogin: false, // https://github.com/manfredsteyer/angular-oauth2-oidc/issues/457#issuecomment-431807040,
-    logoutUrl:
-        'https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout',
-    nonceStateSeparator: 'semicolon', // Real semicolon gets mangled by IdentityServer's URI encoding
+    logoutUrl: 'https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout',
+    nonceStateSeparator: 'semicolon' // Real semicolon gets mangled by IdentityServer's URI encoding
 };
 
 export const refreshTokenConfig = {
@@ -32,5 +31,5 @@ export const refreshTokenConfig = {
     refreshTokenRemainingTime: 360,
 
     // Check interval (in seconds), if token refresh need to be initalized. This value must be less than refreshTokenRemainingTime
-    refreshTokenCheckInterval: 60,
+    refreshTokenCheckInterval: 60
 };

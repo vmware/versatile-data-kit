@@ -127,7 +127,10 @@ class TestMetaJob:
             # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
             # and mock large parts of it - e.g passed our own plugins
             result: Result = self.runner.invoke(
-                ["run", jobs_path_from_caller_directory(meta_job_name)]
+                [
+                    "run",
+                    jobs_path_from_caller_directory(meta_job_name),
+                ]
             )
 
             return result
@@ -327,6 +330,36 @@ class TestMetaJob:
     def test_meta_job_not_allowed_job_key(self):
         self._test_meta_job_validation("meta-job-not-allowed-job-key")
 
+    def test_meta_job_wrong_job_arguments_type(self):
+        self._test_meta_job_validation("dag-wrong-job-arguments-type")
+
+    def test_meta_job_arguments(self):
+        self._set_up()
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            result = self._run_meta_job("dag-arguments")
+            cli_assert_equal(0, result)
+            job2_arguments = self._get_job_arguments("job2")
+            assert len(job2_arguments) == 2
+            assert job2_arguments == {"table_name": "test_table", "counter": 123}
+            self.httpserver.stop()
+
+    def test_meta_job_empty_arguments(self):
+        self._set_up()
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            result = self._run_meta_job("dag-empty-arguments")
+            cli_assert_equal(0, result)
+            job2_arguments = self._get_job_arguments("job2")
+            assert len(job2_arguments) == 0
+            self.httpserver.stop()
+
     def test_meta_job_wrong_job_key_type(self):
         self._test_meta_job_validation("meta-job-wrong-job-key-type")
 
@@ -335,3 +368,12 @@ class TestMetaJob:
 
     def test_meta_job_wrong_topological_order(self):
         self._test_meta_job_validation("meta-job-wrong-topological-order")
+
+    def _get_job_arguments(self, job_name: str):
+        job_post_req = [
+            req
+            for req, res in self.httpserver.log
+            if req.method == "POST"
+            and req.path.split("/jobs/")[1].split("/")[0] == job_name
+        ]
+        return job_post_req[0].json["args"]

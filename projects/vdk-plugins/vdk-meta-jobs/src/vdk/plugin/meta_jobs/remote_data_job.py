@@ -14,6 +14,7 @@ from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
 from taurus_datajob_api import DataJobsExecutionApi
 from urllib3 import Retry
+from vdk.api.job_input import IJobArguments
 from vdk.plugin.control_api_auth.authentication import Authentication
 
 log = logging.getLogger(__name__)
@@ -49,12 +50,14 @@ class RemoteDataJob:
         job_name: str,
         team_name: str,
         rest_api_url: str,
+        arguments: IJobArguments = None,
         timeout: int = 5,  # TODO: Set reasonable default
         **kwargs,
     ) -> None:
-        self.job_name = job_name
-        self.team_name = team_name
-        self._rest_api_url = rest_api_url
+        self.__job_name = job_name
+        self.__team_name = team_name
+        self.__rest_api_url = rest_api_url
+        self.__arguments = arguments
         self.timeout = timeout
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
         self.auth: Optional[Authentication] = kwargs.pop("auth", None)
@@ -78,7 +81,7 @@ class RemoteDataJob:
 
         self.__execution_api = self._get_execution_api()
 
-    def start_job_execution(self, **request_kwargs) -> str:
+    def start_job_execution(self) -> str:
         """
         Triggers a manual Datajob execution.
 
@@ -86,11 +89,11 @@ class RemoteDataJob:
         """
         execution_request = DataJobExecutionRequest(
             started_by="meta-job",  # TODO: specify name of meta job
-            args=request_kwargs,
+            args=self.__arguments,
         )
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
-            team_name=self.team_name,
-            job_name=self.job_name,
+            team_name=self.__team_name,
+            job_name=self.__job_name,
             deployment_id=self.deployment_id,
             data_job_execution_request=execution_request,
             _request_timeout=self.timeout,
@@ -107,8 +110,8 @@ class RemoteDataJob:
         :param execution_id: ID of the job execution
         """
         self.__execution_api.data_job_execution_cancel(
-            team_name=self.team_name,
-            job_name=self.job_name,
+            team_name=self.__team_name,
+            job_name=self.__job_name,
             execution_id=execution_id,
             _request_timeout=self.timeout,
         )
@@ -121,7 +124,9 @@ class RemoteDataJob:
         :return: job execution logs
         """
         return self.__execution_api.data_job_logs_download(
-            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
+            team_name=self.__team_name,
+            job_name=self.__job_name,
+            execution_id=execution_id,
         ).logs
 
     def get_job_execution_status(self, execution_id: str) -> DataJobExecution:
@@ -132,7 +137,9 @@ class RemoteDataJob:
         :return: The execution status object listing details about the status of this particular execution
         """
         job_execution: DataJobExecution = self.__execution_api.data_job_execution_read(
-            team_name=self.team_name, job_name=self.job_name, execution_id=execution_id
+            team_name=self.__team_name,
+            job_name=self.__job_name,
+            execution_id=execution_id,
         )
         return job_execution
 
@@ -144,7 +151,7 @@ class RemoteDataJob:
         :return: A list of DataJobExecution objects for the available executions.
         """
         job_execution_list = self.__execution_api.data_job_execution_list(
-            team_name=self.team_name, job_name=self.job_name
+            team_name=self.__team_name, job_name=self.__job_name
         )
         return job_execution_list
 
@@ -200,7 +207,7 @@ class RemoteDataJob:
             return job_status
 
     def _get_execution_api(self):
-        rest_api_url = self._rest_api_url
+        rest_api_url = self.__rest_api_url
 
         config = Configuration(host=rest_api_url, api_key=None)
         config.connection_pool_maxsize = self.http_connection_pool_maxsize
