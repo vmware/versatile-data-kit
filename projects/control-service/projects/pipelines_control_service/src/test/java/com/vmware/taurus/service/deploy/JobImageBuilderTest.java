@@ -238,7 +238,7 @@ public class JobImageBuilderTest {
   }
 
   @Test
-  public void buildImage_pythonVersion() throws InterruptedException, ApiException, IOException {
+  public void buildImage_deploymentDataJobBaseImageNullAndSupportedPythonVersions_shouldCreateCronjobUsingSupportedPythonVersions() throws InterruptedException, ApiException, IOException {
     // Set base image property to null
     ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", null);
 
@@ -247,7 +247,6 @@ public class JobImageBuilderTest {
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
-    when(supportedPythonVersions.isPythonVersionSupported("3.11")).thenReturn(true);
     when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
 
     JobDeployment jobDeployment = new JobDeployment();
@@ -287,7 +286,7 @@ public class JobImageBuilderTest {
   }
 
   @Test
-  public void buildImage_pythonVersion_deploymentDataJobBaseImage()
+  public void buildImage_shouldCreateCronjobUsingDeploymentDataJobBaseImage()
       throws InterruptedException, ApiException, IOException {
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
@@ -332,5 +331,43 @@ public class JobImageBuilderTest {
 
     verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
     Assertions.assertTrue(result);
+  }
+
+  @Test
+  public void buildImage_deploymentDataJobBaseImageNullAndPythonVersionNull_shouldNotCreateCronjob()
+          throws InterruptedException, ApiException, IOException {
+    // Set base image property to null
+    ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", null);
+
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobName(TEST_JOB_NAME);
+    jobDeployment.setGitCommitSha("test-commit");
+    jobDeployment.setEnabled(true);
+
+    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
+
+    verify(supportedPythonVersions, never()).isPythonVersionSupported("3.11");
+    verify(supportedPythonVersions, never()).getJobBaseImage("3.11");
+
+    verify(kubernetesService, never())
+            .createJob(
+                    eq(TEST_BUILDER_JOB_NAME),
+                    eq(TEST_BUILDER_IMAGE_NAME),
+                    eq(false),
+                    eq(false),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    anyLong(),
+                    anyLong(),
+                    anyLong(),
+                    any(),
+                    any());
+
+    Assertions.assertFalse(result);
   }
 }

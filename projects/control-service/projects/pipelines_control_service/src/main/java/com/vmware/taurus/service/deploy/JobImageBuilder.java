@@ -138,6 +138,14 @@ public class JobImageBuilder {
       }
     }
 
+    // TODO: Remove when deploymentDataJobBaseImage deprecated.
+    if (jobDeployment.getPythonVersion() == null && deploymentDataJobBaseImage == null) {
+      log.debug(
+              "Missing pythonVersion and deploymentDataJobBaseImage. Data Job cannot be deployed."
+      );
+      return false;
+    }
+
     if (dockerRegistryService.dataJobImageExists(imageName)) {
       log.debug("Data Job image {} already exists and nothing else to do.", imageName);
       return true;
@@ -256,18 +264,9 @@ public class JobImageBuilder {
   private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
-    String baseImage = null;
     String pythonVersion = jobDeployment.getPythonVersion();
 
-    // TODO: Remove this part when datajobs.deployment.dataJobBaseImage is deprecated.
-    if (deploymentDataJobBaseImage != null) {
-      baseImage = deploymentDataJobBaseImage;
-    } else if (pythonVersion != null
-        && supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
-      baseImage = supportedPythonVersions.getJobBaseImage(pythonVersion);
-    } else {
-      baseImage = supportedPythonVersions.getDefaultJobBaseImage();
-    }
+    String dataJobBaseImage = supportedPythonVersions.getJobBaseImage(pythonVersion);
 
     return Map.ofEntries(
         entry("JOB_NAME", jobName),
@@ -275,7 +274,7 @@ public class JobImageBuilder {
         entry("GIT_COMMIT", jobVersion),
         entry("JOB_GITHASH", jobVersion),
         entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-        entry("BASE_IMAGE", baseImage),
+        entry("BASE_IMAGE", dataJobBaseImage),
         entry("EXTRA_ARGUMENTS", builderJobExtraArgs),
         entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled)));
   }
