@@ -40,6 +40,7 @@ class TimeBasedQueue:
         Adds an element to the queue.
 
         :param element: the element to be added to the queue
+        :type typing.Any
         :return:
         """
         ready_time = self._min_ready_time_seconds + randint(

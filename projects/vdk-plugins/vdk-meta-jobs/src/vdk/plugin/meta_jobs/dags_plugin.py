@@ -13,6 +13,10 @@ from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 
 
 class MetaJobsPlugin:
+    """
+    This module is responsible for managing the interaction between the DAGs plugin and VDK commands.
+    """
+
     @staticmethod
     @hookimpl
     def run_job(context: JobContext) -> None:
