@@ -6,6 +6,7 @@ from typing import List
 from typing import Optional
 
 from taurus_datajob_api import DataJobExecution
+from vdk.api.job_input import IJobArguments
 from vdk.plugin.meta_jobs.api import meta_job
 
 
@@ -15,9 +16,10 @@ class IDataJobExecutor(abc.ABC):
     """
 
     @abc.abstractmethod
-    def start_job(self, job_name: str, team_name: str):
+    def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
         """
         Start an execution of a data job and returns its execution id
+        :param arguments:
         :param job_name:
         :param team_name:
         :return: execution id

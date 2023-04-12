@@ -9,7 +9,7 @@ import {
     TaurusRouteData,
     TaurusRouteNavigateBackData,
     TaurusRouteNavigateToData,
-    TaurusRoutes,
+    TaurusRoutes
 } from '@versatiledatakit/shared';
 
 export interface DataPipelinesRestoreUI {
@@ -22,9 +22,7 @@ export interface DataPipelinesRestoreUI {
 /**
  * ** Data pipelines Route data.
  */
-export interface DataPipelinesRouteData
-    extends TaurusRouteNavigateToData,
-        TaurusRouteNavigateBackData {
+export interface DataPipelinesRouteData extends TaurusRouteNavigateToData, TaurusRouteNavigateBackData {
     /**
      * ** Field that has pointer to paramKey for Team in Route config.
      */
@@ -80,6 +78,4 @@ export type DataPipelinesRoute = ArrayElement<DataPipelinesRoutes>;
 /**
  * ** Data pipelines Routes configs.
  */
-export type DataPipelinesRoutes = TaurusRoutes<
-    TaurusRouteData<DataPipelinesRouteData>
->;
+export type DataPipelinesRoutes = TaurusRoutes<TaurusRouteData<DataPipelinesRouteData>>;

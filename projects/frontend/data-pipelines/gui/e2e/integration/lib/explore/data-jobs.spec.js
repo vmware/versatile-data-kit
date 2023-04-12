@@ -28,7 +28,7 @@ describe(
 
                     return cy.wrap({
                         context: 'explore::data-jobs.spec::before()',
-                        action: 'continue',
+                        action: 'continue'
                     });
                 });
         });
@@ -52,7 +52,7 @@ describe(
                 .getMainTitle()
                 .should('be.visible')
                 .should(($el) =>
-                    expect($el.text().trim()).to.equal('Explore Data Jobs'),
+                    expect($el.text().trim()).to.equal('Explore Data Jobs')
                 );
         });
 
@@ -114,13 +114,13 @@ describe(
                     dataJobsExplorePage.refreshDataGrid();
 
                     dataJobsExplorePage.filterByJobName(
-                        normalizedTestJob.job_name,
+                        normalizedTestJob.job_name
                     );
 
                     dataJobsExplorePage
                         .getDataGridCell(normalizedTestJob.job_name)
                         .should('have.text', normalizedTestJob.job_name);
-                },
+                }
             );
         });
 
@@ -251,7 +251,7 @@ describe(
                 .invoke('join', ',')
                 .should(
                     'eq',
-                    'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Source,Logs',
+                    'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Source,Logs'
                 );
 
             // verify column is not checked in toggling menu
@@ -267,7 +267,7 @@ describe(
 
             // toggle column to render
             dataJobsExplorePage.checkColumnShowHideOption(
-                'Last Execution Duration',
+                'Last Execution Duration'
             );
 
             // verify column is checked in toggling menu
@@ -283,7 +283,7 @@ describe(
 
             // toggle column to hide
             dataJobsExplorePage.uncheckColumnShowHideOption(
-                'Last Execution Duration',
+                'Last Execution Duration'
             );
 
             // verify column is not checked in toggling menu
@@ -308,7 +308,7 @@ describe(
 
             dataJobsExplorePage.openJobDetails(
                 testJobs[0].team,
-                testJobs[0].job_name,
+                testJobs[0].job_name
             );
 
             const dataJobExploreDetailsPage =
@@ -324,5 +324,5 @@ describe(
                 .should('be.visible')
                 .should('contain.text', testJobs[0].description);
         });
-    },
+    }
 );

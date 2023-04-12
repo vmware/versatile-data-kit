@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 import { CollectionsUtil } from '@versatiledatakit/shared';
 
@@ -19,7 +12,7 @@ import { QuickFilter, QuickFilterChangeEvent, QuickFilters } from './model';
 @Component({
     selector: 'lib-quick-filters',
     templateUrl: './quick-filters.component.html',
-    styleUrls: ['./quick-filters.component.scss'],
+    styleUrls: ['./quick-filters.component.scss']
 })
 export class QuickFiltersComponent implements OnChanges {
     /**
@@ -105,20 +98,15 @@ export class QuickFiltersComponent implements OnChanges {
         }
 
         if (this.suppressQuickFilterChangeEvent) {
-            if (
-                CollectionsUtil.isDefined(this.activatedFilter) &&
-                CollectionsUtil.isFunction(this.activatedFilter.onActivate)
-            ) {
+            if (CollectionsUtil.isDefined(this.activatedFilter) && CollectionsUtil.isFunction(this.activatedFilter.onActivate)) {
                 this.activatedFilter.onActivate();
             } else {
-                console.warn(
-                    'QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.',
-                );
+                console.warn('QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.');
             }
         } else {
             this.quickFilterChange.emit({
                 activatedFilter: this.activatedFilter,
-                deactivatedFilter: this._deactivatedFilter,
+                deactivatedFilter: this._deactivatedFilter
             });
         }
     }
