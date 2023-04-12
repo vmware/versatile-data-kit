@@ -1,17 +1,18 @@
 Overview
 --------
-Meta Jobs allow VDK users to schedule jobs in a directed acyclic graph.
+DAGs allow VDK users to schedule jobs in a directed acyclic graph.
 This means that jobs can be configured to run only when a set of previous jobs have finished successfully.
 
-In this example we will use the Versatile Data Kit to develop four Data Jobs - two of these jobs will read data
-from separate json files, and will subsequently insert the data into Trino tables. The third job will read the data
-inserted by the previous two jobs, and will print the data to the terminal. The fourth Data Job will be a Meta Job
-which will manage the other three and ensure that the third job runs only when the previous two finish successfully.
+In this example we will use the Versatile Data Kit to develop six Data Jobs - two of these jobs will read data
+from separate json files, and will subsequently insert the data into Trino tables. The next three jobs will read the
+data inserted by the previous two jobs, and will print the data to the terminal. The sixth Data Job will be a DAG job
+which will manage the other five and ensure that the third, fourth and fifth jobs run only when the previous two finish
+successfully.
 
-The Meta Job uses a separate job input object separate from the one usually used for job
+The DAG Job uses a separate job input object separate from the one usually used for job
 operations in VDK Data Jobs and must be imported.
 
-The graph for our Meta Job will look like this:
+The graph for our DAG will look like this:
 ![DAG graph](images/dag.png)
 
 Before you continue, make sure you are familiar with the
@@ -23,9 +24,9 @@ Code
 The relevant Data Job code is available
 [here](https://github.com/vmware/versatile-data-kit/tree/main/examples).
 
-You can follow along and run this Meta Job on your machine;
+You can follow along and run this DAG Job on your machine;
 alternatively, you can use the available code as a template and extend it to
-make a Meta Job that fits your use case more closely.
+make a DAG Job that fits your use case more closely.
 
 Data
 --------
@@ -52,7 +53,7 @@ pip install vdk-dags
 ```
 Note that Versatile Data Kit requires Python 3.7+. See the
 [Installation page](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-sdk) for more details.
-Also, make sure to install quickstart-vdk in a separate Python virtual environment.
+Also, make sure to [install quickstart-vdk](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-quickstart-vdk) in a separate Python virtual environment.
 
 This example also requires Trino DB installed.
 See the Trino [Official Documentation](https://trino.io/) for more details about installation.
@@ -87,7 +88,7 @@ Data Jobs
 Our three Data Jobs have the following structure:
 
 ```
-ingest-job1/
+ingest-job-table-one/
 ├── 01_drop_table.sql
 ├── 10_insert_data.py
 ├── config.ini
@@ -189,7 +190,7 @@ vdk-trino
 </details>
 
 ```
-ingest-job2/
+ingest-job-table-two/
 ├── 01_drop_table.sql
 ├── 10_insert_data.py
 ├── config.ini
@@ -291,7 +292,7 @@ vdk-trino
 </details>
 
 ```
-read-job1/
+read-job-usa/
 ├── 10_transform.py
 ├── 20_drop_table_one.sql
 ├── 30_drop_table_two.sql
@@ -348,7 +349,7 @@ vdk-trino
 </details>
 
 ```
-read-job2/
+read-job-canada/
 ├── 10_transform.py
 ├── config.ini
 ├── requirements.txt
@@ -405,7 +406,7 @@ vdk-trino
 </details>
 
 ```
-read-job3/
+read-job-rest-of-world/
 ├── 10_transform.py
 ├── 20_drop_table_one.sql
 ├── 30_drop_table_two.sql
@@ -498,39 +499,39 @@ from vdk.plugin.meta_jobs.meta_job_runner import MetaJobInput
 
 JOBS_RUN_ORDER = [
     {
-        "job_name": "ingest-job1",
+        "job_name": "ingest-job-table-one",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {"db_table": "test_dag_one", "db_schema": "default", "db_catalog": "memory"},
         "depends_on": [],
     },
     {
-        "job_name": "ingest-job2",
+        "job_name": "ingest-job-table-two",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {"db_table": "test_dag_two", "db_schema": "default", "db_catalog": "memory"},
         "depends_on": [],
     },
     {
-        "job_name": "read-job1",
+        "job_name": "read-job-usa",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {"db_tables": ["test_dag_one", "test_dag_two"], "db_schema": "default", "db_catalog": "memory"},
-        "depends_on": ["ingest-job1", "ingest-job2"],
+        "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
     {
-        "job_name": "read-job2",
+        "job_name": "read-job-canada",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {"db_tables": ["test_dag_one", "test_dag_two"], "db_schema": "default", "db_catalog": "memory"},
-        "depends_on": ["ingest-job1", "ingest-job2"],
+        "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
     {
-        "job_name": "read-job3",
+        "job_name": "read-job-rest-of-world",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {"db_tables": ["test_dag_one", "test_dag_two"], "db_schema": "default", "db_catalog": "memory"},
-        "depends_on": ["ingest-job1", "ingest-job2"],
+        "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
 ]
 
@@ -560,14 +561,25 @@ team = my-team
 
 [vdk]
 meta_jobs_max_concurrent_running_jobs = 2
+
+meta_jobs_delayed_jobs_randomized_added_delay_seconds = 1
+meta_jobs_delayed_jobs_min_delay_seconds = 1
 ```
 </details>
 
 Setting [meta_jobs_max_concurrent_running_jobs](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
 to 2 would mean that the execution of the DAG will be in the following order:
- * ingest_job1, ingest_job2
- * read_job1, read_job2
- * read_job3 (as soon as any of the previous Data Jobs finishes successfully)
+ * ingest-job-table-one, ingest-job-table-two
+ * read-job-usa, read-job-canada
+ * read-job-rest-of-world (as soon as any of the previous Data Jobs finishes successfully)
+
+When the ingest jobs are both finished, all of the read jobs are ready to start but when the aforementioned limit is
+hit (after read-job-usa and read-job-canada are started), the following message is logged:
+![DAG concurrent running jobs limit hit](images/dag-concurrent-running-jobs-limit-hit.png)
+
+The other two configurations are set in order to have a short fixed delay for delayed jobs such as the last read job.
+Check the [configuration](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py)
+for more details.
 
 <details>
     <summary>requirements.txt</summary>
@@ -577,7 +589,7 @@ vdk-meta-jobs
 ```
 </details>
 
-Note that the VDK Meta Job does not require the `vdk-trino` dependency.
+Note that the VDK DAG Job does not require the `vdk-trino` dependency.
 Component jobs are responsible for their own dependencies, and the DAG Job only handles their triggering.
 
 Execution
@@ -586,28 +598,28 @@ To do so, open a terminal, navigate to the parent directory of the data job
 folders that you have created, and type the following commands one by one:
 
 ```console
-vdk create -n ingest-job1 -t my-team --no-template && \
-vdk deploy -n ingest-job1 -t my-team -p ingest-job1 -r "dag-example"
+vdk create -n ingest-job-table-one -t my-team --no-template && \
+vdk deploy -n ingest-job-table-one -t my-team -p ingest-job-table-one -r "dag-example"
 ```
 
 ```console
-vdk create -n ingest-job2 -t my-team --no-template && \
-vdk deploy -n ingest-job2 -t my-team -p ingest-job2 -r "dag-example"
+vdk create -n ingest-job-table-two -t my-team --no-template && \
+vdk deploy -n ingest-job-table-two -t my-team -p ingest-job-table-two -r "dag-example"
 ```
 
 ```console
-vdk create -n read-job1 -t my-team --no-template && \
-vdk deploy -n read-job1 -t my-team -p read-job1 -r "dag-example"
+vdk create -n read-job-usa -t my-team --no-template && \
+vdk deploy -n read-job-usa -t my-team -p read-job-usa -r "dag-example"
 ```
 
 ```console
-vdk create -n read-job2 -t my-team --no-template && \
-vdk deploy -n read-job2 -t my-team -p read-job2 -r "dag-example"
+vdk create -n read-job-canada -t my-team --no-template && \
+vdk deploy -n read-job-canada -t my-team -p read-job-canada -r "dag-example"
 ```
 
 ```console
-vdk create -n read-job3 -t my-team --no-template && \
-vdk deploy -n read-job3 -t my-team -p read-job3 -r "dag-example"
+vdk create -n read-job-rest-of-world -t my-team --no-template && \
+vdk deploy -n read-job-rest-of-world -t my-team -p read-job-rest-of-world -r "dag-example"
 ```
 
 ```console
@@ -621,13 +633,13 @@ vdk execute --start -n dag-job -t my-team
 vdk run dag-job
 ```
 
-[//]: # (The log after a successful execution should look similar to this:)
-[//]: # (![Success log]&#40;images/dag_success.png&#41;)
+The log after a successful execution should look similar to this:
+![Success log](images/dag-success.png)
 
 Alternatively, if you would like your DAG Job to run on a set schedule, you can configure
 its cron schedule in its config.ini file as you would with any other Data Job.
 
-*You could also execute Meta Jobs in Jupyter Notebook.
+*You could also execute DAG Jobs in Jupyter Notebook.
 
 What's next
 -----------

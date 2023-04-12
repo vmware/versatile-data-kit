@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from vdk.plugin.meta_jobs.meta_job_runner import MetaJobInput
 
-
 JOBS_RUN_ORDER = [
     {
-        "job_name": "ingest-job1",
+        "job_name": "ingest-job-table-one",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {
@@ -16,7 +15,7 @@ JOBS_RUN_ORDER = [
         "depends_on": [],
     },
     {
-        "job_name": "ingest-job2",
+        "job_name": "ingest-job-table-two",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {
@@ -27,7 +26,7 @@ JOBS_RUN_ORDER = [
         "depends_on": [],
     },
     {
-        "job_name": "read-job1",
+        "job_name": "read-job-usa",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {
@@ -35,10 +34,10 @@ JOBS_RUN_ORDER = [
             "db_schema": "default",
             "db_catalog": "memory",
         },
-        "depends_on": ["ingest-job1", "ingest-job2"],
+        "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
     {
-        "job_name": "read-job2",
+        "job_name": "read-job-canada",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {
@@ -46,10 +45,10 @@ JOBS_RUN_ORDER = [
             "db_schema": "default",
             "db_catalog": "memory",
         },
-        "depends_on": ["ingest-job1", "ingest-job2"],
+        "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
     {
-        "job_name": "read-job3",
+        "job_name": "read-job-rest-of-world",
         "team_name": "my-team",
         "fail_meta_job_on_error": True,
         "arguments": {
@@ -57,7 +56,7 @@ JOBS_RUN_ORDER = [
             "db_schema": "default",
             "db_catalog": "memory",
         },
-        "depends_on": ["ingest-job1", "ingest-job2"],
+        "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
 ]
 
