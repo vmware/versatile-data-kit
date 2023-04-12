@@ -33,7 +33,7 @@ import java.util.*;
 @Slf4j
 public class JobImageDeployer {
 
-  // TODO: Out of the image we pick only the python vdk module
+  // TODO: Out of the image we pick only the python vdk module. Remove when property deprecated
   // It may make sense to just pass the module name as argument instead of an image ???
   @Value("${datajobs.vdk.image}")
   private String vdkImage;
@@ -64,6 +64,7 @@ public class JobImageDeployer {
   private final DeploymentProgress deploymentProgress;
   private final KubernetesResources kubernetesResources;
   private final JobCommandProvider jobCommandProvider;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public Optional<JobDeploymentStatus> readScheduledJob(String dataJobName) {
     Optional<JobDeploymentStatus> jobDeployment =
@@ -324,10 +325,11 @@ public class JobImageDeployer {
   }
 
   private String getJobVdkImage(JobDeployment jobDeployment) {
+    // TODO: Refactor when vdkImage is deprecated.
     if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())) {
       return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
     } else {
-      return vdkImage;
+      return vdkImage != null ? vdkImage : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     }
   }
 

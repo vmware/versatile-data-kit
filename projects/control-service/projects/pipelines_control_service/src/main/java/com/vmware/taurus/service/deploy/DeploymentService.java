@@ -91,10 +91,10 @@ public class DeploymentService {
   }
 
   /**
-   * Changing job version requires rebuilding the data job image which is async operation (happens
+   * Changing job/python/vdk versions require rebuilding the data job image which is async operation (happens
    * in background after/while http request finishes) But we'd like to be able to guarantee that
    * patch operation are synchronous (the desired job deployment configuration is applied when the
-   * http requests finishes) So we return error if job version has been changed and require POST
+   * http requests finishes) So we return error if job/python/vdk versions have been changed and require POST
    * request to be completed.
    *
    * @param oldDeployment the old (or existing) deployment of the data job
@@ -106,9 +106,21 @@ public class DeploymentService {
         && !mergedDeployment.getGitCommitSha().equals(oldDeployment.getGitCommitSha())) {
       throw new ApiConstraintError(
           "job_version",
-          "same as current job version when using PATCH request.",
+          "same as the current job version when using PATCH request.",
           mergedDeployment.getGitCommitSha(),
-          "Use PUT HTTP request to change job version.");
+          "Use POST HTTP request to change job version.");
+    } else if (mergedDeployment.getPythonVersion() != null && !mergedDeployment.getPythonVersion().equals(oldDeployment.getPythonVersion())) {
+      throw new ApiConstraintError(
+              "python_version",
+              String.format("same as the current python version -- %s -- when using PATCH request.", oldDeployment.getPythonVersion()),
+              mergedDeployment.getPythonVersion(),
+              "Use POST HTTP request to change python version.");
+    } else if (mergedDeployment.getVdkVersion() != null && !mergedDeployment.getVdkVersion().equals(oldDeployment.getVdkVersion())) {
+      throw new ApiConstraintError(
+              "vdk_version",
+              String.format("same as the current vdk version -- %s -- when using PATCH request.", oldDeployment.getVdkVersion()),
+              mergedDeployment.getPythonVersion(),
+              "Use POST HTTP request to change vdk version.");
     }
   }
 
