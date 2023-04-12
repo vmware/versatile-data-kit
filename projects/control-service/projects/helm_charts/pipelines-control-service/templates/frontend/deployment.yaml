@@ -19,7 +19,7 @@ spec:
       labels:
         app: {{ .Release.Name }}-ui
     spec:
-      {{- if and (.Values.operationsUi.username) (.Values.operationsUi.password) }}
+      {{- if and (.Values.operationsUi.image.username) (.Values.operationsUi.image.password) }}
       imagePullSecrets:
         - name: {{ template "pipelines-control-service.fullname" . }}-operations-ui-repo-creds
       {{- end }}

@@ -94,9 +94,9 @@ Return the proper operations ui image name
 */}}
 {{- define "operations-ui.image" -}}
 {{- $globalRegistryOverrideName := .Values.image.globalRegistryOverride -}}
-{{- $registryName := .Values.operationsUi.registry -}}
-{{- $repositoryName := .Values.operationsUi.repository -}}
-{{- $tag := .Values.operationsUi.tag | toString -}}
+{{- $registryName := .Values.operationsUi.image.registry -}}
+{{- $repositoryName := .Values.operationsUi.image.repository -}}
+{{- $tag := .Values.operationsUi.image.tag | toString -}}
 {{/*
 Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
 but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
@@ -268,7 +268,7 @@ Image Pull Secret in json format
 {{- end }}
 
 {{- define "operationsUiPullSecretJson" }}
-    {{ include "buildImagePullSecretJson" (list .Values.operationsUi.registry .Values.operationsUi.username .Values.operationsUi.password) }}
+    {{ include "buildImagePullSecretJson" (list .Values.operationsUi.image.registry .Values.operationsUi.image.username .Values.operationsUi.image.password) }}
 {{- end }}
 
 {{- define "builderPullSecretJson" }}
