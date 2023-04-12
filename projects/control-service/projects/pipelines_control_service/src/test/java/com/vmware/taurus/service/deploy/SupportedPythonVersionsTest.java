@@ -102,9 +102,9 @@ public class SupportedPythonVersionsTest {
 
     final String resultBaseImg = "python:3.9-slim";
     ReflectionTestUtils.setField(
-            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(
-            supportedPythonVersions, DEPLOYMENT_DATA_JOB_BASE_IMAGE, "python:3.9-slim");
+        supportedPythonVersions, DEPLOYMENT_DATA_JOB_BASE_IMAGE, "python:3.9-slim");
 
     Assertions.assertEquals(resultBaseImg, supportedPythonVersions.getJobBaseImage("3.8"));
   }

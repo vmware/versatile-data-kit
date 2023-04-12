@@ -238,7 +238,9 @@ public class JobImageBuilderTest {
   }
 
   @Test
-  public void buildImage_deploymentDataJobBaseImageNullAndSupportedPythonVersions_shouldCreateCronjobUsingSupportedPythonVersions() throws InterruptedException, ApiException, IOException {
+  public void
+      buildImage_deploymentDataJobBaseImageNullAndSupportedPythonVersions_shouldCreateCronjobUsingSupportedPythonVersions()
+          throws InterruptedException, ApiException, IOException {
     // Set base image property to null
     ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", null);
 
@@ -335,7 +337,7 @@ public class JobImageBuilderTest {
 
   @Test
   public void buildImage_deploymentDataJobBaseImageNullAndPythonVersionNull_shouldNotCreateCronjob()
-          throws InterruptedException, ApiException, IOException {
+      throws InterruptedException, ApiException, IOException {
     // Set base image property to null
     ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", null);
 
@@ -350,23 +352,23 @@ public class JobImageBuilderTest {
     verify(supportedPythonVersions, never()).getJobBaseImage("3.11");
 
     verify(kubernetesService, never())
-            .createJob(
-                    eq(TEST_BUILDER_JOB_NAME),
-                    eq(TEST_BUILDER_IMAGE_NAME),
-                    eq(false),
-                    eq(false),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    any(),
-                    any());
+        .createJob(
+            eq(TEST_BUILDER_JOB_NAME),
+            eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
+            eq(false),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            any(),
+            any());
 
     Assertions.assertFalse(result);
   }
