@@ -291,9 +291,11 @@ public class JobImageBuilderTest {
   }
 
   @Test
-  public void buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingDeploymentDataJobBaseImage()
-      throws InterruptedException, ApiException, IOException {
-    ReflectionTestUtils.setField(supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
+  public void
+      buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingDeploymentDataJobBaseImage()
+          throws InterruptedException, ApiException, IOException {
+    ReflectionTestUtils.setField(
+        supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
