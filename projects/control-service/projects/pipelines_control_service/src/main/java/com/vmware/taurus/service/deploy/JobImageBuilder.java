@@ -140,7 +140,7 @@ public class JobImageBuilder {
 
     // TODO: Remove when deploymentDataJobBaseImage deprecated.
     if (jobDeployment.getPythonVersion() == null && deploymentDataJobBaseImage == null) {
-      log.debug(
+      log.warn(
           "Missing pythonVersion and deploymentDataJobBaseImage. Data Job cannot be deployed.");
       return false;
     }
