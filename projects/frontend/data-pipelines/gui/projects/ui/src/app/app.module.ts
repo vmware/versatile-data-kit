@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,7 +17,13 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import { VdkSharedCoreModule, VdkSharedFeaturesModule, VdkSharedNgRxModule, VdkSharedComponentsModule } from '@versatiledatakit/shared';
+import {
+    AppConfigService,
+    VdkSharedCoreModule,
+    VdkSharedFeaturesModule,
+    VdkSharedNgRxModule,
+    VdkSharedComponentsModule
+} from '@versatiledatakit/shared';
 
 import { VdkDataPipelinesModule } from '@versatiledatakit/data-pipelines';
 
@@ -30,6 +36,7 @@ import { AppRouting } from './app.routing';
 import { AppComponent } from './app.component';
 
 import { GettingStartedComponent } from './getting-started/getting-started.component';
+import { AppConfig } from './config.model';
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function lottiePlayerLoader() {
@@ -72,6 +79,7 @@ export function lottiePlayerLoader() {
     ],
     declarations: [AppComponent, GettingStartedComponent],
     providers: [
+        AppConfigService,
         {
             provide: OAuthStorage,
             useValue: localStorage
@@ -81,9 +89,16 @@ export function lottiePlayerLoader() {
             useValue: authCodeFlowConfig
         },
         {
+            provide: APP_INITIALIZER,
+            useFactory: (appConfigService: AppConfigService<AppConfig>) => () => appConfigService.loadConfig('assets/config.json'),
+            deps: [AppConfigService],
+            multi: true
+        },
+        {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthorizationInterceptor,
-            multi: true
+            multi: true,
+            deps: [AppConfigService]
         }
     ],
     bootstrap: [AppComponent]

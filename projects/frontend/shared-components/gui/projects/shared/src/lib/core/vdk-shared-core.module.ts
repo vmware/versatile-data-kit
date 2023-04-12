@@ -9,6 +9,8 @@ import { CookieService } from 'ngx-cookie-service';
 
 import { NavigationService } from './navigation';
 
+import { AppConfigService } from './app-config';
+
 @NgModule({})
 export class VdkSharedCoreModule {
     /**
@@ -28,7 +30,7 @@ export class VdkSharedCoreModule {
     static forRoot(): ModuleWithProviders<VdkSharedCoreModule> {
         return {
             ngModule: VdkSharedCoreModule,
-            providers: [CookieService, NavigationService]
+            providers: [AppConfigService, CookieService, NavigationService]
         };
     }
 }
