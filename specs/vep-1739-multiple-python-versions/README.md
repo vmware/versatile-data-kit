@@ -123,7 +123,9 @@ python_version:
 ```
 The property would be optional to avoid enforcing python version selection. If the user decides to not set the property,
 a default value would be used.
-
+It's also important to note that this change would affect both the Deployment API and Execution API,
+as the Deployment API would accept the user-specified python version, while the Execution API would return
+the python version used for each individual execution.
 
 ## Detailed design
 
