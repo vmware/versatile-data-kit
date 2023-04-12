@@ -88,6 +88,29 @@ Also, we can't use a single if because lazy evaluation is not an option
 {{- end -}}
 {{- end -}}
 
+
+{{/*
+Return the proper operations ui image name
+*/}}
+{{- define "operations-ui.image" -}}
+{{- $globalRegistryOverrideName := .Values.image.globalRegistryOverride -}}
+{{- $registryName := .Values.operationsUi.registry -}}
+{{- $repositoryName := .Values.operationsUi.repository -}}
+{{- $tag := .Values.operationsUi.tag | toString -}}
+{{/*
+Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
+but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
+Also, we can't use a single if because lazy evaluation is not an option
+*/}}
+{{- if $globalRegistryOverrideName }}
+    {{- printf "%s/%s:%s" $globalRegistryOverrideName $repositoryName $tag -}}
+{{- else if .Values.global.imageRegistry }}
+    {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
+{{- else -}}
+    {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Return the proper Control Service deployment builder image name
 */}}
@@ -242,6 +265,10 @@ Image Pull Secret in json format
 
 {{- define "pipelinesControlServicePullSecretJson" }}
     {{ include "buildImagePullSecretJson" (list .Values.image.registry .Values.image.registryUsernameReadOnly .Values.image.registryPasswordReadOnly) }}
+{{- end }}
+
+{{- define "operationsUiPullSecretJson" }}
+    {{ include "buildImagePullSecretJson" (list .Values.operationsUi.registry .Values.operationsUi.username .Values.operationsUi.password) }}
 {{- end }}
 
 {{- define "builderPullSecretJson" }}
