@@ -10,7 +10,7 @@ from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
 from vdk.internal.core.errors import UserCodeError
-from vdk.plugin.meta_jobs import plugin_entry
+from vdk.plugin.meta_jobs import dags_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -150,7 +150,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job")
             cli_assert_equal(0, result)
             self.httpserver.stop()
@@ -167,7 +167,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job")
             cli_assert_equal(1, result)
             self.httpserver.stop()
@@ -184,7 +184,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job")
             cli_assert_equal(0, result)
             self.httpserver.stop()
@@ -205,7 +205,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job")
             cli_assert_equal(0, result)
             self.httpserver.stop()
@@ -222,7 +222,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job")
             cli_assert_equal(1, result)
             # we should have 2 requests in the log, one to get a list
@@ -248,7 +248,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job")
             cli_assert_equal(0, result)
             job1_requests = [
@@ -282,7 +282,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job-exceed-limit")
             expected_max_running_jobs = int(
                 os.getenv("VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS", "2")
@@ -312,7 +312,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job(meta_job_name)
             cli_assert_equal(1, result)
             self._assert_meta_job_fails_with_error(result, UserCodeError)
@@ -339,7 +339,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("dag-arguments")
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
@@ -353,7 +353,7 @@ class TestMetaJob:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("dag-empty-arguments")
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")

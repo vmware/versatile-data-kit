@@ -390,6 +390,7 @@ public class JobExecutionServiceUpdateExecutionIT {
             .jobName(actualDataJob.getName())
             .jobVersion("test_job_version")
             .jobSchedule("test_job_schedule")
+            .jobPythonVersion("3.11")
             .startTime(OffsetDateTime.now())
             .endTime(OffsetDateTime.now())
             .resourcesCpuLimit(1f)

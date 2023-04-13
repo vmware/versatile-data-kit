@@ -29,7 +29,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specifc part
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
-    entry_points={"vdk.plugin.run": ["meta-jobs = vdk.plugin.meta_jobs.plugin_entry"]},
+    entry_points={"vdk.plugin.run": ["meta-jobs = vdk.plugin.meta_jobs.dags_plugin"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache Software License",

@@ -154,6 +154,7 @@ public abstract class KubernetesService implements InitializingBean {
     OffsetDateTime endTime;
     String jobVersion;
     String jobSchedule;
+    String jobPythonVersion;
     Float resourcesCpuRequest;
     Float resourcesCpuLimit;
     Integer resourcesMemoryRequest;
@@ -1740,6 +1741,11 @@ public abstract class KubernetesService implements InitializingBean {
     jobExecutionStatusBuilder.jobSchedule(
         annotations
             .map(stringStringMap -> stringStringMap.get(JobAnnotation.SCHEDULE.getValue()))
+            .orElse(null));
+
+    jobExecutionStatusBuilder.jobPythonVersion(
+        annotations
+            .map(stringStringMap -> stringStringMap.get(JobAnnotation.PYTHON_VERSION.getValue()))
             .orElse(null));
 
     // Job status
