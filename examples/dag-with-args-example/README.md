@@ -4,7 +4,7 @@ DAGs allow VDK users to schedule jobs in a directed acyclic graph.
 This means that jobs can be configured to run only when a set of previous jobs have finished successfully.
 
 In this example you will use the Versatile Data Kit to develop six Data Jobs - two of these jobs will read data
-from separate json files, and will subsequently insert the data into Trino tables. The next three jobs will read the
+from separate JSON files, and will subsequently insert the data into Trino tables. The next three jobs will read the
 data inserted by the previous two jobs, and will print the data to the terminal. The sixth Data Job will be a DAG job
 which will manage the other five and ensure that the third, fourth and fifth jobs run only when the previous two finish
 successfully. All the Trino-related details (tables, schema, catalog) will be passed individually to each job as job
@@ -35,7 +35,7 @@ make a DAG Job that fits your use case more closely.
 
 ## Data
 
-There are two json files which store some data about fictional people: their
+There are two JSON files which store some data about fictional people: their
 names, city and country, where they live, and their phone numbers.
 
 ## Requirements
