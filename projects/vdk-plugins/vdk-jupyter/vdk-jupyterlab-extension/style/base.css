@@ -10,11 +10,11 @@
 @import url('vdkDialogs.css');
 
 .jp-vdk-cell {
-  --jp-cell-editor-background: rgb(240, 246, 255);
+  --jp-cell-editor-background: rgb(240 246 255);
 }
 
 .jp-vdk-cell-dark {
-  --jp-cell-editor-background: rgb(6, 27, 59);
+  --jp-cell-editor-background: rgb(6 27 59);
 }
 
 .jp-vdk-cell-num {
