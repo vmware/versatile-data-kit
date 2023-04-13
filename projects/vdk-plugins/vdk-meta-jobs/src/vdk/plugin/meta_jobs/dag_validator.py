@@ -34,6 +34,7 @@ class DagValidator:
     def validate(self, jobs: List[Dict]):
         """
         Validate the structure and the order of the DAG of Data Jobs.
+
         :param jobs: List of Data Jobs (DAG vertices) to be validated
         :return:
         """
