@@ -22,11 +22,13 @@ log = logging.getLogger(__name__)
 
 
 class MetaJobsDag:
-    def __init__(
-        self,
-        team_name: str,
-        meta_config: MetaPluginConfiguration,
-    ):
+    def __init__(self, team_name: str, meta_config: MetaPluginConfiguration):
+        """
+        This module deals with all the DAG-related operations such as build and execute.
+
+        :param team_name: the name of the owning team
+        :param meta_config: the DAG job configuration
+        """
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(
@@ -47,6 +49,12 @@ class MetaJobsDag:
         self._dag_validator = DagValidator()
 
     def build_dag(self, jobs: List[Dict]):
+        """
+        Validate the jobs and build a DAG based on their dependency lists.
+
+        :param jobs: the jobs that are part of the DAG
+        :return:
+        """
         self._dag_validator.validate(jobs)
         for job in jobs:
             trackable_job = TrackableJob(
@@ -59,6 +67,11 @@ class MetaJobsDag:
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])
 
     def execute_dag(self):
+        """
+        Execute the DAG of jobs.
+
+        :return:
+        """
         self._topological_sorter.prepare()
         while self._topological_sorter.is_active():
             for node in self._topological_sorter.get_ready():
