@@ -143,10 +143,6 @@ There are 3 types of jobs right now in terms of how are they started.
    * If a DAG job tries to start a job and there is already running such job, the approach of the DAG job would be
      similar to the schedule - retry later but more times.
 
-Mention concurrent running jobs limit
-empty depends on
-How the flow works?
-
 ### FAQ
 
 
