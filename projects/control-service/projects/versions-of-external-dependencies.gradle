@@ -4,7 +4,7 @@ project.ext {
             'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
             'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.31',
             // Update the ph-client to latest.
-            'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.10.5',
+            'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.10.6',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.6',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
             'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.6.0',
@@ -44,7 +44,7 @@ project.ext {
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.7.0',
             'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.446',
             'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.445',
-            'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.11.103',
+            'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.446',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
