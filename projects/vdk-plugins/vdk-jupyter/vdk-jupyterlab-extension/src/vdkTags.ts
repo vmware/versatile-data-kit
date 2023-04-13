@@ -91,7 +91,7 @@ export const trackVdkTags = (
         notebookTracker.currentWidget.model &&
         notebookTracker.currentWidget.model.cells.get(cellIndex)
       ) {
-        let currentCellTags = notebookTracker.currentWidget?.model?.cells
+        const currentCellTags = notebookTracker.currentWidget.model.cells
           .get(cellIndex)
           .metadata.get('tags')! as ReadonlyArray<String>;
         if (currentCellTags && currentCellTags.includes('vdk'))
@@ -106,7 +106,7 @@ export const trackVdkTags = (
       ) {
         addVdkCellDesign(
           notebookTracker.activeCell.node,
-          Array.from(notebookTracker.activeCell?.parent?.node.children!),
+          Array.from(notebookTracker.activeCell.parent.node.children!),
           vdkCellIndices,
           themeManager
         );
