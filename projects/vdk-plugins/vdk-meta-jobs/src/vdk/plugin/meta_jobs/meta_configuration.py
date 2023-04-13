@@ -18,10 +18,6 @@ META_JOBS_MAX_CONCURRENT_RUNNING_JOBS = "META_JOBS_MAX_CONCURRENT_RUNNING_JOBS"
 
 class MetaPluginConfiguration:
     def __init__(self, config: Configuration):
-        """
-
-        :param config: the DAG plugin configuration
-        """
         self.__config = config
 
     def meta_jobs_delayed_jobs_min_delay_seconds(self):

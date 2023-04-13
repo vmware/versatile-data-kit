@@ -140,8 +140,7 @@ class TrackingDataJobExecutor:
 
     def get_finished_job_names(self):
         """
-
-        :return: a list of all the finalized jobs
+        :return: list of the names of all the finalized jobs
         """
         finalized_jobs = []
         # TODO: optimize
@@ -165,16 +164,13 @@ class TrackingDataJobExecutor:
 
     def get_all_jobs(self):
         """
-        Gets a list of all the jobs.
-
-        :return: a list of all jobs
+        :return: list of all jobs
         """
         return list(self._jobs_cache.values())
 
     def get_currently_running_jobs(self):
         """
-
-        :return:
+        :return: list of jobs with current status SUBMITTED or RUNNING
         """
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
 
