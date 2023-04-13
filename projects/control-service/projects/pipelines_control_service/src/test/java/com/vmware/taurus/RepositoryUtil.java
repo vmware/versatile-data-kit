@@ -145,6 +145,7 @@ public final class RepositoryUtil {
             .lastDeployedBy("test_user")
             .lastDeployedDate(getTimeAccurateToMicroSecond())
             .jobVersion("test_version")
+            .jobPythonVersion("3.11")
             .jobSchedule("*/5 * * * *")
             .opId("test_op_id")
             .vdkVersion("test_vdk_version")
