@@ -13,6 +13,10 @@
   --jp-cell-editor-background: rgb(240, 246, 255);
 }
 
+.jp-vdk-cell-dark {
+  --jp-cell-editor-background: rgb(6, 27, 59);
+}
+
 .jp-vdk-cell-num {
   position: absolute;
   top: 0;
