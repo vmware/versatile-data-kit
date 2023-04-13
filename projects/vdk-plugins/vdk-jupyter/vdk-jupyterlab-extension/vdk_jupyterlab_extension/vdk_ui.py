@@ -54,11 +54,12 @@ class VdkUI:
                 error_file = os.path.join(
                     os.path.dirname(path), f".{job_name}_error.json"
                 )
-                with open(error_file) as file:
-                    # the json is generated in vdk-notebook plugin
-                    # you can see /vdk-notebook/src/vdk/notebook-plugin.py
-                    error = json.load(file)
-                    return {"message": error["details"]}
+                if os.path.exists(error_file):
+                    with open(error_file) as file:
+                        # the json is generated in vdk-notebook plugin
+                        # you can see /vdk-notebook/src/vdk/notebook-plugin.py
+                        error = json.load(file)
+                        return {"message": error["details"]}
             return {"message": process.returncode}
 
     @staticmethod
