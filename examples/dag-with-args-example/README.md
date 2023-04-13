@@ -14,6 +14,7 @@ The DAG Job uses a separate job input object separate from the one usually used 
 operations in VDK Data Jobs and must be imported.
 
 The graph for the DAG will look like this:
+
 ![DAG graph](images/dag.png)
 
 Before you continue, make sure you are familiar with the
