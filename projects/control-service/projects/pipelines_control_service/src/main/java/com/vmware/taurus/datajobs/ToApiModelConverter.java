@@ -202,6 +202,7 @@ public class ToApiModelConverter {
             new DataJobDeployment()
                 .vdkVersion(jobExecutionToConvert.getVdkVersion())
                 .jobVersion(jobExecutionToConvert.getJobVersion())
+                .pythonVersion(jobExecutionToConvert.getJobPythonVersion())
                 .schedule(
                     new DataJobSchedule().scheduleCron(jobExecutionToConvert.getJobSchedule()))
                 .resources(getJobResources(jobExecutionToConvert))
