@@ -1,6 +1,5 @@
 # Overview
 
-
 DAGs allow VDK users to schedule jobs in a directed acyclic graph.
 This means that jobs can be configured to run only when a set of previous jobs have finished successfully.
 
@@ -27,7 +26,7 @@ This tutorial will take you between 15 and 20 minutes.
 ## Code
 
 The relevant Data Job code is available
-[here](https://github.com/vmware/versatile-data-kit/tree/main/examples).
+[here](https://github.com/vmware/versatile-data-kit/tree/main/examples/dag-with-args-example).
 
 You can follow along and run this DAG Job on your machine;
 alternatively, you can use the available code as a template and extend it to
