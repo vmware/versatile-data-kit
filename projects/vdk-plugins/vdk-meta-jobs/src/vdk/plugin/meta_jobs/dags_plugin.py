@@ -13,19 +13,9 @@ from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 
 
 class MetaJobsPlugin:
-    """
-    This module is responsible for managing the interaction between the DAGs plugin and VDK commands.
-    """
-
     @staticmethod
     @hookimpl
     def run_job(context: JobContext) -> None:
-        """
-        Sets the DAGs plugin configuration and other parameters.
-
-        :param context: the job context
-        :return:
-        """
         # TODO: there should be less hacky way
         meta_job_runner.TEAM_NAME = context.core_context.configuration.get_value(
             JobConfigKeys.TEAM
@@ -38,21 +28,11 @@ class MetaJobsPlugin:
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         """
-        Adds the DAG-related configuration variables.
-
-        :param config_builder: the builder used to add the configuration variables
-        :return:
+        Here we define what configuration settings are needed for DAGs with reasonable defaults
         """
         add_definitions(config_builder)
 
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    """
-    Loads the DAGs plugin.
-
-    :param plugin_registry: plugin registry used to register the plugin and its hooks
-    :param command_line_args: a list of command line args passed to VDK
-    :return:
-    """
     plugin_registry.load_plugin_with_hooks_impl(MetaJobsPlugin(), "MetaJobsPlugin")
