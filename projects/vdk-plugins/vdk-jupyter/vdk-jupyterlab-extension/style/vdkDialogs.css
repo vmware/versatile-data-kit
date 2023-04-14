@@ -27,3 +27,27 @@
   margin-top: 10px;
   margin-left: 0;
 }
+
+.vdk-run-error-message {
+  color: #c0392b;
+  padding: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.vdk-run-dialog-message {
+  font-size: 24px;
+  color: #33b53a;
+  margin: 0;
+}
+.vdk-run-dialog-message-container {
+  position: relative;
+}
+.vdk-tick-element {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: #33b53a;
+}
