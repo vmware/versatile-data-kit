@@ -22,19 +22,29 @@
 
 
 # Overview
-Versatile Data Kit (VDK) is an open source framework that enables anyone with basic SQL or Python knowledge to build, run, and manage their own data workflows.
 
-Data processing instructions use plain text SQL or python files that are executed sequentially in alphanumeric order, allowing you to easily build your data workflows.
+Versatile Data Kit (VDK) is a data framework that enables Data Engineers to
+- develop,
+- run,
+- and manage data workloads, aka [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job)
 
-VDK is built for resiliency and can recover in mid-process or restart entirely from the start.
+Its Lego-like design consists of lightweight Python modules installed via `pip` package manager. All VDK plugins are easy to combine.
+
+VDK CLI can generate a data job and run your Python code and SQL queries.
+
+**VDK SDK makes your code shorter, more readable, and faster to create.**<br>
+**Ready-to-use data ETL/ELT patterns make Data Engineering with VDK efficient.**
+
+Data Engineers use VDK to implement automatic pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any other data storage.
 
 
 # Data Journey and Versatile Data Kit
+
 VDK creates data processing workflows to:
+
 - Ingest data (extract)
 - Transform data (transform)
 - Export data (load)
-
 
 ![Data Journey](./support/images/versatile-data-kit-data-journey.svg#gh-light-mode-only)
 ![Data Journey](./support/images/versatile-data-kit-data-journey-dark-mode.svg#gh-dark-mode-only)
