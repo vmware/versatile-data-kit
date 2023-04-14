@@ -33,7 +33,7 @@ Its Lego-like design consists of lightweight Python modules installed via `pi
 VDK CLI can generate a data job and run your Python code and SQL queries.
 
 **VDK SDK makes your code shorter, more readable, and faster to create.**<br>
-**Ready-to-use data ETL/ELT patterns make Data Science with VDK efficient.**
+**Ready-to-use data ETL/ELT patterns make Data Engineering with VDK efficient.**
 
 Data Engineers use VDK to implement automatic pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any other data storage.
 
