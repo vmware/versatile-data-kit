@@ -51,7 +51,7 @@ project.ext {
             'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.9.2',
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.9',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.9',
-            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.10.5',
+            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.10.6',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.3.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.23.0',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.15.Final'
