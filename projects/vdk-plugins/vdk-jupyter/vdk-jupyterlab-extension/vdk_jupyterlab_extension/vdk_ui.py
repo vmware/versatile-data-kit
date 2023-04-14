@@ -29,7 +29,7 @@ class VdkUI:
         if not os.path.exists(path):
             path = os.getcwd() + path
             if not os.path.exists(path):
-                return "Incorrect path!"
+                return {"message": "Incorrect path!"}
         with open("vdk_logs.txt", "w+") as log_file:
             path = shlex.quote(path)
             cmd: list[str] = ["vdk", "run", f"{path}"]
