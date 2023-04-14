@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import datetime
-import json
 import logging
 from enum import Enum
 from enum import unique
@@ -9,14 +8,13 @@ from typing import Dict
 from typing import List
 
 import click
-from tabulate import tabulate
 from taurus_datajob_api import DataJobQueryResponse
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.cli_utils import GqlQueryBuilder
-from vdk.internal.control.utils.cli_utils import OutputFormat
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +25,7 @@ class JobList:
 
     @ApiClientErrorDecorator()
     def list_jobs(
-        self, team: str, jobs_for_all_teams: bool, more_details: int, output: str
+        self, team: str, jobs_for_all_teams: bool, more_details: int, output_format: str
     ):
         has_more_jobs = True
         page_number = 1
@@ -55,13 +53,7 @@ class JobList:
             page_number += 1
 
         jobs = list(map(self.job_to_dict, jobs))
-        if output == OutputFormat.TEXT.value:
-            if len(jobs) > 0:
-                click.echo(tabulate(jobs, headers="keys"))
-            else:
-                click.echo("No Data Jobs.")
-        else:
-            click.echo(json.dumps(list(jobs)))
+        output_printer.create_printer(output_format).print_table(jobs)
 
     @staticmethod
     def job_to_dict(job: Dict):
@@ -92,6 +84,12 @@ class JobList:
                 res["deployed_by"] = deployments[0]["lastDeployedBy"]
             if "lastDeployedDate" in deployments[0]:
                 res["deployed_date"] = deployments[0]["lastDeployedDate"]
+            if "executions" in deployments[0] and len(deployments[0]["executions"]) > 0:
+                last_execution = deployments[0]["executions"][0]
+                res["last_execution_status"] = last_execution.get("status")
+                res["last_execution_date"] = last_execution.get("startTime")
+                res["last_execution_type"] = last_execution.get("type")
+                res["last_execution_started_by"] = last_execution.get("startedBy")
         else:
             res["status"] = "NOT_DEPLOYED"
         if "contacts" in job["config"]:
@@ -157,6 +155,11 @@ class JobList:
             job_contacts.add("notifiedOnJobDeploy").add("notifiedOnJobSuccess").add(
                 "notifiedOnJobFailurePlatformError"
             ).add("notifiedOnJobFailureUserError")
+        if more_details >= 3:
+            executions = jobs_deployments.add_return_new("executions")
+            executions.add("id").add("type").add("status").add("startTime").add(
+                "endTime"
+            ).add("opId").add("startedBy")
 
         query = jobs_builder.build()
         log.debug("Jobs list (graphql) query: " + query)

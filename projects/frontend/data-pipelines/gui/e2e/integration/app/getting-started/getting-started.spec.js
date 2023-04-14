@@ -27,7 +27,7 @@ describe('Getting Started Page', { tags: ['@dataPipelines'] }, () => {
 
                 return cy.wrap({
                     context: 'getting-started.spec::before()',
-                    action: 'continue',
+                    action: 'continue'
                 });
             });
     });
@@ -47,8 +47,8 @@ describe('Getting Started Page', { tags: ['@dataPipelines'] }, () => {
             .getMainTitle()
             .should(($el) =>
                 expect($el.text().trim()).to.equal(
-                    'Get Started with Data Pipelines',
-                ),
+                    'Get Started with Data Pipelines'
+                )
             );
     });
 
@@ -113,7 +113,7 @@ describe('Getting Started Page', { tags: ['@dataPipelines'] }, () => {
 
             // navigate to most recent failing job executions
             dataJobsHealthPanel.navigateToMostRecentFailingJobExecutions(
-                testJob.job_name,
+                testJob.job_name
             );
 
             const dataJobManageExecutionsPage =

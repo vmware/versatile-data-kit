@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Input,
-    OnChanges,
-    SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NavigationService } from '@versatiledatakit/shared';
 
@@ -23,7 +17,7 @@ interface DataJobGrid extends DataJob {
     selector: 'lib-data-jobs-failed-widget',
     templateUrl: './data-jobs-failed-widget.component.html',
     styleUrls: ['./data-jobs-failed-widget.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataJobsFailedWidgetComponent implements OnChanges {
     @Input() manageLink: string;
@@ -50,16 +44,12 @@ export class DataJobsFailedWidgetComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes['jobExecutions'] !== undefined) {
             this.dataJobs = [];
-            (
-                changes['jobExecutions'].currentValue as DataJobExecutions
-            ).forEach((element) => {
-                const temp = this.dataJobs.find(
-                    (i) => i.jobName === element.jobName,
-                );
+            (changes['jobExecutions'].currentValue as DataJobExecutions).forEach((element) => {
+                const temp = this.dataJobs.find((i) => i.jobName === element.jobName);
                 if (!temp) {
                     this.dataJobs.push({
                         jobName: element.jobName,
-                        failedTotal: 1,
+                        failedTotal: 1
                     } as DataJobGrid);
                 } else {
                     temp.failedTotal++;

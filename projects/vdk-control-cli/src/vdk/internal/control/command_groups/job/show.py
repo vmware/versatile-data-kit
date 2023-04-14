@@ -1,6 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import json
 import logging
 from typing import List
 
@@ -14,21 +13,21 @@ from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
-from vdk.internal.control.utils.cli_utils import OutputFormat
+from vdk.internal.control.utils import output_printer
 
 log = logging.getLogger(__name__)
 
 
 class JobShow:
-    def __init__(self, rest_api_url: str, output: str):
-        self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
-        self.deploy_api = ApiClientFactory(rest_api_url).get_deploy_api()
-        self.execution_api = ApiClientFactory(rest_api_url).get_execution_api()
-        self.output = output
+    def __init__(self, rest_api_url: str, output_format: str):
+        self.__jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
+        self.__deploy_api = ApiClientFactory(rest_api_url).get_deploy_api()
+        self.__execution_api = ApiClientFactory(rest_api_url).get_execution_api()
+        self.__printer = output_printer.create_printer(output_format)
 
     def __read_data_job(self, name: str, team: str) -> DataJob:
         try:
-            return self.jobs_api.data_job_read(team_name=team, job_name=name)
+            return self.__jobs_api.data_job_read(team_name=team, job_name=name)
         except ApiException as e:
             raise VDKException(
                 what=f"Cannot find data job {name}",
@@ -40,10 +39,10 @@ class JobShow:
     def __read_deployments(
         self, job_name: str, team: str
     ) -> List[DataJobDeploymentStatus]:
-        return self.deploy_api.deployment_list(team_name=team, job_name=job_name)
+        return self.__deploy_api.deployment_list(team_name=team, job_name=job_name)
 
     def __read_executions(self, job_name: str, team: str) -> List[DataJobExecution]:
-        return self.execution_api.data_job_execution_list(
+        return self.__execution_api.data_job_execution_list(
             team_name=team, job_name=job_name
         )
 
@@ -57,7 +56,7 @@ class JobShow:
         job_as_dict["deployments"] = list(map(lambda d: d.to_dict(), deployments))
         job_as_dict["executions"] = list(map(lambda e: e.to_dict(), executions))[:2]
 
-        click.echo(cli_utils.json_format(job_as_dict, indent=2))
+        self.__printer.print_dict(job_as_dict)
 
 
 @click.command(

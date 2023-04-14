@@ -332,6 +332,7 @@ public class JobExecutionService {
             .endTime(jobExecution.getEndTime())
             .vdkVersion(executionResult.getVdkVersion())
             .jobVersion(jobExecution.getJobVersion())
+            .jobPythonVersion(jobExecution.getJobPythonVersion())
             .jobSchedule(jobExecution.getJobSchedule())
             .resourcesCpuRequest(jobExecution.getResourcesCpuRequest())
             .resourcesCpuLimit(jobExecution.getResourcesCpuLimit())

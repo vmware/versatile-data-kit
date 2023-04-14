@@ -109,6 +109,7 @@ public class ToApiModelConverter {
     deployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
     deployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
     deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
+    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
   }
@@ -201,6 +202,7 @@ public class ToApiModelConverter {
             new DataJobDeployment()
                 .vdkVersion(jobExecutionToConvert.getVdkVersion())
                 .jobVersion(jobExecutionToConvert.getJobVersion())
+                .pythonVersion(jobExecutionToConvert.getJobPythonVersion())
                 .schedule(
                     new DataJobSchedule().scheduleCron(jobExecutionToConvert.getJobSchedule()))
                 .resources(getJobResources(jobExecutionToConvert))

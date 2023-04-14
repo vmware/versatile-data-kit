@@ -6,12 +6,7 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import {
-    ComponentFixture,
-    fakeAsync,
-    TestBed,
-    tick,
-} from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { of, Subject } from 'rxjs';
 
@@ -30,7 +25,7 @@ import {
     RouterService,
     RouterState,
     RouteState,
-    ToastService,
+    ToastService
 } from '@versatiledatakit/shared';
 
 import { ExtractJobStatusPipe } from '../../../../shared/pipes';
@@ -58,16 +53,16 @@ describe('DataJobsManageGridComponent', () => {
 
     const TEST_DEPLOYMENT = {
         id: 'id001',
-        enabled: true,
+        enabled: true
     };
 
     const TEST_JOB = {
         jobName: 'job001',
         config: {
             description: 'description001',
-            team: 'testTeam',
+            team: 'testTeam'
         },
-        deployments: [TEST_DEPLOYMENT],
+        deployments: [TEST_DEPLOYMENT]
     };
 
     let teamSubject: Subject<string>;
@@ -82,92 +77,64 @@ describe('DataJobsManageGridComponent', () => {
     });
 
     beforeEach(() => {
-        componentServiceStub = jasmine.createSpyObj<ComponentService>(
-            'componentService',
-            ['init', 'getModel', 'idle', 'update'],
-        );
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
-            'navigationService',
-            ['navigateTo', 'navigateBack'],
-        );
-        routerServiceStub = jasmine.createSpyObj<RouterService>(
-            'routerService',
-            ['getState', 'get'],
-        );
-        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
-            'dataJobsService',
-            [
-                'loadJobs',
-                'notifyForRunningJobExecutionId',
-                'notifyForJobExecutions',
-                'notifyForTeamImplicitly',
-                'getNotifiedForRunningJobExecutionId',
-                'getNotifiedForJobExecutions',
-                'getNotifiedForTeamImplicitly',
-            ],
-        );
-        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
-            'show',
+        componentServiceStub = jasmine.createSpyObj<ComponentService>('componentService', ['init', 'getModel', 'idle', 'update']);
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['navigateTo', 'navigateBack']);
+        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState', 'get']);
+        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>('dataJobsService', [
+            'loadJobs',
+            'notifyForRunningJobExecutionId',
+            'notifyForJobExecutions',
+            'notifyForTeamImplicitly',
+            'getNotifiedForRunningJobExecutionId',
+            'getNotifiedForJobExecutions',
+            'getNotifiedForTeamImplicitly'
         ]);
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
-            'errorHandlerService',
-            ['processError', 'handleError'],
-        );
+        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', ['show']);
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', ['processError', 'handleError']);
 
         teamSubject = new Subject<string>();
-        teamSubjectSubscribeSpy = spyOn(
-            teamSubject,
-            'subscribe',
-        ).and.callThrough();
+        teamSubjectSubscribeSpy = spyOn(teamSubject, 'subscribe').and.callThrough();
 
         const activatedRouteStub = () => ({
             queryParams: {
-                subscribe: CallFake,
+                subscribe: CallFake
             },
-            snapshot: null,
+            snapshot: null
         });
         const dataJobsApiServiceStub = () => ({
             getAllJobs: () => ({
-                subscribe: CallFake,
+                subscribe: CallFake
             }),
             getJobDetails: () => ({
-                subscribe: () => CallFake,
+                subscribe: () => CallFake
             }),
             getJobExecutions: () => ({
-                subscribe: () => CallFake,
+                subscribe: () => CallFake
             }),
             updateDataJobStatus: () => ({
                 subscribe: () => {
                     return new Subject();
-                },
+                }
             }),
             executeDataJob: () => ({
                 subscribe: () => {
                     return new Subject();
-                },
-            }),
+                }
+            })
         });
         const locationStub = () => ({
             path: () => 'Test',
-            go: () => CallFake,
+            go: () => CallFake
         });
         const routerStub = () => ({
-            url: '/explore/data-jobs',
+            url: '/explore/data-jobs'
         });
 
-        const dataJobsApiServiceStubTemp =
-            jasmine.createSpyObj<DataJobsApiService>('dataJobsApiServiceStub', [
-                'getJobs',
-            ]);
+        const dataJobsApiServiceStubTemp = jasmine.createSpyObj<DataJobsApiService>('dataJobsApiServiceStub', ['getJobs']);
 
-        generateErrorCodes<DataJobsApiService>(dataJobsApiServiceStubTemp, [
-            'getJobs',
-            'getJobDetails',
-            'getJobExecutions',
-        ]);
+        generateErrorCodes<DataJobsApiService>(dataJobsApiServiceStubTemp, ['getJobs', 'getJobDetails', 'getJobExecutions']);
 
-        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE] =
-            dataJobsApiServiceStubTemp.errorCodes.getJobs;
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE] = dataJobsApiServiceStubTemp.errorCodes.getJobs;
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
@@ -182,9 +149,9 @@ describe('DataJobsManageGridComponent', () => {
                             showTeamsColumn: true,
                             allowExecuteNow: true,
                             displayMode: DisplayMode.COMPACT,
-                            selectedTeamNameObservable: teamSubject,
-                        },
-                    }),
+                            selectedTeamNameObservable: teamSubject
+                        }
+                    })
                 },
                 { provide: RouterService, useValue: routerServiceStub },
                 { provide: ComponentService, useValue: componentServiceStub },
@@ -194,21 +161,18 @@ describe('DataJobsManageGridComponent', () => {
                 { provide: ToastService, useValue: toastServiceStub },
                 {
                     provide: DataJobsApiService,
-                    useFactory: dataJobsApiServiceStub,
+                    useFactory: dataJobsApiServiceStub
                 },
                 { provide: Location, useFactory: locationStub },
                 { provide: Router, useFactory: routerStub },
                 {
                     provide: ErrorHandlerService,
-                    useValue: errorHandlerServiceStub,
-                },
-            ],
+                    useValue: errorHandlerServiceStub
+                }
+            ]
         });
 
-        componentModelStub = ComponentModel.of(
-            ComponentStateImpl.of({}),
-            RouterState.of(RouteState.empty(), 1),
-        );
+        componentModelStub = ComponentModel.of(ComponentStateImpl.of({}), RouterState.of(RouteState.empty(), 1));
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
         routerServiceStub.getState.and.returnValue(new Subject());
@@ -227,9 +191,7 @@ describe('DataJobsManageGridComponent', () => {
     describe('editJob', () => {
         it('skips editJob for undefined job', () => {
             // Given
-            const navigateToSpy = spyOn(component, 'navigateTo').and.callFake(
-                CallFake,
-            );
+            const navigateToSpy = spyOn(component, 'navigateTo').and.callFake(CallFake);
             component.selectedJob = null;
 
             // When
@@ -242,10 +204,7 @@ describe('DataJobsManageGridComponent', () => {
 
         it('opens editJob for valid job', () => {
             // Given
-            const navigateToSpy = spyOn(
-                component,
-                'navigateTo',
-            ).and.returnValue(Promise.resolve(true));
+            const navigateToSpy = spyOn(component, 'navigateTo').and.returnValue(Promise.resolve(true));
             component.selectedJob = null;
             component.ngOnInit();
 
@@ -256,7 +215,7 @@ describe('DataJobsManageGridComponent', () => {
             expect(component.selectedJob).toBeDefined();
             expect(navigateToSpy).toHaveBeenCalledWith({
                 '$.team': 'testTeam',
-                '$.job': 'job001',
+                '$.job': 'job001'
             });
         });
     });
@@ -287,8 +246,7 @@ describe('DataJobsManageGridComponent', () => {
 
         it('makes expected calls for valid SelectedJobDeployment', () => {
             component.selectedJob.deployments = [TEST_DEPLOYMENT];
-            const dataJobSServiceStub: DataJobsApiService =
-                fixture.debugElement.injector.get(DataJobsApiService);
+            const dataJobSServiceStub: DataJobsApiService = fixture.debugElement.injector.get(DataJobsApiService);
             spyOn(component, 'extractSelectedJobDeployment').and.callThrough();
             spyOn(dataJobSServiceStub, 'updateDataJobStatus').and.callThrough();
             component.onJobStatusChange();
@@ -301,8 +259,7 @@ describe('DataJobsManageGridComponent', () => {
         it('makes expected calls', () => {
             component.selectedJob = TEST_JOB;
             component.selectedJob.deployments = [TEST_DEPLOYMENT];
-            const dataJobSServiceStub: DataJobsApiService =
-                fixture.debugElement.injector.get(DataJobsApiService);
+            const dataJobSServiceStub: DataJobsApiService = fixture.debugElement.injector.get(DataJobsApiService);
             spyOn(component, 'extractSelectedJobDeployment').and.callThrough();
             spyOn(dataJobSServiceStub, 'executeDataJob').and.callThrough();
             component.onExecuteDataJob();
@@ -368,8 +325,8 @@ describe('DataJobsManageGridComponent', () => {
                     sort: null,
                     page: {
                         size: 10,
-                        current: 2,
-                    },
+                        current: 2
+                    }
                 };
                 component.ngOnInit();
                 teamSubject.next('teamA');
@@ -387,21 +344,19 @@ describe('DataJobsManageGridComponent', () => {
                 expect(filter.criteria[0]).toEqual({
                     property: 'config.team',
                     pattern: 'teamA',
-                    sort: null,
+                    sort: null
                 });
             }));
 
             it('should verify will append on model filter and sorting and default team filter', fakeAsync(() => {
                 // Given
                 const state: ClrDatagridStateInterface = {
-                    filters: [
-                        { property: 'deployments.enabled', value: 'true' },
-                    ],
+                    filters: [{ property: 'deployments.enabled', value: 'true' }],
                     sort: { by: 'jobName', reverse: false },
                     page: {
                         size: 10,
-                        current: 2,
-                    },
+                        current: 2
+                    }
                 };
                 component.ngOnInit();
                 teamSubject.next('teamB');
@@ -420,23 +375,21 @@ describe('DataJobsManageGridComponent', () => {
                     {
                         property: 'deployments.enabled',
                         pattern: 'true',
-                        sort: null,
+                        sort: null
                     },
-                    { property: 'jobName', pattern: null, sort: ASC },
+                    { property: 'jobName', pattern: null, sort: ASC }
                 ]);
             }));
 
             it('should verify will append on model filter and sorting and no default team filter', fakeAsync(() => {
                 // Given
                 const state: ClrDatagridStateInterface = {
-                    filters: [
-                        { property: 'deployments.enabled', value: 'false' },
-                    ],
+                    filters: [{ property: 'deployments.enabled', value: 'false' }],
                     sort: { by: 'config.description', reverse: true },
                     page: {
                         size: 10,
-                        current: 2,
-                    },
+                        current: 2
+                    }
                 };
                 component.filterByTeamName = false;
                 component.ngOnInit();
@@ -455,13 +408,13 @@ describe('DataJobsManageGridComponent', () => {
                     {
                         property: 'deployments.enabled',
                         pattern: 'false',
-                        sort: null,
+                        sort: null
                     },
                     {
                         property: 'config.description',
                         pattern: null,
-                        sort: DESC,
-                    },
+                        sort: DESC
+                    }
                 ]);
             }));
         });

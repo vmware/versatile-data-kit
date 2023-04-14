@@ -20,7 +20,17 @@ def get_json(obj):
 
 
 class MetaJobInput(IMetaJobInput):
+    """
+    This module is responsible for the execution of DAG of Data Jobs.
+    """
+
     def run_meta_job(self, jobs: List[Dict]):
+        """
+        Runs the DAG of jobs - initializes it, builds it, executes it and logs the summary.
+
+        :param jobs: the list of jobs that are part of the DAG
+        :return:
+        """
         dag = MetaJobsDag(TEAM_NAME, META_CONFIG)
         dag.build_dag(jobs)
         dag.execute_dag()

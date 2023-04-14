@@ -50,6 +50,8 @@ public class DataJobExecution {
 
   private String jobVersion;
 
+  private String jobPythonVersion;
+
   private String jobSchedule;
 
   private Float resourcesCpuRequest;

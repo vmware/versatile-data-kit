@@ -3,21 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Directive,
-    ElementRef,
-    Input,
-    OnChanges,
-    OnInit,
-    Renderer2,
-    SimpleChanges,
-} from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges } from '@angular/core';
 
-import {
-    CollectionsUtil,
-    PrimitivesNil,
-    TaurusObject,
-} from '@versatiledatakit/shared';
+import { CollectionsUtil, PrimitivesNil, TaurusObject } from '@versatiledatakit/shared';
 
 export interface Attributes {
     [attribute: string]: PrimitivesNil;
@@ -29,12 +17,9 @@ export interface Attributes {
  * @author gorankokin
  */
 @Directive({
-    selector: '[libSetAttributes]',
+    selector: '[libSetAttributes]'
 })
-export class AttributesDirective
-    extends TaurusObject
-    implements OnInit, OnChanges
-{
+export class AttributesDirective extends TaurusObject implements OnInit, OnChanges {
     /**
      * ** Input attributes that should be applied to host element.
      */
@@ -45,10 +30,7 @@ export class AttributesDirective
     /**
      * ** Constructor.
      */
-    constructor(
-        private readonly el: ElementRef,
-        private readonly renderer: Renderer2,
-    ) {
+    constructor(private readonly el: ElementRef, private readonly renderer: Renderer2) {
         super();
     }
 
@@ -76,12 +58,9 @@ export class AttributesDirective
                 return;
             }
 
-            CollectionsUtil.iterateObject(
-                this._attributesCopy,
-                (_attributeValue, attributeName) => {
-                    this._removeAttribute(attributeName);
-                },
-            );
+            CollectionsUtil.iterateObject(this._attributesCopy, (_attributeValue, attributeName) => {
+                this._removeAttribute(attributeName);
+            });
 
             return;
         }
@@ -92,18 +71,12 @@ export class AttributesDirective
 
         this._attributesCopy = CollectionsUtil.cloneDeep(this.attributes);
 
-        CollectionsUtil.iterateObject(
-            this._attributesCopy,
-            (attributeValue, attributeName) => {
-                this._setOrRemoveAttribute(attributeName, attributeValue);
-            },
-        );
+        CollectionsUtil.iterateObject(this._attributesCopy, (attributeValue, attributeName) => {
+            this._setOrRemoveAttribute(attributeName, attributeValue);
+        });
     }
 
-    private _setOrRemoveAttribute(
-        attributeName: string,
-        attributeValue: unknown,
-    ): void {
+    private _setOrRemoveAttribute(attributeName: string, attributeValue: unknown): void {
         if (AttributesDirective._isTruthy(attributeValue)) {
             this._setAttribute(attributeName, attributeValue);
         } else {
@@ -111,15 +84,8 @@ export class AttributesDirective
         }
     }
 
-    private _setAttribute(
-        attributeName: string,
-        attributeValue: unknown,
-    ): void {
-        this.renderer.setAttribute(
-            this.el.nativeElement,
-            attributeName,
-            attributeValue as string,
-        );
+    private _setAttribute(attributeName: string, attributeValue: unknown): void {
+        this.renderer.setAttribute(this.el.nativeElement, attributeName, attributeValue as string);
     }
 
     private _removeAttribute(attributeName: string): void {
@@ -128,14 +94,7 @@ export class AttributesDirective
 
     // eslint-disable-next-line @typescript-eslint/member-ordering,@typescript-eslint/no-explicit-any
     private static _isTruthy(value: any): boolean {
-        return AttributesDirective._valueNotIn(value, [
-            undefined,
-            false,
-            null,
-            'delete',
-            'false',
-            '',
-        ]);
+        return AttributesDirective._valueNotIn(value, [undefined, false, null, 'delete', 'false', '']);
     }
 
     // eslint-disable-next-line @typescript-eslint/member-ordering,@typescript-eslint/no-explicit-any

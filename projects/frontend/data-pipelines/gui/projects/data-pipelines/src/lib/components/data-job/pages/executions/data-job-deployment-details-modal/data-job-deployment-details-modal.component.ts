@@ -9,7 +9,7 @@ import { DataJobDeployment } from '../../../../../model';
 @Component({
     selector: 'lib-data-job-deployment-details-modal',
     templateUrl: './data-job-deployment-details-modal.component.html',
-    styleUrls: ['./data-job-deployment-details-modal.component.scss'],
+    styleUrls: ['./data-job-deployment-details-modal.component.scss']
 })
 export class DataJobDeploymentDetailsModalComponent {
     @Output() openModalChange = new EventEmitter<boolean>();
