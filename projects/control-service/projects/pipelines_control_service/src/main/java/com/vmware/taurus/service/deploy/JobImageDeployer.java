@@ -329,7 +329,9 @@ public class JobImageDeployer {
     if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())) {
       return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
     } else {
-      return vdkImage != null ? vdkImage : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+      return vdkImage != null
+          ? vdkImage
+          : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     }
   }
 

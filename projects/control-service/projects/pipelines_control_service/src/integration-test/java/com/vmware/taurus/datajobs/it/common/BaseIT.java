@@ -164,7 +164,7 @@ public class BaseIT {
   }
 
   public static String getDataJobDeploymentRequestBody(String jobVersion, String pythonVersion)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
     jobDeployment.setJobVersion(jobVersion);
     jobDeployment.setMode(DataJobMode.RELEASE);

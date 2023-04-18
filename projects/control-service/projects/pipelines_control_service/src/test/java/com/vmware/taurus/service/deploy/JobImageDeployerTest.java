@@ -94,8 +94,7 @@ public class JobImageDeployerTest {
     when(defaultConfigurations.dataJobLimits())
         .thenReturn(new KubernetesService.Resources("2000m", "1G"));
 
-    when(supportedPythonVersions.getDefaultVdkImage())
-        .thenReturn("release");
+    when(supportedPythonVersions.getDefaultVdkImage()).thenReturn("release");
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setSchedule(TEST_JOB_SCHEDULE);
