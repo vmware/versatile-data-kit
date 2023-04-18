@@ -22,23 +22,41 @@ ALLOWED_RETRIES = 3
 
 
 class TrackingDataJobExecutor:
+    """
+    The purpose of this class is to execute Data Jobs, track them and change their
+    statuses accordingly.
+    """
+
     def __init__(
         self, executor: IDataJobExecutor, time_between_status_check_seconds: int
     ):
+        """
+
+        :param executor: the Data Job executor
+        :param time_between_status_check_seconds: the number of seconds between status check
+        """
         self._executor = executor
         self._jobs_cache: Dict[str, TrackableJob] = dict()
         self._time_between_status_check_seconds = time_between_status_check_seconds
 
     def register_job(self, job: TrackableJob):
+        """
+        Registers a Data Job by adding it to the cache.
+
+        :param job: the job to be added to the cache
+        :return:
+        """
         if job.job_name in self._jobs_cache:
             log.warning(
-                f"Job with name {job.job_name} aleady exists. Details: {self._jobs_cache[job.job_name]}. "
+                f"Job with name {job.job_name} already exists. Details: {self._jobs_cache[job.job_name]}. "
                 f"Will overwrite it."
             )
         self._jobs_cache[job.job_name] = job
 
     def start_job(self, job_name: str) -> None:
         """
+        Starts a Data Job.
+
         :param job_name: the job to start and track
         """
         job = self.__get_job(job_name)
@@ -57,6 +75,12 @@ class TrackingDataJobExecutor:
         )
 
     def finalize_job(self, job_name):
+        """
+        Finalizes a finished job by updating its details and logging them or raising an error.
+
+        :param job_name: the name of the job
+        :return:
+        """
         job = self.__get_job(job_name)
         details = self._executor.details_job(
             job.job_name, job.team_name, job.execution_id
@@ -100,6 +124,12 @@ class TrackingDataJobExecutor:
         return job.status is not None
 
     def status(self, job_name: str) -> str:
+        """
+        Gets the status of a job.
+
+        :param job_name: the name of the job
+        :return: the job status
+        """
         job = self.__get_job(job_name)
         if job.status in ACTIVE_JOB_STATUSES:
             job.status = self._executor.status_job(
@@ -109,6 +139,9 @@ class TrackingDataJobExecutor:
         return job.status
 
     def get_finished_job_names(self):
+        """
+        :return: list of the names of all the finalized jobs
+        """
         finalized_jobs = []
         # TODO: optimize
         # Do not call the status every time (use TTL caching)
@@ -130,9 +163,15 @@ class TrackingDataJobExecutor:
         return finalized_jobs
 
     def get_all_jobs(self):
+        """
+        :return: list of all jobs
+        """
         return list(self._jobs_cache.values())
 
     def get_currently_running_jobs(self):
+        """
+        :return: list of jobs with current status SUBMITTED or RUNNING
+        """
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
 
     def start_new_job_execution(

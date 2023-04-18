@@ -85,19 +85,22 @@ public class JobImageBuilder {
   private final DeploymentNotificationHelper notificationHelper;
   private final KubernetesResources kubernetesResources;
   private final AWSCredentialsService awsCredentialsService;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
       DockerRegistryService dockerRegistryService,
       DeploymentNotificationHelper notificationHelper,
       KubernetesResources kubernetesResources,
-      AWSCredentialsService awsCredentialsService) {
+      AWSCredentialsService awsCredentialsService,
+      SupportedPythonVersions supportedPythonVersions) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
     this.notificationHelper = notificationHelper;
     this.kubernetesResources = kubernetesResources;
     this.awsCredentialsService = awsCredentialsService;
+    this.supportedPythonVersions = supportedPythonVersions;
   }
 
   /**
@@ -133,6 +136,13 @@ public class JobImageBuilder {
                 registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC));
         return false;
       }
+    }
+
+    // TODO: Remove when deploymentDataJobBaseImage deprecated.
+    if (jobDeployment.getPythonVersion() == null && deploymentDataJobBaseImage == null) {
+      log.warn(
+          "Missing pythonVersion and deploymentDataJobBaseImage. Data Job cannot be deployed.");
+      return false;
     }
 
     if (dockerRegistryService.dataJobImageExists(imageName)) {
@@ -253,6 +263,9 @@ public class JobImageBuilder {
   private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
+    String pythonVersion = jobDeployment.getPythonVersion();
+
+    String dataJobBaseImage = supportedPythonVersions.getJobBaseImage(pythonVersion);
 
     return Map.ofEntries(
         entry("JOB_NAME", jobName),
@@ -260,7 +273,7 @@ public class JobImageBuilder {
         entry("GIT_COMMIT", jobVersion),
         entry("JOB_GITHASH", jobVersion),
         entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
-        entry("BASE_IMAGE", deploymentDataJobBaseImage),
+        entry("BASE_IMAGE", dataJobBaseImage),
         entry("EXTRA_ARGUMENTS", builderJobExtraArgs),
         entry("GIT_SSL_ENABLED", Boolean.toString(gitDataJobsSslEnabled)));
   }
