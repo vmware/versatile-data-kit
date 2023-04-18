@@ -65,7 +65,7 @@ const addVdkCellDesign = (
       // We do not add logo to the active cell since it blocks other UI elements
       if (cells[i] != currentCell) addVdkLogo(cells[i]);
 
-      addNumberElement(vdkCellCounter++, cells[i]);
+      addNumberElement(++vdkCellCounter, cells[i]);
     } else {
       cells[i].classList.remove('jp-vdk-cell');
       cells[i].classList.remove('jp-vdk-cell-dark');
