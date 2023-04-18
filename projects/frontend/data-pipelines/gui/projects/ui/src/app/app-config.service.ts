@@ -34,16 +34,16 @@ export class AppConfigService {
 
     getAuthCodeFlowConfig(): AuthConfig {
         function replaceWindowLocationOrigin(str: string): string {
-            return str.replace('$window.location.origin', window.location.origin);
+            return str?.replace('$window.location.origin', window.location.origin);
         }
 
-        const authCodeFlowConfig: AuthConfig = this.getConfig().authConfig;
-        authCodeFlowConfig.redirectUri = replaceWindowLocationOrigin(authCodeFlowConfig.redirectUri);
-        authCodeFlowConfig.silentRefreshRedirectUri = replaceWindowLocationOrigin(authCodeFlowConfig.silentRefreshRedirectUri);
+        const authCodeFlowConfig: AuthConfig = this.getConfig()?.authConfig;
+        authCodeFlowConfig.redirectUri = replaceWindowLocationOrigin(authCodeFlowConfig?.redirectUri);
+        authCodeFlowConfig.silentRefreshRedirectUri = replaceWindowLocationOrigin(authCodeFlowConfig?.silentRefreshRedirectUri);
         return authCodeFlowConfig;
     }
 
     getRefreshTokenConfig(): RefreshTokenConfig {
-        return this.getConfig().refreshTokenConfig;
+        return this.getConfig()?.refreshTokenConfig;
     }
 }
