@@ -42,17 +42,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import({JobImageBuilderDynamicVdkImageIT.TaskExecutorConfig.class})
+@Import({TestJobImageBuilderDynamicVdkImageIT.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-      "datajobs.vdk.image=null",
-      "datajobs.deployment.dataJobBaseImage=null"
+      "datajobs.vdk.image=",
+      "datajobs.deployment.dataJobBaseImage="
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-public class JobImageBuilderDynamicVdkImageIT extends BaseIT {
+public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
   private static final String TEST_JOB_NAME =
       "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
   private static final Object DEPLOYMENT_ID = "testing";

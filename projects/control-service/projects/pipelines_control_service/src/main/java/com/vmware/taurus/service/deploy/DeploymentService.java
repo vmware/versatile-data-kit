@@ -109,7 +109,9 @@ public class DeploymentService {
           "same as the current job version when using PATCH request.",
           mergedDeployment.getGitCommitSha(),
           "Use POST HTTP request to change job version.");
-    } else if (mergedDeployment.getPythonVersion() != null
+    }
+
+    if (mergedDeployment.getPythonVersion() != null
         && !mergedDeployment.getPythonVersion().equals(oldDeployment.getPythonVersion())) {
       throw new ApiConstraintError(
           "python_version",
@@ -118,7 +120,9 @@ public class DeploymentService {
               oldDeployment.getPythonVersion()),
           mergedDeployment.getPythonVersion(),
           "Use POST HTTP request to change python version.");
-    } else if (mergedDeployment.getVdkVersion() != null
+    }
+
+    if (mergedDeployment.getVdkVersion() != null
         && !mergedDeployment.getVdkVersion().equals(oldDeployment.getVdkVersion())) {
       throw new ApiConstraintError(
           "vdk_version",
