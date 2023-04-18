@@ -4,6 +4,7 @@ import json
 import os
 import shlex
 import subprocess
+from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
 from vdk.internal.control.command_groups.job.delete import JobDelete
@@ -30,6 +31,17 @@ class VdkUI:
             path = os.getcwd() + path
             if not os.path.exists(path):
                 return {"message": "Incorrect path!"}
+        script_files = [
+            x
+            for x in Path(path).iterdir()
+            if (
+                x.name.lower().endswith(".ipynb")
+                or x.name.lower().endswith(".py")
+                or x.name.lower().endswith(".sql")
+            )
+        ]
+        if len(script_files) == 0:
+            return {"message": f"No steps were found in {path}!"}
         with open("vdk_logs.txt", "w+") as log_file:
             path = shlex.quote(path)
             cmd: list[str] = ["vdk", "run", f"{path}"]
@@ -45,7 +57,7 @@ class VdkUI:
                 shell=False,
             )
             process.wait()
-            if process.returncode != "0":
+            if process.returncode != 0:
                 job_name = (
                     os.path.basename(path[:-1])
                     if path.endswith("/")
