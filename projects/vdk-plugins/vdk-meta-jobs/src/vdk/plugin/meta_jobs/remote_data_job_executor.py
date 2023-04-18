@@ -11,6 +11,10 @@ from vdk.plugin.meta_jobs.remote_data_job import RemoteDataJob
 
 
 class RemoteDataJobExecutor(IDataJobExecutor):
+    """
+    This module is responsible for executing remote Data Jobs.
+    """
+
     def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
         vdk_cfg = VDKConfig()
         job = RemoteDataJob(

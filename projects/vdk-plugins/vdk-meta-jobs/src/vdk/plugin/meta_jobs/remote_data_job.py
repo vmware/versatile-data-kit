@@ -42,7 +42,7 @@ class JobStatus(str, Enum):
 
 class RemoteDataJob:
     """
-    Interact with Verstile Data Kit (VDK) Control Service
+    Interact with Versatile Data Kit (VDK) Control Service
     """
 
     def __init__(
@@ -54,6 +54,15 @@ class RemoteDataJob:
         timeout: int = 5,  # TODO: Set reasonable default
         **kwargs,
     ) -> None:
+        """
+
+        :param job_name: the name of the job
+        :param team_name: the name of the owning team
+        :param rest_api_url: the Control Service REST API URL
+        :param arguments: the job arguments
+        :param timeout: timeout
+        :param kwargs: extra parameters
+        """
         self.__job_name = job_name
         self.__team_name = team_name
         self.__rest_api_url = rest_api_url

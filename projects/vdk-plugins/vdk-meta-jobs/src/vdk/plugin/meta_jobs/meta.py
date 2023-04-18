@@ -11,6 +11,10 @@ from vdk.plugin.meta_jobs.api import meta_job
 
 
 class IDataJobExecutor(abc.ABC):
+    """
+    This module is responsible for the execution of Data Jobs.
+    """
+
     @abc.abstractmethod
     def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
         """
@@ -60,6 +64,10 @@ class IDataJobExecutor(abc.ABC):
 
 @dataclass
 class TrackableJob(meta_job.SingleJob):
+    """
+    This class provides the ability to track status details of Data Job during execution.
+    """
+
     status: str = None
     execution_id: str = None
     details: dict = None
