@@ -14,5 +14,5 @@ Cypress.Server.defaults({
     force404: false,
     ignore: (xhr) => {
         return true;
-    },
+    }
 });
