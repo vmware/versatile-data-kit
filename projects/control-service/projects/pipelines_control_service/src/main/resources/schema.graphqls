@@ -76,6 +76,7 @@ type DataJobExecutionDeployment {
   enabled: Boolean
   contacts: DataJobContacts
   jobVersion: String
+  jobPythonVersion: String
   deployedDate: String
   deployedBy: String
   mode: String
@@ -104,6 +105,7 @@ type DataJobDeployment {
     enabled: Boolean
     contacts: DataJobContacts
     jobVersion: String
+    jobPythonVersion: String
     lastDeployedDate: String
     lastDeployedBy: String
     mode: String
