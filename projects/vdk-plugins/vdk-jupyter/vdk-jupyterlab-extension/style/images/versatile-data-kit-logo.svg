@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 25.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   id="artwork"
+   x="0px"
+   y="0px"
+   viewBox="0 0 105 105"
+   style="enable-background:new 0 0 105 105;"
+   xml:space="preserve"
+   sodipodi:docname="test.svg"
+   inkscape:version="1.1 (ce6663b3b7, 2021-05-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs64" /><sodipodi:namedview
+   id="namedview62"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   showgrid="false"
+   inkscape:zoom="5.275"
+   inkscape:cx="80"
+   inkscape:cy="47.867299"
+   inkscape:window-width="1848"
+   inkscape:window-height="1016"
+   inkscape:window-x="72"
+   inkscape:window-y="27"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="artwork" />
+<style
+   type="text/css"
+   id="style2">
+	.st0{fill:#717074;}
+	.st1{fill:url(#SVGID_1_);}
+	.st2{fill:#78BE43;}
+	.st3{fill:#EC7700;}
+	.st4{fill:#1ABFD3;}
+	.st5{fill:#218FCF;}
+	.st6{fill:#FFFFFF;}
+</style>
+<!--<g>
+	<path class="st0" d="M208.3,27.2l-18.2,41.2H185l-18.2-41.2h5.1l15.7,35.5l15.6-35.5H208.3z"/>
+	<path class="st0" d="M219.3,31.7v13.6h22.4v4.4h-22.4V64h24.8v4.4h-29.6V27.2h29.6v4.4H219.3z"/>
+	<path class="st0" d="M282.5,46.7c-1.1,1.9-2.7,3.5-4.6,4.6c-2,1.2-4.3,2-6.6,2.2l10.5,14.9h-5.3L266,53.7h-9.1v14.8h-4.7V27.2H269
+		c2.7,0,5.3,0.5,7.7,1.7c2.2,1,4.1,2.7,5.5,4.7C284.7,37.6,284.8,42.6,282.5,46.7L282.5,46.7z M256.9,49.2h11.2
+		c2.9,0.1,5.8-0.7,8.2-2.3c2-1.5,3.2-3.9,3.1-6.4c0.1-2.5-1.1-4.9-3.1-6.4c-2.4-1.7-5.3-2.5-8.2-2.3h-11.2V49.2z"/>
+	<path class="st0" d="M288,62.6l3-3.7c1.8,1.8,3.8,3.3,6.1,4.4c2.3,1.1,4.8,1.6,7.4,1.6c1.8,0,3.6-0.3,5.2-1
+		c1.3-0.6,2.5-1.5,3.3-2.6c0.7-1,1.1-2.3,1.1-3.6c0.1-1.9-0.9-3.8-2.6-4.8c-2.7-1.4-5.5-2.4-8.5-3c-2.5-0.6-5-1.4-7.4-2.4
+		c-1.8-0.8-3.3-2-4.5-3.6c-1.1-1.7-1.7-3.7-1.6-5.7c0-2.1,0.6-4.2,1.8-5.9c1.3-1.8,3-3.3,5-4.2c2.2-1,4.6-1.6,7-1.5
+		c2.7,0,5.4,0.5,7.9,1.5c2.4,1.1,4.6,2.5,6.6,4.3l-2.9,3.7c-1.7-1.6-3.6-2.9-5.6-3.9c-2-0.9-4.1-1.4-6.2-1.4c-1.6,0-3.1,0.3-4.5,1
+		c-1.3,0.6-2.4,1.5-3.2,2.6c-0.7,1-1.1,2.3-1.1,3.5c-0.1,1.9,0.9,3.6,2.6,4.5c2.7,1.4,5.6,2.4,8.5,3c4.4,1,7.8,2.5,10,4.2
+		c2.3,1.9,3.6,4.7,3.5,7.7c0,2.1-0.5,4.2-1.6,6.1c-1.2,1.9-2.9,3.4-5,4.3c-2.5,1.1-5.2,1.6-7.9,1.6C298.2,69.3,292.3,66.9,288,62.6z
+		"/>
+	<path class="st0" d="M353.9,59.1h-23l-4.1,9.4h-5.1l18.2-41.2h5.1l18.2,41.2h-5.1L353.9,59.1z M352,54.7L342.5,33l-9.6,21.7
+		L352,54.7z"/>
+	<path class="st0" d="M378.2,31.7h-13.9v-4.4h32.4v4.4h-13.9v36.8h-4.7V31.7z"/>
+	<path class="st0" d="M403,27.2h4.7v41.2H403V27.2z"/>
+	<path class="st0" d="M446.1,64v4.4H419V27.2h4.7V64H446.1z"/>
+	<path class="st0" d="M457.1,31.7v13.6h22.4v4.4h-22.4V64H482v4.4h-29.6V27.2H482v4.4H457.1z"/>
+	<path class="st0" d="M171.9,92.2h13.9c4-0.1,8,0.8,11.6,2.6c3.3,1.7,6,4.2,7.9,7.3c3.8,6.6,3.8,14.7,0,21.3
+		c-1.9,3.1-4.6,5.7-7.9,7.4c-3.6,1.8-7.5,2.7-11.6,2.6h-13.9V92.2z M185.8,129.2c3.2,0.1,6.3-0.7,9.1-2.1c2.6-1.3,4.7-3.3,6.2-5.8
+		c3-5.2,3-11.7,0-16.9c-1.5-2.5-3.7-4.5-6.2-5.8c-2.8-1.4-5.9-2.2-9.1-2.1h-9.2v32.7H185.8z"/>
+	<path class="st0" d="M243.4,124.1h-23l-4.1,9.4h-5.1l18.2-41.2h5.1l18.2,41.2h-5.1L243.4,124.1z M241.5,119.7L231.9,98l-9.6,21.7
+		L241.5,119.7z"/>
+	<path class="st0" d="M267.7,96.7h-13.9v-4.4h32.4v4.4h-13.9v36.8h-4.7V96.7z"/>
+	<path class="st0" d="M318.2,124.1h-23l-4.2,9.4h-5.1l18.2-41.2h5.1l18.2,41.2h-5.1L318.2,124.1z M316.2,119.7L306.7,98l-9.6,21.7
+		L316.2,119.7z"/>
+	<path class="st0" d="M353.4,92.2h4.7v22.8L379,92.2h6.2l-17.3,18.8l18.5,22.4h-6.1l-15.7-19.2l-6.5,6.8v12.4h-4.7V92.2z"/>
+	<path class="st0" d="M395.4,92.2h4.7v41.2h-4.7V92.2z"/>
+	<path class="st0" d="M424.7,96.7h-13.9v-4.4h32.4v4.4h-13.9v36.8h-4.7V96.7z"/>
+</g>-->
+<g
+   id="g59"
+   transform="translate(-40,-27.5)">
+	<path
+   class="st0"
+   d="M 92.5,27.5 C 63.5,27.5 40,51 40,80 c 0,29 23.5,52.5 52.5,52.5 29,0 52.5,-23.5 52.5,-52.4 0,-29.1 -23.5,-52.6 -52.5,-52.6 0,0 0,0 0,0 z m 0,95.9 c -24,0 -43.5,-19.5 -43.5,-43.5 0,-24 19.5,-43.5 43.5,-43.5 24,0 43.5,19.5 43.5,43.6 0,0 0,0 0,0 0,24 -19.5,43.5 -43.5,43.4 z"
+   id="path4" />
+
+	<linearGradient
+   id="SVGID_1_"
+   gradientUnits="userSpaceOnUse"
+   x1="61.7383"
+   y1="50.2934"
+   x2="123.0984"
+   y2="111.6434"
+   gradientTransform="matrix(1,0,0,-1,0,161)">
+		<stop
+   offset="0"
+   style="stop-color:#218FCF"
+   id="stop6" />
+		<stop
+   offset="5.000000e-02"
+   style="stop-color:#207FC0"
+   id="stop8" />
+		<stop
+   offset="0.13"
+   style="stop-color:#1F69AB"
+   id="stop10" />
+		<stop
+   offset="0.23"
+   style="stop-color:#1F589B"
+   id="stop12" />
+		<stop
+   offset="0.35"
+   style="stop-color:#1E4D90"
+   id="stop14" />
+		<stop
+   offset="0.52"
+   style="stop-color:#1E468A"
+   id="stop16" />
+		<stop
+   offset="1"
+   style="stop-color:#1E4488"
+   id="stop18" />
+	</linearGradient>
+	<circle
+   class="st1"
+   cx="92.5"
+   cy="79.900002"
+   r="43.5"
+   id="circle21"
+   style="fill:url(#SVGID_1_)" />
+	<rect
+   x="110.7"
+   y="60.200001"
+   class="st2"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect23" />
+	<rect
+   x="101.9"
+   y="60.200001"
+   class="st2"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect25" />
+	<rect
+   x="101.8"
+   y="51.299999"
+   class="st3"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect27" />
+	<rect
+   x="101.9"
+   y="42.299999"
+   class="st4"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect29" />
+	<rect
+   x="101.8"
+   y="69.199997"
+   class="st5"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect31" />
+	<rect
+   x="110.7"
+   y="69.199997"
+   class="st5"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect33" />
+	<rect
+   x="119.7"
+   y="60.200001"
+   class="st2"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect35" />
+	<rect
+   x="110.8"
+   y="51.299999"
+   class="st3"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect37" />
+	<rect
+   x="119.7"
+   y="69.199997"
+   class="st5"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect39" />
+	<path
+   class="st6"
+   d="M 126.5,78.3 H 102 c -1,0 -1.9,0.9 -1.9,1.9 v 3.6 c 0,1 0.9,1.9 1.9,1.9 h 2 c -0.3,2.3 -1.3,4.5 -2.9,6.1 v 0 C 97,96.4 90,96.7 85.6,92.5 83.3,90.4 82,87.4 82,84.3 V 81.3 81 64 h 1.6 c 1,0 1.9,-0.9 1.9,-1.9 v -3.6 c 0,-1 -0.9,-1.9 -1.9,-1.9 H 59.1 c -1,0 -1.9,0.9 -1.9,1.9 v 3.6 c 0,1 0.9,1.9 1.9,1.9 h 2 v 17 0.3 3 c 0,17.7 14.3,32 32,32 10.6,0 20.5,-5.3 26.5,-14.1 v 0 c 3.3,-4.9 5.2,-10.6 5.5,-16.5 h 1.5 c 1,0 1.9,-0.9 1.9,-1.9 v -3.6 c 0,-1 -0.9,-1.9 -2,-1.9 z"
+   id="path41" />
+	<rect
+   x="69.900002"
+   y="62.700001"
+   class="st2"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect43" />
+	<rect
+   x="61"
+   y="42.799999"
+   class="st2"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect45" />
+	<rect
+   x="72.099998"
+   y="34.299999"
+   class="st3"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect47" />
+	<rect
+   x="64.199997"
+   y="53.200001"
+   class="st4"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect49" />
+	<rect
+   x="69.699997"
+   y="94"
+   class="st4"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect51" />
+	<rect
+   x="73.099998"
+   y="82.800003"
+   class="st5"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect53" />
+	<rect
+   x="64.300003"
+   y="75.099998"
+   class="st3"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect55" />
+	<rect
+   x="74.199997"
+   y="44.5"
+   class="st5"
+   width="7.1999998"
+   height="7.1999998"
+   id="rect57" />
+</g>
+</svg>
