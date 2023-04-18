@@ -29,7 +29,7 @@ export class VdkErrorMessage {
       'countermeasures'
     ];
     const delimiters = [
-      'ERROR: ',
+      'ERROR : ',
       'WHAT HAPPENED :',
       'WHY IT HAPPENED :',
       'CONSEQUENCES :',

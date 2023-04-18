@@ -87,13 +87,13 @@ export async function showRunJobDialog() {
           showDialog({
             title: 'Run Job',
             body: <div className='vdk-run-dialog-message-container'>
-            <p className='vdk-run-dialog-message'>Success!</p>
+            <p className='vdk-run-dialog-message'>The job was executed successfully!</p>
           </div>,
             buttons: [Dialog.okButton()]
           });
         }
         else{
-          message = "ERROR: " + message;
+          message = "ERROR : " + message;
           let errorMessage = new VdkErrorMessage(message);
           showDialog({
             title: 'Run Job',

@@ -32,13 +32,19 @@
   color: #c0392b;
   padding: 20px;
   font-weight: bold;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.vdk-run-error-message p {
+  padding-bottom: 10px;
 }
 
 .vdk-run-dialog-message {
-  font-size: 24px;
+  font-size: 20px;
   color: #33b53a;
-  margin: 0;
+  padding: 20px;
 }
 .vdk-run-dialog-message-container {
   position: relative;
