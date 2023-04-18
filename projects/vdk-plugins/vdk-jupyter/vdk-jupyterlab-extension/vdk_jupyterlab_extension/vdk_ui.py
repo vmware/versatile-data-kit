@@ -30,7 +30,7 @@ class VdkUI:
         if not os.path.exists(path):
             path = os.getcwd() + path
             if not os.path.exists(path):
-                return {"message": "Incorrect path!"}
+                return {"message": f"Incorrect path! {path} does not exist!"}
         script_files = [
             x
             for x in Path(path).iterdir()
