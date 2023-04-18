@@ -83,7 +83,6 @@ export async function showRunJobDialog() {
   });
   if (result.button.accept) {
     let { message, status } = await jobRunRequest();
-    console.log(status);
         if (status) {
           showDialog({
             title: 'Run Job',
