@@ -88,7 +88,6 @@ export async function showRunJobDialog() {
             title: 'Run Job',
             body: <div className='vdk-run-dialog-message-container'>
             <p className='vdk-run-dialog-message'>Success!</p>
-            <span className='vdk-tick-element'>✔</span>
           </div>,
             buttons: [Dialog.okButton()]
           });

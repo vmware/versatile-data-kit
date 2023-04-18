@@ -43,11 +43,3 @@
 .vdk-run-dialog-message-container {
   position: relative;
 }
-.vdk-tick-element {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  font-size: 1.5rem;
-  color: #33b53a;
-}
