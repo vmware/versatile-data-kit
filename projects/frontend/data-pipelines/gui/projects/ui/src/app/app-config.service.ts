@@ -19,7 +19,7 @@ export class AppConfigService {
         this.httpClient = new HttpClient(httpBackend);
     }
 
-    loadAppConfig() {
+    loadAppConfig(): Promise<void> {
         return this.httpClient
             .get<AppConfig>('/assets/data/appConfig.json')
             .toPromise()
@@ -33,9 +33,9 @@ export class AppConfigService {
     }
 
     getAuthCodeFlowConfig(): AuthConfig {
-        function replaceWindowLocationOrigin(str: string): string {
+        const replaceWindowLocationOrigin = (str: string): string => {
             return str?.replace('$window.location.origin', window.location.origin);
-        }
+        };
 
         const authCodeFlowConfig: AuthConfig = this.getConfig()?.authConfig;
         authCodeFlowConfig.redirectUri = replaceWindowLocationOrigin(authCodeFlowConfig?.redirectUri);

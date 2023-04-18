@@ -68,14 +68,14 @@ export function lottiePlayerLoader() {
     providers: [
         { provide: AppConfigService, useClass: AppConfigService, deps: [HttpBackend] },
         {
+            deps: [AppConfigService],
+            multi: true,
             provide: APP_INITIALIZER,
             useFactory: (appConfig: AppConfigService) => {
                 return () => {
                     return appConfig.loadAppConfig();
                 };
-            },
-            multi: true,
-            deps: [AppConfigService]
+            }
         },
         {
             provide: OAuthStorage,
@@ -90,6 +90,7 @@ export function lottiePlayerLoader() {
             }
         },
         {
+            deps: [AppConfigService],
             provide: OAuthModuleConfig,
             useFactory: (appConfig: AppConfigService) => {
                 return {
@@ -98,13 +99,12 @@ export function lottiePlayerLoader() {
                         sendAccessToken: appConfig.getConfig().resourceServer.sendAccessToken
                     }
                 };
-            },
-            deps: [AppConfigService]
+            }
         },
         {
+            multi: true,
             provide: HTTP_INTERCEPTORS,
-            useClass: AuthorizationInterceptor,
-            multi: true
+            useClass: AuthorizationInterceptor
         }
     ],
     bootstrap: [AppComponent]
