@@ -75,6 +75,9 @@ class Installer:
         self.__finalize_configuration()
         log.info("Versatile Data Kit Control Service installed successfully")
         log.info(
+            "Access the UI at http://localhost:8092\n"
+        )
+        log.info(
             "Access the REST API at http://localhost:8092/data-jobs/swagger-ui.html\n"
         )
         log.info(
@@ -672,6 +675,8 @@ class Installer:
             "replicas=1",
             "--set",
             "ingress.enabled=true",
+            "--set",
+            "ingress.host=localhost",
             "--set",
             "deploymentGitBranch=master",
             "--set",
