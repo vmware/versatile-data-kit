@@ -7,7 +7,6 @@ import { jobRunRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 
-
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
    * Returns a React component for rendering a run menu.
@@ -74,38 +73,46 @@ export default class RunJobDialog extends Component<IJobPathProp> {
 export async function showRunJobDialog() {
   const result = await showDialog({
     title: 'Run Job',
-    body: (
-      <RunJobDialog
-        jobPath={jobData.get(VdkOption.PATH)!}
-      ></RunJobDialog>
-    ),
+    body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
     let { message, status } = await jobRunRequest();
-        if (status) {
-          showDialog({
-            title: 'Run Job',
-            body: <div className='vdk-run-dialog-message-container'>
-            <p className='vdk-run-dialog-message'>The job was executed successfully!</p>
-          </div>,
-            buttons: [Dialog.okButton()]
-          });
-        }
-        else{
-          message = "ERROR : " + message;
-          const  errorMessage = new VdkErrorMessage(message);
-          showDialog({
-            title: 'Run Job',
-            body: <div  className="vdk-run-error-message ">
-              <p>{errorMessage.exception_message}</p>
-              <p>{errorMessage.what_happened}</p>
-              <p>{errorMessage.why_it_happened}</p>
-              <p>{errorMessage.consequences}</p>
-              <p>{errorMessage.countermeasures}</p>
-            </div>,
-            buttons: [Dialog.okButton()]
-          });
-        }
+    if (status) {
+      showDialog({
+        title: 'Run Job',
+        body: (
+          <div className="vdk-run-dialog-message-container">
+            <p className="vdk-run-dialog-message">
+              The job was executed successfully!
+            </p>
+          </div>
+        ),
+        buttons: [Dialog.okButton()]
+      });
+    } else {
+      message = 'ERROR : ' + message;
+      const errorMessage = new VdkErrorMessage(message);
+      showDialog({
+        title: 'Run Job',
+        body: (
+          <div className="vdk-run-error-message ">
+            <p>{errorMessage.exception_message}</p>
+            <p>{errorMessage.what_happened}</p>
+            <p>{errorMessage.why_it_happened}</p>
+            <p>{errorMessage.consequences}</p>
+            <p>{errorMessage.countermeasures}</p>
+          </div>
+        ),
+        buttons: [Dialog.okButton()]
+      });
+    }
   }
 }
+
+const findFailingCellId = (message: String) => {
+  const regex = /id:([0-9a-fA-F-]+)/;
+  const match = message.match(regex);
+  if (match) return match[1];
+  return '';
+};
