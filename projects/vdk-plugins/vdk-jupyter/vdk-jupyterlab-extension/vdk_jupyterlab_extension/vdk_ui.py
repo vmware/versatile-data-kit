@@ -1,8 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import json
 import os
 import shlex
 import subprocess
+from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
 from vdk.internal.control.command_groups.job.delete import JobDelete
@@ -28,7 +30,18 @@ class VdkUI:
         if not os.path.exists(path):
             path = os.getcwd() + path
             if not os.path.exists(path):
-                return "Incorrect path!"
+                return {"message": f"Incorrect path! {path} does not exist!"}
+        script_files = [
+            x
+            for x in Path(path).iterdir()
+            if (
+                x.name.lower().endswith(".ipynb")
+                or x.name.lower().endswith(".py")
+                or x.name.lower().endswith(".sql")
+            )
+        ]
+        if len(script_files) == 0:
+            return {"message": f"No steps were found in {path}!"}
         with open("vdk_logs.txt", "w+") as log_file:
             path = shlex.quote(path)
             cmd: list[str] = ["vdk", "run", f"{path}"]
@@ -44,7 +57,22 @@ class VdkUI:
                 shell=False,
             )
             process.wait()
-            return f"{process.returncode}"
+            if process.returncode != 0:
+                job_name = (
+                    os.path.basename(path[:-1])
+                    if path.endswith("/")
+                    else os.path.basename(path)
+                )
+                error_file = os.path.join(
+                    os.path.dirname(path), f".{job_name}_error.json"
+                )
+                if os.path.exists(error_file):
+                    with open(error_file) as file:
+                        # the json is generated in vdk-notebook plugin
+                        # you can see /vdk-notebook/src/vdk/notebook-plugin.py
+                        error = json.load(file)
+                        return {"message": error["details"]}
+            return {"message": process.returncode}
 
     @staticmethod
     def delete_job(name: str, team: str, rest_api_url: str):
