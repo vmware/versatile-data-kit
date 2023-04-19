@@ -71,11 +71,7 @@ export function lottiePlayerLoader() {
             deps: [AppConfigService],
             multi: true,
             provide: APP_INITIALIZER,
-            useFactory: (appConfig: AppConfigService) => {
-                return () => {
-                    return appConfig.loadAppConfig();
-                };
-            }
+            useFactory: (appConfig: AppConfigService) => () => appConfig.loadAppConfig()
         },
         {
             provide: OAuthStorage,
@@ -83,23 +79,17 @@ export function lottiePlayerLoader() {
         },
         {
             provide: AuthConfig,
-            useFactory: (appConfig: AppConfigService) => {
-                return () => {
-                    return appConfig.getAuthCodeFlowConfig();
-                };
-            }
+            useFactory: (appConfig: AppConfigService) => () => appConfig.getAuthCodeFlowConfig()
         },
         {
             deps: [AppConfigService],
             provide: OAuthModuleConfig,
-            useFactory: (appConfig: AppConfigService) => {
-                return {
-                    resourceServer: {
-                        allowedUrls: appConfig.getConfig().resourceServer.allowedUrls,
-                        sendAccessToken: appConfig.getConfig().resourceServer.sendAccessToken
-                    }
-                };
-            }
+            useFactory: (appConfig: AppConfigService) => () => ({
+                resourceServer: {
+                    allowedUrls: appConfig.getConfig().resourceServer.allowedUrls,
+                    sendAccessToken: appConfig.getConfig().resourceServer.sendAccessToken
+                }
+            })
         },
         {
             multi: true,

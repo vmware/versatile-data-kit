@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpBackend, HttpClient } from '@angular/common/http';
 import { AuthConfig } from 'angular-oauth2-oidc';
 import { AppConfig, RefreshTokenConfig } from './app-config.model';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -20,12 +21,9 @@ export class AppConfigService {
     }
 
     loadAppConfig(): Promise<void> {
-        return this.httpClient
-            .get<AppConfig>('/assets/data/appConfig.json')
-            .toPromise()
-            .then((data) => {
-                this.appConfig = data;
-            });
+        return firstValueFrom(this.httpClient.get<AppConfig>('/assets/data/appConfig.json').pipe()).then((data) => {
+            this.appConfig = data;
+        });
     }
 
     getConfig(): AppConfig {
