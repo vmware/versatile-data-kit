@@ -43,6 +43,7 @@ public class ToApiModelConverterJobExecutionTest {
     dataJobDeployment.enabled(true);
     dataJobDeployment.setDeployedBy("test-user");
     dataJobDeployment.setDeployedDate(OffsetDateTime.MAX);
+    dataJobDeployment.pythonVersion("3.11");
 
     expected = new DataJobExecution();
     expected.setDeployment(dataJobDeployment);
@@ -75,6 +76,7 @@ public class ToApiModelConverterJobExecutionTest {
     toConvert.setResourcesCpuRequest(1.4f);
     toConvert.setResourcesMemoryRequest(100);
     toConvert.setResourcesMemoryLimit(150);
+    toConvert.setJobPythonVersion("3.11");
   }
 
   @Test
