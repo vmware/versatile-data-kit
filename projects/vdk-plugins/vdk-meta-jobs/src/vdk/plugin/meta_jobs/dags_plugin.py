@@ -27,6 +27,9 @@ class MetaJobsPlugin:
     @staticmethod
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
+        """
+        Here we define what configuration settings are needed for DAGs with reasonable defaults.
+        """
         add_definitions(config_builder)
 
 
