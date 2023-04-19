@@ -40,10 +40,6 @@ describe('showRunJobDialog', () => {
   });
 
   it('should show a dialog with the Run Job title and a RunJobDialog component as its body', async () => {
-    const alertMock = jest
-      .spyOn(window, 'alert')
-      .mockImplementationOnce(() => {});
-
     await showRunJobDialog();
 
     // Expect the showDialog function to have been called with the correct parameters
@@ -52,23 +48,23 @@ describe('showRunJobDialog', () => {
       body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!} />,
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
-    expect(alertMock as jest.Mock).toHaveBeenCalledWith(
-      'Job completed successfully!'
-    );
   });
 
   it('should call the jobRunRequest function if the user clicks the accept button', async () => {
-    const alertMock = jest
-      .spyOn(window, 'alert')
-      .mockImplementationOnce(() => {});
-
     // Call the function
     await showRunJobDialog();
 
     // Expect the jobRunRequest function to have been called
     expect(jobRunRequest).toHaveBeenCalled();
-    expect(alertMock as jest.Mock).toHaveBeenCalledWith(
-      'Job completed successfully!'
+    expect(showDialog).toHaveBeenCalledWith(
+      {
+        title: 'Run Job',
+            body: <div className='vdk-run-dialog-message-container'>
+            <p className='vdk-run-dialog-message'>Success!</p>
+            <span className='vdk-tick-element'>✔</span>
+          </div>,
+            buttons: [Dialog.okButton()]
+      }
     );
   });
 });
