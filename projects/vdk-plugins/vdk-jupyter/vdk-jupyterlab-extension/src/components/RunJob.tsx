@@ -94,7 +94,7 @@ export async function showRunJobDialog() {
         }
         else{
           message = "ERROR : " + message;
-          let errorMessage = new VdkErrorMessage(message);
+          const  errorMessage = new VdkErrorMessage(message);
           showDialog({
             title: 'Run Job',
             body: <div  className="vdk-run-error-message ">
