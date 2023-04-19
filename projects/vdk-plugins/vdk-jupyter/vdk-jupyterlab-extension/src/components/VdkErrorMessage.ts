@@ -3,6 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Class that represents VDK Error messages in the UI
+ * Check projects/vdk-core/src/vdk/internal/core/errors.py too see more about VDK errors
+ */
 export class VdkErrorMessage {
   public exception_message: String;
   public what_happened: String;
