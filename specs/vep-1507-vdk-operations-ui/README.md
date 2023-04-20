@@ -18,6 +18,7 @@
   - [Detailed Design](#detailed-design)
     - [Front-End Components](#front-end-components)
     - [User Journeys](#user-journeys)
+    - [Build/Test Configuration](#buildtest-configuration)
     - [CI/CD](#cicd)
       - [Dependency Management](#dependency-management)
       - [Build and Test](#build-and-test)
@@ -189,6 +190,7 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+
 ### Front-End Components
 
 **Home Page**
@@ -390,6 +392,44 @@ analyses the logs and execution history. Georgie takes note of the failing data
 job and the owner team responsible for it. She reaches out to the job owner.
 Georgia shares her findings and collaborates with them to identify the cause of
 the failure and resolve the issue.
+
+### Build/Test Configuration
+
+**Browser Support**
+
+A list of supported browsers can be found in [.browserlistrc](/projects/frontend/data-pipelines/gui/projects/ui/.browserslistrc)
+
+**Npm Flags**
+
+Npm flags for the corresponding packages are passed in their .npmrc files
+
+[.npmrc for data-pipelines](/projects/frontend/data-pipelines/gui/.npmrc)
+[.npmrc for shared](/projects/frontend/shared-components/gui/.npmrc)
+
+- `legacy-peer-deps=true` - do not install peer dependencies by default. Helps
+  with linking shared and data-pipelines to their respecitve ui wrappers,
+  because they are listed as a peer dependencies. More info
+  https://stackoverflow.com/questions/66239691/what-does-npm-install-legacy-peer-deps-do-exactly-when-is-it-recommended-wh
+- `engine-strict=true` - enforces the strict use of the specified engine in
+  `package.json` for both data-pipelines and shared
+- `verbose=true` - outputs verbose logs, helps when debugging issues in CI
+
+**Cypress Tests**
+
+Cypress tests use the PageObject pattern. Page objects for the different pages
+can be found under the [support directory](projects/frontend/data-pipelines/gui/e2e/support)
+
+Base page objects live under
+[support/application](projects/frontend/data-pipelines/gui/e2e/support/app)
+
+Page objects are extended for the getting-started, manage and explore pages
+under
+
+[support/pages/app/getting-started](projects/frontend/data-pipelines/gui/e2e/support/pages/app/getting-started)
+[support/pages/app/lib/manage](projects/frontend/data-pipelines/gui/e2e/support/pages/app/lib/manage)
+[support/pages/app/lib/explore](projects/frontend/data-pipelines/gui/e2e/support/pages/app/lib/explore)
+
+More info on page objects https://martinfowler.com/bliki/PageObject.html
 
 ### CI/CD
 
