@@ -84,7 +84,7 @@ export function lottiePlayerLoader() {
         {
             deps: [AppConfigService],
             provide: OAuthModuleConfig,
-            useFactory: (appConfig: AppConfigService) => () => ({
+            useFactory: (appConfig: AppConfigService) => ({
                 resourceServer: {
                     allowedUrls: appConfig.getConfig().resourceServer.allowedUrls,
                     sendAccessToken: appConfig.getConfig().resourceServer.sendAccessToken
