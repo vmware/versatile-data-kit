@@ -146,7 +146,7 @@ export class DataPipelinesBasePO {
 
     getToast(timeout) {
         return cy.get('vdk-toast-container vdk-toast', {
-            timeout: this.resolveTimeout(timeout),
+            timeout: this.resolveTimeout(timeout)
         });
     }
 

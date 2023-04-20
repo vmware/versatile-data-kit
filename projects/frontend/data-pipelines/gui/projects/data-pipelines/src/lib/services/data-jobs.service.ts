@@ -11,12 +11,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { ComponentModel, ComponentService } from '@versatiledatakit/shared';
 
-import {
-    FETCH_DATA_JOB,
-    FETCH_DATA_JOB_EXECUTIONS,
-    FETCH_DATA_JOBS,
-    UPDATE_DATA_JOB,
-} from '../state/actions';
+import { FETCH_DATA_JOB, FETCH_DATA_JOB_EXECUTIONS, FETCH_DATA_JOBS, UPDATE_DATA_JOB } from '../state/actions';
 import { DataJobUpdateTasks } from '../state/tasks';
 
 import { DataJobExecutions } from '../model';
@@ -95,18 +90,12 @@ export class DataJobsServiceImpl extends DataJobsService {
      */
     loadJobs(model: ComponentModel): void {
         this.componentService.load(model.getComponentState());
-        this.componentService.dispatchAction(
-            FETCH_DATA_JOBS,
-            model.getComponentState(),
-        );
+        this.componentService.dispatchAction(FETCH_DATA_JOBS, model.getComponentState());
     }
 
     loadJob(model: ComponentModel): void {
         this.componentService.load(model.getComponentState());
-        this.componentService.dispatchAction(
-            FETCH_DATA_JOB,
-            model.getComponentState(),
-        );
+        this.componentService.dispatchAction(FETCH_DATA_JOB, model.getComponentState());
     }
 
     /**
@@ -114,10 +103,7 @@ export class DataJobsServiceImpl extends DataJobsService {
      */
     loadJobExecutions(model: ComponentModel): void {
         this.componentService.load(model.getComponentState());
-        this.componentService.dispatchAction(
-            FETCH_DATA_JOB_EXECUTIONS,
-            model.getComponentState(),
-        );
+        this.componentService.dispatchAction(FETCH_DATA_JOB_EXECUTIONS, model.getComponentState());
     }
 
     /**
@@ -125,11 +111,7 @@ export class DataJobsServiceImpl extends DataJobsService {
      */
     updateJob(model: ComponentModel, task: DataJobUpdateTasks): void {
         this.componentService.load(model.getComponentState());
-        this.componentService.dispatchAction(
-            UPDATE_DATA_JOB,
-            model.getComponentState(),
-            task,
-        );
+        this.componentService.dispatchAction(UPDATE_DATA_JOB, model.getComponentState(), task);
     }
 
     /**

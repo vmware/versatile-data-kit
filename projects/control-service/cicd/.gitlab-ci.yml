@@ -108,7 +108,7 @@ control_service_integration_test:
 control_service_test_helm_chart:
   stage: build
   script:
-    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
+    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - cd projects/control-service/projects/helm_charts/pipelines-control-service
     - helm dependency update
@@ -250,7 +250,7 @@ control_service_deploy_testing_data_pipelines:
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
-    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
+    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
@@ -291,7 +291,7 @@ control_service_release:
   script:
     - apk --no-cache add bash openssl curl git
     - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-    - export DESIRED_VERSION=v3.11.0 # helm version 3.11.0
+    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash

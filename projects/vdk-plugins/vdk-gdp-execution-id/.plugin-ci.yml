@@ -1,0 +1,29 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-gdp-execution-id:
+  variables:
+    PLUGIN_NAME: vdk-gdp-execution-id
+  extends: .build-plugin
+
+build-py37-vdk-gdp-execution-id:
+  extends: .build-vdk-gdp-execution-id
+  image: "python:3.7"
+
+build-py311-vdk-gdp-execution-id:
+  extends: .build-vdk-gdp-execution-id
+  image: "python:3.11"
+
+build-vdk-gdp-execution-id-on-vdk-core-release:
+  variables:
+    PLUGIN_NAME: vdk-gdp-execution-id
+  extends: .build-plugin-on-vdk-core-release
+  image: "python:3.9"
+
+
+release-vdk-gdp-execution-id:
+  variables:
+    PLUGIN_NAME: vdk-gdp-execution-id
+  extends: .release-plugin

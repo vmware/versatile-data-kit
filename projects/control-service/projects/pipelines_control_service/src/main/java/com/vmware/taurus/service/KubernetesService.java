@@ -154,6 +154,7 @@ public abstract class KubernetesService implements InitializingBean {
     OffsetDateTime endTime;
     String jobVersion;
     String jobSchedule;
+    String jobPythonVersion;
     Float resourcesCpuRequest;
     Float resourcesCpuLimit;
     Integer resourcesMemoryRequest;
@@ -1742,6 +1743,11 @@ public abstract class KubernetesService implements InitializingBean {
             .map(stringStringMap -> stringStringMap.get(JobAnnotation.SCHEDULE.getValue()))
             .orElse(null));
 
+    jobExecutionStatusBuilder.jobPythonVersion(
+        annotations
+            .map(stringStringMap -> stringStringMap.get(JobAnnotation.PYTHON_VERSION.getValue()))
+            .orElse(null));
+
     // Job status
     Optional<V1JobStatus> jobStatus = Optional.ofNullable(job.getStatus());
 
@@ -2521,6 +2527,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (annotations != null) {
         deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
         deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
       }
 
       List<V1Container> containers =
@@ -2582,6 +2589,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (annotations != null) {
         deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
         deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
       }
 
       List<V1Container> containers =

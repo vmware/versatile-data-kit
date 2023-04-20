@@ -67,9 +67,8 @@ describe('jobRunRequest()', () => {
   });
 
   it('should call requestAPI with correct arguments and return successful result', async () => {
-    const expectedMessage =
-      'Job execution has finished with status success \n See vdk_logs.txt file for more!';
-    const expectedResponse = { message: 'success', status: true };
+    const expectedMessage = '0';
+    const expectedResponse = { message: '0', status: true };
     (requestAPI as jest.Mock).mockResolvedValue(expectedResponse);
 
     const result = await jobRunRequest();
@@ -86,11 +85,8 @@ describe('jobRunRequest()', () => {
 
     expect(requestAPI).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
-      message:
-        'Job execution has finished with status ' +
-        '1' +
-        ' \n See vdk_logs.txt file for more!',
-      status: true
+      message: '1',
+      status: false
     });
   });
 });

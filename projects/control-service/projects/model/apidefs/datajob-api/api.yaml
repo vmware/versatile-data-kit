@@ -54,7 +54,7 @@ paths:
         '200':
           $ref: '#/components/responses/Info'
       operationId: info
-      summary: Get API and Data Jobs Service info
+      summary: Get API and Data Jobs Service info, list of supported python versions
       description: <i>(Introduced in v1.0)</i> | Get API and Data Jobs service information
       parameters:
         -  name: team_name
@@ -993,16 +993,24 @@ components:
 
   schemas:
     DataJobApiInfo:
-      description: API and Data Job service information
+      description: API and Data Job service information, list of supported python versions
       required:
         - api_version
+        - supported_python_versions
       type: object
       properties:
         api_version:
           description: ''
           type: string
+        supported_python_versions:
+          description: 'list of supported python versions'
+          type: array
+          items:
+            type: string
+          example: [ "python3.7","python3.8","python3.9" ]
       example:
         api_version: 1.0.0
+        supported_python_versions: [ "python3.7","python3.8","python3.9" ]
 
     DataJobSummary:
       description: Data Job summary
@@ -1077,6 +1085,10 @@ components:
           description: Job version (can be Git commit)
           type: string
           example: 11a403ba
+        python_version:
+          description: A python release version (supported by the service) to be used for job deployments.
+          type: string
+          example: '3.9'
         mode:
           $ref: '#/components/schemas/DataJobMode'
         id:
@@ -1110,6 +1122,10 @@ components:
           description: Job version (can be Git commit)
           type: string
           example: 11a403ba
+        python_version:
+          description: A python release version (supported by the service) to be used for job deployments.
+          type: string
+          example: '3.9'
         mode:
           $ref: '#/components/schemas/DataJobMode'
         id:

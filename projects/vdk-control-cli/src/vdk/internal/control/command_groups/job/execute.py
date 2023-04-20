@@ -4,15 +4,14 @@ import json
 import logging
 import operator
 import os
-import sys
 import webbrowser
 from enum import Enum
 from enum import unique
+from typing import List
 from typing import Optional
 
 import click
 import click_spinner
-from tabulate import tabulate
 from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionLogs
 from taurus_datajob_api import DataJobExecutionRequest
@@ -21,8 +20,9 @@ from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.cli_utils import get_or_prompt
-from vdk.internal.control.utils.cli_utils import OutputFormat
+from vdk.internal.control.utils.output_printer import OutputFormat
 
 log = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class JobExecute:
         self.__execution_api = ApiClientFactory(rest_api_url).get_execution_api()
 
     @staticmethod
-    def __model_executions(executions, output: OutputFormat) -> str:
+    def __model_executions(executions, output_format: OutputFormat) -> str:
         def transform_execution(e: DataJobExecution):
             d = e.to_dict()
             d["job_version"] = e.deployment.job_version
@@ -54,11 +54,7 @@ class JobExecute:
             return d
 
         executions = list(map(lambda e: transform_execution(e), executions))
-
-        if output == OutputFormat.TEXT.value:
-            return tabulate(executions, headers="keys")
-        elif output == OutputFormat.JSON.value:
-            return cli_utils.json_format(list(executions))
+        output_printer.create_printer(output_format).print_table(executions)
 
     @staticmethod
     def __validate_and_parse_args(arguments: str) -> str:
@@ -77,7 +73,9 @@ class JobExecute:
             raise vdk_ex
 
     @ApiClientErrorDecorator()
-    def start(self, name: str, team: str, output: OutputFormat, arguments: str) -> None:
+    def start(
+        self, name: str, team: str, output_format: OutputFormat, arguments: str
+    ) -> None:
         execution_request = DataJobExecutionRequest(
             started_by=f"vdk-control-cli",
             args=self.__validate_and_parse_args(arguments),
@@ -93,7 +91,7 @@ class JobExecute:
 
         location = headers["Location"]
         execution_id = os.path.basename(location)
-        if output == OutputFormat.TEXT.value:
+        if output_format == OutputFormat.TEXT.value:
             click.echo(
                 f"Execution of Data Job {name} started. "
                 f"See execution status using: \n\n"
@@ -101,13 +99,13 @@ class JobExecute:
                 f"See execution logs using: \n\n"
                 f"vdk execute --logs --execution-id {execution_id} -n {name} -t {team}"
             )
-        elif output == OutputFormat.JSON.value:
+        else:
             result = {
                 "job_name": name,
                 "team": team,
                 "execution_id": execution_id,
             }
-            click.echo(json.dumps(result))
+            output_printer.create_printer(output_format).print_dict(result)
 
     @ApiClientErrorDecorator()
     def cancel(self, name: str, team: str, execution_id: str) -> None:
@@ -121,19 +119,19 @@ class JobExecute:
 
     @ApiClientErrorDecorator()
     def show(
-        self, name: str, team: str, execution_id: str, output: OutputFormat
+        self, name: str, team: str, execution_id: str, output_format: OutputFormat
     ) -> None:
         execution: DataJobExecution = self.__execution_api.data_job_execution_read(
             team_name=team, job_name=name, execution_id=execution_id
         )
-        click.echo(self.__model_executions([execution], output))
+        self.__model_executions([execution], output_format)
 
     @ApiClientErrorDecorator()
-    def list(self, name: str, team: str, output: OutputFormat) -> None:
-        executions: list[
+    def list(self, name: str, team: str, output_format: OutputFormat) -> None:
+        executions: List[
             DataJobExecution
         ] = self.__execution_api.data_job_execution_list(team_name=team, job_name=name)
-        click.echo(self.__model_executions(executions, output))
+        self.__model_executions(executions, output_format)
 
     def __get_execution_to_log(
         self, name: str, team: str, execution_id: str
