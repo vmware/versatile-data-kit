@@ -22,6 +22,10 @@
       - [Dependency Management](#dependency-management)
       - [Build and Test](#build-and-test)
         - [e2e test image](#e2e-test-image)
+        - [Quickstart-vdk image](#quickstart-vdk-image)
+      - [Release](#release)
+  - [Implementation Stories](#implementation-stories)
+>>>>>>> 9e772dc5 (frontend: create dockerfile for vdk operations ui)
       - [Release](#release)
   - [Implementation Stories](#implementation-stories)
 
@@ -469,6 +473,10 @@ packages. Merging changes into `main` requires that these pipelines pass
 successfully.
 
 ##### e2e test image
+
+Used for running end-to-end tests for the `data-pipelines` package. Exposes all
+`data-pipelines` features in order to run tests. Not user-facing.
+
 End-to-end tests have lots dependencies (browsers, build systems, etc.). Cypress
 (e2e framework) are aware of this and provide a base image. We extend the base
 image with the extra functionality we need. This extended image is used for
@@ -491,6 +499,25 @@ New versions are released by changing the version in
 
 New releases are published under the image name
 [registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
+
+##### Quickstart-vdk image
+
+Dockerized VDK Operations UI for local or production use.
+
+The VDK Operations UI ships with `quickstart-vdk`. The CI/CD pipeline builds the
+image on every change to `data-pipelines` and `shared`. The image is uploaded to
+dockerhub and can then be used in the helm charts for `quickstart-vdk`.
+
+The image contains:
+
+1. An nginx server, configured to listen on port 8091
+2. The Angular UI application running on the server
+
+The actual dockerfile can be found at
+[Dockerfile](/projects/frontend/data-pipelines/gui/Dockerfile)
+
+New releases are published under the image name
+[registry.hub.docker.com/versatiledatakit/vdk-operations-ui](https://hub.docker.com/r/versatiledatakit/vdk-operations-ui)
 
 **Related Issues**
 
