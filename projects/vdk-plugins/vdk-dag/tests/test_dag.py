@@ -10,7 +10,7 @@ from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
 from vdk.internal.core.errors import UserCodeError
-from vdk.plugin.dags import plugin_entry
+from vdk.plugin.dag import dag_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -127,7 +127,10 @@ class TestDAG:
             # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
             # and mock large parts of it - e.g passed our own plugins
             result: Result = self.runner.invoke(
-                ["run", jobs_path_from_caller_directory(dag_name)]
+                [
+                    "run",
+                    jobs_path_from_caller_directory(dag_name),
+                ]
             )
 
             return result
@@ -147,7 +150,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag")
             cli_assert_equal(0, result)
             self.httpserver.stop()
@@ -164,7 +167,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag")
             cli_assert_equal(1, result)
             self.httpserver.stop()
@@ -181,7 +184,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag")
             cli_assert_equal(0, result)
             self.httpserver.stop()
@@ -202,7 +205,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag")
             cli_assert_equal(0, result)
             self.httpserver.stop()
@@ -219,7 +222,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag")
             cli_assert_equal(1, result)
             # we should have 2 requests in the log, one to get a list
@@ -245,7 +248,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag")
             cli_assert_equal(0, result)
             job1_requests = [
@@ -279,7 +282,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag-exceed-limit")
             expected_max_running_jobs = int(
                 os.getenv("VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS", "2")
@@ -309,7 +312,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
-            self.runner = CliEntryBasedTestRunner(plugin_entry)
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag(dag_name)
             cli_assert_equal(1, result)
             self._assert_dag_fails_with_error(result, UserCodeError)
@@ -327,6 +330,36 @@ class TestDAG:
     def test_dag_not_allowed_job_key(self):
         self._test_dag_validation("dag-not-allowed-job-key")
 
+    def test_dag_wrong_job_arguments_type(self):
+        self._test_dag_validation("dag-wrong-job-arguments-type")
+
+    def test_dag_arguments(self):
+        self._set_up()
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
+            result = self._run_dag("dag-arguments")
+            cli_assert_equal(0, result)
+            job2_arguments = self._get_job_arguments("job2")
+            assert len(job2_arguments) == 2
+            assert job2_arguments == {"table_name": "test_table", "counter": 123}
+            self.httpserver.stop()
+
+    def test_dag_empty_arguments(self):
+        self._set_up()
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
+            result = self._run_dag("dag-empty-arguments")
+            cli_assert_equal(0, result)
+            job2_arguments = self._get_job_arguments("job2")
+            assert len(job2_arguments) == 0
+            self.httpserver.stop()
+
     def test_dag_wrong_job_key_type(self):
         self._test_dag_validation("dag-wrong-job-key-type")
 
@@ -335,3 +368,12 @@ class TestDAG:
 
     def test_dag_wrong_topological_order(self):
         self._test_dag_validation("dag-wrong-topological-order")
+
+    def _get_job_arguments(self, job_name: str):
+        job_post_req = [
+            req
+            for req, res in self.httpserver.log
+            if req.method == "POST"
+            and req.path.split("/jobs/")[1].split("/")[0] == job_name
+        ]
+        return job_post_req[0].json["args"]

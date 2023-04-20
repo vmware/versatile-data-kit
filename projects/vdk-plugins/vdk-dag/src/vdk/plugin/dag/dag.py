@@ -23,6 +23,12 @@ log = logging.getLogger(__name__)
 
 class Dag:
     def __init__(self, team_name: str, dags_config: DagPluginConfiguration):
+        """
+        This module deals with all the DAG-related operations such as build and execute.
+
+        :param team_name: the name of the owning team
+        :param dags_config: the DAG job configuration
+        """
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(
@@ -43,17 +49,29 @@ class Dag:
         self._dag_validator = DagValidator()
 
     def build_dag(self, jobs: List[Dict]):
+        """
+        Validate the jobs and build a DAG based on their dependency lists.
+
+        :param jobs: the jobs that are part of the DAG
+        :return:
+        """
         self._dag_validator.validate(jobs)
         for job in jobs:
             trackable_job = TrackableJob(
                 job["job_name"],
                 job.get("team_name", self._team_name),
                 job.get("fail_dag_on_error", True),
+                job.get("arguments", None),
             )
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])
 
     def execute_dag(self):
+        """
+        Execute the DAG of jobs.
+
+        :return:
+        """
         self._topological_sorter.prepare()
         while self._topological_sorter.is_active():
             for node in self._topological_sorter.get_ready():

@@ -4,15 +4,22 @@ from typing import List
 from typing import Optional
 
 from taurus_datajob_api import DataJobExecution
+from vdk.api.job_input import IJobArguments
 from vdk.internal.control.configuration.vdk_config import VDKConfig
 from vdk.plugin.dag.dags import IDataJobExecutor
 from vdk.plugin.dag.remote_data_job import RemoteDataJob
 
 
 class RemoteDataJobExecutor(IDataJobExecutor):
-    def start_job(self, job_name: str, team_name: str):
+    """
+    This module is responsible for executing remote Data Jobs.
+    """
+
+    def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
         vdk_cfg = VDKConfig()
-        job = RemoteDataJob(job_name, team_name, vdk_cfg.control_service_rest_api_url)
+        job = RemoteDataJob(
+            job_name, team_name, vdk_cfg.control_service_rest_api_url, arguments
+        )
         return job.start_job_execution()
         # catch error on 409
 

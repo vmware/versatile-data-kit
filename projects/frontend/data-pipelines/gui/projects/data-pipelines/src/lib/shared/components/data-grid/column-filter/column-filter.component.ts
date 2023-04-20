@@ -3,16 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    TemplateRef,
-    ViewEncapsulation,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, TemplateRef, ViewEncapsulation } from '@angular/core';
 
 import { Observable, Subject } from 'rxjs';
 
@@ -24,11 +15,9 @@ import { DataJob } from '../../../../model';
     selector: 'lib-column-filter',
     templateUrl: './column-filter.component.html',
     styleUrls: ['./column-filter.component.scss'],
-    encapsulation: ViewEncapsulation.None,
+    encapsulation: ViewEncapsulation.None
 })
-export class ColumnFilterComponent
-    implements ClrDatagridFilterInterface<DataJob>, OnChanges
-{
+export class ColumnFilterComponent implements ClrDatagridFilterInterface<DataJob>, OnChanges {
     @Input() property: string;
     @Input() listOfOptions: string[];
     @Input() isExecutionStatus = false;

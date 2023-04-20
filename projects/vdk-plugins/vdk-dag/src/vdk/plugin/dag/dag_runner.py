@@ -20,7 +20,17 @@ def get_json(obj):
 
 
 class DagInput(IDagInput):
+    """
+    This module is responsible for the execution of DAG of Data Jobs.
+    """
+
     def run_dag(self, jobs: List[Dict]):
+        """
+        Runs the DAG of jobs - initializes it, builds it, executes it and logs the summary.
+
+        :param jobs: the list of jobs that are part of the DAG
+        :return:
+        """
         dag = Dag(TEAM_NAME, DAG_CONFIG)
         dag.build_dag(jobs)
         dag.execute_dag()

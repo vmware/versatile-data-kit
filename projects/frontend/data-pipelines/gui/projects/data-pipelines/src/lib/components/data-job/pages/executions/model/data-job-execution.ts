@@ -5,11 +5,7 @@
 
 import { FormatDeltaPipe } from '../../../../../shared/pipes';
 
-import {
-    DataJobExecution,
-    DataJobExecutions,
-    DataJobExecutionStatus,
-} from '../../../../../model';
+import { DataJobExecution, DataJobExecutions, DataJobExecutionStatus } from '../../../../../model';
 
 export interface GridDataJobExecution extends DataJobExecution {
     duration: string;
@@ -17,19 +13,14 @@ export interface GridDataJobExecution extends DataJobExecution {
 }
 
 export class DataJobExecutionToGridDataJobExecution {
-    static convertStatus(
-        jobStatus: DataJobExecutionStatus,
-        message: string,
-    ): DataJobExecutionStatus {
+    static convertStatus(jobStatus: DataJobExecutionStatus, message: string): DataJobExecutionStatus {
         switch (`${jobStatus}`.toUpperCase()) {
             case DataJobExecutionStatus.SUCCEEDED:
             case DataJobExecutionStatus.FINISHED:
                 return DataJobExecutionStatus.SUCCEEDED;
             case DataJobExecutionStatus.FAILED:
                 if (message) {
-                    return message === 'Platform error'
-                        ? DataJobExecutionStatus.PLATFORM_ERROR
-                        : DataJobExecutionStatus.USER_ERROR;
+                    return message === 'Platform error' ? DataJobExecutionStatus.PLATFORM_ERROR : DataJobExecutionStatus.USER_ERROR;
                 } else {
                     return DataJobExecutionStatus.FAILED;
                 }
@@ -38,17 +29,12 @@ export class DataJobExecutionToGridDataJobExecution {
         }
     }
 
-    static convertToDataJobExecution(
-        dataJobExecution: DataJobExecutions,
-    ): GridDataJobExecution[] {
+    static convertToDataJobExecution = (dataJobExecution: DataJobExecutions): GridDataJobExecution[] => {
         const formatDeltaPipe = new FormatDeltaPipe();
 
         return dataJobExecution.reduce((accumulator, execution) => {
             accumulator.push({
-                status: DataJobExecutionToGridDataJobExecution.convertStatus(
-                    execution.status,
-                    execution.message,
-                ),
+                status: DataJobExecutionToGridDataJobExecution.convertStatus(execution.status, execution.message),
                 type: execution.type,
                 duration: formatDeltaPipe.transform(execution),
                 startTime: execution.startTime,
@@ -60,12 +46,12 @@ export class DataJobExecutionToGridDataJobExecution {
                 opId: execution.opId,
                 jobVersion: execution.deployment.jobVersion,
                 deployment: execution.deployment,
-                message: execution.message,
+                message: execution.message
             });
 
             return accumulator;
         }, [] as GridDataJobExecution[]);
-    }
+    };
 
     static getStatusColorsMap() {
         return {
@@ -75,13 +61,11 @@ export class DataJobExecutionToGridDataJobExecution {
             [DataJobExecutionStatus.CANCELLED]: '#CCCCCC',
             [DataJobExecutionStatus.SKIPPED]: '#CCCCCC',
             [DataJobExecutionStatus.USER_ERROR]: '#F27963',
-            [DataJobExecutionStatus.PLATFORM_ERROR]: '#F8CF2A',
+            [DataJobExecutionStatus.PLATFORM_ERROR]: '#F8CF2A'
         };
     }
 
     static resolveColor(key: string): string {
-        return DataJobExecutionToGridDataJobExecution.getStatusColorsMap()[
-            key
-        ] as string;
+        return DataJobExecutionToGridDataJobExecution.getStatusColorsMap()[key] as string;
     }
 }

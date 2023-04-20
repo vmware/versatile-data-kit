@@ -6,14 +6,20 @@ from typing import List
 from typing import Optional
 
 from taurus_datajob_api import DataJobExecution
+from vdk.api.job_input import IJobArguments
 from vdk.plugin.dag.api import dag
 
 
 class IDataJobExecutor(abc.ABC):
+    """
+    This module is responsible for the execution of Data Jobs.
+    """
+
     @abc.abstractmethod
-    def start_job(self, job_name: str, team_name: str):
+    def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
         """
         Start an execution of a data job and returns its execution id
+        :param arguments:
         :param job_name:
         :param team_name:
         :return: execution id
@@ -58,6 +64,10 @@ class IDataJobExecutor(abc.ABC):
 
 @dataclass
 class TrackableJob(dag.SingleJob):
+    """
+    This class provides the ability to track status details of Data Job during execution.
+    """
+
     status: str = None
     execution_id: str = None
     details: dict = None
