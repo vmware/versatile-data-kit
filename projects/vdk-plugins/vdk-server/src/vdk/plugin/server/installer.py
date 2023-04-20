@@ -674,8 +674,6 @@ class Installer:
             "--set",
             "ingress.enabled=true",
             "--set",
-            "ingress.host=localhost",
-            "--set",
             "deploymentGitBranch=master",
             "--set",
             "deploymentDockerRegistryType=generic",
