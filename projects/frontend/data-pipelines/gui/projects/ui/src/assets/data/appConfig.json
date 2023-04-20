@@ -1,0 +1,33 @@
+{
+  "refreshTokenStart": 500,
+  "orgLinkRoot": "/csp/gateway/am/api/orgs/",
+  "consoleCloudUrl": "https://console-stg.cloud.vmware.com/",
+  "resourceServer": {
+    "allowedUrls": ["https://console-stg.cloud.vmware.com/", "https://gaz-preview.csp-vidm-prod.com/", "/data-jobs"],
+    "sendAccessToken": true
+  },
+  "authConfig": {
+    "issuer": "https://console-stg.cloud.vmware.com/csp/gateway/am/api/",
+    "redirectUri": "$window.location.origin/",
+    "skipIssuerCheck": true,
+    "requestAccessToken": true,
+    "oidc": true,
+    "strictDiscoveryDocumentValidation": false,
+    "clientId": "8qQgcmhhsXuhGJs58ZW1hQ86h3eZXTpBV6t",
+    "responseType": "code",
+    "scope": "openid ALL_PERMISSIONS customer_number group_names",
+    "showDebugInformation": true,
+    "silentRefreshRedirectUri": "$window.location.origin/silent-refresh.html",
+    "useSilentRefresh": true,
+    "silentRefreshTimeout": 5000,
+    "timeoutFactor": 0.25,
+    "sessionChecksEnabled": true,
+    "clearHashAfterLogin": false,
+    "logoutUrl": "https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout",
+    "nonceStateSeparator": "semicolon"
+  },
+  "refreshTokenConfig": {
+    "refreshTokenRemainingTime": 360,
+    "refreshTokenCheckInterval": 60
+  }
+}
