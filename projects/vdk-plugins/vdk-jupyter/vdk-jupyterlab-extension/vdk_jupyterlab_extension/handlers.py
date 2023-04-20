@@ -44,11 +44,11 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        status_code = VdkUI.run_job(
+        run_result = VdkUI.run_job(
             input_data[VdkOption.PATH.value],
             input_data[VdkOption.ARGUMENTS.value],
         )
-        self.finish(json.dumps({"message": f"{status_code}"}))
+        self.finish(json.dumps(run_result))
 
 
 class DeleteJobHandler(APIHandler):

@@ -643,32 +643,32 @@ folders that you have created, and type the following commands one by one:
 
 ```console
 vdk create -n ingest-job-table-one -t my-team --no-template && \
-vdk deploy -n ingest-job-table-one -t my-team -p ingest-job-table-one -r "dag-example"
+vdk deploy -n ingest-job-table-one -t my-team -p ingest-job-table-one -r "dag-with-args-example"
 ```
 
 ```console
 vdk create -n ingest-job-table-two -t my-team --no-template && \
-vdk deploy -n ingest-job-table-two -t my-team -p ingest-job-table-two -r "dag-example"
+vdk deploy -n ingest-job-table-two -t my-team -p ingest-job-table-two -r "dag-with-args-example"
 ```
 
 ```console
 vdk create -n read-job-usa -t my-team --no-template && \
-vdk deploy -n read-job-usa -t my-team -p read-job-usa -r "dag-example"
+vdk deploy -n read-job-usa -t my-team -p read-job-usa -r "dag-with-args-example"
 ```
 
 ```console
 vdk create -n read-job-canada -t my-team --no-template && \
-vdk deploy -n read-job-canada -t my-team -p read-job-canada -r "dag-example"
+vdk deploy -n read-job-canada -t my-team -p read-job-canada -r "dag-with-args-example"
 ```
 
 ```console
 vdk create -n read-job-rest-of-world -t my-team --no-template && \
-vdk deploy -n read-job-rest-of-world -t my-team -p read-job-rest-of-world -r "dag-example"
+vdk deploy -n read-job-rest-of-world -t my-team -p read-job-rest-of-world -r "dag-with-args-example"
 ```
 
 ```console
 vdk create -n dag-job -t my-team --no-template && \
-vdk deploy -n dag-job -t my-team -p dag-job -r "dag-example"
+vdk deploy -n dag-job -t my-team -p dag-job -r "dag-with-args-example"
 ```
 
 ### Run DAG Job

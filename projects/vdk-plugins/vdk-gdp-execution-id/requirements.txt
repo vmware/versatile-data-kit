@@ -1,0 +1,5 @@
+# testing requirements
+click
+vdk-core
+vdk-sqlite
+vdk-test-utils

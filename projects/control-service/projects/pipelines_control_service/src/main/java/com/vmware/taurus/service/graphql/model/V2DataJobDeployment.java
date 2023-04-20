@@ -19,6 +19,7 @@ public class V2DataJobDeployment {
   private String id;
   private String vdkVersion;
   private String jobVersion;
+  private String jobPythonVersion;
   private DataJobMode mode;
   private Boolean enabled = true;
   private DataJobContacts contacts;
