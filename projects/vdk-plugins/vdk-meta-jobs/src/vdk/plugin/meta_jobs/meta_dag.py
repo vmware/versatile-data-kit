@@ -24,10 +24,10 @@ log = logging.getLogger(__name__)
 class MetaJobsDag:
     def __init__(self, team_name: str, meta_config: MetaPluginConfiguration):
         log.warning(
-            "-------------------------------------------",
-            "This plugin has been deprecated. Please use vdk-dag instead. ",
-            "You may install it by running `pip install vdk-dag`.",
-            "-------------------------------------------",
+            "-------------------------------------------"
+            "This plugin has been deprecated. Please use vdk-dag instead. "
+            "You may install it by running `pip install vdk-dag`."
+            "-------------------------------------------"
         )
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
