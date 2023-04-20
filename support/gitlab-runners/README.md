@@ -20,7 +20,7 @@ export RUNNER_REGISTRATION_TOKEN= # Get the Gitlab token from https://gitlab.com
 
 
 use the following to verify that you are logging in correctly against aws before processeding.
-successful output will be a json describing the user. 
+successful output will be a json describing the user.
 
 ```bash
 aws sts get-caller-identity
