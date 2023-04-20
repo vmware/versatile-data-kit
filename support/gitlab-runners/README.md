@@ -17,6 +17,15 @@ export AWS_ACCESS_KEY_ID=<get-from-gitlab-ci-variables>
 
 export RUNNER_REGISTRATION_TOKEN= # Get the Gitlab token from https://gitlab.com/vmware-analytics/versatile-data-kit/-/settings/ci_cd
 ```
+
+
+use the following to verify that you are logging in correctly against aws before processeding.
+successful output will be a json describing the user. 
+
+```bash
+aws sts get-caller-identity
+```
+
 The only prerequisite in order to run the scripts and deploy the runners is installed [helm 3](https://helm.sh/docs/).
 
 ## Install runners
