@@ -36,8 +36,6 @@ operationsUi:
     username:
     password:
   replicaCount: 1
-  externalDns:
-    ttl: 300
   resources:
     limits:
       memory: 512Mi
