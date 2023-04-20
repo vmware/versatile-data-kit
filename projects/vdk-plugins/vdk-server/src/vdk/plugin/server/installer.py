@@ -74,6 +74,7 @@ class Installer:
         self.__install_helm_chart()
         self.__finalize_configuration()
         log.info("Versatile Data Kit Control Service installed successfully")
+        log.info("Access the UI at http://localhost:8092")
         log.info(
             "Access the REST API at http://localhost:8092/data-jobs/swagger-ui.html\n"
         )
