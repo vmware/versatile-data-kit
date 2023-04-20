@@ -6,7 +6,7 @@ from typing import List
 from typing import Optional
 
 from taurus_datajob_api import DataJobExecution
-from vdk.plugin.dags.api import dag
+from vdk.plugin.dag.api import dag
 
 
 class IDataJobExecutor(abc.ABC):

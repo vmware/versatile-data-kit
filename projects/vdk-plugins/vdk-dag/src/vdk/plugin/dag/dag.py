@@ -11,18 +11,18 @@ from typing import Dict
 from typing import List
 
 from taurus_datajob_api import ApiException
-from vdk.plugin.dags.cached_data_job_executor import TrackingDataJobExecutor
-from vdk.plugin.dags.dag_validator import DagValidator
-from vdk.plugin.dags.dags import TrackableJob
-from vdk.plugin.dags.dags_configuration import DAGsPluginConfiguration
-from vdk.plugin.dags.remote_data_job_executor import RemoteDataJobExecutor
-from vdk.plugin.dags.time_based_queue import TimeBasedQueue
+from vdk.plugin.dag.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.dag.dag_plugin_configuration import DagPluginConfiguration
+from vdk.plugin.dag.dag_validator import DagValidator
+from vdk.plugin.dag.dags import TrackableJob
+from vdk.plugin.dag.remote_data_job_executor import RemoteDataJobExecutor
+from vdk.plugin.dag.time_based_queue import TimeBasedQueue
 
 log = logging.getLogger(__name__)
 
 
-class DAG:
-    def __init__(self, team_name: str, dags_config: DAGsPluginConfiguration):
+class Dag:
+    def __init__(self, team_name: str, dags_config: DagPluginConfiguration):
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(

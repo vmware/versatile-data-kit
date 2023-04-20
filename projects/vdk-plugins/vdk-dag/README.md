@@ -16,7 +16,7 @@ Using this plugin you can specify dependencies between data jobs as a direct acy
 ## Usage
 
 ```
-pip install vdk-dags
+pip install vdk-dag
 ```
 
 Then one would create a single step and define the jobs we want to orchestrate
@@ -32,7 +32,7 @@ def run(job_input):
         },
         ...
     ]
-    DAGInput().run_dag(jobs)
+    DagInput().run_dag(jobs)
 ```
 
 When defining a job to be run following attributes are supported:
@@ -58,7 +58,7 @@ In this example what happens is
 ```python
 
 from vdk.api.job_input import IJobInput
-from vdk.plugin.dags.dag_runner import DAGInput
+from vdk.plugin.dag.dag_runner import DagInput
 
 JOBS_RUN_ORDER = [
     {
@@ -103,7 +103,7 @@ JOBS_RUN_ORDER = [
 
 
 def run(job_input: IJobInput) - > None:
-    DAGInput().run_dag(JOBS_RUN_ORDER)
+    DagInput().run_dag(JOBS_RUN_ORDER)
 ```
 
 ### FAQ

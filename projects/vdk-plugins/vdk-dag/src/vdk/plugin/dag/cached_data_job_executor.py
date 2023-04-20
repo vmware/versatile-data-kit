@@ -10,9 +10,9 @@ from typing import Optional
 import urllib3.exceptions as url_exception
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
-from vdk.plugin.dags.dags import IDataJobExecutor
-from vdk.plugin.dags.dags import TrackableJob
-from vdk.plugin.dags.remote_data_job import JobStatus
+from vdk.plugin.dag.dags import IDataJobExecutor
+from vdk.plugin.dag.dags import TrackableJob
+from vdk.plugin.dag.remote_data_job import JobStatus
 
 log = logging.getLogger(__name__)
 

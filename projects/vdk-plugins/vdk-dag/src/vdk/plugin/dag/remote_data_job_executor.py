@@ -5,8 +5,8 @@ from typing import Optional
 
 from taurus_datajob_api import DataJobExecution
 from vdk.internal.control.configuration.vdk_config import VDKConfig
-from vdk.plugin.dags.dags import IDataJobExecutor
-from vdk.plugin.dags.remote_data_job import RemoteDataJob
+from vdk.plugin.dag.dags import IDataJobExecutor
+from vdk.plugin.dag.remote_data_job import RemoteDataJob
 
 
 class RemoteDataJobExecutor(IDataJobExecutor):

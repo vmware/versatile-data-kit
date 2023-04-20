@@ -7,12 +7,12 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
-from vdk.plugin.dags import dag_runner
-from vdk.plugin.dags.dags_configuration import add_definitions
-from vdk.plugin.dags.dags_configuration import DAGsPluginConfiguration
+from vdk.plugin.dag import dag_runner
+from vdk.plugin.dag.dag_plugin_configuration import add_definitions
+from vdk.plugin.dag.dag_plugin_configuration import DagPluginConfiguration
 
 
-class DAGsPlugin:
+class DagPlugin:
     @staticmethod
     @hookimpl
     def run_job(context: JobContext) -> None:
@@ -20,7 +20,7 @@ class DAGsPlugin:
         dag_runner.TEAM_NAME = context.core_context.configuration.get_value(
             JobConfigKeys.TEAM
         )
-        dag_runner.DAGS_CONFIG = DAGsPluginConfiguration(
+        dag_runner.DAGS_CONFIG = DagPluginConfiguration(
             context.core_context.configuration
         )
 
@@ -32,4 +32,4 @@ class DAGsPlugin:
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    plugin_registry.load_plugin_with_hooks_impl(DAGsPlugin(), "DAGsPlugin")
+    plugin_registry.load_plugin_with_hooks_impl(DagPlugin(), "DagPlugin")

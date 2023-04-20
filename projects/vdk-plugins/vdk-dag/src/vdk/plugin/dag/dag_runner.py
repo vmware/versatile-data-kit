@@ -6,8 +6,8 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-from vdk.plugin.dags.api.dag import IDAGInput
-from vdk.plugin.dags.dag import DAG
+from vdk.plugin.dag.api.dag import IDagInput
+from vdk.plugin.dag.dag import Dag
 
 TEAM_NAME: Optional[str] = None
 DAG_CONFIG = None
@@ -19,9 +19,9 @@ def get_json(obj):
     return json.loads(json.dumps(obj, default=lambda o: o.__dict__))
 
 
-class DAGInput(IDAGInput):
+class DagInput(IDagInput):
     def run_dag(self, jobs: List[Dict]):
-        dag = DAG(TEAM_NAME, DAG_CONFIG)
+        dag = Dag(TEAM_NAME, DAG_CONFIG)
         dag.build_dag(jobs)
         dag.execute_dag()
         log.info(f"DAG summary:\n{dag}")

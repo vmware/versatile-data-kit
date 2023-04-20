@@ -14,7 +14,7 @@ DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS = "DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS
 DAGS_MAX_CONCURRENT_RUNNING_JOBS = "DAGS_MAX_CONCURRENT_RUNNING_JOBS"
 
 
-class DAGsPluginConfiguration:
+class DagPluginConfiguration:
     def __init__(self, config: Configuration):
         self.__config = config
 

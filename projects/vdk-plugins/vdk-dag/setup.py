@@ -11,7 +11,7 @@ Builds a package with the help of setuptools in order for this package to be imp
 __version__ = "0.1.0"
 
 setuptools.setup(
-    name="vdk-dags",
+    name="vdk-dag",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
     description="Express dependecies between data jobs.",
@@ -29,7 +29,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specifc part
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
-    entry_points={"vdk.plugin.run": ["dags = vdk.plugin.dags.plugin_entry"]},
+    entry_points={"vdk.plugin.run": ["dag = vdk.plugin.dag.plugin_entry"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache Software License",
