@@ -166,6 +166,7 @@ public class ToApiModelConverter {
     v2DataJobDeployment.setId(jobDeploymentStatus.getCronJobName());
     v2DataJobDeployment.setEnabled(jobDeploymentStatus.getEnabled());
     v2DataJobDeployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
+    v2DataJobDeployment.setJobPythonVersion(jobDeploymentStatus.getPythonVersion());
     v2DataJobDeployment.setMode(DataJobMode.fromValue(jobDeploymentStatus.getMode()));
     v2DataJobDeployment.setResources(jobDeploymentStatus.getResources());
     v2DataJobDeployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
@@ -202,6 +203,7 @@ public class ToApiModelConverter {
             new DataJobDeployment()
                 .vdkVersion(jobExecutionToConvert.getVdkVersion())
                 .jobVersion(jobExecutionToConvert.getJobVersion())
+                .pythonVersion(jobExecutionToConvert.getJobPythonVersion())
                 .schedule(
                     new DataJobSchedule().scheduleCron(jobExecutionToConvert.getJobSchedule()))
                 .resources(getJobResources(jobExecutionToConvert))

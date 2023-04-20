@@ -12,10 +12,7 @@ import { FormatSchedulePipe } from '../../shared/pipes';
 
 import { DataJobsApiService } from '../../services';
 
-import {
-    DataJobsWidgetOneComponent,
-    WidgetTab,
-} from './data-jobs-widget-one.component';
+import { DataJobsWidgetOneComponent, WidgetTab } from './data-jobs-widget-one.component';
 
 describe('DataJobsWidgetOneComponent', () => {
     let errorHandlerServiceStub: jasmine.SpyObj<ErrorHandlerService>;
@@ -37,32 +34,29 @@ describe('DataJobsWidgetOneComponent', () => {
                                 item: {
                                     config: {
                                         schedule: {
-                                            scheduleCron: '*/5 * * * *',
-                                        },
-                                    },
-                                },
-                            },
-                        ],
-                    },
-                }),
+                                            scheduleCron: '*/5 * * * *'
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                })
         });
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
-            'errorHandlerService',
-            ['processError', 'handleError'],
-        );
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', ['processError', 'handleError']);
 
         await TestBed.configureTestingModule({
             declarations: [DataJobsWidgetOneComponent, FormatSchedulePipe],
             providers: [
                 {
                     provide: DataJobsApiService,
-                    useFactory: dataJobsServiceStub,
+                    useFactory: dataJobsServiceStub
                 },
                 {
                     provide: ErrorHandlerService,
-                    useValue: errorHandlerServiceStub,
-                },
-            ],
+                    useValue: errorHandlerServiceStub
+                }
+            ]
         }).compileComponents();
     });
 
@@ -78,8 +72,7 @@ describe('DataJobsWidgetOneComponent', () => {
 
     describe('ngOnInit', () => {
         it('make expected calls', () => {
-            const dataJobsServiceStub: DataJobsApiService =
-                fixture.debugElement.injector.get(DataJobsApiService);
+            const dataJobsServiceStub: DataJobsApiService = fixture.debugElement.injector.get(DataJobsApiService);
             spyOn(dataJobsServiceStub, 'getJobs').and.callThrough();
             component.ngOnInit();
             expect(dataJobsServiceStub.getJobs).toHaveBeenCalled();
@@ -105,11 +98,8 @@ describe('DataJobsWidgetOneComponent', () => {
     describe('handle errors', () => {
         it('should catch error when API fails', () => {
             expect(component.errorJobs).toEqual(false);
-            const dataJobsServiceStub: DataJobsApiService =
-                fixture.debugElement.injector.get(DataJobsApiService);
-            spyOn(dataJobsServiceStub, 'getJobs').and.returnValue(
-                throwError(() => true),
-            );
+            const dataJobsServiceStub: DataJobsApiService = fixture.debugElement.injector.get(DataJobsApiService);
+            spyOn(dataJobsServiceStub, 'getJobs').and.returnValue(throwError(() => true));
             component.refresh(1, WidgetTab.DATAJOBS);
 
             component.jobs$.subscribe();

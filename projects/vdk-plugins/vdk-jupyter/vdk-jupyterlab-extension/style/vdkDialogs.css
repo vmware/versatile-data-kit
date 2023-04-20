@@ -27,3 +27,25 @@
   margin-top: 10px;
   margin-left: 0;
 }
+
+.vdk-run-error-message {
+  color: #c0392b;
+  padding: 20px;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.vdk-run-error-message p {
+  padding-bottom: 10px;
+}
+
+.vdk-run-dialog-message {
+  font-size: 20px;
+  color: #33b53a;
+  padding: 20px;
+}
+.vdk-run-dialog-message-container {
+  position: relative;
+}

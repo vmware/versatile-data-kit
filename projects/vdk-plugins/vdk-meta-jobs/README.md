@@ -1,5 +1,7 @@
 # Meta Jobs
 
+## This plugin has been deprecated. Please use vdk-dag instead. You may install it by running `pip install vdk-dag`.
+
 Express dependencies between data jobs.
 
 A plugin for Versatile Data Kit extends its Job API with an additional feature that allows users to trigger so-called Meta Jobs.
@@ -11,7 +13,8 @@ It's meant to be a much more lightweight alternative to complex and comprehensiv
 as it doesn't require to provision any new infrastructure or to need to learn new tool.
 You install a new python library (this plugin itself) and you are ready to go.
 
-Using this plugin you can specify dependencies between data jobs as a direct acyclic graph (DAG). See usage for more information.
+Using this plugin, you can specify dependencies between data jobs as a direct acyclic graph (DAG).
+See [Usage](#usage) for more information.
 
 ## Usage
 
@@ -19,7 +22,8 @@ Using this plugin you can specify dependencies between data jobs as a direct acy
 pip install vdk-meta-jobs
 ```
 
-Then one would create a single step and define the jobs we want to orchestrate
+Then one would create a single [step](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-step) and
+define the jobs we want to orchestrate:
 
 ```python
 def run(job_input):
@@ -28,6 +32,7 @@ def run(job_input):
         "job_name": "name-of-job",
         "team_name": "team-of-job",
         "fail_meta_job_on_error": True or False,
+        "arguments": {"key1": value1, "key2": value2},
         "depends_on": [name-of-job1, name-of-job2]
         },
         ...
@@ -36,9 +41,10 @@ def run(job_input):
 ```
 
 When defining a job to be run following attributes are supported:
-* **job_name**: required, the name of the data job
-* **team_name:**: optional, the team of the data job. If omitted , it will use the meta job's team
-* **fail_meta_job_on_error**: optional, default is true. if true, the meta job will abort and fail if the orchestrated job fails, if false, meta job won't fail and continue.
+* **job_name**: required, the name of the data job.
+* **team_name:**: optional, the team of the data job. If omitted , it will use the meta job's team.
+* **fail_meta_job_on_error**: optional, default is true. If true, the meta job will abort and fail if the orchestrated job fails, if false, meta job won't fail and continue.
+* **arguments**: optional, the arguments that are passed to the underlying orchestrated data job.
 * **depends_on**: required (can be empty), list of other jobs that the orchestrated job depends on. The job will not be started until depends_on job have finished.
 
 
@@ -49,7 +55,7 @@ The following example dependency graph can be implemented with below code.
 
 ![img_2.png](img_2.png)
 
-In this example what happens is
+In this example what happens is:
 * Job 1 will execute.
 * After Job 1 is completed, jobs 2,3,4 will start executing in parallel.
 * Jobs 5 and 6 will start executing after job 3 completes, but will not wait for the completion of jobs 2 and 4.
@@ -65,6 +71,7 @@ JOBS_RUN_ORDER = [
         "job_name": "job1",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": []
     },
 
@@ -72,18 +79,21 @@ JOBS_RUN_ORDER = [
         "job_name": "job2",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job1"]
     },
     {
         "job_name": "job3",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job1"]
     },
     {
         "job_name": "job4",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job1"]
     },
 
@@ -91,12 +101,14 @@ JOBS_RUN_ORDER = [
         "job_name": "job5",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job3"]
     },
     {
         "job_name": "job6",
         "team_name": "team-awesome",
         "fail_meta_job_on_error": True,
+        "arguments": {},
         "depends_on": ["job3"]
     },
 ]
@@ -105,6 +117,33 @@ JOBS_RUN_ORDER = [
 def run(job_input: IJobInput) - > None:
     MetaJobInput().run_meta_job(JOBS_RUN_ORDER)
 ```
+
+
+### Runtime sequencing
+
+The depends_on key stores the dependencies of each job - the jobs that have to finish before it starts.
+The DAG execution starts from the jobs with empty dependency lists - they start together in parallel.
+But what happens if they are too many? It could cause server overload. In order to avoid such unfortunate situations,
+a limit in the number of concurrent running jobs is set. This limit is
+a [configuration variable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
+that you are able to set according to your needs. When the limit is exceeded, the execution of the rest of the jobs
+is not cancelled but delayed until a spot is freed by one of the running jobs. What's important here is that
+although there are delayed jobs due to the limitation, the overall sequence is not broken.
+
+
+### Data Job start comparison
+
+There are 3 types of jobs right now in terms of how are they started.
+
+* Started by Schedule
+   * When the time comes for a scheduled execution of a Data Job, if the one is currently running, it will be waited
+     to finish by retrying a few times. If it is still running then, this scheduled execution will be skipped.
+* Started by the user using UI or CLI
+   * If a user tries to start a job that is already running, one would get an appropriate error immediately and a
+     recommendation to try again later.
+* **Started by a DAG Job**
+   * If a DAG job tries to start a job and there is already running such job, the approach of the DAG job would be
+     similar to the schedule - retry later but more times.
 
 ### FAQ
 

@@ -14,7 +14,7 @@ global: {}
 image:
   registry: registry.hub.docker.com/versatiledatakit
   repository: pipelines-control-service
-  tag: "1f57f0e"
+  tag: "99a4957"
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -22,6 +22,27 @@ image:
   pullPolicy: IfNotPresent
   registryUsernameReadOnly:
   registryPasswordReadOnly:
+
+
+
+
+# All config related to the operations ui lives under this tag.
+# examples of what can be configured are, what docker image to pull, how many replicas of the service to run and how many resources to give to each replica
+operationsUi:
+  image:
+    registry: registry.hub.docker.com/versatiledatakit
+    repository: vdk-operations-ui
+    tag: "latest"
+    username:
+    password:
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+      cpu: 250m
+    requests:
+      memory: 250Mi
+      cpu: 25m
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.

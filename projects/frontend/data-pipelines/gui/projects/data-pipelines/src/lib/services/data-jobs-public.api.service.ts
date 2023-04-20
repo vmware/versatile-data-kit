@@ -63,15 +63,11 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
                 }
             }),
             map((dataJobPage) => {
-                dataJobs = dataJobs.concat(
-                    dataJobPage.content as unknown as DataJob[],
-                );
+                dataJobs = dataJobs.concat(dataJobPage.content as unknown as DataJob[]);
 
                 return dataJobs;
             }),
-            catchError((error: unknown) =>
-                throwError(() => ErrorUtil.extractError(error as Error)),
-            ),
+            catchError((error: unknown) => throwError(() => ErrorUtil.extractError(error as Error)))
         );
     }
 
@@ -83,8 +79,8 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
             {
                 property: 'config.team',
                 pattern: team,
-                sort: null,
-            },
+                sort: null
+            }
         ];
 
         return this.dataJobsBaseService
@@ -107,14 +103,12 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
                     filter: filters,
                     search: null,
                     pageNumber: 1,
-                    pageSize: 1,
-                },
+                    pageSize: 1
+                }
             )
             .pipe(
                 map((response) => response?.data?.totalItems ?? 0),
-                catchError((error: unknown) =>
-                    throwError(() => ErrorUtil.extractError(error as Error)),
-                ),
+                catchError((error: unknown) => throwError(() => ErrorUtil.extractError(error as Error)))
             );
     }
 
@@ -126,7 +120,7 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
         pageNumber: number,
         pageSize: number,
         filters: ApiPredicate[] = [],
-        searchQueryValue: string = null,
+        searchQueryValue: string = null
     ): Observable<DataJobPage> {
         return this.dataJobsBaseService
             .getJobs(
@@ -150,8 +144,8 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
                     filter: filters,
                     search: searchQueryValue,
                     pageNumber,
-                    pageSize,
-                },
+                    pageSize
+                }
             )
             .pipe(map((response) => response.data));
     }

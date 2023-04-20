@@ -50,11 +50,7 @@ describe('ParseNextRunPipe', () => {
                 const expected = new Date();
                 let useTimeout = false;
 
-                if (
-                    expected.getUTCHours() === 11 &&
-                    expected.getUTCMinutes() === 59 &&
-                    expected.getUTCSeconds() === 59
-                ) {
+                if (expected.getUTCHours() === 11 && expected.getUTCMinutes() === 59 && expected.getUTCSeconds() === 59) {
                     useTimeout = true;
                     expected.setUTCDate(expected.getUTCDate() + 1);
                 } else if (expected.getUTCHours() >= 12) {
@@ -83,9 +79,7 @@ describe('ParseNextRunPipe', () => {
 
                         // Then
                         console.log(date.toISOString());
-                        expect(date.toISOString()).toEqual(
-                            `${y}-${m}-${d}T12:00:00.000Z`,
-                        );
+                        expect(date.toISOString()).toEqual(`${y}-${m}-${d}T12:00:00.000Z`);
 
                         done();
                     });
@@ -95,9 +89,7 @@ describe('ParseNextRunPipe', () => {
 
                     // Then
                     console.log(date.toISOString());
-                    expect(date.toISOString()).toEqual(
-                        `${y}-${m}-${d}T12:00:00.000Z`,
-                    );
+                    expect(date.toISOString()).toEqual(`${y}-${m}-${d}T12:00:00.000Z`);
 
                     done();
                 }
@@ -113,20 +105,10 @@ describe('ParseNextRunPipe', () => {
                 let hh: string;
                 let mm: string;
 
-                if (
-                    expected.getUTCHours() === 12 &&
-                    expected.getUTCMinutes() === 44 &&
-                    expected.getUTCSeconds() === 59
-                ) {
+                if (expected.getUTCHours() === 12 && expected.getUTCMinutes() === 44 && expected.getUTCSeconds() === 59) {
                     lunchTime = true;
                     useTimeout = true;
-                } else if (
-                    !(
-                        (expected.getUTCHours() === 12 &&
-                            expected.getUTCMinutes() <= 44) ||
-                        expected.getUTCHours() < 12
-                    )
-                ) {
+                } else if (!((expected.getUTCHours() === 12 && expected.getUTCMinutes() <= 44) || expected.getUTCHours() < 12)) {
                     lunchTime = true;
                 }
 
@@ -162,9 +144,7 @@ describe('ParseNextRunPipe', () => {
 
                         // Then
                         console.log(date.toISOString());
-                        expect(date.toISOString()).toEqual(
-                            `${y}-${m}-${d}T${hh}:${mm}:00.000Z`,
-                        );
+                        expect(date.toISOString()).toEqual(`${y}-${m}-${d}T${hh}:${mm}:00.000Z`);
 
                         done();
                     }, 2000);
@@ -174,9 +154,7 @@ describe('ParseNextRunPipe', () => {
 
                     // Then
                     console.log(date.toISOString());
-                    expect(date.toISOString()).toEqual(
-                        `${y}-${m}-${d}T${hh}:${mm}:00.000Z`,
-                    );
+                    expect(date.toISOString()).toEqual(`${y}-${m}-${d}T${hh}:${mm}:00.000Z`);
 
                     done();
                 }

@@ -12,7 +12,16 @@
       ]
     },
     "import/resolver": {
-      "typescript": {}
+      "typescript": {
+        "project": [
+          "tsconfig.json"
+        ]
+      },
+      "node": {
+        "project": [
+          "tsconfig.json"
+        ]
+      }
     }
   },
   "overrides": [

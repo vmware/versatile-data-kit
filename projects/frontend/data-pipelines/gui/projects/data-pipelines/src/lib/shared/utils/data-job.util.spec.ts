@@ -10,7 +10,7 @@ import {
     DataJobExecutionDetails,
     DataJobExecutionStatus,
     DataJobExecutionStatusDeprecated,
-    DataJobExecutionType,
+    DataJobExecutionType
 } from '../../model';
 
 import { DataJobUtil } from './data-job.util';
@@ -20,7 +20,7 @@ describe('DataJobUtil', () => {
         it('should verify will return true if status is RUNNING', () => {
             // Given
             const execution: DataJobExecutionDetails = {
-                status: DataJobExecutionStatusDeprecated.RUNNING,
+                status: DataJobExecutionStatusDeprecated.RUNNING
             } as any;
 
             // When
@@ -33,7 +33,7 @@ describe('DataJobUtil', () => {
         it('should verify will return true if status is SUBMITTED', () => {
             // Given
             const execution: DataJobExecutionDetails = {
-                status: DataJobExecutionStatusDeprecated.SUBMITTED,
+                status: DataJobExecutionStatusDeprecated.SUBMITTED
             } as any;
 
             // When
@@ -46,16 +46,16 @@ describe('DataJobUtil', () => {
         it('should verify will return false if status is different from RUNNING or SUBMITTED', () => {
             // Given
             const execution1: DataJobExecutionDetails = {
-                status: DataJobExecutionStatusDeprecated.USER_ERROR,
+                status: DataJobExecutionStatusDeprecated.USER_ERROR
             } as any;
             const execution2: DataJobExecutionDetails = {
-                status: DataJobExecutionStatusDeprecated.SKIPPED,
+                status: DataJobExecutionStatusDeprecated.SKIPPED
             } as any;
             const execution3: DataJobExecutionDetails = {
-                status: DataJobExecutionStatusDeprecated.PLATFORM_ERROR,
+                status: DataJobExecutionStatusDeprecated.PLATFORM_ERROR
             } as any;
             const execution4: DataJobExecutionDetails = {
-                status: DataJobExecutionStatusDeprecated.SUCCEEDED,
+                status: DataJobExecutionStatusDeprecated.SUCCEEDED
             } as any;
 
             // When
@@ -75,13 +75,8 @@ describe('DataJobUtil', () => {
     describe('|isJobRunning|', () => {
         it('should verify will invoke correct method', () => {
             // Given
-            const spy = spyOn(
-                DataJobUtil,
-                'isJobRunningPredicate',
-            ).and.callThrough();
-            const executions: DataJobExecutionDetails[] = [
-                { status: DataJobExecutionStatusDeprecated.RUNNING },
-            ] as any;
+            const spy = spyOn(DataJobUtil, 'isJobRunningPredicate').and.callThrough();
+            const executions: DataJobExecutionDetails[] = [{ status: DataJobExecutionStatusDeprecated.RUNNING }] as any;
 
             // When
             DataJobUtil.isJobRunning(executions);
@@ -92,15 +87,12 @@ describe('DataJobUtil', () => {
 
         it('should verify will invoke correct method until find RUNNING or SUBMITTED status', () => {
             // Given
-            const spy = spyOn(
-                DataJobUtil,
-                'isJobRunningPredicate',
-            ).and.callThrough();
+            const spy = spyOn(DataJobUtil, 'isJobRunningPredicate').and.callThrough();
             const executions: DataJobExecutionDetails[] = [
                 { status: DataJobExecutionStatusDeprecated.FAILED },
                 { status: DataJobExecutionStatusDeprecated.PLATFORM_ERROR },
                 { status: DataJobExecutionStatusDeprecated.SUBMITTED },
-                { status: DataJobExecutionStatusDeprecated.RUNNING },
+                { status: DataJobExecutionStatusDeprecated.RUNNING }
             ] as any;
 
             // When
@@ -115,15 +107,12 @@ describe('DataJobUtil', () => {
 
         it('should verify will invoke correct method with all elements no RUNNING or SUBMITTED status', () => {
             // Given
-            const spy = spyOn(
-                DataJobUtil,
-                'isJobRunningPredicate',
-            ).and.callThrough();
+            const spy = spyOn(DataJobUtil, 'isJobRunningPredicate').and.callThrough();
             const executions: DataJobExecutionDetails[] = [
                 { status: DataJobExecutionStatusDeprecated.FAILED },
                 { status: DataJobExecutionStatusDeprecated.PLATFORM_ERROR },
                 { status: DataJobExecutionStatusDeprecated.SUCCEEDED },
-                { status: DataJobExecutionStatusDeprecated.SKIPPED },
+                { status: DataJobExecutionStatusDeprecated.SKIPPED }
             ] as any;
 
             // When
@@ -156,7 +145,7 @@ describe('DataJobUtil', () => {
                 logs_url: 'http://url',
                 deployment: {
                     schedule: {
-                        schedule_cron: '5 5 5 5 *',
+                        schedule_cron: '5 5 5 5 *'
                     },
                     id: 'id002',
                     enabled: true,
@@ -167,11 +156,11 @@ describe('DataJobUtil', () => {
                         memory_limit: 1000,
                         memory_request: 1000,
                         cpu_limit: 0.5,
-                        cpu_request: 0.5,
+                        cpu_request: 0.5
                     },
                     deployed_date: '2020-11-11T10:10:10Z',
-                    deployed_by: 'pmitev',
-                },
+                    deployed_by: 'pmitev'
+                }
             };
             expectedExecution = {
                 id: 'id001',
@@ -186,7 +175,7 @@ describe('DataJobUtil', () => {
                 logsUrl: 'http://url',
                 deployment: {
                     schedule: {
-                        scheduleCron: '5 5 5 5 *',
+                        scheduleCron: '5 5 5 5 *'
                     },
                     id: 'id002',
                     enabled: true,
@@ -197,22 +186,18 @@ describe('DataJobUtil', () => {
                         memoryLimit: 1000,
                         memoryRequest: 1000,
                         cpuLimit: 0.5,
-                        cpuRequest: 0.5,
+                        cpuRequest: 0.5
                     },
                     deployedDate: '2020-11-11T10:10:10Z',
-                    deployedBy: 'pmitev',
-                },
+                    deployedBy: 'pmitev'
+                }
             };
         });
 
         it('should verify will return empty execution when null and undefined provided', () => {
             // When
-            const res1 =
-                DataJobUtil.convertFromExecutionDetailsToExecutionState(null);
-            const res2 =
-                DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    undefined,
-                );
+            const res1 = DataJobUtil.convertFromExecutionDetailsToExecutionState(null);
+            const res2 = DataJobUtil.convertFromExecutionDetailsToExecutionState(undefined);
 
             // Then
             expect(res1).toEqual({ id: null });
@@ -221,10 +206,7 @@ describe('DataJobUtil', () => {
 
         it('should verify will correctly convert case 1', () => {
             // When
-            const converted =
-                DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails,
-                );
+            const converted = DataJobUtil.convertFromExecutionDetailsToExecutionState(executionDetails);
 
             // Then
             expect(converted).toEqual(expectedExecution);
@@ -236,10 +218,7 @@ describe('DataJobUtil', () => {
             expectedExecution.deployment.resources = {} as any;
 
             // When
-            const converted =
-                DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails,
-                );
+            const converted = DataJobUtil.convertFromExecutionDetailsToExecutionState(executionDetails);
 
             // Then
             expect(converted).toEqual(expectedExecution);
@@ -251,10 +230,7 @@ describe('DataJobUtil', () => {
             expectedExecution.deployment.schedule = {} as any;
 
             // When
-            const converted =
-                DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails,
-                );
+            const converted = DataJobUtil.convertFromExecutionDetailsToExecutionState(executionDetails);
 
             // Then
             expect(converted).toEqual(expectedExecution);
@@ -265,14 +241,11 @@ describe('DataJobUtil', () => {
             delete executionDetails.deployment;
             expectedExecution.deployment = {
                 schedule: {},
-                resources: {},
+                resources: {}
             } as any;
 
             // When
-            const converted =
-                DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                    executionDetails,
-                );
+            const converted = DataJobUtil.convertFromExecutionDetailsToExecutionState(executionDetails);
 
             // Then
             expect(converted).toEqual(expectedExecution);
