@@ -65,19 +65,24 @@ VDK creates data processing workflows to:
 
 
 # What VDK can do
-Review images to be added in [TEXTBOX]:
-https://www.canva.com/design/DAFfO0_vC6g/vX3O0yYOc1nTcPuoBlp6qQ/edit?utm_content=DAFfO0_vC6g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
-Each image will be a link to a dedicated Wiki page.
-TODO: export those to SVGs
 
+<p>
+<img src="./support/images/components/VDK SDK.svg" width="600" />
+</p>
+<p>
+<img src="./support/images/components/VDK SDK modules (1).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (2).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (3).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (4).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (5).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (6).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (7).svg" width="300"/>
+</p>
 
+<p>
+<img src="./support/images/components/VDK CLI.svg" width="600"/>
+</p>
 
-
-# [VDK SDK]
-[Properties] [Job Arguments] [Managed Connections] [Data Ingesters] [Templates] [Plugin API] [Plugin Registry]
-
-<!-- TODO: [[VDK CLI]](link to wiki page) -->
-# [VDK CLI]
 
 <!-- This is going to be transferred to the VDK CLI page to be linked:
 A preview of the VDK CLI commands:
@@ -86,9 +91,13 @@ A preview of the VDK CLI commands:
 - `vdk deploy`<br>
   <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto/>
 -->
-
-# [Control Service]
-[Swagger UI] [Frontend UI]
+<p>
+<img src="./support/images/components/Control Service.svg" width="600"/>
+</p>
+<p>
+<img src="./support/images/components/Control Service modules (1).svg" width="300"/>
+<img src="./support/images/components/Control Service modules (2).svg" width="300"/>
+</p>
 
 
 # Getting Started
