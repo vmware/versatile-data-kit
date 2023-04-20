@@ -7,7 +7,13 @@
 
 .frontend_data_pipelines_changes: &frontend_data_pipelines_locations
   - "projects/frontend/cicd/**/*"
-  - "projects/frontend/data-pipelines/**/*"
+  - "projects/frontend/data-pipelines/gui/projects/data-pipelines/src/**/*"
+  - "projects/frontend/data-pipelines/gui/projects/data-pipelines/assets/**/*"
+  - "projects/frontend/data-pipelines/gui/projects/data-pipelines/*.json"
+  - "projects/frontend/data-pipelines/gui/projects/data-pipelines/*.js"
+  - "projects/frontend/data-pipelines/gui/projects/ui/src/**/*"
+  - "projects/frontend/data-pipelines/gui/projects/ui/*.json"
+  - "projects/frontend/data-pipelines/gui/projects/ui/*.js"
 
 frontend-data-pipelines-build:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
