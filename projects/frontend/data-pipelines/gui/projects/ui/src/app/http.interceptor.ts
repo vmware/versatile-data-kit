@@ -28,7 +28,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
         if (!this.moduleConfig) {
             return next.handle(req);
         }
-
+        //  test for gitlab
         if (!this.moduleConfig.resourceServer) {
             return next.handle(req);
         }
