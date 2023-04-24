@@ -104,6 +104,9 @@ control_service_integration_test:
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+      - projects/control-service/projects/model/CONTRIBUTING.MD
+      - projects/control-service/projects/**/README.md
+      - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
 control_service_test_helm_chart:
   stage: build
