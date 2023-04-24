@@ -5,14 +5,7 @@
 
 import 'cypress-localstorage-commands';
 
-import {
-    applyGlobalEnvSettings,
-    createExecutionsForJob,
-    createTestJob,
-    deleteTestJobIfExists,
-    deployTestJobIfNotExists,
-    waitForJobExecutionCompletion
-} from './helpers/commands.helpers';
+import { applyGlobalEnvSettings, createExecutionsForJob, createTestJob, deleteTestJobIfExists, deployTestJobIfNotExists, waitForJobExecutionCompletion } from './helpers/commands.helpers';
 
 Cypress.Commands.add('login', () => {
     return cy
@@ -64,10 +57,7 @@ Cypress.Commands.add('waitForBackendRequestCompletion', () => {
 
 Cypress.Commands.add('initGetExecutionsInterceptor', () => {
     cy.intercept('GET', '**/data-jobs/for-team/**', (req) => {
-        if (
-            req?.query?.operationName === 'jobsQuery' &&
-            req?.query?.query?.includes('executions')
-        ) {
+        if (req?.query?.operationName === 'jobsQuery' && req?.query?.query?.includes('executions')) {
             req.alias = 'getExecutionsRequest';
         }
     });
@@ -95,9 +85,7 @@ Cypress.Commands.add('waitForInterceptor', (aliasName, retries, predicate) => {
 });
 
 Cypress.Commands.add('initPatchDetailsReqInterceptor', () => {
-    cy.intercept('PATCH', '**/data-jobs/for-team/**/jobs/**/deployments/**').as(
-        'patchJobDetails'
-    );
+    cy.intercept('PATCH', '**/data-jobs/for-team/**/jobs/**/deployments/**').as('patchJobDetails');
 });
 
 Cypress.Commands.add('waitForPatchDetailsReqInterceptor', () => {
@@ -129,12 +117,7 @@ Cypress.Commands.add('waitForDeleteExecutionCompletion', () => {
 Cypress.Commands.add('recordHarIfSupported', () => {
     if (Cypress.browser.name === 'chrome') {
         return cy.recordHar({
-            excludePaths: [
-                'vendor.js$',
-                'clr-ui.min.css$',
-                'scripts.js$',
-                'polyfills.js$'
-            ]
+            excludePaths: ['vendor.js$', 'clr-ui.min.css$', 'scripts.js$', 'polyfills.js$']
         });
     }
 
@@ -168,27 +151,19 @@ Cypress.Commands.add('prepareBaseTestJobs', () => {
 });
 
 Cypress.Commands.add('prepareAdditionalTestJobs', () => {
-    return cy
-        .fixture('lib/explore/additional-test-job.json')
-        .then((testJob) => {
-            const normalizedTestJob = applyGlobalEnvSettings(testJob);
+    return cy.fixture('lib/explore/additional-test-job.json').then((testJob) => {
+        const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
-            return createTestJob(normalizedTestJob);
-        });
+        return createTestJob(normalizedTestJob);
+    });
 });
 
 Cypress.Commands.add('prepareLongLivedTestJob', () => {
-    return deployTestJobIfNotExists(
-        'lib/manage/e2e-cypress-dp-test.json',
-        'lib/manage/e2e-cypress-dp-test.zip'
-    );
+    return deployTestJobIfNotExists('lib/manage/e2e-cypress-dp-test.json', 'lib/manage/e2e-cypress-dp-test.zip');
 });
 
 Cypress.Commands.add('prepareLongLivedFailingTestJob', () => {
-    return deployTestJobIfNotExists(
-        'e2e-cy-dp-failing.job.json',
-        'e2e-cy-dp-failing.job.zip'
-    );
+    return deployTestJobIfNotExists('e2e-cy-dp-failing.job.json', 'e2e-cy-dp-failing.job.zip');
 });
 
 Cypress.Commands.add('cleanTestJobs', () => {
@@ -204,13 +179,11 @@ Cypress.Commands.add('cleanTestJobs', () => {
             );
         })
         .then(() => {
-            return cy
-                .fixture('lib/explore/additional-test-job.json')
-                .then((testJob) => {
-                    const normalizedTestJob = applyGlobalEnvSettings(testJob);
+            return cy.fixture('lib/explore/additional-test-job.json').then((testJob) => {
+                const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
-                    return deleteTestJobIfExists(normalizedTestJob);
-                });
+                return deleteTestJobIfExists(normalizedTestJob);
+            });
         });
 });
 
@@ -220,11 +193,7 @@ Cypress.Commands.add('waitForTestJobExecutionCompletion', () => {
     return cy.fixture('lib/manage/e2e-cypress-dp-test.json').then((testJob) => {
         const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
-        return waitForJobExecutionCompletion(
-            normalizedTestJob.team,
-            normalizedTestJob.job_name,
-            waitForJobExecutionTimeout
-        );
+        return waitForJobExecutionCompletion(normalizedTestJob.team, normalizedTestJob.job_name, waitForJobExecutionTimeout);
     });
 });
 
@@ -234,12 +203,7 @@ Cypress.Commands.add('createTwoExecutionsLongLivedTestJob', () => {
     return cy.fixture('lib/manage/e2e-cypress-dp-test.json').then((testJob) => {
         const normalizedTestJob = applyGlobalEnvSettings(testJob);
 
-        return createExecutionsForJob(
-            normalizedTestJob.team,
-            normalizedTestJob.job_name,
-            waitForJobExecutionTimeout,
-            2
-        );
+        return createExecutionsForJob(normalizedTestJob.team, normalizedTestJob.job_name, waitForJobExecutionTimeout, 2);
     });
 });
 
@@ -249,83 +213,58 @@ Cypress.Commands.add('createExecutionsLongLivedFailingTestJob', () => {
     return cy.fixture('e2e-cy-dp-failing.job.json').then((failingTestJob) => {
         const normalizedTestJob = applyGlobalEnvSettings(failingTestJob);
 
-        return createExecutionsForJob(
-            normalizedTestJob.team,
-            normalizedTestJob.job_name,
-            waitForJobExecutionTimeout,
-            2
-        );
+        return createExecutionsForJob(normalizedTestJob.team, normalizedTestJob.job_name, waitForJobExecutionTimeout, 2);
     });
 });
 
-Cypress.Commands.add(
-    'changeDataJobEnabledStatus',
-    (teamName, jobName, status) => {
-        return cy
-            .request({
-                url:
-                    Cypress.env('data_jobs_url') +
-                    `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
-                method: 'get',
-                auth: {
-                    bearer: window.localStorage.getItem('access_token')
-                },
-                failOnStatusCode: false
-            })
-            .then((outerResponse) => {
-                if (outerResponse.status === 200) {
-                    const lastDeployment =
-                        outerResponse.body[outerResponse.body.length - 1];
-                    const lastDeploymentHash = lastDeployment.job_version;
+Cypress.Commands.add('changeDataJobEnabledStatus', (teamName, jobName, status) => {
+    return cy
+        .request({
+            url: Cypress.env('data_jobs_url') + `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
+            method: 'get',
+            auth: {
+                bearer: window.localStorage.getItem('access_token')
+            },
+            failOnStatusCode: false
+        })
+        .then((outerResponse) => {
+            if (outerResponse.status === 200) {
+                const lastDeployment = outerResponse.body[outerResponse.body.length - 1];
+                const lastDeploymentHash = lastDeployment.job_version;
 
-                    return cy
-                        .request({
-                            url:
-                                Cypress.env('data_jobs_url') +
-                                `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${lastDeploymentHash}`,
-                            method: 'patch',
-                            body: { enabled: status },
-                            auth: {
-                                bearer: window.localStorage.getItem(
-                                    'access_token'
-                                )
-                            },
-                            failOnStatusCode: false
-                        })
-                        .then((innerResponse) => {
-                            if (
-                                innerResponse.status >= 200 &&
-                                innerResponse.status < 300
-                            ) {
-                                cy.log(
-                                    `Change enable status to [${status}] for data job [${jobName}]`
-                                );
-                            } else {
-                                cy.log(
-                                    `Cannot change enabled status to [${status}] for data job [${jobName}]`
-                                );
+                return cy
+                    .request({
+                        url: Cypress.env('data_jobs_url') + `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${lastDeploymentHash}`,
+                        method: 'patch',
+                        body: { enabled: status },
+                        auth: {
+                            bearer: window.localStorage.getItem('access_token')
+                        },
+                        failOnStatusCode: false
+                    })
+                    .then((innerResponse) => {
+                        if (innerResponse.status >= 200 && innerResponse.status < 300) {
+                            cy.log(`Change enable status to [${status}] for data job [${jobName}]`);
+                        } else {
+                            cy.log(`Cannot change enabled status to [${status}] for data job [${jobName}]`);
 
-                                console.log(`Http request:`, innerResponse);
-                            }
+                            console.log(`Http request:`, innerResponse);
+                        }
 
-                            return cy.wrap({
-                                context:
-                                    'commands::1::changeDataJobEnabledStatus()',
-                                action: 'continue'
-                            });
+                        return cy.wrap({
+                            context: 'commands::1::changeDataJobEnabledStatus()',
+                            action: 'continue'
                         });
-                } else {
-                    cy.log(
-                        `Cannot change enabled status to [${status}] for data job [${jobName}]`
-                    );
-
-                    console.log(`Http request:`, outerResponse);
-
-                    return cy.wrap({
-                        context: 'commands::2::changeDataJobEnabledStatus()',
-                        action: 'continue'
                     });
-                }
-            });
-    }
-);
+            } else {
+                cy.log(`Cannot change enabled status to [${status}] for data job [${jobName}]`);
+
+                console.log(`Http request:`, outerResponse);
+
+                return cy.wrap({
+                    context: 'commands::2::changeDataJobEnabledStatus()',
+                    action: 'continue'
+                });
+            }
+        });
+});

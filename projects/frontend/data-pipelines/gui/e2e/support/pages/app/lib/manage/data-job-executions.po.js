@@ -11,9 +11,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     }
 
     static navigateTo(teamName, jobName) {
-        return super.navigateToUrl(
-            `/manage/data-jobs/${teamName}/${jobName}/executions`
-        );
+        return super.navigateToUrl(`/manage/data-jobs/${teamName}/${jobName}/executions`);
     }
 
     /* Utils */
@@ -28,10 +26,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         const params = val.split(' ');
 
         if (params.length === 2) {
-            return (
-                parseInt(params[0].trim().replace(/m$/, ''), 10) * 60 +
-                parseInt(params[1].trim().replace(/s$/, ''), 10)
-            );
+            return parseInt(params[0].trim().replace(/m$/, ''), 10) * 60 + parseInt(params[1].trim().replace(/s$/, ''), 10);
         } else {
             return parseInt(params[0].trim().replace(/s$/, ''), 10);
         }
@@ -46,9 +41,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     }
 
     getExecLoadingSpinner() {
-        return cy.get(
-            '[data-cy=data-pipelines-job-executions-loading-spinner]'
-        );
+        return cy.get('[data-cy=data-pipelines-job-executions-loading-spinner]');
     }
 
     // Charts
@@ -90,107 +83,73 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     // Header
 
     getDataGridExecStatusHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-status-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-status-header]');
     }
 
     getDataGridExecStatusFilterOpenerBtn() {
-        return this.getDataGridExecStatusHeader()
-            .should('exist')
-            .find('.datagrid-filter-toggle');
+        return this.getDataGridExecStatusHeader().should('exist').find('.datagrid-filter-toggle');
     }
 
     getDataGridExecStatusFilters() {
-        return this.getDataGridPopupFilter()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-status-filters]');
+        return this.getDataGridPopupFilter().should('exist').find('[data-cy=data-pipelines-job-executions-status-filters]');
     }
 
     getDataGridExecTypeHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-type-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-type-header]');
     }
 
     getDataGridExecTypeFilterOpenerBtn() {
-        return this.getDataGridExecTypeHeader()
-            .should('exist')
-            .find('.datagrid-filter-toggle');
+        return this.getDataGridExecTypeHeader().should('exist').find('.datagrid-filter-toggle');
     }
 
     getDataGridExecTypeFilters() {
-        return this.getDataGridPopupFilter()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-type-filters]');
+        return this.getDataGridPopupFilter().should('exist').find('[data-cy=data-pipelines-job-executions-type-filters]');
     }
 
     getDataGridExecDurationHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-duration-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-duration-header]');
     }
 
     getDataGridExecDurationSortBtn() {
-        return this.getDataGridExecDurationHeader()
-            .should('exist')
-            .find('.datagrid-column-title');
+        return this.getDataGridExecDurationHeader().should('exist').find('.datagrid-column-title');
     }
 
     getDataGridExecStartHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-start-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-start-header]');
     }
 
     getDataGridExecStartSortBtn() {
-        return this.getDataGridExecStartHeader()
-            .should('exist')
-            .find('.datagrid-column-title');
+        return this.getDataGridExecStartHeader().should('exist').find('.datagrid-column-title');
     }
 
     getDataGridExecEndHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-end-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-end-header]');
     }
 
     getDataGridExecEndSortBtn() {
-        return this.getDataGridExecEndHeader()
-            .should('exist')
-            .find('.datagrid-column-title');
+        return this.getDataGridExecEndHeader().should('exist').find('.datagrid-column-title');
     }
 
     getDataGridExecIDHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-id-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-id-header]');
     }
 
     getDataGridExecIDFilterOpenerBtn() {
-        return this.getDataGridExecIDHeader()
-            .should('exist')
-            .find('.datagrid-filter-toggle');
+        return this.getDataGridExecIDHeader().should('exist').find('.datagrid-filter-toggle');
     }
 
     getDataGridExecVersionHeader() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-version-header]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-version-header]');
     }
 
     getDataGridExecVersionFilterOpenerBtn() {
-        return this.getDataGridExecVersionHeader()
-            .should('exist')
-            .find('.datagrid-filter-toggle');
+        return this.getDataGridExecVersionHeader().should('exist').find('.datagrid-filter-toggle');
     }
 
     // Rows and Cells
 
     getDataGridRows() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('clr-dg-row.datagrid-row');
+        return this.getDataGrid().should('exist').find('clr-dg-row.datagrid-row');
     }
 
     getDataGridRow(rowIndex) {
@@ -200,9 +159,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     }
 
     getDataGridCells(rowIndex) {
-        return this.getDataGridRow(rowIndex)
-            .should('exist')
-            .find('clr-dg-cell.datagrid-cell');
+        return this.getDataGridRow(rowIndex).should('exist').find('clr-dg-cell.datagrid-cell');
     }
 
     getDataGridCellByIndex(rowIndex, cellIndex) {
@@ -216,9 +173,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .should('have.length.gte', 0)
             .then(($rows) => {
                 const _rows = $rows.reduce((accumulator, row) => {
-                    const _cells = Array.from(
-                        row.querySelectorAll('clr-dg-cell.datagrid-cell')
-                    );
+                    const _cells = Array.from(row.querySelectorAll('clr-dg-cell.datagrid-cell'));
 
                     if (_cells[cellIndex - 1]) {
                         accumulator.push(_cells[cellIndex - 1]);
@@ -236,47 +191,29 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     }
 
     getDataGridExecTypeCell(rowIndex) {
-        return this.getDataGridCellByIdentifier(
-            rowIndex,
-            '[data-cy=data-pipelines-job-executions-type-cell]'
-        );
+        return this.getDataGridCellByIdentifier(rowIndex, '[data-cy=data-pipelines-job-executions-type-cell]');
     }
 
     getDataGridExecTypeContainer(rowIndex) {
-        return this.getDataGridExecTypeCell(rowIndex)
-            .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-type-container]');
+        return this.getDataGridExecTypeCell(rowIndex).should('exist').find('[data-cy=data-pipelines-job-executions-type-container]');
     }
 
     getDataGridExecDurationCell(rowIndex) {
-        return this.getDataGridCellByIdentifier(
-            rowIndex,
-            '[data-cy=data-pipelines-job-executions-duration-cell]'
-        );
+        return this.getDataGridCellByIdentifier(rowIndex, '[data-cy=data-pipelines-job-executions-duration-cell]');
     }
 
     getDataGridExecStartCell(rowIndex) {
-        return this.getDataGridCellByIdentifier(
-            rowIndex,
-            '[data-cy=data-pipelines-job-executions-start-cell]'
-        );
+        return this.getDataGridCellByIdentifier(rowIndex, '[data-cy=data-pipelines-job-executions-start-cell]');
     }
 
     getDataGridExecEndCell(rowIndex) {
-        return this.getDataGridCellByIdentifier(
-            rowIndex,
-            '[data-cy=data-pipelines-job-executions-end-cell]'
-        );
+        return this.getDataGridCellByIdentifier(rowIndex, '[data-cy=data-pipelines-job-executions-end-cell]');
     }
 
     // Pagination
 
     getDataGridPagination() {
-        return this.getDataGrid()
-            .should('exist')
-            .find(
-                '[data-cy=data-pipelines-job-executions-datagrid-pagination]'
-            );
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-job-executions-datagrid-pagination]');
     }
 
     /* Actions */
@@ -302,9 +239,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     }
 
     closeFilter() {
-        this.getDataGridPopupFilterCloseBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridPopupFilterCloseBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }
@@ -312,49 +247,37 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     // Header
 
     openStatusFilter() {
-        this.getDataGridExecStatusFilterOpenerBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridExecStatusFilterOpenerBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     openTypeFilter() {
-        this.getDataGridExecTypeFilterOpenerBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridExecTypeFilterOpenerBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     openIDFilter() {
-        this.getDataGridExecIDFilterOpenerBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridExecIDFilterOpenerBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     openVersionFilter() {
-        this.getDataGridExecVersionFilterOpenerBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridExecVersionFilterOpenerBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     sortByExecDuration() {
-        this.getDataGridExecDurationSortBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridExecDurationSortBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     sortByExecStart() {
-        this.getDataGridExecStartSortBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridExecStartSortBtn().should('exist').click({ force: true });
 
         this.waitForViewToRenderShort();
     }

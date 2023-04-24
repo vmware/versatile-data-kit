@@ -18,35 +18,25 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
 
     // Acceptable values are "not-deployed", "enabled", "disabled"
     getDeploymentStatus(status) {
-        return cy.get(
-            '[data-cy=data-pipelines-job-details-status-' + status + ']'
-        );
+        return cy.get('[data-cy=data-pipelines-job-details-status-' + status + ']');
     }
 
     // Description methods
 
     getDescription() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-description] .form-section-readonly'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-description] .form-section-readonly');
     }
 
     getDescriptionEditButton() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-description] .form-section-header > .btn'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-description] .form-section-header > .btn');
     }
 
     getDescriptionEditTextarea() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-description] textarea'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-description] textarea');
     }
 
     getDescriptionSaveButton() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-description] button:contains(Save)'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-description] button:contains(Save)');
     }
 
     openDescription() {
@@ -66,71 +56,48 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
     // Schedule methods
 
     getSchedule() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-schedule] .form-section-readonly'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-schedule] .form-section-readonly');
     }
 
     // Disable/Enable methods
 
     getStatusEditButton() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-status] .form-section-header > .btn'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-status] .form-section-header > .btn');
     }
 
     getStatusSaveButton() {
-        return cy.get(
-            '[data-cy=data-pipelines-data-job-details-status] button:contains(Save)'
-        );
+        return cy.get('[data-cy=data-pipelines-data-job-details-status] button:contains(Save)');
     }
 
     changeStatus(currentStatus) {
-        const newStatus =
-            currentStatus.trim().toLowerCase() === 'enabled'
-                ? 'disable'
-                : 'enable';
+        const newStatus = currentStatus.trim().toLowerCase() === 'enabled' ? 'disable' : 'enable';
 
-        return cy
-            .get(
-                `[data-cy=data-pipelines-data-job-details-status-${newStatus}]`
-            )
-            .should('exist')
-            .check({ force: true });
+        return cy.get(`[data-cy=data-pipelines-data-job-details-status-${newStatus}]`).should('exist').check({ force: true });
     }
 
     toggleJobStatus() {
         cy.get('[data-cy=data-pipelines-job-details-status]')
             .invoke('text')
             .then((jobStatus) => {
-                this.getStatusEditButton()
-                    .scrollIntoView()
-                    .click({ force: true });
+                this.getStatusEditButton().scrollIntoView().click({ force: true });
 
                 this.changeStatus(jobStatus);
 
                 this.waitForClickThinkingTime();
 
-                this.getStatusSaveButton()
-                    .scrollIntoView()
-                    .click({ force: true });
+                this.getStatusSaveButton().scrollIntoView().click({ force: true });
 
-                let newStatus =
-                    jobStatus === 'Enabled' ? 'Disabled' : 'Enabled';
+                let newStatus = jobStatus === 'Enabled' ? 'Disabled' : 'Enabled';
 
                 this.waitForBackendRequestCompletion();
 
-                this.getToastTitle()
-                    .should('exist')
-                    .should('contain.text', 'Status update completed');
+                this.getToastTitle().should('exist').should('contain.text', 'Status update completed');
 
                 this.waitForActionThinkingTime(); // Natural wait for User action
 
                 this.getToastDismiss().should('exist').click({ force: true });
 
-                cy.get('[data-cy=data-pipelines-job-details-status]')
-                    .scrollIntoView()
-                    .should('have.text', newStatus);
+                cy.get('[data-cy=data-pipelines-job-details-status]').scrollIntoView().should('have.text', newStatus);
             });
     }
 }

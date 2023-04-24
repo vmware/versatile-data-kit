@@ -29,10 +29,7 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     waitForDataJobStartExecute() {
         cy.waitForInterceptor('@getExecutionsRequest', 20, (response) => {
             return response?.data?.content?.findIndex((e) => {
-                return (
-                    e.status?.toLowerCase() === 'running' ||
-                    e.status?.toLowerCase() === 'submitted'
-                );
+                return e.status?.toLowerCase() === 'running' || e.status?.toLowerCase() === 'submitted';
             });
         });
     }
@@ -100,35 +97,23 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     }
 
     openActionDropdown() {
-        this.getActionDropdownBtn()
-            .scrollIntoView()
-            .should('be.visible')
-            .click({ force: true });
+        this.getActionDropdownBtn().scrollIntoView().should('be.visible').click({ force: true });
 
         this.waitForClickThinkingTime();
     }
 
     downloadJobKey() {
-        this.getDownloadKeyBtn()
-            .scrollIntoView()
-            .should('be.visible')
-            .click({ force: true });
+        this.getDownloadKeyBtn().scrollIntoView().should('be.visible').click({ force: true });
 
         this.waitForBackendRequestCompletion();
     }
 
     deleteJob() {
-        this.getDeleteJobBtn()
-            .scrollIntoView()
-            .should('be.visible')
-            .click({ force: true });
+        this.getDeleteJobBtn().scrollIntoView().should('be.visible').click({ force: true });
     }
 
     confirmDeleteJob() {
-        this.getConfirmDeleteBtn()
-            .scrollIntoView()
-            .should('be.visible')
-            .click({ force: true });
+        this.getConfirmDeleteBtn().scrollIntoView().should('be.visible').click({ force: true });
     }
 
     navigateBackToDataJobs() {

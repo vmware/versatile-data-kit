@@ -84,9 +84,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getAllFailingJobs() {
-        return this.getFailingJobsWidget()
-            .should('exist')
-            .find('[data-cy=dp-failed-data-jobs-widget-job-name-link]');
+        return this.getFailingJobsWidget().should('exist').find('[data-cy=dp-failed-data-jobs-widget-job-name-link]');
     }
 
     /**
@@ -104,11 +102,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getAllMostRecentFailingJobsExecutions() {
-        return this.getMostRecentFailingJobsExecutionsWidget()
-            .should('exist')
-            .find(
-                '[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]'
-            );
+        return this.getMostRecentFailingJobsExecutionsWidget().should('exist').find('[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]');
     }
 
     // Actions
@@ -118,11 +112,7 @@ export class DataJobsHealthPanelComponentPO extends GettingStartedPage {
     }
 
     navigateToMostRecentFailingJobExecutions(jobName) {
-        this._navigateToDataJob(
-            this.getAllMostRecentFailingJobsExecutions(),
-            jobName,
-            2
-        );
+        this._navigateToDataJob(this.getAllMostRecentFailingJobsExecutions(), jobName, 2);
     }
 
     /**

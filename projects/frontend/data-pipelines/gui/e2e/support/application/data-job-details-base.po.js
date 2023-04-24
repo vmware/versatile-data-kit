@@ -11,9 +11,7 @@ export class DataJobDetailsBasePO extends DataJobBasePO {
     }
 
     static navigateTo(context, teamName, jobName) {
-        return this.navigateToUrl(
-            `/${context}/data-jobs/${teamName}/${jobName}`
-        );
+        return this.navigateToUrl(`/${context}/data-jobs/${teamName}/${jobName}`);
     }
 
     // Selectors

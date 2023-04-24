@@ -48,7 +48,10 @@ export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApi
     /**
      * ** Constructor.
      */
-    constructor(private readonly apollo: Apollo, private readonly httpLink: HttpLink) {
+    constructor(
+        private readonly apollo: Apollo,
+        private readonly httpLink: HttpLink
+    ) {
         super(DataJobsBaseApiService.CLASS_NAME);
 
         this.registerErrorCodes(DataJobsBaseApiService);

@@ -39,9 +39,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getHeaderColumnJobNameSortBtn() {
-        return this.getHeaderColumnJobName()
-            .should('exist')
-            .find('.datagrid-column-title');
+        return this.getHeaderColumnJobName().should('exist').find('.datagrid-column-title');
     }
 
     getDataGridHeaderCell(content) {
@@ -54,9 +52,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     // Rows and Cells
 
     getDataGridRows() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('clr-dg-row.datagrid-row');
+        return this.getDataGrid().should('exist').find('clr-dg-row.datagrid-row');
     }
 
     getDataGridRow(rowIndex) {
@@ -66,9 +62,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridCells(rowIndex) {
-        return this.getDataGridRow(rowIndex)
-            .should('exist')
-            .find('clr-dg-cell.datagrid-cell');
+        return this.getDataGridRow(rowIndex).should('exist').find('clr-dg-cell.datagrid-cell');
     }
 
     getDataGridCellByIndex(rowIndex, cellIndex) {
@@ -82,23 +76,15 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridStatusCells() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-manage-grid-status-cell]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-manage-grid-status-cell]');
     }
 
     getDataGridStatusIcons() {
-        return this.getDataGrid()
-            .should('exist')
-            .find(
-                '[data-cy=data-pipelines-manage-grid-status-cell] clr-icon[data-cy*=data-pipelines-job]'
-            );
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-manage-grid-status-cell] clr-icon[data-cy*=data-pipelines-job]');
     }
 
     getDataGridColumnToggle() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('clr-dg-column-toggle button');
+        return this.getDataGrid().should('exist').find('clr-dg-column-toggle button');
     }
 
     getDataGridColumnShowHidePanel() {
@@ -106,9 +92,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridColumnShowHideOptions() {
-        return this.getDataGridColumnShowHidePanel()
-            .should('exist')
-            .find('clr-checkbox-wrapper');
+        return this.getDataGridColumnShowHidePanel().should('exist').find('clr-checkbox-wrapper');
     }
 
     getDataGridColumnShowHideOptionsValues() {
@@ -121,9 +105,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     getDataGridColumnShowHideOption(option) {
         return this.getDataGridColumnShowHideOptions()
             .should('have.length.gt', 0)
-            .then((elements) =>
-                Array.from(elements).find((el) => el.innerText === option)
-            )
+            .then((elements) => Array.from(elements).find((el) => el.innerText === option))
             .find('input');
     }
 
@@ -143,9 +125,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     sortByJobName() {
-        this.getHeaderColumnJobNameSortBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getHeaderColumnJobNameSortBtn().should('exist').click({ force: true });
 
         this.waitForBackendRequestCompletion();
 
@@ -159,17 +139,13 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     checkColumnShowHideOption(option) {
-        this.getDataGridColumnShowHideOption(option)
-            .should('exist')
-            .check({ force: true });
+        this.getDataGridColumnShowHideOption(option).should('exist').check({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     uncheckColumnShowHideOption(option) {
-        this.getDataGridColumnShowHideOption(option)
-            .should('exist')
-            .uncheck({ force: true });
+        this.getDataGridColumnShowHideOption(option).should('exist').uncheck({ force: true });
 
         this.waitForViewToRenderShort();
     }

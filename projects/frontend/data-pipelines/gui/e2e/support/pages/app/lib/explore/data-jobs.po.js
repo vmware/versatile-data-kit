@@ -25,27 +25,15 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     }
 
     getDataGridCell(content) {
-        return cy
-            .get(
-                '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted'
-            )
-            .contains(new RegExp(`^\\s*${content}\\s*$`));
+        return cy.get('[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted').contains(new RegExp(`^\\s*${content}\\s*$`));
     }
 
     getDataGridNavigateBtn(team, job) {
-        return cy.get(
-            '[data-cy=data-pipelines-explore-grid-details-link][data-job-params="' +
-                team +
-                ';' +
-                job +
-                '"]'
-        );
+        return cy.get('[data-cy=data-pipelines-explore-grid-details-link][data-job-params="' + team + ';' + job + '"]');
     }
 
     getDataGridNameFilter() {
-        return this.getHeaderColumnJobName()
-            .should('exist')
-            .find('clr-dg-filter button');
+        return this.getHeaderColumnJobName().should('exist').find('clr-dg-filter button');
     }
 
     getDataGridNameFilterInput() {
@@ -67,9 +55,7 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     // Actions
 
     refreshDataGrid() {
-        this.getDataGridRefreshButton()
-            .should('be.visible')
-            .click({ force: true });
+        this.getDataGridRefreshButton().should('be.visible').click({ force: true });
 
         this.waitForBackendRequestCompletion();
 
@@ -93,9 +79,7 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     }
 
     clearSearchFieldWithButton() {
-        this.getDataGridClearSearchButton()
-            .should('be.visible')
-            .click({ force: true });
+        this.getDataGridClearSearchButton().should('be.visible').click({ force: true });
 
         this.waitForBackendRequestCompletion();
 
@@ -115,10 +99,7 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     }
 
     openJobDetails(team, jobName) {
-        this.getDataGridNavigateBtn(team, jobName)
-            .scrollIntoView()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridNavigateBtn(team, jobName).scrollIntoView().should('exist').click({ force: true });
 
         this.waitForBackendRequestCompletion();
 

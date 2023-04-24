@@ -170,9 +170,7 @@ export class DataPipelinesBasePO {
      * @param {() => void} interceptors
      */
     confirmInConfirmDialog(interceptors) {
-        cy.get('[data-cy=confirmation-dialog-ok-btn]')
-            .should('exist')
-            .click({ force: true });
+        cy.get('[data-cy=confirmation-dialog-ok-btn]').should('exist').click({ force: true });
 
         if (interceptors) {
             interceptors();
@@ -188,9 +186,7 @@ export class DataPipelinesBasePO {
     }
 
     resolveTimeout(timeout) {
-        return timeout === undefined
-            ? Cypress.config('defaultCommandTimeout')
-            : timeout;
+        return timeout === undefined ? Cypress.config('defaultCommandTimeout') : timeout;
     }
 
     readFile(folderName, fileName) {
