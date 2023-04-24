@@ -59,6 +59,7 @@ import com.vmware.taurus.controlplane.model.api.TeamManagementApi; //TeamManagem
 public class TeamController implements TeamManagementApi {
 	// implement all TeamApi methods
 }
+
 ```
 
 ### Generating API java classes for local development
