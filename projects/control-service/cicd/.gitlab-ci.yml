@@ -229,7 +229,7 @@ control_service_publish_api_client:
   image: docker:23.0.1
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip openjdk17-jdk git python
+    - apk add --no-cache py-pip openjdk17-jdk git
     - pip install -U pip setuptools wheel twine
     - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
     - cd projects/control-service/projects/model/apidefs/datajob-api/build
@@ -237,12 +237,6 @@ control_service_publish_api_client:
     - python setup.py sdist --formats=gztar
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
