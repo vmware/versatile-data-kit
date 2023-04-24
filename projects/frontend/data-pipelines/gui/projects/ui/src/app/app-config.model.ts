@@ -3,25 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AuthConfig } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthResourceServerConfig } from 'angular-oauth2-oidc';
 
 export interface AppConfig {
-    refreshTokenStart?: number;
-    orgLinkRoot?: string;
+    auth: Auth;
+}
+
+export interface Auth {
+    // Used for producing the AuthConfig.customQueryParams mapping for `orgLink` and `targetUri`
     consoleCloudUrl?: string;
-    resourceServer?: ResourceServer;
-    refreshTokenConfig?: RefreshTokenConfig;
+    orgLinkRoot?: string;
     // $window.location.origin is replaced with the corresponding value dynamically upon loading,
     // see AppConfigService
     authConfig?: AuthConfig;
-}
 
-export interface ResourceServer {
-    allowedUrls?: string[];
-    sendAccessToken?: boolean;
+    resourceServer?: OAuthResourceServerConfig;
+    // Used for token auto-refresh capability, in case a token is about to expire.
+    refreshTokenConfig?: RefreshTokenConfig;
 }
 
 export interface RefreshTokenConfig {
-    refreshTokenRemainingTime?: number;
-    refreshTokenCheckInterval?: number;
+    start?: number;
+    remainingTime?: number;
+    checkInterval?: number;
 }
