@@ -3,8 +3,8 @@
    ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<clr-main-container [attr.data-automation]="!!idToken ? 'vdk' : null">
-    <ng-container *ngIf="idToken">
+<clr-main-container [attr.data-automation]="!!skipAuth && !!idToken ? 'vdk' : null">
+    <ng-container *ngIf="skipAuth || idToken">
         <header class="header-7">
             <div class="branding">
                 <a href="..." class="nav-link">
@@ -14,7 +14,7 @@
                     >
                 </a>
             </div>
-            <div class="header-actions">
+            <div class="header-actions" *ngIf="!skipAuth">
                 <clr-dropdown>
                     <button
                         class="nav-text"
@@ -108,7 +108,7 @@
     </ng-container>
 </clr-main-container>
 
-<div *ngIf="!idToken" class="vdk-main__spinner-container">
+<div *ngIf="!skipAuth && !idToken" class="vdk-main__spinner-container">
     <div class="checking-user">
         <div class="loading-spinner">
             <h2 class="loading-title">Loading Data</h2>
