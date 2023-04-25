@@ -3,98 +3,117 @@
    ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<clr-main-container appWootric *ngIf="idToken">
-    <header class="header-7">
-        <div class="branding">
-            <a href="..." class="nav-link">
-                <clr-icon shape="vm-bug"></clr-icon>
-                <span class="title" data-cy="app-main-title"
-                    >Data Pipelines</span
-                >
-            </a>
-        </div>
-        <div class="header-actions">
-            <clr-dropdown>
-                <button
-                    class="nav-text"
-                    clrDropdownTrigger
-                    aria-label="open user profile"
-                >
-                    {{ userName }}
-                </button>
-                <clr-dropdown-menu clrPosition="bottom-right">
-                    <div (click)="logout()" aria-label="Logout" clrDropdownItem>
-                        Logout
-                    </div>
-                </clr-dropdown-menu>
-            </clr-dropdown>
-        </div>
-    </header>
+<clr-main-container [attr.data-automation]="!!idToken ? 'vdk' : null">
+    <ng-container *ngIf="idToken">
+        <header class="header-7">
+            <div class="branding">
+                <a href="..." class="nav-link">
+                    <clr-icon shape="vm-bug"></clr-icon>
+                    <span class="title" data-cy="app-main-title"
+                        >Data Pipelines</span
+                    >
+                </a>
+            </div>
+            <div class="header-actions">
+                <clr-dropdown>
+                    <button
+                        class="nav-text"
+                        clrDropdownTrigger
+                        aria-label="open user profile"
+                    >
+                        {{ userName }}
+                    </button>
+                    <clr-dropdown-menu clrPosition="bottom-right">
+                        <div
+                            (click)="logout()"
+                            aria-label="Logout"
+                            clrDropdownItem
+                        >
+                            Logout
+                        </div>
+                    </clr-dropdown-menu>
+                </clr-dropdown>
+            </div>
+        </header>
 
-    <div class="content-container switch-btn-bottom">
-        <clr-vertical-nav
-            [clrVerticalNavCollapsible]="true"
-            [(clrVerticalNavCollapsed)]="collapsed"
-        >
-            <a
-                id="navLinkGetStarted"
-                clrVerticalNavLink
-                routerLink="/get-started"
-                routerLinkActive="active"
+        <div class="content-container switch-btn-bottom">
+            <clr-vertical-nav
+                [clrVerticalNavCollapsible]="true"
+                [(clrVerticalNavCollapsed)]="collapsed"
             >
-                <clr-icon shape="home"></clr-icon>
-                Get started
-            </a>
+                <a
+                    id="navLinkGetStarted"
+                    clrVerticalNavLink
+                    routerLink="/get-started"
+                    routerLinkActive="active"
+                >
+                    <clr-icon shape="home"></clr-icon>
+                    Get started
+                </a>
 
-            <clr-vertical-nav-group routerLinkActive="active">
-                <clr-icon clrVerticalNavIcon shape="search"></clr-icon>
-                Explore
-                <clr-vertical-nav-group-children *clrIfExpanded="true">
-                    <!-- Data Jobs -->
-                    <a
-                        id="navLinkExploreDataJobs"
-                        clrVerticalNavLink
-                        routerLink="explore/data-jobs"
-                        routerLinkActive="active"
-                        data-cy="navigation-link-explore-datajobs"
-                    >
-                        <clr-icon shape="data-cluster"></clr-icon>
-                        Data jobs
-                    </a>
-                </clr-vertical-nav-group-children>
-            </clr-vertical-nav-group>
+                <clr-vertical-nav-group
+                    [clrVerticalNavGroupExpanded]="rlaExplore.isActive"
+                    routerLinkActive="active"
+                    #rlaExplore="routerLinkActive"
+                    data-cy="data-pipelines-nav-group-explore"
+                >
+                    <clr-icon clrVerticalNavIcon shape="search"></clr-icon>
+                    Explore
+                    <clr-vertical-nav-group-children>
+                        <!-- Data Jobs -->
+                        <a
+                            id="navLinkExploreDataJobs"
+                            clrVerticalNavLink
+                            routerLink="explore/data-jobs"
+                            routerLinkActive="active"
+                            data-cy="navigation-link-explore-datajobs"
+                        >
+                            <clr-icon shape="data-cluster"></clr-icon>
+                            Data jobs
+                        </a>
+                    </clr-vertical-nav-group-children>
+                </clr-vertical-nav-group>
 
-            <div class="nav-divider"></div>
+                <div class="nav-divider"></div>
 
-            <!-- Manage -->
-            <clr-vertical-nav-group routerLinkActive="active">
-                <clr-icon clrVerticalNavIcon shape="cog"></clr-icon>
-                Manage
+                <!-- Manage -->
+                <clr-vertical-nav-group
+                    [clrVerticalNavGroupExpanded]="rlaManage.isActive"
+                    routerLinkActive="active"
+                    #rlaManage="routerLinkActive"
+                    data-cy="data-pipelines-nav-group-manage"
+                >
+                    <clr-icon clrVerticalNavIcon shape="cog"></clr-icon>
+                    Manage
 
-                <clr-vertical-nav-group-children *clrIfExpanded="true">
-                    <!-- Data Jobs -->
-                    <a
-                        id="navLinkManageDataJobs"
-                        clrVerticalNavLink
-                        routerLink="/manage/data-jobs"
-                        routerLinkActive="active"
-                        title="Manage Data Jobs"
-                        data-cy="navigation-link-manage-datajobs"
-                        >Data Jobs</a
-                    >
-                </clr-vertical-nav-group-children>
-            </clr-vertical-nav-group>
-        </clr-vertical-nav>
-        <div class="content-area">
-            <router-outlet></router-outlet>
+                    <clr-vertical-nav-group-children>
+                        <!-- Data Jobs -->
+                        <a
+                            id="navLinkManageDataJobs"
+                            clrVerticalNavLink
+                            routerLink="/manage/data-jobs"
+                            routerLinkActive="active"
+                            title="Manage Data Jobs"
+                            data-cy="navigation-link-manage-datajobs"
+                            >Data Jobs</a
+                        >
+                    </clr-vertical-nav-group-children>
+                </clr-vertical-nav-group>
+            </clr-vertical-nav>
+
+            <div class="content-area">
+                <router-outlet></router-outlet>
+            </div>
         </div>
-    </div>
+    </ng-container>
 </clr-main-container>
 
-<div class="checking-user" *ngIf="!idToken">
-    <div class="loading-spinner">
-        <h2 class="loading-title">Loading Data Pipelines</h2>
-        <clr-spinner></clr-spinner>
+<div *ngIf="!idToken" class="vdk-main__spinner-container">
+    <div class="checking-user">
+        <div class="loading-spinner">
+            <h2 class="loading-title">Loading Data</h2>
+            <clr-spinner></clr-spinner>
+        </div>
     </div>
 </div>
 
