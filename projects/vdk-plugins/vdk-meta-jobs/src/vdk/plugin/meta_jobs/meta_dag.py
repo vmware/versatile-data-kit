@@ -5,11 +5,11 @@ import logging
 import pprint
 import sys
 import time
-from graphlib import TopologicalSorter
 from typing import Any
 from typing import Dict
 from typing import List
 
+from graphlib import TopologicalSorter
 from taurus_datajob_api import ApiException
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.meta_jobs.dag_validator import DagValidator
@@ -22,7 +22,13 @@ log = logging.getLogger(__name__)
 
 
 class MetaJobsDag:
-    def __init__(self, team_name: str, meta_config: MetaPluginConfiguration):
+    def __init__(
+        self,
+        team_name: str,
+        meta_config: MetaPluginConfiguration,
+        job_name: str,
+        execution_id: str,
+    ):
         """
         This module deals with all the DAG-related operations such as build and execute.
 
@@ -47,6 +53,11 @@ class MetaJobsDag:
             time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
         )
         self._dag_validator = DagValidator()
+        self._started_by = (
+            self._job_executor.execution_type(job_name, team_name, execution_id)
+            + "/"
+            + job_name
+        )
 
     def build_dag(self, jobs: List[Dict]):
         """
@@ -62,6 +73,7 @@ class MetaJobsDag:
                 job.get("team_name", self._team_name),
                 job.get("fail_meta_job_on_error", True),
                 job.get("arguments", None),
+                job.get("details", {}).get("started_by", self._started_by),
             )
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])

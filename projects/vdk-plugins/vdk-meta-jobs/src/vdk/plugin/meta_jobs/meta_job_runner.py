@@ -11,6 +11,8 @@ from vdk.plugin.meta_jobs.meta_dag import MetaJobsDag
 
 TEAM_NAME: Optional[str] = None
 META_CONFIG = None
+JOB_NAME: Optional[str] = None
+EXECUTION_ID: Optional[str] = None
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +33,7 @@ class MetaJobInput(IMetaJobInput):
         :param jobs: the list of jobs that are part of the DAG
         :return:
         """
-        dag = MetaJobsDag(TEAM_NAME, META_CONFIG)
+        dag = MetaJobsDag(TEAM_NAME, META_CONFIG, JOB_NAME, EXECUTION_ID)
         dag.build_dag(jobs)
         dag.execute_dag()
         log.info(f"Meta job summary:\n{dag}")

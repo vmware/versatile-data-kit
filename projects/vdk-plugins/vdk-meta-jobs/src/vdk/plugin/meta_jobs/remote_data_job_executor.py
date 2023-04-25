@@ -15,10 +15,20 @@ class RemoteDataJobExecutor(IDataJobExecutor):
     This module is responsible for executing remote Data Jobs.
     """
 
-    def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
+    def start_job(
+        self,
+        job_name: str,
+        team_name: str,
+        started_by: str = None,
+        arguments: IJobArguments = None,
+    ):
         vdk_cfg = VDKConfig()
         job = RemoteDataJob(
-            job_name, team_name, vdk_cfg.control_service_rest_api_url, arguments
+            job_name,
+            team_name,
+            vdk_cfg.control_service_rest_api_url,
+            started_by,
+            arguments,
         )
         return job.start_job_execution()
         # catch error on 409
@@ -26,14 +36,14 @@ class RemoteDataJobExecutor(IDataJobExecutor):
     def status_job(self, job_name: str, team_name: str, execution_id: str) -> str:
         vdk_cfg = VDKConfig()
         job = RemoteDataJob(job_name, team_name, vdk_cfg.control_service_rest_api_url)
-        status = job.get_job_execution_status(execution_id)
-        return status.status
+        details = job.get_job_execution_details(execution_id)
+        return details.status
 
     def details_job(self, job_name: str, team_name: str, execution_id: str) -> dict:
         vdk_cfg = VDKConfig()
         job = RemoteDataJob(job_name, team_name, vdk_cfg.control_service_rest_api_url)
-        status = job.get_job_execution_status(execution_id)
-        return status.to_dict()
+        details = job.get_job_execution_details(execution_id)
+        return details.to_dict()
 
     def job_executions_list(
         self, job_name: str, team_name: str

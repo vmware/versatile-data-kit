@@ -7,6 +7,7 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.plugin.meta_jobs import meta_job_runner
 from vdk.plugin.meta_jobs.meta_configuration import add_definitions
 from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
@@ -22,6 +23,10 @@ class MetaJobsPlugin:
         )
         meta_job_runner.META_CONFIG = MetaPluginConfiguration(
             context.core_context.configuration
+        )
+        meta_job_runner.JOB_NAME = context.name
+        meta_job_runner.EXECUTION_ID = context.core_context.state.get(
+            CommonStoreKeys.EXECUTION_ID
         )
 
     @staticmethod

@@ -50,6 +50,7 @@ class RemoteDataJob:
         job_name: str,
         team_name: str,
         rest_api_url: str,
+        started_by: str = None,
         arguments: IJobArguments = None,
         timeout: int = 5,  # TODO: Set reasonable default
         **kwargs,
@@ -67,6 +68,7 @@ class RemoteDataJob:
         self.__team_name = team_name
         self.__rest_api_url = rest_api_url
         self.__arguments = arguments
+        self.__started_by = started_by
         self.timeout = timeout
         self.deployment_id = "production"  # currently multiple deployments are not supported so this remains hardcoded
         self.auth: Optional[Authentication] = kwargs.pop("auth", None)
@@ -92,12 +94,12 @@ class RemoteDataJob:
 
     def start_job_execution(self) -> str:
         """
-        Triggers a manual Datajob execution.
+        Triggers a Datajob execution.
 
         :param: request_kwargs: Request arguments to be included with the HTTP request
         """
         execution_request = DataJobExecutionRequest(
-            started_by="meta-job",  # TODO: specify name of meta job
+            started_by=self.__started_by,
             args=self.__arguments,
         )
         _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
@@ -138,7 +140,7 @@ class RemoteDataJob:
             execution_id=execution_id,
         ).logs
 
-    def get_job_execution_status(self, execution_id: str) -> DataJobExecution:
+    def get_job_execution_details(self, execution_id: str) -> DataJobExecution:
         """
         Returns the execution status for a particular job execution.
 
@@ -186,7 +188,7 @@ class RemoteDataJob:
             time.sleep(wait_seconds)
 
             try:
-                job_execution = self.get_job_execution_status(execution_id)
+                job_execution = self.get_job_execution_details(execution_id)
                 job_status = job_execution.status
             except Exception as err:
                 log.info("VDK Control Service returned error: %s", err)
