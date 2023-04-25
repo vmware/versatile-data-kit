@@ -64,17 +64,41 @@ VDK creates data processing workflows to:
 ![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
 
 
-# Versatile Data Kit Components
-- Software Development Kit (SDK):
-    - Tools to automate the extraction, transformation, and loading of data.
-    - A plugin framework that allows users to extend the framework according to their specific requirements.
-- Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
+# What VDK can do
 
+<p>
+<img src="./support/images/components/VDK SDK.svg" width="600" />
+</p>
+<p>
+<img src="./support/images/components/VDK SDK modules (1).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (2).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (3).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (4).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (5).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (6).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (7).svg" width="300"/>
+</p>
+
+<p>
+<img src="./support/images/components/VDK CLI.svg" width="600"/>
+</p>
+
+
+<!-- This is going to be transferred to the VDK CLI page to be linked:
 A preview of the VDK CLI commands:
 - `vdk create`
 - `vdk run`
 - `vdk deploy`<br>
-<br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
+  <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto/>
+-->
+<p>
+<img src="./support/images/components/Control Service.svg" width="600"/>
+</p>
+<p>
+<img src="./support/images/components/Control Service modules (1).svg" width="300"/>
+<img src="./support/images/components/Control Service modules (2).svg" width="300"/>
+</p>
+
 
 # Getting Started
 Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
