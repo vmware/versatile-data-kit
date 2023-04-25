@@ -9,6 +9,7 @@ import 'cypress-localstorage-commands';
 
 import { parseJWTToken } from '../plugins/helpers/util-helpers.plugins';
 import {
+    BASIC_AUTH_CONFIG,
     CSP_ACCESS_TOKEN_KEY,
     CSP_EXPIRES_AT_KEY,
     CSP_ID_TOKEN_KEY
@@ -310,3 +311,12 @@ Cypress.Commands.add(
         });
     }
 );
+
+// App Config
+Cypress.Commands.add('appConfigInterceptorDisableExploreRoute', () => {
+    cy.intercept('GET', '/assets/data/appConfig.json', {
+        auth: BASIC_AUTH_CONFIG,
+        ignoreRoutes: ['explore/data-jobs', 'explore/data-jobs/:team/:job'],
+        ignoreComponents: ['explorePage']
+    });
+});

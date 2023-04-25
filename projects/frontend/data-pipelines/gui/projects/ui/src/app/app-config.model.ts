@@ -7,6 +7,8 @@ import { AuthConfig, OAuthResourceServerConfig } from 'angular-oauth2-oidc';
 
 export interface AppConfig {
     auth: Auth;
+    ignoreRoutes?: string[];
+    ignoreComponents?: string[];
 }
 
 export interface Auth {
