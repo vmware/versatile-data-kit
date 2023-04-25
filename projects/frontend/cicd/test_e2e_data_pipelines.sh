@@ -25,7 +25,10 @@ if [ $# -eq 0 ]
     echo "ERROR: No OAuth2 token provided."
     exit 3
 fi
-export OAUTH2_API_TOKEN=$1
+export OAUTH2_API_TOKEN="$1"
+export CYPRESS_test_environment="$2"
+export CYPRESS_test_guid="$3"
+export CYPRESS_grepTags="$4"
 
 echo "Starting server and running e2e tests..."
 npm run start-server-and-test-e2e
