@@ -17,10 +17,7 @@
             isJobMessageDifferentFromStatus()
         "
     >
-        <clr-signpost-content
-            [clrPosition]="'right-middle'"
-            *clrIfOpen="clrOpen"
-        >
+        <clr-signpost-content [clrPosition]="'right-middle'" *clrIfOpen>
             {{ jobMessage }}
             <vdk-copy-to-clipboard-button
                 [tooltip]="'Copy to clipboard'"
@@ -29,10 +26,19 @@
             ></vdk-copy-to-clipboard-button>
         </clr-signpost-content>
     </div>
-    <span
-        class="job-execution-status__text"
-        data-cy="data-pipelines-job-executions-status-filters"
-        clrSignpostTrigger
-        >{{ executionStatusProperties.text }}
-    </span>
+    <div class="job-execution-status__container">
+        <span
+            class="job-execution-status__text"
+            data-cy="data-pipelines-job-executions-status-filters"
+            clrSignpostTrigger
+            >{{ executionStatusProperties.text }}
+        </span>
+        <button
+            *ngIf="showErrorMessage && isJobStatusSuitableForMessageTooltip() && isJobMessageDifferentFromStatus()"
+            class="btn btn-link btn-icon btn-sm job-execution-status__btn"
+            clrSignpostTrigger
+        >
+            details
+        </button>
+    </div>
 </clr-signpost>

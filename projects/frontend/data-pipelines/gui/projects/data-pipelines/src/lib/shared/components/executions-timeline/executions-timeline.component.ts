@@ -26,6 +26,7 @@ export class ExecutionsTimelineComponent {
 
     @Input() jobExecutions: DataJobExecutions = [];
     @Input() next: Date = null;
+    @Input() showErrorMessage = false;
 
     dataJobExecutionStatus = DataJobExecutionStatus;
 
@@ -54,5 +55,18 @@ export class ExecutionsTimelineComponent {
         const user = execution.startedBy.replace('manual/', '');
 
         return `${ExecutionsTimelineComponent.manualRunKnownUser} ${user}`;
+    }
+
+    isJobStatusSuitableForMessageTooltip(execution: DataJobExecution): boolean {
+        return (
+            execution.status === DataJobExecutionStatus.PLATFORM_ERROR ||
+            execution.status === DataJobExecutionStatus.USER_ERROR ||
+            execution.status === DataJobExecutionStatus.SKIPPED
+        );
+    }
+
+    isJobMessageDifferentFromStatus(execution: DataJobExecution): boolean {
+        const message = execution.message?.toLowerCase();
+        return message !== 'user error' && message !== 'platform error' && message !== 'skipped' && message !== '';
     }
 }

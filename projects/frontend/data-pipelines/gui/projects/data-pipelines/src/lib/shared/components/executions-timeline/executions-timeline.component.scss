@@ -39,6 +39,11 @@
 
     .clr-timeline__element--display-block {
         display: block;
+        width: 200px;
+
+        span {
+            word-break: break-word;
+        }
     }
 
     .clr-timeline__duration-tag {

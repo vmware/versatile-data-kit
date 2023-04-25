@@ -86,6 +86,12 @@
 
             <div class="clr-timeline-step-description">
                 <div class="clr-timeline__element--display-block">
+                    <span
+                        *ngIf="showErrorMessage && isJobStatusSuitableForMessageTooltip(execution) && isJobMessageDifferentFromStatus(execution)"
+                    >
+                        {{ execution.message}}
+                        <br />
+                    </span>
                     <span>Duration: </span>
                     <span
                         class="clr-timeline__duration-tag"
