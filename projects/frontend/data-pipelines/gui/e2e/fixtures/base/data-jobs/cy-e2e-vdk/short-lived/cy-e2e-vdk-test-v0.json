@@ -1,0 +1,19 @@
+{
+  "job_name": "cy-e2e-vdk-$env-placeholder$-v0",
+  "team": "cy-e2e-vdk",
+  "description": "Testing job owned by Team cy-e2e-vdk. It's used in Data Pipelines lib CI/CD for UI e2e tests. It is intended to have deployment and is automatically created/deleted by e2e tests.",
+  "config": {
+    "db_default_type": "IMPALA" ,
+    "contacts": {
+      "notified_on_job_failure_user_error": [] ,
+      "notified_on_job_failure_platform_error": [] ,
+      "notified_on_job_success": [] ,
+      "notified_on_job_deploy": []
+    } ,
+    "schedule": {
+      "schedule_cron": "11 23 5 8 1"
+    } ,
+    "generate_keytab": true ,
+    "enable_execution_notifications": true
+  }
+}
