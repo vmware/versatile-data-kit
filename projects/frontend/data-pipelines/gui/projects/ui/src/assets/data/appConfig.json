@@ -36,5 +36,7 @@
       "remainingTime": 360,
       "checkInterval": 60
     }
-  }
+  },
+  "ignoreRoutes": [],
+  "ignoreComponents": []
 }

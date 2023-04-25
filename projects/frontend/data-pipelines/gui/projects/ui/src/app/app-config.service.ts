@@ -8,22 +8,28 @@ import { HttpBackend, HttpClient } from '@angular/common/http';
 import { AuthConfig } from 'angular-oauth2-oidc';
 import { AppConfig, RefreshTokenConfig } from './app-config.model';
 import { firstValueFrom } from 'rxjs';
-
+import { Router } from '@angular/router';
+import { routes } from './app.routing';
 @Injectable({
     providedIn: 'root'
 })
 export class AppConfigService {
     private httpClient: HttpClient;
     private appConfig: AppConfig;
+    private router: Router;
 
-    constructor(private httpBackend: HttpBackend) {
+    constructor(private httpBackend: HttpBackend, private angularRouter: Router) {
         this.httpClient = new HttpClient(httpBackend);
+        this.router = angularRouter;
     }
 
-    loadAppConfig(): Promise<void> {
-        return firstValueFrom(this.httpClient.get<AppConfig>('/assets/data/appConfig.json').pipe()).then((data) => {
-            this.appConfig = data;
+    async loadAppConfig(): Promise<void> {
+        const data = await firstValueFrom(this.httpClient.get<AppConfig>('/assets/data/appConfig.json').pipe());
+        this.appConfig = data;
+        const localRoutes = routes.filter((route: { path: string }) => {
+            return !data.ignoreRoutes.includes(route.path);
         });
+        this.router.resetConfig(localRoutes);
     }
 
     getConfig(): AppConfig {
