@@ -6,4 +6,4 @@ contrib=contrib-body-requires-signed-off-by
 # commit-msg title must be matched to.
 # Note that the regex can contradict with other rules if not used correctly
 # (e.g. title-must-not-contain-word).
-regex=(vdk-.*|versatile-data-kit|control-service|examples|frontend): .*
+regex=(vdk-.*|versatile-data-kit|documentation|control-service|examples|frontend): .*
