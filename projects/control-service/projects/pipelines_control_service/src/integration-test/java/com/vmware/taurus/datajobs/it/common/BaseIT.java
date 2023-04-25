@@ -163,6 +163,19 @@ public class BaseIT {
     return mapper.writeValueAsString(jobDeployment);
   }
 
+  public static String getDataJobDeploymentRequestBody(String jobVersion, String pythonVersion)
+      throws JsonProcessingException {
+    var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
+    jobDeployment.setJobVersion(jobVersion);
+    jobDeployment.setMode(DataJobMode.RELEASE);
+    jobDeployment.setResources(new DataJobResources());
+    jobDeployment.setSchedule(new DataJobSchedule());
+    jobDeployment.setId(TEST_JOB_DEPLOYMENT_ID);
+    jobDeployment.setPythonVersion(pythonVersion);
+
+    return mapper.writeValueAsString(jobDeployment);
+  }
+
   public String getDataJobDeploymentEnableRequestBody(boolean enabled)
       throws JsonProcessingException {
     var enable = new DataJobDeployment();
