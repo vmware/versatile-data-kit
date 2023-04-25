@@ -19,9 +19,9 @@
 
 const {
     install,
-    ensureBrowserFlags,
-} = require("@neuralegion/cypress-har-generator");
-const path = require("path");
+    ensureBrowserFlags
+} = require('@neuralegion/cypress-har-generator');
+const path = require('path');
 
 /**
  * @type {Cypress.PluginConfig}
@@ -33,21 +33,21 @@ module.exports = (on, config) => {
         // generated output directory.
         specRoot: path.relative(
             config.fileServerFolder,
-            config.integrationFolder,
+            config.integrationFolder
         ),
         outputTarget: {
-            "cypress-logs|json": "json",
+            'cypress-logs|json': 'json'
         },
-        printLogsToConsole: "always",
-        printLogsToFile: "always",
+        printLogsToConsole: 'always',
+        printLogsToFile: 'always',
         includeSuccessfulHookLogs: true,
-        logToFilesOnAfterRun: true,
+        logToFilesOnAfterRun: true
     };
 
-    require("cypress-terminal-report/src/installLogsPrinter")(on, options);
+    require('cypress-terminal-report/src/installLogsPrinter')(on, options);
     install(on, config);
 
-    on("before:browser:launch", (browser = {}, launchOptions) => {
+    on('before:browser:launch', (browser = {}, launchOptions) => {
         ensureBrowserFlags(browser, launchOptions);
         return launchOptions;
     });

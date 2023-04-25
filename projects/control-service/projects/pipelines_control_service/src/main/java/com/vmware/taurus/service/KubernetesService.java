@@ -154,6 +154,7 @@ public abstract class KubernetesService implements InitializingBean {
     OffsetDateTime endTime;
     String jobVersion;
     String jobSchedule;
+    String jobPythonVersion;
     Float resourcesCpuRequest;
     Float resourcesCpuLimit;
     Integer resourcesMemoryRequest;
@@ -786,15 +787,25 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Listing k8s cron jobs");
     Set<String> v1CronJobNames = Collections.emptySet();
 
-    var v1CronJobs =
-        initBatchV1Api()
-            .listNamespacedCronJob(
-                namespace, null, null, null, null, null, null, null, null, null, null);
-    v1CronJobNames =
-        v1CronJobs.getItems().stream()
-            .map(j -> j.getMetadata().getName())
-            .collect(Collectors.toSet());
-    log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
+    try {
+      var v1CronJobs =
+          initBatchV1Api()
+              .listNamespacedCronJob(
+                  namespace, null, null, null, null, null, null, null, null, null, null);
+      v1CronJobNames =
+          v1CronJobs.getItems().stream()
+              .map(j -> j.getMetadata().getName())
+              .collect(Collectors.toSet());
+      log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
+    } catch (ApiException e) {
+      if (e.getCode()
+          == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
+        // this.
+        log.debug("Unable to query for v1 batch jobs", e);
+      } else {
+        throw e;
+      }
+    }
 
     var v1BetaCronJobs =
         initBatchV1beta1Api()
@@ -1362,10 +1373,11 @@ public abstract class KubernetesService implements InitializingBean {
     // We want to track those jobs as submitted as well.
     // The getConditions() returns result only if the job is completed.
     return Optional.ofNullable(v1JobList).map(V1JobList::getItems).stream()
-        .flatMap(v1Jobs -> v1Jobs.stream())
+        .flatMap(Collection::stream)
         .map(V1Job::getStatus)
+        .filter(Objects::nonNull)
         .map(V1JobStatus::getConditions)
-        .anyMatch(v1JobConditions -> CollectionUtils.isEmpty(v1JobConditions));
+        .anyMatch(CollectionUtils::isEmpty);
   }
 
   public String getPodLogs(String podName) throws IOException, ApiException {
@@ -1729,6 +1741,11 @@ public abstract class KubernetesService implements InitializingBean {
     jobExecutionStatusBuilder.jobSchedule(
         annotations
             .map(stringStringMap -> stringStringMap.get(JobAnnotation.SCHEDULE.getValue()))
+            .orElse(null));
+
+    jobExecutionStatusBuilder.jobPythonVersion(
+        annotations
+            .map(stringStringMap -> stringStringMap.get(JobAnnotation.PYTHON_VERSION.getValue()))
             .orElse(null));
 
     // Job status
@@ -2510,6 +2527,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (annotations != null) {
         deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
         deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
       }
 
       List<V1Container> containers =
@@ -2571,6 +2589,7 @@ public abstract class KubernetesService implements InitializingBean {
       if (annotations != null) {
         deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
         deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
+        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
       }
 
       List<V1Container> containers =

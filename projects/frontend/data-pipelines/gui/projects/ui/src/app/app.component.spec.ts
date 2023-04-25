@@ -14,17 +14,17 @@ import { NavigationService, RouterService } from '@versatiledatakit/shared';
 
 import { AppComponent } from './app.component';
 import { TokenResponse } from 'angular-oauth2-oidc/types';
+import { AppConfigService } from './app-config.service';
+import { AppConfig } from './app-config.model';
 
 describe('AppComponent', () => {
     let routerServiceStub: jasmine.SpyObj<RouterService>;
     let oAuthServiceStub: jasmine.SpyObj<OAuthService>;
     let navigationServiceStub: jasmine.SpyObj<NavigationService>;
+    let appConfigServiceStub: jasmine.SpyObj<AppConfigService>;
 
     beforeEach(() => {
-        routerServiceStub = jasmine.createSpyObj<RouterService>(
-            'routerService',
-            ['getState'],
-        );
+        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState']);
         oAuthServiceStub = jasmine.createSpyObj<OAuthService>('oAuthService', [
             'configure',
             'loadDiscoveryDocumentAndLogin',
@@ -32,33 +32,28 @@ describe('AppComponent', () => {
             'refreshToken',
             'logOut',
             'getIdToken',
-            'getIdentityClaims',
+            'getIdentityClaims'
         ]);
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
-            'navigationService',
-            ['initialize'],
-        );
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['initialize']);
+        appConfigServiceStub = jasmine.createSpyObj<AppConfigService>('appConfigService', ['getConfig', 'getAuthCodeFlowConfig']);
 
         routerServiceStub.getState.and.returnValue(new Subject());
         oAuthServiceStub.getIdentityClaims.and.returnValue({});
-        oAuthServiceStub.loadDiscoveryDocumentAndLogin.and.returnValue(
-            Promise.resolve(true),
-        );
+        oAuthServiceStub.loadDiscoveryDocumentAndLogin.and.returnValue(Promise.resolve(true));
         oAuthServiceStub.getAccessTokenExpiration.and.returnValue(0);
-        oAuthServiceStub.refreshToken.and.returnValue(
-            Promise.resolve({} as TokenResponse),
-        );
+        oAuthServiceStub.refreshToken.and.returnValue(Promise.resolve({} as TokenResponse));
+        appConfigServiceStub.getConfig.and.returnValue({} as AppConfig);
 
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
             declarations: [AppComponent],
-            imports: [],
             providers: [
+                { provide: AppConfigService, useValue: appConfigServiceStub },
                 UrlHelperService,
                 { provide: OAuthService, useValue: oAuthServiceStub },
                 { provide: NavigationService, useValue: navigationServiceStub },
-                { provide: RouterService, useValue: routerServiceStub },
-            ],
+                { provide: RouterService, useValue: routerServiceStub }
+            ]
         });
     });
 

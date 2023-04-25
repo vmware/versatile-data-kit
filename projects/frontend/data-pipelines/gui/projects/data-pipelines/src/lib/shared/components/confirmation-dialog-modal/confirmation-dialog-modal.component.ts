@@ -10,7 +10,7 @@ import { ModalComponentDirective } from '../modal/modal.component';
 @Component({
     selector: 'lib-confirmation-dialog-modal',
     templateUrl: './confirmation-dialog-modal.component.html',
-    styleUrls: ['./confirmation-dialog-modal.component.scss'],
+    styleUrls: ['./confirmation-dialog-modal.component.scss']
 })
 export class ConfirmationDialogModalComponent extends ModalComponentDirective {
     @Input() confirmationInput: string;

@@ -1,6 +1,15 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+.frontend_publish_docker_image:
+  image: docker:23.0.1
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ''
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+    - docker:23.0.1-dind
+
 .frontend_shared_components_changes: &frontend_shared_components_locations
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/shared-components/**/*"
@@ -8,6 +17,11 @@
 .frontend_data_pipelines_changes: &frontend_data_pipelines_locations
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/data-pipelines/**/*"
+
+.frontend_paths_do_not_trigger_e2e: &frontend_do_not_trigger_e2e
+  - "projects/frontend/data-pipelines/README.md"
+  - "projects/frontend/data-pipelines/gui/Dockerfile"
+  - "projects/frontend/data-pipelines/gui/config/nginx.conf"
 
 frontend-data-pipelines-build:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
@@ -33,9 +47,38 @@ frontend-data-pipelines-build:
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
         - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
     paths:
+      - projects/frontend/data-pipelines/gui/reports/coverage/
       - projects/frontend/data-pipelines/gui/package-lock.json
       - projects/frontend/data-pipelines/gui/dist/
       - projects/frontend/data-pipelines/gui/node_modules/
+    expire_in: 1 week
+
+# TODO: Add the cicd path back to the rule once e2e tests are stabilized
+frontend-data-pipelines-e2e-tests:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  stage: pre_release_test
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN"
+  retry: !reference [.retry, retry_options]
+  rules:
+    - changes: *frontend_do_not_trigger_e2e
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/frontend/shared-components/**/*"
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/frontend/data-pipelines/**/*"
+  artifacts:
+    when: always
+    paths:
+      - projects/frontend/data-pipelines/gui/e2e/videos/
+      - projects/frontend/data-pipelines/gui/e2e/screenshots/
+      - projects/frontend/data-pipelines/gui/e2e/hars/
+      - projects/frontend/data-pipelines/gui/e2e/logs/
+      - projects/frontend/data-pipelines/gui/e2e/reports/
     expire_in: 1 week
 
 frontend-data-pipelines-release:
@@ -58,14 +101,24 @@ frontend-data-pipelines-release:
       - projects/frontend/data-pipelines/gui/package-lock.json
     expire_in: 1 week
 
+frontend_publish_ui_image:
+  stage: release
+  before_script:
+    - cd projects/frontend
+  script:
+    - apk --no-cache add bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - ./cicd/publish_image_dockerhub.sh vdk-operations-ui ./data-pipelines/gui $CI_PIPELINE_ID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+  extends: .frontend_publish_docker_image
+
 frontend_publish_test_image:
-  image: docker:19.03.15
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ''
-    DOCKER_HOST: tcp://localhost:2375
-  services:
-    - docker:19.03.15-dind
   stage: release
   script:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
@@ -80,6 +133,7 @@ frontend_publish_test_image:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/frontend/cicd/version.txt
+  extends: .frontend_publish_docker_image
 
 frontend-shared-components-build:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
@@ -99,6 +153,7 @@ frontend-shared-components-build:
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
         - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
     paths:
+      - projects/frontend/shared-components/gui/reports/coverage/
       - projects/frontend/shared-components/gui/package-lock.json
       - projects/frontend/shared-components/gui/dist/
       - projects/frontend/shared-components/gui/node_modules/

@@ -1,7 +1,7 @@
 # VDK Shared Components Library
 
 This library provides UI components/screens that could be consumed by any angular project.
-Within this open source project they are consumed int the data-pipelines project.
+Within this open source project they are consumed in the data-pipelines project.
 
 ## Code scaffolding
 

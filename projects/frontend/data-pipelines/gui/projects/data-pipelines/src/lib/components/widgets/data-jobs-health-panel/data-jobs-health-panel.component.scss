@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-@import "../variables.scss";
+@import '../variables.scss';
 
 .widget {
     position: relative;
@@ -14,8 +14,7 @@
         height: 100%;
         border-radius: 0.2rem;
         border: none;
-        box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.1),
-            0 3px 5px 0 rgba(0, 0, 0, 0.09);
+        box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.1), 0 3px 5px 0 rgba(0, 0, 0, 0.09);
         position: relative;
         overflow: hidden;
         ::ng-deep .datagrid-table-wrapper {
@@ -107,7 +106,7 @@
         .widget-values {
             line-height: 0.8rem;
             display: grid;
-            grid-template: ". . ." 1fr / 1fr 1fr 1fr;
+            grid-template: '. . .' 1fr / 1fr 1fr 1fr;
             margin-left: -1.2rem;
             margin-right: -1.2rem;
             margin-bottom: -1.2rem;

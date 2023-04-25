@@ -33,6 +33,7 @@ public class JobImageDeployerTest {
   private DeploymentProgress deploymentProgress;
   private KubernetesResources kubernetesResources;
   private JobCommandProvider jobCommandProvider;
+  private SupportedPythonVersions supportedPythonVersions;
 
   @BeforeEach
   public void setUp() {
@@ -43,6 +44,7 @@ public class JobImageDeployerTest {
     deploymentProgress = Mockito.mock(DeploymentProgress.class);
     kubernetesResources = Mockito.mock(KubernetesResources.class);
     jobCommandProvider = Mockito.mock(JobCommandProvider.class);
+    supportedPythonVersions = Mockito.mock(SupportedPythonVersions.class);
 
     jobImageDeployer =
         new JobImageDeployer(
@@ -52,7 +54,8 @@ public class JobImageDeployerTest {
             dataJobDefaultConfigurations,
             deploymentProgress,
             kubernetesResources,
-            jobCommandProvider);
+            jobCommandProvider,
+            supportedPythonVersions);
   }
 
   @Test
@@ -67,6 +70,7 @@ public class JobImageDeployerTest {
     jobDeployment.setImageName("TestImageName");
     jobDeployment.setGitCommitSha("testVersionString");
     jobDeployment.setEnabled(false);
+    jobDeployment.setPythonVersion("3.9");
     // mock behaviour so we reach tested (private) functionality
     Mockito.when(jobCredentialsService.getJobPrincipalName(Mockito.anyString()))
         .thenReturn("testPrincipalString");
@@ -129,7 +133,7 @@ public class JobImageDeployerTest {
       var annotations = annotationCaptor.getValue();
       // check everything was as expected
       Assertions.assertEquals(3, labels.size(), "Expecting three labels");
-      Assertions.assertEquals(6, annotations.size(), "Expecting six annotations");
+      Assertions.assertEquals(7, annotations.size(), "Expecting seven annotations");
 
       var jobName = labels.get(JobLabel.NAME.getValue());
       var jobVersion = labels.get(JobLabel.VERSION.getValue());
@@ -145,6 +149,7 @@ public class JobImageDeployerTest {
       var startedBy = annotations.get(JobAnnotation.STARTED_BY.getValue());
       var executionType = annotations.get(JobAnnotation.EXECUTION_TYPE.getValue());
       var unscheduled = annotations.get(JobAnnotation.UNSCHEDULED.getValue());
+      var pythonVersion = annotations.get(JobAnnotation.PYTHON_VERSION.getValue());
 
       Assertions.assertEquals("schedule string", schedule);
       Assertions.assertEquals("lastDeployedBy", deployedBy);
@@ -155,6 +160,7 @@ public class JobImageDeployerTest {
       Assertions.assertEquals("scheduled/runtime", startedBy);
       Assertions.assertEquals("scheduled", executionType);
       Assertions.assertEquals("false", unscheduled);
+      Assertions.assertEquals("3.9", pythonVersion);
 
     } catch (ApiException e) {
       e.printStackTrace();

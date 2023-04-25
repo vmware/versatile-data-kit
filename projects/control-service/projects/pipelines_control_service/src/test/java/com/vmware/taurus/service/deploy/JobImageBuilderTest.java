@@ -6,6 +6,8 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
+import com.vmware.taurus.service.credentials.AWSCredentialsService.AWSCredentialsDTO;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,6 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -45,6 +49,10 @@ public class JobImageBuilderTest {
 
   @Mock private KubernetesResources kubernetesResources;
 
+  @Mock private AWSCredentialsService awsCredentialsService;
+
+  @Mock private SupportedPythonVersions supportedPythonVersions;
+
   @InjectMocks private JobImageBuilder jobImageBuilder;
 
   private DataJob testDataJob;
@@ -55,6 +63,9 @@ public class JobImageBuilderTest {
     ReflectionTestUtils.setField(jobImageBuilder, "registryType", "ecr");
     ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", "python:3.7-slim");
     ReflectionTestUtils.setField(jobImageBuilder, "builderJobExtraArgs", "");
+
+    when(awsCredentialsService.createTemporaryCredentials())
+        .thenReturn(new AWSCredentialsDTO("test", "test", "test", "test"));
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
@@ -72,6 +83,7 @@ public class JobImageBuilderTest {
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
+    when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -113,6 +125,7 @@ public class JobImageBuilderTest {
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
+    when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -187,6 +200,7 @@ public class JobImageBuilderTest {
         new KubernetesService.JobStatusCondition(false, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(kubernetesService.getPodLogs(TEST_BUILDER_JOB_NAME)).thenReturn(TEST_BUILDER_LOGS);
+    when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -223,6 +237,145 @@ public class JobImageBuilderTest {
             builderJobResult,
             TEST_BUILDER_LOGS,
             true);
+    Assertions.assertFalse(result);
+  }
+
+  @Test
+  public void
+      buildImage_deploymentDataJobBaseImageNullAndSupportedPythonVersions_shouldCreateCronjobUsingSupportedPythonVersions()
+          throws InterruptedException, ApiException, IOException {
+    // Set base image property to null
+    ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", null);
+
+    when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
+    when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
+    var builderJobResult =
+        new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
+    when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
+    when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
+
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobName(TEST_JOB_NAME);
+    jobDeployment.setGitCommitSha("test-commit");
+    jobDeployment.setEnabled(true);
+    jobDeployment.setPythonVersion("3.11");
+
+    ArgumentCaptor<Map<String, String>> captor = ArgumentCaptor.forClass(Map.class);
+
+    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
+
+    verify(kubernetesService)
+        .createJob(
+            eq(TEST_BUILDER_JOB_NAME),
+            eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
+            eq(false),
+            captor.capture(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            any(),
+            any());
+
+    Map<String, String> capturedEnvs = captor.getValue();
+    Assertions.assertEquals("test-base-image", capturedEnvs.get("BASE_IMAGE"));
+
+    verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
+    Assertions.assertTrue(result);
+  }
+
+  @Test
+  public void
+      buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingDeploymentDataJobBaseImage()
+          throws InterruptedException, ApiException, IOException {
+    ReflectionTestUtils.setField(
+        supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
+    when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
+    when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
+    var builderJobResult =
+        new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
+    when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
+    when(supportedPythonVersions.getJobBaseImage(any())).thenCallRealMethod();
+
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobName(TEST_JOB_NAME);
+    jobDeployment.setGitCommitSha("test-commit");
+    jobDeployment.setEnabled(true);
+    jobDeployment.setPythonVersion("3.11");
+
+    ArgumentCaptor<Map<String, String>> captor = ArgumentCaptor.forClass(Map.class);
+
+    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
+
+    verify(supportedPythonVersions, never()).isPythonVersionSupported("3.11");
+
+    verify(kubernetesService)
+        .createJob(
+            eq(TEST_BUILDER_JOB_NAME),
+            eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
+            eq(false),
+            captor.capture(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            any(),
+            any());
+
+    Map<String, String> capturedEnvs = captor.getValue();
+    Assertions.assertEquals("python:3.7-slim", capturedEnvs.get("BASE_IMAGE"));
+
+    verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
+    Assertions.assertTrue(result);
+  }
+
+  @Test
+  public void buildImage_deploymentDataJobBaseImageNullAndPythonVersionNull_shouldNotCreateCronjob()
+      throws InterruptedException, ApiException, IOException {
+    // Set base image property to null
+    ReflectionTestUtils.setField(jobImageBuilder, "deploymentDataJobBaseImage", null);
+
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobName(TEST_JOB_NAME);
+    jobDeployment.setGitCommitSha("test-commit");
+    jobDeployment.setEnabled(true);
+
+    var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
+
+    verify(supportedPythonVersions, never()).isPythonVersionSupported("3.11");
+    verify(supportedPythonVersions, never()).getJobBaseImage("3.11");
+
+    verify(kubernetesService, never())
+        .createJob(
+            eq(TEST_BUILDER_JOB_NAME),
+            eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
+            eq(false),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            any(),
+            any());
+
     Assertions.assertFalse(result);
   }
 }

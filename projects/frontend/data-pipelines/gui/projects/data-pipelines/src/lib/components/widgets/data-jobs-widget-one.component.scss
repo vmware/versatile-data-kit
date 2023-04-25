@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-@import "variables.scss";
+@import 'variables.scss';
 
 ::ng-deep .fade-to-dark.dark {
     .widget-card {
@@ -95,7 +95,7 @@
         .widget-values {
             line-height: 0.8rem;
             display: grid;
-            grid-template: ". . ." 1fr / 1fr 1fr 1fr;
+            grid-template: '. . .' 1fr / 1fr 1fr 1fr;
             margin-left: -1.2rem;
             margin-right: -1.2rem;
             margin-bottom: -1.2rem;

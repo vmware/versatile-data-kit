@@ -3,16 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    AfterViewInit,
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    ViewEncapsulation,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 
 import { CollectionsUtil } from '@versatiledatakit/shared';
 
@@ -22,7 +13,7 @@ import { QuickFilterChangeEvent, QuickFilters } from '../../quick-filters';
     selector: 'lib-grid-action',
     templateUrl: './grid-action.component.html',
     styleUrls: ['./grid-action.component.scss'],
-    encapsulation: ViewEncapsulation.None,
+    encapsulation: ViewEncapsulation.None
 })
 export class GridActionComponent implements AfterViewInit, OnChanges {
     @Input() id = 'lib-ga-search-id';
@@ -84,8 +75,7 @@ export class GridActionComponent implements AfterViewInit, OnChanges {
     get editDisabled(): boolean {
         return (
             CollectionsUtil.isNil(this.selectedValue) ||
-            (CollectionsUtil.isString(this.selectedValue) &&
-                this.selectedValue.length === 0) ||
+            (CollectionsUtil.isString(this.selectedValue) && this.selectedValue.length === 0) ||
             this.disableEdit
         );
     }
@@ -97,15 +87,14 @@ export class GridActionComponent implements AfterViewInit, OnChanges {
     get removeDisabled(): boolean {
         return (
             CollectionsUtil.isNil(this.selectedValue) ||
-            (CollectionsUtil.isString(this.selectedValue) &&
-                this.selectedValue.length === 0) ||
+            (CollectionsUtil.isString(this.selectedValue) && this.selectedValue.length === 0) ||
             this.disableRemove
         );
     }
 
     /**
-     * vmw-search is being broken for one-way binding related to an input [searchQueryValue]
-     * this fix is a workaround (adding a delay of 1 milisecond to set queryValue, looks like
+     * vdk-search is being broken for one-way binding related to an input [searchQueryValue]
+     * this fix is a workaround (adding a delay of 1 millisecond to set queryValue, looks like
      * needs to run in a separate thread)
      */
     private setQueryValue() {

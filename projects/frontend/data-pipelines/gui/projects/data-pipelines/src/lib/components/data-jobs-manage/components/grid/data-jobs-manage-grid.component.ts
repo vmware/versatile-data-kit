@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, HostBinding, Inject, OnInit } from '@angular/core';
 import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-
-import { VmwToastType } from '@versatiledatakit/shared';
 
 import {
     ComponentService,
@@ -16,37 +14,24 @@ import {
     NavigationService,
     RouterService,
     ToastService,
+    VmwToastType
 } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../../../shared/utils';
 
-import {
-    ConfirmationModalOptions,
-    ModalOptions,
-} from '../../../../shared/model';
+import { ConfirmationModalOptions, ModalOptions } from '../../../../shared/model';
 
-import {
-    DATA_PIPELINES_CONFIGS,
-    DataJobStatus,
-    DataPipelinesConfig,
-    ToastDefinitions,
-} from '../../../../model';
+import { DATA_PIPELINES_CONFIGS, DataJobStatus, DataPipelinesConfig, ToastDefinitions } from '../../../../model';
 import { DataJobsApiService, DataJobsService } from '../../../../services';
 
-import {
-    ClrGridUIState,
-    DataJobsBaseGridComponent,
-} from '../../../base-grid/data-jobs-base-grid.component';
+import { ClrGridUIState, DataJobsBaseGridComponent } from '../../../base-grid/data-jobs-base-grid.component';
 
 @Component({
     selector: 'lib-data-jobs-manage-grid',
     templateUrl: './data-jobs-manage-grid.component.html',
-    styleUrls: ['./data-jobs-manage-grid.component.scss'],
+    styleUrls: ['./data-jobs-manage-grid.component.scss']
 })
-export class DataJobsManageGridComponent
-    extends DataJobsBaseGridComponent
-    implements OnInit
-{
+export class DataJobsManageGridComponent extends DataJobsBaseGridComponent implements OnInit {
     /**
      * @inheritDoc
      */
@@ -55,8 +40,9 @@ export class DataJobsManageGridComponent
     /**
      * @inheritDoc
      */
-    static override readonly PUBLIC_NAME: string =
-        'DataJobs-ManageGrid-Component';
+    static override readonly PUBLIC_NAME: string = 'DataJobs-ManageGrid-Component';
+
+    @HostBinding('attr.data-cy') attributeDataCy = 'data-pipelines-manage-data-jobs';
 
     readonly uuid = 'DataJobsManageGridComponent';
 
@@ -65,17 +51,18 @@ export class DataJobsManageGridComponent
 
     override clrGridDefaultFilter: ClrGridUIState['filter'] = {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        'deployments.enabled': DataJobStatus.ENABLED,
+        'deployments.enabled': DataJobStatus.ENABLED
     };
     override clrGridDefaultSort: ClrGridUIState['sort'] = {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        'deployments.lastExecutionTime': -1,
+        'deployments.lastExecutionTime': -1
     };
 
     override quickFiltersDefaultActiveIndex = 1;
 
+    dataPipelinesDocumentationUrl: string;
+
     constructor(
-        // NOSONAR
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
@@ -89,7 +76,7 @@ export class DataJobsManageGridComponent
         @Inject(DOCUMENT) document: Document,
         @Inject(DATA_PIPELINES_CONFIGS)
         dataPipelinesModuleConfig: DataPipelinesConfig,
-        private readonly toastService: ToastService,
+        private readonly toastService: ToastService
     ) {
         super(
             componentService,
@@ -112,10 +99,10 @@ export class DataJobsManageGridComponent
                     lastDeployedDate: true,
                     lastDeployedBy: true,
                     notifications: true,
-                    source: true,
-                },
+                    source: true
+                }
             },
-            DataJobsManageGridComponent.CLASS_NAME,
+            DataJobsManageGridComponent.CLASS_NAME
         );
 
         this.confirmStatusOptions = new ConfirmationModalOptions();
@@ -140,9 +127,7 @@ export class DataJobsManageGridComponent
     onJobStatusChange() {
         const selectedJobDeployment = this.extractSelectedJobDeployment();
         if (!selectedJobDeployment) {
-            console.log(
-                'Status update action will not be performed for job with no deployments.',
-            );
+            console.log('Status update action will not be performed for job with no deployments.');
             return;
         }
 
@@ -152,32 +137,26 @@ export class DataJobsManageGridComponent
                     this.selectedJob.config?.team,
                     this.selectedJob.jobName,
                     selectedJobDeployment.id,
-                    !selectedJobDeployment.enabled,
+                    !selectedJobDeployment.enabled
                 )
                 .subscribe({
                     next: () => {
-                        selectedJobDeployment.enabled =
-                            !selectedJobDeployment.enabled;
+                        selectedJobDeployment.enabled = !selectedJobDeployment.enabled;
 
-                        const state = selectedJobDeployment.enabled
-                            ? 'enabled'
-                            : 'disabled';
+                        const state = selectedJobDeployment.enabled ? 'enabled' : 'disabled';
 
                         this.toastService.show({
                             type: VmwToastType.INFO,
                             title: `Status update completed`,
-                            description: `Data job "${this.selectedJob.jobName}" successfully ${state}`,
+                            description: `Data job "${this.selectedJob.jobName}" successfully ${state}`
                         });
                     },
                     error: (error: unknown) => {
-                        this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error),
-                            {
-                                title: `Updating status for Data job "${this.selectedJob?.jobName}" failed`,
-                            },
-                        );
-                    },
-                }),
+                        this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                            title: `Updating status for Data job "${this.selectedJob?.jobName}" failed`
+                        });
+                    }
+                })
         );
     }
 
@@ -190,31 +169,20 @@ export class DataJobsManageGridComponent
     onExecuteDataJob() {
         this.subscriptions.push(
             this.dataJobsApiService
-                .executeDataJob(
-                    this.selectedJob.config?.team,
-                    this.selectedJob.jobName,
-                    this.extractSelectedJobDeployment().id,
-                )
+                .executeDataJob(this.selectedJob.config?.team, this.selectedJob.jobName, this.extractSelectedJobDeployment().id)
                 .subscribe({
                     next: () => {
-                        this.toastService.show(
-                            ToastDefinitions.successfullyRanJob(
-                                this.selectedJob.jobName,
-                            ),
-                        );
+                        this.toastService.show(ToastDefinitions.successfullyRanJob(this.selectedJob.jobName));
                     },
                     error: (error: unknown) => {
-                        this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error),
-                            {
-                                title:
-                                    (error as HttpErrorResponse)?.status === 409
-                                        ? 'Failed, Data job is already executing'
-                                        : 'Failed to queue Data job for execution',
-                            },
-                        );
-                    },
-                }),
+                        this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                            title:
+                                (error as HttpErrorResponse)?.status === 409
+                                    ? 'Failed, Data job is already executing'
+                                    : 'Failed to queue Data job for execution'
+                        });
+                    }
+                })
         );
     }
 
@@ -227,41 +195,37 @@ export class DataJobsManageGridComponent
     }
 
     extractSelectedJobDeployment() {
-        return this.selectedJob?.deployments[
-            this.selectedJob?.deployments?.length - 1
-        ];
+        return this.selectedJob?.deployments[this.selectedJob?.deployments?.length - 1];
     }
 
     private _inputConfig(dataPipelinesModuleConfig: DataPipelinesConfig) {
         if (dataPipelinesModuleConfig.manageConfig?.filterByTeamName) {
-            this.filterByTeamName =
-                dataPipelinesModuleConfig.manageConfig?.filterByTeamName;
+            this.filterByTeamName = dataPipelinesModuleConfig.manageConfig?.filterByTeamName;
         }
 
         if (dataPipelinesModuleConfig.manageConfig?.displayMode) {
-            this.displayMode =
-                dataPipelinesModuleConfig.manageConfig?.displayMode;
+            this.displayMode = dataPipelinesModuleConfig.manageConfig?.displayMode;
         }
 
-        if (
-            dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable
-        ) {
+        if (dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable) {
             this.subscriptions.push(
-                dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable.subscribe(
-                    {
-                        next: (newTeam) => {
-                            if (newTeam !== this.teamNameFilter) {
-                                this.teamNameFilter = newTeam;
-                                this.refresh();
-                            }
-                        },
-                        error: (error: unknown) => {
-                            this.resetTeamNameFilter();
-                            console.error('Error loading selected team', error);
-                        },
+                dataPipelinesModuleConfig.manageConfig?.selectedTeamNameObservable.subscribe({
+                    next: (newTeam) => {
+                        if (newTeam !== this.teamNameFilter) {
+                            this.teamNameFilter = newTeam;
+                            this.refresh();
+                        }
                     },
-                ),
+                    error: (error: unknown) => {
+                        this.resetTeamNameFilter();
+                        console.error('Error loading selected team', error);
+                    }
+                })
             );
+        }
+
+        if (dataPipelinesModuleConfig?.dataPipelinesDocumentationUrl) {
+            this.dataPipelinesDocumentationUrl = dataPipelinesModuleConfig.dataPipelinesDocumentationUrl;
         }
     }
 }

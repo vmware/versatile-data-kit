@@ -14,7 +14,7 @@ describe('StatusPanelComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [StatusPanelComponent, ExtractJobStatusPipe],
+            declarations: [StatusPanelComponent, ExtractJobStatusPipe]
         }).compileComponents();
     });
 

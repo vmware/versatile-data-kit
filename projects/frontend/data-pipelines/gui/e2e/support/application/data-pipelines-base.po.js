@@ -38,6 +38,14 @@ export class DataPipelinesBasePO {
         cy.initBackendRequestInterceptor();
     }
 
+    static initPostExecutionInterceptor() {
+        cy.initPostExecutionInterceptor();
+    }
+
+    static initPatchDetailsReqInterceptor() {
+        cy.initPatchDetailsReqInterceptor();
+    }
+
     /**
      * ** Wait for API request interceptor.
      */
@@ -86,8 +94,16 @@ export class DataPipelinesBasePO {
         DataPipelinesBasePO.waitForBackendRequestCompletion(numberOfReqToWait);
     }
 
+    waitForPostExecutionCompletion() {
+        cy.waitForPostExecutionCompletion();
+    }
+
     waitForTestJobExecutionCompletion() {
         cy.waitForTestJobExecutionCompletion();
+    }
+
+    waitForPatchDetailsReqInterceptor() {
+        cy.waitForPatchDetailsReqInterceptor();
     }
 
     waitForApiModifyCall() {
@@ -121,7 +137,7 @@ export class DataPipelinesBasePO {
     /* Selectors */
 
     getMainTitle() {
-        return cy.get("[data-cy=dp-main-title]");
+        return cy.get('[data-cy=dp-main-title]');
     }
 
     getCurrentUrl() {
@@ -129,49 +145,56 @@ export class DataPipelinesBasePO {
     }
 
     getToast(timeout) {
-        return cy.get("vdk-toast-container vdk-toast", {
-            timeout: this.resolveTimeout(timeout),
+        return cy.get('vdk-toast-container vdk-toast', {
+            timeout: this.resolveTimeout(timeout)
         });
     }
 
     getToastTitle(timeout) {
-        return this.getToast(timeout).get(".toast-title");
+        return this.getToast(timeout).get('.toast-title');
     }
 
     getToastDismiss(timeout) {
-        return this.getToast(timeout).get(".dismiss-bg");
+        return this.getToast(timeout).get('.dismiss-bg');
     }
 
     getContentContainer() {
-        return cy.get("div.content-container");
+        return cy.get('div.content-container');
     }
 
     /* Actions */
 
-    confirmInConfirmDialog() {
-        cy.get("[data-cy=confirmation-dialog-ok-btn]")
-            .should("exist")
+    /**
+     * ** Confirm confirmation dialog.
+     *
+     * @param {() => void} interceptors
+     */
+    confirmInConfirmDialog(interceptors) {
+        cy.get('[data-cy=confirmation-dialog-ok-btn]')
+            .should('exist')
             .click({ force: true });
 
-        this.waitForBackendRequestCompletion();
+        if (interceptors) {
+            interceptors();
+        }
 
         this.waitForViewToRender();
     }
 
     clickOnContentContainer() {
-        this.getContentContainer().should("exist").click({ force: true });
+        this.getContentContainer().should('exist').click({ force: true });
 
         this.waitForSmartDelay();
     }
 
     resolveTimeout(timeout) {
         return timeout === undefined
-            ? Cypress.config("defaultCommandTimeout")
+            ? Cypress.config('defaultCommandTimeout')
             : timeout;
     }
 
     readFile(folderName, fileName) {
-        const path = require("path");
+        const path = require('path');
         const downloadsFolder = Cypress.config(folderName);
 
         return cy.readFile(path.join(downloadsFolder, fileName));

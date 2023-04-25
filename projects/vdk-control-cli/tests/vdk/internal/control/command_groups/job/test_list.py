@@ -12,6 +12,7 @@ from pytest_httpserver.httpserver import QueryMatcher
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
 from vdk.internal.control.command_groups.job.list import list_command
+from vdk.internal.test_utils import assert_click_status
 
 test_utils.disable_vdk_authentication()
 
@@ -29,7 +30,29 @@ def get_example_data_job_query_response():
                 "description": "test-job description",
                 "schedule": {"schedule_cron": "11 23 5 8 1"},
             },
-            "deployments": [{"enabled": True}],
+            "deployments": [
+                {
+                    "enabled": True,
+                    "executions": [
+                        {
+                            "id": "test-job-1680117000",
+                            "status": "SUCCEEDED",
+                            "startTime": "2021-08-02T23:11:00.000Z",
+                            "endTime": "2021-08-02T23:22:00.000Z",
+                            "startedBy": "manual/test-user",
+                            "type": "MANUAL",
+                        },
+                        {
+                            "id": "test-job-1680113400",
+                            "status": "USER_ERROR",
+                            "startTime": "2021-08-02T22:22:00.000Z",
+                            "endTime": "2021-08-02T22:55:00.000Z",
+                            "startedBy": "scheduled/test-user",
+                            "type": "SCHEDULED",
+                        },
+                    ],
+                }
+            ],
         },
         {
             "jobName": "test-job-2",
@@ -38,7 +61,21 @@ def get_example_data_job_query_response():
                 "description": "test-job-2 description",
                 "schedule": {"schedule_cron": "11 23 5 8 1"},
             },
-            "deployments": [{"enabled": False}],
+            "deployments": [
+                {
+                    "enabled": False,
+                    "executions": [
+                        {
+                            "id": "test-job-2-123",
+                            "status": "SUCCEEDED",
+                            "startTime": "2021-08-01T23:11:00.000Z",
+                            "endTime": "2021-08-01T23:22:00.000Z",
+                            "startedBy": "manual/user",
+                            "type": "MANUAL",
+                        }
+                    ],
+                }
+            ],
         },
         {
             "jobName": "test-job-3",
@@ -63,11 +100,54 @@ def test_list_default_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output and "test-job-2" in result.output
+    ), f"expected data not found in output: {result.output} "
+
+
+def test_list_default_all_3_mores(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+
+    response = get_example_data_job_query_response()
+
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs"
+    ).respond_with_json(response)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        list_command, ["-t", "test-team", "-mmm", "-u", rest_api_url, "-o", "json"]
+    )
+
+    assert_click_status(result, 0)
+
+    expected_json = [
+        {
+            "job_name": "test-job",
+            "job_team": "test-team",
+            "status": "ENABLED",
+            "last_execution_status": "SUCCEEDED",
+            "last_execution_date": "2021-08-02T23:11:00.000Z",
+            "last_execution_type": "MANUAL",
+            "last_execution_started_by": "manual/test-user",
+        },
+        {
+            "job_name": "test-job-2",
+            "job_team": "test-team",
+            "status": "DISABLED",
+            "last_execution_status": "SUCCEEDED",
+            "last_execution_date": "2021-08-01T23:11:00.000Z",
+            "last_execution_type": "MANUAL",
+            "last_execution_started_by": "manual/user",
+        },
+        {"job_name": "test-job-3", "job_team": "test-team", "status": "NOT_DEPLOYED"},
+    ]
+
+    output_json = json.loads(result.output)
+
+    assert (
+        output_json == expected_json
     ), f"expected data not found in output: {result.output} "
 
 
@@ -92,9 +172,7 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-a", "-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -102,9 +180,7 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     result = runner.invoke(
         list_command, ["-t", "test-team", "--all", "-u", rest_api_url]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -114,9 +190,7 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     ).respond_with_json(response)
 
     result = runner.invoke(list_command, ["-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job" in result.output
     ), f"expected data not found in output: {result.output} "
@@ -125,20 +199,14 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
 def test_list_without_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team"])
-
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 
 def test_list_with_empty_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-u", ""])
-
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 2, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 2)
     assert "what" in result.output and "why" in result.output
 
 
@@ -155,9 +223,7 @@ def test_list_with_json_output(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     result = runner.invoke(
         list_command, ["-t", "test-team", "-u", rest_api_url, "-o", "json"]
     )
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
 
     try:
         json_result = json.loads(result.output)
@@ -175,9 +241,7 @@ def test_list_with_invalid_output(httpserver: PluginHTTPServer, tmpdir: LocalPat
     result = runner.invoke(
         list_command, ["-t", "test-team", "-u", rest_api_url, "-o", "invalid"]
     )
-    assert (
-        result.exit_code == 2
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 2)
     assert (
         "Error: Invalid value for '--output'" in result.output
     ), f"expected data not found in output: {result.output}"
@@ -223,9 +287,7 @@ def test_list_with_multiple_pages(httpserver: PluginHTTPServer, tmpdir: LocalPat
 
     runner = CliRunner()
     result = runner.invoke(list_command, ["-t", "test-team", "-a", "-u", rest_api_url])
-    assert (
-        result.exit_code == 0
-    ), f"result exit code is not 0, result output: {result.output}, exc: {result.exc_info}"
+    assert_click_status(result, 0)
     assert (
         "test-job-1" in result.output and "test-job-120" in result.output
     ), f"expected data not found in output: {result.output}"

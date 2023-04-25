@@ -2,7 +2,7 @@
 # VEP-1739: Multiple Python Versions
 
 * **Author(s):** Andon Andonov (andonova@vmware.com)
-* **Status:** draft
+* **Status:** implementable
 
 <!-- Provide table of content as it's helpful. -->
 
@@ -18,12 +18,11 @@
 ## Summary
 
 ---
-The Control Service currently uses fixed data job base and vdk images for all job deployments. If a user wants to use a different Python version for their job, they need to ask the Control Service administrator to change the configuration and redeploy the service. This would break existing deployed jobs as the new Python version would be applied, causing unforeseeable consequences.
+Currently, if a user wants to use a different Python version for their job, they had to ask the Control Service administrator to change the configuration and redeploy the service. This process could be time-consuming and disruptive, as it would break other existing deployed jobs (that do not require the new version).
 
-We want to allow users to deploy data jobs with different python versions without needing to re-deploy the Control Service. To do this, we will extend the Control Service logic and API to support multiple python versions for data job
-deployments. This will be done with the addition of an optional **python_version** property to the API. The users would set the property only if they want their job to be executed with a specific python version. If the property is not specified by the user, a default value set by the service administrators would be used.
+Now, we're introducing an optional python_version property to the Control Service API, which allows users to specify the Python version they want to use for their job deployment. This means users no longer have to rely on the service administrator to make changes to the configuration and can deploy their jobs with the version they need. Service administrator only need to define a range of supported python versions.
 
-Users would be able to see what python version their job uses when they execute `vdk deploy --show` or a GET request to `/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments` or `/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}`
+If the python_version property is not specified, the Control Service will use a default version set by the service administrators. Users can easily see what Python version their job uses by running vdk deploy --show or making a GET request to /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments or /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}.
 
 ## Glossary
 
@@ -124,7 +123,9 @@ python_version:
 ```
 The property would be optional to avoid enforcing python version selection. If the user decides to not set the property,
 a default value would be used.
-
+It's also important to note that this change would affect Deployment, Execution and GraphQL APIs,
+as the Deployment API would accept the user-specified python version, while the Execution and the GraphQL APIs
+would return the python version used for each individual execution.
 
 ## Detailed design
 
@@ -146,9 +147,40 @@ This is not optimal, as the only way to change the vdk and base images is to cha
 As mentioned in the previous sections, we want to make vdk and job base images configurable per data job deployment, not Control Service one.
 To facilitate this, we need a configuration what python versions and respective vdk and job base images are supported by the Control Service.
 
-To configure these, a few options were explored:
+To configure these, a few options were explored. Below, we present the chosen solution, while the alternative options that were considered can be seen in the [Alternatives](#alternatives) section.
 
-#### Option 1: Introduce three environment variables, SUPPORTED_PYTHON_VERSIONS, JOB_BASE_IMAGE_TEMPLATE, and JOB_VDK_IMAGE_TEMPLATE.
+
+#### Use dictionaries to map supported python versions to corresponding base and vdk images.
+This option would utilize nested yaml dictionaries for configuration to map the supported version to a base and vdk images.
+
+In the helm chart values file, this configuration would be set like:
+```yaml
+supportedPythonVersions:
+   3.7:
+      baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7-latest"
+      vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.7"
+   3.8:
+      baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.8-latest"
+      vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.8"
+   3.9:
+      baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9-latest"
+      vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.9"
+```
+And in the application properties files, these could be set as a single property as:
+```shell
+datajobs.deployment.supportedPythonVersions={'3.7':{'baseImage': 'registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7-latest', 'vdkImage': 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.7'}, '3.8':{'baseImage': 'registry.hub.docker.com/versatiledatakit/data-job-base-python-3.8-latest', 'vdkImage': 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.8'}, '3.9':{'baseImage': 'registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9-latest', 'vdkImage': 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.9'}}
+```
+
+This option was chosen, as it would be relatively straightforward to implement in the helm chart of the Control Service, which would make it easily configurable by administrators.
+
+
+## Alternatives
+
+---
+### Supported Python Versions Configuration Alternatives
+Below, we present the alternative solutions that were explored for configuring what python versions are supported by the Control Service.
+
+#### Alternative option 1: Introduce three environment variables, SUPPORTED_PYTHON_VERSIONS, JOB_BASE_IMAGE_TEMPLATE, and JOB_VDK_IMAGE_TEMPLATE.
 These can be set in the helm chart of the Control Service and in the application properties files.
 
 The env vars would be of type string, and would be used to construct the job base images passed to the job builders and the vdk images that would be used by the deployed data jobs. The _SUPPORTED_PYTHON_VERSIONS_ var would be a string of comma-separated python version numbers like **"3.7,3.8,3.9"**, the _JOB_BASE_IMAGE_TEMPLATE_ would be a string of the format "**registry.hub.docker.com/versatiledatakit/data-job-base-python-**", and the _JOB_VDK_IMAGE_TEMPLATE_ would be set as "**registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-**".
@@ -197,29 +229,8 @@ datajobs.deployment.baseImageTemplate=${BASE_IMAGE_TEMPLATE:example.registry.com
 datajobs.deployment.vdkImageTemplate=${VDK_IMAGE_TEMPLATE:example.registry.com/somerepo/data-job-vdk-python-}
 ```
 
-#### Option 2: Use dictionaries to map supported python versions to corresponding base and vdk images.
-This option would utilize nested yaml dictionaries for configuration to map the supported version to a base and vdk images.
 
-In the helm chart values file, this configuration would be set like:
-```yaml
-supportedPythonVersions:
-   3.7:
-      baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7-latest"
-      vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.7"
-   3.8:
-      baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.8-latest"
-      vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.8"
-   3.9:
-      baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9-latest"
-      vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.9"
-```
-And in the application properties files, these could be set as a single property as:
-```shell
-datajobs.deployment.supportedPythonVersions={'3.7':{'baseImage': 'registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7-latest', 'vdkImage': 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.7'}, '3.8':{'baseImage': 'registry.hub.docker.com/versatiledatakit/data-job-base-python-3.8-latest', 'vdkImage': 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.8'}, '3.9':{'baseImage': 'registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9-latest', 'vdkImage': 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.9'}}
-```
-**NOTE:** As the supported versions would be dynamically set, the application properties files would need to be manually updated accordingly.
-
-#### Option 3: Configure the supported python versions in the vdk_options.ini file.
+#### Alternative option 2: Configure the supported python versions in the vdk_options.ini file.
 This file is already being loaded in the Control Service through the [helm chart](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/helm_charts/pipelines-control-service/templates/deployment.yaml#L171) and the [application properties](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/resources/application-prod.properties#L62) files, and is used to store some general configurations like resource limits, etc. In the options file, the supported versions would be stored like:
 ```ini
 [supported_python_versions_base_images]
@@ -233,7 +244,4 @@ PYTHON_3.8 = "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.
 PYTHON_3.9 = "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release-3.9"
 ```
 These could then be read by the [VdkOptionsReader](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/deploy/VdkOptionsReader.java#L29) and propagated the where necessary.
-In options 2 and 3, custom logic would need to be implemented to remove the prefixes of the different python versions and keep only the version numbers (3.7, 3.8, 3.9) to compare them to the python_version passed by users.
-
-#### Chosen solution
-At the end, **Option 2** was selected, as it would be relatively straightforward to implement in the helm chart of the Control Service, which would make it easily configurable by administrators.
+In this option, custom logic would need to be implemented to remove the prefixes of the different python versions and keep only the version numbers (3.7, 3.8, 3.9) to compare them to the python_version passed by users.

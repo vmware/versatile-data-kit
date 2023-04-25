@@ -8,13 +8,13 @@
 // 1. Is search working
 // When you click on details does a modal pop-up?
 
-import { DataJobsManagePage } from "../../../support/pages/app/lib/manage/data-jobs.po";
-import { DataJobManageDetailsPage } from "../../../support/pages/app/lib/manage/data-job-details.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
+import { DataJobsManagePage } from '../../../support/pages/app/lib/manage/data-jobs.po';
+import { DataJobManageDetailsPage } from '../../../support/pages/app/lib/manage/data-job-details.po';
+import { applyGlobalEnvSettings } from '../../../support/helpers/commands.helpers';
 
 describe(
-    "Data Jobs Manage Page",
-    { tags: ["@dataPipelines", "@manageDataJobs"] },
+    'Data Jobs Manage Page',
+    { tags: ['@dataPipelines', '@manageDataJobs'] },
     () => {
         const descriptionWordsBeforeTruncate = 12;
 
@@ -28,9 +28,9 @@ describe(
 
         before(() => {
             return DataJobsManagePage.recordHarIfSupported()
-                .then(() => cy.clearLocalStorageSnapshot("data-jobs-manage"))
+                .then(() => cy.clearLocalStorageSnapshot('data-jobs-manage'))
                 .then(() => DataJobsManagePage.login())
-                .then(() => cy.saveLocalStorage("data-jobs-manage"))
+                .then(() => cy.saveLocalStorage('data-jobs-manage'))
                 .then(() => cy.cleanTestJobs())
                 .then(() => cy.prepareBaseTestJobs())
                 .then(() => cy.prepareLongLivedTestJob())
@@ -38,59 +38,60 @@ describe(
                 .then(() => cy.prepareLongLivedFailingTestJob())
                 .then(() =>
                     cy
-                        .fixture("lib/explore/test-jobs.json")
+                        .fixture('lib/explore/test-jobs.json')
                         .then((loadedTestJobs) => {
                             testJobs = applyGlobalEnvSettings(loadedTestJobs);
 
                             return cy.wrap({
                                 context:
-                                    "manage::1::data-jobs.int.spec::before()",
-                                action: "continue",
+                                    'manage::1::data-jobs.int.spec::before()',
+                                action: 'continue'
                             });
-                        }),
+                        })
                 )
                 .then(() =>
                     cy
-                        .fixture("lib/manage/e2e-cypress-dp-test.json")
+                        .fixture('lib/manage/e2e-cypress-dp-test.json')
                         .then((loadedTestJob) => {
                             longLivedTestJob =
                                 applyGlobalEnvSettings(loadedTestJob);
 
                             return cy.wrap({
                                 context:
-                                    "manage::2::data-jobs.int.spec::before()",
-                                action: "continue",
+                                    'manage::2::data-jobs.int.spec::before()',
+                                action: 'continue'
                             });
-                        }),
+                        })
                 )
                 .then(() =>
                     cy
-                        .fixture("e2e-cy-dp-failing.job.json")
+                        .fixture('e2e-cy-dp-failing.job.json')
                         .then((failingTestJob) => {
                             longLivedFailingTestJob =
                                 applyGlobalEnvSettings(failingTestJob);
 
                             return cy.wrap({
                                 context:
-                                    "manage::3::data-jobs.int.spec::before()",
-                                action: "continue",
+                                    'manage::3::data-jobs.int.spec::before()',
+                                action: 'continue'
                             });
-                        }),
+                        })
                 )
                 .then(() =>
                     // Enable data job after job end
                     DataJobsManagePage.changeJobStatus(
                         longLivedTestJob.team,
                         longLivedTestJob.job_name,
-                        true,
-                    ),
+                        true
+                    )
                 );
         });
 
         beforeEach(() => {
-            cy.restoreLocalStorage("data-jobs-manage");
+            cy.restoreLocalStorage('data-jobs-manage');
 
             DataJobsManagePage.initBackendRequestInterceptor();
+            DataJobsManagePage.initPostExecutionInterceptor();
 
             dataJobsManagePage = DataJobsManagePage.navigateTo();
         });
@@ -102,36 +103,36 @@ describe(
             DataJobsManagePage.changeJobStatus(
                 longLivedTestJob.team,
                 longLivedTestJob.job_name,
-                true,
+                true
             );
 
             DataJobsManagePage.saveHarIfSupported();
         });
 
-        it("Data Jobs Manage Page - loads title", () => {
-            dataJobsManagePage.getPageTitle().should("be.visible");
+        it('Data Jobs Manage Page - loads title', () => {
+            dataJobsManagePage.getPageTitle().should('be.visible');
         });
 
-        it("Data Jobs Manage Page - grid contains test jobs", () => {
+        it('Data Jobs Manage Page - grid contains test jobs', () => {
             dataJobsManagePage.chooseQuickFilter(0);
 
             dataJobsManagePage.sortByJobName();
 
-            dataJobsManagePage.getDataGrid().should("be.visible");
+            dataJobsManagePage.getDataGrid().should('be.visible');
 
             testJobs.forEach((testJob) => {
-                cy.log("Fixture for name: " + testJob.job_name);
+                cy.log('Fixture for name: ' + testJob.job_name);
 
                 dataJobsManagePage
                     .getDataGridCell(testJob.job_name)
                     .scrollIntoView()
-                    .should("be.visible");
+                    .should('be.visible');
             });
         });
 
         it(
-            "Data Jobs Manage Page - grid filter by job name",
-            { tags: "@integration" },
+            'Data Jobs Manage Page - grid filter by job name',
+            { tags: '@integration' },
             () => {
                 dataJobsManagePage.chooseQuickFilter(0);
 
@@ -139,17 +140,17 @@ describe(
 
                 dataJobsManagePage
                     .getDataGridCell(testJobs[0].job_name)
-                    .should("be.visible");
+                    .should('be.visible');
 
                 dataJobsManagePage
                     .getDataGridCell(testJobs[1].job_name)
-                    .should("not.exist");
-            },
+                    .should('not.exist');
+            }
         );
 
         it(
-            "Data Jobs Manage Page - grid search by job name",
-            { tags: "@integration" },
+            'Data Jobs Manage Page - grid search by job name',
+            { tags: '@integration' },
             () => {
                 dataJobsManagePage.clickOnContentContainer();
 
@@ -159,15 +160,15 @@ describe(
 
                 dataJobsManagePage
                     .getDataGridCell(testJobs[0].job_name)
-                    .should("not.exist");
+                    .should('not.exist');
 
                 dataJobsManagePage
                     .getDataGridCell(testJobs[1].job_name)
-                    .should("be.visible");
-            },
+                    .should('be.visible');
+            }
         );
 
-        it("Data Jobs Manage Page - grid search parameter goes into URL", () => {
+        it('Data Jobs Manage Page - grid search parameter goes into URL', () => {
             dataJobsManagePage.chooseQuickFilter(0);
 
             dataJobsManagePage.sortByJobName();
@@ -176,11 +177,11 @@ describe(
             dataJobsManagePage
                 .getDataGridCell(testJobs[0].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
             dataJobsManagePage
                 .getDataGridCell(testJobs[1].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
 
             // do search
             dataJobsManagePage.searchByJobName(testJobs[0].job_name);
@@ -191,19 +192,19 @@ describe(
             dataJobsManagePage
                 .getDataGridCell(testJobs[0].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
             dataJobsManagePage
                 .getDataGridCell(testJobs[1].job_name)
-                .should("not.exist");
+                .should('not.exist');
 
             // verify url contains search value
             dataJobsManagePage
                 .getCurrentUrl()
                 .should(
-                    "match",
+                    'match',
                     new RegExp(
-                        `\\/manage\\/data-jobs\\?search=${testJobs[0].job_name}$`,
-                    ),
+                        `\\/manage\\/data-jobs\\?search=${testJobs[0].job_name}$`
+                    )
                 );
 
             // clear search with clear() method
@@ -215,22 +216,22 @@ describe(
             dataJobsManagePage
                 .getDataGridCell(testJobs[0].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
             dataJobsManagePage
                 .getDataGridCell(testJobs[1].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
 
             // verify url does not contain search value
             dataJobsManagePage
                 .getCurrentUrl()
-                .should("match", new RegExp(`\\/manage\\/data-jobs$`));
+                .should('match', new RegExp(`\\/manage\\/data-jobs$`));
         });
 
-        it("Data Jobs Manage Page - grid search perform search when URL contains search parameter", () => {
+        it('Data Jobs Manage Page - grid search perform search when URL contains search parameter', () => {
             // navigate with search value in URL
             dataJobsManagePage = DataJobsManagePage.navigateToUrl(
-                `/manage/data-jobs?search=${testJobs[1].job_name}`,
+                `/manage/data-jobs?search=${testJobs[1].job_name}`
             );
 
             dataJobsManagePage.chooseQuickFilter(0);
@@ -241,20 +242,20 @@ describe(
             dataJobsManagePage
                 .getCurrentUrl()
                 .should(
-                    "match",
+                    'match',
                     new RegExp(
-                        `\\/manage\\/data-jobs\\?search=${testJobs[1].job_name}$`,
-                    ),
+                        `\\/manage\\/data-jobs\\?search=${testJobs[1].job_name}$`
+                    )
                 );
 
             // verify 1 test row visible
             dataJobsManagePage
                 .getDataGridCell(testJobs[0].job_name)
-                .should("not.exist");
+                .should('not.exist');
             dataJobsManagePage
                 .getDataGridCell(testJobs[1].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
 
             // clear search with button
             dataJobsManagePage.clearSearchFieldWithButton();
@@ -263,25 +264,25 @@ describe(
             dataJobsManagePage
                 .getDataGridCell(testJobs[0].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
             dataJobsManagePage
                 .getDataGridCell(testJobs[1].job_name)
                 .scrollIntoView()
-                .should("be.visible");
+                .should('be.visible');
 
             // verify url does not contain search value
             dataJobsManagePage
                 .getCurrentUrl()
-                .should("match", new RegExp(`\\/manage\\/data-jobs$`));
+                .should('match', new RegExp(`\\/manage\\/data-jobs$`));
         });
 
-        it("Data Jobs Manage Page - refresh shows newly created job", () => {
-            cy.fixture("lib/explore/additional-test-job.json").then(
+        it('Data Jobs Manage Page - refresh shows newly created job', () => {
+            cy.fixture('lib/explore/additional-test-job.json').then(
                 (additionalTestJob) => {
                     const normalizedTestJob =
                         applyGlobalEnvSettings(additionalTestJob);
 
-                    cy.log("Fixture for name: " + normalizedTestJob.job_name);
+                    cy.log('Fixture for name: ' + normalizedTestJob.job_name);
 
                     dataJobsManagePage.chooseQuickFilter(0);
 
@@ -289,30 +290,30 @@ describe(
 
                     dataJobsManagePage
                         .getDataGridCell(testJobs[0].job_name)
-                        .should("have.text", testJobs[0].job_name);
+                        .should('have.text', testJobs[0].job_name);
 
                     dataJobsManagePage
                         .getDataGridCell(normalizedTestJob.job_name)
-                        .should("not.exist");
+                        .should('not.exist');
 
                     dataJobsManagePage.prepareAdditionalTestJob();
 
                     dataJobsManagePage.refreshDataGrid();
 
                     dataJobsManagePage.filterByJobName(
-                        normalizedTestJob.job_name,
+                        normalizedTestJob.job_name
                     );
 
                     dataJobsManagePage
                         .getDataGridCell(normalizedTestJob.job_name)
-                        .should("have.text", normalizedTestJob.job_name);
-                },
+                        .should('have.text', normalizedTestJob.job_name);
+                }
             );
         });
 
         it(
-            "Data Jobs Manage Page - click on edit button opens new page with Job details",
-            { tags: "@integration" },
+            'Data Jobs Manage Page - click on edit button opens new page with Job details',
+            { tags: '@integration' },
             () => {
                 dataJobsManagePage.clickOnContentContainer();
 
@@ -322,7 +323,7 @@ describe(
 
                 dataJobsManagePage.openJobDetails(
                     testJobs[0].team,
-                    testJobs[0].job_name,
+                    testJobs[0].job_name
                 );
 
                 const dataJobManageDetailsPage =
@@ -330,32 +331,32 @@ describe(
 
                 dataJobManageDetailsPage
                     .getMainTitle()
-                    .should("be.visible")
-                    .should("contains.text", testJobs[0].job_name);
+                    .should('be.visible')
+                    .should('contains.text', testJobs[0].job_name);
 
                 dataJobManageDetailsPage
                     .getDescription()
-                    .should("be.visible")
+                    .should('be.visible')
                     .should(
-                        "contain.text",
+                        'contain.text',
                         testJobs[0].description
-                            .split(" ")
+                            .split(' ')
                             .slice(0, descriptionWordsBeforeTruncate)
-                            .join(" "),
+                            .join(' ')
                     );
 
-                dataJobManageDetailsPage.getSchedule().should("be.visible");
+                dataJobManageDetailsPage.getSchedule().should('be.visible');
 
                 dataJobManageDetailsPage
-                    .getDeploymentStatus("not-deployed")
-                    .should("be.visible")
-                    .should("have.text", "Not Deployed");
-            },
+                    .getDeploymentStatus('not-deployed')
+                    .should('be.visible')
+                    .should('have.text', 'Not Deployed');
+            }
         );
 
         it(
-            "Data Jobs Manage Page - disable/enable job",
-            { tags: "@integration" },
+            'Data Jobs Manage Page - disable/enable job',
+            { tags: '@integration' },
             () => {
                 dataJobsManagePage.clickOnContentContainer();
 
@@ -366,28 +367,30 @@ describe(
 
                 dataJobsManagePage.searchByJobName(jobName);
 
+                DataJobsManagePage.initPatchDetailsReqInterceptor();
+
                 //Toggle job status twice, enable to disable and vice versa.
                 dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);
                 dataJobsManagePage.toggleJobStatus(longLivedTestJob.job_name);
-            },
+            }
         );
 
         it(
-            "Data Jobs Manage Page - quick filters",
-            { tags: "@integration" },
+            'Data Jobs Manage Page - quick filters',
+            { tags: '@integration' },
             () => {
                 // Disable data job before test start
                 DataJobsManagePage.changeJobStatus(
                     longLivedFailingTestJob.team,
                     longLivedFailingTestJob.job_name,
-                    true,
+                    true
                 )
                     .then(() =>
                         DataJobsManagePage.changeJobStatus(
                             longLivedTestJob.team,
                             longLivedTestJob.job_name,
-                            false,
-                        ),
+                            false
+                        )
                     )
                     .then(() => {
                         dataJobsManagePage.clickOnContentContainer();
@@ -401,12 +404,12 @@ describe(
                             .then(($icons) => {
                                 for (const icon of Array.from($icons)) {
                                     cy.wrap(icon)
-                                        .invoke("attr", "data-cy")
+                                        .invoke('attr', 'data-cy')
                                         .should(
-                                            "match",
+                                            'match',
                                             new RegExp(
-                                                "data-pipelines-job-(enabled|disabled|not-deployed)",
-                                            ),
+                                                'data-pipelines-job-(enabled|disabled|not-deployed)'
+                                            )
                                         );
                                 }
                             });
@@ -420,9 +423,9 @@ describe(
                             .then(($icons) => {
                                 for (const icon of Array.from($icons)) {
                                     cy.wrap(icon).should(
-                                        "have.attr",
-                                        "data-cy",
-                                        "data-pipelines-job-enabled",
+                                        'have.attr',
+                                        'data-cy',
+                                        'data-pipelines-job-enabled'
                                     );
                                 }
                             });
@@ -436,9 +439,9 @@ describe(
                             .then(($icons) => {
                                 for (const icon of Array.from($icons)) {
                                     cy.wrap(icon).should(
-                                        "have.attr",
-                                        "data-cy",
-                                        "data-pipelines-job-disabled",
+                                        'have.attr',
+                                        'data-cy',
+                                        'data-pipelines-job-disabled'
                                     );
                                 }
                             });
@@ -452,9 +455,9 @@ describe(
                             .then(($icons) => {
                                 for (const icon of Array.from($icons)) {
                                     cy.wrap(icon).should(
-                                        "have.attr",
-                                        "data-cy",
-                                        "data-pipelines-job-not-deployed",
+                                        'have.attr',
+                                        'data-cy',
+                                        'data-pipelines-job-not-deployed'
                                     );
                                 }
                             });
@@ -463,72 +466,72 @@ describe(
                         DataJobsManagePage.changeJobStatus(
                             longLivedTestJob.team,
                             longLivedTestJob.job_name,
-                            true,
+                            true
                         );
                     });
-            },
+            }
         );
 
-        it("Data Jobs Manage Page - show/hide column when toggling from menu", () => {
+        it('Data Jobs Manage Page - show/hide column when toggling from menu', () => {
             // show panel for show/hide columns
             dataJobsManagePage.toggleColumnShowHidePanel();
 
             // verify correct options are rendered
             dataJobsManagePage
                 .getDataGridColumnShowHideOptionsValues()
-                .should("have.length", 10)
-                .invoke("join", ",")
+                .should('have.length', 10)
+                .invoke('join', ',')
                 .should(
-                    "eq",
-                    "Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Notifications,Source,Logs",
+                    'eq',
+                    'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Notifications,Source,Logs'
                 );
 
             // verify column is not checked in toggling menu
             dataJobsManagePage
-                .getDataGridColumnShowHideOption("Notifications")
-                .should("exist")
-                .should("not.be.checked");
+                .getDataGridColumnShowHideOption('Notifications')
+                .should('exist')
+                .should('not.be.checked');
 
             // verify header cell for column is not rendered
             dataJobsManagePage
-                .getDataGridHeaderCell("Notifications")
-                .should("have.length", 0);
+                .getDataGridHeaderCell('Notifications')
+                .should('have.length', 0);
 
             // toggle column to render
-            dataJobsManagePage.checkColumnShowHideOption("Notifications");
+            dataJobsManagePage.checkColumnShowHideOption('Notifications');
 
             // verify column is checked in toggling menu
             dataJobsManagePage
-                .getDataGridColumnShowHideOption("Notifications")
-                .should("exist")
-                .should("be.checked");
+                .getDataGridColumnShowHideOption('Notifications')
+                .should('exist')
+                .should('be.checked');
 
             // verify header cell for column is rendered
             dataJobsManagePage
-                .getDataGridHeaderCell("Notifications")
-                .should("have.length", 1);
+                .getDataGridHeaderCell('Notifications')
+                .should('have.length', 1);
 
             // toggle column to hide
-            dataJobsManagePage.uncheckColumnShowHideOption("Notifications");
+            dataJobsManagePage.uncheckColumnShowHideOption('Notifications');
 
             // verify column is not checked in toggling menu
             dataJobsManagePage
-                .getDataGridColumnShowHideOption("Notifications")
-                .should("exist")
-                .should("not.be.checked");
+                .getDataGridColumnShowHideOption('Notifications')
+                .should('exist')
+                .should('not.be.checked');
 
             // verify header cell for column is not rendered
             dataJobsManagePage
-                .getDataGridHeaderCell("Notifications")
-                .should("have.length", 0);
+                .getDataGridHeaderCell('Notifications')
+                .should('have.length', 0);
 
             // hide panel for show/hide columns
             dataJobsManagePage.toggleColumnShowHidePanel();
         });
 
         it(
-            "Data Jobs Manage Page - execute now",
-            { tags: "@integration" },
+            'Data Jobs Manage Page - execute now',
+            { tags: '@integration' },
             () => {
                 const jobName = longLivedTestJob.job_name;
                 const team = longLivedTestJob.team;
@@ -543,11 +546,11 @@ describe(
                 //  error 409 conflict and it will say that the job is already executing
                 dataJobsManagePage
                     .getToastTitle(10000) // Wait up to 10 seconds for Toast to show.
-                    .should("exist")
+                    .should('exist')
                     .contains(
-                        /Data job Queued for execution|Failed, Data job is already executing/,
+                        /Data job Queued for execution|Failed, Data job is already executing/
                     );
-            },
+            }
         );
-    },
+    }
 );

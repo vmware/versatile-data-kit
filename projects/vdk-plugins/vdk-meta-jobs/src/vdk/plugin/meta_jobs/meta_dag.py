@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import os
 import pprint
 import sys
 import time
@@ -13,6 +12,7 @@ from typing import List
 
 from taurus_datajob_api import ApiException
 from vdk.plugin.meta_jobs.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.meta_jobs.dag_validator import DagValidator
 from vdk.plugin.meta_jobs.meta import TrackableJob
 from vdk.plugin.meta_jobs.meta_configuration import MetaPluginConfiguration
 from vdk.plugin.meta_jobs.remote_data_job_executor import RemoteDataJobExecutor
@@ -23,6 +23,18 @@ log = logging.getLogger(__name__)
 
 class MetaJobsDag:
     def __init__(self, team_name: str, meta_config: MetaPluginConfiguration):
+        """
+        This module deals with all the DAG-related operations such as build and execute.
+
+        :param team_name: the name of the owning team
+        :param meta_config: the DAG job configuration
+        """
+        log.warning(
+            "-------------------------------------------"
+            "This plugin has been deprecated. Please use vdk-dag instead. "
+            "You may install it by running `pip install vdk-dag`."
+            "-------------------------------------------"
+        )
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(
@@ -40,19 +52,32 @@ class MetaJobsDag:
             executor=RemoteDataJobExecutor(),
             time_between_status_check_seconds=meta_config.meta_jobs_time_between_status_check_seconds(),
         )
+        self._dag_validator = DagValidator()
 
     def build_dag(self, jobs: List[Dict]):
+        """
+        Validate the jobs and build a DAG based on their dependency lists.
+
+        :param jobs: the jobs that are part of the DAG
+        :return:
+        """
+        self._dag_validator.validate(jobs)
         for job in jobs:
-            # TODO: add some job validation here; check the job exists, its previous jobs exists, etc
             trackable_job = TrackableJob(
                 job["job_name"],
                 job.get("team_name", self._team_name),
                 job.get("fail_meta_job_on_error", True),
+                job.get("arguments", None),
             )
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])
 
     def execute_dag(self):
+        """
+        Execute the DAG of jobs.
+
+        :return:
+        """
         self._topological_sorter.prepare()
         while self._topological_sorter.is_active():
             for node in self._topological_sorter.get_ready():
@@ -115,7 +140,7 @@ class MetaJobsDag:
             curr_running_jobs = len(self._job_executor.get_currently_running_jobs())
             if curr_running_jobs >= self._max_concurrent_running_jobs:
                 log.info(
-                    "Starting job fail - too many concurrently running jobs. Currently running: "
+                    f"Starting job {node} fail - too many concurrently running jobs. Currently running: "
                     f"{curr_running_jobs}, limit: {self._max_concurrent_running_jobs}. Will be re-tried later"
                 )
                 self._delayed_starting_jobs.enqueue(node)

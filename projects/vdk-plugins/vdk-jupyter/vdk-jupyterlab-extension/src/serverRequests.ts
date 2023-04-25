@@ -5,26 +5,28 @@
 
 import { requestAPI } from './handler';
 import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
-import { checkIfVdkOptionDataIsDefined, getJobDataJsonObject } from './jobData';
+import {
+  checkIfVdkOptionDataIsDefined,
+  getJobDataJsonObject,
+  jobData
+} from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
+
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
  */
 
-/**
- * Sent a GET request to the server to get current working directory
- */
-export async function getCurrentPathRequest() {
-  try {
-    const data = await requestAPI<any>('run', {
-      method: 'GET'
-    });
-    sessionStorage.setItem('current-path', data['path']);
-  } catch (error) {
-    throw error;
-  }
-}
+type serverVdkOperationResult = {
+  /**
+   * Error message
+   */
+  error: string;
+  /**
+   * Result message if no errors occured
+   */
+  message: string;
+};
 
 /**
  * Sent a POST request to the server to run a data job.
@@ -37,15 +39,11 @@ export async function jobRunRequest(): Promise<{
 }> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<any>('run', {
+      const data = await requestAPI<serverVdkOperationResult>('run', {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
-      const message =
-        'Job execution has finished with status ' +
-        data['message'] +
-        ' \n See vdk_logs.txt file for more!';
-      return { message: message, status: true };
+      return { message: data['message'], status: data['message'] == '0' };
     } catch (error) {
       await showErrorMessage(
         'Encountered an error when trying to run the job. Error:',
@@ -63,13 +61,13 @@ export async function jobRunRequest(): Promise<{
  * Sent a POST request to the server to execute a VDK operation a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
-export async function jobRequest(endPoint: string) {
+export async function jobRequest(endPoint: string): Promise<void> {
   if (
     (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
-      const data = await requestAPI<any>(endPoint, {
+      const data = await requestAPI<serverVdkOperationResult>(endPoint, {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
@@ -90,5 +88,28 @@ export async function jobRequest(endPoint: string) {
         [Dialog.okButton()]
       );
     }
+  }
+}
+
+/**
+ * Sent a POST request to the server to get information about the data job of current directory
+ */
+export async function jobdDataRequest(): Promise<void> {
+  try {
+    const data = await requestAPI<any>('job', {
+      body: JSON.stringify(JSON.stringify(getJobDataJsonObject())),
+      method: 'POST'
+    });
+    if (data) {
+      jobData.set(VdkOption.NAME, data[VdkOption.NAME]);
+      jobData.set(VdkOption.TEAM, data[VdkOption.TEAM]);
+      jobData.set(VdkOption.PATH, data[VdkOption.PATH]);
+    }
+  } catch (error) {
+    await showErrorMessage(
+      'Encountered an error while trying to connect the server. Error:',
+      error,
+      [Dialog.okButton()]
+    );
   }
 }

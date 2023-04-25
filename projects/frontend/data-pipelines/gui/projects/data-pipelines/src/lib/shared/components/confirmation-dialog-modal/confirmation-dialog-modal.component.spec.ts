@@ -12,7 +12,7 @@ describe('ConfirmationDialogModalComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ConfirmationDialogModalComponent],
+            declarations: [ConfirmationDialogModalComponent]
         }).compileComponents();
     });
 

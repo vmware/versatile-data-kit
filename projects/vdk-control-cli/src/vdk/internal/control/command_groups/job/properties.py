@@ -11,13 +11,13 @@ from typing import Tuple
 from typing import Type
 
 import click
-from tabulate import tabulate
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
-from vdk.internal.control.utils.cli_utils import OutputFormat
+from vdk.internal.control.utils import output_printer
+from vdk.internal.control.utils.output_printer import OutputFormat
 
 log = logging.getLogger(__name__)
 
@@ -39,34 +39,24 @@ class JobProperties:
         rest_api_url: str,
         job_name: str,
         team: str,
-        output: OutputFormat,
+        output_format: OutputFormat,
     ):
-        self.properties_api = ApiClientFactory(rest_api_url).get_properties_api()
-        self.output = output
-        self.job_name = job_name
-        self.team = team
-        self.deployment_id = "TODO"
+        self.__properties_api = ApiClientFactory(rest_api_url).get_properties_api()
+        self.__output = output_format
+        self.__printer = output_printer.create_printer(output_format)
+        self.__job_name = job_name
+        self.__team = team
+        self.__deployment_id = "TODO"
 
     def __get_all_remote_properties(self) -> Dict[str, Any]:
-        return self.properties_api.data_job_properties_read(
-            team_name=self.team,
-            job_name=self.job_name,
-            deployment_id=self.deployment_id,
+        return self.__properties_api.data_job_properties_read(
+            team_name=self.__team,
+            job_name=self.__job_name,
+            deployment_id=self.__deployment_id,
         )
 
     def __list_properties(self, remote_props: Dict[str, Any]) -> None:
-        if self.output == OutputFormat.TEXT.value:
-            if len(remote_props) > 0:
-                click.echo(
-                    tabulate(
-                        [[k, v] for k, v in remote_props.items()],
-                        headers=("key", "value"),
-                    )
-                )
-            else:
-                click.echo("No properties.")
-        else:
-            click.echo(json.dumps(remote_props))
+        self.__printer.print_dict(remote_props)
 
     @staticmethod
     def _to_bool(value: str) -> bool:
@@ -138,19 +128,19 @@ class JobProperties:
     def update_properties(self, new_properties: Dict[str, str]) -> None:
         remote_props = self.__get_all_remote_properties()
         merged_props = self.__merge_props(new_properties, remote_props)
-        self.properties_api.data_job_properties_update(
-            team_name=self.team,
-            job_name=self.job_name,
-            deployment_id=self.deployment_id,
+        self.__properties_api.data_job_properties_update(
+            team_name=self.__team,
+            job_name=self.__job_name,
+            deployment_id=self.__deployment_id,
             request_body=merged_props,
         )
 
     @ApiClientErrorDecorator()
     def overwrite_properties(self, new_properties: Dict[str, str]) -> None:
-        self.properties_api.data_job_properties_update(
-            team_name=self.team,
-            job_name=self.job_name,
-            deployment_id=self.deployment_id,
+        self.__properties_api.data_job_properties_update(
+            team_name=self.__team,
+            job_name=self.__job_name,
+            deployment_id=self.__deployment_id,
             request_body=new_properties,
         )
 
@@ -159,19 +149,19 @@ class JobProperties:
         props = self.__get_all_remote_properties()
         for key in delete_keys:
             props.pop(key)
-        self.properties_api.data_job_properties_update(
-            team_name=self.team,
-            job_name=self.job_name,
-            deployment_id=self.deployment_id,
+        self.__properties_api.data_job_properties_update(
+            team_name=self.__team,
+            job_name=self.__job_name,
+            deployment_id=self.__deployment_id,
             request_body=props,
         )
 
     @ApiClientErrorDecorator()
     def delete_all_job_properties(self) -> None:
-        self.properties_api.data_job_properties_update(
-            team_name=self.team,
-            job_name=self.job_name,
-            deployment_id=self.deployment_id,
+        self.__properties_api.data_job_properties_update(
+            team_name=self.__team,
+            job_name=self.__job_name,
+            deployment_id=self.__deployment_id,
             request_body={},
         )
 

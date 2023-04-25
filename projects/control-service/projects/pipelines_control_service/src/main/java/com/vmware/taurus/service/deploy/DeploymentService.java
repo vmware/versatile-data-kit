@@ -6,10 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
-import com.vmware.taurus.exception.ApiConstraintError;
-import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
-import com.vmware.taurus.exception.ErrorMessage;
-import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.exception.*;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
@@ -46,6 +43,7 @@ public class DeploymentService {
   private final OperationContext operationContext;
   private final JobsRepository jobsRepository;
   private final DataJobMetrics dataJobMetrics;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public Optional<JobDeploymentStatus> readDeployment(String jobName) {
     return jobImageDeployer.readScheduledJob(jobName);
@@ -64,11 +62,13 @@ public class DeploymentService {
    *     are null)
    */
   public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+
     var deploymentStatus = readDeployment(dataJob.getName());
     if (deploymentStatus.isPresent()) {
       var oldDeployment =
           DeploymentModelConverter.toJobDeployment(
               dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
+      setPythonVersionIfNull(oldDeployment, jobDeployment);
       var mergedDeployment =
           DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
       validateFieldsCanBePatched(oldDeployment, mergedDeployment);
@@ -91,11 +91,11 @@ public class DeploymentService {
   }
 
   /**
-   * Changing job version requires rebuilding the data job image which is async operation (happens
-   * in background after/while http request finishes) But we'd like to be able to guarantee that
-   * patch operation are synchronous (the desired job deployment configuration is applied when the
-   * http requests finishes) So we return error if job version has been changed and require POST
-   * request to be completed.
+   * Changing job/python/vdk versions require rebuilding the data job image which is async operation
+   * (happens in background after/while http request finishes) But we'd like to be able to guarantee
+   * that patch operation are synchronous (the desired job deployment configuration is applied when
+   * the http requests finishes) So we return error if job/python/vdk versions have been changed and
+   * require POST request to be completed.
    *
    * @param oldDeployment the old (or existing) deployment of the data job
    * @param mergedDeployment the new (merged with the old one) deployment of the data job
@@ -106,9 +106,31 @@ public class DeploymentService {
         && !mergedDeployment.getGitCommitSha().equals(oldDeployment.getGitCommitSha())) {
       throw new ApiConstraintError(
           "job_version",
-          "same as current job version when using PATCH request.",
+          "same as the current job version when using PATCH request.",
           mergedDeployment.getGitCommitSha(),
-          "Use PUT HTTP request to change job version.");
+          "Use POST HTTP request to change job version.");
+    }
+
+    if (mergedDeployment.getPythonVersion() != null
+        && !mergedDeployment.getPythonVersion().equals(oldDeployment.getPythonVersion())) {
+      throw new ApiConstraintError(
+          "python_version",
+          String.format(
+              "same as the current python version -- %s -- when using PATCH request.",
+              oldDeployment.getPythonVersion()),
+          mergedDeployment.getPythonVersion(),
+          "Use POST HTTP request to change python version.");
+    }
+
+    if (mergedDeployment.getVdkVersion() != null
+        && !mergedDeployment.getVdkVersion().equals(oldDeployment.getVdkVersion())) {
+      throw new ApiConstraintError(
+          "vdk_version",
+          String.format(
+              "same as the current vdk version -- %s -- when using PATCH request.",
+              oldDeployment.getVdkVersion()),
+          mergedDeployment.getPythonVersion(),
+          "Use POST HTTP request to change vdk version.");
     }
   }
 
@@ -141,12 +163,18 @@ public class DeploymentService {
     try {
       log.info("Starting deployment of job {}", jobDeployment.getDataJobName());
       deploymentProgress.started(dataJob.getJobConfig(), jobDeployment);
+
       var deploymentStatus = readDeployment(dataJob.getName());
       if (deploymentStatus.isPresent()) {
         var oldDeployment =
             DeploymentModelConverter.toJobDeployment(
                 dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
+        setPythonVersionIfNull(oldDeployment, jobDeployment);
         jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+      }
+
+      if (jobDeployment.getPythonVersion() == null) {
+        jobDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
       }
 
       String imageName =
@@ -193,6 +221,21 @@ public class DeploymentService {
     }
   }
 
+  /**
+   * As pythonVersion is optional, we need to check if it is passed. And if it is, we need to
+   * validate that the python version is supported by the Control Service. If it is not, we need to
+   * fail the operation, as we don't have sufficient information for the user's intent to deploy the
+   * data job.
+   *
+   * @param pythonVersion The python version to be used for the data job deployment.
+   */
+  public void validatePythonVersionIsSupported(String pythonVersion) {
+    if (pythonVersion != null && !supportedPythonVersions.isPythonVersionSupported(pythonVersion)) {
+      throw new UnsupportedPythonVersionException(
+          pythonVersion, supportedPythonVersions.getSupportedPythonVersions());
+    }
+  }
+
   private void handleException(
       DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification, Throwable e) {
     ErrorMessage message =
@@ -229,5 +272,13 @@ public class DeploymentService {
   private boolean deploymentExistsOrInProgress(String dataJobName) {
     return jobImageBuilder.isBuildingJobInProgress(dataJobName)
         || readDeployment(dataJobName).isPresent();
+  }
+
+  private JobDeployment setPythonVersionIfNull(
+      JobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
+      newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
+    }
+    return newDeployment;
   }
 }

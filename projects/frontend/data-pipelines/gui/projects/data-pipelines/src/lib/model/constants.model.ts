@@ -10,9 +10,7 @@ import { DataPipelinesConfig } from './config.model';
 /**
  * ** Injection Token for Data pipelines config.
  */
-export const DATA_PIPELINES_CONFIGS = new InjectionToken<DataPipelinesConfig>(
-    'DataPipelinesConfig',
-);
+export const DATA_PIPELINES_CONFIGS = new InjectionToken<DataPipelinesConfig>('DataPipelinesConfig');
 
 /**
  * ** Team name constant used as key identifier in {@link ComponentState.requestParams}.

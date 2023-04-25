@@ -5,16 +5,19 @@
 
 /// <reference types="cypress" />
 
-import { DataJobManageDetailsPage } from "../../../support/pages/app/lib/manage/data-job-details.po";
-import { DataJobsManagePage } from "../../../support/pages/app/lib/manage/data-jobs.po";
-import { applyGlobalEnvSettings } from "../../../support/helpers/commands.helpers";
+import { DataJobManageDetailsPage } from '../../../support/pages/app/lib/manage/data-job-details.po';
+import { DataJobsManagePage } from '../../../support/pages/app/lib/manage/data-jobs.po';
+import { applyGlobalEnvSettings } from '../../../support/helpers/commands.helpers';
 
 describe(
-    "Data Job Manage Details Page",
-    { tags: ["@dataPipelines", "@manageDataJobDetails"] },
+    'Data Job Manage Details Page',
+    { tags: ['@dataPipelines', '@manageDataJobDetails'] },
     () => {
         const descriptionWordsBeforeTruncate = 12;
 
+        /**
+         * @type {DataJobManageDetailsPage}
+         */
         let dataJobManageDetailsPage;
         let testJobs;
         let longLivedTestJob;
@@ -22,30 +25,30 @@ describe(
         before(() => {
             return DataJobManageDetailsPage.recordHarIfSupported()
                 .then(() =>
-                    cy.clearLocalStorageSnapshot("data-job-manage-details"),
+                    cy.clearLocalStorageSnapshot('data-job-manage-details')
                 )
                 .then(() => DataJobManageDetailsPage.login())
-                .then(() => cy.saveLocalStorage("data-job-manage-details"))
+                .then(() => cy.saveLocalStorage('data-job-manage-details'))
                 .then(() => cy.cleanTestJobs())
                 .then(() => cy.prepareLongLivedTestJob())
                 .then(() => cy.createTwoExecutionsLongLivedTestJob())
                 .then(() => cy.prepareBaseTestJobs())
-                .then(() => cy.fixture("lib/explore/test-jobs.json"))
+                .then(() => cy.fixture('lib/explore/test-jobs.json'))
                 .then((loadedTestJobs) => {
                     testJobs = applyGlobalEnvSettings(loadedTestJobs);
 
                     return cy.wrap({
-                        context: "manage::data-job-details.spec::1::before()",
-                        action: "continue",
+                        context: 'manage::data-job-details.spec::1::before()',
+                        action: 'continue'
                     });
                 })
-                .then(() => cy.fixture("lib/manage/e2e-cypress-dp-test.json"))
+                .then(() => cy.fixture('lib/manage/e2e-cypress-dp-test.json'))
                 .then((loadedTestJob) => {
                     longLivedTestJob = applyGlobalEnvSettings(loadedTestJob);
 
                     return cy.wrap({
-                        context: "manage::data-job-details.spec::2::before()",
-                        action: "continue",
+                        context: 'manage::data-job-details.spec::2::before()',
+                        action: 'continue'
                     });
                 });
         });
@@ -57,42 +60,43 @@ describe(
         });
 
         beforeEach(() => {
-            cy.restoreLocalStorage("data-job-manage-details");
+            cy.restoreLocalStorage('data-job-manage-details');
 
             DataJobManageDetailsPage.initBackendRequestInterceptor();
+            DataJobManageDetailsPage.initPostExecutionInterceptor();
         });
 
         it(
-            "Data Job Manage Details Page - disable/enable job",
-            { tags: "@integration" },
+            'Data Job Manage Details Page - disable/enable job',
+            { tags: '@integration' },
             () => {
                 dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                     longLivedTestJob.team,
-                    longLivedTestJob.job_name,
+                    longLivedTestJob.job_name
                 );
 
                 dataJobManageDetailsPage.clickOnContentContainer();
 
                 //Toggle job status twice, enable to disable and vice versa.
                 dataJobManageDetailsPage.toggleJobStatus(
-                    longLivedTestJob.job_name,
+                    longLivedTestJob.job_name
                 );
                 dataJobManageDetailsPage.toggleJobStatus(
-                    longLivedTestJob.job_name,
+                    longLivedTestJob.job_name
                 );
-            },
+            }
         );
 
         it(
-            "Data Job Manage Details Page - edit job description",
-            { tags: "@integration" },
+            'Data Job Manage Details Page - edit job description',
+            { tags: '@integration' },
             () => {
                 let newDescription =
-                    "Test if changing the description is working";
+                    'Test if changing the description is working';
 
                 dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                     testJobs[0].team,
-                    testJobs[0].job_name,
+                    testJobs[0].job_name
                 );
 
                 dataJobManageDetailsPage.clickOnContentContainer();
@@ -100,48 +104,50 @@ describe(
                 dataJobManageDetailsPage.openDescription();
 
                 dataJobManageDetailsPage.enterDescriptionDetails(
-                    newDescription,
+                    newDescription
                 );
 
                 dataJobManageDetailsPage.saveDescription();
 
                 dataJobManageDetailsPage
                     .getDescription()
-                    .should("be.visible")
+                    .should('be.visible')
                     .should(
-                        "contain.text",
+                        'contain.text',
                         newDescription
-                            .split(" ")
+                            .split(' ')
                             .slice(0, descriptionWordsBeforeTruncate)
-                            .join(" "),
+                            .join(' ')
                     );
-            },
+            }
         );
 
-        it("Data Job Manage Details Page - execute now", () => {
+        it('Data Job Manage Details Page - execute now', () => {
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                 longLivedTestJob.team,
-                longLivedTestJob.job_name,
+                longLivedTestJob.job_name
             );
 
             dataJobManageDetailsPage.waitForTestJobExecutionCompletion();
 
             dataJobManageDetailsPage.executeNow();
 
-            dataJobManageDetailsPage.confirmInConfirmDialog();
+            dataJobManageDetailsPage.confirmInConfirmDialog(() => {
+                dataJobManageDetailsPage.waitForPostExecutionCompletion();
+            });
 
             dataJobManageDetailsPage
                 .getToastTitle(10000)
-                .should("exist")
+                .should('exist')
                 .contains(
-                    /Data job Queued for execution|Failed, Data job is already executing/,
+                    /Data job Queued for execution|Failed, Data job is already executing/
                 );
         });
 
-        it("Data Job Manage Details Page - download job key", () => {
+        it('Data Job Manage Details Page - download job key', () => {
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                 longLivedTestJob.team,
-                longLivedTestJob.job_name,
+                longLivedTestJob.job_name
             );
 
             dataJobManageDetailsPage.openActionDropdown();
@@ -150,17 +156,17 @@ describe(
 
             dataJobManageDetailsPage
                 .readFile(
-                    "downloadsFolder",
-                    `${longLivedTestJob.job_name}.keytab`,
+                    'downloadsFolder',
+                    `${longLivedTestJob.job_name}.keytab`
                 )
-                .should("exist");
+                .should('exist');
         });
 
         it(
-            "Data Job Manage Details Page - delete job",
-            { tags: "@integration" },
+            'Data Job Manage Details Page - delete job',
+            { tags: '@integration' },
             () => {
-                cy.fixture("lib/explore/additional-test-job.json").then(
+                cy.fixture('lib/explore/additional-test-job.json').then(
                     (additionalTestJob) => {
                         const normalizedTestJob =
                             applyGlobalEnvSettings(additionalTestJob);
@@ -170,7 +176,7 @@ describe(
                         dataJobManageDetailsPage =
                             DataJobManageDetailsPage.navigateTo(
                                 normalizedTestJob.team,
-                                normalizedTestJob.job_name,
+                                normalizedTestJob.job_name
                             );
 
                         dataJobManageDetailsPage.clickOnContentContainer();
@@ -184,8 +190,8 @@ describe(
                         dataJobManageDetailsPage
                             .getToastTitle(20000) // Wait up to 20 seconds for the job to be deleted.
                             .should(
-                                "contain.text",
-                                "Data job delete completed",
+                                'contain.text',
+                                'Data job delete completed'
                             );
 
                         dataJobManageDetailsPage.waitForBackendRequestCompletion();
@@ -194,28 +200,28 @@ describe(
 
                         dataJobsManagePage
                             .getDataGridCell(normalizedTestJob.job_name, 10000) // Wait up to 10 seconds for the jobs list to show.
-                            .should("not.exist");
-                    },
+                            .should('not.exist');
+                    }
                 );
-            },
+            }
         );
 
         //TODO: Double-check and enable this test
-        it.skip("Data Job Manage Details Page - executions timeline", () => {
+        it.skip('Data Job Manage Details Page - executions timeline', () => {
             const jobName = longLivedTestJob.job_name;
             const team = longLivedTestJob.team;
 
             cy.intercept({
-                method: "GET",
-                url: `/data-jobs/for-team/${team}/jobs/${jobName}/executions`,
-            }).as("executionApiCall");
+                method: 'GET',
+                url: `/data-jobs/for-team/${team}/jobs/${jobName}/executions`
+            }).as('executionApiCall');
 
             dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
                 team,
-                jobName,
+                jobName
             );
 
-            cy.wait("@executionApiCall").then((interception) => {
+            cy.wait('@executionApiCall').then((interception) => {
                 const response = interception.response.body;
                 const lastExecutions = response
                     .sort((left, right) => compareDatesAsc(left, right))
@@ -224,46 +230,46 @@ describe(
                 const lastExecutionsSize = lastExecutions.length;
                 const lastExecution = lastExecutions.at(-1);
 
-                cy.get(".clr-timeline-step").should(
-                    "have.length",
-                    lastExecutionsSize + 1,
+                cy.get('.clr-timeline-step').should(
+                    'have.length',
+                    lastExecutionsSize + 1
                 ); // +1 next execution
 
-                cy.get(`[data-cy=${lastExecution.id}]`).as("lastExecution");
+                cy.get(`[data-cy=${lastExecution.id}]`).as('lastExecution');
 
                 let statusIconMap = [];
-                statusIconMap["cancelled"] = "times-circle";
-                statusIconMap["skipped"] = "circle-arrow";
-                statusIconMap["submitted"] = "circle";
-                statusIconMap["finished"] = "success-standard";
-                statusIconMap["failed"] = "error-standard";
+                statusIconMap['cancelled'] = 'times-circle';
+                statusIconMap['skipped'] = 'circle-arrow';
+                statusIconMap['submitted'] = 'circle';
+                statusIconMap['finished'] = 'success-standard';
+                statusIconMap['failed'] = 'error-standard';
 
-                if (lastExecution.type !== "manual") {
-                    cy.get("@lastExecution")
-                        .find(".manual-execution-label")
+                if (lastExecution.type !== 'manual') {
+                    cy.get('@lastExecution')
+                        .find('.manual-execution-label')
                         .scrollIntoView()
-                        .should("be.visible");
+                        .should('be.visible');
                 }
 
-                if (lastExecution.status !== "running") {
-                    cy.get("@lastExecution")
+                if (lastExecution.status !== 'running') {
+                    cy.get('@lastExecution')
                         .find(`[shape=${statusIconMap[lastExecution.status]}]`)
-                        .should("exist");
+                        .should('exist');
                 }
 
-                cy.get("@lastExecution")
-                    .find(".clr-timeline-step-header")
-                    .invoke("attr", "title")
-                    .should("contain", "Started ");
+                cy.get('@lastExecution')
+                    .find('.clr-timeline-step-header')
+                    .invoke('attr', 'title')
+                    .should('contain', 'Started ');
 
-                if (lastExecution.status !== "running") {
-                    cy.get("@lastExecution")
-                        .find("u")
+                if (lastExecution.status !== 'running') {
+                    cy.get('@lastExecution')
+                        .find('u')
                         .last()
-                        .invoke("attr", "title")
-                        .should("contain", "Ended ");
+                        .invoke('attr', 'title')
+                        .should('contain', 'Ended ');
                 }
             });
         });
-    },
+    }
 );

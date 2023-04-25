@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataJobDetailsBasePO } from "../../../../application/data-job-details-base.po";
+import { DataJobDetailsBasePO } from '../../../../application/data-job-details-base.po';
 
 export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
     static getPage() {
@@ -11,7 +11,7 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
     }
 
     static navigateTo(teamName, jobName) {
-        return super.navigateTo("manage", teamName, jobName);
+        return super.navigateTo('manage', teamName, jobName);
     }
 
     // Deployment methods
@@ -19,7 +19,7 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
     // Acceptable values are "not-deployed", "enabled", "disabled"
     getDeploymentStatus(status) {
         return cy.get(
-            "[data-cy=data-pipelines-job-details-status-" + status + "]",
+            '[data-cy=data-pipelines-job-details-status-' + status + ']'
         );
     }
 
@@ -27,25 +27,25 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
 
     getDescription() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-description] .form-section-readonly",
+            '[data-cy=data-pipelines-data-job-details-description] .form-section-readonly'
         );
     }
 
     getDescriptionEditButton() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-description] .form-section-header > .btn",
+            '[data-cy=data-pipelines-data-job-details-description] .form-section-header > .btn'
         );
     }
 
     getDescriptionEditTextarea() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-description] textarea",
+            '[data-cy=data-pipelines-data-job-details-description] textarea'
         );
     }
 
     getDescriptionSaveButton() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-description] button:contains(Save)",
+            '[data-cy=data-pipelines-data-job-details-description] button:contains(Save)'
         );
     }
 
@@ -67,7 +67,7 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
 
     getSchedule() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-schedule] .form-section-readonly",
+            '[data-cy=data-pipelines-data-job-details-schedule] .form-section-readonly'
         );
     }
 
@@ -75,33 +75,33 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
 
     getStatusEditButton() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-status] .form-section-header > .btn",
+            '[data-cy=data-pipelines-data-job-details-status] .form-section-header > .btn'
         );
     }
 
     getStatusSaveButton() {
         return cy.get(
-            "[data-cy=data-pipelines-data-job-details-status] button:contains(Save)",
+            '[data-cy=data-pipelines-data-job-details-status] button:contains(Save)'
         );
     }
 
     changeStatus(currentStatus) {
         const newStatus =
-            currentStatus.trim().toLowerCase() === "enabled"
-                ? "disable"
-                : "enable";
+            currentStatus.trim().toLowerCase() === 'enabled'
+                ? 'disable'
+                : 'enable';
 
         return cy
             .get(
-                `[data-cy=data-pipelines-data-job-details-status-${newStatus}]`,
+                `[data-cy=data-pipelines-data-job-details-status-${newStatus}]`
             )
-            .should("exist")
+            .should('exist')
             .check({ force: true });
     }
 
     toggleJobStatus() {
-        cy.get("[data-cy=data-pipelines-job-details-status]")
-            .invoke("text")
+        cy.get('[data-cy=data-pipelines-job-details-status]')
+            .invoke('text')
             .then((jobStatus) => {
                 this.getStatusEditButton()
                     .scrollIntoView()
@@ -116,21 +116,21 @@ export class DataJobManageDetailsPage extends DataJobDetailsBasePO {
                     .click({ force: true });
 
                 let newStatus =
-                    jobStatus === "Enabled" ? "Disabled" : "Enabled";
+                    jobStatus === 'Enabled' ? 'Disabled' : 'Enabled';
 
                 this.waitForBackendRequestCompletion();
 
                 this.getToastTitle()
-                    .should("exist")
-                    .should("contain.text", "Status update completed");
+                    .should('exist')
+                    .should('contain.text', 'Status update completed');
 
                 this.waitForActionThinkingTime(); // Natural wait for User action
 
-                this.getToastDismiss().should("exist").click({ force: true });
+                this.getToastDismiss().should('exist').click({ force: true });
 
-                cy.get("[data-cy=data-pipelines-job-details-status]")
+                cy.get('[data-cy=data-pipelines-job-details-status]')
                     .scrollIntoView()
-                    .should("have.text", newStatus);
+                    .should('have.text', newStatus);
             });
     }
 }

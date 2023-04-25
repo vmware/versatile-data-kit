@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DataJobDetailsBasePO } from "../../../../application/data-job-details-base.po";
+import { DataJobDetailsBasePO } from '../../../../application/data-job-details-base.po';
 
 export class DataJobExploreDetailsPage extends DataJobDetailsBasePO {
     static getPage() {
@@ -11,6 +11,6 @@ export class DataJobExploreDetailsPage extends DataJobDetailsBasePO {
     }
 
     static navigateTo(teamName, jobName) {
-        return super.navigateTo("explore", teamName, jobName);
+        return super.navigateTo('explore', teamName, jobName);
     }
 }

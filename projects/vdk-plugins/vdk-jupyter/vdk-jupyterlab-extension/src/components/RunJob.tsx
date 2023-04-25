@@ -2,17 +2,13 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
-import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRunRequest } from '../serverRequests';
+import { IJobPathProp } from './props';
+import { VdkErrorMessage } from './VdkErrorMessage';
 
-export interface IRunJobDialogProps {
-  /**
-   * Current Job path
-   */
-  jobPath: string;
-}
 
-export default class RunJobDialog extends Component<IRunJobDialogProps> {
+export default class RunJobDialog extends Component<IJobPathProp> {
   /**
    * Returns a React component for rendering a run menu.
    *
@@ -20,7 +16,7 @@ export default class RunJobDialog extends Component<IRunJobDialogProps> {
    * @returns React component
    */
 
-  constructor(props: IRunJobDialogProps) {
+  constructor(props: IJobPathProp) {
     super(props);
   }
   /**
@@ -80,7 +76,7 @@ export async function showRunJobDialog() {
     title: 'Run Job',
     body: (
       <RunJobDialog
-        jobPath={sessionStorage.getItem('current-path')!}
+        jobPath={jobData.get(VdkOption.PATH)!}
       ></RunJobDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
@@ -88,14 +84,28 @@ export async function showRunJobDialog() {
   if (result.button.accept) {
     let { message, status } = await jobRunRequest();
         if (status) {
-          alert(message)
+          showDialog({
+            title: 'Run Job',
+            body: <div className='vdk-run-dialog-message-container'>
+            <p className='vdk-run-dialog-message'>The job was executed successfully!</p>
+          </div>,
+            buttons: [Dialog.okButton()]
+          });
         }
         else{
-          showErrorMessage(
-            'Encauntered an error while running the job!',
-            message,
-            [Dialog.okButton()]
-          );
+          message = "ERROR : " + message;
+          const  errorMessage = new VdkErrorMessage(message);
+          showDialog({
+            title: 'Run Job',
+            body: <div  className="vdk-run-error-message ">
+              <p>{errorMessage.exception_message}</p>
+              <p>{errorMessage.what_happened}</p>
+              <p>{errorMessage.why_it_happened}</p>
+              <p>{errorMessage.consequences}</p>
+              <p>{errorMessage.countermeasures}</p>
+            </div>,
+            buttons: [Dialog.okButton()]
+          });
         }
   }
 }

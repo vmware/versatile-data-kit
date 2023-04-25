@@ -33,7 +33,7 @@ import java.util.*;
 @Slf4j
 public class JobImageDeployer {
 
-  // TODO: Out of the image we pick only the python vdk module
+  // TODO: Out of the image we pick only the python vdk module. Remove when property deprecated
   // It may make sense to just pass the module name as argument instead of an image ???
   @Value("${datajobs.vdk.image}")
   private String vdkImage;
@@ -64,6 +64,7 @@ public class JobImageDeployer {
   private final DeploymentProgress deploymentProgress;
   private final KubernetesResources kubernetesResources;
   private final JobCommandProvider jobCommandProvider;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public Optional<JobDeploymentStatus> readScheduledJob(String dataJobName) {
     Optional<JobDeploymentStatus> jobDeployment =
@@ -279,7 +280,8 @@ public class JobImageDeployer {
 
     Map<String, String> jobDeploymentAnnotations = new HashMap<>();
     var jobLabels = getJobLabels(dataJob, jobDeployment);
-    var jobAnnotations = getJobAnnotations(dataJob, lastDeployedBy);
+    var jobAnnotations =
+        getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
 
     String cronJobName = getCronJobName(jobName);
     boolean enabled = jobDeployment.getEnabled() == null || jobDeployment.getEnabled();
@@ -323,10 +325,13 @@ public class JobImageDeployer {
   }
 
   private String getJobVdkImage(JobDeployment jobDeployment) {
-    if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())) {
+    // TODO: Refactor when vdkImage is deprecated.
+    if (StringUtils.isNotBlank(jobDeployment.getVdkVersion()) && StringUtils.isNotBlank(vdkImage)) {
       return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
     } else {
-      return vdkImage;
+      return vdkImage != null && !vdkImage.isBlank()
+          ? vdkImage
+          : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     }
   }
 
@@ -379,7 +384,8 @@ public class JobImageDeployer {
     return jobPodLabels;
   }
 
-  private Map<String, String> getJobAnnotations(DataJob dataJob, String deployedBy) {
+  private Map<String, String> getJobAnnotations(
+      DataJob dataJob, String deployedBy, String pythonVersion) {
     Map<String, String> jobPodAnnotations = new HashMap<>();
     jobPodAnnotations.put(JobAnnotation.SCHEDULE.getValue(), dataJob.getJobConfig().getSchedule());
     jobPodAnnotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), "scheduled");
@@ -390,6 +396,7 @@ public class JobImageDeployer {
     jobPodAnnotations.put(
         JobAnnotation.UNSCHEDULED.getValue(),
         (StringUtils.isEmpty(dataJob.getJobConfig().getSchedule()) ? "true" : "false"));
+    jobPodAnnotations.put(JobAnnotation.PYTHON_VERSION.getValue(), pythonVersion);
     return jobPodAnnotations;
   }
 

@@ -26,7 +26,7 @@ import {
     processServiceRequestError,
     ServiceHttpErrorCodes,
     StatusType,
-    TaurusBaseEffects,
+    TaurusBaseEffects
 } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../../shared/utils';
@@ -48,7 +48,7 @@ import {
     JOB_STATUS_REQ_PARAM,
     JOBS_DATA_KEY,
     ORDER_REQ_PARAM,
-    TEAM_NAME_REQ_PARAM,
+    TEAM_NAME_REQ_PARAM
 } from '../../model';
 
 import {
@@ -60,21 +60,12 @@ import {
     TASK_LOAD_JOB_STATE,
     TASK_LOAD_JOBS_STATE,
     TASK_UPDATE_JOB_DESCRIPTION,
-    TASK_UPDATE_JOB_STATUS,
+    TASK_UPDATE_JOB_STATUS
 } from '../tasks';
 
-import {
-    LOAD_JOB_ERROR_CODES,
-    LOAD_JOBS_ERROR_CODES,
-    UPDATE_JOB_DETAILS_ERROR_CODES,
-} from '../error-codes';
+import { LOAD_JOB_ERROR_CODES, LOAD_JOBS_ERROR_CODES, UPDATE_JOB_DETAILS_ERROR_CODES } from '../error-codes';
 
-import {
-    FETCH_DATA_JOB,
-    FETCH_DATA_JOB_EXECUTIONS,
-    FETCH_DATA_JOBS,
-    UPDATE_DATA_JOB,
-} from '../actions';
+import { FETCH_DATA_JOB, FETCH_DATA_JOB_EXECUTIONS, FETCH_DATA_JOBS, UPDATE_DATA_JOB } from '../actions';
 
 import { DataJobsApiService } from '../../services';
 
@@ -100,8 +91,8 @@ export class DataJobsEffects extends TaurusBaseEffects {
         this.actions$.pipe(
             ofType(FETCH_DATA_JOBS),
             getModel(this.componentService),
-            switchMap((model: ComponentModel) => this._loadDataJobs(model)),
-        ),
+            switchMap((model: ComponentModel) => this._loadDataJobs(model))
+        )
     );
 
     loadDataJob$ = createEffect(() =>
@@ -112,38 +103,32 @@ export class DataJobsEffects extends TaurusBaseEffects {
                 merge(
                     this._executeJobTask(model, TASK_LOAD_JOB_STATE),
                     this._executeJobTask(model, TASK_LOAD_JOB_DETAILS),
-                    this._executeJobTask(model, TASK_LOAD_JOB_EXECUTIONS),
-                ),
-            ),
-        ),
+                    this._executeJobTask(model, TASK_LOAD_JOB_EXECUTIONS)
+                )
+            )
+        )
     );
 
     loadDataJobExecutions$ = createEffect(() =>
         this.actions$.pipe(
             ofType(FETCH_DATA_JOB_EXECUTIONS),
             getModel(this.componentService),
-            switchMap((model) =>
-                this._executeJobTask(model, TASK_LOAD_JOB_EXECUTIONS),
-            ),
-        ),
+            switchMap((model) => this._executeJobTask(model, TASK_LOAD_JOB_EXECUTIONS))
+        )
     );
 
     updateDataJob$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UPDATE_DATA_JOB),
             getModelAndTask(this.componentService),
-            switchMap(([model, task]) => this._updateJob(model, task)), // eslint-disable-line rxjs/no-unsafe-switchmap
-        ),
+            switchMap(([model, task]) => this._updateJob(model, task)) // eslint-disable-line rxjs/no-unsafe-switchmap
+        )
     );
 
     /**
      * ** Constructor.
      */
-    constructor(
-        actions$: Actions,
-        componentService: ComponentService,
-        private readonly dataJobsApiService: DataJobsApiService,
-    ) {
+    constructor(actions$: Actions, componentService: ComponentService, private readonly dataJobsApiService: DataJobsApiService) {
         super(actions$, componentService, DataJobsEffects.CLASS_NAME);
 
         this.registerEffectsErrorCodes();
@@ -154,57 +139,36 @@ export class DataJobsEffects extends TaurusBaseEffects {
      * @protected
      */
     protected registerEffectsErrorCodes(): void {
-        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE] =
-            this.dataJobsApiService.errorCodes.getJob;
-        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS] =
-            this.dataJobsApiService.errorCodes.getJobDetails;
-        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS] =
-            this.dataJobsApiService.errorCodes.getJobExecutions;
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE] = this.dataJobsApiService.errorCodes.getJob;
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS] = this.dataJobsApiService.errorCodes.getJobDetails;
+        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS] = this.dataJobsApiService.errorCodes.getJobExecutions;
 
-        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE] =
-            this.dataJobsApiService.errorCodes.getJobs;
+        LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE] = this.dataJobsApiService.errorCodes.getJobs;
 
-        UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_STATUS] =
-            this.dataJobsApiService.errorCodes.updateDataJobStatus;
-        UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_DESCRIPTION] =
-            this.dataJobsApiService.errorCodes.updateDataJob;
+        UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_STATUS] = this.dataJobsApiService.errorCodes.updateDataJobStatus;
+        UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_DESCRIPTION] = this.dataJobsApiService.errorCodes.updateDataJob;
     }
 
-    private _loadDataJobs(
-        componentModel: ComponentModel,
-    ): Observable<ComponentLoaded | ComponentFailed> {
+    private _loadDataJobs(componentModel: ComponentModel): Observable<ComponentLoaded | ComponentFailed> {
         const componentState = componentModel.getComponentState();
         const task: DataJobsLoadTasks = TASK_LOAD_JOBS_STATE;
 
         return of(componentModel).pipe(
             switchMap((model) =>
                 this.dataJobsApiService
-                    .getJobs(
-                        componentState.filter.criteria,
-                        componentState.search,
-                        componentState.page.page,
-                        componentState.page.size,
-                    )
+                    .getJobs(componentState.filter.criteria, componentState.search, componentState.page.page, componentState.page.size)
                     .pipe(
                         map((response) =>
                             model
                                 .clearTask()
-                                .removeErrorCodePatterns(
-                                    LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE]
-                                        .All,
-                                )
+                                .removeErrorCodePatterns(LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE].All)
                                 .withData(JOBS_DATA_KEY, response.data)
                                 .withTask(task)
                                 .withStatusLoaded()
-                                .getComponentState(),
+                                .getComponentState()
                         ),
-                        map<ComponentState, ComponentLoaded>((state) =>
-                            ComponentLoaded.of(state),
-                        ),
-                        catchError<
-                            ComponentFailed,
-                            Observable<ComponentFailed>
-                        >((error: unknown) =>
+                        map<ComponentState, ComponentLoaded>((state) => ComponentLoaded.of(state)),
+                        catchError<ComponentFailed, Observable<ComponentFailed>>((error: unknown) =>
                             this._getLatestModel(model).pipe(
                                 map((newModel) =>
                                     ComponentFailed.of(
@@ -212,199 +176,143 @@ export class DataJobsEffects extends TaurusBaseEffects {
                                             .withData(JOBS_DATA_KEY, {
                                                 content: [],
                                                 totalItems: 0,
-                                                totalPages: 0,
+                                                totalPages: 0
                                             } as DataJobPage)
                                             .withError(
                                                 processServiceRequestError(
                                                     this.objectUUID,
-                                                    LOAD_JOBS_ERROR_CODES[
-                                                        TASK_LOAD_JOBS_STATE
-                                                    ],
-                                                    ErrorUtil.extractError(
-                                                        error as Error,
-                                                    ),
-                                                ),
+                                                    LOAD_JOBS_ERROR_CODES[TASK_LOAD_JOBS_STATE],
+                                                    ErrorUtil.extractError(error as Error)
+                                                )
                                             )
                                             .withTask(task)
                                             .withStatusFailed()
-                                            .getComponentState(),
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
-            ),
+                                            .getComponentState()
+                                    )
+                                )
+                            )
+                        )
+                    )
+            )
         );
     }
 
-    private _executeJobTask(
-        model: ComponentModel,
-        task: DataJobLoadTasks,
-    ): Observable<ComponentLoaded | ComponentFailed> {
+    private _executeJobTask(model: ComponentModel, task: DataJobLoadTasks): Observable<ComponentLoaded | ComponentFailed> {
         switch (task) {
             case TASK_LOAD_JOB_STATE:
                 return this._fetchJobData<DataJob>(
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    this.dataJobsApiService.getJob.bind(
-                        this.dataJobsApiService,
-                    ),
+                    this.dataJobsApiService.getJob.bind(this.dataJobsApiService),
                     LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE],
                     model,
                     TASK_LOAD_JOB_STATE,
-                    JOB_STATE_DATA_KEY,
+                    JOB_STATE_DATA_KEY
                 );
             case TASK_LOAD_JOB_DETAILS:
                 return this._fetchJobData(
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    this.dataJobsApiService.getJobDetails.bind(
-                        this.dataJobsApiService,
-                    ),
+                    this.dataJobsApiService.getJobDetails.bind(this.dataJobsApiService),
                     LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS],
                     model,
                     TASK_LOAD_JOB_DETAILS,
-                    JOB_DETAILS_DATA_KEY,
+                    JOB_DETAILS_DATA_KEY
                 );
             case TASK_LOAD_JOB_EXECUTIONS:
                 return this._loadDataJobExecutionsGraphQL(model);
             default:
-                return throwError(
-                    () => new Error('Unknown action task for Data Pipelines.'),
-                ).pipe(this._handleError(model, null, task));
+                return throwError(() => new Error('Unknown action task for Data Pipelines.')).pipe(this._handleError(model, null, task));
         }
     }
 
     private _fetchJobData<T>(
         executor: (param1: string, param2: string) => Observable<T>,
-        executorErrorCodes: Readonly<
-            Record<keyof ServiceHttpErrorCodes, string>
-        >,
+        executorErrorCodes: Readonly<Record<keyof ServiceHttpErrorCodes, string>>,
         componentModel: ComponentModel,
         task: DataJobLoadTasks | string,
-        dataKey: string,
+        dataKey: string
     ): Observable<ComponentLoaded | ComponentUpdate | ComponentFailed> {
         return of(componentModel).pipe(
             switchMap((model) =>
                 executor(
-                    componentModel
-                        .getComponentState()
-                        .requestParams.get(TEAM_NAME_REQ_PARAM) as string,
-                    componentModel
-                        .getComponentState()
-                        .requestParams.get(JOB_NAME_REQ_PARAM) as string,
+                    componentModel.getComponentState().requestParams.get(TEAM_NAME_REQ_PARAM) as string,
+                    componentModel.getComponentState().requestParams.get(JOB_NAME_REQ_PARAM) as string
                 ).pipe(
                     switchMap((data) => {
                         let obsoleteStatus: StatusType;
 
                         return this._getLatestModel(model).pipe(
-                            tap(
-                                (newModel) =>
-                                    (obsoleteStatus = newModel.status),
-                            ),
+                            tap((newModel) => (obsoleteStatus = newModel.status)),
                             map((newModel) =>
                                 newModel
-                                    .removeErrorCodePatterns(
-                                        executorErrorCodes.All,
-                                    )
+                                    .removeErrorCodePatterns(executorErrorCodes.All)
                                     .withTask(task)
                                     .withData(dataKey, data)
                                     .withStatusLoaded()
-                                    .getComponentState(),
+                                    .getComponentState()
                             ),
-                            map((state) =>
-                                obsoleteStatus === LOADED
-                                    ? ComponentUpdate.of(state)
-                                    : ComponentLoaded.of(state),
-                            ),
+                            map((state) => (obsoleteStatus === LOADED ? ComponentUpdate.of(state) : ComponentLoaded.of(state)))
                         );
                     }),
-                    this._handleError(model, executorErrorCodes, task),
-                ),
-            ),
+                    this._handleError(model, executorErrorCodes, task)
+                )
+            )
         );
     }
 
-    private _updateJob(
-        model: ComponentModel,
-        taskIdentifier: string,
-    ): Observable<ComponentUpdate | ComponentFailed> {
-        const task =
-            extractTaskFromIdentifier<DataJobUpdateTasks>(taskIdentifier);
+    private _updateJob(model: ComponentModel, taskIdentifier: string): Observable<ComponentUpdate | ComponentFailed> {
+        const task = extractTaskFromIdentifier<DataJobUpdateTasks>(taskIdentifier);
         const requestParams = model.getComponentState().requestParams;
 
         if (task === TASK_UPDATE_JOB_DESCRIPTION) {
-            const jobDetails: DataJobDetails = requestParams.get(
-                JOB_DETAILS_REQ_PARAM,
-            );
+            const jobDetails: DataJobDetails = requestParams.get(JOB_DETAILS_REQ_PARAM);
 
             return this.dataJobsApiService
                 .updateDataJob(
                     requestParams.get(TEAM_NAME_REQ_PARAM) as string,
                     requestParams.get(JOB_NAME_REQ_PARAM) as string,
-                    jobDetails,
+                    jobDetails
                 )
                 .pipe(
                     map(() =>
                         ComponentLoaded.of(
                             model
-                                .removeErrorCodePatterns(
-                                    UPDATE_JOB_DETAILS_ERROR_CODES[
-                                        TASK_UPDATE_JOB_DESCRIPTION
-                                    ].All,
-                                )
+                                .removeErrorCodePatterns(UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_DESCRIPTION].All)
                                 .withTask(taskIdentifier)
                                 .withData(JOB_DETAILS_DATA_KEY, jobDetails)
                                 .withStatusLoaded()
-                                .getComponentState(),
-                        ),
+                                .getComponentState()
+                        )
                     ),
-                    this._handleError(
-                        model,
-                        UPDATE_JOB_DETAILS_ERROR_CODES[
-                            TASK_UPDATE_JOB_DESCRIPTION
-                        ],
-                        taskIdentifier,
-                    ),
+                    this._handleError(model, UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_DESCRIPTION], taskIdentifier)
                 );
         }
 
         if (task === TASK_UPDATE_JOB_STATUS) {
-            const jobState: DataJob = model
-                .getComponentState()
-                .requestParams.get(JOB_STATE_REQ_PARAM);
+            const jobState: DataJob = model.getComponentState().requestParams.get(JOB_STATE_REQ_PARAM);
 
             return this.dataJobsApiService
                 .updateDataJobStatus(
                     requestParams.get(TEAM_NAME_REQ_PARAM) as string,
                     requestParams.get(JOB_NAME_REQ_PARAM) as string,
                     requestParams.get(JOB_DEPLOYMENT_ID_REQ_PARAM) as string,
-                    requestParams.get(JOB_STATUS_REQ_PARAM) as boolean,
+                    requestParams.get(JOB_STATUS_REQ_PARAM) as boolean
                 )
                 .pipe(
                     map(() =>
                         ComponentLoaded.of(
                             model
-                                .removeErrorCodePatterns(
-                                    UPDATE_JOB_DETAILS_ERROR_CODES[
-                                        TASK_UPDATE_JOB_STATUS
-                                    ].All,
-                                )
+                                .removeErrorCodePatterns(UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_STATUS].All)
                                 .withTask(taskIdentifier)
                                 .withData(JOB_STATE_DATA_KEY, jobState)
                                 .withStatusLoaded()
-                                .getComponentState(),
-                        ),
+                                .getComponentState()
+                        )
                     ),
-                    this._handleError(
-                        model,
-                        UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_STATUS],
-                        taskIdentifier,
-                    ),
+                    this._handleError(model, UPDATE_JOB_DETAILS_ERROR_CODES[TASK_UPDATE_JOB_STATUS], taskIdentifier)
                 );
         }
 
-        const error = new Error(
-            'Unsupported action task for Data Pipelines, update Data Job.',
-        );
+        const error = new Error('Unsupported action task for Data Pipelines, update Data Job.');
 
         console.error(error);
 
@@ -418,19 +326,17 @@ export class DataJobsEffects extends TaurusBaseEffects {
                             DataJobsEffects.CLASS_NAME,
                             DataJobsEffects.PUBLIC_NAME,
                             '_updateJob',
-                            'UnsupportedActionTask',
+                            'UnsupportedActionTask'
                         ),
-                        error,
+                        error
                     })
                     .withStatusFailed()
-                    .getComponentState(),
-            ),
+                    .getComponentState()
+            )
         );
     }
 
-    private _loadDataJobExecutionsGraphQL(
-        componentModel: ComponentModel,
-    ): Observable<ComponentLoaded> {
+    private _loadDataJobExecutionsGraphQL(componentModel: ComponentModel): Observable<ComponentLoaded> {
         const componentState = componentModel.getComponentState();
         const requestParams = componentState.requestParams;
 
@@ -441,108 +347,66 @@ export class DataJobsEffects extends TaurusBaseEffects {
                         requestParams.get(TEAM_NAME_REQ_PARAM) as string,
                         requestParams.get(JOB_NAME_REQ_PARAM) as string,
                         true,
-                        requestParams.get(
-                            FILTER_REQ_PARAM,
-                        ) as DataJobExecutionFilter,
-                        requestParams.get(
-                            ORDER_REQ_PARAM,
-                        ) as DataJobExecutionOrder,
+                        requestParams.get(FILTER_REQ_PARAM) as DataJobExecutionFilter,
+                        requestParams.get(ORDER_REQ_PARAM) as DataJobExecutionOrder
                     )
                     .pipe(
                         switchMap((response) => {
                             let obsoleteStatus: StatusType;
 
                             return this._getLatestModel(model).pipe(
-                                tap(
-                                    (newModel) =>
-                                        (obsoleteStatus = newModel.status),
-                                ),
+                                tap((newModel) => (obsoleteStatus = newModel.status)),
                                 map((newModel) =>
                                     newModel
-                                        .removeErrorCodePatterns(
-                                            LOAD_JOB_ERROR_CODES[
-                                                TASK_LOAD_JOB_EXECUTIONS
-                                            ].All,
-                                        )
+                                        .removeErrorCodePatterns(LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS].All)
                                         .withTask(TASK_LOAD_JOB_EXECUTIONS)
-                                        .withData(
-                                            JOB_EXECUTIONS_DATA_KEY,
-                                            response.content,
-                                        )
+                                        .withData(JOB_EXECUTIONS_DATA_KEY, response.content)
                                         .withStatusLoaded()
-                                        .getComponentState(),
+                                        .getComponentState()
                                 ),
-                                map(
-                                    (
-                                        state, // NOSONAR
-                                    ) =>
-                                        obsoleteStatus === LOADED
-                                            ? ComponentUpdate.of(state)
-                                            : ComponentLoaded.of(state),
-                                ),
+                                map((state) => (obsoleteStatus === LOADED ? ComponentUpdate.of(state) : ComponentLoaded.of(state)))
                             );
                         }),
-                        this._handleError(
-                            model,
-                            LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS],
-                            TASK_LOAD_JOB_EXECUTIONS,
-                        ),
-                    ),
-            ),
+                        this._handleError(model, LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_EXECUTIONS], TASK_LOAD_JOB_EXECUTIONS)
+                    )
+            )
         );
     }
 
-    private _getLatestModel(
-        componentModel: ComponentModel,
-    ): Observable<ComponentModel> {
+    private _getLatestModel(componentModel: ComponentModel): Observable<ComponentModel> {
         const componentState = componentModel.getComponentState();
 
-        return this.componentService
-            .getModel(componentState.id, componentState.routePathSegments, [
-                '*',
-            ])
-            .pipe(take(1));
+        return this.componentService.getModel(componentState.id, componentState.routePathSegments, ['*']).pipe(take(1));
     }
 
     private _handleError(
         obsoleteModel: ComponentModel,
-        executorErrorCodes: Readonly<
-            Record<keyof ServiceHttpErrorCodes, string>
-        >,
-        task: DataJobLoadTasks | string,
+        executorErrorCodes: Readonly<Record<keyof ServiceHttpErrorCodes, string>>,
+        task: DataJobLoadTasks | string
     ) {
-        return catchError<
-            ComponentLoaded | ComponentUpdate,
-            Observable<ComponentFailed>
-        >((error: unknown) => {
+        return catchError<ComponentLoaded | ComponentUpdate, Observable<ComponentFailed>>((error: unknown) => {
             return this._getLatestModel(obsoleteModel).pipe(
                 map((newModel) =>
                     newModel
                         .withTask(task)
                         .withError(
                             CollectionsUtil.isLiteralObject(executorErrorCodes)
-                                ? processServiceRequestError(
-                                      this.objectUUID,
-                                      executorErrorCodes,
-                                      ErrorUtil.extractError(error as Error),
-                                  )
+                                ? processServiceRequestError(this.objectUUID, executorErrorCodes, ErrorUtil.extractError(error as Error))
                                 : {
                                       objectUUID: this.objectUUID,
                                       code: generateErrorCode(
                                           DataJobsEffects.CLASS_NAME,
                                           DataJobsEffects.PUBLIC_NAME,
                                           '_handleError',
-                                          'GenericError',
+                                          'GenericError'
                                       ),
-                                      error: error as Error,
-                                  },
+                                      error: error as Error
+                                  }
                         )
                         .withStatusFailed()
-                        .getComponentState(),
+                        .getComponentState()
                 ),
-                map<ComponentState, ComponentFailed>((state) =>
-                    ComponentFailed.of(state),
-                ),
+                map<ComponentState, ComponentFailed>((state) => ComponentFailed.of(state))
             );
         });
     }
