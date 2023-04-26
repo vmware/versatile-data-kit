@@ -114,11 +114,13 @@ export async function jobdDataRequest(): Promise<void> {
   }
 }
 
-export async function getFailingNotebookPath(
-  failingCellId: String
-): Promise<string> {
-  type getFailingNotebookPathResult = {
+export async function getFailingNotebookInfo(failingCellId: string): Promise<{
+  path: string;
+  failingCellIndex: string;
+}> {
+  type getFailingNotebookInfoResult = {
     path: string;
+    failingCellIndex: string;
   };
   const dataToSend = {
     failingCellId: failingCellId,
@@ -126,21 +128,30 @@ export async function getFailingNotebookPath(
   };
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<getFailingNotebookPathResult>(
+      const data = await requestAPI<getFailingNotebookInfoResult>(
         'failingNotebook',
         {
           body: JSON.stringify(dataToSend),
           method: 'POST'
         }
       );
-      return data['path'];
+      return {
+        path: data['path'],
+        failingCellIndex: data['failingCellIndex']
+      };
     } catch (error) {
       await showErrorMessage('Encountered an error. Error:', error, [
         Dialog.okButton()
       ]);
-      return '';
+      return {
+        path: '',
+        failingCellIndex: ''
+      };
     }
   } else {
-    return '';
+    return {
+      path: '',
+      failingCellIndex: ''
+    };
   }
 }
