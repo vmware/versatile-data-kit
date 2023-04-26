@@ -66,10 +66,7 @@ subprojects {
                     propFile.setText(content)
                 }else if(propFile.getName().endsWith("data_jobs_properties_api.py")) {
                     String content = propFile.getText()
-                    content = content
-                            .replace(
-                                    'def data_job_properties_read(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], deployment_id : Annotated[StrictStr, Field(..., description="Data job deployment id.")], **kwargs) -> Dict[str, object]:  # noqa: E501',
-                                    'def data_job_properties_read(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], deployment_id : Annotated[StrictStr, Field(..., description="Data job deployment id.")], **kwargs) -> Dict[str, Any]:  # noqa: E501').
+                    content = content.
                             replace("if _params['request_body']:", "if _params['request_body'] is not None:")
                     propFile.setText(content)
                 }
