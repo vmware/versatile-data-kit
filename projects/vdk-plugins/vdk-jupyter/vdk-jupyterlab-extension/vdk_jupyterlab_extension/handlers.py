@@ -155,10 +155,10 @@ class GetFailingNotebookHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        path = VdkUI.get_failing_notebook_path(
+        notebook_info = VdkUI.get_failing_notebook_info(
             input_data["failingCellId"], input_data[VdkOption.PATH.value]
         )
-        self.finish(json.dumps({"path": f"{path}"}))
+        self.finish(json.dumps(notebook_info))
 
 
 def setup_handlers(web_app):

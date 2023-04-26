@@ -159,7 +159,7 @@ class VdkUI:
         return output
 
     @staticmethod
-    def get_failing_notebook_path(failing_cell_id: str, job_path: str):
+    def get_failing_notebook_info(failing_cell_id: str, job_path: str):
         if not os.path.exists(job_path):
             job_path = os.getcwd() + job_path
             if not os.path.exists(job_path):
@@ -172,8 +172,13 @@ class VdkUI:
         for notebook_file in notebook_files:
             with open(notebook_file) as f:
                 notebook_json = json.load(f)
+                cell_index = 0
                 for jupyter_cell in notebook_json["cells"]:
                     if jupyter_cell["id"] == failing_cell_id:
                         notebook_path = str(notebook_file).replace(os.getcwd(), "")
-                        return notebook_path
-        return ""
+                        return {
+                            "path": str(notebook_path),
+                            "failingCellIndex": str(cell_index),
+                        }
+                    cell_index += 1
+        return {"path": "", "failingCellIndex": ""}
