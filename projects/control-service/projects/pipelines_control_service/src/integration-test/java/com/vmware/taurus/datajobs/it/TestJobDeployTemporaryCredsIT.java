@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ import org.springframework.test.web.servlet.MvcResult;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
+@Disabled("Disabled until we create an IAM user for testing purposes.")
 public class TestJobDeployTemporaryCredsIT extends BaseIT {
 
   private static final String TEST_JOB_NAME =
