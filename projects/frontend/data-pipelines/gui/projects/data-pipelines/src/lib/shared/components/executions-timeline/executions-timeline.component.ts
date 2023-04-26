@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChangeDetectionStrategy, Component, Inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, Input, OnInit } from '@angular/core';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -20,20 +20,26 @@ import {
     styleUrls: ['./executions-timeline.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExecutionsTimelineComponent {
+export class ExecutionsTimelineComponent implements OnInit {
     static manualRunKnownUser = 'This job is triggered manually by user';
     static manualRunNoUser = 'This job is triggered manually, but there is no info about the user';
 
     @Input() jobExecutions: DataJobExecutions = [];
     @Input() next: Date = null;
     @Input() showErrorMessage = false;
+    showExecutionFullMessage: boolean[];
 
+    messageWordsBeforeTruncate = 50;
     dataJobExecutionStatus = DataJobExecutionStatus;
 
     constructor(
         @Inject(DATA_PIPELINES_CONFIGS)
         public dataPipelinesModuleConfig: DataPipelinesConfig
     ) {}
+
+    ngOnInit(): void {
+        this.showExecutionFullMessage = new Array(this.jobExecutions.length).fill(false);
+    }
 
     /**
      * ** NgFor elements tracking function.

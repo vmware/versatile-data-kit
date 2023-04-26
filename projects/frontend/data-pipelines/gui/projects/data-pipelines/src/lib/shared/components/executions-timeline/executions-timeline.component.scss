@@ -43,6 +43,11 @@
 
         span {
             word-break: break-word;
+
+            .btn-show-more {
+                padding: 0;
+                margin: 0;
+            }
         }
     }
 

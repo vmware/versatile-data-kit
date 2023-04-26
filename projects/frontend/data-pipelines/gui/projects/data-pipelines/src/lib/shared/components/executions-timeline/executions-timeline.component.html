@@ -11,7 +11,7 @@
             let execution of jobExecutions
                 | slice
                     : (jobExecutions.length > 5 ? jobExecutions.length - 5 : 0);
-            trackBy: trackByFn
+            trackBy: trackByFn; index as i
         "
         class="clr-timeline-step"
         [attr.data-cy]="execution.id"
@@ -89,7 +89,31 @@
                     <span
                         *ngIf="showErrorMessage && isJobStatusSuitableForMessageTooltip(execution) && isJobMessageDifferentFromStatus(execution)"
                     >
-                        {{ execution.message}}
+                        <span *ngIf=" showExecutionFullMessage[i]"
+                            >{{ execution.message }}
+                            <button
+                                class="btn btn-link btn-sm btn-show-more"
+                                (click)=" showExecutionFullMessage[i] = false"
+                            >
+                                show less
+                            </button>
+                        </span>
+
+                        <span *ngIf="!showExecutionFullMessage[i]"
+                            >{{ execution.message | words :
+                            messageWordsBeforeTruncate }}
+                            <button
+                                *ngIf="
+                                            execution.message?.split(' ')
+                                                .length >
+                                            messageWordsBeforeTruncate
+                                        "
+                                class="btn btn-link btn-sm btn-show-more"
+                                (click)=" showExecutionFullMessage[i] = true"
+                            >
+                                show more
+                            </button>
+                        </span>
                         <br />
                     </span>
                     <span>Duration: </span>
