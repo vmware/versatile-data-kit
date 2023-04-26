@@ -16,7 +16,6 @@ from vdk.plugin.gdp.execution_id.gdp_execution_id_configuration import add_defin
 from vdk.plugin.gdp.execution_id.gdp_execution_id_configuration import (
     GdpExecutionIdPluginConfiguration,
 )
-from vdk.plugin.test_utils.ingest_util_plugins import IngestionMetadata
 
 GDP_EXECUTION_ID_MICRO_DIMENSION_NAME = "GDP_EXECUTION_ID_MICRO_DIMENSION_NAME"
 
@@ -34,8 +33,8 @@ class GdpExecutionIdPlugin(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
-        metadata: Optional[IngestionMetadata] = None,
-    ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
+    ) -> Tuple[List[Dict], Optional[IIngesterPlugin.IngestionMetadata]]:
         for p in payload:
             p.update({self._plugin_config.micro_dimension_name(): self.__execution_id})
         return payload, metadata

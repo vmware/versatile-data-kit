@@ -9,13 +9,14 @@
   "supportFile": "e2e/support/index.js",
   "reporter": "junit",
   "taskTimeout": 120000,
+  "requestTimeout": 90000,
   "responseTimeout": 120000,
-  "requestTimeout": 120000,
-  "pageLoadTimeout": 120000,
-  "execTimeout": 120000,
-  "defaultCommandTimeout": 60000,
+  "pageLoadTimeout": 90000,
+  "execTimeout": 90000,
+  "defaultCommandTimeout": 16000,
   "viewportWidth": 1366,
   "viewportHeight": 768,
+  "retries": 2,
   "reporterOptions": {
     "mochaFile": "e2e/reports/test-results.xml",
     "toConsole": true
@@ -23,7 +24,6 @@
   "env": {
     "hars_folders": "e2e/hars",
     "csp_url": "https://console-stg.cloud.vmware.com",
-    "login_url": "https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize",
     "data_jobs_url": "http://cicd-control-service-svc:8092",
     "test_environment": "lib",
     "grepTags": ""
