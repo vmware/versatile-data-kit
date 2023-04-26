@@ -3,9 +3,7 @@
    ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<clr-main-container
-    [attr.data-automation]="!!skipAuth && !!idToken ? 'vdk' : null"
->
+<clr-main-container [attr.data-automation]="skipAuth || !!idToken ? 'vdk' : null">
     <ng-container *ngIf="skipAuth || idToken">
         <header class="header-7">
             <div class="branding">
