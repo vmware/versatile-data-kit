@@ -3,144 +3,174 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/// <reference types="cypress" />
+
 import 'cypress-localstorage-commands';
 
+import { parseJWTToken } from '../plugins/helpers/util-helpers.plugins';
 import {
-    applyGlobalEnvSettings,
-    createExecutionsForJob,
-    createTestJob,
-    deleteTestJobIfExists,
-    deployTestJobIfNotExists,
-    waitForJobExecutionCompletion,
-} from './helpers/commands.helpers';
+    CSP_ACCESS_TOKEN_KEY,
+    CSP_EXPIRES_AT_KEY,
+    CSP_ID_TOKEN_KEY
+} from './helpers/constants.support';
+
+let jwtToken;
+let idToken;
+let accessToken;
+let expiresAt;
+
+/* returning false here prevents Cypress from failing the test */
+// Cypress.on('uncaught:exception', (err) => {
+//     // exclusive uncaught:exception suppress when it comes from Clarity Modal resize observer (ClrModalBody.addOrRemoveTabIndex)
+//     if (/Cannot read properties of null \(reading 'clientHeight'\)/.test(err.message)) {
+//         return false;
+//     }
+// });
+
+const _persistCspDataToStorage = (payload) => {
+    if (payload) {
+        idToken = payload.id_token;
+        accessToken = payload.access_token;
+        expiresAt = JSON.stringify(Date.now() + payload.expires_in * 1000);
+    }
+
+    window.localStorage.setItem(CSP_ID_TOKEN_KEY, idToken);
+    window.localStorage.setItem(CSP_ACCESS_TOKEN_KEY, accessToken);
+    window.localStorage.setItem(CSP_EXPIRES_AT_KEY, expiresAt);
+
+    // Set the CSP token in the session storage to enable the Integration testing against Management UI
+    sessionStorage.setItem(CSP_ID_TOKEN_KEY, idToken);
+    sessionStorage.setItem(CSP_ACCESS_TOKEN_KEY, accessToken);
+    sessionStorage.setItem(CSP_EXPIRES_AT_KEY, expiresAt);
+};
 
 Cypress.Commands.add('login', () => {
+    cy.log('Requesting JWT Token with refresh token');
+
     return cy
         .request({
-            method: 'POST',
-            // See project README.md how to set this login url
-            url: Cypress.env('login_url'),
-            form: true,
-            body: {
-                // See project README.md how to set this token
-                api_token: Cypress.env('OAUTH2_API_TOKEN'),
-            },
             followRedirect: false,
             failOnStatusCode: false,
+            method: 'POST',
+            // See project README.md how to set this login url
+            url: `${Cypress.env(
+                'csp_url'
+            )}/csp/gateway/am/api/auth/api-tokens/authorize`,
+            form: true,
+            headers: {
+                // CSP staging is using CloudFront CDN that does not permit bot requests unless the below user agent is set
+                'user-agent': 'csp-automation-tests'
+            },
+            body: {
+                // See project README.md how to set this token
+                api_token: Cypress.env('OAUTH2_API_TOKEN')
+            }
         })
         .its('body')
+        .then(($body) => {
+            const decodedAccessToken = parseJWTToken($body.access_token);
+
+            if (!decodedAccessToken.claims.ovl) {
+                return {
+                    ...$body,
+                    decoded_access_token: decodedAccessToken
+                };
+            }
+
+            cy.log('Requesting claims expansion');
+
+            return cy
+                .request({
+                    method: 'GET',
+                    url: `${Cypress.env(
+                        'csp_url'
+                    )}/csp/gateway/am/api/auth/token/expand-overflow-claims`,
+                    headers: {
+                        Authorization: `Bearer ${$body.access_token}`,
+                        // CSP staging is using CloudFront CDN that does not permit bot requests unless the below user agent is set
+                        'user-agent': 'csp-automation-tests'
+                    }
+                })
+                .its('body')
+                .then((claims) => {
+                    return {
+                        ...$body,
+                        decoded_access_token: {
+                            ...decodedAccessToken,
+                            claims
+                        }
+                    };
+                });
+        })
         .then((body) => {
-            const token = body.access_token;
-            const expiresIn = body.expires_in;
-            const idToken = body.id_token;
-            const expiresAt = JSON.stringify(Date.now() + expiresIn * 1000);
+            jwtToken = JSON.stringify(body);
 
-            window.localStorage.setItem('expires_at', expiresAt);
-            window.localStorage.setItem('access_token', token);
-            window.localStorage.setItem('id_token', idToken);
+            _persistCspDataToStorage(body);
 
-            // Set the CSP token in the session storage to enable the Integration testing against Management UI
-            sessionStorage.setItem('expires_at', expiresAt);
-            sessionStorage.setItem('access_token', token);
-            sessionStorage.setItem('id_token', idToken);
+            cy.task('setAccessToken', accessToken);
+
+            cy.log('Logged in successfully.');
 
             return cy.wrap({
                 context: 'commands::login()',
-                action: 'continue',
+                action: 'continue'
             });
         });
 });
 
-Cypress.Commands.add('initBackendRequestInterceptor', () => {
-    cy.intercept({
-        method: 'GET',
-        url: '**/data-jobs/for-team/**',
-    }).as('getJobsRequest');
-});
+Cypress.Commands.add('wireUserSession', () => {
+    if (jwtToken) {
+        _persistCspDataToStorage();
 
-Cypress.Commands.add('waitForBackendRequestCompletion', () => {
-    cy.wait('@getJobsRequest');
-});
-
-Cypress.Commands.add('initGetExecutionsInterceptor', () => {
-    cy.intercept('GET', '**/data-jobs/for-team/**', (req) => {
-        if (
-            req?.query?.operationName === 'jobsQuery' &&
-            req?.query?.query?.includes('executions')
-        ) {
-            req.alias = 'getExecutionsRequest';
-        }
-    });
-});
-
-Cypress.Commands.add('initGetExecutionInterceptor', () => {
-    cy.intercept({
-        method: 'GET',
-        url: '**/data-jobs/for-team/**/executions/**',
-    }).as('getExecutionRequest');
-});
-
-Cypress.Commands.add('waitForInterceptor', (aliasName, retries, predicate) => {
-    cy.wait(aliasName)
-        .its('response.body')
-        .then((json) => {
-            if (predicate(json)) {
-                return;
-            }
-
-            if (retries > 0) {
-                cy.waitForInterceptor(aliasName, retries - 1, predicate);
-            }
+        return cy.wrap({
+            context: 'commands::1::wireUserSession()',
+            action: 'continue'
         });
-});
+    }
 
-Cypress.Commands.add('initPatchDetailsReqInterceptor', () => {
-    cy.intercept('PATCH', '**/data-jobs/for-team/**/jobs/**/deployments/**').as(
-        'patchJobDetails',
-    );
-});
-
-Cypress.Commands.add('waitForPatchDetailsReqInterceptor', () => {
-    cy.wait('@patchJobDetails');
-});
-
-Cypress.Commands.add('initPostExecutionInterceptor', () => {
-    cy.intercept({
-        method: 'POST',
-        url: '**/data-jobs/for-team/**/executions',
-    }).as('postExecuteNow');
-});
-
-Cypress.Commands.add('waitForPostExecutionCompletion', () => {
-    cy.wait('@postExecuteNow');
-});
-
-Cypress.Commands.add('initDeleteExecutionInterceptor', () => {
-    cy.intercept({
-        method: 'DELETE',
-        url: '**/data-jobs/for-team/**/executions/**',
-    }).as('deleteExecution');
-});
-
-Cypress.Commands.add('waitForDeleteExecutionCompletion', () => {
-    cy.wait('@deleteExecution');
+    return cy.login();
 });
 
 Cypress.Commands.add('recordHarIfSupported', () => {
     if (Cypress.browser.name === 'chrome') {
         return cy.recordHar({
             excludePaths: [
-                'vendor.js$',
-                'clr-ui.min.css$',
-                'scripts.js$',
-                'polyfills.js$',
-            ],
+                // exclude from dev build vendor, scripts and polyfills bundles
+                /(vendor|scripts|polyfills)\.js$/,
+
+                // exclude from dev/prod clarity styles
+                /clr-ui\.min\.css$/,
+
+                // exclude global and grafana styles
+                /(styles|grafana.light)(\..*)?\.css$/,
+
+                // exclude woff2 fonts
+                /.*\.woff2/,
+
+                // SuperCollider js
+                // exclude from prod build
+                // main bundle "main.xyz.js"
+                // scripts bundle "scripts.xyz.js"
+                // polyfills bundle "polyfills.xyz.js"
+                // runtime bundle "runtime.xyz.js"
+                // lazy loaded modules "199.xyz.js"
+                /(main|scripts|polyfills|runtime|\d+)(\..*)?\.js$/,
+
+                // Grafana embedded panel js
+                // vendors app bundle "vendors-app.xyz.js"
+                // app bundle "app.xyz.js"
+                // moment-app bundle "moment-app.xyz.js"
+                // angular-app bundle "angular-app.xyz.js"
+                // influxdbPlugin bundle "influxdbPlugin.xyz.js"
+                // SoloPanelPage bundle "SoloPanelPage.xyz.js"
+                /(vendors-app|app|moment-app|angular-app|influxdbPlugin|SoloPanelPage)(\..*)?\.js$/
+            ]
         });
     }
 
     return cy.wrap({
         context: 'commands::recordHarIfSupported()',
-        action: 'continue',
+        action: 'continue'
     });
 });
 
@@ -151,181 +181,132 @@ Cypress.Commands.add('saveHarIfSupported', () => {
 
     return cy.wrap({
         context: 'commands::saveHarIfSupported()',
-        action: 'continue',
+        action: 'continue'
     });
 });
 
-Cypress.Commands.add('prepareBaseTestJobs', () => {
-    return cy.fixture('lib/explore/test-jobs.json').then((testJobs) => {
-        return Promise.all(
-            testJobs.map((testJob) => {
-                const normalizedTestJob = applyGlobalEnvSettings(testJob);
+// CSP
 
-                return createTestJob(normalizedTestJob);
-            }),
-        );
-    });
-});
-
-Cypress.Commands.add('prepareAdditionalTestJobs', () => {
+Cypress.Commands.add('initCspLoggedUserProfileGetReqInterceptor', () => {
     return cy
-        .fixture('lib/explore/additional-test-job.json')
-        .then((testJob) => {
-            const normalizedTestJob = applyGlobalEnvSettings(testJob);
-
-            return createTestJob(normalizedTestJob);
-        });
+        .intercept(
+            'GET',
+            '**/csp/gateway/am/api/auth/token-public-key?format=jwks'
+        )
+        .as('cspLoggedUserProfileGetReq');
 });
 
-Cypress.Commands.add('prepareLongLivedTestJob', () => {
-    return deployTestJobIfNotExists(
-        'lib/manage/e2e-cypress-dp-test.json',
-        'lib/manage/e2e-cypress-dp-test.zip',
-    );
+Cypress.Commands.add('waitForCspLoggedUserProfileGetReqInterceptor', () => {
+    return cy.wait('@cspLoggedUserProfileGetReq');
 });
 
-Cypress.Commands.add('prepareLongLivedFailingTestJob', () => {
-    return deployTestJobIfNotExists(
-        'e2e-cy-dp-failing.job.json',
-        'e2e-cy-dp-failing.job.zip',
-    );
-});
+// Data Pipelines
 
-Cypress.Commands.add('cleanTestJobs', () => {
+Cypress.Commands.add('initDataJobsApiGetReqInterceptor', () => {
     return cy
-        .fixture('lib/explore/test-jobs.json')
-        .then((testJobs) => {
-            return Promise.all(
-                testJobs.map((testJob) => {
-                    const normalizedTestJob = applyGlobalEnvSettings(testJob);
-
-                    return deleteTestJobIfExists(normalizedTestJob);
-                }),
-            );
-        })
-        .then(() => {
-            return cy
-                .fixture('lib/explore/additional-test-job.json')
-                .then((testJob) => {
-                    const normalizedTestJob = applyGlobalEnvSettings(testJob);
-
-                    return deleteTestJobIfExists(normalizedTestJob);
-                });
-        });
+        .intercept('GET', '**/data-jobs/for-team/**')
+        .as('dataJobsApiGetReq');
 });
 
-Cypress.Commands.add('waitForTestJobExecutionCompletion', () => {
-    const waitForJobExecutionTimeout = 180000; // Wait up to 3 min for job execution to complete
+Cypress.Commands.add('waitForDataJobsApiGetReqInterceptor', () => {
+    return cy.wait('@dataJobsApiGetReq');
+});
 
-    return cy.fixture('lib/manage/e2e-cypress-dp-test.json').then((testJob) => {
-        const normalizedTestJob = applyGlobalEnvSettings(testJob);
+Cypress.Commands.add('initDataJobsExecutionsGetReqInterceptor', () => {
+    return cy.intercept('GET', '**/data-jobs/for-team/**', (req) => {
+        if (
+            req &&
+            req.query &&
+            req.query.query &&
+            req.query.operationName === 'jobsQuery' &&
+            req.query.query.includes('executions') &&
+            req.query.query.includes('DataJobExecutionFilter') &&
+            req.query.query.includes('DataJobExecutionOrder')
+        ) {
+            req.alias = 'dataJobsExecutionsGetReq';
+        }
 
-        return waitForJobExecutionCompletion(
-            normalizedTestJob.team,
-            normalizedTestJob.job_name,
-            waitForJobExecutionTimeout,
-        );
+        return req;
     });
 });
 
-Cypress.Commands.add('createTwoExecutionsLongLivedTestJob', () => {
-    const waitForJobExecutionTimeout = 180000; // Wait up to 3 min for job execution to complete
-
-    return cy.fixture('lib/manage/e2e-cypress-dp-test.json').then((testJob) => {
-        const normalizedTestJob = applyGlobalEnvSettings(testJob);
-
-        return createExecutionsForJob(
-            normalizedTestJob.team,
-            normalizedTestJob.job_name,
-            waitForJobExecutionTimeout,
-            2,
-        );
-    });
+Cypress.Commands.add('initDataJobsSingleExecutionGetReqInterceptor', () => {
+    return cy
+        .intercept('GET', '**/data-jobs/for-team/**/executions/**')
+        .as('dataJobsSingleExecutionGetReq');
 });
 
-Cypress.Commands.add('createExecutionsLongLivedFailingTestJob', () => {
-    const waitForJobExecutionTimeout = 180000; // Wait up to 3 min for job execution to complete
-
-    return cy.fixture('e2e-cy-dp-failing.job.json').then((failingTestJob) => {
-        const normalizedTestJob = applyGlobalEnvSettings(failingTestJob);
-
-        return createExecutionsForJob(
-            normalizedTestJob.team,
-            normalizedTestJob.job_name,
-            waitForJobExecutionTimeout,
-            2,
-        );
-    });
+Cypress.Commands.add('initDataJobExecutionPostReqInterceptor', () => {
+    return cy
+        .intercept('POST', '**/data-jobs/for-team/**/executions')
+        .as('dataJobExecutionPostReq');
 });
+
+Cypress.Commands.add('waitForDataJobExecutionPostReqInterceptor', () => {
+    return cy.wait('@dataJobExecutionPostReq');
+});
+
+Cypress.Commands.add('initDataJobExecutionDeleteReqInterceptor', () => {
+    return cy
+        .intercept('DELETE', '**/data-jobs/for-team/**/executions/**')
+        .as('dataJobExecutionDeleteReq');
+});
+
+Cypress.Commands.add('waitForDataJobExecutionDeleteReqInterceptor', () => {
+    return cy.wait('@dataJobExecutionDeleteReq');
+});
+
+Cypress.Commands.add('initDataJobPutReqInterceptor', () => {
+    return cy
+        .intercept('PUT', '**/data-jobs/for-team/*/jobs/*')
+        .as('dataJobPutReq');
+});
+
+Cypress.Commands.add('waitForDataJobPutReqInterceptor', () => {
+    return cy.wait('@dataJobPutReq');
+});
+
+Cypress.Commands.add('initDataJobDeleteReqInterceptor', () => {
+    return cy
+        .intercept('DELETE', '**/data-jobs/for-team/**/jobs/**')
+        .as('dataJobDeleteReq');
+});
+
+Cypress.Commands.add('waitForDataJobDeleteReqInterceptor', () => {
+    return cy.wait('@dataJobDeleteReq');
+});
+
+Cypress.Commands.add('initDataJobDeploymentPatchReqInterceptor', () => {
+    return cy
+        .intercept('PATCH', '**/data-jobs/for-team/**/deployments/**')
+        .as('dataJobDeploymentPatchReq');
+});
+
+Cypress.Commands.add('waitForDataJobDeploymentPatchReqInterceptor', () => {
+    return cy.wait('@dataJobDeploymentPatchReq');
+});
+
+// Generics
 
 Cypress.Commands.add(
-    'changeDataJobEnabledStatus',
-    (teamName, jobName, status) => {
-        return cy
-            .request({
-                url:
-                    Cypress.env('data_jobs_url') +
-                    `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`,
-                method: 'get',
-                auth: {
-                    bearer: window.localStorage.getItem('access_token'),
-                },
-                failOnStatusCode: false,
-            })
-            .then((outerResponse) => {
-                if (outerResponse.status === 200) {
-                    const lastDeployment =
-                        outerResponse.body[outerResponse.body.length - 1];
-                    const lastDeploymentHash = lastDeployment.job_version;
-
-                    return cy
-                        .request({
-                            url:
-                                Cypress.env('data_jobs_url') +
-                                `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${lastDeploymentHash}`,
-                            method: 'patch',
-                            body: { enabled: status },
-                            auth: {
-                                bearer: window.localStorage.getItem(
-                                    'access_token',
-                                ),
-                            },
-                            failOnStatusCode: false,
-                        })
-                        .then((innerResponse) => {
-                            if (
-                                innerResponse.status >= 200 &&
-                                innerResponse.status < 300
-                            ) {
-                                cy.log(
-                                    `Change enable status to [${status}] for data job [${jobName}]`,
-                                );
-                            } else {
-                                cy.log(
-                                    `Cannot change enabled status to [${status}] for data job [${jobName}]`,
-                                );
-
-                                console.log(`Http request:`, innerResponse);
-                            }
-
-                            return cy.wrap({
-                                context:
-                                    'commands::1::changeDataJobEnabledStatus()',
-                                action: 'continue',
-                            });
-                        });
-                } else {
-                    cy.log(
-                        `Cannot change enabled status to [${status}] for data job [${jobName}]`,
-                    );
-
-                    console.log(`Http request:`, outerResponse);
-
-                    return cy.wrap({
-                        context: 'commands::2::changeDataJobEnabledStatus()',
-                        action: 'continue',
-                    });
+    'waitForInterceptorWithRetry',
+    (aliasName, retries, config) => {
+        return cy.wait(aliasName).then((interception) => {
+            if (config.predicate(interception)) {
+                if (typeof config.onfulfill === 'function') {
+                    config.onfulfill(interception);
                 }
-            });
-    },
+
+                return cy.wrap(interception);
+            }
+
+            if (retries > 0) {
+                return cy.waitForInterceptorWithRetry(
+                    aliasName,
+                    retries - 1,
+                    config
+                );
+            }
+        });
+    }
 );

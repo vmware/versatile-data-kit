@@ -275,6 +275,14 @@ spec:
               value: "{{ .Values.dataJob.deployment.initContainer.resources.limits.memory }}"
             - name: DATAJOBS_DEPLOYMENT_INITCONTAINER_RESOURCES_LIMITS_CPU
               value: "{{ .Values.dataJob.deployment.initContainer.resources.limits.cpu }}"
+            {{- if .Values.deploymentDefaultPythonVersion }}
+            - name: DATAJOBS_DEPLOYMENT_DEFAULT_PYTHON_VERSION
+              value: "{{ .Values.deploymentDefaultPythonVersion }}"
+            {{- end }}
+            {{- if .Values.deploymentSupportedPythonVersions }}
+            - name: DATAJOBS_DEPLOYMENT_SUPPORTED_PYTHON_VERSIONS
+              value: {{ toJson .Values.deploymentSupportedPythonVersions }}
+            {{- end }}
 
 
 {{- if .Values.extraVars }}

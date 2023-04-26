@@ -20,7 +20,7 @@ import {
     RouterService,
     RouterState,
     RouteState,
-    ToastService,
+    ToastService
 } from '@versatiledatakit/shared';
 
 import {
@@ -30,7 +30,7 @@ import {
     DataJobDetails,
     DataJobExecution,
     DataJobExecutionStatus,
-    DataJobExecutionType,
+    DataJobExecutionType
 } from '../../model';
 
 import { DataJobsApiService, DataJobsService } from '../../services';
@@ -70,13 +70,13 @@ describe('DataJobsDetailsComponent', () => {
                 memoryLimit: 1000,
                 memoryRequest: 1000,
                 cpuLimit: 0.5,
-                cpuRequest: 0.5,
+                cpuRequest: 0.5
             },
             executions: [],
             deployedDate: '2020-11-11T10:10:10Z',
             deployedBy: 'pmitev',
-            status: DataJobDeploymentStatus.SUCCESS,
-        },
+            status: DataJobDeploymentStatus.SUCCESS
+        }
     } as DataJobExecution;
 
     const TEST_JOB_DEPLOYMENT = {
@@ -97,85 +97,55 @@ describe('DataJobsDetailsComponent', () => {
             memory_limit: 1000,
             memory_request: 1000,
             cpu_limit: 0.5,
-            cpu_request: 0.5,
-        },
+            cpu_request: 0.5
+        }
         /* eslint-enable @typescript-eslint/naming-convention */
     } as DataJobDeploymentDetails;
 
     beforeEach(() => {
-        componentServiceStub = jasmine.createSpyObj<ComponentService>(
-            'componentService',
-            ['init', 'getModel', 'idle'],
-        );
-        navigationServiceStub = jasmine.createSpyObj<NavigationService>(
-            'navigationService',
-            ['navigate', 'navigateTo', 'navigateBack'],
-        );
-        routerServiceStub = jasmine.createSpyObj<RouterService>(
-            'routerService',
-            ['getState'],
-        );
-        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', [
-            'show',
+        componentServiceStub = jasmine.createSpyObj<ComponentService>('componentService', ['init', 'getModel', 'idle']);
+        navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['navigate', 'navigateTo', 'navigateBack']);
+        routerServiceStub = jasmine.createSpyObj<RouterService>('routerService', ['getState']);
+        toastServiceStub = jasmine.createSpyObj<ToastService>('toastService', ['show']);
+        dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>('dataJobsApiService', [
+            'getJobDetails',
+            'getJobExecutions',
+            'getJobDeployments',
+            'removeJob',
+            'downloadFile',
+            'executeDataJob',
+            'getJob'
         ]);
-        dataJobsApiServiceStub = jasmine.createSpyObj<DataJobsApiService>(
-            'dataJobsApiService',
-            [
-                'getJobDetails',
-                'getJobExecutions',
-                'getJobDeployments',
-                'removeJob',
-                'downloadFile',
-                'executeDataJob',
-                'getJob',
-            ],
-        );
-        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>(
-            'dataJobsService',
-            [
-                'loadJobs',
-                'notifyForRunningJobExecutionId',
-                'notifyForJobExecutions',
-                'notifyForTeamImplicitly',
-                'getNotifiedForRunningJobExecutionId',
-                'getNotifiedForJobExecutions',
-                'getNotifiedForTeamImplicitly',
-            ],
-        );
-        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>(
-            'errorHandlerService',
-            ['processError', 'handleError'],
-        );
+        dataJobsServiceStub = jasmine.createSpyObj<DataJobsService>('dataJobsService', [
+            'loadJobs',
+            'notifyForRunningJobExecutionId',
+            'notifyForJobExecutions',
+            'notifyForTeamImplicitly',
+            'getNotifiedForRunningJobExecutionId',
+            'getNotifiedForJobExecutions',
+            'getNotifiedForTeamImplicitly'
+        ]);
+        errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', ['processError', 'handleError']);
 
         const activatedRouteStub = () => ({
             snapshot: createRouteSnapshot({
                 data: {
-                    activateSubpageNavigation: true,
-                },
-            }),
+                    activateSubpageNavigation: true
+                }
+            })
         });
 
         dataJobsApiServiceStub.executeDataJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.getJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.getJobDetails.and.returnValue(new Subject());
-        dataJobsApiServiceStub.getJobExecutions.and.returnValue(
-            of({ content: [TEST_JOB_EXECUTION], totalItems: 1, totalPages: 1 }),
-        );
-        dataJobsApiServiceStub.getJobDeployments.and.returnValue(
-            of([TEST_JOB_DEPLOYMENT]),
-        );
+        dataJobsApiServiceStub.getJobExecutions.and.returnValue(of({ content: [TEST_JOB_EXECUTION], totalItems: 1, totalPages: 1 }));
+        dataJobsApiServiceStub.getJobDeployments.and.returnValue(of([TEST_JOB_DEPLOYMENT]));
         dataJobsApiServiceStub.removeJob.and.returnValue(new Subject());
         dataJobsApiServiceStub.downloadFile.and.returnValue(new Subject());
 
-        dataJobsServiceStub.getNotifiedForRunningJobExecutionId.and.returnValue(
-            new Subject(),
-        );
-        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(
-            new Subject(),
-        );
-        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(
-            new BehaviorSubject('taurus'),
-        );
+        dataJobsServiceStub.getNotifiedForRunningJobExecutionId.and.returnValue(new Subject());
+        dataJobsServiceStub.getNotifiedForJobExecutions.and.returnValue(new Subject());
+        dataJobsServiceStub.getNotifiedForTeamImplicitly.and.returnValue(new BehaviorSubject('taurus'));
 
         TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes([])],
@@ -189,12 +159,12 @@ describe('DataJobsDetailsComponent', () => {
                 { provide: ToastService, useValue: toastServiceStub },
                 {
                     provide: DataJobsApiService,
-                    useValue: dataJobsApiServiceStub,
+                    useValue: dataJobsApiServiceStub
                 },
                 { provide: DataJobsService, useValue: dataJobsServiceStub },
                 {
                     provide: ErrorHandlerService,
-                    useValue: errorHandlerServiceStub,
+                    useValue: errorHandlerServiceStub
                 },
                 {
                     provide: DATA_PIPELINES_CONFIGS,
@@ -202,17 +172,14 @@ describe('DataJobsDetailsComponent', () => {
                         defaultOwnerTeamName: 'all',
                         manageConfig: {
                             allowKeyTabDownloads: true,
-                            allowExecuteNow: true,
-                        },
-                    }),
-                },
-            ],
+                            allowExecuteNow: true
+                        }
+                    })
+                }
+            ]
         });
 
-        componentModelStub = ComponentModel.of(
-            ComponentStateImpl.of({}),
-            RouterState.of(RouteState.empty(), 1),
-        );
+        componentModelStub = ComponentModel.of(ComponentStateImpl.of({}), RouterState.of(RouteState.empty(), 1));
         componentServiceStub.init.and.returnValue(of(componentModelStub));
         componentServiceStub.getModel.and.returnValue(of(componentModelStub));
         routerServiceStub.getState.and.returnValue(of(RouteState.empty()));
@@ -251,7 +218,7 @@ describe('DataJobsDetailsComponent', () => {
             spyOn(component, '_submitOperationStarted').and.callThrough();
             // @ts-ignore
             spyOn(component, '_extractJobDeployment').and.returnValue({
-                id: '10',
+                id: '10'
             } as DataJobDetails);
 
             // When

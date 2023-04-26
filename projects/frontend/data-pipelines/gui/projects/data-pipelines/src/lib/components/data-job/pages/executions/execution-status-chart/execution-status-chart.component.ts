@@ -3,26 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Component,
-    Input,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-import {
-    DataJobExecutionToGridDataJobExecution,
-    GridDataJobExecution,
-} from '../model/data-job-execution';
+import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../model/data-job-execution';
 
 @Component({
     selector: 'lib-execution-status-chart',
     templateUrl: './execution-status-chart.component.html',
-    styleUrls: ['./execution-status-chart.component.scss'],
+    styleUrls: ['./execution-status-chart.component.scss']
 })
 export class ExecutionStatusChartComponent implements OnInit, OnChanges {
     @Input() jobExecutions: GridDataJobExecution[];
@@ -35,20 +26,14 @@ export class ExecutionStatusChartComponent implements OnInit, OnChanges {
     }
 
     getDoughnutLabels(): string[] {
-        return this.jobExecutions
-            .map((execution) => execution.status as string)
-            .filter((item, i, ar) => ar.indexOf(item) === i);
+        return this.jobExecutions.map((execution) => execution.status as string).filter((item, i, ar) => ar.indexOf(item) === i);
     }
 
     getDoughnutData(): number[] {
         const data: number[] = [];
 
         this.getDoughnutLabels().forEach((label) =>
-            data.push(
-                this.jobExecutions.filter(
-                    (execution) => (execution.status as string) === label,
-                ).length,
-            ),
+            data.push(this.jobExecutions.filter((execution) => (execution.status as string) === label).length)
         );
 
         return data;
@@ -56,8 +41,7 @@ export class ExecutionStatusChartComponent implements OnInit, OnChanges {
 
     getDoughnutLabelColors(): string[] {
         const colors: string[] = [];
-        const statusColorMap =
-            DataJobExecutionToGridDataJobExecution.getStatusColorsMap();
+        const statusColorMap = DataJobExecutionToGridDataJobExecution.getStatusColorsMap();
 
         this.getDoughnutLabels().forEach((label) => {
             colors.push(statusColorMap[label] as string);
@@ -70,8 +54,7 @@ export class ExecutionStatusChartComponent implements OnInit, OnChanges {
         if (!changes['jobExecutions'].isFirstChange()) {
             this.totalExecutions = this.jobExecutions.length;
             this.chart.data.labels = this.getDoughnutLabels();
-            this.chart.data.datasets[0].backgroundColor =
-                this.getDoughnutLabelColors();
+            this.chart.data.datasets[0].backgroundColor = this.getDoughnutLabelColors();
             this.chart.data.datasets[0].data = this.getDoughnutData();
             this.chart.update();
         }
@@ -86,9 +69,9 @@ export class ExecutionStatusChartComponent implements OnInit, OnChanges {
                 {
                     data: this.getDoughnutData(),
                     backgroundColor: this.getDoughnutLabelColors(),
-                    hoverOffset: 4,
-                },
-            ],
+                    hoverOffset: 4
+                }
+            ]
         };
 
         this.chart = new Chart('statusChart', {
@@ -98,28 +81,28 @@ export class ExecutionStatusChartComponent implements OnInit, OnChanges {
                 spacing: 1,
                 elements: {
                     arc: {
-                        borderWidth: 0,
-                    },
+                        borderWidth: 0
+                    }
                 },
                 cutout: 70,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false,
-                        position: 'left',
+                        position: 'left'
                     },
                     datalabels: {
                         color: 'black',
                         font: {
-                            size: 16,
-                        },
+                            size: 16
+                        }
                     },
                     tooltip: {
                         xAlign: 'center',
-                        yAlign: 'center',
-                    },
-                },
-            },
+                        yAlign: 'center'
+                    }
+                }
+            }
         });
     }
 }

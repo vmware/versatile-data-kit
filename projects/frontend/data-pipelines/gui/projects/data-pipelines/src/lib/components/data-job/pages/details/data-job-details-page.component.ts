@@ -27,21 +27,13 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
+    UrlOpenerService,
     VdkFormState,
-    VmwToastType,
+    VmwToastType
 } from '@versatiledatakit/shared';
 
-import {
-    ConfirmationModalOptions,
-    DeleteModalOptions,
-    ModalOptions,
-} from '../../../../shared/model';
-import {
-    CronUtil,
-    DataJobUtil,
-    ErrorUtil,
-    StringUtil,
-} from '../../../../shared/utils';
+import { ConfirmationModalOptions, DeleteModalOptions, ModalOptions } from '../../../../shared/model';
+import { CronUtil, DataJobUtil, ErrorUtil, StringUtil } from '../../../../shared/utils';
 import { ExtractJobStatusPipe, ParseEpochPipe } from '../../../../shared/pipes';
 
 import {
@@ -62,7 +54,7 @@ import {
     JOB_STATE_REQ_PARAM,
     JOB_STATUS_REQ_PARAM,
     ORDER_REQ_PARAM,
-    TEAM_NAME_REQ_PARAM,
+    TEAM_NAME_REQ_PARAM
 } from '../../../../model';
 
 import {
@@ -70,7 +62,7 @@ import {
     TASK_LOAD_JOB_EXECUTIONS,
     TASK_LOAD_JOB_STATE,
     TASK_UPDATE_JOB_DESCRIPTION,
-    TASK_UPDATE_JOB_STATUS,
+    TASK_UPDATE_JOB_STATUS
 } from '../../../../state/tasks';
 
 import { LOAD_JOB_ERROR_CODES } from '../../../../state/error-codes';
@@ -80,16 +72,11 @@ import { DataJobsApiService, DataJobsService } from '../../../../services';
 @Component({
     selector: 'lib-data-job-details-page',
     templateUrl: './data-job-details-page.component.html',
-    styleUrls: ['./data-job-details-page.component.scss'],
+    styleUrls: ['./data-job-details-page.component.scss']
 })
 export class DataJobDetailsPageComponent
     extends TaurusBaseComponent
-    implements
-        OnInit,
-        OnTaurusModelInit,
-        OnTaurusModelLoad,
-        OnTaurusModelChange,
-        OnTaurusModelError
+    implements OnInit, OnTaurusModelInit, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError
 {
     readonly uuid = 'DataJobDetailsPageComponent';
 
@@ -103,7 +90,15 @@ export class DataJobDetailsPageComponent
 
     isJobEditable = false;
 
+    /**
+     * ** Flag instruct whether template to show team section.
+     */
     shouldShowTeamsSection = false;
+
+    /**
+     * ** Flag instruct whether template to show change history section.
+     */
+    shouldShowChangeHistorySection = false;
 
     cronError: string = null;
 
@@ -148,15 +143,17 @@ export class DataJobDetailsPageComponent
     /**
      * ** Array of error code patterns that component should listen for in errors store.
      */
-    listenForErrorPatterns: string[] = [
-        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE].All,
-        LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS].All,
-    ];
+    listenForErrorPatterns: string[] = [LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_STATE].All, LOAD_JOB_ERROR_CODES[TASK_LOAD_JOB_DETAILS].All];
 
     /**
      * ** Flag that indicates there is jobs executions load error.
      */
     isComponentInErrorState = false;
+
+    /**
+     * ** Data Job Change history configuration.
+     */
+    changeHistoryConfig: DataPipelinesConfig['changeHistory'];
 
     constructor(
         componentService: ComponentService,
@@ -169,8 +166,9 @@ export class DataJobDetailsPageComponent
         private readonly formBuilder: FormBuilder,
         private readonly toastService: ToastService,
         private readonly errorHandlerService: ErrorHandlerService,
+        private readonly urlOpenerService: UrlOpenerService,
         @Inject(DATA_PIPELINES_CONFIGS)
-        public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
     ) {
         super(componentService, navigationService, activatedRoute);
 
@@ -186,18 +184,11 @@ export class DataJobDetailsPageComponent
     }
 
     isDescriptionSubmitEnabled(): boolean {
-        return (
-            this._isFormSubmitEnabled() &&
-            this.description.value !== this.jobDetails.description
-        );
+        return this._isFormSubmitEnabled() && this.description.value !== this.jobDetails.description;
     }
 
     isStatusSubmitEnabled(): boolean {
-        return (
-            this._isFormSubmitEnabled() &&
-            this.status.value !==
-                ExtractJobStatusPipe.transform(this.jobState?.deployments)
-        );
+        return this._isFormSubmitEnabled() && this.status.value !== ExtractJobStatusPipe.transform(this.jobState?.deployments);
     }
 
     isJobRunning(): boolean {
@@ -212,11 +203,7 @@ export class DataJobDetailsPageComponent
         if (sectionState.state === FORM_STATE.CAN_EDIT) {
             switch (sectionState.emittingSection) {
                 case 'status':
-                    this.status.setValue(
-                        ExtractJobStatusPipe.transform(
-                            this.jobState?.deployments,
-                        ),
-                    );
+                    this.status.setValue(ExtractJobStatusPipe.transform(this.jobState?.deployments));
                     break;
                 case 'description':
                     this.description.setValue(this.jobDetails.description);
@@ -233,17 +220,11 @@ export class DataJobDetailsPageComponent
     }
 
     submitForm(event: VdkFormState) {
-        if (
-            event.emittingSection === 'description' &&
-            this.isDescriptionSubmitEnabled()
-        ) {
+        if (event.emittingSection === 'description' && this.isDescriptionSubmitEnabled()) {
             this._doSubmitDescriptionUpdate();
         }
 
-        if (
-            event.emittingSection === 'status' &&
-            this.isStatusSubmitEnabled()
-        ) {
+        if (event.emittingSection === 'status' && this.isStatusSubmitEnabled()) {
             this._doSubmitStatusUpdate();
         }
     }
@@ -259,14 +240,34 @@ export class DataJobDetailsPageComponent
 
     redirectToHealthStatus() {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router
-            .navigateByUrl(
-                StringUtil.stringFormat(
-                    this.dataPipelinesModuleConfig.healthStatusUrl,
-                    this.jobDetails.job_name,
-                ),
-            )
-            .then();
+        this.router.navigateByUrl(StringUtil.stringFormat(this.dataPipelinesModuleConfig.healthStatusUrl, this.jobDetails.job_name)).then();
+    }
+
+    /**
+     * ** Intercepts click on change history link and show confirmation.
+     */
+    navigateToJobChangeHistory($event: MouseEvent): void {
+        $event.preventDefault();
+        $event.stopImmediatePropagation();
+
+        this.urlOpenerService
+            .open(this.changeHistoryConfig.urlTemplate, '_blank', {
+                title: this.changeHistoryConfig.confirmationTitle,
+                messageComponent: this.changeHistoryConfig.confirmationMessageComponent,
+                closable: true,
+                optionDoNotShowFutureConfirmation: true,
+                confirmBtnModel: {
+                    text: 'Proceed',
+                    iconShape: 'pop-out',
+                    iconPosition: 'right'
+                }
+            })
+            .then((_value) => {
+                // No-op.
+            })
+            .catch((_reason) => {
+                // No-op.
+            });
     }
 
     /**
@@ -295,45 +296,31 @@ export class DataJobDetailsPageComponent
      */
     onModelChange(model: ComponentModel, task: string): void {
         if (task === TASK_LOAD_JOB_STATE) {
-            this.jobState = model
-                .getComponentState()
-                .data.get(JOB_STATE_DATA_KEY);
+            this.jobState = model.getComponentState().data.get(JOB_STATE_DATA_KEY);
             this._initializeNextRunDate();
-            this.allowExecutionsByDeployment =
-                ExtractJobStatusPipe.transform(this.jobState?.deployments) !==
-                DataJobStatus.NOT_DEPLOYED;
-            this.cronError = CronUtil.getNextExecutionErrors(
-                this.jobState?.config?.schedule?.scheduleCron,
-            );
+            this.allowExecutionsByDeployment = ExtractJobStatusPipe.transform(this.jobState?.deployments) !== DataJobStatus.NOT_DEPLOYED;
+            this.cronError = CronUtil.getNextExecutionErrors(this.jobState?.config?.schedule?.scheduleCron);
 
             return;
         }
 
         if (task === TASK_LOAD_JOB_DETAILS) {
-            this.jobDetails = model
-                .getComponentState()
-                .data.get(JOB_DETAILS_DATA_KEY);
+            this.jobDetails = model.getComponentState().data.get(JOB_DETAILS_DATA_KEY);
             this._updateForm();
 
             return;
         }
 
         if (task === TASK_LOAD_JOB_EXECUTIONS) {
-            const executions: DataJobExecutions = model
-                .getComponentState()
-                .data.get(JOB_EXECUTIONS_DATA_KEY);
+            const executions: DataJobExecutions = model.getComponentState().data.get(JOB_EXECUTIONS_DATA_KEY);
 
             if (executions) {
                 this.dataJobsService.notifyForJobExecutions([...executions]);
 
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                const runningExecution = executions.find(
-                    DataJobUtil.isJobRunningPredicate,
-                );
+                const runningExecution = executions.find(DataJobUtil.isJobRunningPredicate);
                 if (runningExecution) {
-                    this.dataJobsService.notifyForRunningJobExecutionId(
-                        runningExecution.id,
-                    );
+                    this.dataJobsService.notifyForRunningJobExecutionId(runningExecution.id);
                 }
             }
 
@@ -344,12 +331,10 @@ export class DataJobDetailsPageComponent
             this.toastService.show({
                 type: VmwToastType.INFO,
                 title: `Description update completed`,
-                description: `Data job "${this.jobName}" description successfully updated`,
+                description: `Data job "${this.jobName}" description successfully updated`
             });
 
-            this.jobDetails = model
-                .getComponentState()
-                .data.get(JOB_DETAILS_DATA_KEY);
+            this.jobDetails = model.getComponentState().data.get(JOB_DETAILS_DATA_KEY);
 
             this.editOperationEnded();
 
@@ -361,17 +346,10 @@ export class DataJobDetailsPageComponent
                 type: VmwToastType.INFO,
                 title: `Status update completed`,
                 description:
-                    `Data job "${this.jobName}" successfully ` +
-                    `${
-                        !this._extractJobDeployment()?.enabled
-                            ? 'enabled'
-                            : 'disabled'
-                    }`,
+                    `Data job "${this.jobName}" successfully ` + `${!this._extractJobDeployment()?.enabled ? 'enabled' : 'disabled'}`
             });
 
-            this.jobState = model
-                .getComponentState()
-                .data.get(JOB_STATE_DATA_KEY);
+            this.jobState = model.getComponentState().data.get(JOB_STATE_DATA_KEY);
 
             this.editOperationEnded();
         }
@@ -380,11 +358,7 @@ export class DataJobDetailsPageComponent
     /**
      * @inheritDoc
      */
-    onModelError(
-        model: ComponentModel,
-        task: string,
-        newErrorRecords: ErrorRecord[],
-    ): void {
+    onModelError(model: ComponentModel, task: string, newErrorRecords: ErrorRecord[]): void {
         newErrorRecords.forEach((errorRecord) => {
             const error = ErrorUtil.extractError(errorRecord.error);
 
@@ -402,13 +376,13 @@ export class DataJobDetailsPageComponent
                     break;
                 case TASK_UPDATE_JOB_DESCRIPTION:
                     errorHandlerConfig = {
-                        title: 'Description update failed',
+                        title: 'Description update failed'
                     };
                     this.editOperationEnded();
                     break;
                 case TASK_UPDATE_JOB_STATUS:
                     errorHandlerConfig = {
-                        title: 'Status update failed',
+                        title: 'Status update failed'
                     };
                     this.editOperationEnded();
                     break;
@@ -427,37 +401,34 @@ export class DataJobDetailsPageComponent
         // attach listener to ErrorStore and listen for Errors change
         this.errors.onChange((store) => {
             // if there is record for listened error code patterns set component in error state
-            this.isComponentInErrorState = store.hasCodePattern(
-                ...this.listenForErrorPatterns,
-            );
+            this.isComponentInErrorState = store.hasCodePattern(...this.listenForErrorPatterns);
         });
 
         super.ngOnInit();
 
         this._initializeNextRunDate();
-
-        this.shouldShowTeamsSection =
-            this.dataPipelinesModuleConfig?.exploreConfig?.showTeamsColumn;
     }
 
     private _initialize(state: RouteState): void {
         const teamParamKey = state.getData<string>('teamParamKey');
         this.teamName = state.getParam(teamParamKey);
 
-        if (
-            CollectionsUtil.isNil(teamParamKey) ||
-            CollectionsUtil.isNil(this.teamName)
-        ) {
+        if (CollectionsUtil.isNil(teamParamKey) || CollectionsUtil.isNil(this.teamName)) {
             this._subscribeForImplicitTeam();
         }
 
         const jobParamKey = state.getData<string>('jobParamKey');
         this.jobName = state.getParam(jobParamKey);
 
-        this.isJobEditable = !!state.getData('editable');
+        this.isJobEditable = !!state.getData<boolean>('editable');
 
         if (this.isJobEditable) {
             this.formState = this.editableFormState;
+        }
+
+        if (this.dataPipelinesModuleConfig) {
+            this._initializePageFeatureFlags(state);
+            this._initializeChangeHistoryConfig();
         }
 
         this._subscribeForExecutions();
@@ -468,8 +439,8 @@ export class DataJobDetailsPageComponent
                 .withRequestParam(JOB_NAME_REQ_PARAM, this.jobName)
                 .withRequestParam(ORDER_REQ_PARAM, {
                     property: 'startTime',
-                    direction: ASC,
-                } as DataJobExecutionOrder),
+                    direction: ASC
+                } as DataJobExecutionOrder)
         );
     }
 
@@ -484,9 +455,7 @@ export class DataJobDetailsPageComponent
         if (!this.jobState?.deployments) {
             return null;
         }
-        return this.jobState?.deployments[
-            this.jobState?.deployments.length - 1
-        ];
+        return this.jobState?.deployments[this.jobState?.deployments.length - 1];
     }
 
     private _isFormSubmitEnabled(): boolean {
@@ -498,7 +467,7 @@ export class DataJobDetailsPageComponent
             name: '',
             team: '',
             status: '',
-            description: '',
+            description: ''
         });
     }
 
@@ -507,25 +476,22 @@ export class DataJobDetailsPageComponent
             name: this.jobDetails.job_name,
             team: this.jobDetails.team,
             status: ExtractJobStatusPipe.transform(this.jobState?.deployments),
-            description: this.jobDetails.description,
+            description: this.jobDetails.description
         });
     }
 
     private _doSubmitDescriptionUpdate(): void {
         const jobDetailsUpdated: DataJobDetails = {
             ...this.jobDetails,
-            description: this.description.value as string,
+            description: this.description.value as string
         };
 
         this.dataJobsService.updateJob(
             this.model
                 .withRequestParam(TEAM_NAME_REQ_PARAM, jobDetailsUpdated.team)
-                .withRequestParam(
-                    JOB_NAME_REQ_PARAM,
-                    jobDetailsUpdated.job_name,
-                )
+                .withRequestParam(JOB_NAME_REQ_PARAM, jobDetailsUpdated.job_name)
                 .withRequestParam(JOB_DETAILS_REQ_PARAM, jobDetailsUpdated),
-            TASK_UPDATE_JOB_DESCRIPTION,
+            TASK_UPDATE_JOB_DESCRIPTION
         );
     }
 
@@ -533,9 +499,7 @@ export class DataJobDetailsPageComponent
         const jobDeployment = this._extractJobDeployment();
 
         if (!jobDeployment) {
-            console.log(
-                'Status update will not be performed for job with no deployments.',
-            );
+            console.log('Status update will not be performed for job with no deployments.');
 
             return;
         }
@@ -545,10 +509,10 @@ export class DataJobDetailsPageComponent
             deployments: [
                 {
                     ...this.jobState.deployments[0],
-                    enabled: this.status.value === DataJobStatus.ENABLED,
+                    enabled: this.status.value === DataJobStatus.ENABLED
                 },
-                ...this.jobState.deployments.slice(1),
-            ],
+                ...this.jobState.deployments.slice(1)
+            ]
         };
 
         this.dataJobsService.updateJob(
@@ -556,28 +520,54 @@ export class DataJobDetailsPageComponent
                 .withRequestParam(TEAM_NAME_REQ_PARAM, this.jobDetails.team)
                 .withRequestParam(JOB_NAME_REQ_PARAM, this.jobDetails.job_name)
                 .withRequestParam(JOB_DEPLOYMENT_ID_REQ_PARAM, jobDeployment.id)
-                .withRequestParam(
-                    JOB_STATUS_REQ_PARAM,
-                    this.status.value === DataJobStatus.ENABLED,
-                )
+                .withRequestParam(JOB_STATUS_REQ_PARAM, this.status.value === DataJobStatus.ENABLED)
                 .withRequestParam(JOB_STATE_REQ_PARAM, jobState),
-            TASK_UPDATE_JOB_STATUS,
+            TASK_UPDATE_JOB_STATUS
         );
     }
 
     private _initializeNextRunDate(): void {
-        this.next = ParseEpochPipe.transform(
-            this.jobState?.config?.schedule?.nextRunEpochSeconds,
-        );
+        this.next = ParseEpochPipe.transform(this.jobState?.config?.schedule?.nextRunEpochSeconds);
+    }
+
+    private _initializePageFeatureFlags(state: RouteState): void {
+        if (state.getData<'explore' | 'manage'>('context') === 'explore') {
+            if (this.dataPipelinesModuleConfig.exploreConfig) {
+                this.shouldShowTeamsSection = this.dataPipelinesModuleConfig.exploreConfig.showTeamSectionInJobDetails;
+                this.shouldShowChangeHistorySection = this.dataPipelinesModuleConfig.exploreConfig.showChangeHistorySectionInJobDetails;
+            }
+        } else {
+            if (this.dataPipelinesModuleConfig.manageConfig) {
+                this.shouldShowTeamsSection = this.dataPipelinesModuleConfig.manageConfig.showTeamSectionInJobDetails;
+                this.shouldShowChangeHistorySection = this.dataPipelinesModuleConfig.manageConfig.showChangeHistorySectionInJobDetails;
+            }
+        }
+    }
+
+    private _initializeChangeHistoryConfig(): void {
+        if (
+            !this.shouldShowChangeHistorySection ||
+            !this.dataPipelinesModuleConfig.changeHistory ||
+            !this.dataPipelinesModuleConfig.changeHistory.urlTemplate ||
+            !this.dataPipelinesModuleConfig.changeHistory.confirmationTitle
+        ) {
+            return;
+        }
+
+        this.changeHistoryConfig = {
+            ...this.dataPipelinesModuleConfig.changeHistory,
+            urlTemplate: CollectionsUtil.interpolateString(this.dataPipelinesModuleConfig.changeHistory.urlTemplate, {
+                searchValue: '%data_job_name%',
+                replaceValue: this.jobName
+            })
+        };
     }
 
     private _subscribeForExecutions(): void {
         this.subscriptions.push(
-            this.dataJobsService
-                .getNotifiedForJobExecutions()
-                .subscribe((executions) => {
-                    this.jobExecutions = executions;
-                }),
+            this.dataJobsService.getNotifiedForJobExecutions().subscribe((executions) => {
+                this.jobExecutions = executions;
+            })
         );
     }
 

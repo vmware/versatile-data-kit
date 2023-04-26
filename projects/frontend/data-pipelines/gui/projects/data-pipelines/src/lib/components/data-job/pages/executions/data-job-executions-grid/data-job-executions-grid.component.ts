@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input } from '@angular/core';
 
 import { ClrDatagridSortOrder } from '@clr/angular';
 
@@ -22,11 +17,13 @@ import { DataJobExecutionDurationComparator } from './comparators/execution-dura
     selector: 'lib-data-job-executions-grid',
     templateUrl: './data-job-executions-grid.component.html',
     styleUrls: ['./data-job-executions-grid.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataJobExecutionsGridComponent {
     @Input() jobExecutions: GridDataJobExecution[];
     @Input() loading = false;
+
+    @HostBinding('attr.data-cy') public readonly attributeDataCy = 'data-pipelines-data-job-executions';
 
     // Sorting
     descSort = ClrDatagridSortOrder.DESC;

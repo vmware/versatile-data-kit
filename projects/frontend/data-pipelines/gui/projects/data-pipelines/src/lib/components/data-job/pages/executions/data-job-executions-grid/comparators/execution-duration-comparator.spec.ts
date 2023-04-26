@@ -23,15 +23,15 @@ describe('DataJobExecutionDurationComparator', () => {
                         startTime: aStartTime.toISOString(),
                         endTime: aEndTime.toISOString(),
                         duration: '100',
-                        jobVersion: '',
+                        jobVersion: ''
                     },
                     {
                         id: 'bJob',
                         startTime: bStartTime.toISOString(),
                         endTime: bEndTime.toISOString(),
                         duration: '110',
-                        jobVersion: '',
-                    },
+                        jobVersion: ''
+                    }
                 );
 
                 // Then

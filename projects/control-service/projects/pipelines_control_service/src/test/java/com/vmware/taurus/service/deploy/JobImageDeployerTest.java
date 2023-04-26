@@ -56,6 +56,7 @@ public class JobImageDeployerTest {
   @Mock private JobCredentialsService jobCredentialsService;
 
   @Mock private KubernetesResources kubernetesResources;
+  @Mock private SupportedPythonVersions supportedPythonVersions;
 
   @Spy private JobCommandProvider jobCommandProvider; // We need this to inject it into the deployer
 
@@ -92,6 +93,8 @@ public class JobImageDeployerTest {
         .thenReturn(new KubernetesService.Resources("500m", "1G"));
     when(defaultConfigurations.dataJobLimits())
         .thenReturn(new KubernetesService.Resources("2000m", "1G"));
+
+    when(supportedPythonVersions.getDefaultVdkImage()).thenReturn("release");
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setSchedule(TEST_JOB_SCHEDULE);

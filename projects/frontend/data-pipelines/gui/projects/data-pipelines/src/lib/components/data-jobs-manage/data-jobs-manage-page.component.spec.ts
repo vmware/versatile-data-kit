@@ -14,7 +14,7 @@ describe('DataJobsManageComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
-            declarations: [DataJobsManagePageComponent],
+            declarations: [DataJobsManagePageComponent]
         });
         fixture = TestBed.createComponent(DataJobsManagePageComponent);
         component = fixture.componentInstance;

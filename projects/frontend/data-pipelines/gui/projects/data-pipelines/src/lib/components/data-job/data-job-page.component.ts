@@ -9,18 +9,8 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { interval, of, Subject, timer } from 'rxjs';
-import {
-    catchError,
-    filter,
-    finalize,
-    map,
-    switchMap,
-    take,
-    takeUntil,
-    takeWhile,
-    tap,
-} from 'rxjs/operators';
+import { concatMap, interval, of, Subject, timer } from 'rxjs';
+import { catchError, filter, finalize, map, switchMap, take, takeUntil, takeWhile, tap } from 'rxjs/operators';
 
 import { ClrLoadingState } from '@clr/angular';
 
@@ -40,16 +30,12 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
-    VmwToastType,
+    VmwToastType
 } from '@versatiledatakit/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../shared/utils';
 import { ExtractJobStatusPipe } from '../../shared/pipes';
-import {
-    ConfirmationModalOptions,
-    DeleteModalOptions,
-    ModalOptions,
-} from '../../shared/model';
+import { ConfirmationModalOptions, DeleteModalOptions, ModalOptions } from '../../shared/model';
 
 import {
     DATA_PIPELINES_CONFIGS,
@@ -60,7 +46,7 @@ import {
     DataJobExecutionsPage,
     DataJobStatus,
     DataPipelinesConfig,
-    ToastDefinitions,
+    ToastDefinitions
 } from '../../model';
 
 import { DataJobsApiService, DataJobsService } from '../../services';
@@ -73,18 +59,15 @@ enum TypeButtonState {
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
     DELETE,
     /* eslint-disabe-next-line @typescript-eslint/naming-convention */
-    STOP,
+    STOP
 }
 
 @Component({
     selector: 'lib-data-job-page',
     templateUrl: './data-job-page.component.html',
-    styleUrls: ['./data-job-page.component.scss'],
+    styleUrls: ['./data-job-page.component.scss']
 })
-export class DataJobPageComponent
-    extends TaurusBaseComponent
-    implements OnInit, OnTaurusModelInit, OnTaurusModelError
-{
+export class DataJobPageComponent extends TaurusBaseComponent implements OnInit, OnTaurusModelInit, OnTaurusModelError {
     readonly uuid = 'DataJobPageComponent';
 
     teamName = '';
@@ -130,12 +113,11 @@ export class DataJobPageComponent
         private readonly toastService: ToastService,
         private readonly errorHandlerService: ErrorHandlerService,
         @Inject(DATA_PIPELINES_CONFIGS)
-        public readonly dataPipelinesModuleConfig: DataPipelinesConfig,
+        public readonly dataPipelinesModuleConfig: DataPipelinesConfig
     ) {
         super(componentService, navigationService, activatedRoute);
 
-        this.isSubpageNavigation =
-            !!activatedRoute.snapshot.data['activateSubpageNavigation'];
+        this.isSubpageNavigation = !!activatedRoute.snapshot.data['activateSubpageNavigation'];
 
         this.deleteOptions = new DeleteModalOptions();
         this.executeNowOptions = new ConfirmationModalOptions();
@@ -177,21 +159,15 @@ export class DataJobPageComponent
 
         this.subscriptions.push(
             this.dataJobsApiService
-                .executeDataJob(
-                    this.teamName,
-                    this.jobName,
-                    this._extractJobDeployment()?.id,
-                )
+                .executeDataJob(this.teamName, this.jobName, this._extractJobDeployment()?.id)
                 .pipe(
                     finalize(() => {
                         this._submitOperationEnded();
-                    }),
+                    })
                 )
                 .subscribe({
                     next: () => {
-                        this.toastService.show(
-                            ToastDefinitions.successfullyRanJob(this.jobName),
-                        );
+                        this.toastService.show(ToastDefinitions.successfullyRanJob(this.jobName));
 
                         let previousReqFinished = true;
 
@@ -206,44 +182,24 @@ export class DataJobPageComponent
                                     tap(() => (previousReqFinished = false)),
                                     switchMap(() =>
                                         this.dataJobsApiService
-                                            .getJobExecutions(
-                                                this.teamName,
-                                                this.jobName,
-                                                true,
-                                                null,
-                                                {
-                                                    property: 'startTime',
-                                                    direction: ASC,
-                                                },
-                                            )
+                                            .getJobExecutions(this.teamName, this.jobName, true, null, {
+                                                property: 'startTime',
+                                                direction: ASC
+                                            })
                                             .pipe(
                                                 catchError((error: unknown) => {
-                                                    this.errorHandlerService.processError(
-                                                        ErrorUtil.extractError(
-                                                            error as Error,
-                                                        ),
-                                                    );
+                                                    this.errorHandlerService.processError(ErrorUtil.extractError(error as Error));
 
                                                     return of([]);
                                                 }),
                                                 finalize(() => {
                                                     previousReqFinished = true;
-                                                }),
-                                            ),
+                                                })
+                                            )
                                     ),
-                                    map((executions: DataJobExecutionsPage) =>
-                                        executions.content
-                                            ? [...executions.content]
-                                            : [],
-                                    ),
+                                    map((executions: DataJobExecutionsPage) => (executions.content ? [...executions.content] : [])),
                                     takeWhile((executions) => {
-                                        if (
-                                            CollectionsUtil.isArrayEmpty(
-                                                executions,
-                                            ) ||
-                                            executions.length <=
-                                                this.jobExecutions.length
-                                        ) {
+                                        if (CollectionsUtil.isArrayEmpty(executions) || executions.length <= this.jobExecutions.length) {
                                             return true;
                                         }
 
@@ -251,41 +207,29 @@ export class DataJobPageComponent
 
                                         this.areJobExecutionsLoaded = true;
 
-                                        const lastExecution =
-                                            executions[executions.length - 1];
-                                        if (
-                                            !DataJobUtil.isJobRunningPredicate(
-                                                lastExecution,
-                                            )
-                                        ) {
+                                        const lastExecution = executions[executions.length - 1];
+                                        if (!DataJobUtil.isJobRunningPredicate(lastExecution)) {
                                             return true;
                                         }
 
-                                        this.dataJobsService.notifyForJobExecutions(
-                                            executions,
-                                        );
-                                        this.dataJobsService.notifyForRunningJobExecutionId(
-                                            lastExecution.id,
-                                        );
+                                        this.dataJobsService.notifyForJobExecutions(executions);
+                                        this.dataJobsService.notifyForRunningJobExecutionId(lastExecution.id);
 
                                         return false; // Stop polling if above condition is met.
-                                    }),
+                                    })
                                 )
-                                .subscribe(), // eslint-disable-line rxjs/no-nested-subscribe
+                                .subscribe() // eslint-disable-line rxjs/no-nested-subscribe
                         );
                     },
                     error: (error: unknown) => {
-                        this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error),
-                            {
-                                title:
-                                    (error as HttpErrorResponse)?.status === 409
-                                        ? 'Failed, Data job is already executing'
-                                        : 'Failed to queue Data job for execution',
-                            },
-                        );
-                    },
-                }),
+                        this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                            title:
+                                (error as HttpErrorResponse)?.status === 409
+                                    ? 'Failed, Data job is already executing'
+                                    : 'Failed to queue Data job for execution'
+                        });
+                    }
+                })
         );
     }
 
@@ -300,12 +244,12 @@ export class DataJobPageComponent
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
-                }),
+                })
             )
             .subscribe({
                 next: (response: Blob) => {
                     const blob: Blob = new Blob([response], {
-                        type: 'application/octet-stream',
+                        type: 'application/octet-stream'
                     });
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                     fileSaver.saveAs(blob, `${this.jobName}.keytab`);
@@ -313,7 +257,7 @@ export class DataJobPageComponent
                     this.toastService.show({
                         type: VmwToastType.INFO,
                         title: `Download completed`,
-                        description: `Data job keytab "${this.jobName}.keytab" successfully downloaded`,
+                        description: `Data job keytab "${this.jobName}.keytab" successfully downloaded`
                     });
                 },
                 error: (error: unknown) => {
@@ -322,13 +266,10 @@ export class DataJobPageComponent
                             ? `Download failed. Keytab file doesn't exist for this job.`
                             : `Download failed. Keytab file failed to download.`;
 
-                    this.errorHandlerService.processError(
-                        ErrorUtil.extractError(error as Error),
-                        {
-                            description: errorDescription,
-                        },
-                    );
-                },
+                    this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                        description: errorDescription
+                    });
+                }
             });
     }
 
@@ -356,41 +297,34 @@ export class DataJobPageComponent
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
-                }),
+                })
             )
             .subscribe({
                 next: () => {
                     this.toastService.show({
                         type: VmwToastType.INFO,
                         title: `Data job delete completed`,
-                        description: `Data job "${this.jobName}" successfully deleted`,
+                        description: `Data job "${this.jobName}" successfully deleted`
                     });
 
                     this.doNavigateBack();
                 },
                 error: (error: unknown) => {
-                    this.errorHandlerService.processError(
-                        ErrorUtil.extractError(error as Error),
-                        {
-                            title: `Data job delete failed`,
-                        },
-                    );
-                },
+                    this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                        title: `Data job delete failed`
+                    });
+                }
             });
     }
 
     confirmCancelDataJob() {
         this._submitOperationStarted(TypeButtonState.STOP);
         this.dataJobsApiService
-            .cancelDataJobExecution(
-                this.teamName,
-                this.jobName,
-                this.lastExecution()?.id,
-            )
+            .cancelDataJobExecution(this.teamName, this.jobName, this.lastExecution()?.id)
             .pipe(
                 finalize(() => {
                     this._submitOperationEnded();
-                }),
+                })
             )
             .subscribe({
                 next: () => {
@@ -398,17 +332,14 @@ export class DataJobPageComponent
                     this.toastService.show({
                         type: VmwToastType.INFO,
                         title: `Data job execution cancellation completed`,
-                        description: `Data job "${this.jobName}" successfully canceled`,
+                        description: `Data job "${this.jobName}" successfully canceled`
                     });
                 },
                 error: (error: unknown) => {
-                    this.errorHandlerService.processError(
-                        ErrorUtil.extractError(error as Error),
-                        {
-                            title: `Data job cancellation failed`,
-                        },
-                    );
-                },
+                    this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                        title: `Data job cancellation failed`
+                    });
+                }
             });
     }
 
@@ -417,8 +348,7 @@ export class DataJobPageComponent
      */
     cancelExecution() {
         this.cancelNowOptions.title = `Cancel ${this.lastExecution()?.id} now?`;
-        this.cancelNowOptions.message = `Execution <strong>${this.lastExecution()
-            ?.id}</strong> will be canceled.`;
+        this.cancelNowOptions.message = `Execution <strong>${this.lastExecution()?.id}</strong> will be canceled.`;
         this.cancelNowOptions.infoText = `Confirming will result in immediate data job execution cancellation.`;
         this.cancelNowOptions.opened = true;
     }
@@ -444,11 +374,7 @@ export class DataJobPageComponent
     /**
      * @inheritDoc
      */
-    onModelError(
-        model: ComponentModel,
-        _task: string,
-        newErrorRecords: ErrorRecord[],
-    ) {
+    onModelError(model: ComponentModel, _task: string, newErrorRecords: ErrorRecord[]) {
         newErrorRecords.forEach((errorRecord) => {
             const error = ErrorUtil.extractError(errorRecord.error);
 
@@ -460,10 +386,7 @@ export class DataJobPageComponent
         const teamParamKey = state.getData<string>('teamParamKey');
         this.teamName = state.getParam(teamParamKey);
 
-        if (
-            CollectionsUtil.isNil(teamParamKey) ||
-            CollectionsUtil.isNil(this.teamName)
-        ) {
+        if (CollectionsUtil.isNil(teamParamKey) || CollectionsUtil.isNil(this.teamName)) {
             this._subscribeForImplicitTeam();
         }
 
@@ -474,9 +397,7 @@ export class DataJobPageComponent
 
         this.queryParams = state.queryParams;
 
-        this.isDownloadJobKeyAllowed =
-            this.dataPipelinesModuleConfig.manageConfig?.allowKeyTabDownloads &&
-            this.isJobEditable;
+        this.isDownloadJobKeyAllowed = this.dataPipelinesModuleConfig.manageConfig?.allowKeyTabDownloads && this.isJobEditable;
 
         this._subscribeForTeamChange(state);
         this._subscribeForExecutionsChange();
@@ -493,36 +414,26 @@ export class DataJobPageComponent
     }
 
     private _subscribeForTeamChange(state: RouteState): void {
-        const shouldActivateListener = !!state.getData<boolean>(
-            'activateListenerForTeamChange',
-        );
+        const shouldActivateListener = !!state.getData<boolean>('activateListenerForTeamChange');
 
-        if (
-            shouldActivateListener &&
-            this.dataPipelinesModuleConfig?.manageConfig
-                ?.selectedTeamNameObservable
-        ) {
+        if (shouldActivateListener && this.dataPipelinesModuleConfig?.manageConfig?.selectedTeamNameObservable) {
             this.subscriptions.push(
-                this.dataPipelinesModuleConfig.manageConfig.selectedTeamNameObservable.subscribe(
-                    (newTeam) => {
-                        if (this.teamName !== newTeam) {
-                            this.teamName = newTeam;
+                this.dataPipelinesModuleConfig.manageConfig.selectedTeamNameObservable.subscribe((newTeam) => {
+                    if (this.teamName !== newTeam) {
+                        this.teamName = newTeam;
 
-                            this.doNavigateBack();
-                        }
-                    },
-                ),
+                        this.doNavigateBack();
+                    }
+                })
             );
         }
     }
 
     private _subscribeForExecutionsChange(): void {
         this.subscriptions.push(
-            this.dataJobsService
-                .getNotifiedForJobExecutions()
-                .subscribe((executions) => {
-                    this.jobExecutions = [...executions];
-                }),
+            this.dataJobsService.getNotifiedForJobExecutions().subscribe((executions) => {
+                this.jobExecutions = [...executions];
+            })
         );
     }
 
@@ -535,45 +446,27 @@ export class DataJobPageComponent
                     switchMap((id) =>
                         interval(5000).pipe(
                             switchMap(() =>
-                                this.dataJobsApiService
-                                    .getJobExecution(
-                                        this.teamName,
-                                        this.jobName,
-                                        id,
-                                    )
-                                    .pipe(
-                                        map((execution) => {
-                                            return {
-                                                execution,
-                                                error: null as Error,
-                                            };
-                                        }),
-                                        catchError((error: unknown) => {
-                                            this.errorHandlerService.processError(
-                                                ErrorUtil.extractError(
-                                                    error as Error,
-                                                ),
-                                            );
+                                this.dataJobsApiService.getJobExecution(this.teamName, this.jobName, id).pipe(
+                                    map((execution) => {
+                                        return {
+                                            execution,
+                                            error: null as Error
+                                        };
+                                    }),
+                                    catchError((error: unknown) => {
+                                        this.errorHandlerService.processError(ErrorUtil.extractError(error as Error));
 
-                                            return of({
-                                                execution:
-                                                    null as DataJobExecutionDetails,
-                                                error: error as Error,
-                                            });
-                                        }),
-                                    ),
+                                        return of({
+                                            execution: null as DataJobExecutionDetails,
+                                            error: error as Error
+                                        });
+                                    })
+                                )
                             ),
-                            tap((data) =>
-                                this._replaceRunningExecutionAndNotify(
-                                    data.execution,
-                                ),
-                            ),
+                            tap((data) => this._replaceRunningExecutionAndNotify(data.execution)),
                             takeWhile((data) => {
                                 if (data.error instanceof HttpErrorResponse) {
-                                    if (
-                                        data.error.status === 404 ||
-                                        data.error.status >= 500
-                                    ) {
+                                    if (data.error.status === 404 || data.error.status >= 500) {
                                         this.isDataJobRunning = false;
 
                                         return false;
@@ -581,110 +474,79 @@ export class DataJobPageComponent
                                 }
 
                                 const isRunning =
-                                    CollectionsUtil.isNil(data.execution) ||
-                                    DataJobUtil.isJobRunningPredicate(
-                                        data.execution,
-                                    );
+                                    CollectionsUtil.isNil(data.execution) || DataJobUtil.isJobRunningPredicate(data.execution);
 
                                 if (!isRunning) {
                                     this.isDataJobRunning = false;
                                 }
                                 return isRunning;
-                            }),
-                        ),
-                    ),
+                            })
+                        )
+                    )
                 )
-                .subscribe(),
+                .subscribe()
         );
 
         this.subscriptions.push(
             this.dataJobsService
                 .getNotifiedForRunningJobExecutionId()
                 .pipe(
-                    switchMap((executionId: string) =>
-                        this.dataJobsApiService
-                            .getJobExecution(
-                                this.teamName,
-                                this.jobName,
-                                executionId,
-                            )
-                            .pipe(
-                                map((executionDetails) => [
-                                    executionId,
-                                    executionDetails,
-                                ]),
-                                catchError((error: unknown) => {
-                                    this.errorHandlerService.processError(
-                                        ErrorUtil.extractError(error as Error),
-                                    );
+                    concatMap((executionId: string) =>
+                        this.dataJobsApiService.getJobExecution(this.teamName, this.jobName, executionId).pipe(
+                            map((executionDetails) => [executionId, executionDetails]),
+                            catchError((error: unknown) => {
+                                this.errorHandlerService.processError(ErrorUtil.extractError(error as Error));
 
-                                    return of([executionId]);
-                                }),
-                            ),
-                    ),
+                                return of([executionId]);
+                            })
+                        )
+                    )
                 )
-                .subscribe(
-                    ([executionId, executionDetails]: [
-                        string,
-                        DataJobExecutionDetails,
-                    ]) => {
-                        this.isDataJobRunning = true;
-                        this.cancelDataJobDisabled = false;
-                        this._replaceRunningExecutionAndNotify(
-                            executionDetails,
-                        );
-                        scheduleLastExecutionPolling.next(executionId);
-                    },
-                ),
+                .subscribe(([executionId, executionDetails]: [string, DataJobExecutionDetails]) => {
+                    this.isDataJobRunning = true;
+                    this.cancelDataJobDisabled = false;
+                    this._replaceRunningExecutionAndNotify(executionDetails);
+                    scheduleLastExecutionPolling.next(executionId);
+                })
         );
     }
 
     private _loadJobDetails(): void {
         this.subscriptions.push(
-            this.dataJobsApiService
-                .getJobDetails(this.teamName, this.jobName)
-                .subscribe({
-                    error: (error: unknown) => {
-                        if (error instanceof HttpErrorResponse) {
-                            if (error.status === 404) {
-                                this._showMessageJobNotExist();
-                                this.doNavigateBack();
-                            }
-
-                            console.error('Error loading jobDetails', error);
+            this.dataJobsApiService.getJobDetails(this.teamName, this.jobName).subscribe({
+                error: (error: unknown) => {
+                    if (error instanceof HttpErrorResponse) {
+                        if (error.status === 404) {
+                            this._showMessageJobNotExist();
+                            this.doNavigateBack();
                         }
-                    },
-                }),
+
+                        console.error('Error loading jobDetails', error);
+                    }
+                }
+            })
         );
         this.subscriptions.push(
-            this.dataJobsApiService
-                .getJob(this.teamName, this.jobName)
-                .subscribe({
-                    next: (job) => {
-                        if (CollectionsUtil.isDefined(job)) {
-                            this.isJobAvailable = true;
+            this.dataJobsApiService.getJob(this.teamName, this.jobName).subscribe({
+                next: (job) => {
+                    if (CollectionsUtil.isDefined(job)) {
+                        this.isJobAvailable = true;
 
-                            this.jobDeployments = job.deployments;
-                            this.isExecuteJobAllowed =
-                                ExtractJobStatusPipe.transform(
-                                    this.jobDeployments,
-                                ) !== DataJobStatus.NOT_DEPLOYED;
+                        this.jobDeployments = job.deployments;
+                        this.isExecuteJobAllowed = ExtractJobStatusPipe.transform(this.jobDeployments) !== DataJobStatus.NOT_DEPLOYED;
 
-                            return;
-                        }
+                        return;
+                    }
 
-                        this._showMessageJobNotExist();
-                        this.doNavigateBack();
-                    },
-                    error: (error: unknown) => {
-                        this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error),
-                            {
-                                title: `Loading Data job "${this.jobName}" failed`,
-                            },
-                        );
-                    },
-                }),
+                    this._showMessageJobNotExist();
+                    this.doNavigateBack();
+                },
+                error: (error: unknown) => {
+                    this.errorHandlerService.processError(ErrorUtil.extractError(error as Error), {
+                        title: `Loading Data job "${this.jobName}" failed`
+                    });
+                }
+            })
         );
     }
 
@@ -693,51 +555,36 @@ export class DataJobPageComponent
             this.dataJobsApiService
                 .getJobExecutions(this.teamName, this.jobName, true, null, {
                     property: 'startTime',
-                    direction: ASC,
+                    direction: ASC
                 })
                 .subscribe({
                     next: (value) => {
                         if (value?.content) {
-                            this.dataJobsService.notifyForJobExecutions([
-                                ...value.content,
-                            ]);
+                            this.dataJobsService.notifyForJobExecutions([...value.content]);
 
                             // eslint-disable-next-line @typescript-eslint/unbound-method
-                            const runningExecution = value.content.find(
-                                DataJobUtil.isJobRunningPredicate,
-                            );
+                            const runningExecution = value.content.find(DataJobUtil.isJobRunningPredicate);
                             if (runningExecution) {
-                                this.dataJobsService.notifyForRunningJobExecutionId(
-                                    runningExecution.id,
-                                );
+                                this.dataJobsService.notifyForRunningJobExecutionId(runningExecution.id);
                             }
                         }
 
                         this.areJobExecutionsLoaded = true;
                     },
                     error: (error: unknown) => {
-                        this.errorHandlerService.processError(
-                            ErrorUtil.extractError(error as Error),
-                        );
-                    },
-                }),
+                        this.errorHandlerService.processError(ErrorUtil.extractError(error as Error));
+                    }
+                })
         );
     }
 
-    private _replaceRunningExecutionAndNotify(
-        executionDetails: DataJobExecutionDetails,
-    ): void {
+    private _replaceRunningExecutionAndNotify(executionDetails: DataJobExecutionDetails): void {
         if (CollectionsUtil.isNil(executionDetails)) {
             return;
         }
 
-        const convertedExecution =
-            DataJobUtil.convertFromExecutionDetailsToExecutionState(
-                executionDetails,
-            );
-        const foundIndex = this.jobExecutions.findIndex(
-            (ex) => ex.id === convertedExecution.id,
-        );
+        const convertedExecution = DataJobUtil.convertFromExecutionDetailsToExecutionState(executionDetails);
+        const foundIndex = this.jobExecutions.findIndex((ex) => ex.id === convertedExecution.id);
 
         if (foundIndex !== -1) {
             this.jobExecutions.splice(foundIndex, 1, convertedExecution);
@@ -791,7 +638,7 @@ export class DataJobPageComponent
             this.toastService.show({
                 type: VmwToastType.FAILURE,
                 title: `Job "${this.jobName}" doesn't exist`,
-                description: `Data Job "${this.jobName}" for Team "${this.teamName}" doesn't exist, will load Data Jobs list`,
+                description: `Data Job "${this.jobName}" for Team "${this.teamName}" doesn't exist, will load Data Jobs list`
             });
         }
     }

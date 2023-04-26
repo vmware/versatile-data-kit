@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NgModule } from '@angular/core';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { HTTP_INTERCEPTORS, HttpBackend, HttpClientModule } from '@angular/common/http';
+import { AppConfigService } from './app-config.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { AuthConfig, OAuthModule, OAuthStorage } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthModule, OAuthModuleConfig, OAuthStorage } from 'angular-oauth2-oidc';
 
 import { TimeagoModule } from 'ngx-timeago';
 import { LottieModule } from 'ngx-lottie';
@@ -17,16 +18,9 @@ import { ApolloModule } from 'apollo-angular';
 
 import { ClarityModule } from '@clr/angular';
 
-import {
-    VdkSharedCoreModule,
-    VdkSharedFeaturesModule,
-    VdkSharedNgRxModule,
-    VdkSharedComponentsModule,
-} from '@versatiledatakit/shared';
+import { VdkSharedCoreModule, VdkSharedFeaturesModule, VdkSharedNgRxModule, VdkSharedComponentsModule } from '@versatiledatakit/shared';
 
 import { VdkDataPipelinesModule } from '@versatiledatakit/data-pipelines';
-
-import { authCodeFlowConfig } from './auth';
 
 import { AuthorizationInterceptor } from './http.interceptor';
 
@@ -48,16 +42,7 @@ export function lottiePlayerLoader() {
         ClarityModule,
         BrowserAnimationsModule,
         HttpClientModule,
-        OAuthModule.forRoot({
-            resourceServer: {
-                allowedUrls: [
-                    'https://console-stg.cloud.vmware.com/',
-                    'https://gaz-preview.csp-vidm-prod.com/',
-                    '/data-jobs',
-                ],
-                sendAccessToken: true,
-            },
-        }),
+        OAuthModule.forRoot(),
         ApolloModule,
         TimeagoModule.forRoot(),
         LottieModule.forRoot({ player: lottiePlayerLoader }),
@@ -69,32 +54,51 @@ export function lottiePlayerLoader() {
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
                 allowKeyTabDownloads: true,
+                showTeamSectionInJobDetails: true
             },
             exploreConfig: {
                 showTeamsColumn: true,
+                showTeamSectionInJobDetails: true
             },
             healthStatusUrl: '/explore/data-jobs?search={0}',
             showExecutionsPage: true,
             showLineagePage: false,
-            dataPipelinesDocumentationUrl: '#',
-        }),
+            dataPipelinesDocumentationUrl: '#'
+        })
     ],
     declarations: [AppComponent, GettingStartedComponent],
     providers: [
+        { provide: AppConfigService, useClass: AppConfigService, deps: [HttpBackend] },
+        {
+            deps: [AppConfigService],
+            multi: true,
+            provide: APP_INITIALIZER,
+            useFactory: (appConfig: AppConfigService) => () => appConfig.loadAppConfig()
+        },
         {
             provide: OAuthStorage,
-            useValue: localStorage,
+            useValue: localStorage
         },
         {
             provide: AuthConfig,
-            useValue: authCodeFlowConfig,
+            useFactory: (appConfig: AppConfigService) => () => appConfig.getAuthCodeFlowConfig()
         },
         {
-            provide: HTTP_INTERCEPTORS,
-            useClass: AuthorizationInterceptor,
-            multi: true,
+            deps: [AppConfigService],
+            provide: OAuthModuleConfig,
+            useFactory: (appConfig: AppConfigService) => ({
+                resourceServer: {
+                    allowedUrls: appConfig.getConfig().auth.resourceServer.allowedUrls,
+                    sendAccessToken: appConfig.getConfig().auth.resourceServer.sendAccessToken
+                }
+            })
         },
+        {
+            multi: true,
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthorizationInterceptor
+        }
     ],
-    bootstrap: [AppComponent],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}

@@ -16,7 +16,14 @@ spec:
     http:
       paths:
       - path: {{ .Values.ingress.path | default "/" }}
-        pathType: {{ .Values.ingress.pathType | default "ImplementationSpecific" }}
+        pathType: "ImplementationSpecific"
+        backend:
+          service:
+            name: {{ .Release.Name }}-ui
+            port:
+              number: 8091
+      - path: {{ .Values.ingress.path | default "/data-jobs" }}
+        pathType: "ImplementationSpecific"
         backend:
           service:
             name: {{ .Release.Name }}-svc

@@ -4,37 +4,26 @@
  */
 
 import { Injectable, Optional } from '@angular/core';
-import {
-    OAuthModuleConfig,
-    OAuthResourceServerErrorHandler,
-    OAuthStorage,
-} from 'angular-oauth2-oidc';
-import {
-    HttpEvent,
-    HttpHandler,
-    HttpInterceptor,
-    HttpRequest,
-} from '@angular/common/http';
+import { OAuthModuleConfig, OAuthResourceServerErrorHandler, OAuthStorage } from 'angular-oauth2-oidc';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
-import { authCodeFlowConfig } from './auth';
+import { AppConfigService } from './app-config.service';
 
 @Injectable()
 export class AuthorizationInterceptor implements HttpInterceptor {
     constructor(
+        private readonly appConfigService: AppConfigService,
         private authStorage: OAuthStorage,
         private errorHandler: OAuthResourceServerErrorHandler,
-        @Optional() private moduleConfig: OAuthModuleConfig,
+        @Optional() private moduleConfig: OAuthModuleConfig
     ) {}
 
     /**
      * @inheritDoc
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    intercept(
-        req: HttpRequest<any>,
-        next: HttpHandler,
-    ): Observable<HttpEvent<any>> {
+    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const url = req.url.toLowerCase();
         if (!this.moduleConfig) {
             return next.handle(req);
@@ -52,18 +41,11 @@ export class AuthorizationInterceptor implements HttpInterceptor {
             return next.handle(req);
         }
 
-        const sendAccessToken =
-            this.moduleConfig.resourceServer.sendAccessToken;
+        const sendAccessToken = this.moduleConfig.resourceServer.sendAccessToken;
+        const authCodeFlowConfig = this.appConfigService.getAuthCodeFlowConfig();
 
-        if (
-            sendAccessToken &&
-            url.startsWith(authCodeFlowConfig.issuer) &&
-            url.endsWith('api/auth/token')
-        ) {
-            const headers = req.headers.set(
-                'Authorization',
-                'Basic ' + btoa(authCodeFlowConfig.clientId + ':'),
-            );
+        if (sendAccessToken && url.startsWith(authCodeFlowConfig.issuer) && url.endsWith('api/auth/token')) {
+            const headers = req.headers.set('Authorization', 'Basic ' + btoa(authCodeFlowConfig.clientId + ':'));
 
             return next.handle(req.clone({ headers }));
         } else if (sendAccessToken) {
@@ -78,9 +60,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
     }
 
     private checkUrl(url: string): boolean {
-        const found = this.moduleConfig.resourceServer.allowedUrls.find((u) =>
-            url.startsWith(u),
-        );
+        const found = this.moduleConfig.resourceServer.allowedUrls.find((u) => url.startsWith(u));
         return !!found;
     }
 }

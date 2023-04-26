@@ -106,6 +106,7 @@ public class KubernetesServiceTest {
     Assertions.assertNull(actualJobExecution.getExecutionId());
     Assertions.assertNull(actualJobExecution.getJobName());
     Assertions.assertNull(actualJobExecution.getJobVersion());
+    Assertions.assertNull(actualJobExecution.getJobPythonVersion());
     Assertions.assertNull(actualJobExecution.getDeployedDate());
     Assertions.assertNull(actualJobExecution.getExecutionType());
     Assertions.assertNull(actualJobExecution.getOpId());
@@ -123,6 +124,7 @@ public class KubernetesServiceTest {
     String dataJobName = "test-data-job";
     String kubernetesJobName = "test-job";
     String jobVersion = "1234";
+    String jobPythonVersion = "3.11";
     String deployedDate = "2021-06-15T08:04:33.534787Z";
     String deployedBy = "test-user";
     String executionType = "manual";
@@ -145,7 +147,8 @@ public class KubernetesServiceTest {
                     .putAnnotationsItem(JobAnnotation.DEPLOYED_DATE.getValue(), deployedDate)
                     .putAnnotationsItem(JobAnnotation.DEPLOYED_BY.getValue(), deployedBy)
                     .putAnnotationsItem(JobAnnotation.EXECUTION_TYPE.getValue(), executionType)
-                    .putAnnotationsItem(JobAnnotation.OP_ID.getValue(), opId))
+                    .putAnnotationsItem(JobAnnotation.OP_ID.getValue(), opId)
+                    .putAnnotationsItem(JobAnnotation.PYTHON_VERSION.getValue(), jobPythonVersion))
             .spec(
                 new V1JobSpec()
                     .template(
@@ -196,6 +199,7 @@ public class KubernetesServiceTest {
     Assertions.assertEquals(kubernetesJobName, actualJobExecution.getExecutionId());
     Assertions.assertEquals(dataJobName, actualJobExecution.getJobName());
     Assertions.assertEquals(jobVersion, actualJobExecution.getJobVersion());
+    Assertions.assertEquals(jobPythonVersion, actualJobExecution.getJobPythonVersion());
     Assertions.assertEquals(
         OffsetDateTime.parse(deployedDate), actualJobExecution.getDeployedDate());
     Assertions.assertEquals(executionType, actualJobExecution.getExecutionType());
