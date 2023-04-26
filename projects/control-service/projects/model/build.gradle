@@ -9,7 +9,7 @@ plugins {
 dependencyManagement {
     // TODO include model in multi-module build to remove this import
     imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.7.5'
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.7.11'
     }
 }
 
