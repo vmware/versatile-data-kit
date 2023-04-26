@@ -113,3 +113,34 @@ export async function jobdDataRequest(): Promise<void> {
     );
   }
 }
+
+export async function getFailingNotebookPath(
+  failingCellId: String
+): Promise<string> {
+  type getFailingNotebookPathResult = {
+    path: string;
+  };
+  const dataToSend = {
+    failingCellId: failingCellId,
+    jobPath: jobData.get(VdkOption.PATH)
+  };
+  if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
+    try {
+      const data = await requestAPI<getFailingNotebookPathResult>(
+        'failingNotebook',
+        {
+          body: JSON.stringify(dataToSend),
+          method: 'POST'
+        }
+      );
+      return data['path'];
+    } catch (error) {
+      await showErrorMessage('Encountered an error. Error:', error, [
+        Dialog.okButton()
+      ]);
+      return '';
+    }
+  } else {
+    return '';
+  }
+}

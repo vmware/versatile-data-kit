@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
+import pathlib
 import shlex
 import subprocess
 from pathlib import Path
@@ -156,3 +157,23 @@ class VdkUI:
             enabled=enabled,
         )
         return output
+
+    @staticmethod
+    def get_failing_notebook_path(failing_cell_id: str, job_path: str):
+        if not os.path.exists(job_path):
+            job_path = os.getcwd() + job_path
+            if not os.path.exists(job_path):
+                return ""
+        notebook_files = [
+            x
+            for x in pathlib.Path(job_path).iterdir()
+            if (x.name.lower().endswith(".ipynb"))
+        ]
+        for notebook_file in notebook_files:
+            with open(notebook_file) as f:
+                notebook_json = json.load(f)
+                for jupyter_cell in notebook_json["cells"]:
+                    if jupyter_cell["id"] == failing_cell_id:
+                        notebook_path = str(notebook_file).replace(os.getcwd(), "")
+                        return notebook_path
+        return ""
