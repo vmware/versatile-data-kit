@@ -854,7 +854,11 @@ paths:
         - Data Jobs Properties
       responses:
         '200':
-          $ref: '#/components/responses/Properties'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataJobProperties'
+          description: Data Job properties
       operationId: dataJobPropertiesRead
       summary: Get Data Job properties.
       description: <i>(Introduced in v1.0)</i>
@@ -1238,8 +1242,7 @@ components:
     DataJobProperties:
       description: Properties of a Data Job
       type: object
-      additionalProperties:
-        type: object
+      additionalProperties: {}
       example:
         redshift-user: foo
         redshift-password: bar
@@ -1528,12 +1531,6 @@ components:
           schema:
             $ref: '#/components/schemas/DataJobExecutionLogs'
       description: Deployment properties
-    Properties:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/DataJobProperties'
-      description: Data Job properties
     Source:
       content:
         application/json:

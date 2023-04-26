@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-//  when we upgrade to a newer version of openapi.generator we should delete the folder openapi-code-generator/template
     id 'org.openapi.generator' version '6.5.0'
 }
 
@@ -48,10 +47,36 @@ subprojects {
     }
 
     task buildPython(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
-        generatorName = "python"
+        generatorName = "python-nextgen"
         inputSpec = "$projectDir/api.yaml"
         outputDir = "$projectDir/build/python"
         configFile = "$projectDir/config-python.json"
+        doLast {
+
+            fileTree("$projectDir/build/python/taurus_datajob_api/api") {
+            }.each { File propFile ->
+                if(propFile.getName().endsWith("data_jobs_sources_api.py")) {
+                    String content = propFile.getText()
+                    content = content
+                            .replace(
+                                    'def sources_upload(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : StrictStr, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs) -> DataJobVersion:  # noqa: E501',
+                                    'def sources_upload(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : bytes, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs) -> DataJobVersion:  # noqa: E501').
+                            replace('def sources_upload_with_http_info(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : StrictStr, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs):  # noqa: E501',
+                                    'def sources_upload_with_http_info(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : bytes, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs):  # noqa: E501')
+                    propFile.setText(content)
+                }else if(propFile.getName().endsWith("data_jobs_properties_api.py")) {
+                    String content = propFile.getText()
+                    content = content
+                            .replace(
+                                    'def data_job_properties_read(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], deployment_id : Annotated[StrictStr, Field(..., description="Data job deployment id.")], **kwargs) -> Dict[str, object]:  # noqa: E501',
+                                    'def data_job_properties_read(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], deployment_id : Annotated[StrictStr, Field(..., description="Data job deployment id.")], **kwargs) -> Dict[str, Any]:  # noqa: E501').
+                            replace("if _params['request_body']:", "if _params['request_body'] is not None:")
+                    propFile.setText(content)
+                }
+            }
+
+
+        }
     }
     cleanUpUnwantedGeneratedFiles.dependsOn 'openApiGenerate'
     compileJava.dependsOn 'openApiGenerate' //generate Java from openapi specs
