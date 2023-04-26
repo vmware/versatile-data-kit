@@ -17,7 +17,7 @@ project.ext {
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
             'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.3.1',
             'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.14.4',
-            'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.14.2',
+            'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.15.0',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0',
             'org.json:json'                                                      : 'org.json:json:20230227',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.11.0',
