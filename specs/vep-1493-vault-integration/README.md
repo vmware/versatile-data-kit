@@ -2,7 +2,7 @@
 # VEP-1493: Vault Integration For Secrets Storage
 
 * **Author(s):** Dako Dakov (ddakov@gmail.com), ...
-* **Status:** draft
+* **Status:** implementable
 
 
 To get started with this template:

@@ -28,19 +28,40 @@ import { DirectivesModule } from './directives/directives.module';
 
 import { PipesModule } from './pipes/pipes.module';
 
+import { DynamicComponentsModule } from './dynamic-components/dynamic-components.module';
+import { DynamicComponentsService } from './dynamic-components';
+
+import { ConfirmationModule } from './confirmation/confirmation.module';
+import { ConfirmationService } from './confirmation';
+
+import { UrlOpenerModule } from './url-opener/url-opener.module';
+import { UrlOpenerService } from './url-opener';
+
 @NgModule({
     imports: [
         CommonModule,
         RouterModule,
         ClarityModule,
         VdkSharedComponentsModule.forChild(),
-        ToastsModule,
-        WarningModule,
-        PlaceholderModule,
+        ConfirmationModule,
         DirectivesModule,
-        PipesModule
+        DynamicComponentsModule,
+        PlaceholderModule,
+        PipesModule,
+        ToastsModule,
+        UrlOpenerModule,
+        WarningModule
     ],
-    exports: [ToastsModule, WarningModule, PlaceholderModule, DirectivesModule, PipesModule]
+    exports: [
+        ConfirmationModule,
+        DirectivesModule,
+        DynamicComponentsModule,
+        PlaceholderModule,
+        PipesModule,
+        ToastsModule,
+        UrlOpenerModule,
+        WarningModule
+    ]
 })
 export class VdkSharedFeaturesModule {
     /**
@@ -53,7 +74,14 @@ export class VdkSharedFeaturesModule {
     static forRoot(featuresConfig?: SharedFeaturesConfig): ModuleWithProviders<VdkSharedFeaturesModule> {
         return {
             ngModule: VdkSharedFeaturesModule,
-            providers: [{ provide: SHARED_FEATURES_CONFIG_TOKEN, useValue: featuresConfig ?? {} }, ErrorHandlerService, ToastService]
+            providers: [
+                { provide: SHARED_FEATURES_CONFIG_TOKEN, useValue: featuresConfig ?? {} },
+                ConfirmationService,
+                DynamicComponentsService,
+                ErrorHandlerService,
+                ToastService,
+                UrlOpenerService
+            ]
         };
     }
 

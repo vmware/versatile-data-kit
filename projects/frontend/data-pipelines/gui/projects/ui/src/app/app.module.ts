@@ -53,10 +53,12 @@ export function lottiePlayerLoader() {
         VdkDataPipelinesModule.forRoot({
             defaultOwnerTeamName: 'taurus',
             manageConfig: {
-                allowKeyTabDownloads: true
+                allowKeyTabDownloads: true,
+                showTeamSectionInJobDetails: true
             },
             exploreConfig: {
-                showTeamsColumn: true
+                showTeamsColumn: true,
+                showTeamSectionInJobDetails: true
             },
             healthStatusUrl: '/explore/data-jobs?search={0}',
             showExecutionsPage: true,
@@ -86,8 +88,8 @@ export function lottiePlayerLoader() {
             provide: OAuthModuleConfig,
             useFactory: (appConfig: AppConfigService) => ({
                 resourceServer: {
-                    allowedUrls: appConfig.getConfig().resourceServer.allowedUrls,
-                    sendAccessToken: appConfig.getConfig().resourceServer.sendAccessToken
+                    allowedUrls: appConfig.getConfig().auth.resourceServer.allowedUrls,
+                    sendAccessToken: appConfig.getConfig().auth.resourceServer.sendAccessToken
                 }
             })
         },

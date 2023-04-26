@@ -9,7 +9,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { interval, of, Subject, timer } from 'rxjs';
+import { concatMap, interval, of, Subject, timer } from 'rxjs';
 import { catchError, filter, finalize, map, switchMap, take, takeUntil, takeWhile, tap } from 'rxjs/operators';
 
 import { ClrLoadingState } from '@clr/angular';
@@ -491,7 +491,7 @@ export class DataJobPageComponent extends TaurusBaseComponent implements OnInit,
             this.dataJobsService
                 .getNotifiedForRunningJobExecutionId()
                 .pipe(
-                    switchMap((executionId: string) =>
+                    concatMap((executionId: string) =>
                         this.dataJobsApiService.getJobExecution(this.teamName, this.jobName, executionId).pipe(
                             map((executionDetails) => [executionId, executionDetails]),
                             catchError((error: unknown) => {
