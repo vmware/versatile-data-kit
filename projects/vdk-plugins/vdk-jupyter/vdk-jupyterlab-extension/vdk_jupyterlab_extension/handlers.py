@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
+import os
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -150,6 +151,16 @@ class CreateDeploymentHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
+class GetFailingNotebookHandler(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        path = VdkUI.get_failing_notebook_path(
+            input_data["failingCellId"], input_data[VdkOption.PATH.value]
+        )
+        self.finish(json.dumps({"path": f"{path}"}))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -167,3 +178,4 @@ def setup_handlers(web_app):
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
+    add_handler(GetFailingNotebookHandler, "failingNotebook")
