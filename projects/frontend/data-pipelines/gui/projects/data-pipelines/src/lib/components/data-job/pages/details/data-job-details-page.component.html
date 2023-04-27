@@ -839,6 +839,7 @@
                     <lib-executions-timeline
                         *ngIf="!loadingExecutions"
                         [jobExecutions]="jobExecutions"
+                        [showErrorMessage]="true"
                         [next]="
                             (jobState?.deployments | extractJobStatus) ===
                             'Enabled'
