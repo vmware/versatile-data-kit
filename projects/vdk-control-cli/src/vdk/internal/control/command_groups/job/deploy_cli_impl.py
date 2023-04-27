@@ -132,10 +132,10 @@ class JobDeploy:
                 "Note that your deployed job will not be scheduled and will only run when manually executed."
             )
         contacts = DataJobContacts(
-            local_config.get_contacts_notified_on_job_failure_user_error(),
-            local_config.get_contacts_notified_on_job_failure_platform_error(),
-            local_config.get_contacts_notified_on_job_success(),
-            local_config.get_contacts_notified_on_job_deploy(),
+            notified_on_job_failure_user_error=local_config.get_contacts_notified_on_job_failure_user_error(),
+            notified_on_job_failure_platform_error=local_config.get_contacts_notified_on_job_failure_platform_error(),
+            notified_on_job_success=local_config.get_contacts_notified_on_job_success(),
+            notified_on_job_deploy=local_config.get_contacts_notified_on_job_deploy(),
         )
         job.config = DataJobConfig(
             enable_execution_notifications=local_config.get_enable_execution_notifications(),
