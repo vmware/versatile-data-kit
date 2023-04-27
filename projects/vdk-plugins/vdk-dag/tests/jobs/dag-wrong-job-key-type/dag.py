@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def run(job_input: IJobInput):
     log.info(f"Dummy arguments {job_input.get_arguments()}")
 
-    job1 = dict(job_name="job1", fail_dag_on_error=1, depends_on=[])
+    job1 = dict(job_name="job1", fail_dag_on_error=1, depens_on=[])
     job2 = dict(job_name="job2", depends_on=["job1"])
     job3 = dict(job_name="job3", depends_on=["job1"])
     job4 = dict(job_name="job4", depends_on=["job2", "job3"])

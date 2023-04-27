@@ -11,11 +11,39 @@ from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.dag import dag_plugin
+from vdk.plugin.dag import dag_runner
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from werkzeug import Request
 from werkzeug import Response
+
+
+class DummyDAGPluginConfiguration:
+    def __init__(self):
+        self.dags_delayed_jobs_min_delay_seconds_value = 30
+        self.dags_delayed_jobs_randomized_added_delay_seconds_value = 600
+        self.dags_dag_execution_check_time_period_seconds_value = 10
+        self.dags_time_between_status_check_seconds_value = 40
+        self.dags_max_concurrent_running_jobs_value = 15
+
+    def dags_delayed_jobs_min_delay_seconds(self):
+        return self.dags_delayed_jobs_min_delay_seconds_value
+
+    def dags_delayed_jobs_randomized_added_delay_seconds(self):
+        return self.dags_delayed_jobs_randomized_added_delay_seconds_value
+
+    def dags_dag_execution_check_time_period_seconds(self):
+        return self.dags_dag_execution_check_time_period_seconds_value
+
+    def dags_time_between_status_check_seconds(self):
+        return self.dags_time_between_status_check_seconds_value
+
+    def dags_max_concurrent_running_jobs(self):
+        return self.dags_max_concurrent_running_jobs_value
+
+
+dummy_config = DummyDAGPluginConfiguration()
 
 
 class TestDAG:
@@ -124,6 +152,7 @@ class TestDAG:
             os.environ,
             self.env_vars,
         ):
+            dag_runner.DAG_CONFIG = dummy_config
             # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
             # and mock large parts of it - e.g passed our own plugins
             result: Result = self.runner.invoke(
@@ -238,12 +267,11 @@ class TestDAG:
             ("job3", [200], "succeeded"),
             ("job4", [200], "succeeded"),
         ]
-        env_vars = {
-            # we set 5 seconds more than execution duration of 3 set above
-            "VDK_DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "5",
-            "VDK_DAGS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS": "0",
-        }
-        self._set_up(jobs, env_vars)
+        # we set 5 seconds more than execution duration of 3 set above
+        dummy_config.dags_time_between_status_check_seconds_value = 5
+        dummy_config.dags_dag_execution_check_time_period_seconds_value = 0
+
+        self._set_up(jobs, [])
         with mock.patch.dict(
             os.environ,
             self.env_vars,
@@ -271,13 +299,13 @@ class TestDAG:
 
     def test_dag_concurrent_running_jobs_limit(self):
         jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
-        env_vars = {
-            "VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS": "2",
-            "VDK_DAGS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
-            "VDK_DAGS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
-            "VDK_DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "1",
-        }
-        self._set_up(jobs, env_vars)
+
+        dummy_config.dags_max_concurrent_running_jobs_value = 2
+        dummy_config.dags_delayed_jobs_min_delay_seconds_value = 1
+        dummy_config.dags_delayed_jobs_randomized_added_delay_seconds_value = 1
+        dummy_config.dags_time_between_status_check_seconds_value = 1
+
+        self._set_up(jobs, [])
         with mock.patch.dict(
             os.environ,
             self.env_vars,

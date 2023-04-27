@@ -15,7 +15,7 @@ def run(job_input: IJobInput):
     job2 = dict(
         job_name="job2",
         depends_on=["job1"],
-        fail_meta_job_on_error=False,
+        fail_dag_on_error=False,
         arguments={"table_name": "test_table", "counter": 123},
     )
     job3 = dict(job_name="job3", depends_on=["job1"])
