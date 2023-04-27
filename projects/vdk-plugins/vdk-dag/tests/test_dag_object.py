@@ -4,8 +4,8 @@ import time
 from unittest.mock import call
 from unittest.mock import MagicMock
 
-from vdk.plugin.dags.cached_data_job_executor import TrackingDataJobExecutor
-from vdk.plugin.dags.dag import DAG
+from vdk.plugin.dag.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.dag.dag import DAG
 
 # We overall eschew unit tests in favor of functional tests in test_dag
 # Still some functionalities are more easily tested in unit tests so we add here some.

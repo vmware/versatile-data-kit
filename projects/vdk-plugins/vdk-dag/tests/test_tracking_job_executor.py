@@ -6,8 +6,8 @@ from unittest.mock import patch
 from taurus_datajob_api import DataJobDeployment
 from taurus_datajob_api import DataJobExecution
 from urllib3.exceptions import ReadTimeoutError
-from vdk.plugin.dags.cached_data_job_executor import TrackingDataJobExecutor
-from vdk.plugin.dags.remote_data_job_executor import RemoteDataJobExecutor
+from vdk.plugin.dag.cached_data_job_executor import TrackingDataJobExecutor
+from vdk.plugin.dag.remote_data_job_executor import RemoteDataJobExecutor
 
 
 def test_get_latest_available_execution_id():

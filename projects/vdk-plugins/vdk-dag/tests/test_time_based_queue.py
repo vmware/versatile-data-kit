@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import time
 
-from vdk.plugin.dags.time_based_queue import TimeBasedQueue
+from vdk.plugin.dag.time_based_queue import TimeBasedQueue
 
 
 def test_enqueue_dequeue_empty():
