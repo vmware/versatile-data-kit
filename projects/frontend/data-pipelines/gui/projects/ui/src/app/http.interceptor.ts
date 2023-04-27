@@ -24,19 +24,20 @@ export class AuthorizationInterceptor implements HttpInterceptor {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const url = req.url.toLowerCase();
+        if (this.appConfigService.getSkipAuth()) {
+            return next.handle(req);
+        }
         if (!this.moduleConfig) {
             return next.handle(req);
         }
-
         if (!this.moduleConfig.resourceServer) {
             return next.handle(req);
         }
-
         if (!this.moduleConfig.resourceServer.allowedUrls) {
             return next.handle(req);
         }
 
+        const url = req.url.toLowerCase();
         if (!this.checkUrl(url)) {
             return next.handle(req);
         }
