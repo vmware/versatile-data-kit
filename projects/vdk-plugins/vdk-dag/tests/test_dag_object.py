@@ -5,7 +5,7 @@ from unittest.mock import call
 from unittest.mock import MagicMock
 
 from vdk.plugin.dag.cached_data_job_executor import TrackingDataJobExecutor
-from vdk.plugin.dag.dag import DAG
+from vdk.plugin.dag.dag import Dag
 
 # We overall eschew unit tests in favor of functional tests in test_dag
 # Still some functionalities are more easily tested in unit tests so we add here some.
@@ -35,7 +35,7 @@ def test_execute_dag_happy_case():
     job4 = dict(job_name="job4", depends_on=["job2", "job3"])
     jobs = [job1, job2, job3, job4]
 
-    dag = DAG("team", DummyDAGPluginConfiguration())
+    dag = Dag("team", DummyDAGPluginConfiguration())
     dag.build_dag(jobs)
     dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
     dag._job_executor.get_finished_job_names.side_effect = [
@@ -60,7 +60,7 @@ def test_execute_dag_busyloop():
     job3 = dict(job_name="job3", depends_on=["job1"])
     jobs = [job1, job2, job3]
 
-    dag = DAG("team", DummyDAGPluginConfiguration())
+    dag = Dag("team", DummyDAGPluginConfiguration())
     dag.build_dag(jobs)
     dag._job_executor = MagicMock(spec=TrackingDataJobExecutor)
     dag._dag_execution_check_time_period_seconds = 3
