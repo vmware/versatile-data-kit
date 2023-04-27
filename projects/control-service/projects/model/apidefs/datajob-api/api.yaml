@@ -854,11 +854,7 @@ paths:
         - Data Jobs Properties
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DataJobProperties'
-          description: Data Job properties
+          $ref: '#/components/responses/Properties'
       operationId: dataJobPropertiesRead
       summary: Get Data Job properties.
       description: <i>(Introduced in v1.0)</i>
@@ -1531,6 +1527,12 @@ components:
           schema:
             $ref: '#/components/schemas/DataJobExecutionLogs'
       description: Deployment properties
+    Properties:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DataJobProperties'
+      description: Data Job properties
     Source:
       content:
         application/json:
