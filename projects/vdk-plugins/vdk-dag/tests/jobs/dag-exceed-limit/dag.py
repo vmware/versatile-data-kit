@@ -3,7 +3,7 @@
 import logging
 
 from vdk.api.job_input import IJobInput
-from vdk.plugin.dags.dag_runner import DAGInput
+from vdk.plugin.dag.dag_runner import DagInput
 
 log = logging.getLogger(__name__)
 
@@ -15,4 +15,4 @@ def run(job_input: IJobInput):
         {"job_name": f"job{i}", "depends_on": [] if i == 1 else ["job1"]}
         for i in range(1, 8)
     ]
-    DAGInput().run_dag(jobs)
+    DagInput().run_dag(jobs)

@@ -43,7 +43,7 @@ def test_get_latest_available_execution_id_return_none():
     )
 
 
-@patch("vdk.plugin.dags.cached_data_job_executor.SLEEP_TIME", return_value=1)
+@patch("vdk.plugin.dag.cached_data_job_executor.SLEEP_TIME", return_value=1)
 def test_start_new_job_execution_timeout_error(patched_timeout):
     test_job_id = "awesome-test-job"
     test_timeout_exception = ReadTimeoutError(
