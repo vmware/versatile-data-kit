@@ -13,7 +13,6 @@ import com.amazonaws.services.ecr.model.InvalidParameterException;
 import com.amazonaws.services.ecr.model.RepositoryNotFoundException;
 import com.amazonaws.services.ecr.model.ServerException;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
-import com.vmware.taurus.service.credentials.AWSCredentialsServiceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,8 +41,7 @@ public class DockerRegistryService {
 
   private AWSCredentialsService awsCredentialsService;
 
-  public DockerRegistryService(
-      AWSCredentialsService awsCredentialsService) {
+  public DockerRegistryService(AWSCredentialsService awsCredentialsService) {
     this.awsCredentialsService = awsCredentialsService;
   }
 
