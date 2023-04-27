@@ -123,9 +123,9 @@ def run(job_input: IJobInput) - > None:
 
 The depends_on key stores the dependencies of each job - the jobs that have to finish before it starts.
 The DAG execution starts from the jobs with empty dependency lists - they start together in parallel.
-But what happens if they are too many? It could cause server overload. In order to avoid such unfortunate situations,
-a limit in the number of concurrent running jobs is set. This limit is
-a [configuration variable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
+<br>But what happens if they are too many? It could cause server overload.
+<br>In order to avoid such unfortunate situations, a limit in the number of concurrent running jobs is set.
+<br>This limit is a [configuration variable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
 that you are able to set according to your needs. When the limit is exceeded, the execution of the rest of the jobs
 is not cancelled but delayed until a spot is freed by one of the running jobs. What's important here is that
 although there are delayed jobs due to the limitation, the overall sequence is not broken.
@@ -144,6 +144,15 @@ There are 3 types of jobs right now in terms of how are they started.
 * **Started by a DAG Job**
    * If a DAG job tries to start a job and there is already running such job, the approach of the DAG job would be
      similar to the schedule - retry later but more times.
+
+### Configuration
+
+The configuration variables of the VDK DAGs can be checked by running the command:
+```console
+vdk config-help
+```
+
+You will see all the VDK configuration variables. Search for _meta_jobs_ in order to see the DAGs-related ones.
 
 ### FAQ
 

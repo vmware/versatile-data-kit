@@ -45,7 +45,7 @@ To run this example, you need:
 * Versatile Data Kit
 * Trino DB
 * `vdk-trino` - VDK plugin for a connection to a Trino database
-* [VDK DAGs](https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1243-vdk-meta-jobs)
+* [VDK DAGs](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-meta-jobs)
 
 ## Configuration
 
