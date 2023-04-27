@@ -27,4 +27,4 @@ tabulate
 urllib3>=1.26.5
 vdk-control-api-auth
 
-vdk-control-service-api==1.0.6
+vdk-control-service-api==1.0.9
