@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-//  when we upgrade to a newer version of openapi.generator we should delete the folder openapi-code-generator/template
     id 'org.openapi.generator' version '6.5.0'
 }
 

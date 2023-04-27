@@ -1238,8 +1238,7 @@ components:
     DataJobProperties:
       description: Properties of a Data Job
       type: object
-      additionalProperties:
-        type: object
+      additionalProperties: {}
       example:
         redshift-user: foo
         redshift-password: bar
