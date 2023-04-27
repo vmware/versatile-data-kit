@@ -18,10 +18,15 @@
   - [Detailed Design](#detailed-design)
     - [Front-End Components](#front-end-components)
     - [User Journeys](#user-journeys)
+    - [Build/Test Configuration](#buildtest-configuration)
     - [CI/CD](#cicd)
       - [Dependency Management](#dependency-management)
       - [Build and Test](#build-and-test)
         - [e2e test image](#e2e-test-image)
+        - [Quickstart-vdk image](#quickstart-vdk-image)
+      - [Release](#release)
+  - [Implementation Stories](#implementation-stories)
+>>>>>>> 9e772dc5 (frontend: create dockerfile for vdk operations ui)
       - [Release](#release)
   - [Implementation Stories](#implementation-stories)
 
@@ -185,6 +190,7 @@ Consider at least the below topics but you do not need to cover those that are n
       * Is it logged?
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
+
 ### Front-End Components
 
 **Home Page**
@@ -387,6 +393,44 @@ job and the owner team responsible for it. She reaches out to the job owner.
 Georgia shares her findings and collaborates with them to identify the cause of
 the failure and resolve the issue.
 
+### Build/Test Configuration
+
+**Browser Support**
+
+A list of supported browsers can be found in [.browserlistrc](/projects/frontend/data-pipelines/gui/projects/ui/.browserslistrc)
+
+**Npm Flags**
+
+Npm flags for the corresponding packages are passed in their .npmrc files
+
+[.npmrc for data-pipelines](/projects/frontend/data-pipelines/gui/.npmrc)
+[.npmrc for shared](/projects/frontend/shared-components/gui/.npmrc)
+
+- `legacy-peer-deps=true` - do not install peer dependencies by default. Helps
+  with linking shared and data-pipelines to their respecitve ui wrappers,
+  because they are listed as a peer dependencies. More info
+  https://stackoverflow.com/questions/66239691/what-does-npm-install-legacy-peer-deps-do-exactly-when-is-it-recommended-wh
+- `engine-strict=true` - enforces the strict use of the specified engine in
+  `package.json` for both data-pipelines and shared
+- `verbose=true` - outputs verbose logs, helps when debugging issues in CI
+
+**Cypress Tests**
+
+Cypress tests use the PageObject pattern. Page objects for the different pages
+can be found under the [support directory](projects/frontend/data-pipelines/gui/e2e/support)
+
+Base page objects live under
+[support/application](projects/frontend/data-pipelines/gui/e2e/support/app)
+
+Page objects are extended for the getting-started, manage and explore pages
+under
+
+[support/pages/app/getting-started](projects/frontend/data-pipelines/gui/e2e/support/pages/app/getting-started)
+[support/pages/app/lib/manage](projects/frontend/data-pipelines/gui/e2e/support/pages/app/lib/manage)
+[support/pages/app/lib/explore](projects/frontend/data-pipelines/gui/e2e/support/pages/app/lib/explore)
+
+More info on page objects https://martinfowler.com/bliki/PageObject.html
+
 ### CI/CD
 
 CI/CD for VDK Operations UI components leverages existing CI/CD for the VDK monorepo
@@ -469,6 +513,10 @@ packages. Merging changes into `main` requires that these pipelines pass
 successfully.
 
 ##### e2e test image
+
+Used for running end-to-end tests for the `data-pipelines` package. Exposes all
+`data-pipelines` features in order to run tests. Not user-facing.
+
 End-to-end tests have lots dependencies (browsers, build systems, etc.). Cypress
 (e2e framework) are aware of this and provide a base image. We extend the base
 image with the extra functionality we need. This extended image is used for
@@ -491,6 +539,25 @@ New versions are released by changing the version in
 
 New releases are published under the image name
 [registry.hub.docker.com/versatiledatakit/vdk-cicd-base-gui](https://hub.docker.com/r/versatiledatakit/vdk-cicd-base-gui)
+
+##### Quickstart-vdk image
+
+Dockerized VDK Operations UI for local or production use.
+
+The VDK Operations UI ships with `quickstart-vdk`. The CI/CD pipeline builds the
+image on every change to `data-pipelines` and `shared`. The image is uploaded to
+dockerhub and can then be used in the helm charts for `quickstart-vdk`.
+
+The image contains:
+
+1. An nginx server, configured to listen on port 8091
+2. The Angular UI application running on the server
+
+The actual dockerfile can be found at
+[Dockerfile](/projects/frontend/data-pipelines/gui/Dockerfile)
+
+New releases are published under the image name
+[registry.hub.docker.com/versatiledatakit/vdk-operations-ui](https://hub.docker.com/r/versatiledatakit/vdk-operations-ui)
 
 **Related Issues**
 

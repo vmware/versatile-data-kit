@@ -23,6 +23,7 @@ import {
     RouterState,
     RouteState,
     ToastService,
+    UrlOpenerService,
     VdkFormState
 } from '@versatiledatakit/shared';
 
@@ -103,6 +104,7 @@ describe('DataJobsDetailsModalComponent', () => {
     let dataJobsApiServiceStub: jasmine.SpyObj<DataJobsApiService>;
     let dataJobsServiceStub: jasmine.SpyObj<DataJobsService>;
     let errorHandlerServiceStub: jasmine.SpyObj<ErrorHandlerService>;
+    let urlOpenerServiceStub: jasmine.SpyObj<UrlOpenerService>;
 
     let componentModelStub: ComponentModel;
     let component: DataJobDetailsPageComponent;
@@ -136,6 +138,7 @@ describe('DataJobsDetailsModalComponent', () => {
             'getNotifiedForTeamImplicitly'
         ]);
         errorHandlerServiceStub = jasmine.createSpyObj<ErrorHandlerService>('errorHandlerService', ['processError', 'handleError']);
+        urlOpenerServiceStub = jasmine.createSpyObj<UrlOpenerService>('urlOpenerServiceStub', ['open']);
 
         dataJobsApiServiceStub.getJobDetails.and.returnValue(new BehaviorSubject<DataJobDetails>(TEST_JOB_DETAILS).asObservable());
         dataJobsApiServiceStub.getJobExecutions.and.returnValue(
@@ -194,6 +197,7 @@ describe('DataJobsDetailsModalComponent', () => {
                     provide: ErrorHandlerService,
                     useValue: errorHandlerServiceStub
                 },
+                { provide: UrlOpenerService, useValue: urlOpenerServiceStub },
                 {
                     provide: DATA_PIPELINES_CONFIGS,
                     useFactory: () => ({

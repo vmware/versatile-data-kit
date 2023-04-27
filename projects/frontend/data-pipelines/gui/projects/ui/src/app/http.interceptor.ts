@@ -8,11 +8,12 @@ import { OAuthModuleConfig, OAuthResourceServerErrorHandler, OAuthStorage } from
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
-import { authCodeFlowConfig } from './auth';
+import { AppConfigService } from './app-config.service';
 
 @Injectable()
 export class AuthorizationInterceptor implements HttpInterceptor {
     constructor(
+        private readonly appConfigService: AppConfigService,
         private authStorage: OAuthStorage,
         private errorHandler: OAuthResourceServerErrorHandler,
         @Optional() private moduleConfig: OAuthModuleConfig
@@ -41,6 +42,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
         }
 
         const sendAccessToken = this.moduleConfig.resourceServer.sendAccessToken;
+        const authCodeFlowConfig = this.appConfigService.getAuthCodeFlowConfig();
 
         if (sendAccessToken && url.startsWith(authCodeFlowConfig.issuer) && url.endsWith('api/auth/token')) {
             const headers = req.headers.set('Authorization', 'Basic ' + btoa(authCodeFlowConfig.clientId + ':'));

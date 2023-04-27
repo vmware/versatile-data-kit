@@ -1,5 +1,7 @@
 # VDK DAGs
 
+## This plugin has been deprecated. Please use vdk-dag instead. You may install it by running `pip install vdk-dag`.
+
 Express dependencies between data jobs.
 
 A plugin for Versatile Data Kit extends its Job API with an additional feature that allows users to trigger so-called VDK DAGs.

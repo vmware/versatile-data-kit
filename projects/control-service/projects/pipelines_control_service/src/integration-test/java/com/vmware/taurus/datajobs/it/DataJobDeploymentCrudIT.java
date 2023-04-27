@@ -281,18 +281,7 @@ public class DataJobDeploymentCrudIT extends BaseIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
-
-    // verify vdk version is returned
-    mockMvc
-        .perform(
-            get(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
-                .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.vdk_version", is("new_vdk_version_tag")));
+        .andExpect(status().isBadRequest());
 
     // Execute disable deployment again to check that the version is not overwritten
     mockMvc
@@ -316,7 +305,7 @@ public class DataJobDeploymentCrudIT extends BaseIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody(""))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
+        .andExpect(status().isBadRequest());
 
     // verify vdk version is reset correctly
     mockMvc

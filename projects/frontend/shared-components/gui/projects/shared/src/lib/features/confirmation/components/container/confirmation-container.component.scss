@@ -1,0 +1,36 @@
+/*!
+ * Copyright 2023 VMware, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+:host {
+    ::ng-deep {
+        .modal-dialog {
+            width: 44rem;
+
+            .modal-content {
+                padding: 0.7rem 0.7rem 0.7rem 0.7rem;
+            }
+        }
+
+        .modal-header--accessible {
+            display: none;
+        }
+
+        .modal-body-wrapper {
+            overflow: visible;
+        }
+
+        .confirmation-container__body-container {
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 70vh;
+        }
+
+        shared-confirmation {
+            &:not(:first-child) {
+                margin-top: 0.7rem;
+            }
+        }
+    }
+}

@@ -104,6 +104,9 @@ control_service_integration_test:
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+      - projects/control-service/projects/model/CONTRIBUTING.MD
+      - projects/control-service/projects/**/README.md
+      - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
 control_service_test_helm_chart:
   stage: build
@@ -226,7 +229,7 @@ control_service_publish_api_client:
   image: docker:23.0.1
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip openjdk17-jdk git python
+    - apk add --no-cache py-pip openjdk17-jdk git
     - pip install -U pip setuptools wheel twine
     - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
     - cd projects/control-service/projects/model/apidefs/datajob-api/build
