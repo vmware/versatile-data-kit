@@ -43,7 +43,6 @@ public class DockerRegistryService {
   private AWSCredentialsService awsCredentialsService;
 
   public DockerRegistryService(
-      AWSCredentialsServiceConfig awsCredentialsServiceConfig,
       AWSCredentialsService awsCredentialsService) {
     this.awsCredentialsService = awsCredentialsService;
   }
@@ -63,7 +62,7 @@ public class DockerRegistryService {
   // TODO: Implement
   public boolean dataJobImageExists(String imageName) {
 
-    if (registryType.toLowerCase().equals("ecr")) {
+    if (registryType.equalsIgnoreCase("ecr")) {
       return checkImageExistsInEcr(imageName);
     }
 
