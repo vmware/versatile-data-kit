@@ -80,6 +80,7 @@ export function lottiePlayerLoader() {
             useValue: localStorage
         },
         {
+            deps: [AppConfigService],
             provide: AuthConfig,
             useFactory: (appConfig: AppConfigService) => () => appConfig.getAuthCodeFlowConfig()
         },
@@ -87,10 +88,7 @@ export function lottiePlayerLoader() {
             deps: [AppConfigService],
             provide: OAuthModuleConfig,
             useFactory: (appConfig: AppConfigService) => ({
-                resourceServer: {
-                    allowedUrls: appConfig.getConfig().auth.resourceServer.allowedUrls,
-                    sendAccessToken: appConfig.getConfig().auth.resourceServer.sendAccessToken
-                }
+                resourceServer: appConfig.getConfig().auth.resourceServer
             })
         },
         {
