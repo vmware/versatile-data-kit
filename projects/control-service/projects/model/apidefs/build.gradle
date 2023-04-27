@@ -73,8 +73,6 @@ subprojects {
                     propFile.setText(content)
                 }
             }
-
-
         }
     }
     cleanUpUnwantedGeneratedFiles.dependsOn 'openApiGenerate'
