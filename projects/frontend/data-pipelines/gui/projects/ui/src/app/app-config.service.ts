@@ -30,18 +30,24 @@ export class AppConfigService {
         return this.appConfig;
     }
 
+    getSkipAuth(): boolean {
+        return this.appConfig.auth.skipAuth;
+    }
+
     getAuthCodeFlowConfig(): AuthConfig {
+        if (this.getSkipAuth()) return new AuthConfig();
         const replaceWindowLocationOrigin = (str: string): string => {
             return str?.replace('$window.location.origin', window.location.origin);
         };
 
-        const authCodeFlowConfig: AuthConfig = this.getConfig()?.authConfig;
+        const authCodeFlowConfig: AuthConfig = this.getConfig()?.auth.authConfig;
         authCodeFlowConfig.redirectUri = replaceWindowLocationOrigin(authCodeFlowConfig?.redirectUri);
         authCodeFlowConfig.silentRefreshRedirectUri = replaceWindowLocationOrigin(authCodeFlowConfig?.silentRefreshRedirectUri);
         return authCodeFlowConfig;
     }
 
     getRefreshTokenConfig(): RefreshTokenConfig {
-        return this.getConfig()?.refreshTokenConfig;
+        if (this.getSkipAuth()) return null;
+        return this.getConfig()?.auth.refreshTokenConfig;
     }
 }

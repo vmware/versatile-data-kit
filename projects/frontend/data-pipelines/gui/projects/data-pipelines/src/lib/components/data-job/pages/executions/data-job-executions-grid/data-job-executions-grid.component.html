@@ -5,6 +5,7 @@
 
 <clr-datagrid
     data-cy="data-pipelines-job-executions-datagrid"
+    [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
     [clrDgLoading]="loading"
 >
     <clr-dg-placeholder>We couldn't find any executions!</clr-dg-placeholder>

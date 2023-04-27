@@ -108,7 +108,7 @@ def test_deploy_reason(httpserver: PluginHTTPServer, tmpdir: LocalPath):
         uri="/data-jobs/for-team/test-team/jobs/test-job/sources",
         method="POST",
         headers={"Content-Type": "application/octet-stream"},
-        query_string="reason=Example+reason",
+        query_string="reason=Example%20reason",
     ).respond_with_json(job_version.to_dict())
 
     test_job_path = find_test_resource("test-job")
