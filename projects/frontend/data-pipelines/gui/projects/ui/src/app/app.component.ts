@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 
 import { timer } from 'rxjs';
 
 import { OAuthService } from 'angular-oauth2-oidc';
 
-import { NavigationService } from '@versatiledatakit/shared';
+import { ConfirmationService, DynamicComponentsService, NavigationService, UrlOpenerService } from '@versatiledatakit/shared';
 
 import { AppConfigService } from './app-config.service';
 
@@ -25,7 +25,11 @@ export class AppComponent implements OnInit {
     constructor(
         private readonly appConfigService: AppConfigService,
         private readonly oauthService: OAuthService,
-        private readonly navigationService: NavigationService
+        private readonly navigationService: NavigationService,
+        private readonly viewContainerRef: ViewContainerRef,
+        private readonly dynamicComponentsService: DynamicComponentsService,
+        private readonly confirmationService: ConfirmationService,
+        private readonly urlOpenerService: UrlOpenerService
     ) {
         this.oauthService.configure(appConfigService.getAuthCodeFlowConfig());
         this.oauthService
@@ -55,6 +59,9 @@ export class AppComponent implements OnInit {
      */
     ngOnInit(): void {
         this.navigationService.initialize();
+        this.dynamicComponentsService.initialize(this.viewContainerRef);
+        this.confirmationService.initialize();
+        this.urlOpenerService.initialize();
     }
 
     private getIdentityClaim(userNamePropName: string): string {
@@ -66,12 +73,10 @@ export class AppComponent implements OnInit {
     }
 
     private initTokenRefresh() {
-        timer(
-            this.appConfigService.getConfig().refreshTokenStart,
-            AppComponent.toMillis(this.appConfigService.getRefreshTokenConfig().refreshTokenCheckInterval)
-        ).subscribe(() => {
+        const refreshTokenConfig = this.appConfigService.getRefreshTokenConfig();
+        timer(refreshTokenConfig.start, AppComponent.toMillis(refreshTokenConfig.checkInterval)).subscribe(() => {
             const remainiTimeMillis = this.oauthService.getAccessTokenExpiration() - Date.now();
-            if (remainiTimeMillis <= AppComponent.toMillis(this.appConfigService.getRefreshTokenConfig().refreshTokenRemainingTime)) {
+            if (remainiTimeMillis <= AppComponent.toMillis(refreshTokenConfig.remainingTime)) {
                 this.setCustomTokenAttributes(false, null);
                 this.oauthService.refreshToken().finally(() => {
                     // No-op.
@@ -82,7 +87,7 @@ export class AppComponent implements OnInit {
 
     private setCustomTokenAttributes(redirectToConsole: boolean, defaultOrg: { refLink: string }) {
         const linkOrgQuery = this.getOrgLinkFromQueryParams(defaultOrg);
-        const consoleCloudUrl = this.appConfigService.getConfig().consoleCloudUrl;
+        const consoleCloudUrl = this.appConfigService.getConfig().auth.consoleCloudUrl;
         this.oauthService.customQueryParams = {
             orgLink: linkOrgQuery,
             targetUri: redirectToConsole ? consoleCloudUrl : window.location.href
@@ -100,7 +105,7 @@ export class AppComponent implements OnInit {
         if (orgLinkBase || orgLinkUnderscored) {
             return [orgLinkBase, orgLinkUnderscored].find((el) => el);
         } else {
-            return defaultOrg ? defaultOrg.refLink : this.appConfigService.getConfig().orgLinkRoot;
+            return defaultOrg ? defaultOrg.refLink : this.appConfigService.getConfig().auth.orgLinkRoot;
         }
     }
 

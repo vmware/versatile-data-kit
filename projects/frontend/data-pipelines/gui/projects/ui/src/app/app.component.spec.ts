@@ -4,23 +4,35 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 
 import { Subject } from 'rxjs';
 
 import { OAuthService, UrlHelperService } from 'angular-oauth2-oidc';
+import { TokenResponse } from 'angular-oauth2-oidc/types';
 
-import { NavigationService, RouterService } from '@versatiledatakit/shared';
+import {
+    ConfirmationService,
+    DynamicComponentsService,
+    NavigationService,
+    RouterService,
+    UrlOpenerService
+} from '@versatiledatakit/shared';
+
+import { AppConfig } from './app-config.model';
+
+import { AppConfigService } from './app-config.service';
 
 import { AppComponent } from './app.component';
-import { TokenResponse } from 'angular-oauth2-oidc/types';
-import { AppConfigService } from './app-config.service';
-import { AppConfig } from './app-config.model';
 
 describe('AppComponent', () => {
     let routerServiceStub: jasmine.SpyObj<RouterService>;
     let oAuthServiceStub: jasmine.SpyObj<OAuthService>;
     let navigationServiceStub: jasmine.SpyObj<NavigationService>;
+    let viewContainerRefStub: jasmine.SpyObj<ViewContainerRef>;
+    let dynamicComponentsServiceStub: jasmine.SpyObj<DynamicComponentsService>;
+    let confirmationServiceStub: jasmine.SpyObj<ConfirmationService>;
+    let urlOpenerServiceStub: jasmine.SpyObj<UrlOpenerService>;
     let appConfigServiceStub: jasmine.SpyObj<AppConfigService>;
 
     beforeEach(() => {
@@ -35,6 +47,10 @@ describe('AppComponent', () => {
             'getIdentityClaims'
         ]);
         navigationServiceStub = jasmine.createSpyObj<NavigationService>('navigationService', ['initialize']);
+        viewContainerRefStub = jasmine.createSpyObj<ViewContainerRef>('viewContainerRefStub', ['createComponent']);
+        dynamicComponentsServiceStub = jasmine.createSpyObj<DynamicComponentsService>('dynamicComponentsServiceStub', ['initialize']);
+        confirmationServiceStub = jasmine.createSpyObj<ConfirmationService>('confirmationServiceStub', ['initialize']);
+        urlOpenerServiceStub = jasmine.createSpyObj<UrlOpenerService>('urlOpenerServiceStub', ['initialize']);
         appConfigServiceStub = jasmine.createSpyObj<AppConfigService>('appConfigService', ['getConfig', 'getAuthCodeFlowConfig']);
 
         routerServiceStub.getState.and.returnValue(new Subject());
@@ -47,12 +63,17 @@ describe('AppComponent', () => {
         TestBed.configureTestingModule({
             schemas: [NO_ERRORS_SCHEMA],
             declarations: [AppComponent],
+            imports: [],
             providers: [
-                { provide: AppConfigService, useValue: appConfigServiceStub },
                 UrlHelperService,
                 { provide: OAuthService, useValue: oAuthServiceStub },
                 { provide: NavigationService, useValue: navigationServiceStub },
-                { provide: RouterService, useValue: routerServiceStub }
+                { provide: RouterService, useValue: routerServiceStub },
+                { provide: ViewContainerRef, useValue: viewContainerRefStub },
+                { provide: DynamicComponentsService, useValue: dynamicComponentsServiceStub },
+                { provide: ConfirmationService, useValue: confirmationServiceStub },
+                { provide: UrlOpenerService, useValue: urlOpenerServiceStub },
+                { provide: AppConfigService, useValue: appConfigServiceStub }
             ]
         });
     });

@@ -1,0 +1,27 @@
+{
+  "job_name": "cy-e2e-vdk-$env-placeholder$-v12",
+  "team": "cy-e2e-vdk",
+  "description": "Test description 3 with a long text on the line",
+  "config": {
+    "contacts": {
+      "notified_on_job_deploy": [
+        "auserov3@vmware.com"
+      ],
+      "notified_on_job_failure_platform_error": [
+        "buserov3@vmware.com"
+      ],
+      "notified_on_job_failure_user_error": [
+        "cuserov3@vmware.com"
+      ],
+      "notified_on_job_success": [
+        "duserov3@vmware.com"
+      ]
+    },
+    "db_default_type": "IMPALA",
+    "generate_keytab": false,
+    "schedule": {
+      "schedule_cron": "0 0 03 * 5"
+    }
+  },
+  "status": "disabled"
+}

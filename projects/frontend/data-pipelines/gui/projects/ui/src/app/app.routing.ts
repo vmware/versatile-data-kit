@@ -43,6 +43,7 @@ const routes: DataPipelinesRoutes = [
         path: 'explore/data-jobs/:team/:job',
         component: DataJobPageComponent,
         data: {
+            context: 'explore',
             teamParamKey: 'team',
             jobParamKey: 'job'
         },
@@ -86,6 +87,7 @@ const routes: DataPipelinesRoutes = [
         path: 'manage/data-jobs/:team/:job',
         component: DataJobPageComponent,
         data: {
+            context: 'manage',
             teamParamKey: 'team',
             jobParamKey: 'job'
         },

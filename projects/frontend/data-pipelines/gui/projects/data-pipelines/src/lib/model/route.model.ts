@@ -68,6 +68,11 @@ export interface DataPipelinesRouteData extends TaurusRouteNavigateToData, Tauru
      *      - false -> Component is in readonly mode.
      */
     editable?: boolean;
+
+    /**
+     * ** Configuring this field, gives context to the Component.
+     */
+    context?: 'manage' | 'explore';
 }
 
 /**
