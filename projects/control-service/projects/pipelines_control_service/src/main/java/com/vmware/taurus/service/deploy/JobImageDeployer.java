@@ -327,10 +327,11 @@ public class JobImageDeployer {
   private String getJobVdkImage(JobDeployment jobDeployment) {
     // TODO: Refactor when vdkImage is deprecated.
     if (!supportedPythonVersions.getSupportedPythonVersions().isEmpty()
-            && supportedPythonVersions.isPythonVersionSupported(jobDeployment.getPythonVersion())) {
+        && supportedPythonVersions.isPythonVersionSupported(jobDeployment.getPythonVersion())) {
       return supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     } else {
-      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion()) && StringUtils.isNotBlank(vdkImage)) {
+      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())
+          && StringUtils.isNotBlank(vdkImage)) {
         return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
       } else {
         return vdkImage;
