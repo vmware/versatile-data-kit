@@ -47,6 +47,11 @@ To report a bug, [create a GitHub issue](https://github.com/vmware/versatile-dat
 
 ## Security Bugs
 If you believe you have found a security bug, [create a GitHub issue](https://github.com/vmware/versatile-data-kit/issues) and reach out to us first using any method in the [Contact Us](#contact-us) section.
+  
+# Design Principles
+
+[Familiarize with Verstaile Data Kit Design Principles](https://github.com/vmware/versatile-data-kit/wiki/Design-Principles). 
+We want to prioritize user-centered development, seamless user experience, and data-centric interfaces.
 
 # Propose a Change
 Before proposing a feature or change, consider the impact of this change. Does it only serve your needs, or does it serve the broader community's needs?
