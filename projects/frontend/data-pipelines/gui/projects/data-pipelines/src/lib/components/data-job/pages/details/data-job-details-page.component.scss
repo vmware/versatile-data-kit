@@ -108,6 +108,10 @@ hr {
 
         margin-bottom: 1rem;
 
+        .form-section-readonly {
+            word-break: break-word;
+        }
+
         .data-pipelines-job__section--border-none {
             border: none;
         }

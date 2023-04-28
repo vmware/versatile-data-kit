@@ -30,7 +30,12 @@ export class AppConfigService {
         return this.appConfig;
     }
 
+    getSkipAuth(): boolean {
+        return this.appConfig.auth.skipAuth;
+    }
+
     getAuthCodeFlowConfig(): AuthConfig {
+        if (this.getSkipAuth()) return new AuthConfig();
         const replaceWindowLocationOrigin = (str: string): string => {
             return str?.replace('$window.location.origin', window.location.origin);
         };
@@ -42,6 +47,7 @@ export class AppConfigService {
     }
 
     getRefreshTokenConfig(): RefreshTokenConfig {
+        if (this.getSkipAuth()) return null;
         return this.getConfig()?.auth.refreshTokenConfig;
     }
 }

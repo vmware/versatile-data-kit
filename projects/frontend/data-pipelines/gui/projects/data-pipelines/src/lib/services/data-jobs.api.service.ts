@@ -111,6 +111,7 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
 						id
                         status
                         logsUrl
+                        message
                       }
                     }
                   }

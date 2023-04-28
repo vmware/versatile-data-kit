@@ -10,13 +10,14 @@ export interface AppConfig {
 }
 
 export interface Auth {
+    skipAuth?: false;
+
     // Used for producing the AuthConfig.customQueryParams mapping for `orgLink` and `targetUri`
     consoleCloudUrl?: string;
     orgLinkRoot?: string;
     // $window.location.origin is replaced with the corresponding value dynamically upon loading,
     // see AppConfigService
     authConfig?: AuthConfig;
-
     resourceServer?: OAuthResourceServerConfig;
     // Used for token auto-refresh capability, in case a token is about to expire.
     refreshTokenConfig?: RefreshTokenConfig;
