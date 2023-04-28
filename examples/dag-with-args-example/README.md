@@ -54,7 +54,7 @@ If you have not done so already, you can install Versatile Data Kit and the
 plugins required for this example by running the following commands from a terminal:
 ```console
 pip install quickstart-vdk
-pip install vdk-dags
+pip install vdk-dag
 ```
 Note that Versatile Data Kit requires Python 3.7+. See the
 [Installation page](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-sdk) for more details.
