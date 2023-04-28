@@ -636,6 +636,8 @@ Component jobs are responsible for their own dependencies, and the DAG Job only 
 
 ## Execution
 
+The execution of the DAG Job happens the same way as any other Data Job.
+
 ### Create and deploy Data Jobs
 
 To do so, open a terminal, navigate to the parent directory of the data job
@@ -670,6 +672,14 @@ vdk deploy -n read-job-rest-of-world -t my-team -p read-job-rest-of-world -r "da
 vdk create -n dag-job -t my-team --no-template && \
 vdk deploy -n dag-job -t my-team -p dag-job -r "dag-with-args-example"
 ```
+
+Note: The team name has to be consistent everywhere (in the config.ini, in each job of the DAG dict of jobs and
+while creating&deploying the jobs). Instead of passing the team name each time, you can set a default value:
+```console
+vdk set-default -t my-team
+```
+This would then be used in all commands that require a team. However, you would still have to provide the same value
+for team name in the config.ini file and the DAG dict of jobs.
 
 ### Run DAG Job
 
