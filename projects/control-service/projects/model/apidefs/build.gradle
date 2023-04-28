@@ -1,7 +1,6 @@
 plugins {
     id 'java'
-//  when we upgrade to a newer version of openapi.generator we should delete the folder openapi-code-generator/template
-    id 'org.openapi.generator' version '6.2.1'
+    id 'org.openapi.generator' version '6.5.0'
 }
 
 subprojects {
@@ -20,7 +19,6 @@ subprojects {
         validateSpec = true
         outputDir = "$rootDir"
         configFile = "$rootDir/openapi-code-generator/config-spring.json"
-        templateDir = "$rootDir/openapi-code-generator/template"
     }
 
 //    At the moment there doesn't seem to be a way to get open api generator to create the openApi config object but not generate main and all the controllers.
@@ -49,10 +47,33 @@ subprojects {
     }
 
     task buildPython(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
-        generatorName = "python"
+        generatorName = "python-nextgen"
         inputSpec = "$projectDir/api.yaml"
         outputDir = "$projectDir/build/python"
         configFile = "$projectDir/config-python.json"
+        doLast {
+
+            fileTree("$projectDir/build/python/taurus_datajob_api/api") {
+            }.each { File propFile ->
+                if(propFile.getName().endsWith("data_jobs_sources_api.py")) {
+                    // Everything in this section can be removed when the ticket(https://github.com/OpenAPITools/openapi-generator/issues/15327) is closed
+                    String content = propFile.getText()
+                    content = content
+                            .replace(
+                                    'def sources_upload(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : StrictStr, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs) -> DataJobVersion:  # noqa: E501',
+                                    'def sources_upload(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : bytes, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs) -> DataJobVersion:  # noqa: E501').
+                            replace('def sources_upload_with_http_info(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : StrictStr, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs):  # noqa: E501',
+                                    'def sources_upload_with_http_info(self, team_name : Annotated[StrictStr, Field(..., description="Team Name")], job_name : Annotated[StrictStr, Field(..., description="Data Job Name.")], body : bytes, reason : Annotated[Optional[StrictStr], Field(description="The reason for executing the request")] = None, **kwargs):  # noqa: E501')
+                    propFile.setText(content)
+                }else if(propFile.getName().endsWith("data_jobs_properties_api.py")) {
+                    // Everything in this section can be removed when the ticket(https://github.com/OpenAPITools/openapi-generator/issues/15328) is closed
+                    String content = propFile.getText()
+                    content = content.
+                            replace("if _params['request_body']:", "if _params['request_body'] is not None:")
+                    propFile.setText(content)
+                }
+            }
+        }
     }
     cleanUpUnwantedGeneratedFiles.dependsOn 'openApiGenerate'
     compileJava.dependsOn 'openApiGenerate' //generate Java from openapi specs

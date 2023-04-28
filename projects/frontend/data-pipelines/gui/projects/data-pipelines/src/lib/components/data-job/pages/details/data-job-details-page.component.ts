@@ -27,6 +27,7 @@ import {
     RouteState,
     TaurusBaseComponent,
     ToastService,
+    UrlOpenerService,
     VdkFormState,
     VmwToastType
 } from '@versatiledatakit/shared';
@@ -89,7 +90,15 @@ export class DataJobDetailsPageComponent
 
     isJobEditable = false;
 
+    /**
+     * ** Flag instruct whether template to show team section.
+     */
     shouldShowTeamsSection = false;
+
+    /**
+     * ** Flag instruct whether template to show change history section.
+     */
+    shouldShowChangeHistorySection = false;
 
     cronError: string = null;
 
@@ -141,6 +150,11 @@ export class DataJobDetailsPageComponent
      */
     isComponentInErrorState = false;
 
+    /**
+     * ** Data Job Change history configuration.
+     */
+    changeHistoryConfig: DataPipelinesConfig['changeHistory'];
+
     constructor(
         componentService: ComponentService,
         navigationService: NavigationService,
@@ -152,6 +166,7 @@ export class DataJobDetailsPageComponent
         private readonly formBuilder: FormBuilder,
         private readonly toastService: ToastService,
         private readonly errorHandlerService: ErrorHandlerService,
+        private readonly urlOpenerService: UrlOpenerService,
         @Inject(DATA_PIPELINES_CONFIGS)
         public readonly dataPipelinesModuleConfig: DataPipelinesConfig
     ) {
@@ -226,6 +241,33 @@ export class DataJobDetailsPageComponent
     redirectToHealthStatus() {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigateByUrl(StringUtil.stringFormat(this.dataPipelinesModuleConfig.healthStatusUrl, this.jobDetails.job_name)).then();
+    }
+
+    /**
+     * ** Intercepts click on change history link and show confirmation.
+     */
+    navigateToJobChangeHistory($event: MouseEvent): void {
+        $event.preventDefault();
+        $event.stopImmediatePropagation();
+
+        this.urlOpenerService
+            .open(this.changeHistoryConfig.urlTemplate, '_blank', {
+                title: this.changeHistoryConfig.confirmationTitle,
+                messageComponent: this.changeHistoryConfig.confirmationMessageComponent,
+                closable: true,
+                optionDoNotShowFutureConfirmation: true,
+                confirmBtnModel: {
+                    text: 'Proceed',
+                    iconShape: 'pop-out',
+                    iconPosition: 'right'
+                }
+            })
+            .then((_value) => {
+                // No-op.
+            })
+            .catch((_reason) => {
+                // No-op.
+            });
     }
 
     /**
@@ -365,8 +407,6 @@ export class DataJobDetailsPageComponent
         super.ngOnInit();
 
         this._initializeNextRunDate();
-
-        this.shouldShowTeamsSection = this.dataPipelinesModuleConfig?.exploreConfig?.showTeamsColumn;
     }
 
     private _initialize(state: RouteState): void {
@@ -380,10 +420,15 @@ export class DataJobDetailsPageComponent
         const jobParamKey = state.getData<string>('jobParamKey');
         this.jobName = state.getParam(jobParamKey);
 
-        this.isJobEditable = !!state.getData('editable');
+        this.isJobEditable = !!state.getData<boolean>('editable');
 
         if (this.isJobEditable) {
             this.formState = this.editableFormState;
+        }
+
+        if (this.dataPipelinesModuleConfig) {
+            this._initializePageFeatureFlags(state);
+            this._initializeChangeHistoryConfig();
         }
 
         this._subscribeForExecutions();
@@ -483,6 +528,39 @@ export class DataJobDetailsPageComponent
 
     private _initializeNextRunDate(): void {
         this.next = ParseEpochPipe.transform(this.jobState?.config?.schedule?.nextRunEpochSeconds);
+    }
+
+    private _initializePageFeatureFlags(state: RouteState): void {
+        if (state.getData<'explore' | 'manage'>('context') === 'explore') {
+            if (this.dataPipelinesModuleConfig.exploreConfig) {
+                this.shouldShowTeamsSection = this.dataPipelinesModuleConfig.exploreConfig.showTeamSectionInJobDetails;
+                this.shouldShowChangeHistorySection = this.dataPipelinesModuleConfig.exploreConfig.showChangeHistorySectionInJobDetails;
+            }
+        } else {
+            if (this.dataPipelinesModuleConfig.manageConfig) {
+                this.shouldShowTeamsSection = this.dataPipelinesModuleConfig.manageConfig.showTeamSectionInJobDetails;
+                this.shouldShowChangeHistorySection = this.dataPipelinesModuleConfig.manageConfig.showChangeHistorySectionInJobDetails;
+            }
+        }
+    }
+
+    private _initializeChangeHistoryConfig(): void {
+        if (
+            !this.shouldShowChangeHistorySection ||
+            !this.dataPipelinesModuleConfig.changeHistory ||
+            !this.dataPipelinesModuleConfig.changeHistory.urlTemplate ||
+            !this.dataPipelinesModuleConfig.changeHistory.confirmationTitle
+        ) {
+            return;
+        }
+
+        this.changeHistoryConfig = {
+            ...this.dataPipelinesModuleConfig.changeHistory,
+            urlTemplate: CollectionsUtil.interpolateString(this.dataPipelinesModuleConfig.changeHistory.urlTemplate, {
+                searchValue: '%data_job_name%',
+                replaceValue: this.jobName
+            })
+        };
     }
 
     private _subscribeForExecutions(): void {
