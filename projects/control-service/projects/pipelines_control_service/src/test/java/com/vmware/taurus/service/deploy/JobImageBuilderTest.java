@@ -292,16 +292,16 @@ public class JobImageBuilderTest {
 
   @Test
   public void
-      buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingDeploymentDataJobBaseImage()
+      buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingSupportedPythonVersions()
           throws InterruptedException, ApiException, IOException {
     ReflectionTestUtils.setField(
         supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
-        new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
+            new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
-    when(supportedPythonVersions.getJobBaseImage(any())).thenCallRealMethod();
+    when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -313,29 +313,27 @@ public class JobImageBuilderTest {
 
     var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
 
-    verify(supportedPythonVersions, never()).isPythonVersionSupported("3.11");
-
     verify(kubernetesService)
-        .createJob(
-            eq(TEST_BUILDER_JOB_NAME),
-            eq(TEST_BUILDER_IMAGE_NAME),
-            eq(false),
-            eq(false),
-            captor.capture(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            anyLong(),
-            anyLong(),
-            anyLong(),
-            any(),
-            any());
+            .createJob(
+                    eq(TEST_BUILDER_JOB_NAME),
+                    eq(TEST_BUILDER_IMAGE_NAME),
+                    eq(false),
+                    eq(false),
+                    captor.capture(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    anyLong(),
+                    anyLong(),
+                    anyLong(),
+                    any(),
+                    any());
 
     Map<String, String> capturedEnvs = captor.getValue();
-    Assertions.assertEquals("python:3.7-slim", capturedEnvs.get("BASE_IMAGE"));
+    Assertions.assertEquals("test-base-image", capturedEnvs.get("BASE_IMAGE"));
 
     verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
     Assertions.assertTrue(result);
