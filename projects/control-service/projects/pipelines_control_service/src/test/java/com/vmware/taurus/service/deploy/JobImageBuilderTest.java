@@ -299,7 +299,7 @@ public class JobImageBuilderTest {
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
-            new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
+        new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
 
@@ -314,23 +314,23 @@ public class JobImageBuilderTest {
     var result = jobImageBuilder.buildImage("test-image", testDataJob, jobDeployment, true);
 
     verify(kubernetesService)
-            .createJob(
-                    eq(TEST_BUILDER_JOB_NAME),
-                    eq(TEST_BUILDER_IMAGE_NAME),
-                    eq(false),
-                    eq(false),
-                    captor.capture(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    any(),
-                    any());
+        .createJob(
+            eq(TEST_BUILDER_JOB_NAME),
+            eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
+            eq(false),
+            captor.capture(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            any(),
+            any());
 
     Map<String, String> capturedEnvs = captor.getValue();
     Assertions.assertEquals("test-base-image", capturedEnvs.get("BASE_IMAGE"));
