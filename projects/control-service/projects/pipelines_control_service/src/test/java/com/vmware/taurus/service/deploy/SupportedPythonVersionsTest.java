@@ -100,7 +100,7 @@ public class SupportedPythonVersionsTest {
   public void getJobBaseImage_shouldReturnDeploymentDataJobBaseImage() {
     var supportedVersions = generateSupportedPythonVersionsConf();
 
-    final String resultBaseImg = "python:3.9-slim";
+    final String resultBaseImg = "python:3.8-slim";
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(
