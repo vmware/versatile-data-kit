@@ -43,6 +43,8 @@ operationsUi:
     requests:
       memory: 250Mi
       cpu: 25m
+  config: '{"auth": {"skipAuth": true}}'
+
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.
