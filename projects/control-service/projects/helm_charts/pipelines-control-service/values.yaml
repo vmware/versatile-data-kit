@@ -302,18 +302,17 @@ deploymentDataJobBaseImage:
 ## Only the installed python modules (vdk and its dependencies) will be used from the image.
 ## Everything else is effectively discarded since another image is used as base during execution.
 ##
-## Example:
-## deploymentSupportedPythonVersions:
-##   3.7:
-##     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
-##     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
-deploymentSupportedPythonVersions: {}
+## Example: {"3.9": {"baseImage": "python:3.9-latest", "vdkImage": "example-registry.com/some-user/vdk:3.9-release"}}
+deploymentSupportedPythonVersions:
+  3.7:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
 
 
 ## Default python version to be used for data job deployments. The value should be a string and would be
 ## used when a user has not provided a specific python_version for their data job's deployment.
 ## Example: "3.9"
-deploymentDefaultPythonVersion: ""
+deploymentDefaultPythonVersion: "3.7"
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.
