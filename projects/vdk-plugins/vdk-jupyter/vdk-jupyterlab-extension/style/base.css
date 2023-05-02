@@ -32,3 +32,7 @@
   right: -5px;
   padding-right: 25px;
 }
+
+.jp-vdk-failing-cell {
+  --jp-cell-editor-background: rgb(229, 156, 130);
+}

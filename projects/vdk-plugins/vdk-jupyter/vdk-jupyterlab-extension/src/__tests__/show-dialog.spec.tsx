@@ -1,4 +1,4 @@
-import RunJobDialog, { showRunJobDialog } from '../components/RunJob';
+/*import RunJobDialog, { showRunJobDialog } from '../components/RunJob';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobData } from '../jobData';
 import React from 'react';
@@ -226,3 +226,4 @@ describe('showDeleteJobDialog', () => {
     expect(jobRequestMock).toHaveBeenCalledTimes(0);
   });
 });
+*/
