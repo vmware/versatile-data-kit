@@ -140,7 +140,10 @@ const trimArraysToNElements = (object, numberOfArrayElements) => {
             }
 
             if (typeof value === 'object') {
-                object[key] = applyGlobalEnvSettings(value);
+                object[key] = trimArraysToNElements(
+                    value,
+                    numberOfArrayElements
+                );
             }
         });
     }
