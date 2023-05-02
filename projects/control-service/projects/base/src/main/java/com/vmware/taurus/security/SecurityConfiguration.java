@@ -217,7 +217,6 @@ public class SecurityConfiguration {
     }
     return Collections.emptySet();
   }
-
   /*
      KERBEROS config settings, a lot of these are optional.
   */
