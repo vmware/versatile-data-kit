@@ -156,30 +156,9 @@ def test_deploy_enable_disable(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     assert httpserver.log[1][0].data == b'{"enabled": false}'
 
 
-def test_deploy_python_version_in_config(
-    httpserver: PluginHTTPServer, tmpdir: LocalPath
-):
-    _, deploy_args = prepare_new_deploy(httpserver, "test-job-python-version")
-
-    runner = CliRunner()
-    result = runner.invoke(deploy, deploy_args)
-    test_utils.assert_click_status(result, 0)
-
-    test_job_path = find_test_resource("test-job-python-version")
-    assert os.path.exists(f"{test_job_path}.zip") is False
-
-    posted_data = json.loads(httpserver.log[3][0].data)
-    assert posted_data["job_version"] is not None
-    assert posted_data["python_version"] == "3.8"
-
-
 def test_set_vdk_version(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
 
-    httpserver.expect_request(
-        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments",
-        method="POST",
-    ).respond_with_response(Response(status=202))
     httpserver.expect_request(
         uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments/{DEPLOYMENT_ID}",
         method="PATCH",
@@ -201,8 +180,6 @@ def test_set_vdk_version(httpserver: PluginHTTPServer, tmpdir: LocalPath):
         ],
     )
     test_utils.assert_click_status(result, 0)
-    assert len(httpserver.log) == 1
-    assert httpserver.log[0][0].method == "POST"
     assert httpserver.log[0][0].data == b'{"vdk_version": "1.1.1"}'
 
 
@@ -244,9 +221,9 @@ def test_update_miltiple(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
 
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments",
-        method="POST",
-    ).respond_with_response(Response(status=202))
+        uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments/{DEPLOYMENT_ID}",
+        method="PATCH",
+    ).respond_with_response(Response(status=200))
 
     runner = CliRunner()
     result = runner.invoke(
@@ -328,7 +305,6 @@ def test_deploy_show_with_json_output(httpserver: PluginHTTPServer, tmpdir: Loca
             "mode": "testing",
             "last_deployed_by": "user",
             "last_deployed_date": "2021-02-25T09:16:53.323Z",
-            "python_version": "3.8",
         }
     ]
     httpserver.expect_request(
@@ -366,9 +342,6 @@ def test_deploy_show_with_json_output(httpserver: PluginHTTPServer, tmpdir: Loca
     ), f"expected data not found in output: {result.output}"
     assert (
         list(json_result)[0]["last_deployed_date"] == "2021-02-25T09:16:53.323Z"
-    ), f"expected data not found in output: {result.output}"
-    assert (
-        list(json_result)[0]["python_version"] == "3.8"
     ), f"expected data not found in output: {result.output}"
 
 
@@ -479,17 +452,17 @@ def test_deploy_failed_team_validation(httpserver: PluginHTTPServer, tmpdir: Loc
     assert "what" in result.output and "why" in result.output
 
 
-def prepare_new_deploy(httpserver, job_name: str = "test-job") -> Tuple[str, str]:
+def prepare_new_deploy(httpserver) -> Tuple[str, str]:
     rest_api_url = httpserver.url_for("")
-    mock_base_requests(httpserver, job_name)
+    mock_base_requests(httpserver)
     job_version = DataJobVersion(version_sha="17012900f60461778c01ab24728807e70a5f2c87")
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/{job_name}/sources",
+        uri="/data-jobs/for-team/test-team/jobs/test-job/sources",
         method="POST",
         headers={"Content-Type": "application/octet-stream"},
         query_string="reason=reason",
     ).respond_with_json(job_version.to_dict())
-    test_job_path = find_test_resource(job_name)
+    test_job_path = find_test_resource("test-job")
 
     open(f"{test_job_path}.zip", "w")
 
@@ -497,7 +470,7 @@ def prepare_new_deploy(httpserver, job_name: str = "test-job") -> Tuple[str, str
 
     deploy_args = [
         "-n",
-        job_name,
+        "test-job",
         "-t",
         "test-team",
         "-p",
@@ -511,21 +484,21 @@ def prepare_new_deploy(httpserver, job_name: str = "test-job") -> Tuple[str, str
     return job_version, deploy_args
 
 
-def mock_base_requests(httpserver, job_name: str = "test-job"):
+def mock_base_requests(httpserver):
     existing_job = DataJob(
-        job_name=job_name, team="test-team", description="", config=DataJobConfig()
+        job_name="test-job", team="test-team", description="", config=DataJobConfig()
     )
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/{job_name}", method="GET"
+        uri="/data-jobs/for-team/test-team/jobs/test-job", method="GET"
     ).respond_with_json(existing_job.to_dict())
 
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/{job_name}", method="PUT"
+        uri="/data-jobs/for-team/test-team/jobs/test-job", method="PUT"
     ).respond_with_response(Response(status=200))
 
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/{job_name}/deployments", method="POST"
+        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments", method="POST"
     ).respond_with_response(Response(status=200))
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/{job_name}/deployments/{DEPLOYMENT_ID}"
+        uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments/{DEPLOYMENT_ID}"
     ).respond_with_response(Response(status=200))
