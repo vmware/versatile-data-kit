@@ -3,6 +3,8 @@
 import json
 import os
 import time
+from datetime import date
+from datetime import datetime
 from unittest import mock
 
 from click.testing import Result
@@ -17,6 +19,14 @@ from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from werkzeug import Request
 from werkzeug import Response
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type %s not serializable" % type(obj))
 
 
 class DummyDAGPluginConfiguration:
@@ -59,7 +69,7 @@ class TestDAG:
             request_responses.reverse()
             execution_duration = execution_duration[0] if execution_duration else 0
 
-            def handler(location, statuses, job_name):
+            def handler(location, statuses):
                 def _handler_fn(r: Request):
                     status = statuses[0] if len(statuses) == 1 else statuses.pop()
                     if status < 300:
@@ -75,7 +85,6 @@ class TestDAG:
                 handler(
                     f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{job_name}",
                     request_responses,
-                    job_name,
                 )
             )
 
@@ -93,7 +102,9 @@ class TestDAG:
                         status=actual_job_status,
                         message="foo",
                     )
-                    response_data = json.dumps(execution.to_dict(), indent=4)
+                    response_data = json.dumps(
+                        execution.to_dict(), indent=4, default=json_serial
+                    )
                     return Response(
                         response_data,
                         status=200,
@@ -121,9 +132,11 @@ class TestDAG:
                         status="succeeded",
                         message="foo",
                     )
-                    response_data = json.dumps(execution.to_dict(), indent=4)
+                    response_data = json.dumps(
+                        [execution.to_dict()], indent=4, default=json_serial
+                    )
                     return Response(
-                        [response_data],
+                        response_data,
                         status=200,
                         headers=None,
                         content_type="application/json",

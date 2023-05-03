@@ -89,7 +89,7 @@ class TrackingDataJobExecutor:
         log.info(
             f"Finished data job {job_name}:\n"
             f"start_time: {details['start_time']}\n"
-            f"end_time: {details['end_time']}\n"
+            f"end_time: {details.get('end_time')}\n"
             f"status: {details['status']}\n"
             f"message: {details['message']}"
         )
