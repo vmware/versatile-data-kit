@@ -43,6 +43,8 @@ operationsUi:
     requests:
       memory: 250Mi
       cpu: 25m
+  config: '{"auth": {"skipAuth": true}}'
+
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.
@@ -283,6 +285,34 @@ deploymentDataJobBaseImage:
   tag: "latest"
   username:
   password:
+
+
+## The map of python versions for data job deployments supported by the Control Service.
+## All values should be strings, and follow the format
+## {"pythonVersion": {"baseImage": "<repository>:<tag>", "vdkImage": "<registry>/<repository>:<tag>"}}
+##
+## The value of baseImage will be used to create the image, where data job would be run.
+## On top of it the job source and its dependencies are installed for each job.
+## It can be customized further by installing other native dependencies necessary to run different kinds of libraries
+##
+## The value of vdkImage is the image name of VDK, which will be used to run the data jobs.
+## It is recommended to use image with same tag (e.g., release or latest),
+## as it will be pulled before any execution, thus making sure all jobs use the same and latest version of VDK.
+## The image should contain installation of VDK (vdk), which will be used to run the data jobs (vdk run command)
+## Only the installed python modules (vdk and its dependencies) will be used from the image.
+## Everything else is effectively discarded since another image is used as base during execution.
+##
+## Example: {"3.9": {"baseImage": "python:3.9-latest", "vdkImage": "example-registry.com/some-user/vdk:3.9-release"}}
+deploymentSupportedPythonVersions:
+  3.7:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+
+
+## Default python version to be used for data job deployments. The value should be a string and would be
+## used when a user has not provided a specific python_version for their data job's deployment.
+## Example: "3.9"
+deploymentDefaultPythonVersion: "3.7"
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.
