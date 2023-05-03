@@ -84,7 +84,8 @@ class TestDAG:
             ).respond_with_handler(
                 handler(
                     f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{job_name}",
-                    request_responses,job_name
+                    request_responses,
+                    job_name,
                 )
             )
 
