@@ -122,9 +122,9 @@ def run(job_input: IJobInput) - > None:
 ### Runtime sequencing
 
 The depends_on key stores the dependencies of each job - the jobs that have to finish before it starts.
-The DAG execution starts from the jobs with empty dependency lists - they start together in parallel.
-But what happens if they are too many? It could cause server overload.
-In order to avoid such unfortunate situations, a limit in the number of concurrent running jobs is set.
+The DAG execution starts from the jobs with empty dependency lists - they start together in parallel.  \
+But what happens if they are too many? It could cause server overload.  \
+In order to avoid such unfortunate situations, a limit in the number of concurrent running jobs is set.  \
 This limit is a [configuration variable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
 that you are able to set according to your needs. When the limit is exceeded, the execution of the rest of the jobs
 is not cancelled but delayed until a spot is freed by one of the running jobs. What's important here is that
@@ -157,31 +157,31 @@ You will see all the VDK configuration variables. Search for _meta_jobs_ in orde
 ### FAQ
 
 
-**Q: Will the metajob retry on Platform Error?**
+**Q: Will the metajob retry on Platform Error?**  \
 A: Yes, as any other job, up to N (configurable by the Control Service) attempts for each job it is orchestrating.
 See Control Service documentation for more information.
 
-**Q: If an orchestrated job fails, will the meta job fail?**
+**Q: If an orchestrated job fails, will the meta job fail?**  \
 A: Only if fail_meta_job_on_error flag is set to True (which is the default setting if omitted).
 
 The meta job then will fail with USER error (regardless of how the orchestrated job failed).
 
 
-**Q: Am I able to run the metajob locally?**
+**Q: Am I able to run the metajob locally?**  \
 A: Yes, but the jobs orchestrated must be deployed to the cloud (by the Control Service).
 
-**Q: Is there memory limit of the meta job?**
+**Q: Is there memory limit of the meta job?**  \
 A: The normal per job limits apply for any jobs orchestrated/started by the meta job.
 
-**Q: Is there execution time limit of the meta job?**
+**Q: Is there execution time limit of the meta job?**  \
 A: Yes, the meta job must finish within the same limit as any normal data job.
 The total time of all data jobs started by the meta job must be less than the limit specified.
 The overall limit is controlled by Control Service administrators.
 
-**Q: Is the metajob going to fail and not trigger the remaining jobs if any of the jobs it is orchestrating fails?**
+**Q: Is the metajob going to fail and not trigger the remaining jobs if any of the jobs it is orchestrating fails?**  \
 A: This is configurable by the end user in the parameter fail_meta_job_on_error.
 
-**Q: Can I schedule one job to run every hour and use it in the meta job at the same time?**
+**Q: Can I schedule one job to run every hour and use it in the meta job at the same time?**  \
 A: Yes, if the job is already running, the metajob will wait for the concurrent run to finish and then trigger the job again from the meta job,
 If the job is already running as part of the meta job, the concurrent scheduled run will be skipped.
 
