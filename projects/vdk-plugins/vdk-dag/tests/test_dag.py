@@ -69,7 +69,7 @@ class TestDAG:
             request_responses.reverse()
             execution_duration = execution_duration[0] if execution_duration else 0
 
-            def handler(location, statuses):
+            def handler(location, statuses, job_name):
                 def _handler_fn(r: Request):
                     status = statuses[0] if len(statuses) == 1 else statuses.pop()
                     if status < 300:
@@ -84,7 +84,7 @@ class TestDAG:
             ).respond_with_handler(
                 handler(
                     f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{job_name}",
-                    request_responses,
+                    request_responses,job_name
                 )
             )
 
