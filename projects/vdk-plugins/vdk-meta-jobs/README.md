@@ -114,7 +114,7 @@ JOBS_RUN_ORDER = [
 ]
 
 
-def run(job_input: IJobInput) - > None:
+def run(job_input: IJobInput) -> None:
     MetaJobInput().run_meta_job(JOBS_RUN_ORDER)
 ```
 
