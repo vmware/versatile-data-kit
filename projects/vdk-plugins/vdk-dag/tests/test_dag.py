@@ -340,6 +340,8 @@ class TestDAG:
                         )  # assert that max concurrent running jobs is not exceeded
                     if request.method == "GET":
                         execution = json.loads(response.response[0])
+                        if isinstance(execution, list):
+                            execution = execution[0]
                         if execution["status"] == "succeeded":
                             running_jobs.discard(execution["job_name"])
             cli_assert_equal(0, result)
