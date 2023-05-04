@@ -114,7 +114,7 @@ JOBS_RUN_ORDER = [
 ]
 
 
-def run(job_input: IJobInput) - > None:
+def run(job_input: IJobInput) -> None:
     DagInput().run_dag(JOBS_RUN_ORDER)
 ```
 
