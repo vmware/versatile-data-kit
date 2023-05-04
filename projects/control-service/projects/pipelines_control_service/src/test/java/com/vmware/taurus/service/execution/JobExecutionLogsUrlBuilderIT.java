@@ -195,7 +195,8 @@ public class JobExecutionLogsUrlBuilderIT {
         getDateTime(TEST_END_TIME, endTimeOffset).toString(),
         TEST_JOB_NAME,
         TEST_OP_ID,
-        TEST_EXECUTION_ID, TEST_TEAM_NAME);
+        TEST_EXECUTION_ID,
+        TEST_TEAM_NAME);
   }
 
   private void assertLogsUrlValid(

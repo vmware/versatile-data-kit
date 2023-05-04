@@ -89,14 +89,12 @@ public class JobExecutionLogsUrlBuilder {
       params.put(OP_ID_VAR, dataJobExecution.getOpId());
       params.put(
           JOB_NAME_VAR,
-          Optional.ofNullable(dataJobExecution.getDataJob())
-              .map(DataJob::getName)
-              .orElse(""));
+          Optional.ofNullable(dataJobExecution.getDataJob()).map(DataJob::getName).orElse(""));
       params.put(
-              TEAM_NAME_VAR,
-              Optional.ofNullable(dataJobExecution.getDataJob())
-                      .map(j -> j.getJobConfig().getTeam())
-                      .orElse(""));
+          TEAM_NAME_VAR,
+          Optional.ofNullable(dataJobExecution.getDataJob())
+              .map(j -> j.getJobConfig().getTeam())
+              .orElse(""));
       params.put(
           START_TIME_VAR, convertDate(dataJobExecution.getStartTime(), startTimeOffsetSeconds));
       params.put(END_TIME_VAR, convertDate(dataJobExecution.getEndTime(), endTimeOffsetSeconds));
