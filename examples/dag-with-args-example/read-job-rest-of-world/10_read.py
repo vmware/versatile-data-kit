@@ -4,16 +4,15 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    db_catalog = job_input.get_arguments().get("db_catalog")
     db_schema = job_input.get_arguments().get("db_schema")
     db_tables = job_input.get_arguments().get("db_tables")
 
     job1_data = job_input.execute_query(
-        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[0]} "
+        f"SELECT * FROM {db_schema}.{db_tables[0]} "
         f"WHERE Country NOT IN ('USA', 'Canada')"
     )
     job2_data = job_input.execute_query(
-        f"SELECT * FROM {db_catalog}.{db_schema}.{db_tables[1]} "
+        f"SELECT * FROM {db_schema}.{db_tables[1]} "
         f"WHERE Country NOT IN ('USA', 'Canada')"
     )
 
