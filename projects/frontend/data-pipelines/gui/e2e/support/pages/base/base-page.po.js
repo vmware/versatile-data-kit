@@ -476,6 +476,15 @@ export class BasePagePO {
     }
 
     /**
+     * ** Get side menu nav group btn for Explore
+     * ** Don't assert anything
+     * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
+     */
+    tryGetSideMenuExploreGroupBtn() {
+        return cy.get('[data-cy=data-pipelines-nav-group-explore] button');
+    }
+
+    /**
      * ** Get side menu nav group btn for Manage
      *
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}

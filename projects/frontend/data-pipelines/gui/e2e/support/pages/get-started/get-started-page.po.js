@@ -32,4 +32,19 @@ export class GetStartedPagePO extends BasePagePO {
 
         return this.getPage();
     }
+
+    static navigateToNoWaitDataJobs() {
+        cy.visit('/get-started');
+
+        this.waitForApplicationBootstrap();
+        // this.waitForDataJobsApiGetReqInterceptor(3);
+
+        this.waitForViewToRenderShort();
+
+        return this.getPage();
+    }
+
+    tryGetWidgetsComponent() {
+        return cy.get('[data-cy="get-started-widgets-component"]');
+    }
 }

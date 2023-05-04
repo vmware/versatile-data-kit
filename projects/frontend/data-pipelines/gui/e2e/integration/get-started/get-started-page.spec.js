@@ -54,6 +54,16 @@ describe(
                     .invoke('trim')
                     .should('eq', 'Get Started with Data Pipelines');
             });
+            it("hides the widget component when it's ignored", () => {
+                GetStartedPagePO.executeCypressCommand(
+                    'appConfigInterceptorDisableGetStartedWidgets'
+                );
+                GetStartedPagePO.wireUserSession();
+                GetStartedPagePO.initInterceptors();
+                getStartedPage = GetStartedPagePO.navigateTo();
+                // widgets component should not exist
+                getStartedPage.tryGetWidgetsComponent().should('not.exist');
+            });
         });
     }
 );

@@ -89,7 +89,47 @@ const TEAM_VDK_DATA_JOB_TEST_V11 = 'cy-e2e-vdk-test-v11';
  */
 const TEAM_VDK_DATA_JOB_TEST_V12 = 'cy-e2e-vdk-test-v12';
 
+const BASIC_AUTH_CONFIG = {
+    consoleCloudUrl: 'https://console-stg.cloud.vmware.com/',
+    orgLinkRoot: '/csp/gateway/am/api/orgs/',
+    authConfig: {
+        issuer: 'https://console-stg.cloud.vmware.com/csp/gateway/am/api/',
+        redirectUri: '$window.location.origin/',
+        skipIssuerCheck: true,
+        requestAccessToken: true,
+        oidc: true,
+        strictDiscoveryDocumentValidation: false,
+        clientId: '8qQgcmhhsXuhGJs58ZW1hQ86h3eZXTpBV6t',
+        responseType: 'code',
+        scope: 'openid ALL_PERMISSIONS customer_number group_names',
+        showDebugInformation: true,
+        silentRefreshRedirectUri: '$window.location.origin/silent-refresh.html',
+        useSilentRefresh: true,
+        silentRefreshTimeout: 5000,
+        timeoutFactor: 0.25,
+        sessionChecksEnabled: true,
+        clearHashAfterLogin: false,
+        logoutUrl:
+            'https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout',
+        nonceStateSeparator: 'semicolon'
+    },
+    resourceServer: {
+        allowedUrls: [
+            'https://console-stg.cloud.vmware.com/',
+            'https://gaz-preview.csp-vidm-prod.com/',
+            '/data-jobs'
+        ],
+        sendAccessToken: true
+    },
+    refreshTokenConfig: {
+        start: 500,
+        remainingTime: 360,
+        checkInterval: 60
+    }
+};
+
 module.exports = {
+    BASIC_AUTH_CONFIG,
     CSP_ID_TOKEN_KEY,
     CSP_ACCESS_TOKEN_KEY,
     CSP_EXPIRES_AT_KEY,

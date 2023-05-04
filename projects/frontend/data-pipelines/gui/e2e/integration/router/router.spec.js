@@ -6,6 +6,7 @@
 /// <reference types="cypress" />
 
 import { BasePagePO } from '../../support/pages/base/base-page.po';
+import { GetStartedPagePO } from '../../support/pages/get-started/get-started-page.po';
 
 describe('Routing for pages', () => {
     describe('smoke', { tags: ['@smoke'] }, () => {
@@ -23,6 +24,18 @@ describe('Routing for pages', () => {
             cy.location().should((l) =>
                 expect(l.pathname).to.equal('/get-started')
             );
+        });
+
+        it('hides the explore page tab from the navigation menu when explore page is ignored', () => {
+            BasePagePO.executeCypressCommand(
+                'appConfigInterceptorDisableExplorePage'
+            );
+            // wait for login
+            BasePagePO.wireUserSession();
+            BasePagePO.initInterceptors();
+            const basePage = BasePagePO.navigateTo();
+            // explore page side menu button should not exist
+            basePage.tryGetSideMenuExploreGroupBtn().should('not.exist');
         });
     });
 });

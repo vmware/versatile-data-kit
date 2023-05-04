@@ -9,6 +9,7 @@ import 'cypress-localstorage-commands';
 
 import { parseJWTToken } from '../plugins/helpers/util-helpers.plugins';
 import {
+    BASIC_AUTH_CONFIG,
     CSP_ACCESS_TOKEN_KEY,
     CSP_EXPIRES_AT_KEY,
     CSP_ID_TOKEN_KEY
@@ -314,47 +315,24 @@ Cypress.Commands.add(
 // App Config
 Cypress.Commands.add('appConfigInterceptorDisableExploreRoute', () => {
     cy.intercept('GET', '/assets/data/appConfig.json', {
-        auth: {
-            consoleCloudUrl: 'https://console-stg.cloud.vmware.com/',
-            orgLinkRoot: '/csp/gateway/am/api/orgs/',
-            authConfig: {
-                issuer: 'https://console-stg.cloud.vmware.com/csp/gateway/am/api/',
-                redirectUri: '$window.location.origin/',
-                skipIssuerCheck: true,
-                requestAccessToken: true,
-                oidc: true,
-                strictDiscoveryDocumentValidation: false,
-                clientId: '8qQgcmhhsXuhGJs58ZW1hQ86h3eZXTpBV6t',
-                responseType: 'code',
-                scope: 'openid ALL_PERMISSIONS customer_number group_names',
-                showDebugInformation: true,
-                silentRefreshRedirectUri:
-                    '$window.location.origin/silent-refresh.html',
-                useSilentRefresh: true,
-                silentRefreshTimeout: 5000,
-                timeoutFactor: 0.25,
-                sessionChecksEnabled: true,
-                clearHashAfterLogin: false,
-                logoutUrl:
-                    'https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout',
-                nonceStateSeparator: 'semicolon'
-            },
-            resourceServer: {
-                allowedUrls: [
-                    'https://console-stg.cloud.vmware.com/',
-                    'https://gaz-preview.csp-vidm-prod.com/',
-                    '/data-jobs'
-                ],
-                sendAccessToken: true
-            },
-            refreshTokenConfig: {
-                start: 500,
-                remainingTime: 360,
-                checkInterval: 60
-            }
-        },
-
+        auth: BASIC_AUTH_CONFIG,
         ignoreRoutes: ['explore/data-jobs', 'explore/data-jobs/:team/:job'],
         ignoreComponents: ['explorePage']
+    });
+});
+
+Cypress.Commands.add('appConfigInterceptorDisableExplorePage', () => {
+    cy.intercept('GET', '/assets/data/appConfig.json', {
+        auth: BASIC_AUTH_CONFIG,
+        ignoreRoutes: [],
+        ignoreComponents: ['explorePage']
+    });
+});
+
+Cypress.Commands.add('appConfigInterceptorDisableGetStartedWidgets', () => {
+    cy.intercept('GET', '/assets/data/appConfig.json', {
+        auth: BASIC_AUTH_CONFIG,
+        ignoreRoutes: [],
+        ignoreComponents: ['widgetsComponent']
     });
 });
