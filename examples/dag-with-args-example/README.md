@@ -626,7 +626,8 @@ Component jobs are responsible for their own dependencies, and the DAG Job only 
 
 ## Execution
 
-The execution of the DAG Job happens the same way as any other Data Job.
+[Here](https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1243-vdk-dag#high-level-design) you can read
+more about the DAG execution.
 
 ### Create and deploy Data Jobs
 
