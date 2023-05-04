@@ -45,3 +45,11 @@ spec:
              limits:
                memory: {{ .Values.operationsUi.resources.limits.memory }}
                cpu: {{ .Values.operationsUi.resources.limits.cpu }}
+           volumeMounts:
+             - name: config-volume
+               mountPath: /usr/share/nginx/html/assets/data/appConfig.json
+               subPath: config.json
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ui-config

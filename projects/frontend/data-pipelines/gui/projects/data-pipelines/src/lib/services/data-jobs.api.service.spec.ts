@@ -119,6 +119,7 @@ describe('DataJobsApiService', () => {
 						id
                         status
                         logsUrl
+                        message
                       }
                     }
                   }
