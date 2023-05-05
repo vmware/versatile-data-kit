@@ -29,12 +29,6 @@ class Dag:
         :param team_name: the name of the owning team
         :param dags_config: the DAG job configuration
         """
-        log.warning(
-            "-------------------------------------------"
-            "This plugin has been deprecated. Please use vdk-dag instead. "
-            "You may install it by running `pip install vdk-dag`."
-            "-------------------------------------------"
-        )
         self._team_name = team_name
         self._topological_sorter = TopologicalSorter()
         self._delayed_starting_jobs = TimeBasedQueue(
