@@ -239,7 +239,17 @@ public class DeploymentServiceTest {
     verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, jobDeployment, true);
     verify(kubernetesService, never())
         .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any(),any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(kubernetesService, never())
         .createCronJob(
             anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
@@ -265,7 +275,17 @@ public class DeploymentServiceTest {
 
     verify(kubernetesService, never())
         .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any(),any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(kubernetesService, never())
         .createCronJob(
             anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
@@ -340,7 +360,18 @@ public class DeploymentServiceTest {
     deploymentService.patchDeployment(testDataJob, jobDeployment);
 
     verify(kubernetesService, never())
-        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(),any(), any(), any());
+        .updateCronJob(
+            any(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(kubernetesService, never())
         .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
   }
