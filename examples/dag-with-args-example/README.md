@@ -595,6 +595,14 @@ dags_delayed_jobs_randomized_added_delay_seconds = 1
 ```
 </details>
 
+<details>
+    <summary>requirements.txt</summary>
+
+```text
+vdk-dag
+```
+</details>
+
 ### Configuration details
 
 Setting [dags_max_concurrent_running_jobs](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L87)
@@ -612,14 +620,6 @@ Then the delayed read-job-rest-of-world is started after any of the currently ru
 The other two configurations are set in order to have a short fixed delay for delayed jobs such as the last read job.
 Check the [configuration](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py)
 for more details.
-
-<details>
-    <summary>requirements.txt</summary>
-
-```text
-vdk-dag
-```
-</details>
 
 Note that the VDK DAG Job does not require the `vdk-trino` dependency.
 Component jobs are responsible for their own dependencies, and the DAG Job only handles their triggering.
