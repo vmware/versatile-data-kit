@@ -50,7 +50,7 @@ control_service_build_image:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
-    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
+#    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
   artifacts:
