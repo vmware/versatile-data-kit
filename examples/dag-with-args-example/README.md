@@ -7,8 +7,8 @@ In this example you will use the Versatile Data Kit to develop six Data Jobs - t
 from separate JSON files, and will subsequently insert the data into Trino tables. The next three jobs will read the
 data inserted by the previous two jobs, and will print the data to the terminal. The sixth Data Job will be a DAG job
 which will manage the other five and ensure that the third, fourth and fifth jobs run only when the previous two finish
-successfully. All the Trino-related details (tables, schema, catalog) will be passed individually to each job as job
-arguments in JSON format.
+successfully. All the DB-related (Trino is chosen but could be any other) details (tables, schema) will be passed
+individually to each job as job arguments in JSON format.
 
 The DAG Job uses a separate job input object separate from the one usually used for job
 operations in VDK Data Jobs and must be imported.
