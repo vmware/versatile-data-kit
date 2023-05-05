@@ -107,12 +107,8 @@ public class MockKubernetes {
         .updateCronJob(
             anyString(),
             anyString(),
-            any(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
             any(),
             any(),
             any(),

@@ -983,12 +983,8 @@ public abstract class KubernetesService implements InitializingBean {
   public void updateCronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
