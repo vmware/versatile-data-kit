@@ -1027,42 +1027,6 @@ public abstract class KubernetesService implements InitializingBean {
     }
   }
 
-  public void updateV1beta1CronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets)
-      throws ApiException {
-    var cronJob =
-        v1beta1CronJobFromTemplate(
-            name,
-            schedule,
-            !enable,
-            jobContainer,
-            initContainer,
-            volumes,
-            jobDeploymentAnnotations,
-            jobAnnotations,
-            jobLabels,
-            imagePullSecrets);
-    V1beta1CronJob nsJob =
-        new BatchV1beta1Api(client)
-            .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
-    log.debug(
-        "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
-        name,
-        image,
-        nsJob.getMetadata().getUid(),
-        nsJob.getMetadata().getSelfLink());
-  }
-
   public void updateCronJob(
       String name,
       String image,
@@ -1103,6 +1067,42 @@ public abstract class KubernetesService implements InitializingBean {
           jobLabels,
           imagePullSecrets);
     }
+  }
+
+  public void updateV1beta1CronJob(
+          String name,
+          String image,
+          String schedule,
+          boolean enable,
+          V1Container jobContainer,
+          V1Container initContainer,
+          List<V1Volume> volumes,
+          Map<String, String> jobDeploymentAnnotations,
+          Map<String, String> jobAnnotations,
+          Map<String, String> jobLabels,
+          List<String> imagePullSecrets)
+          throws ApiException {
+    var cronJob =
+            v1beta1CronJobFromTemplate(
+                    name,
+                    schedule,
+                    !enable,
+                    jobContainer,
+                    initContainer,
+                    volumes,
+                    jobDeploymentAnnotations,
+                    jobAnnotations,
+                    jobLabels,
+                    imagePullSecrets);
+    V1beta1CronJob nsJob =
+            new BatchV1beta1Api(client)
+                    .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
+    log.debug(
+            "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
+            name,
+            image,
+            nsJob.getMetadata().getUid(),
+            nsJob.getMetadata().getSelfLink());
   }
 
   public void updateV1CronJob(
