@@ -253,14 +253,7 @@ public class DeploymentServiceTest {
             any());
     verify(kubernetesService, never())
         .createCronJob(
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any());
+            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
     verify(dataJobNotification, never()).notifyJobDeploySuccess(testDataJob.getJobConfig());
     // The builder class is responsible for sending metrics and notifications on failed build.
     verify(deploymentMonitor, never()).recordDeploymentStatus(any(), any());
@@ -297,14 +290,7 @@ public class DeploymentServiceTest {
             any());
     verify(kubernetesService, never())
         .createCronJob(
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any());
+            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR);
     verify(dataJobNotification).notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
@@ -390,15 +376,7 @@ public class DeploymentServiceTest {
             any(),
             any());
     verify(kubernetesService, never())
-        .createCronJob(
-            any(),
-            any(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any());
+        .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
   }
 
   @Test

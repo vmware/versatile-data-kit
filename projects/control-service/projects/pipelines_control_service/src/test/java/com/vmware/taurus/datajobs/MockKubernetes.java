@@ -87,14 +87,7 @@ public class MockKubernetes {
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
         .when(mock)
         .createCronJob(
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any());
+            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
         .when(mock)
         .createCronJob(
