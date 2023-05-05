@@ -16,10 +16,8 @@ import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.exception.KubernetesJobDefinitionException;
 import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
 import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
-import com.vmware.taurus.service.deploy.DockerImageName;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.openapi.ApiClient;
@@ -33,7 +31,6 @@ import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 import io.kubernetes.client.util.Watch;
-import io.kubernetes.client.util.Yaml;
 import lombok.*;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +39,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -84,7 +80,6 @@ public abstract class KubernetesService implements InitializingBean {
 
   public static final String LABEL_PREFIX = "com.vmware.taurus";
   private static final int WATCH_JOBS_TIMEOUT_SECONDS = 300;
-
 
   private static int fromInteger(Integer value) {
     return Optional.ofNullable(value).orElse(0);
@@ -172,7 +167,6 @@ public abstract class KubernetesService implements InitializingBean {
     @Getter private final String value;
   }
 
-
   @org.springframework.beans.factory.annotation.Value(
       "${datajobs.control.k8s.jobTTLAfterFinishedSeconds}")
   private int jobTTLAfterFinishedSeconds;
@@ -235,7 +229,6 @@ public abstract class KubernetesService implements InitializingBean {
     // client.getHttpClient().setReadTimeout(0, TimeUnit.SECONDS);
 
   }
-
 
   private String getCurrentNamespace() {
     return getNamespaceFileContents().stream()
@@ -934,11 +927,7 @@ public abstract class KubernetesService implements InitializingBean {
 
     var lastInitTerminatedPodState =
         jobPods.stream()
-            .map(
-                v1Pod ->
-                    getTerminatedState(
-                        v1Pod,
-                            V1PodStatus::getInitContainerStatuses))
+            .map(v1Pod -> getTerminatedState(v1Pod, V1PodStatus::getInitContainerStatuses))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .max(Comparator.comparing(V1ContainerStateTerminated::getFinishedAt));
@@ -1589,7 +1578,6 @@ public abstract class KubernetesService implements InitializingBean {
         .withData(data)
         .build();
   }
-
 
   /**
    * Default for testing purposes. This method returns the megabytes amount contained in a quantity.

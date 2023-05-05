@@ -22,8 +22,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -348,7 +346,8 @@ public class KubernetesServiceTest {
       V1CronJob internalCronjobTemplate = (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
       // Prepare the 'v1checkForMissingEntries' method.
       Method checkForMissingEntries =
-          DataJobsKubernetesService.class.getDeclaredMethod("v1checkForMissingEntries", V1CronJob.class);
+          DataJobsKubernetesService.class.getDeclaredMethod(
+              "v1checkForMissingEntries", V1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1checkForMissingEntries' does not exist.");
       }
@@ -741,7 +740,6 @@ public class KubernetesServiceTest {
                 any(),
                 anyList()))
         .thenCallRealMethod();
-
 
     return mock;
   }

@@ -48,34 +48,27 @@ public class MockKubernetes {
     final Map<String, InvocationOnMock> crons = new ConcurrentHashMap<>();
 
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createCronJob(
-                    anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .when(mock)
+        .createCronJob(
+            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createCronJob(
-                    anyString(),
-                    anyString(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyList());
+        .when(mock)
+        .createCronJob(
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyList());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-            .when(mock)
-            .updateCronJob(
-                    anyString(),
-                    anyString(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any());
+        .when(mock)
+        .updateCronJob(
+            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
 
     doAnswer(inv -> crons.keySet()).when(mock).listCronJobs();
     doAnswer(inv -> crons.remove(inv.getArgument(0))).when(mock).deleteCronJob(anyString());
@@ -91,8 +84,8 @@ public class MockKubernetes {
               }
               return Optional.ofNullable(deployment);
             })
-            .when(mock)
-            .readCronJob(anyString());
+        .when(mock)
+        .readCronJob(anyString());
     mockKubernetesService(mock);
     return mock;
   }
@@ -126,14 +119,12 @@ public class MockKubernetes {
     // hence it's safe to keep the variables here isntead of static.
     final Map<String, Map<String, byte[]>> secrets = new ConcurrentHashMap<>();
 
-
     final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
 
     when(mock.getSecretData(any()))
         .thenAnswer(inv -> secrets.getOrDefault(inv.getArgument(0), Collections.emptyMap()));
     doAnswer(answer(secrets::put)).when(mock).saveSecretData(any(), any());
     doAnswer(inv -> secrets.remove(inv.getArgument(0))).when(mock).removeSecretData(any());
-
 
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
         .when(mock)
