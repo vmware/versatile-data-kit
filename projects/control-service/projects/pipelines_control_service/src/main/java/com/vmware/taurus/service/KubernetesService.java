@@ -1095,14 +1095,14 @@ public abstract class KubernetesService implements InitializingBean {
                     jobLabels,
                     imagePullSecrets);
     V1beta1CronJob nsJob =
-            new BatchV1beta1Api(client)
-                    .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
+          new BatchV1beta1Api(client)
+            .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
-            "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
-            name,
-            image,
-            nsJob.getMetadata().getUid(),
-            nsJob.getMetadata().getSelfLink());
+          "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
+          name,
+          image,
+          nsJob.getMetadata().getUid(),
+          nsJob.getMetadata().getSelfLink());
   }
 
   public void updateV1CronJob(
