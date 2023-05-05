@@ -44,6 +44,55 @@ public class MockKubernetes {
   public DataJobsKubernetesService mockDataJobsKubernetesService()
       throws ApiException, IOException, InterruptedException {
     DataJobsKubernetesService mock = mock(DataJobsKubernetesService.class);
+
+    final Map<String, InvocationOnMock> crons = new ConcurrentHashMap<>();
+
+    doAnswer(inv -> crons.put(inv.getArgument(0), inv))
+            .when(mock)
+            .createCronJob(
+                    anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+    doAnswer(inv -> crons.put(inv.getArgument(0), inv))
+            .when(mock)
+            .createCronJob(
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    anyBoolean(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    anyList());
+    doAnswer(inv -> crons.put(inv.getArgument(0), inv))
+            .when(mock)
+            .updateCronJob(
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    anyBoolean(),
+                    any(),
+                    any(),
+                    any(),
+                    any());
+
+    doAnswer(inv -> crons.keySet()).when(mock).listCronJobs();
+    doAnswer(inv -> crons.remove(inv.getArgument(0))).when(mock).deleteCronJob(anyString());
+    doAnswer(
+            inv -> {
+              JobDeploymentStatus deployment = null;
+              if (crons.containsKey(inv.getArgument(0))) {
+                deployment = new JobDeploymentStatus();
+                deployment.setMode("release");
+                deployment.setCronJobName(inv.getArgument(0));
+                deployment.setImageName("image-name");
+                deployment.setGitCommitSha("foo");
+              }
+              return Optional.ofNullable(deployment);
+            })
+            .when(mock)
+            .readCronJob(anyString());
     mockKubernetesService(mock);
     return mock;
   }
@@ -76,7 +125,8 @@ public class MockKubernetes {
     // By defautl beans are singleton scoped so we are sure this will be called once
     // hence it's safe to keep the variables here isntead of static.
     final Map<String, Map<String, byte[]>> secrets = new ConcurrentHashMap<>();
-    final Map<String, InvocationOnMock> crons = new ConcurrentHashMap<>();
+
+
     final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
 
     when(mock.getSecretData(any()))
@@ -84,51 +134,6 @@ public class MockKubernetes {
     doAnswer(answer(secrets::put)).when(mock).saveSecretData(any(), any());
     doAnswer(inv -> secrets.remove(inv.getArgument(0))).when(mock).removeSecretData(any());
 
-    doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-        .when(mock)
-        .createCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
-    doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-        .when(mock)
-        .createCronJob(
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            anyList());
-    doAnswer(inv -> crons.put(inv.getArgument(0), inv))
-        .when(mock)
-        .updateCronJob(
-            anyString(),
-            anyString(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any());
-    doAnswer(inv -> crons.keySet()).when(mock).listCronJobs();
-    doAnswer(inv -> crons.remove(inv.getArgument(0))).when(mock).deleteCronJob(anyString());
-    doAnswer(
-            inv -> {
-              JobDeploymentStatus deployment = null;
-              if (crons.containsKey(inv.getArgument(0))) {
-                deployment = new JobDeploymentStatus();
-                deployment.setMode("release");
-                deployment.setCronJobName(inv.getArgument(0));
-                deployment.setImageName("image-name");
-                deployment.setGitCommitSha("foo");
-              }
-              return Optional.ofNullable(deployment);
-            })
-        .when(mock)
-        .readCronJob(anyString());
 
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
         .when(mock)

@@ -234,7 +234,7 @@ public class KubernetesServiceTest {
       //          with corresponding entries from the internal cronjob template.
       // First we load the internal cronjob template.
       Method loadInternalV1beta1CronjobTemplate =
-          KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+          DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
       if (loadInternalV1beta1CronjobTemplate == null) {
         Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
       }
@@ -243,7 +243,7 @@ public class KubernetesServiceTest {
           (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
       // Prepare the 'v1beta1checkForMissingEntries' method.
       Method checkForMissingEntries =
-          KubernetesService.class.getDeclaredMethod(
+          DataJobsKubernetesService.class.getDeclaredMethod(
               "v1beta1checkForMissingEntries", V1beta1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1beta1checkForMissingEntries' does not exist.");
@@ -288,7 +288,7 @@ public class KubernetesServiceTest {
 
       Assertions.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
       // Step 3 - create and check the actual cronjob.
-      Method[] methods = KubernetesService.class.getDeclaredMethods();
+      Method[] methods = DataJobsKubernetesService.class.getDeclaredMethods();
       // This is much easier than describing the whole method signature.
       Optional<Method> method =
           Arrays.stream(methods)
@@ -340,7 +340,7 @@ public class KubernetesServiceTest {
       //          with corresponding entries from the internal cronjob template.
       // First we load the internal cronjob template.
       Method loadInternalV1CronjobTemplate =
-          KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
+          DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
       if (loadInternalV1CronjobTemplate == null) {
         Assertions.fail("The method 'loadInternalV1CronjobTemplate' does not exist.");
       }
@@ -348,7 +348,7 @@ public class KubernetesServiceTest {
       V1CronJob internalCronjobTemplate = (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
       // Prepare the 'v1checkForMissingEntries' method.
       Method checkForMissingEntries =
-          KubernetesService.class.getDeclaredMethod("v1checkForMissingEntries", V1CronJob.class);
+          DataJobsKubernetesService.class.getDeclaredMethod("v1checkForMissingEntries", V1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1checkForMissingEntries' does not exist.");
       }
@@ -392,7 +392,7 @@ public class KubernetesServiceTest {
 
       Assertions.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
       // Step 3 - create and check the actual cronjob.
-      Method[] methods = KubernetesService.class.getDeclaredMethods();
+      Method[] methods = DataJobsKubernetesService.class.getDeclaredMethods();
       // This is much easier than describing the whole method signature.
       Optional<Method> method =
           Arrays.stream(methods)
@@ -434,7 +434,7 @@ public class KubernetesServiceTest {
 
   @Test
   public void testReadJobDeploymentStatuses() {
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
+    var mock = Mockito.mock(DataJobsKubernetesService.class);
     List<JobDeploymentStatus> v1TestList = new ArrayList<>();
     List<JobDeploymentStatus> v1BetaTestList = new ArrayList<>();
 
@@ -465,7 +465,7 @@ public class KubernetesServiceTest {
   @Test
   public void testReadCronJob_readV1CronJobShouldReturnStatus() {
     String testCronjobName = "testCronjob";
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
+    var mock = Mockito.mock(DataJobsKubernetesService.class);
 
     JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
     testDeploymentStatus.setEnabled(false);
@@ -486,7 +486,7 @@ public class KubernetesServiceTest {
   @Test
   public void testReadCronJob_readV1beta1CronJobShouldReturnStatus() {
     String testCronjobName = "testCronjob";
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
+    var mock = Mockito.mock(DataJobsKubernetesService.class);
 
     JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
     testDeploymentStatus.setEnabled(false);
@@ -712,8 +712,8 @@ public class KubernetesServiceTest {
     Assertions.assertEquals(expectedMb, actual);
   }
 
-  private KubernetesService mockCronJobFromTemplate() {
-    var mock = Mockito.mock(KubernetesService.class);
+  private DataJobsKubernetesService mockCronJobFromTemplate() {
+    var mock = Mockito.mock(DataJobsKubernetesService.class);
     Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
     Mockito.when(
             mock.v1beta1CronJobFromTemplate(
@@ -742,10 +742,6 @@ public class KubernetesServiceTest {
                 anyList()))
         .thenCallRealMethod();
 
-    ReflectionTestUtils.setField(
-        mock, // inject into this object
-        "log", // assign to this field
-        Mockito.mock(Logger.class)); // object to be injected
 
     return mock;
   }
