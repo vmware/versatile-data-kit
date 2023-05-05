@@ -89,12 +89,8 @@ public class MockKubernetes {
         .createCronJob(
             anyString(),
             anyString(),
-            any(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
             any(),
             any(),
             any(),
