@@ -165,10 +165,6 @@ public class DeploymentServiceTest {
             eq(true),
             any(),
             any(),
-            any(),
-            any(),
-            any(),
-            any(),
             anyList());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
@@ -207,10 +203,6 @@ public class DeploymentServiceTest {
             eq(true),
             any(),
             any(),
-            any(),
-            any(),
-            any(),
-            any(),
             anyList());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
@@ -243,26 +235,14 @@ public class DeploymentServiceTest {
             anyString(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+             any(), any(), any(), any());
     verify(kubernetesService, never())
         .createCronJob(
             anyString(),
             anyString(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+             any(), any(), any(), any());
     verify(dataJobNotification, never()).notifyJobDeploySuccess(testDataJob.getJobConfig());
     // The builder class is responsible for sending metrics and notifications on failed build.
     verify(deploymentMonitor, never()).recordDeploymentStatus(any(), any());
@@ -289,26 +269,14 @@ public class DeploymentServiceTest {
             anyString(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+             any(), any(), any(), any());
     verify(kubernetesService, never())
         .createCronJob(
             anyString(),
             anyString(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+             any(), any(), any(), any());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR);
     verify(dataJobNotification).notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
@@ -329,10 +297,6 @@ public class DeploymentServiceTest {
             eq(TEST_JOB_IMAGE_NAME),
             eq(TEST_JOB_SCHEDULE),
             eq(true),
-            any(),
-            any(),
-            any(),
-            any(),
             any(),
             any(),
             anyList());
@@ -382,29 +346,15 @@ public class DeploymentServiceTest {
     verify(kubernetesService, never())
         .updateCronJob(
             any(),
-            any(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+             any(), any(), any(), any());
     verify(kubernetesService, never())
         .createCronJob(
             any(),
-            any(),
             anyString(),
             anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+             any(), any(), any(), any());
   }
 
   @Test
