@@ -465,45 +465,6 @@ public class DataJobsKubernetesService extends KubernetesService {
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      createV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    } else {
-      createV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    }
-  }
-
-  public void createCronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
       Map<String, String> jobDeploymentAnnotations,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
