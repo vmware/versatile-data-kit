@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.vmware.taurus.service.model.DataJob;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
@@ -50,6 +51,7 @@ public class JobExecutionLogsUrlBuilder {
   static final String EXECUTION_ID_VAR = "execution_id";
   static final String OP_ID_VAR = "op_id";
   static final String JOB_NAME_VAR = "job_name";
+  static final String TEAM_NAME_VAR = "team_name";
   static final String START_TIME_VAR = "start_time";
   static final String END_TIME_VAR = "end_time";
 
@@ -87,8 +89,11 @@ public class JobExecutionLogsUrlBuilder {
       params.put(OP_ID_VAR, dataJobExecution.getOpId());
       params.put(
           JOB_NAME_VAR,
+          Optional.ofNullable(dataJobExecution.getDataJob()).map(DataJob::getName).orElse(""));
+      params.put(
+          TEAM_NAME_VAR,
           Optional.ofNullable(dataJobExecution.getDataJob())
-              .map(dataJob -> dataJob.getName())
+              .map(j -> j.getJobConfig().getTeam())
               .orElse(""));
       params.put(
           START_TIME_VAR, convertDate(dataJobExecution.getStartTime(), startTimeOffsetSeconds));
