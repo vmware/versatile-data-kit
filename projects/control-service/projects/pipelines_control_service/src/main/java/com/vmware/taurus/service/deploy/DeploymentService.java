@@ -68,7 +68,6 @@ public class DeploymentService {
       var oldDeployment =
           DeploymentModelConverter.toJobDeployment(
               dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
-      setPythonVersionIfNull(oldDeployment, jobDeployment);
       var mergedDeployment =
           DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
       validateFieldsCanBePatched(oldDeployment, mergedDeployment);
@@ -274,11 +273,10 @@ public class DeploymentService {
         || readDeployment(dataJobName).isPresent();
   }
 
-  private JobDeployment setPythonVersionIfNull(
+  private void setPythonVersionIfNull(
       JobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
       newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
     }
-    return newDeployment;
   }
 }
