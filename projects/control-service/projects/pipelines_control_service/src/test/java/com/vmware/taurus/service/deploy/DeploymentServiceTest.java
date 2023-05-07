@@ -357,37 +357,42 @@ public class DeploymentServiceTest {
     jobDeployment.setEnabled(true);
     jobDeployment.setPythonVersion("3.10");
 
-    ApiConstraintError error = assertThrows(ApiConstraintError.class, () -> { deploymentService.patchDeployment(testDataJob, jobDeployment); });
+    ApiConstraintError error =
+        assertThrows(
+            ApiConstraintError.class,
+            () -> {
+              deploymentService.patchDeployment(testDataJob, jobDeployment);
+            });
     assertThat(error.getErrorMessage().toString(), containsString("python_version is not valid"));
 
     verify(kubernetesService, never())
-            .updateCronJob(
-                    any(),
-                    any(),
-                    any(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any());
+        .updateCronJob(
+            any(),
+            any(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(kubernetesService, never())
-            .createCronJob(
-                    any(),
-                    any(),
-                    any(),
-                    anyString(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any());
+        .createCronJob(
+            any(),
+            any(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
   }
 
   @Test

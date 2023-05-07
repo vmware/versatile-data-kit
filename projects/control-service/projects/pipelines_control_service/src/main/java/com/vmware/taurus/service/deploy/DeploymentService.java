@@ -273,8 +273,7 @@ public class DeploymentService {
         || readDeployment(dataJobName).isPresent();
   }
 
-  private void setPythonVersionIfNull(
-      JobDeployment oldDeployment, JobDeployment newDeployment) {
+  private void setPythonVersionIfNull(JobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
       newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
     }

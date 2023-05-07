@@ -292,12 +292,12 @@ public class JobImageBuilderTest {
 
   @Test
   public void
-  buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingSupportedPythonVersions()
+      buildImage_deploymentDataJobBaseImageNotNull_shouldCreateCronjobUsingSupportedPythonVersions()
           throws InterruptedException, ApiException, IOException {
     ReflectionTestUtils.setField(
         supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
     ReflectionTestUtils.setField(
-            supportedPythonVersions, "supportedPythonVersions", generateSupportedPythonVersionsConf());
+        supportedPythonVersions, "supportedPythonVersions", generateSupportedPythonVersionsConf());
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
@@ -382,7 +382,7 @@ public class JobImageBuilderTest {
 
   private static Map<String, Map<String, String>> generateSupportedPythonVersionsConf() {
     return Map.of(
-            "3.10", Map.of("baseImage", "python:3.10-slim", "vdkImage", "test_vdk_image_3.10"),
-            "3.11", Map.of("baseImage", "python:3.11-slim", "vdkImage", "test_vdk_image_3.11"));
+        "3.10", Map.of("baseImage", "python:3.10-slim", "vdkImage", "test_vdk_image_3.10"),
+        "3.11", Map.of("baseImage", "python:3.11-slim", "vdkImage", "test_vdk_image_3.11"));
   }
 }
