@@ -16,14 +16,14 @@ def run(job_input: IJobInput):
 
         rows = [tuple(i.values()) for i in data]
         insert_query = """
-        INSERT INTO memory.default.test_metajob_two VALUES
+        INSERT INTO memory.default.test_dag_two VALUES
         """ + ", ".join(
             str(i) for i in rows
         )
 
         job_input.execute_query(
             """
-            CREATE TABLE IF NOT EXISTS memory.default.test_metajob_two
+            CREATE TABLE IF NOT EXISTS memory.default.test_dag_two
             (
                 id integer,
                 first_name varchar,
