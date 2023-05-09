@@ -98,7 +98,6 @@ public class JobImageDeployerTest {
               Mockito.any(),
               Mockito.any(),
               Mockito.anyList(),
-              Mockito.anyMap(),
               annotationCaptor.capture(),
               labelCaptor.capture(),
               Mockito.anyList());
@@ -114,7 +113,6 @@ public class JobImageDeployerTest {
               Mockito.any(),
               Mockito.any(),
               Mockito.anyList(),
-              Mockito.anyMap(),
               Mockito.anyMap(),
               Mockito.anyMap(),
               Mockito.anyList());

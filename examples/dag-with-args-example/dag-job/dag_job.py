@@ -11,7 +11,6 @@ JOBS_RUN_ORDER = [
         "arguments": {
             "db_table": "test_dag_one",
             "db_schema": "default",
-            "db_catalog": "memory",
         },
         "depends_on": [],
     },
@@ -22,7 +21,6 @@ JOBS_RUN_ORDER = [
         "arguments": {
             "db_table": "test_dag_two",
             "db_schema": "default",
-            "db_catalog": "memory",
         },
         "depends_on": [],
     },
@@ -33,7 +31,6 @@ JOBS_RUN_ORDER = [
         "arguments": {
             "db_tables": ["test_dag_one", "test_dag_two"],
             "db_schema": "default",
-            "db_catalog": "memory",
         },
         "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
@@ -44,7 +41,6 @@ JOBS_RUN_ORDER = [
         "arguments": {
             "db_tables": ["test_dag_one", "test_dag_two"],
             "db_schema": "default",
-            "db_catalog": "memory",
         },
         "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
@@ -55,12 +51,11 @@ JOBS_RUN_ORDER = [
         "arguments": {
             "db_tables": ["test_dag_one", "test_dag_two"],
             "db_schema": "default",
-            "db_catalog": "memory",
         },
         "depends_on": ["ingest-job-table-one", "ingest-job-table-two"],
     },
 ]
 
 
-def run(job_input):
+def run(job_input) -> None:
     DagInput().run_dag(JOBS_RUN_ORDER)
