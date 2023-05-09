@@ -342,9 +342,11 @@ public class DeploymentServiceTest {
         .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
 
     verify(kubernetesService, never())
-            .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
+        .updateCronJob(
+            any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
     verify(kubernetesService, never())
-            .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
+        .createCronJob(
+            any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
   }
 
   @Test
