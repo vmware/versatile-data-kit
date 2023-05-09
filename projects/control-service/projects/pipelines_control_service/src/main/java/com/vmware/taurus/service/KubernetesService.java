@@ -1000,7 +1000,6 @@ public abstract class KubernetesService implements InitializingBean {
           jobContainer,
           initContainer,
           volumes,
-          jobDeploymentAnnotations,
           Collections.emptyMap(),
           Collections.emptyMap(),
           List.of(""));
