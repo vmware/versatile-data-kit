@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.TestUtils;
+import com.vmware.taurus.exception.ApiConstraintError;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -19,6 +20,8 @@ import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -34,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -343,6 +347,51 @@ public class DeploymentServiceTest {
         .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
     verify(kubernetesService, never())
         .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void patchDeployment_notValidPythonVersion_shouldFail()
+      throws ApiException, ApiConstraintError {
+    JobDeployment jobDeployment = new JobDeployment();
+    jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
+    jobDeployment.setDataJobName(testDataJob.getName());
+    jobDeployment.setEnabled(true);
+    jobDeployment.setPythonVersion("3.10");
+
+    ApiConstraintError error =
+        assertThrows(
+            ApiConstraintError.class,
+            () -> {
+              deploymentService.patchDeployment(testDataJob, jobDeployment);
+            });
+    assertThat(error.getErrorMessage().toString(), containsString("python_version is not valid"));
+
+    verify(kubernetesService, never())
+        .updateCronJob(
+            any(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
+    verify(kubernetesService, never())
+        .createCronJob(
+            any(),
+            any(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
   }
 
   @Test
