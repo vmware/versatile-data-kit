@@ -135,24 +135,29 @@ const handleErrorsProducedByNotebookCell = async (
   docManager: IDocumentManager
 ): Promise<void> => {
   const failingCellId = findFailingCellId(message.what_happened);
-  const {path, failingCellIndex} = await getFailingNotebookInfo(failingCellId);
+  const { path, failingCellIndex } = await getFailingNotebookInfo(
+    failingCellId
+  );
   if (path) {
     const navigateToFailingCell = async () => {
       const notebook = docManager.openOrReveal(path);
-      const children = Array.from(notebook?.node.children!);
-      children!.forEach(element => {
-        if(element.classList.contains('jp-Notebook')){
-          console.log(element);
-          const cells = element.children;
-          console.log(cells);
-          console.log(Number(failingCellIndex));
-          if(Number(failingCellIndex)){
-            console.log(cells[Number(failingCellIndex)])
-            cells[Number(failingCellIndex)].scrollIntoView()
-            cells[Number(failingCellIndex)].classList.add('jp-vdk-failing-cell');
+      if (notebook) {
+        await notebook.revealed; // wait until the DOM elements are fully loaded
+        const children = Array.from(notebook.node.children!);
+        children!.forEach(element => {
+          if (element.classList.contains('jp-Notebook')) {
+            const cells = element.children;
+            const inx = Number(failingCellIndex);
+            if (inx >= 0) {
+              const failingCell = cells.item(inx);
+              if (failingCell) {
+                failingCell.scrollIntoView();
+                failingCell.classList.add('jp-vdk-failing-cell');
+              }
+            }
           }
-        }
-      });
+        });
+      }
     };
 
     let result = await showDialog({
@@ -166,7 +171,10 @@ const handleErrorsProducedByNotebookCell = async (
           <p>{message.countermeasures}</p>
         </div>
       ),
-      buttons: [Dialog.okButton( {label: 'See failing cell'}), Dialog.cancelButton()]
+      buttons: [
+        Dialog.okButton({ label: 'See failing cell' }),
+        Dialog.cancelButton()
+      ]
     });
 
     if (result.button.accept) {
