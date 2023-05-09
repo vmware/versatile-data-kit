@@ -297,9 +297,7 @@ vdk-trino
 
 ```
 read-job-usa/
-├── 10_transform.py
-├── 20_drop_table_one.sql
-├── 30_drop_table_two.sql
+├── 10_read.py
 ├── config.ini
 ├── requirements.txt
 ```
@@ -359,7 +357,7 @@ vdk-trino
 
 ```
 read-job-canada/
-├── 10_transform.py
+├── 10_read.py
 ├── config.ini
 ├── requirements.txt
 ```
@@ -419,7 +417,7 @@ vdk-trino
 
 ```
 read-job-rest-of-world/
-├── 10_transform.py
+├── 10_read.py
 ├── 20_drop_table_one.sql
 ├── 30_drop_table_two.sql
 ├── config.ini
@@ -603,6 +601,9 @@ vdk-dag
 ```
 </details>
 
+Note that the VDK DAG Job does not require the `vdk-trino` dependency.
+Component jobs are responsible for their own dependencies, and the DAG Job only handles their triggering.
+
 ### Configuration details
 
 Setting [dags_max_concurrent_running_jobs](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L87)
@@ -620,9 +621,6 @@ Then the delayed read-job-rest-of-world is started after any of the currently ru
 The other two configurations are set in order to have a short fixed delay for delayed jobs such as the last read job.
 Check the [configuration](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py)
 for more details.
-
-Note that the VDK DAG Job does not require the `vdk-trino` dependency.
-Component jobs are responsible for their own dependencies, and the DAG Job only handles their triggering.
 
 ## Execution
 
