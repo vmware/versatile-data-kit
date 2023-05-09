@@ -23,6 +23,8 @@ The tone and content of the `Summary` section should be
 useful for a wide audience.
 -->
 
+*VDK Meta Jobs have been renamed to VDK DAGs. This document has not been altered.*
+
 The Meta Job is a new feature in VDK that enables users to manage job dependencies in their data processing workflows.
 It allows a Data Job to manage other Data Jobs by triggering them on certain job completion conditions (i.e. job1
 and job2 complete before job3 starts) resulting in more accurate and consistent data output. An integration with

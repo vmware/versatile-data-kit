@@ -45,7 +45,7 @@ To run this example, you need:
 * Versatile Data Kit
 * Trino DB
 * `vdk-trino` - VDK plugin for a connection to a Trino database
-* [VDK DAGs](https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1243-vdk-meta-jobs)
+* [VDK DAGs](https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1243-vdk-dag)
 
 ## Configuration
 
@@ -511,14 +511,14 @@ dag-job/
     <summary>dag_job.py</summary>
 
 ```python
-from vdk.plugin.meta_jobs.meta_job_runner import MetaJobInput
+from vdk.plugin.dag.dag_runner import DagInput
 
 
 JOBS_RUN_ORDER = [
     {
-        "job_name": "ingest-job-table-one",
+        "job_name": "ingest-job-table-one ",
         "team_name": "my-team",
-        "fail_meta_job_on_error": True,
+        "fail_dag_on_error": True,
         "arguments": {
             "db_table": "test_dag_one",
             "db_schema": "default",
@@ -529,7 +529,7 @@ JOBS_RUN_ORDER = [
     {
         "job_name": "ingest-job-table-two",
         "team_name": "my-team",
-        "fail_meta_job_on_error": True,
+        "fail_dag_on_error": True,
         "arguments": {
             "db_table": "test_dag_two",
             "db_schema": "default",
@@ -540,7 +540,7 @@ JOBS_RUN_ORDER = [
     {
         "job_name": "read-job-usa",
         "team_name": "my-team",
-        "fail_meta_job_on_error": True,
+        "fail_dag_on_error": True,
         "arguments": {
             "db_tables": ["test_dag_one", "test_dag_two"],
             "db_schema": "default",
@@ -551,7 +551,7 @@ JOBS_RUN_ORDER = [
     {
         "job_name": "read-job-canada",
         "team_name": "my-team",
-        "fail_meta_job_on_error": True,
+        "fail_dag_on_error": True,
         "arguments": {
             "db_tables": ["test_dag_one", "test_dag_two"],
             "db_schema": "default",
@@ -562,7 +562,7 @@ JOBS_RUN_ORDER = [
     {
         "job_name": "read-job-rest-of-world",
         "team_name": "my-team",
-        "fail_meta_job_on_error": True,
+        "fail_dag_on_error": True,
         "arguments": {
             "db_tables": ["test_dag_one", "test_dag_two"],
             "db_schema": "default",
@@ -574,12 +574,12 @@ JOBS_RUN_ORDER = [
 
 
 def run(job_input):
-    MetaJobInput().run_meta_job(JOBS_RUN_ORDER)
+    DagInput().run_dag(JOBS_RUN_ORDER)
 
 ```
 </details>
 
-Note that the `run_meta_job` method belongs to the `MetaJobInput` object which must be imported
+Note that the `run_dag` method belongs to the `DagInput` object which must be imported
 and instantiated separately from the default `IJobInput` object which is passed to the `run` function by default.
 
 <details>
@@ -598,16 +598,16 @@ and instantiated separately from the default `IJobInput` object which is passed 
 team = my-team
 
 [vdk]
-meta_jobs_max_concurrent_running_jobs = 2
+dag_max_concurrent_running_jobs = 2
 
-meta_jobs_delayed_jobs_randomized_added_delay_seconds = 1
-meta_jobs_delayed_jobs_min_delay_seconds = 1
+dag_delayed_jobs_randomized_added_delay_seconds = 1
+dag_delayed_jobs_min_delay_seconds = 1
 ```
 </details>
 
 ### Configuration details
 
-Setting [meta_jobs_max_concurrent_running_jobs](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L87)
+Setting [dag_max_concurrent_running_jobs](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L87)
 to 2 in the DAG Job config.ini file would mean that the jobs in the DAG will be executed in the following order:
  * ingest-job-table-one, ingest-job-table-two
  * read-job-usa, read-job-canada
@@ -620,14 +620,14 @@ hit (after read-job-usa and read-job-canada are started), the following message 
 Then the delayed read-job-rest-of-world is started after any of the currently running Data Jobs finishes.
 
 The other two configurations are set in order to have a short fixed delay for delayed jobs such as the last read job.
-Check the [configuration](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py)
+Check the [configuration](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py)
 for more details.
 
 <details>
     <summary>requirements.txt</summary>
 
 ```text
-vdk-meta-jobs
+vdk-dag
 ```
 </details>
 
