@@ -500,14 +500,16 @@ const changeJobsStatusesFixtures = (taskConfig, config) => {
 /**
  * ** Delete Jobs for provided fixtures paths.
  *
- * @param {{relativePathToFixtures: Array<{pathToFixture:string;}>}} taskConfig - configuration for task.
+ * @param {{relativePathToFixtures: Array<{pathToFixture:string;}>; optional?: boolean;}} taskConfig - configuration for task.
  *      relativePathToFixtures provides relative paths for fixtures files starting from directory fixtures
+ *      optional if set to true will instruct the plugin to not log console error, if deletion status is different from 2xx, (e.g. 404 or 500)
  *      e.g. {
  *             relativePathToFixtures: [
  *                  {
  *                      pathToFixture: '/base/data-jobs/cy-e2e-vdk/cy-e2e-vdk-failing-v0.json'
  *                  }
- *             ]
+ *             ],
+ *             optional: true
  *           }
  * @param {Cypress.ResolvedConfigOptions} config
  * @returns {Promise<boolean>}
@@ -548,7 +550,10 @@ const deleteJobsFixtures = (taskConfig, config) => {
                         );
                     }
 
-                    if (unsuccessfulDeletion.length > 0) {
+                    if (
+                        !taskConfig.optional &&
+                        unsuccessfulDeletion.length > 0
+                    ) {
                         Logger.error(
                             `Failed to delete Data Jobs: ${unsuccessfulDeletion.toString()}`
                         );
