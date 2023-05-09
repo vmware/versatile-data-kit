@@ -20,7 +20,7 @@ class DagPlugin:
         dag_runner.TEAM_NAME = context.core_context.configuration.get_value(
             JobConfigKeys.TEAM
         )
-        dag_runner.DAGS_CONFIG = DagPluginConfiguration(
+        dag_runner.DAG_CONFIG = DagPluginConfiguration(
             context.core_context.configuration
         )
 

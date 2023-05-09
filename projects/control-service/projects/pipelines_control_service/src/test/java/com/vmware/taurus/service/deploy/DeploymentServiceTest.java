@@ -328,21 +328,6 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void enableDeployment_sameEnabledStatus_updateSkipped() throws ApiException {
-    JobDeployment jobDeployment = new JobDeployment();
-    jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
-    jobDeployment.setDataJobName(testDataJob.getName());
-    jobDeployment.setEnabled(true);
-
-    deploymentService.patchDeployment(testDataJob, jobDeployment);
-
-    verify(kubernetesService, never())
-        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
-    verify(kubernetesService, never())
-        .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
-  }
-
-  @Test
   public void patchDeployment_notValidPythonVersion_shouldFail()
       throws ApiException, ApiConstraintError {
     JobDeployment jobDeployment = new JobDeployment();

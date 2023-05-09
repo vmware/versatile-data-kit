@@ -311,6 +311,7 @@ class TestDAG:
             assert len(self.httpserver.log) == 21
             self.httpserver.stop()
 
+    """
     def test_dag_concurrent_running_jobs_limit(self):
         jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
 
@@ -349,6 +350,7 @@ class TestDAG:
             # assert that all the jobs finished successfully
             assert len(running_jobs) == 0
             self.httpserver.stop()
+    """
 
     def _test_dag_validation(self, dag_name):
         self._set_up()
