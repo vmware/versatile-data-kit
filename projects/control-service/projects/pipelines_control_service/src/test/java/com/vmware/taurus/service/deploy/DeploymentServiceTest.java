@@ -172,7 +172,6 @@ public class DeploymentServiceTest {
             any(),
             any(),
             any(),
-            any(),
             anyList());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
@@ -214,7 +213,6 @@ public class DeploymentServiceTest {
             any(),
             any(),
             any(),
-            any(),
             anyList());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
@@ -242,11 +240,9 @@ public class DeploymentServiceTest {
     verify(dockerRegistryService).dataJobImage(TEST_JOB_NAME, "test-commit");
     verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, jobDeployment, true);
     verify(kubernetesService, never())
-        .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .updateCronJob(anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any());
     verify(kubernetesService, never())
-        .createCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .createCronJob(anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any());
     verify(dataJobNotification, never()).notifyJobDeploySuccess(testDataJob.getJobConfig());
     // The builder class is responsible for sending metrics and notifications on failed build.
     verify(deploymentMonitor, never()).recordDeploymentStatus(any(), any());
@@ -268,11 +264,9 @@ public class DeploymentServiceTest {
         testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME, OP_ID);
 
     verify(kubernetesService, never())
-        .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .updateCronJob(anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any());
     verify(kubernetesService, never())
-        .createCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .createCronJob(anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR);
     verify(dataJobNotification).notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
@@ -293,7 +287,6 @@ public class DeploymentServiceTest {
             eq(TEST_JOB_IMAGE_NAME),
             eq(TEST_JOB_SCHEDULE),
             eq(true),
-            any(),
             any(),
             any(),
             any(),
@@ -344,9 +337,9 @@ public class DeploymentServiceTest {
     deploymentService.patchDeployment(testDataJob, jobDeployment);
 
     verify(kubernetesService, never())
-        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
     verify(kubernetesService, never())
-        .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
   }
 
   @Test
@@ -368,30 +361,10 @@ public class DeploymentServiceTest {
 
     verify(kubernetesService, never())
         .updateCronJob(
-            any(),
-            any(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+            any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
     verify(kubernetesService, never())
         .createCronJob(
-            any(),
-            any(),
-            anyString(),
-            anyBoolean(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any(),
-            any());
+            any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
   }
 
   @Test
