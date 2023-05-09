@@ -150,7 +150,7 @@ public class JobExecutionUtil {
     return ImmutablePair.of(opId, executionId);
   }
 
-  private static void testDataJobExecutionRead(
+  public static void testDataJobExecutionRead(
       String executionId,
       com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
       String opId,
@@ -198,7 +198,7 @@ public class JobExecutionUtil {
         executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
   }
 
-  private static void testDataJobExecutionList(
+  public static void testDataJobExecutionList(
       String executionId,
       com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
       String opId,
@@ -232,7 +232,7 @@ public class JobExecutionUtil {
         executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
   }
 
-  private static void testDataJobDeploymentExecutionList(
+  public static void testDataJobDeploymentExecutionList(
       String executionId,
       com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
       String opId,
