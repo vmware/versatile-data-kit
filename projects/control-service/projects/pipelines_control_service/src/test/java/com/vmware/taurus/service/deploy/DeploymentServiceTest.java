@@ -333,7 +333,7 @@ public class DeploymentServiceTest {
     deploymentService.patchDeployment(testDataJob, jobDeployment);
 
     verify(kubernetesService, never())
-        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any());
+        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
     verify(kubernetesService, never())
         .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any());
   }
