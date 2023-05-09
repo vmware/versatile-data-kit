@@ -370,7 +370,6 @@ public class DeploymentServiceTest {
             any(),
             any(),
             any(),
-            any(),
             any());
     verify(kubernetesService, never())
         .createCronJob(
@@ -378,7 +377,6 @@ public class DeploymentServiceTest {
             any(),
             anyString(),
             anyBoolean(),
-            any(),
             any(),
             any(),
             any(),
