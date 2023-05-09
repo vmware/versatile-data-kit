@@ -314,7 +314,7 @@ class TestDAG:
     def test_dag_concurrent_running_jobs_limit(self):
         jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
 
-        dummy_config.dags_max_concurrent_running_jobs_value = 2
+        dummy_config.dags_max_concurrent_running_jobs_value = 3
         dummy_config.dags_delayed_jobs_min_delay_seconds_value = 1
         dummy_config.dags_delayed_jobs_randomized_added_delay_seconds_value = 1
         dummy_config.dags_time_between_status_check_seconds_value = 1
@@ -327,7 +327,7 @@ class TestDAG:
             self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag("dag-exceed-limit")
             expected_max_running_jobs = int(
-                os.getenv("VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS", "2")
+                os.getenv("VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS", "3")
             )
             # keep track of the number of running jobs at any given time
             running_jobs = set()
