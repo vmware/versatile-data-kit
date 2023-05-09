@@ -24,7 +24,7 @@ class DagPluginConfiguration:
 
         :return: the number of seconds for the minimum delay of a delayed job
 
-        :seealso: `META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L90>`
+        :seealso: `DAGS_DELAYED_JOBS_MIN_DELAY_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L90>`
         """
         return self.__config.get_value(DAGS_DELAYED_JOBS_MIN_DELAY_SECONDS)
 
@@ -34,7 +34,7 @@ class DagPluginConfiguration:
 
         :return: the number of seconds for the additional randomized delay of the delayed jobs
 
-        :seealso: `META_JOBS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L100>`
+        :seealso: `DAGS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L100>`
         """
         return self.__config.get_value(DAGS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS)
 
@@ -44,7 +44,7 @@ class DagPluginConfiguration:
 
         :return: the frequency in seconds at which the system checks a DAG execution's status
 
-        :seealso: `META_JOBS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L111>`
+        :seealso: `DAGS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L111>`
         """
         return self.__config.get_value(DAGS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS)
 
@@ -54,7 +54,7 @@ class DagPluginConfiguration:
 
         :return: the number of seconds between status checks for a job.
 
-        :seealso: `META_JOBS_TIME_BETWEEN_STATUS_CHECK_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L121>`
+        :seealso: `DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L121>`
         """
         return self.__config.get_value(DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS)
 
@@ -64,7 +64,7 @@ class DagPluginConfiguration:
 
         :return: the number of maximum concurrent running jobs
 
-        :seealso: `META_JOBS_MAX_CONCURRENT_RUNNING_JOBS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-meta-jobs/src/vdk/plugin/meta_jobs/meta_configuration.py#L132>`
+        :seealso: `DAGS_MAX_CONCURRENT_RUNNING_JOBS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L132>`
         """
         return self.__config.get_value(DAGS_MAX_CONCURRENT_RUNNING_JOBS)
 
