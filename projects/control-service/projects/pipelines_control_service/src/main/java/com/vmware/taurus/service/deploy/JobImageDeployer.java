@@ -289,17 +289,12 @@ public class JobImageDeployer {
       dataJobsKubernetesService.updateCronJob(
           cronJobName,
           jobDeployment.getImageName(),
-          jobContainerEnvVars,
           schedule,
           enabled,
-          List.of(),
-          defaultConfigurations.dataJobRequests(),
-          defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
           jobDeploymentAnnotations,
-          Collections.emptyMap(),
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
@@ -307,17 +302,12 @@ public class JobImageDeployer {
       dataJobsKubernetesService.createCronJob(
           cronJobName,
           jobDeployment.getImageName(),
-          jobContainerEnvVars,
           schedule,
           enabled,
-          List.of(),
-          defaultConfigurations.dataJobRequests(),
-          defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
           jobDeploymentAnnotations,
-          Collections.emptyMap(),
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
@@ -326,12 +316,16 @@ public class JobImageDeployer {
 
   private String getJobVdkImage(JobDeployment jobDeployment) {
     // TODO: Refactor when vdkImage is deprecated.
-    if (StringUtils.isNotBlank(jobDeployment.getVdkVersion()) && StringUtils.isNotBlank(vdkImage)) {
-      return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
+    if (!supportedPythonVersions.getSupportedPythonVersions().isEmpty()
+        && supportedPythonVersions.isPythonVersionSupported(jobDeployment.getPythonVersion())) {
+      return supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     } else {
-      return vdkImage != null && !vdkImage.isBlank()
-          ? vdkImage
-          : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())
+          && StringUtils.isNotBlank(vdkImage)) {
+        return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
+      } else {
+        return vdkImage;
+      }
     }
   }
 
