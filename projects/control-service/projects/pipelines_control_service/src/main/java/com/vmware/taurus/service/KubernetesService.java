@@ -1054,7 +1054,6 @@ public abstract class KubernetesService implements InitializingBean {
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -1067,7 +1066,6 @@ public abstract class KubernetesService implements InitializingBean {
             jobContainer,
             initContainer,
             volumes,
-            jobDeploymentAnnotations,
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
