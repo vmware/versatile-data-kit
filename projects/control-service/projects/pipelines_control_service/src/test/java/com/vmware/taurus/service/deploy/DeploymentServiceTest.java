@@ -350,7 +350,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void patchDeployment_setPythonVersion_failPatch() throws ApiException, ApiConstraintError {
+  public void patchDeployment_notValidPythonVersion_shouldFail() throws ApiException, ApiConstraintError {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
