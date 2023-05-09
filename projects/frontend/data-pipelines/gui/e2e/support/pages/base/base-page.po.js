@@ -102,7 +102,11 @@ export class BasePagePO {
      * @param {'openExplore'|'openManage'} sideNavCommand
      * @param {{before: () => void; after: () => void;}} interceptors
      */
-    static navigateWithSideMenu(navLinkId = null, sideNavCommand = null, interceptors = null) {
+    static navigateWithSideMenu(
+        navLinkId = null,
+        sideNavCommand = null,
+        interceptors = null
+    ) {
         cy.visit('/');
 
         if (interceptors && typeof interceptors.before === 'function') {
@@ -138,7 +142,11 @@ export class BasePagePO {
      * @param {number | null} additionalWait
      * @returns {Cypress.Chainable<{context: string, action: string}>|Cypress.Chainable<undefined>}
      */
-    static executeCypressCommand(cypressCommand, numberOfExecution = null, additionalWait = null) {
+    static executeCypressCommand(
+        cypressCommand,
+        numberOfExecution = null,
+        additionalWait = null
+    ) {
         if (typeof numberOfExecution === 'number') {
             /**
              * @type Cypress.Chainable<undefined>
@@ -179,7 +187,11 @@ export class BasePagePO {
      * @return {Cypress.Chainable<undefined>}
      */
     static waitForCspLoggedUserProfileGetReqInterceptor(additionalWait = 1000) {
-        return this.executeCypressCommand('waitForCspLoggedUserProfileGetReqInterceptor', 1, additionalWait);
+        return this.executeCypressCommand(
+            'waitForCspLoggedUserProfileGetReqInterceptor',
+            1,
+            additionalWait
+        );
     }
 
     /**
@@ -189,8 +201,15 @@ export class BasePagePO {
      * @param {number} additionalWait
      * @return {Cypress.Chainable<undefined>}
      */
-    static waitForDataJobsApiGetReqInterceptor(numberOfReqToWait = 1, additionalWait = 1000) {
-        return this.executeCypressCommand('waitForDataJobsApiGetReqInterceptor', numberOfReqToWait, additionalWait);
+    static waitForDataJobsApiGetReqInterceptor(
+        numberOfReqToWait = 1,
+        additionalWait = 1000
+    ) {
+        return this.executeCypressCommand(
+            'waitForDataJobsApiGetReqInterceptor',
+            numberOfReqToWait,
+            additionalWait
+        );
     }
 
     /**
@@ -272,7 +291,9 @@ export class BasePagePO {
      * @return {Cypress.Chainable<undefined>}
      */
     waitForDataJobsApiGetReqInterceptor(numberOfReqToWait = 1) {
-        return BasePagePO.waitForDataJobsApiGetReqInterceptor(numberOfReqToWait);
+        return BasePagePO.waitForDataJobsApiGetReqInterceptor(
+            numberOfReqToWait
+        );
     }
 
     /**
@@ -353,7 +374,12 @@ export class BasePagePO {
      * @returns {Cypress.Chainable<Subject>}
      */
     waitForGridToLoad(contextSelector, timeout = BasePagePO.WAIT_SHORT_TASK) {
-        return cy.get(`${contextSelector} clr-datagrid[data-automation=clr-grid-loaded]`, { timeout: this.resolveTimeout(timeout) }).should('exist');
+        return cy
+            .get(
+                `${contextSelector} clr-datagrid[data-automation=clr-grid-loaded]`,
+                { timeout: this.resolveTimeout(timeout) }
+            )
+            .should('exist');
     }
 
     /**
@@ -393,7 +419,10 @@ export class BasePagePO {
             }
 
             if (extras.includePathSegment) {
-                normalizedData.pathSegment = `/${pathSegment.replace(/^\/+/, '')}`;
+                normalizedData.pathSegment = `/${pathSegment.replace(
+                    /^\/+/,
+                    ''
+                )}`;
             }
 
             if (extras.includeQueryString) {
@@ -444,7 +473,10 @@ export class BasePagePO {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getSideMenuExploreGroupBtn() {
-        return cy.get('[data-cy=data-pipelines-nav-group-explore] button').should('exist').contains('Explore');
+        return cy
+            .get('[data-cy=data-pipelines-nav-group-explore] button')
+            .should('exist')
+            .contains('Explore');
     }
 
     /**
@@ -453,7 +485,10 @@ export class BasePagePO {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getSideMenuManageGroupBtn() {
-        return cy.get('[data-cy=data-pipelines-nav-group-manage] button').should('exist').contains('Manage');
+        return cy
+            .get('[data-cy=data-pipelines-nav-group-manage] button')
+            .should('exist')
+            .contains('Manage');
     }
 
     /**
@@ -600,7 +635,9 @@ export class BasePagePO {
      * @returns {Cypress.Chainable<Subject>}
      */
     navigateToPage(navLinkId) {
-        return this.getSideMenuNavLink(navLinkId).should('exist').click({ force: true });
+        return this.getSideMenuNavLink(navLinkId)
+            .should('exist')
+            .click({ force: true });
     }
 
     /**
@@ -610,7 +647,9 @@ export class BasePagePO {
      * @returns {number}
      */
     resolveTimeout(timeout) {
-        return timeout === undefined ? Cypress.config('defaultCommandTimeout') : timeout;
+        return timeout === undefined
+            ? Cypress.config('defaultCommandTimeout')
+            : timeout;
     }
 
     /**
@@ -642,7 +681,10 @@ export class BasePagePO {
     }
 
     selectGridRow(searchQuery) {
-        this.getGridRowSelectBtn(searchQuery).should('exist').scrollIntoView().check({ force: true });
+        this.getGridRowSelectBtn(searchQuery)
+            .should('exist')
+            .scrollIntoView()
+            .check({ force: true });
 
         this.waitForActionThinkingTime();
     }
@@ -654,7 +696,15 @@ export class BasePagePO {
      * @param {number} timeout
      * @returns {Cypress.Chainable<Subject>}
      */
-    _waitForGridToLoad(contextSelector, timeout = DataJobsBasePO.WAIT_SHORT_TASK) {
-        return cy.get(`[data-cy=${contextSelector}] clr-datagrid[data-automation=clr-grid-loaded]`, { timeout: this.resolveTimeout(timeout) }).should('exist');
+    _waitForGridToLoad(
+        contextSelector,
+        timeout = DataJobsBasePO.WAIT_SHORT_TASK
+    ) {
+        return cy
+            .get(
+                `[data-cy=${contextSelector}] clr-datagrid[data-automation=clr-grid-loaded]`,
+                { timeout: this.resolveTimeout(timeout) }
+            )
+            .should('exist');
     }
 }

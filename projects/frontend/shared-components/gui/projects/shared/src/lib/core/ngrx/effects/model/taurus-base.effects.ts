@@ -31,11 +31,7 @@ export abstract class TaurusBaseEffects extends TaurusObject {
      *
      * @protected
      */
-    protected constructor(
-        protected readonly actions$: Actions,
-        protected readonly componentService: ComponentService,
-        className?: string
-    ) {
+    protected constructor(protected readonly actions$: Actions, protected readonly componentService: ComponentService, className?: string) {
         super(className ?? TaurusBaseEffects.CLASS_NAME);
     }
 

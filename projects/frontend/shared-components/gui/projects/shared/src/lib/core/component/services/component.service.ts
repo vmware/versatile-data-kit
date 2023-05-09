@@ -102,10 +102,7 @@ export class ComponentServiceImpl extends ComponentService {
     /**
      * ** Constructor.
      */
-    constructor(
-        private readonly store$: Store<StoreState>,
-        private readonly routerService: RouterService
-    ) {
+    constructor(private readonly store$: Store<StoreState>, private readonly routerService: RouterService) {
         super();
 
         this.componentsStateHelper = new ComponentsStateHelper();

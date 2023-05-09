@@ -10,7 +10,14 @@ module.exports = function (config) {
     config.set({
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
-        plugins: [require('karma-jasmine'), require('karma-chrome-launcher'), require('karma-jasmine-html-reporter'), require('karma-junit-reporter'), require('karma-coverage'), require('@angular-devkit/build-angular/plugins/karma')],
+        plugins: [
+            require('karma-jasmine'),
+            require('karma-chrome-launcher'),
+            require('karma-jasmine-html-reporter'),
+            require('karma-junit-reporter'),
+            require('karma-coverage'),
+            require('@angular-devkit/build-angular/plugins/karma')
+        ],
         client: {
             jasmine: {
                 // you can add configuration options for Jasmine here
@@ -24,7 +31,10 @@ module.exports = function (config) {
             suppressAll: true // removes the duplicated traces
         },
         coverageReporter: {
-            dir: require('path').join(__dirname, '../../reports/coverage/shared'),
+            dir: require('path').join(
+                __dirname,
+                '../../reports/coverage/shared'
+            ),
             subdir: '.',
             reporters: [
                 //Code coverage - output in HTML file and Console(to be parsed in the CI/CD badge)
@@ -40,7 +50,10 @@ module.exports = function (config) {
         },
         reporters: ['progress', 'junit', 'coverage'],
         junitReporter: {
-            outputDir: require('path').join(__dirname, '../../reports/test-results/shared'),
+            outputDir: require('path').join(
+                __dirname,
+                '../../reports/test-results/shared'
+            ),
             outputFile: 'unit-tests.xml',
             useBrowserName: false
         },

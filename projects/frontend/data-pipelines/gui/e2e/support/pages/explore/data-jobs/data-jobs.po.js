@@ -22,19 +22,23 @@ export class DataJobsExplorePage extends DataJobsBasePO {
      * @return {DataJobsExplorePage}
      */
     static navigateWithSideMenu() {
-        return super.navigateWithSideMenu('navLinkExploreDataJobs', 'openExplore', {
-            before: () => {
-                this.waitForApplicationBootstrap();
-                this.waitForDataJobsApiGetReqInterceptor(3);
-            },
-            after: () => {
-                this.waitForDataJobsApiGetReqInterceptor();
+        return super.navigateWithSideMenu(
+            'navLinkExploreDataJobs',
+            'openExplore',
+            {
+                before: () => {
+                    this.waitForApplicationBootstrap();
+                    this.waitForDataJobsApiGetReqInterceptor(3);
+                },
+                after: () => {
+                    this.waitForDataJobsApiGetReqInterceptor();
 
-                const page = this.getPage();
-                page.waitForGridToLoad(null);
-                page.waitForViewToRenderShort();
+                    const page = this.getPage();
+                    page.waitForGridToLoad(null);
+                    page.waitForViewToRenderShort();
+                }
             }
-        });
+        );
     }
 
     /**
@@ -60,8 +64,14 @@ export class DataJobsExplorePage extends DataJobsBasePO {
      * @param {number} timeout
      * @returns {Cypress.Chainable<Subject>}
      */
-    waitForGridToLoad(contextSelector, timeout = DataJobsBasePO.WAIT_SHORT_TASK) {
-        return this._waitForGridToLoad('data-pipelines-explore-data-jobs', timeout);
+    waitForGridToLoad(
+        contextSelector,
+        timeout = DataJobsBasePO.WAIT_SHORT_TASK
+    ) {
+        return this._waitForGridToLoad(
+            'data-pipelines-explore-data-jobs',
+            timeout
+        );
     }
 
     // Selectors
@@ -71,7 +81,13 @@ export class DataJobsExplorePage extends DataJobsBasePO {
     }
 
     getDataGridNavigateBtn(team, job) {
-        return cy.get('[data-cy=data-pipelines-explore-grid-details-link][data-job-params="' + team + ';' + job + '"]');
+        return cy.get(
+            '[data-cy=data-pipelines-explore-grid-details-link][data-job-params="' +
+                team +
+                ';' +
+                job +
+                '"]'
+        );
     }
 
     getDataGridRefreshButton() {

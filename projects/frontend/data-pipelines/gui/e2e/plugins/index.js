@@ -19,13 +19,27 @@
 
 const path = require('path');
 
-const { install, ensureBrowserFlags } = require('@neuralegion/cypress-har-generator');
+const {
+    install,
+    ensureBrowserFlags
+} = require('@neuralegion/cypress-har-generator');
 
 const { generateUUID } = require('./helpers/util-helpers.plugins');
 
-const { getAccessTokenAsynchronous, setAccessTokenAsynchronous, getAccessTokenSynchronous } = require('./helpers/authentication-helpers.plugins');
+const {
+    getAccessTokenAsynchronous,
+    setAccessTokenAsynchronous,
+    getAccessTokenSynchronous
+} = require('./helpers/authentication-helpers.plugins');
 
-const { createDeployJobs, provideDataJobsExecutions, waitForDataJobExecutionToComplete, deleteJobs, deleteJobsFixtures, changeJobsStatusesFixtures } = require('./helpers/job-helpers.plugins');
+const {
+    createDeployJobs,
+    provideDataJobsExecutions,
+    waitForDataJobExecutionToComplete,
+    deleteJobs,
+    deleteJobsFixtures,
+    changeJobsStatusesFixtures
+} = require('./helpers/job-helpers.plugins');
 
 /**
  * @type {Cypress.PluginConfig}
@@ -77,8 +91,15 @@ module.exports = (on, cypressConfig) => {
          * @param {number} jobExecutionTimeout - job execution timeout
          * @returns {Promise<{code: number}>}
          */
-        waitForDataJobExecutionToComplete: ({ jobFixture, jobExecutionTimeout = 180000 }) => {
-            return waitForDataJobExecutionToComplete(jobFixture, jobExecutionTimeout, { ...cypressConfig });
+        waitForDataJobExecutionToComplete: ({
+            jobFixture,
+            jobExecutionTimeout = 180000
+        }) => {
+            return waitForDataJobExecutionToComplete(
+                jobFixture,
+                jobExecutionTimeout,
+                { ...cypressConfig }
+            );
         },
 
         /**
@@ -153,7 +174,10 @@ module.exports = (on, cypressConfig) => {
         outputRoot: cypressConfig.env.CYPRESS_TERMINAL_LOGS,
         // Used to trim the base path of specs and reduce nesting in the
         // generated output directory.
-        specRoot: path.relative(cypressConfig.fileServerFolder, cypressConfig.integrationFolder),
+        specRoot: path.relative(
+            cypressConfig.fileServerFolder,
+            cypressConfig.integrationFolder
+        ),
         outputTarget: {
             'cypress-logs|json': 'json'
         },

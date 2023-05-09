@@ -6020,18 +6020,10 @@ button.alerts-pager-button {
     text-decoration: none;
     -webkit-transform: translateY(-0.1rem);
     transform: translateY(-0.1rem);
-    -webkit-transition:
-        border 0.2s ease,
-        -webkit-transform 0.2s ease;
-    transition:
-        border 0.2s ease,
-        -webkit-transform 0.2s ease;
-    transition:
-        border 0.2s ease,
-        transform 0.2s ease;
-    transition:
-        border 0.2s ease,
-        transform 0.2s ease,
+    -webkit-transition: border 0.2s ease, -webkit-transform 0.2s ease;
+    transition: border 0.2s ease, -webkit-transform 0.2s ease;
+    transition: border 0.2s ease, transform 0.2s ease;
+    transition: border 0.2s ease, transform 0.2s ease,
         -webkit-transform 0.2s ease;
 }
 .card .card-media-block,
@@ -8556,9 +8548,7 @@ a.link-visited:link {
     -webkit-transition: -webkit-box-shadow 0.2s ease-in;
     transition: -webkit-box-shadow 0.2s ease-in;
     transition: box-shadow 0.2s ease-in;
-    transition:
-        box-shadow 0.2s ease-in,
-        -webkit-box-shadow 0.2s ease-in;
+    transition: box-shadow 0.2s ease-in, -webkit-box-shadow 0.2s ease-in;
 }
 .nav .nav-link.active,
 .nav .nav-link:active,
@@ -9306,9 +9296,7 @@ a.link-visited:link {
     -webkit-transition: -webkit-transform 0.6s ease;
     transition: -webkit-transform 0.6s ease;
     transition: transform 0.6s ease;
-    transition:
-        transform 0.6s ease,
-        -webkit-transform 0.6s ease;
+    transition: transform 0.6s ease, -webkit-transform 0.6s ease;
 }
 .header-hamburger-trigger.active > span::before {
     -webkit-transform: rotate(45deg);
@@ -9358,9 +9346,7 @@ a.link-visited:link {
     -webkit-transition: -webkit-transform 0.6s ease;
     transition: -webkit-transform 0.6s ease;
     transition: transform 0.6s ease;
-    transition:
-        transform 0.6s ease,
-        -webkit-transform 0.6s ease;
+    transition: transform 0.6s ease, -webkit-transform 0.6s ease;
 }
 .header-overflow-trigger.active > span::before {
     -webkit-transform: rotate(45deg);
@@ -9427,9 +9413,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.3s ease;
         transition: -webkit-transform 0.3s ease;
         transition: transform 0.3s ease;
-        transition:
-            transform 0.3s ease,
-            -webkit-transform 0.3s ease;
+        transition: transform 0.3s ease, -webkit-transform 0.3s ease;
     }
     .main-container .clr-vertical-nav.clr-nav-level-2,
     .main-container .header-nav.clr-nav-level-2,
@@ -9457,9 +9441,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.3s ease;
         transition: -webkit-transform 0.3s ease;
         transition: transform 0.3s ease;
-        transition:
-            transform 0.3s ease,
-            -webkit-transform 0.3s ease;
+        transition: transform 0.3s ease, -webkit-transform 0.3s ease;
     }
     .main-container .sub-nav.clr-nav-level-1 .nav,
     .main-container .sub-nav.clr-nav-level-1 aside,
@@ -9873,9 +9855,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.6s ease;
         transition: -webkit-transform 0.6s ease;
         transition: transform 0.6s ease;
-        transition:
-            transform 0.6s ease,
-            -webkit-transform 0.6s ease;
+        transition: transform 0.6s ease, -webkit-transform 0.6s ease;
     }
     .main-container.open-hamburger-menu .header-hamburger-trigger::after {
         content: none;
@@ -9893,9 +9873,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.6s ease;
         transition: -webkit-transform 0.6s ease;
         transition: transform 0.6s ease;
-        transition:
-            transform 0.6s ease,
-            -webkit-transform 0.6s ease;
+        transition: transform 0.6s ease, -webkit-transform 0.6s ease;
     }
     .main-container.open-hamburger-menu
         .header-hamburger-trigger
@@ -9920,9 +9898,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.3s ease;
         transition: -webkit-transform 0.3s ease;
         transition: transform 0.3s ease;
-        transition:
-            transform 0.3s ease,
-            -webkit-transform 0.3s ease;
+        transition: transform 0.3s ease, -webkit-transform 0.3s ease;
     }
     .main-container.open-hamburger-menu
         .clr-vertical-nav.clr-nav-level-1
@@ -9951,9 +9927,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.3s ease;
         transition: -webkit-transform 0.3s ease;
         transition: transform 0.3s ease;
-        transition:
-            transform 0.3s ease,
-            -webkit-transform 0.3s ease;
+        transition: transform 0.3s ease, -webkit-transform 0.3s ease;
     }
     .main-container.open-overflow-menu .header-nav.clr-nav-level-2,
     .main-container.open-overflow-menu .sub-nav.clr-nav-level-2,
@@ -9971,9 +9945,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.6s ease;
         transition: -webkit-transform 0.6s ease;
         transition: transform 0.6s ease;
-        transition:
-            transform 0.6s ease,
-            -webkit-transform 0.6s ease;
+        transition: transform 0.6s ease, -webkit-transform 0.6s ease;
     }
     .main-container.open-overflow-menu .header-overflow-trigger::after {
         content: none;
@@ -9991,9 +9963,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.6s ease;
         transition: -webkit-transform 0.6s ease;
         transition: transform 0.6s ease;
-        transition:
-            transform 0.6s ease,
-            -webkit-transform 0.6s ease;
+        transition: transform 0.6s ease, -webkit-transform 0.6s ease;
     }
     .main-container.open-overflow-menu .header-overflow-trigger > span::before {
         -webkit-transform: rotate(45deg);
@@ -10065,9 +10035,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.6s ease;
         transition: -webkit-transform 0.6s ease;
         transition: transform 0.6s ease;
-        transition:
-            transform 0.6s ease,
-            -webkit-transform 0.6s ease;
+        transition: transform 0.6s ease, -webkit-transform 0.6s ease;
     }
     .main-container.open-hamburger-menu .header-hamburger-trigger::after {
         content: none;
@@ -10091,9 +10059,7 @@ a.link-visited:link {
         -webkit-transition: -webkit-transform 0.6s ease;
         transition: -webkit-transform 0.6s ease;
         transition: transform 0.6s ease;
-        transition:
-            transform 0.6s ease,
-            -webkit-transform 0.6s ease;
+        transition: transform 0.6s ease, -webkit-transform 0.6s ease;
     }
     .main-container.open-overflow-menu .header-overflow-trigger::after {
         content: none;
@@ -10251,12 +10217,8 @@ a.link-visited:link {
 }
 .progress.flash-danger > progress::-webkit-progress-value,
 .progress.flash > progress::-webkit-progress-value {
-    -webkit-transition:
-        width 0.23s ease-in,
-        background-color 0.1s ease-out 0.3s;
-    transition:
-        width 0.23s ease-in,
-        background-color 0.1s ease-out 0.3s;
+    -webkit-transition: width 0.23s ease-in, background-color 0.1s ease-out 0.3s;
+    transition: width 0.23s ease-in, background-color 0.1s ease-out 0.3s;
 }
 .progress.flash-danger > progress[value='0']::-webkit-progress-value,
 .progress.flash > progress[value='0']::-webkit-progress-value {
@@ -10265,12 +10227,8 @@ a.link-visited:link {
 }
 .progress.flash-danger > progress::-moz-progress-bar,
 .progress.flash > progress::-moz-progress-bar {
-    -moz-transition:
-        width 0.23s ease-in,
-        background-color 0.1s ease-out 0.3s;
-    transition:
-        width 0.23s ease-in,
-        background-color 0.1s ease-out 0.3s;
+    -moz-transition: width 0.23s ease-in, background-color 0.1s ease-out 0.3s;
+    transition: width 0.23s ease-in, background-color 0.1s ease-out 0.3s;
 }
 .progress.flash > progress[value='100'] {
     color: #5eb715;
@@ -12061,12 +12019,8 @@ button.clr-input-group .clr-input-group-icon-action {
 }
 .clr-radio-wrapper input[type='radio']:focus:checked + label::before {
     outline: 0;
-    -webkit-box-shadow:
-        inset 0 0 0 0.3rem #0072a3,
-        0 0 0.1rem 0.1rem #69c0e2;
-    box-shadow:
-        inset 0 0 0 0.3rem #0072a3,
-        0 0 0.1rem 0.1rem #69c0e2;
+    -webkit-box-shadow: inset 0 0 0 0.3rem #0072a3, 0 0 0.1rem 0.1rem #69c0e2;
+    box-shadow: inset 0 0 0 0.3rem #0072a3, 0 0 0.1rem 0.1rem #69c0e2;
     -webkit-box-shadow: var(
             --clr-forms-radio-selected-shadow,
             inset 0 0 0 0.3rem #0072a3
@@ -13625,12 +13579,9 @@ clr-datalist-container .clr-input-group {
 }
 .stack-view .stack-block-expandable > .stack-block-content,
 .stack-view .stack-block-expandable > .stack-block-label {
-    -webkit-transition:
-        background-color 0.2s ease-in-out,
+    -webkit-transition: background-color 0.2s ease-in-out,
         color 0.2s ease-in-out;
-    transition:
-        background-color 0.2s ease-in-out,
-        color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 .stack-view
     .stack-block-expandable:hover:not(.stack-block-expanded)
@@ -13696,12 +13647,9 @@ clr-datalist-container .clr-input-group {
 .stack-view .stack-block-expandable > .stack-block-content input[type='text'],
 .stack-view .stack-block-expandable > .stack-block-content input[type='time'],
 .stack-view .stack-block-expandable > .stack-block-content input[type='url'] {
-    -webkit-transition:
-        background-size 0.2s ease,
+    -webkit-transition: background-size 0.2s ease,
         border-bottom-color 0.2s ease-in-out;
-    transition:
-        background-size 0.2s ease,
-        border-bottom-color 0.2s ease-in-out;
+    transition: background-size 0.2s ease, border-bottom-color 0.2s ease-in-out;
 }
 .stack-view .stack-block-expandable > .stack-block-content .select select {
     -webkit-transition: border-bottom-color 0.2s ease-in-out;
@@ -14177,9 +14125,7 @@ button.datagrid-expandable-caret .datagrid-expandable-caret-button {
     -webkit-transition: -webkit-transform 0.2s ease-in-out;
     transition: -webkit-transform 0.2s ease-in-out;
     transition: transform 0.2s ease-in-out;
-    transition:
-        transform 0.2s ease-in-out,
-        -webkit-transform 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out, -webkit-transform 0.2s ease-in-out;
 }
 .datagrid-expandable-caret .spinner {
     margin-top: 0.3rem;
@@ -15070,9 +15016,7 @@ button.datagrid-table
     -webkit-transition: -webkit-transform 0.2s ease-out;
     transition: -webkit-transform 0.2s ease-out;
     transition: transform 0.2s ease-out;
-    transition:
-        transform 0.2s ease-out,
-        -webkit-transform 0.2s ease-out;
+    transition: transform 0.2s ease-out, -webkit-transform 0.2s ease-out;
 }
 .datagrid-table .datagrid-column .datagrid-column-separator .exceeded-max {
     border-right: 0.05rem dotted rgba(219, 33, 0, 0.3);
@@ -16268,18 +16212,11 @@ button.datagrid-detail-caret .datagrid-detail-caret-button {
     opacity: 0;
     -webkit-transform: translate(0, -25%);
     transform: translate(0, -25%);
-    -webkit-transition:
-        opacity 0.2s ease-in-out,
+    -webkit-transition: opacity 0.2s ease-in-out,
         -webkit-transform 0.2s ease-in-out;
-    transition:
-        opacity 0.2s ease-in-out,
-        -webkit-transform 0.2s ease-in-out;
-    transition:
-        opacity 0.2s ease-in-out,
-        transform 0.2s ease-in-out;
-    transition:
-        opacity 0.2s ease-in-out,
-        transform 0.2s ease-in-out,
+    transition: opacity 0.2s ease-in-out, -webkit-transform 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out,
         -webkit-transform 0.2s ease-in-out;
     will-change: opacity, transform;
 }
@@ -16643,9 +16580,7 @@ _:-ms-fullscreen .tab-content,
     -webkit-transition: -webkit-box-shadow 0.2s ease-in;
     transition: -webkit-box-shadow 0.2s ease-in;
     transition: box-shadow 0.2s ease-in;
-    transition:
-        box-shadow 0.2s ease-in,
-        -webkit-box-shadow 0.2s ease-in;
+    transition: box-shadow 0.2s ease-in, -webkit-box-shadow 0.2s ease-in;
 }
 .clr-wizard .clr-wizard-stepnav-item.error {
     -webkit-box-shadow: 0.2rem 0 0 #c21d00 inset;
@@ -16653,9 +16588,7 @@ _:-ms-fullscreen .tab-content,
     -webkit-transition: -webkit-box-shadow 0.2s ease-in;
     transition: -webkit-box-shadow 0.2s ease-in;
     transition: box-shadow 0.2s ease-in;
-    transition:
-        box-shadow 0.2s ease-in,
-        -webkit-box-shadow 0.2s ease-in;
+    transition: box-shadow 0.2s ease-in, -webkit-box-shadow 0.2s ease-in;
 }
 .clr-wizard .clr-wizard-stepnav-item.no-click button {
     pointer-events: none;

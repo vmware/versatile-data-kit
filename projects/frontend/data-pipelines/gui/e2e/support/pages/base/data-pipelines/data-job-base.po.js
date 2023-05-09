@@ -23,7 +23,9 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     static initInterceptors() {
         super.initInterceptors();
 
-        this.executeCypressCommand('initDataJobsSingleExecutionGetReqInterceptor');
+        this.executeCypressCommand(
+            'initDataJobsSingleExecutionGetReqInterceptor'
+        );
         this.executeCypressCommand('initDataJobsExecutionsGetReqInterceptor');
         this.executeCypressCommand('initDataJobPutReqInterceptor');
         this.executeCypressCommand('initDataJobDeleteReqInterceptor');
@@ -39,9 +41,13 @@ export class DataJobBasePO extends DataPipelinesBasePO {
      * @param {'details'|'executions'|'lineage'} subpage
      */
     static navigateTo(context, teamName, jobName, subpage) {
-        const numberOfDataJobsApiGetReqInterceptorWaiting = subpage === 'details' ? 4 : 3;
+        const numberOfDataJobsApiGetReqInterceptorWaiting =
+            subpage === 'details' ? 4 : 3;
 
-        return this.navigateToDataJobUrl(`/${context}/data-jobs/${teamName}/${jobName}/${subpage}`, numberOfDataJobsApiGetReqInterceptorWaiting);
+        return this.navigateToDataJobUrl(
+            `/${context}/data-jobs/${teamName}/${jobName}/${subpage}`,
+            numberOfDataJobsApiGetReqInterceptorWaiting
+        );
     }
 
     /**
@@ -50,7 +56,11 @@ export class DataJobBasePO extends DataPipelinesBasePO {
      * @return {Cypress.Chainable<undefined>}
      */
     static waitForDataJobPutReqInterceptor() {
-        return this.executeCypressCommand('waitForDataJobPutReqInterceptor', 1, 1000);
+        return this.executeCypressCommand(
+            'waitForDataJobPutReqInterceptor',
+            1,
+            1000
+        );
     }
 
     /**
@@ -59,7 +69,11 @@ export class DataJobBasePO extends DataPipelinesBasePO {
      * @return {Cypress.Chainable<undefined>}
      */
     static waitForDataJobDeleteReqInterceptor() {
-        return this.executeCypressCommand('waitForDataJobDeleteReqInterceptor', 1, 1000);
+        return this.executeCypressCommand(
+            'waitForDataJobDeleteReqInterceptor',
+            1,
+            1000
+        );
     }
 
     /**
@@ -68,7 +82,11 @@ export class DataJobBasePO extends DataPipelinesBasePO {
      * @return {Cypress.Chainable<undefined>}
      */
     static waitForDataJobExecutionDeleteReqInterceptor() {
-        return this.executeCypressCommand('waitForDataJobExecutionDeleteReqInterceptor', 1, 1000);
+        return this.executeCypressCommand(
+            'waitForDataJobExecutionDeleteReqInterceptor',
+            1,
+            1000
+        );
     }
 
     /**
@@ -98,7 +116,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
 
                 const body = interception?.response?.body;
                 if (body && body.data && body.data.content) {
-                    if (body.data.content.length === 0 || body.data.content[0].__typename !== 'DataJobExecution') {
+                    if (
+                        body.data.content.length === 0 ||
+                        body.data.content[0].__typename !== 'DataJobExecution'
+                    ) {
                         return false;
                     }
 
@@ -108,7 +129,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
                                 return false;
                             }
 
-                            return e.status?.toLowerCase() === 'running' || e.status?.toLowerCase() === 'submitted';
+                            return (
+                                e.status?.toLowerCase() === 'running' ||
+                                e.status?.toLowerCase() === 'submitted'
+                            );
                         }) !== -1;
 
                     return true;
@@ -134,13 +158,20 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     static waitForDataJobToFinishExecution() {
         cy.log('Waiting execution to finish');
 
-        return cy.waitForInterceptorWithRetry('@dataJobsSingleExecutionGetReq', 20, {
-            predicate: (interception) => {
-                const body = interception?.response?.body;
+        return cy.waitForInterceptorWithRetry(
+            '@dataJobsSingleExecutionGetReq',
+            20,
+            {
+                predicate: (interception) => {
+                    const body = interception?.response?.body;
 
-                return body?.status?.toLowerCase() !== 'running' && body?.status?.toLowerCase() !== 'submitted';
+                    return (
+                        body?.status?.toLowerCase() !== 'running' &&
+                        body?.status?.toLowerCase() !== 'submitted'
+                    );
+                }
             }
-        });
+        );
     }
 
     /**
@@ -151,11 +182,18 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     static waitForDataJobToCancelExecution() {
         cy.log('Waiting to cancel execution');
 
-        return cy.waitForInterceptorWithRetry('@dataJobsSingleExecutionGetReq', 20, {
-            predicate: (interception) => {
-                return interception?.response?.body?.status?.toLowerCase() === 'cancelled';
+        return cy.waitForInterceptorWithRetry(
+            '@dataJobsSingleExecutionGetReq',
+            20,
+            {
+                predicate: (interception) => {
+                    return (
+                        interception?.response?.body?.status?.toLowerCase() ===
+                        'cancelled'
+                    );
+                }
             }
-        });
+        );
     }
 
     /**
@@ -173,7 +211,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
                 }
 
                 const body = interception?.response?.body;
-                if (body?.data?.content?.length === 0 || body?.data?.content[0]?.__typename !== 'DataJobExecution') {
+                if (
+                    body?.data?.content?.length === 0 ||
+                    body?.data?.content[0]?.__typename !== 'DataJobExecution'
+                ) {
                     return false;
                 }
 
@@ -183,7 +224,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
                             return false;
                         }
 
-                        return e.status?.toLowerCase() === 'running' || e.status?.toLowerCase() === 'submitted';
+                        return (
+                            e.status?.toLowerCase() === 'running' ||
+                            e.status?.toLowerCase() === 'submitted'
+                        );
                     }) !== -1
                 );
             }
@@ -198,24 +242,30 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     static waitForPollingToShowRunningExecution() {
         cy.log('Waiting for pooling execution with status RUNNING');
 
-        return cy.waitForInterceptorWithRetry('@dataJobsSingleExecutionGetReq', 10, {
-            predicate: (interception) => {
-                const body = interception?.response?.body;
-                const status = `${body?.status}`.toLowerCase();
+        return cy.waitForInterceptorWithRetry(
+            '@dataJobsSingleExecutionGetReq',
+            10,
+            {
+                predicate: (interception) => {
+                    const body = interception?.response?.body;
+                    const status = `${body?.status}`.toLowerCase();
 
-                if (status === 'running') {
-                    return true;
-                } else {
-                    if (status !== 'submitted') {
-                        cy.log(`Execution status never changed to RUNNING, current is ${status.toUpperCase()}`);
-
+                    if (status === 'running') {
                         return true;
-                    }
+                    } else {
+                        if (status !== 'submitted') {
+                            cy.log(
+                                `Execution status never changed to RUNNING, current is ${status.toUpperCase()}`
+                            );
 
-                    return false;
+                            return true;
+                        }
+
+                        return false;
+                    }
                 }
             }
-        });
+        );
     }
 
     /**
@@ -251,12 +301,15 @@ export class DataJobBasePO extends DataPipelinesBasePO {
      * @return {Cypress.Chainable<undefined>}
      */
     waitForGetExecutionsReqInterceptor() {
-        const waitChainable = DataJobBasePO.waitForGetExecutionsReqInterceptor();
+        const waitChainable =
+            DataJobBasePO.waitForGetExecutionsReqInterceptor();
         if (waitChainable) {
             return waitChainable;
         }
 
-        return cy.wait(500).then(() => this.waitForGetExecutionsReqInterceptor());
+        return cy
+            .wait(500)
+            .then(() => this.waitForGetExecutionsReqInterceptor());
     }
 
     /* Selectors */
@@ -276,17 +329,23 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     }
 
     getExecuteOrCancelButton() {
-        return cy.get('[data-cy=data-pipelines-job-actions-container]').then(($container) => {
-            if ($container && $container.length > 0) {
-                const $btn = $container.find('[data-cy=data-pipelines-job-execute-btn]');
+        return cy
+            .get('[data-cy=data-pipelines-job-actions-container]')
+            .then(($container) => {
+                if ($container && $container.length > 0) {
+                    const $btn = $container.find(
+                        '[data-cy=data-pipelines-job-execute-btn]'
+                    );
 
-                if ($btn && $btn.length > 0) {
-                    return $btn;
+                    if ($btn && $btn.length > 0) {
+                        return $btn;
+                    }
                 }
-            }
 
-            return $container.find('[data-cy=data-pipelines-job-cancel-execution-btn]');
-        });
+                return $container.find(
+                    '[data-cy=data-pipelines-job-cancel-execution-btn]'
+                );
+            });
     }
 
     getConfirmDialogButton() {
@@ -324,7 +383,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     /* Actions */
 
     executeNow(waitToStartExecution = false) {
-        this.getExecuteNowButton().should('exist').scrollIntoView().click({ force: true });
+        this.getExecuteNowButton()
+            .should('exist')
+            .scrollIntoView()
+            .click({ force: true });
 
         this.confirmInConfirmDialog(() => {
             this.waitForDataJobExecutionPostReqInterceptor();
@@ -338,7 +400,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     }
 
     cancelExecution(waitExecutionToStop = false) {
-        this.getCancelExecutionButton().should('exist').scrollIntoView().click({ force: true });
+        this.getCancelExecutionButton()
+            .should('exist')
+            .scrollIntoView()
+            .click({ force: true });
 
         this.confirmInConfirmDialog(() => {
             this.waitForDataJobExecutionDeleteReqInterceptor();
@@ -351,19 +416,30 @@ export class DataJobBasePO extends DataPipelinesBasePO {
     }
 
     openActionDropdown() {
-        this.getActionDropdownBtn().should('exist').scrollIntoView().should('be.visible').click({ force: true });
+        this.getActionDropdownBtn()
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible')
+            .click({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     downloadJobKey() {
-        this.getDownloadKeyBtn().should('exist').scrollIntoView().should('be.visible').click({ force: true });
+        this.getDownloadKeyBtn()
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible')
+            .click({ force: true });
 
         this.waitForDataJobsApiGetReqInterceptor();
     }
 
     deleteJob() {
-        this.getDeleteJobBtn().scrollIntoView().should('be.visible').click({ force: true });
+        this.getDeleteJobBtn()
+            .scrollIntoView()
+            .should('be.visible')
+            .click({ force: true });
 
         this.waitForViewToRenderShort();
 
@@ -378,7 +454,10 @@ export class DataJobBasePO extends DataPipelinesBasePO {
      * @param {() => void} interceptor
      */
     confirmDeleteJob(interceptor) {
-        this.getConfirmDeleteBtn().scrollIntoView().should('be.visible').click({ force: true });
+        this.getConfirmDeleteBtn()
+            .scrollIntoView()
+            .should('be.visible')
+            .click({ force: true });
 
         if (interceptor) {
             interceptor();

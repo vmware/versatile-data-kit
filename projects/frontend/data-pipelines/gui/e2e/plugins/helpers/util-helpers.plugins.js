@@ -64,19 +64,29 @@ const parseJWTToken = (token) => {
  * @param {string} injectedTestUid
  * @returns {string|object|any}
  */
-const applyGlobalEnvSettings = (loadedElement, injectedTestEnvVar = null, injectedTestUid = null) => {
+const applyGlobalEnvSettings = (
+    loadedElement,
+    injectedTestEnvVar = null,
+    injectedTestUid = null
+) => {
     const TEST_ENV_VAR = injectedTestEnvVar ?? _loadTestEnvironmentVar();
     const TEST_UID = injectedTestUid ?? _loadTestUid();
 
     if (typeof loadedElement === 'string') {
-        return loadedElement.replace('$env-placeholder$', `${TEST_ENV_VAR}-${TEST_UID}`);
+        return loadedElement.replace(
+            '$env-placeholder$',
+            `${TEST_ENV_VAR}-${TEST_UID}`
+        );
     }
 
     if (typeof loadedElement === 'object') {
         Object.entries(loadedElement).forEach(([key, value]) => {
             if (typeof value === 'string') {
                 if (value.includes('$env-placeholder$')) {
-                    value = value.replace('$env-placeholder$', `${TEST_ENV_VAR}-${TEST_UID}`);
+                    value = value.replace(
+                        '$env-placeholder$',
+                        `${TEST_ENV_VAR}-${TEST_UID}`
+                    );
                 }
 
                 loadedElement[key] = value;
@@ -98,7 +108,11 @@ const applyGlobalEnvSettings = (loadedElement, injectedTestEnvVar = null, inject
  * @param {number} numberOfArrayElements
  */
 const trimArraysToNElements = (object, numberOfArrayElements) => {
-    if (typeof object === 'undefined' || object === null || Number.isNaN(object)) {
+    if (
+        typeof object === 'undefined' ||
+        object === null ||
+        Number.isNaN(object)
+    ) {
         return object;
     }
 
@@ -106,7 +120,12 @@ const trimArraysToNElements = (object, numberOfArrayElements) => {
         if (object.length > numberOfArrayElements) {
             const chunk = object.slice(0, numberOfArrayElements);
 
-            return [...chunk, `... ${object.length - numberOfArrayElements} more elements in the Array ...`];
+            return [
+                ...chunk,
+                `... ${
+                    object.length - numberOfArrayElements
+                } more elements in the Array ...`
+            ];
         }
 
         return object;
@@ -121,7 +140,10 @@ const trimArraysToNElements = (object, numberOfArrayElements) => {
             }
 
             if (typeof value === 'object') {
-                object[key] = trimArraysToNElements(value, numberOfArrayElements);
+                object[key] = trimArraysToNElements(
+                    value,
+                    numberOfArrayElements
+                );
             }
         });
     }
@@ -147,7 +169,11 @@ const _toUnicodeString = (encoded) => {
 
     // Additional URL-safe character replacement
     encoded = encoded.replace(/-/g, '+').replace(/_/g, '/');
-    return decodeURIComponent(Array.prototype.map.call(atob(encoded), _escapeMultibyteCharacter).join(''));
+    return decodeURIComponent(
+        Array.prototype.map
+            .call(atob(encoded), _escapeMultibyteCharacter)
+            .join('')
+    );
 };
 
 /**
@@ -172,15 +198,26 @@ const _loadTestEnvironmentVar = () => {
      */
     let testEnv;
 
-    if (typeof process !== 'undefined' && process.env?.CYPRESS_test_environment) {
+    if (
+        typeof process !== 'undefined' &&
+        process.env?.CYPRESS_test_environment
+    ) {
         testEnv = process.env.CYPRESS_test_environment;
-    } else if (typeof Cypress !== 'undefined' && Cypress.env && Cypress.env('test_environment')) {
+    } else if (
+        typeof Cypress !== 'undefined' &&
+        Cypress.env &&
+        Cypress.env('test_environment')
+    ) {
         testEnv = Cypress?.env('test_environment');
     }
 
     if (!testEnv) {
-        Logger.info(`test_environment is not set in system env variable or Cypress env variable.`);
-        Logger.debug(`Because test_environment is not explicitly set will use default: ${DEFAULT_TEST_ENV_VAR}`);
+        Logger.info(
+            `test_environment is not set in system env variable or Cypress env variable.`
+        );
+        Logger.debug(
+            `Because test_environment is not explicitly set will use default: ${DEFAULT_TEST_ENV_VAR}`
+        );
 
         testEnv = DEFAULT_TEST_ENV_VAR;
     }
@@ -196,15 +233,23 @@ const _loadTestUid = () => {
 
     if (typeof process !== 'undefined' && process.env?.CYPRESS_test_guid) {
         guid = process.env.CYPRESS_test_guid;
-    } else if (typeof Cypress !== 'undefined' && Cypress.env && Cypress.env('test_guid')) {
+    } else if (
+        typeof Cypress !== 'undefined' &&
+        Cypress.env &&
+        Cypress.env('test_guid')
+    ) {
         guid = Cypress.env('test_guid');
     }
 
     if (!guid) {
         guid = '1a4d2540515640d3';
 
-        Logger.info(`test_guid is not set in system env variable or Cypress env variable.`);
-        Logger.debug(`Because test_guid is not explicitly set will use default constant: ${guid}`);
+        Logger.info(
+            `test_guid is not set in system env variable or Cypress env variable.`
+        );
+        Logger.debug(
+            `Because test_guid is not explicitly set will use default constant: ${guid}`
+        );
     }
 
     return guid;

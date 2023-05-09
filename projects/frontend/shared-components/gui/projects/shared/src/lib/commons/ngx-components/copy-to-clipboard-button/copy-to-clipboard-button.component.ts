@@ -42,10 +42,7 @@ export class VdkCopyToClipboardButtonComponent implements OnInit {
     isSafari: boolean = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     copied: boolean = false;
 
-    constructor(
-        private el: ElementRef,
-        public translateService: VdkSimpleTranslateService
-    ) {
+    constructor(private el: ElementRef, public translateService: VdkSimpleTranslateService) {
         this.translateService.loadTranslationsForComponent('copy-to-clipboard-button', TRANSLATIONS);
     }
 

@@ -128,11 +128,7 @@ export class DataJobsEffects extends TaurusBaseEffects {
     /**
      * ** Constructor.
      */
-    constructor(
-        actions$: Actions,
-        componentService: ComponentService,
-        private readonly dataJobsApiService: DataJobsApiService
-    ) {
+    constructor(actions$: Actions, componentService: ComponentService, private readonly dataJobsApiService: DataJobsApiService) {
         super(actions$, componentService, DataJobsEffects.CLASS_NAME);
 
         this.registerEffectsErrorCodes();

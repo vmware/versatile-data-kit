@@ -28,7 +28,11 @@ const CYPRESS_TERMINAL = require('cypress-terminal-report/src/installLogsCollect
 
 CYPRESS_GREP();
 
-const CYPRESS_TERMINAL_ERROR_BLACKLIST = ['NG0100: ExpressionChangedAfterItHasBeenCheckedError', '"url": "https://console-stg.cloud.vmware.com/csp/gateway/slc/api/principal/org/service-families"', 'error loading jwks,'];
+const CYPRESS_TERMINAL_ERROR_BLACKLIST = [
+    'NG0100: ExpressionChangedAfterItHasBeenCheckedError',
+    '"url": "https://console-stg.cloud.vmware.com/csp/gateway/slc/api/principal/org/service-families"',
+    'error loading jwks,'
+];
 
 CYPRESS_TERMINAL({
     filterLog: ([logType, message, severity]) => {
@@ -36,7 +40,13 @@ CYPRESS_TERMINAL({
             return true;
         }
 
-        return severity !== 'error' || !message || !CYPRESS_TERMINAL_ERROR_BLACKLIST.some((value) => message.includes(value));
+        return (
+            severity !== 'error' ||
+            !message ||
+            !CYPRESS_TERMINAL_ERROR_BLACKLIST.some((value) =>
+                message.includes(value)
+            )
+        );
     }
 });
 
