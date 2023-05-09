@@ -37,7 +37,7 @@ describe(
                 .then(() => DataJobsManagePage.login())
                 .then(() => cy.saveLocalStorage('data-jobs-manage'))
                 .then(() =>
-                    DataJobsManagePage.deleteShortLivedTestJobsNoDeploy()
+                    DataJobsManagePage.deleteShortLivedTestJobsNoDeploy(true)
                 )
                 .then(() => DataJobsManagePage.createLongLivedJobs('failing'))
                 .then(() =>

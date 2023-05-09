@@ -31,7 +31,7 @@ describe(
                 .then(() => DataJobsExplorePage.login())
                 .then(() => cy.saveLocalStorage('data-jobs-explore'))
                 .then(() =>
-                    DataJobsExplorePage.deleteShortLivedTestJobsNoDeploy()
+                    DataJobsExplorePage.deleteShortLivedTestJobsNoDeploy(true)
                 )
                 .then(() =>
                     DataJobsExplorePage.createShortLivedTestJobsNoDeploy()
@@ -183,6 +183,11 @@ describe(
 
                 dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
+                // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
+                dataJobsExplorePage.filterByJobName(
+                    testJobsFixture[1].job_name.substring(0, 20)
+                );
+
                 dataJobsExplorePage
                     .getDataGridCell(testJobsFixture[1].job_name)
                     .scrollIntoView()
@@ -206,6 +211,11 @@ describe(
                 cy.log('Fixture for name: ' + testJobsFixture[0].job_name);
 
                 dataJobsExplorePage = DataJobsExplorePage.navigateTo();
+
+                // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
+                dataJobsExplorePage.filterByJobName(
+                    testJobsFixture[0].job_name.substring(0, 20)
+                );
 
                 // verify 2 test rows visible
                 dataJobsExplorePage
