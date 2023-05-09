@@ -827,42 +827,6 @@ public abstract class KubernetesService implements InitializingBean {
       boolean enable,
       V1Container jobContainer,
       V1Container initContainer,
-      List<V1Volume> volumes)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      createV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    } else {
-      createV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    }
-  }
-
-  public void createCronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
       List<V1Volume> volumes,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
@@ -968,42 +932,6 @@ public abstract class KubernetesService implements InitializingBean {
         nsJob.getApiVersion(),
         nsJob.getMetadata().getUid(),
         nsJob.getMetadata().getSelfLink());
-  }
-
-  public void updateCronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      updateV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    } else {
-      updateV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    }
   }
 
   public void updateCronJob(
