@@ -334,7 +334,8 @@ public abstract class KubernetesService implements InitializingBean {
 
     try {
       // Load the configurable datajob template file.
-      return loadV1beta1CronjobTemplate(new ClassPathResource(datajobTemplateFileLocation).getFile());
+      return loadV1beta1CronjobTemplate(
+          new ClassPathResource(datajobTemplateFileLocation).getFile());
     } catch (Exception e) {
       log.error("Error while loading the datajob template file.", e);
       return null;
