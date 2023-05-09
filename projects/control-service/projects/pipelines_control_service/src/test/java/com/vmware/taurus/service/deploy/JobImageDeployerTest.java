@@ -135,7 +135,6 @@ public class JobImageDeployerTest {
             any(List.class),
             anyMap(),
             anyMap(),
-            anyMap(),
             anyList());
 
     jobImageDeployer.scheduleJob(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
@@ -164,7 +163,6 @@ public class JobImageDeployerTest {
             containerCaptor.capture(),
             any(V1Container.class),
             anyList(),
-            anyMap(),
             anyMap(),
             anyMap(),
             anyList());
@@ -198,7 +196,6 @@ public class JobImageDeployerTest {
             any(V1Container.class),
             any(V1Container.class),
             anyList(),
-            anyMap(),
             anyMap(),
             anyMap(),
             anyList());

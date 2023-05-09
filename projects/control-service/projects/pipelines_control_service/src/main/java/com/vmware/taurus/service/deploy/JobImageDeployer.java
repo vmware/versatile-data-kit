@@ -278,7 +278,6 @@ public class JobImageDeployer {
     // At the moment Always is chosen because it's possible to have a change in image that is not
     // detected.
 
-    Map<String, String> jobDeploymentAnnotations = new HashMap<>();
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =
         getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
@@ -294,7 +293,6 @@ public class JobImageDeployer {
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
-          jobDeploymentAnnotations,
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
@@ -307,7 +305,6 @@ public class JobImageDeployer {
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
-          jobDeploymentAnnotations,
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
