@@ -22,7 +22,7 @@ def run(job_input: IJobInput) -> None:
         template_args["check"] = sample_check_true
     elif check == "use_negative_check":
         template_args["check"] = sample_check_false
-    
+
     job_input.execute_template(
         template_name="load/fact/snapshot",
         template_args=job_input.get_arguments(),
