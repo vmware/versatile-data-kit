@@ -94,10 +94,11 @@ export async function showRunJobDialog(docManager: IDocumentManager) {
     } else {
       message = 'ERROR : ' + message;
       const errorMessage = new VdkErrorMessage(message);
-      // check if the error is produced by a cell in notebook
-      if (findFailingCellId(errorMessage.what_happened)) {
-        handleErrorsProducedByNotebookCell(errorMessage, docManager);
-      } else {
+      let handledError = await handleErrorsProducedByNotebookCell(
+        errorMessage,
+        docManager
+      );
+      if (!handledError) {
         showDialog({
           title: 'Run Job',
           body: (
@@ -117,43 +118,53 @@ export async function showRunJobDialog(docManager: IDocumentManager) {
 }
 
 const findFailingCellId = (message: String): string => {
-  const regex = /id:([0-9a-fA-F-]+)/;
+  const regex = /cell_id:([0-9a-fA-F-]+)/;
   const match = message.match(regex);
   if (match) return match[1];
   return '';
 };
 
 /**
- * We have a seperate handling for notebook errors since there will be an option for the user
- *   to navigate to the failing cell when error is produced
- * A button in the error pop up is added that opens the notebook where the error is located
- * For this specific issue we need the path to the failing notebook which is handled by a server request
- *
+ * Seperate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
  */
 const handleErrorsProducedByNotebookCell = async (
   message: VdkErrorMessage,
   docManager: IDocumentManager
-): Promise<void> => {
+): Promise<boolean> => {
   const failingCellId = findFailingCellId(message.what_happened);
-  const { path, failingCellIndex } = await getFailingNotebookInfo(
+  const { path: nbPath, failingCellIndex } = await getFailingNotebookInfo(
     failingCellId
   );
-  if (path) {
+  if (nbPath) {
     const navigateToFailingCell = async () => {
-      const notebook = docManager.openOrReveal(path);
+      const notebook = docManager.openOrReveal(nbPath);
       if (notebook) {
         await notebook.revealed; // wait until the DOM elements are fully loaded
         const children = Array.from(notebook.node.children!);
-        children!.forEach(element => {
+        children!.forEach(async element => {
           if (element.classList.contains('jp-Notebook')) {
             const cells = element.children;
             const inx = Number(failingCellIndex);
-            if (inx >= 0) {
+            if (inx >= 0 && inx < cells.length) {
               const failingCell = cells.item(inx);
               if (failingCell) {
                 failingCell.scrollIntoView();
                 failingCell.classList.add('jp-vdk-failing-cell');
               }
+            } else {
+              showDialog({
+                title: 'Run Failed',
+                body: (
+                  <div>
+                    <p>
+                      Sorry, something went wrong while trying to find the
+                      failing cell!
+                    </p>
+                    <p>Please, check the {nbPath} once more and try to run the job while the notebook is active!</p>
+                  </div>
+                ),
+                buttons: [Dialog.cancelButton()]
+              });
             }
           }
         });
@@ -180,5 +191,8 @@ const handleErrorsProducedByNotebookCell = async (
     if (result.button.accept) {
       navigateToFailingCell();
     }
+
+    return true;
   }
+  return false;
 };
