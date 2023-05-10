@@ -3,34 +3,14 @@
 import logging
 
 import click
+import click_spinner
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
+from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
-from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils.output_printer import OutputFormat
 
 log = logging.getLogger(__name__)
-#
-#
-# # TODO: handle errors messages more gracefully (do not show stacktrace, show http body access_token_request_response)
-#
-#
-# class JobDelete:
-#     def __init__(self, rest_api_url: str):
-#         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
-#
-#     @ApiClientErrorDecorator()
-#     def delete_job(self, name: str, team: str):
-#         log.debug(f"Delete data job {name} of team {team}")
-#         self.jobs_api.data_job_delete(team_name=team, job_name=name)
-#         log.info(
-#             f"Deleted Data Job {name} and all its deployments successfully."
-#             f" The job's folder may still be present on your local file system."
-#         )
-#
-#
-# # Below is the definition of the CLI API/UX users will be interacting
-# # Above is the actual implementation of the operations
-#
 
 
 @click.command(
@@ -48,10 +28,22 @@ log = logging.getLogger(__name__)
 )
 @cli_utils.rest_api_url_option()
 @cli_utils.check_required_parameters
-def info(team: str, rest_api_url: str):
-    # cmd = JobDelete(rest_api_url)
-    print("---- IT WORKSS ----")
-    # cmd.delete_job(name, team)
-    service_api = ApiClientFactory(rest_api_url).get_service_api()
-    result = service_api.info(team_name=team)
-    print(f"result:{result}")
+@cli_utils.output_option()
+def info(team: str, rest_api_url: str, output: str):
+    click.echo("Getting control service information...")
+    with click_spinner.spinner(disable=(output == OutputFormat.JSON.value)):
+        try:
+            service_api = ApiClientFactory(rest_api_url).get_service_api()
+            result = service_api.info(team_name=team)
+        except Exception as e:
+            raise VDKException(
+                what="Cannot obtain VDK Control Service information.",
+                why="Unable to connect to service.",
+                consequence="Cannot display service information.",
+                countermeasure="Resolve VDK Control Service connectivity issue.",
+            ) from e
+
+    click.echo(f"VDK Control service version: {result.api_version}")
+    click.echo("Supported python versions:")
+    for supported_python_version in result.supported_python_versions:
+        click.echo(f"\t{supported_python_version}")
