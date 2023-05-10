@@ -22,7 +22,13 @@ log = logging.getLogger(__name__)
 
 
 class Dag:
-    def __init__(self, team_name: str, dags_config: DagPluginConfiguration):
+    def __init__(
+        self,
+        team_name: str,
+        dags_config: DagPluginConfiguration,
+        job_name: str,
+        execution_id: str,
+    ):
         """
         This module deals with all the DAG-related operations such as build and execute.
 
@@ -67,8 +73,9 @@ class Dag:
                 job.get("team_name", self._team_name),
                 job.get("fail_dag_on_error", True),
                 job.get("arguments", None),
-                job.get("details", {}).get("started_by", self._started_by),
+                job.get("details", {}),
             )
+            trackable_job.details = {"started_by": self._started_by}
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])
 
