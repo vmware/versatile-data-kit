@@ -5,6 +5,17 @@
 
 package com.vmware.taurus.service.deploy;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.credentials.AWSCredentialsService.AWSCredentialsDTO;
@@ -13,6 +24,10 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.openapi.ApiException;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,14 +38,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JobImageBuilderTest {
@@ -119,7 +126,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_builderRunning_oldBuilderDeleted()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(TEST_IMAGE_NAME, Mockito.any()))
+    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
         .thenReturn(false);
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs())
@@ -161,7 +168,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExists_buildSkipped()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(TEST_IMAGE_NAME, Mockito.any())).thenReturn(true);
+    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any())).thenReturn(true);
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
