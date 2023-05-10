@@ -51,7 +51,6 @@ const addVdkCellDesign = (
 
   let vdkCellCounter = 0;
   for (let i = 0; i < cells.length; i++) {
-    cells[i].classList.remove('jp-vdk-failing-cell');
     if (vdkCellIndices.includes(i)) {
       if (
         themeManager.theme &&
