@@ -55,8 +55,7 @@ public class EcrRegistryInterface {
     return ecrClient;
   }
 
-  private DescribeImagesRequest buildDescribeImagesRequest(
-      String imageName) {
+  private DescribeImagesRequest buildDescribeImagesRequest(String imageName) {
     // imageName is a string of the sort:
     // 850879199482.dkr.ecr.us-west-2.amazonaws.com/sc/dp/job-name:hash
     String imageRepoTag = imageName.split("amazonaws.com/")[1];
@@ -73,8 +72,7 @@ public class EcrRegistryInterface {
       String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
 
     AmazonECR ecrClient = buildAmazonEcrClient(awsCredentialsDTO);
-    DescribeImagesRequest describeImagesRequest =
-        buildDescribeImagesRequest(imageName);
+    DescribeImagesRequest describeImagesRequest = buildDescribeImagesRequest(imageName);
     boolean imageExists = false;
     try {
       DescribeImagesResult describeImagesResult = ecrClient.describeImages(describeImagesRequest);

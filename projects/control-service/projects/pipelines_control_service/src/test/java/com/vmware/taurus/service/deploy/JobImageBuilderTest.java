@@ -168,7 +168,8 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExists_buildSkipped()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any())).thenReturn(true);
+    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
+        .thenReturn(true);
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
