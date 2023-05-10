@@ -278,7 +278,6 @@ public class JobImageDeployer {
     // At the moment Always is chosen because it's possible to have a change in image that is not
     // detected.
 
-    Map<String, String> jobDeploymentAnnotations = new HashMap<>();
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =
         getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
@@ -289,17 +288,11 @@ public class JobImageDeployer {
       dataJobsKubernetesService.updateCronJob(
           cronJobName,
           jobDeployment.getImageName(),
-          jobContainerEnvVars,
           schedule,
           enabled,
-          List.of(),
-          defaultConfigurations.dataJobRequests(),
-          defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
@@ -307,17 +300,11 @@ public class JobImageDeployer {
       dataJobsKubernetesService.createCronJob(
           cronJobName,
           jobDeployment.getImageName(),
-          jobContainerEnvVars,
           schedule,
           enabled,
-          List.of(),
-          defaultConfigurations.dataJobRequests(),
-          defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));

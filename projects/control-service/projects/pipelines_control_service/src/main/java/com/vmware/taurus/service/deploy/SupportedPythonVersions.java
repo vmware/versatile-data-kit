@@ -70,7 +70,7 @@ public class SupportedPythonVersions {
    * @return a string of the data job base image.
    */
   public String getJobBaseImage(String pythonVersion) {
-    if (isPythonVersionSupported(pythonVersion)) {
+    if (supportedPythonVersions != null && isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
     } else if (deploymentDataJobBaseImage != null && !deploymentDataJobBaseImage.isBlank()) {
       return deploymentDataJobBaseImage;

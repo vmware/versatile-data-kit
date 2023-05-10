@@ -296,12 +296,15 @@ public class JobImageBuilderTest {
           throws InterruptedException, ApiException, IOException {
     ReflectionTestUtils.setField(
         supportedPythonVersions, "deploymentDataJobBaseImage", "python:3.7-slim");
+    ReflectionTestUtils.setField(
+        supportedPythonVersions, "supportedPythonVersions", generateSupportedPythonVersionsConf());
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
-    when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
+    when(supportedPythonVersions.isPythonVersionSupported("3.11")).thenReturn(true);
+    when(supportedPythonVersions.getJobBaseImage(any())).thenCallRealMethod();
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -333,7 +336,7 @@ public class JobImageBuilderTest {
             any());
 
     Map<String, String> capturedEnvs = captor.getValue();
-    Assertions.assertEquals("test-base-image", capturedEnvs.get("BASE_IMAGE"));
+    Assertions.assertEquals("python:3.11-slim", capturedEnvs.get("BASE_IMAGE"));
 
     verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
     Assertions.assertTrue(result);
@@ -375,5 +378,11 @@ public class JobImageBuilderTest {
             any());
 
     Assertions.assertFalse(result);
+  }
+
+  private static Map<String, Map<String, String>> generateSupportedPythonVersionsConf() {
+    return Map.of(
+        "3.10", Map.of("baseImage", "python:3.10-slim", "vdkImage", "test_vdk_image_3.10"),
+        "3.11", Map.of("baseImage", "python:3.11-slim", "vdkImage", "test_vdk_image_3.11"));
   }
 }

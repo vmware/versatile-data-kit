@@ -1,0 +1,82 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+import abc
+from dataclasses import dataclass
+from typing import List
+from typing import Optional
+
+from taurus_datajob_api import DataJobExecution
+from vdk.api.job_input import IJobArguments
+from vdk.plugin.dag.api import dag
+
+
+class IDataJobExecutor(abc.ABC):
+    """
+    This module is responsible for the execution of Data Jobs.
+    """
+
+    @abc.abstractmethod
+    def start_job(
+        self,
+        job_name: str,
+        team_name: str,
+        started_by: str = None,
+        arguments: IJobArguments = None,
+    ):
+        """
+        Start an execution of a data job and returns its execution id
+        :param started_by:
+        :param arguments:
+        :param job_name:
+        :param team_name:
+        :return: execution id
+        """
+        pass
+
+    @abc.abstractmethod
+    def status_job(self, job_name: str, team_name: str, execution_id: str):
+        """
+        Get the current status of a data job execution
+        :param job_name:
+        :param team_name:
+        :param execution_id:
+        :return: status in string as defined by Control Service API
+        """
+        pass
+
+    @abc.abstractmethod
+    def details_job(self, job_name: str, team_name: str, execution_id: str) -> dict:
+        """
+        Get the current details of a data job execution
+        :param job_name:
+        :param team_name:
+        :param execution_id:
+        :return: details in string as defined by Control Service API
+        """
+        pass
+
+    @abc.abstractmethod
+    def job_executions_list(
+        self, job_name: str, team_name: str
+    ) -> Optional[List[DataJobExecution]]:
+        """
+        Get the list of all recent executions of a data job. The list returned by
+        the Control Srvice is sorted, and the lat element is the latest execution.
+        :param job_name: Name of data job for which executions are to be returned.
+        :param team_name: Name of the team owning the data job.
+        :return: A list of DataJobExecution objects.
+        """
+        pass
+
+
+@dataclass
+class TrackableJob(dag.SingleJob):
+    """
+    This class provides the ability to track status details of Data Job during execution.
+    """
+
+    status: str = None
+    execution_id: str = None
+    details: dict = None
+    start_attempt = 0
+    last_status_time = 0

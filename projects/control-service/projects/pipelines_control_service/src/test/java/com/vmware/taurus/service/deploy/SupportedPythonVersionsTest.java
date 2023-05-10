@@ -97,7 +97,7 @@ public class SupportedPythonVersionsTest {
   }
 
   @Test
-  public void getJobBaseImage_shouldReturnDeploymentDataJobBaseImage() {
+  public void getJobBaseImage_shouldIgnoreDeploymentDataJobBaseImage() {
     var supportedVersions = generateSupportedPythonVersionsConf();
 
     final String resultBaseImg = "python:3.8-slim";

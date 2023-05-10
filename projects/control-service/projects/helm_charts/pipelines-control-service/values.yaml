@@ -43,6 +43,8 @@ operationsUi:
     requests:
       memory: 250Mi
       cpu: 25m
+  config: '{"auth": {"skipAuth": true}}'
+
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.
@@ -976,7 +978,7 @@ dataJob:
     logsUrl:
       ## This template will be used for building of logs URL for each data job execution returned by API.
       ## Supported variables which will be replaced in the template with the particular execution values:
-      ## {{execution_id}}, {{job_name}}, {{op_id}}, {{start_time}} and {{end_time}}
+      ## {{execution_id}}, {{team_name}}, {{job_name}}, {{op_id}}, {{start_time}} and {{end_time}}
       ## Example: "https://log-insight-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C2%A7%C2%A7%C2%A7%C2%
       ## A7{{start_time}}%C2%A7{{end_time}}%C2%A7true%C2%A7COUNT%C2%A7text:CONTAINS:{{execution_id}}*"
       urlTemplate: ""
