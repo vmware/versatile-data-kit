@@ -28,8 +28,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EcrRegistryInterface {
 
-  private AmazonECR buildAmazonEcrClient(
-      AWSCredentialsDTO awsCredentialsDTO) {
+  private AmazonECR buildAmazonEcrClient(AWSCredentialsDTO awsCredentialsDTO) {
     AWSStaticCredentialsProvider awsStaticCredentialsProvider;
     if (!awsCredentialsDTO.awsSessionToken().isBlank()) {
       // need to include session token
@@ -42,8 +41,8 @@ public class EcrRegistryInterface {
     } else {
       // otherwise, we auth without session token
       var credentials =
-          new BasicAWSCredentials(awsCredentialsDTO.awsAccessKeyId(),
-              awsCredentialsDTO.awsSecretAccessKey());
+          new BasicAWSCredentials(
+              awsCredentialsDTO.awsAccessKeyId(), awsCredentialsDTO.awsSecretAccessKey());
       awsStaticCredentialsProvider = new AWSStaticCredentialsProvider(credentials);
     }
 
@@ -56,8 +55,8 @@ public class EcrRegistryInterface {
     return ecrClient;
   }
 
-  private DescribeImagesRequest buildDescribeImagesRequest(String imageName,
-      AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
+  private DescribeImagesRequest buildDescribeImagesRequest(
+      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
     // imageName is a string of the sort:
     // 850879199482.dkr.ecr.us-west-2.amazonaws.com/sc/dp/job-name:hash
     String imageRepoTag = imageName.split("amazonaws.com/")[1];
@@ -70,25 +69,23 @@ public class EcrRegistryInterface {
         .withImageIds(imageIdentifier);
   }
 
-  public boolean checkEcrImageExists(String imageName,
-      AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
+  public boolean checkEcrImageExists(
+      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
 
     AmazonECR ecrClient = buildAmazonEcrClient(awsCredentialsDTO);
-    DescribeImagesRequest describeImagesRequest = buildDescribeImagesRequest(imageName,
-        awsCredentialsDTO);
+    DescribeImagesRequest describeImagesRequest =
+        buildDescribeImagesRequest(imageName, awsCredentialsDTO);
     boolean imageExists = false;
     try {
       DescribeImagesResult describeImagesResult = ecrClient.describeImages(describeImagesRequest);
       if (describeImagesResult.getImageDetails().size() == 1) {
         imageExists = true;
       }
-    } catch (ImageNotFoundException
-        | RepositoryNotFoundException e) {
+    } catch (ImageNotFoundException | RepositoryNotFoundException e) {
       log.info("Could not find image due to: {}", e);
     } catch (Exception e) {
       log.error("Failed to check if image exists due to: ", e);
     }
     return imageExists;
   }
-
 }

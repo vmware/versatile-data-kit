@@ -119,7 +119,8 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_builderRunning_oldBuilderDeleted()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(TEST_IMAGE_NAME, Mockito.any())).thenReturn(false);
+    when(dockerRegistryService.dataJobImageExists(TEST_IMAGE_NAME, Mockito.any()))
+        .thenReturn(false);
     when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs())
         .thenReturn(Set.of(TEST_BUILDER_IMAGE_NAME), Collections.emptySet());

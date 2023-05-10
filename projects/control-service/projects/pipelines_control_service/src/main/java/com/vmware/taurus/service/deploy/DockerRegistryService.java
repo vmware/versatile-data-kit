@@ -28,8 +28,7 @@ public class DockerRegistryService {
 
   private EcrRegistryInterface ecrRegistryInterface;
 
-  public DockerRegistryService(
-      EcrRegistryInterface ecrRegistryInterface) {
+  public DockerRegistryService(EcrRegistryInterface ecrRegistryInterface) {
     this.ecrRegistryInterface = ecrRegistryInterface;
   }
 
@@ -46,8 +45,8 @@ public class DockerRegistryService {
   }
 
   // TODO: Implement
-  public boolean dataJobImageExists(String imageName,
-      AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
+  public boolean dataJobImageExists(
+      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
 
     if (registryType.equalsIgnoreCase("ecr")) {
       return checkImageExistsInEcr(imageName, awsCredentialsDTO);
@@ -56,8 +55,8 @@ public class DockerRegistryService {
     return false;
   }
 
-  private boolean checkImageExistsInEcr(String imageName,
-      AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
+  private boolean checkImageExistsInEcr(
+      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
     return ecrRegistryInterface.checkEcrImageExists(imageName, awsCredentialsDTO);
   }
 }

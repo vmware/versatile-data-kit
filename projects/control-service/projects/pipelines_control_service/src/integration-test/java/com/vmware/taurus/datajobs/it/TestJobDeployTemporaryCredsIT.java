@@ -48,16 +48,15 @@ import org.springframework.test.web.servlet.MvcResult;
 @Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-        "datajobs.aws.assumeIAMRole=true",
-        "datajobs.aws.RoleArn=arn:aws:iam::032089572635:role/svc.ecr-integration-test",
-        "datajobs.docker.registryType=ecr",
-        "datajobs.aws.region=us-west-2"
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.aws.assumeIAMRole=true",
+      "datajobs.aws.RoleArn=arn:aws:iam::032089572635:role/svc.ecr-integration-test",
+      "datajobs.docker.registryType=ecr",
+      "datajobs.aws.region=us-west-2"
     }) //
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-
 public class TestJobDeployTemporaryCredsIT extends BaseIT {
 
   private static final String TEST_JOB_NAME =
@@ -65,12 +64,9 @@ public class TestJobDeployTemporaryCredsIT extends BaseIT {
   private static final Object DEPLOYMENT_ID = "testing-temp-creds";
   public static final String TERMINATION_STATUS_METRICS = "taurus_datajob_termination_status";
 
+  @Autowired DockerRegistryService dockerRegistryService;
 
-  @Autowired
-  DockerRegistryService dockerRegistryService;
-
-  @Autowired
-  AWSCredentialsService awsCredentialsService;
+  @Autowired AWSCredentialsService awsCredentialsService;
 
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
@@ -111,7 +107,7 @@ public class TestJobDeployTemporaryCredsIT extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -139,7 +135,7 @@ public class TestJobDeployTemporaryCredsIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -158,8 +154,8 @@ public class TestJobDeployTemporaryCredsIT extends BaseIT {
         dataJobsKubernetesService.readCronJob(jobDeploymentName);
     Assertions.assertTrue(cronJobOptional.isPresent());
     Assertions.assertTrue(
-        dockerRegistryService.dataJobImageExists(jobUri,
-            credentials)); // check image present in registry
+        dockerRegistryService.dataJobImageExists(
+            jobUri, credentials)); // check image present in registry
   }
 
   @AfterEach
@@ -167,8 +163,8 @@ public class TestJobDeployTemporaryCredsIT extends BaseIT {
     mockMvc
         .perform(
             delete(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user")))
         .andExpect(status().isOk());
 
@@ -195,9 +191,8 @@ public class TestJobDeployTemporaryCredsIT extends BaseIT {
     ecrClient.deleteRepository(request);
   }
 
-  private Callable<Boolean> imageAvailableInRegistry(String imageName,
-      AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
+  private Callable<Boolean> imageAvailableInRegistry(
+      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
     return () -> dockerRegistryService.dataJobImageExists(imageName, awsCredentialsDTO);
   }
-
 }
