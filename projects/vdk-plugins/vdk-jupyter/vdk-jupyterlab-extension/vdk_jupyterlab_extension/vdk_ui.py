@@ -182,3 +182,19 @@ class VdkUI:
                         }
                     cell_index += 1
         return {"path": "", "failingCellIndex": ""}
+
+    @staticmethod
+    def get_vdk_indices(notebook_path: str):
+        if not os.path.exists(notebook_path):
+            job_notebook = os.getcwd() + notebook_path
+            if not os.path.exists(job_notebook):
+                return []
+        with open(notebook_path) as f:
+            notebook_json = json.load(f)
+            vdk_cells = []
+            cell_index = 0
+            for jupyter_cell in notebook_json["cells"]:
+                if "vdk" in jupyter_cell["metadata"].get("tags", {}):
+                    vdk_cells.append(cell_index)
+                cell_index += 1
+            return vdk_cells

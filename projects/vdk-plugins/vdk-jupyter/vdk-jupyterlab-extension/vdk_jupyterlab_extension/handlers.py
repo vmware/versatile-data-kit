@@ -161,6 +161,14 @@ class GetFailingNotebookHandler(APIHandler):
         self.finish(json.dumps(notebook_info))
 
 
+class GetVdkIndicesHandler(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        vdk_indices = VdkUI.get_vdk_indices(input_data["nbPath"])
+        self.finish(json.dumps(vdk_indices))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -179,3 +187,4 @@ def setup_handlers(web_app):
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
     add_handler(GetFailingNotebookHandler, "failingNotebook")
+    add_handler(GetVdkIndicesHandler, "vdkIndices")

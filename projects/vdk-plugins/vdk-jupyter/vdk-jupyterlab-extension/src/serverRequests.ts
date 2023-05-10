@@ -155,3 +155,16 @@ export async function getFailingNotebookInfo(failingCellId: string): Promise<{
     };
   }
 }
+
+export async function getVdkCellIndices(
+  nbPath: string
+): Promise<Array<Number>> {
+  const dataToSend = {
+    nbPath: nbPath
+  };
+  const data = await requestAPI<Array<Number>>('vdkIndices', {
+    body: JSON.stringify(dataToSend),
+    method: 'POST'
+  });
+  return data;
+}

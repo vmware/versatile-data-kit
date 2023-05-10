@@ -5,6 +5,7 @@
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IThemeManager } from '@jupyterlab/apputils';
+import { getVdkCellIndices } from './serverRequests';
 
 const addNumberElement = (number: Number, node: Element) => {
   const numberElement = document.createElement('div');
@@ -28,10 +29,10 @@ const addVdkLogo = (node: Element) => {
 };
 
 const addVdkCellDesign = (
-  currentCell: Element,
   cells: Element[],
   vdkCellIndices: Array<Number>,
-  themeManager: IThemeManager
+  themeManager: IThemeManager,
+  currentCell?: Element
 ) => {
   // Delete previous numbering in case of untagging elements
   const vdkCellNums = Array.from(
@@ -63,7 +64,7 @@ const addVdkCellDesign = (
         cells[i].classList.add('jp-vdk-cell-dark');
       }
       // We do not add logo to the active cell since it blocks other UI elements
-      if (cells[i] != currentCell) addVdkLogo(cells[i]);
+      if (currentCell && cells[i] != currentCell) addVdkLogo(cells[i]);
 
       addNumberElement(++vdkCellCounter, cells[i]);
     } else {
@@ -77,38 +78,26 @@ export const trackVdkTags = (
   notebookTracker: INotebookTracker,
   themeManager: IThemeManager
 ): void => {
-  const changeCells = () => {
+  const changeCells = async () => {
     if (
       notebookTracker.currentWidget &&
       notebookTracker.currentWidget.model &&
       notebookTracker.currentWidget.model.cells.length !== 0
     ) {
       // Get indices of the vdk cells using cell metadata
-      const vdkCellIndices = [];
-      let cellIndex = 0;
-      while (
-        notebookTracker.currentWidget &&
-        notebookTracker.currentWidget.model &&
-        notebookTracker.currentWidget.model.cells.get(cellIndex)
-      ) {
-        const currentCellTags = notebookTracker.currentWidget.model.cells
-          .get(cellIndex)
-          .metadata.get('tags')! as ReadonlyArray<String>;
-        if (currentCellTags && currentCellTags.includes('vdk'))
-          vdkCellIndices.push(cellIndex);
-        cellIndex++;
-      }
-
+      const vdkCellIndices = await getVdkCellIndices(
+        notebookTracker.currentWidget.context.path
+      );
       if (
         notebookTracker.activeCell &&
         notebookTracker.activeCell.parent &&
         notebookTracker.activeCell.parent.node.children
       ) {
         addVdkCellDesign(
-          notebookTracker.activeCell.node,
           Array.from(notebookTracker.activeCell.parent.node.children!),
           vdkCellIndices,
-          themeManager
+          themeManager,
+          notebookTracker.activeCell.node
         );
       }
     }

@@ -129,7 +129,7 @@ const findFailingCellId = (message: String): string => {
  */
 const handleErrorsProducedByNotebookCell = async (
   message: VdkErrorMessage,
-  docManager: IDocumentManager
+  docManager: IDocumentManager,
 ): Promise<boolean> => {
   const failingCellId = findFailingCellId(message.what_happened);
   const { path: nbPath, failingCellIndex } = await getFailingNotebookInfo(
@@ -148,6 +148,8 @@ const handleErrorsProducedByNotebookCell = async (
             if (inx >= 0 && inx < cells.length) {
               const failingCell = cells.item(inx);
               if (failingCell) {
+                //const event = new MouseEvent('click', {});
+                //failingCell.dispatchEvent(event);
                 failingCell.scrollIntoView();
                 failingCell.classList.add('jp-vdk-failing-cell');
               }
