@@ -124,7 +124,6 @@ def run(job_input: IJobInput):
     data_job_dir = pathlib.Path(job_input.get_job_directory())
     data_file = data_job_dir / "data.json"
 
-    db_catalog = job_input.get_arguments().get("db_catalog")
     db_schema = job_input.get_arguments().get("db_schema")
     db_table = job_input.get_arguments().get("db_table")
 
@@ -511,7 +510,7 @@ from vdk.plugin.dag.dag_runner import DagInput
 
 JOBS_RUN_ORDER = [
     {
-        "job_name": "ingest-job-table-one ",
+        "job_name": "ingest-job-table-one",
         "team_name": "my-team",
         "fail_dag_on_error": True,
         "arguments": {
@@ -589,7 +588,6 @@ team = my-team
 
 [vdk]
 dags_max_concurrent_running_jobs = 2
-
 dags_delayed_jobs_randomized_added_delay_seconds = 1
 dags_delayed_jobs_min_delay_seconds = 1
 ```
