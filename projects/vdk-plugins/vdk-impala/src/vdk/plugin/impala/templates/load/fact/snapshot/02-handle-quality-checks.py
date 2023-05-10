@@ -25,7 +25,9 @@ def run(job_input: IJobInput):
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
+    last_arrival_ts = job_arguments.get("last_arrival_ts")
     insert_query = get_file_content(SQL_FILES_FOLDER,"02-insert-into-target.sql")
+    overwrite_target_query = get_file_content(SQL_FILES_FOLDER,"02-overwrite-target.sql")
 
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
@@ -38,25 +40,29 @@ def run(job_input: IJobInput):
         )
 
         insert_into_staging = insert_query.format(
-            target_schema=staging_schema,
-            target_table=staging_table_name,
+            current_target_schema=staging_schema,
+            current_target_table=staging_table_name,
+            target_schema=target_schema,
+            target_table=target_table,
             _vdk_template_insert_partition_clause=partition_clause,
             source_schema=source_schema,
             source_view=source_view,
+            last_arrival_ts=last_arrival_ts
         )
         job_input.execute_query(insert_into_staging)
 
         if check(staging_table):
-            insert_into_target = insert_query.format(
-                source_schema=staging_schema,
-                source_view=staging_table_name,
+            insert_into_target = overwrite_target_query.format(
+                staging_schema=staging_schema,
+                staging_table_name=staging_table_name,
                 _vdk_template_insert_partition_clause=partition_clause,
                 target_schema=target_schema,
-                target_table=target_table,
+                target_table=target_table
             )
             job_input.execute_query(insert_into_target)
         else:
             raise Exception("The data is not passing the quality checks!")
 
     else:
+        insert_query = insert_query.replace('{current_target_schema}.{current_target_table}', f'{target_schema}.{target_table}')
         job_input.execute_query(insert_query)
