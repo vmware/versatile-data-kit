@@ -63,6 +63,10 @@ export class AppComponent implements OnInit {
         return this.oauthService.getIdentityClaims() ? this.getIdentityClaim('username') : 'N/A';
     }
 
+    get explorePageVisible(): boolean {
+        return !this.appConfigService.getConfig().ignoreComponents.includes('explorePage');
+    }
+
     /**
      * @inheritDoc
      */
