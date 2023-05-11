@@ -77,10 +77,8 @@ class DagValidator:
         self._validate_dependencies(job_name, job["depends_on"])
         if "team_name" in job:
             self._validate_team_name(job_name, job["team_name"])
-        if "fail_meta_job_on_error" in job:
-            self._validate_fail_meta_job_on_error(
-                job_name, job["fail_meta_job_on_error"]
-            )
+        if "fail_dag_on_error" in job:
+            self._validate_fail_dag_on_error(job_name, job["fail_dag_on_error"])
         if "arguments" in job:
             self._validate_arguments(job_name, job["arguments"])
         log.info(f"Successfully validated job: {job_name}")
@@ -153,15 +151,13 @@ class DagValidator:
                 [job_name],
             )
 
-    def _validate_fail_meta_job_on_error(
-        self, job_name: str, fail_meta_job_on_error: bool
-    ):
-        if not isinstance(fail_meta_job_on_error, bool):
+    def _validate_fail_dag_on_error(self, job_name: str, fail_dag_on_error: bool):
+        if not isinstance(fail_dag_on_error, bool):
             self._raise_error(
                 ERROR.TYPE,
                 "The type of the job dict key fail_dag_on_error is not bool (True/False).",
                 f"Change the Data Job Dict value of fail_dag_on_error. Current type"
-                f" is {type(fail_meta_job_on_error)}. Expected type is bool.",
+                f" is {type(fail_dag_on_error)}. Expected type is bool.",
                 [job_name],
             )
 

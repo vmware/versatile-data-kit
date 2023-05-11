@@ -26,12 +26,13 @@ public class JobExecutionLogsUrlBuilderIT {
 
   private static final String TEST_EXECUTION_ID = "test-job-name-1634127142";
   private static final String TEST_JOB_NAME = "test-job-name";
+  private static final String TEST_TEAM_NAME = "test-team-name";
   private static final String TEST_OP_ID = "test-op-id-1634127142";
   private static final OffsetDateTime TEST_START_TIME = OffsetDateTime.now();
   private static final OffsetDateTime TEST_END_TIME = OffsetDateTime.now().plusMinutes(10);
 
   private static final String LOGS_URL_TEMPLATE =
-      "https://log-insight-base-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C"
+      "https://{5}.log-insight-base-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C"
           + "2%A7%C2%A7%C2%A7%C2%A7{0}%C2%A7{1}%C2%A7true%C2%A7COUNT%C2%A7*%C2%A7"
           + "timestamp%C2%A7pageSortPreference:%7B%22sortBy%22%3A%22-{2}-{3}-"
           + "ingest_timestamp%22%2C%22sortOrder%22%3A%22DESC%22%7D%C2%A7"
@@ -44,7 +45,8 @@ public class JobExecutionLogsUrlBuilderIT {
           buildVarPlaceholder(JobExecutionLogsUrlBuilder.END_TIME_VAR),
           buildVarPlaceholder(JobExecutionLogsUrlBuilder.JOB_NAME_VAR),
           buildVarPlaceholder(JobExecutionLogsUrlBuilder.OP_ID_VAR),
-          buildVarPlaceholder(JobExecutionLogsUrlBuilder.EXECUTION_ID_VAR));
+          buildVarPlaceholder(JobExecutionLogsUrlBuilder.EXECUTION_ID_VAR),
+          buildVarPlaceholder(JobExecutionLogsUrlBuilder.TEAM_NAME_VAR));
 
   @Autowired private JobExecutionLogsUrlBuilder logsUrlBuilder;
 
@@ -175,7 +177,8 @@ public class JobExecutionLogsUrlBuilderIT {
         String.valueOf(getDateTime(endTime, endTimeOffset).toEpochMilli()),
         TEST_JOB_NAME,
         TEST_OP_ID,
-        TEST_EXECUTION_ID);
+        TEST_EXECUTION_ID,
+        TEST_TEAM_NAME);
   }
 
   private String buildExpectedLogsUrlDateFormatUnix(long startTimeOffset, long endTimeOffset) {
@@ -192,7 +195,8 @@ public class JobExecutionLogsUrlBuilderIT {
         getDateTime(TEST_END_TIME, endTimeOffset).toString(),
         TEST_JOB_NAME,
         TEST_OP_ID,
-        TEST_EXECUTION_ID);
+        TEST_EXECUTION_ID,
+        TEST_TEAM_NAME);
   }
 
   private void assertLogsUrlValid(
@@ -208,10 +212,12 @@ public class JobExecutionLogsUrlBuilderIT {
     ReflectionTestUtils.setField(logsUrlBuilder, "template", logsUrlTemplate);
     ReflectionTestUtils.setField(logsUrlBuilder, "dateFormat", logsUrlDateFormat);
 
+    JobConfig jobConfig = new JobConfig();
+    jobConfig.setTeam(TEST_TEAM_NAME);
     DataJobExecution execution =
         DataJobExecution.builder()
             .id(TEST_EXECUTION_ID)
-            .dataJob(new DataJob(TEST_JOB_NAME, new JobConfig()))
+            .dataJob(new DataJob(TEST_JOB_NAME, jobConfig))
             .opId(TEST_OP_ID)
             .startTime(TEST_START_TIME)
             .endTime(executionEndTime)

@@ -33,7 +33,9 @@ describe(
                 .then(() => DataJobExploreDetailsPage.login())
                 .then(() => cy.saveLocalStorage('data-job-explore-details'))
                 .then(() =>
-                    DataJobExploreDetailsPage.deleteShortLivedTestJobsNoDeploy()
+                    DataJobExploreDetailsPage.deleteShortLivedTestJobsNoDeploy(
+                        true
+                    )
                 )
                 .then(() =>
                     DataJobExploreDetailsPage.createShortLivedTestJobsNoDeploy()

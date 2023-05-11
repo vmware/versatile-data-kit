@@ -1,7 +1,5 @@
 # VDK DAGs
 
-## This plugin has been deprecated. Please use vdk-dag instead. You may install it by running `pip install vdk-dag`.
-
 Express dependencies between data jobs.
 
 A plugin for Versatile Data Kit extends its Job API with an additional feature that allows users to trigger so-called VDK DAGs.
@@ -42,8 +40,8 @@ def run(job_input):
 
 When defining a job to be run following attributes are supported:
 * **job_name**: required, the name of the data job.
-* **team_name:**: optional, the team of the data job. If omitted , it will use the meta job's team.
-* **fail_dag_on_error**: optional, default is true. If true, the meta job will abort and fail if the orchestrated job fails, if false, meta job won't fail and continue.
+* **team_name:**: optional, the team of the data job. If omitted , it will use the DAG's team.
+* **fail_dag_on_error**: optional, default is true. If true, the DAG will abort and fail if the orchestrated job fails, if false, DAG won't fail and continue.
 * **arguments**: optional, the arguments that are passed to the underlying orchestrated data job.
 * **depends_on**: required (can be empty), list of other jobs that the orchestrated job depends on. The job will not be started until depends_on job have finished.
 
@@ -114,7 +112,7 @@ JOBS_RUN_ORDER = [
 ]
 
 
-def run(job_input: IJobInput) - > None:
+def run(job_input: IJobInput) -> None:
     DagInput().run_dag(JOBS_RUN_ORDER)
 ```
 
@@ -122,10 +120,10 @@ def run(job_input: IJobInput) - > None:
 ### Runtime sequencing
 
 The depends_on key stores the dependencies of each job - the jobs that have to finish before it starts.
-The DAG execution starts from the jobs with empty dependency lists - they start together in parallel.
-But what happens if they are too many? It could cause server overload. In order to avoid such unfortunate situations,
-a limit in the number of concurrent running jobs is set. This limit is
-a [configuration variable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L87)
+The DAG execution starts from the jobs with empty dependency lists - they start together in parallel.  \
+But what happens if they are too many? It could cause server overload.  \
+In order to avoid such unfortunate situations, a limit in the number of concurrent running jobs is set.  \
+This limit is a [configuration variable](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L87)
 that you are able to set according to your needs. When the limit is exceeded, the execution of the rest of the jobs
 is not cancelled but delayed until a spot is freed by one of the running jobs. What's important here is that
 although there are delayed jobs due to the limitation, the overall sequence is not broken.
@@ -145,36 +143,45 @@ There are 3 types of jobs right now in terms of how are they started.
    * If a DAG job tries to start a job and there is already running such job, the approach of the DAG job would be
      similar to the schedule - retry later but more times.
 
+### Configuration
+
+The configuration variables of the VDK DAGs can be checked by running the command:
+```console
+vdk config-help
+```
+
+You will see all the VDK configuration variables. Search for _DAG_ in order to see the DAGs-related ones.
+
 ### FAQ
 
 
-**Q: Will the DAG retry on Platform Error?**<br>
+**Q: Will the DAG retry on Platform Error?**  \
 A: Yes, as any other job, up to N (configurable by the Control Service) attempts for each job it is orchestrating.
-   See Control Service documentation for more information
+See Control Service documentation for more information.
 
-**Q: If an orchestrated job fails, will the DAG fail?**<br>
-Only if fail_dag_on_error flag is set to True (which is teh default setting if omited)
+**Q: If an orchestrated job fails, will the DAG fail?**  \
+A: Only if fail_dag_on_error flag is set to True (which is the default setting if omitted).
 
 The DAG then will fail with USER error (regardless of how the orchestrated job failed)
 
 
-**Q: Am I able to run the DAG locally?**<br>
+**Q: Am I able to run the DAG locally?**  \
 A: Yes, but the jobs orchestrated must be deployed to the cloud (by the Control Service).
 
-**Q: Is there memory limit of the DAG?**<br>
+**Q: Is there memory limit of the DAG?**  \
 A: The normal per job limits apply for any jobs orchestrated/started by the DAG.
 
-**Q: Is there execution time limit of the DAG?**<br>
+**Q: Is there execution time limit of the DAG?**  \
 A: Yes, the DAG must finish within the same limit as any normal data job.
 The total time of all data jobs started by the DAG must be less than the limit specified.
-The overall limit is controlled by Control Service administrators
+The overall limit is controlled by Control Service administrators.
 
-**Q: Is the DAG going to fail and not trigger the remaining jobs if any of the jobs it is orchestrating fails?**<br>
-A: This is configurable by the end user in the parameter fail_dag_on_error
+**Q: Is the DAG going to fail and not trigger the remaining jobs if any of the jobs it is orchestrating fails?**  \
+A: This is configurable by the end user in the parameter fail_dag_on_error.
 
-**Q: Can I schedule one job to run every hour and use it in the DAG at the same time?**<br>
+**Q: Can I schedule one job to run every hour and use it in the DAG at the same time?**  \
 A: Yes, if the job is already running, the DAG will wait for the concurrent run to finish and then trigger the job again from the DAG,
-If the job is already running as part of the DAG, the concurrent scheduled run will be skipped
+If the job is already running as part of the DAG, the concurrent scheduled run will be skipped.
 
 
 ### Build and testing

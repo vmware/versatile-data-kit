@@ -823,70 +823,11 @@ public abstract class KubernetesService implements InitializingBean {
   public void createCronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      createV1CronJob(
-          name,
-          image,
-          envs,
-          schedule,
-          enable,
-          args,
-          request,
-          limit,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    } else {
-      createV1beta1CronJob(
-          name,
-          image,
-          envs,
-          schedule,
-          enable,
-          args,
-          request,
-          limit,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    }
-  }
-
-  public void createCronJob(
-      String name,
-      String image,
-      Map<String, String> envs,
-      String schedule,
-      boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -895,17 +836,11 @@ public abstract class KubernetesService implements InitializingBean {
       createV1CronJob(
           name,
           image,
-          envs,
           schedule,
           enable,
-          args,
-          request,
-          limit,
           jobContainer,
           initContainer,
           volumes,
-          jobDeploymentAnnotations,
-          jobPodLabels,
           jobAnnotations,
           jobLabels,
           imagePullSecrets);
@@ -913,17 +848,11 @@ public abstract class KubernetesService implements InitializingBean {
       createV1beta1CronJob(
           name,
           image,
-          envs,
           schedule,
           enable,
-          args,
-          request,
-          limit,
           jobContainer,
           initContainer,
           volumes,
-          jobDeploymentAnnotations,
-          jobPodLabels,
           jobAnnotations,
           jobLabels,
           imagePullSecrets);
@@ -935,17 +864,11 @@ public abstract class KubernetesService implements InitializingBean {
   public void createV1beta1CronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -959,8 +882,6 @@ public abstract class KubernetesService implements InitializingBean {
             jobContainer,
             initContainer,
             volumes,
-            jobDeploymentAnnotations,
-            jobPodLabels,
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
@@ -981,17 +902,11 @@ public abstract class KubernetesService implements InitializingBean {
   public void createV1CronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -1005,8 +920,6 @@ public abstract class KubernetesService implements InitializingBean {
             jobContainer,
             initContainer,
             volumes,
-            jobDeploymentAnnotations,
-            jobPodLabels,
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
@@ -1024,70 +937,11 @@ public abstract class KubernetesService implements InitializingBean {
   public void updateCronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      updateV1CronJob(
-          name,
-          image,
-          envs,
-          schedule,
-          enable,
-          args,
-          request,
-          limit,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    } else {
-      updateV1beta1CronJob(
-          name,
-          image,
-          envs,
-          schedule,
-          enable,
-          args,
-          request,
-          limit,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          Collections.emptyMap(),
-          List.of(""));
-    }
-  }
-
-  public void updateCronJob(
-      String name,
-      String image,
-      Map<String, String> envs,
-      String schedule,
-      boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -1096,17 +950,11 @@ public abstract class KubernetesService implements InitializingBean {
       updateV1CronJob(
           name,
           image,
-          envs,
           schedule,
           enable,
-          args,
-          request,
-          limit,
           jobContainer,
           initContainer,
           volumes,
-          jobDeploymentAnnotations,
-          jobPodLabels,
           jobAnnotations,
           jobLabels,
           imagePullSecrets);
@@ -1114,17 +962,11 @@ public abstract class KubernetesService implements InitializingBean {
       updateV1beta1CronJob(
           name,
           image,
-          envs,
           schedule,
           enable,
-          args,
-          request,
-          limit,
           jobContainer,
           initContainer,
           volumes,
-          jobDeploymentAnnotations,
-          jobPodLabels,
           jobAnnotations,
           jobLabels,
           imagePullSecrets);
@@ -1134,17 +976,11 @@ public abstract class KubernetesService implements InitializingBean {
   public void updateV1beta1CronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -1157,8 +993,6 @@ public abstract class KubernetesService implements InitializingBean {
             jobContainer,
             initContainer,
             volumes,
-            jobDeploymentAnnotations,
-            jobPodLabels,
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
@@ -1176,17 +1010,11 @@ public abstract class KubernetesService implements InitializingBean {
   public void updateV1CronJob(
       String name,
       String image,
-      Map<String, String> envs,
       String schedule,
       boolean enable,
-      List<String> args,
-      Resources request,
-      Resources limit,
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
@@ -1199,8 +1027,6 @@ public abstract class KubernetesService implements InitializingBean {
             jobContainer,
             initContainer,
             volumes,
-            jobDeploymentAnnotations,
-            jobPodLabels,
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
@@ -2171,8 +1997,6 @@ public abstract class KubernetesService implements InitializingBean {
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets) {
@@ -2196,16 +2020,6 @@ public abstract class KubernetesService implements InitializingBean {
         .getSpec()
         .setInitContainers(Collections.singletonList(initContainer));
     cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setVolumes(volumes);
-    // Merge the annotations and the labels.
-    cronjob.getMetadata().getAnnotations().putAll(jobDeploymentAnnotations);
-    cronjob
-        .getSpec()
-        .getJobTemplate()
-        .getSpec()
-        .getTemplate()
-        .getMetadata()
-        .getLabels()
-        .putAll(jobPodLabels);
 
     cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations().putAll(jobAnnotations);
     cronjob.getSpec().getJobTemplate().getMetadata().getLabels().putAll(jobLabels);
@@ -2237,8 +2051,6 @@ public abstract class KubernetesService implements InitializingBean {
       V1Container jobContainer,
       V1Container initContainer,
       List<V1Volume> volumes,
-      Map<String, String> jobDeploymentAnnotations,
-      Map<String, String> jobPodLabels,
       Map<String, String> jobAnnotations,
       Map<String, String> jobLabels,
       List<String> imagePullSecrets) {
@@ -2263,15 +2075,6 @@ public abstract class KubernetesService implements InitializingBean {
         .setInitContainers(Collections.singletonList(initContainer));
     cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setVolumes(volumes);
     // Merge the annotations and the labels.
-    cronjob.getMetadata().getAnnotations().putAll(jobDeploymentAnnotations);
-    cronjob
-        .getSpec()
-        .getJobTemplate()
-        .getSpec()
-        .getTemplate()
-        .getMetadata()
-        .getLabels()
-        .putAll(jobPodLabels);
 
     cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations().putAll(jobAnnotations);
     cronjob.getSpec().getJobTemplate().getMetadata().getLabels().putAll(jobLabels);
