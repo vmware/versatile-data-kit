@@ -207,14 +207,17 @@ public class DataJobDeploymentExtension
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
-    ResultActions perform = mockMvc
-            .perform(
-                    delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
-                            .with(user(USER_NAME))
-                            .contentType(MediaType.APPLICATION_JSON));
-    if(perform.andReturn().getResponse().getStatus() != 200){
-      throw new RuntimeException("status is "+ perform.andReturn().getResponse().getStatus() +
-              "\nbody is" + perform.andReturn().getResponse().getContentAsString());
+    ResultActions perform =
+        mockMvc.perform(
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
+                .with(user(USER_NAME))
+                .contentType(MediaType.APPLICATION_JSON));
+    if (perform.andReturn().getResponse().getStatus() != 200) {
+      throw new RuntimeException(
+          "status is "
+              + perform.andReturn().getResponse().getStatus()
+              + "\nbody is"
+              + perform.andReturn().getResponse().getContentAsString());
     }
 
     // Finally, delete the K8s jobs to avoid them messing up subsequent runs of the same test
