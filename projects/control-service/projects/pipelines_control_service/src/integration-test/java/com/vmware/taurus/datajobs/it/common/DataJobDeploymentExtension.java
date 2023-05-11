@@ -40,6 +40,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
+import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Extension that deploys Data Job before all tests. Before the test execution, the extension
@@ -206,12 +207,15 @@ public class DataJobDeploymentExtension
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
-    mockMvc
-        .perform(
-            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
-                .with(user(USER_NAME))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
+    ResultActions perform = mockMvc
+            .perform(
+                    delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
+                            .with(user(USER_NAME))
+                            .contentType(MediaType.APPLICATION_JSON));
+    if(perform.andReturn().getResponse().getStatus() != 200){
+      throw new RuntimeException("status is "+ perform.andReturn().getResponse().getStatus() +
+              "\nbody is" + perform.andReturn().getResponse().getContentAsString());
+    }
 
     // Finally, delete the K8s jobs to avoid them messing up subsequent runs of the same test
     dataJobsKubernetesService.listJobs().stream()
