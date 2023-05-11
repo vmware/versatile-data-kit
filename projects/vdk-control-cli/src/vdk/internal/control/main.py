@@ -8,6 +8,7 @@ from vdk.internal.control.command_groups.common_group.default import (
     reset_default_command,
 )
 from vdk.internal.control.command_groups.common_group.default import set_default_command
+from vdk.internal.control.command_groups.info_group.info import info
 from vdk.internal.control.command_groups.job.create import create
 from vdk.internal.control.command_groups.job.delete import delete
 from vdk.internal.control.command_groups.job.deploy_cli import deploy
@@ -91,6 +92,7 @@ def run():
     cli.add_command(download_job)
     cli.add_command(show_command)
     cli.add_command(properties_command)
+    cli.add_command(info)
 
     cli()
 
