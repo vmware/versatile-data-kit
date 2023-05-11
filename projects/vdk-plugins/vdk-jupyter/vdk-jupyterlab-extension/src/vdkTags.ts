@@ -10,8 +10,11 @@ import { getVdkCellIndices } from './serverRequests';
 const addNumberElement = (number: Number, node: Element) => {
   const numberElement = document.createElement('div');
   numberElement.innerText = String(number);
-  numberElement.classList.add('jp-vdk-cell-num');
-
+  if (node.classList.contains('jp-vdk-failing-cell')) {
+    numberElement.classList.add('jp-vdk-failing-cell-num');
+  } else {
+    numberElement.classList.add('jp-vdk-cell-num');
+  }
   node.appendChild(numberElement);
 };
 
@@ -64,7 +67,9 @@ const addVdkCellDesign = (
         cells[i].classList.add('jp-vdk-cell-dark');
       }
       // We do not add logo to the active cell since it blocks other UI elements
-      if (currentCell && cells[i] != currentCell) addVdkLogo(cells[i]);
+      if (currentCell && cells[i] != currentCell) {
+        addVdkLogo(cells[i]);
+      }
 
       addNumberElement(++vdkCellCounter, cells[i]);
     } else {
@@ -85,10 +90,28 @@ export const trackVdkTags = (
       notebookTracker.currentWidget.model.cells.length !== 0
     ) {
       // Get indices of the vdk cells using cell metadata
-      const vdkCellIndices = await getVdkCellIndices(
-        notebookTracker.currentWidget.context.path
-      );
+      let vdkCellIndices = [];
+      let cellIndex = 0;
+      while (
+        notebookTracker.currentWidget &&
+        notebookTracker.currentWidget.model &&
+        notebookTracker.currentWidget.model.cells.get(cellIndex)
+      ) {
+        const currentCellTags = notebookTracker.currentWidget.model.cells
+          .get(cellIndex)
+          .metadata.get('tags')! as ReadonlyArray<String>;
+        if (currentCellTags && currentCellTags.includes('vdk'))
+          vdkCellIndices.push(cellIndex);
+        cellIndex++;
+      }
+      // this case covers the use case when the notebook is loaded for the first time
+      if (vdkCellIndices.length == 0) {
+        vdkCellIndices = await getVdkCellIndices(
+          notebookTracker.currentWidget.context.path
+        );
+      }
       if (
+        vdkCellIndices.length > 0 &&
         notebookTracker.activeCell &&
         notebookTracker.activeCell.parent &&
         notebookTracker.activeCell.parent.node.children
