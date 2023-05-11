@@ -8,7 +8,8 @@ import { HttpBackend, HttpClient } from '@angular/common/http';
 import { AuthConfig } from 'angular-oauth2-oidc';
 import { AppConfig, RefreshTokenConfig } from './app-config.model';
 import { firstValueFrom } from 'rxjs';
-
+import { Router } from '@angular/router';
+import { routes } from './app.routing';
 @Injectable({
     providedIn: 'root'
 })
@@ -16,13 +17,22 @@ export class AppConfigService {
     private httpClient: HttpClient;
     private appConfig: AppConfig;
 
-    constructor(private httpBackend: HttpBackend) {
+    constructor(private httpBackend: HttpBackend, private router: Router) {
         this.httpClient = new HttpClient(httpBackend);
     }
 
     loadAppConfig(): Promise<void> {
-        return firstValueFrom(this.httpClient.get<AppConfig>('/assets/data/appConfig.json').pipe()).then((data) => {
+        return firstValueFrom(this.httpClient.get<AppConfig>('/assets/data/appConfig.json')).then((data) => {
             this.appConfig = data;
+            try {
+                const localRoutes = routes.filter((route: { path: string }) => {
+                    return !data.ignoreRoutes.includes(route.path);
+                });
+                this.router.resetConfig(localRoutes);
+            } catch (e) {
+                console.error('Failed to reset Router config');
+                throw e;
+            }
         });
     }
 

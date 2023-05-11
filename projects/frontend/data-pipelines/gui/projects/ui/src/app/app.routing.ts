@@ -19,7 +19,7 @@ import {
 import { GettingStartedComponent } from './getting-started/getting-started.component';
 import { DataPipelinesRoute } from '../../../data-pipelines/src/lib/model';
 
-const routes: DataPipelinesRoutes = [
+export const routes: DataPipelinesRoutes = [
     { path: 'get-started', component: GettingStartedComponent },
 
     //Explore
