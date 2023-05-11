@@ -103,22 +103,22 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     // Execute job upload
-    ResultActions resultAction = mockMvc
-            .perform(
-                    post(String.format(
-                            "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
-                            .with(user("user"))
-                            .content(jobZipBinary)
-                            .contentType(MediaType.APPLICATION_OCTET_STREAM));
+    ResultActions resultAction =
+        mockMvc.perform(
+            post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .with(user("user"))
+                .content(jobZipBinary)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM));
 
-    if(resultAction.andReturn().getResponse().getStatus() != 200){
-      throw new RuntimeException("status is "+ resultAction.andReturn().getResponse().getStatus() +
-              "\nbody is " + resultAction.andReturn().getResponse().getContentAsString());
+    if (resultAction.andReturn().getResponse().getStatus() != 200) {
+      throw new RuntimeException(
+          "status is "
+              + resultAction.andReturn().getResponse().getStatus()
+              + "\nbody is "
+              + resultAction.andReturn().getResponse().getContentAsString());
     }
-    MvcResult jobUploadResult =
-            resultAction
-            .andExpect(status().isOk())
-            .andReturn();
+    MvcResult jobUploadResult = resultAction.andExpect(status().isOk()).andReturn();
 
     DataJobVersion testDataJobVersion =
         new ObjectMapper()
