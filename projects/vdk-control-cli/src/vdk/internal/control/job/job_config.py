@@ -52,6 +52,9 @@ class JobConfig:
     def get_schedule_cron(self) -> str:
         return self._get_value("job", "schedule_cron")
 
+    def get_python_version(self) -> str:
+        return str(self._get_value("job", "python_version"))
+
     def get_enable_execution_notifications(self) -> bool:
         return self._get_boolean(
             "contacts", "enable_execution_notifications", fallback=True
