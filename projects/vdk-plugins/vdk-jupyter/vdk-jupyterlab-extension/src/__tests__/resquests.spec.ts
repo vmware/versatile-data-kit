@@ -6,7 +6,13 @@
 import { requestAPI } from '../handler';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import { getJobDataJsonObject, jobData, setJobDataToDefault } from '../jobData';
-import { jobdDataRequest, jobRequest, jobRunRequest } from '../serverRequests';
+import {
+  getFailingNotebookInfo,
+  getVdkCellIndices,
+  jobdDataRequest,
+  jobRequest,
+  jobRunRequest
+} from '../serverRequests';
 
 jest.mock('../handler', () => {
   return {
@@ -62,7 +68,7 @@ describe('jobdDataRequest', () => {
 });
 
 describe('jobRunRequest()', () => {
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
@@ -92,6 +98,10 @@ describe('jobRunRequest()', () => {
 });
 
 describe('jobRequest()', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should call requestAPI with the correct arguments', async () => {
     const endPoint = 'your-endpoint-url';
     const expectedRequestBody = JSON.stringify(getJobDataJsonObject());
@@ -127,5 +137,65 @@ describe('jobRequest()', () => {
       method: 'POST'
     });
     (window.alert as jest.Mock).mockClear();
+  });
+});
+
+describe('getFailingNotebookInfo', () => {
+  const mockFailingCellId = 'failing-cell-id';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should return notebook info if requestAPI returns data', async () => {
+    const expectedData = {
+      path: '/path/to/notebook.ipynb',
+      failingCellIndex: '2'
+    };
+    const expectedRequestBody = {
+      failingCellId: mockFailingCellId,
+      jobPath: '/test/job/path'
+    };
+    (requestAPI as jest.Mock).mockResolvedValue(expectedData);
+    const result = await getFailingNotebookInfo(mockFailingCellId);
+
+    expect(result).toEqual(expectedData);
+    expect(requestAPI).toHaveBeenCalledWith('failingNotebook', {
+      body: JSON.stringify(expectedRequestBody),
+      method: 'POST'
+    });
+  });
+});
+
+describe('getVdkCellIndices', () => {
+  const nbPath = '/path/to/notebook.ipynb';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should call requestAPI with correct arguments', async () => {
+    await getVdkCellIndices(nbPath);
+
+    expect(requestAPI).toHaveBeenCalledWith('vdkIndices', {
+      body: JSON.stringify({
+        nbPath: nbPath
+      }),
+      method: 'POST'
+    });
+  });
+
+  it('should return an array of numbers if the request is successful', async () => {
+    (requestAPI as jest.Mock).mockResolvedValue([1, 2, 3]);
+    const result = await getVdkCellIndices(nbPath);
+    expect(result).toEqual([1, 2, 3]);
   });
 });
