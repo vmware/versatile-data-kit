@@ -47,6 +47,7 @@ import {
     DataPipelinesConfig,
     DataPipelinesRestoreUI,
     DisplayMode,
+    GridFilters,
     JOBS_DATA_KEY
 } from '../../model';
 
@@ -57,6 +58,7 @@ import { LOAD_JOBS_ERROR_CODES } from '../../state/error-codes';
 import { DataJobsApiService, DataJobsService } from '../../services';
 
 export const QUERY_PARAM_SEARCH = 'search';
+export const QUERY_PARAM_JOB_NAME = 'jobName';
 
 export type ClrGridUIState = {
     totalItems: number;
@@ -96,6 +98,7 @@ export abstract class DataJobsBaseGridComponent
 
     @Input() urlUpdateStrategy: 'updateLocation' | 'updateRouter' = 'updateRouter';
     @Input() searchParam: string = QUERY_PARAM_SEARCH;
+    jobNameParam: string = QUERY_PARAM_JOB_NAME;
 
     @Input() set urlStateManager(value: URLStateManager) {
         if (value) {
@@ -115,6 +118,7 @@ export abstract class DataJobsBaseGridComponent
 
     searchQueryValue = '';
     selectedJob: DataJob;
+    gridFilters: GridFilters = {};
     gridState: ClrDatagridStateInterface;
     loading = false;
 
@@ -367,6 +371,9 @@ export abstract class DataJobsBaseGridComponent
      */
     onModelChange(model: ComponentModel): void {
         this._extractData(model);
+        this._initializeQuickFilters();
+        this._updateUrlStateManager();
+        this._doUrlUpdate();
     }
 
     /**
@@ -386,7 +393,6 @@ export abstract class DataJobsBaseGridComponent
      * @inheritDoc
      */
     override ngOnInit(): void {
-        this._initializeQuickFilters();
         this._initializeClrGridUIState();
 
         // attach listener to ErrorStore and listen for Errors change
@@ -487,6 +493,13 @@ export abstract class DataJobsBaseGridComponent
         }, 25);
     }
 
+    protected updateDeploymentStatus(_status: string) {
+        let status = this._getFilterPattern('deployments.enabled', _status);
+        this.gridFilters.deploymentStatus = status;
+        this.urlStateManager.setQueryParam('deploymentEnabled', status);
+        this._doUrlUpdate();
+    }
+
     private _shouldRestoreUIState(routerState: RouterState): boolean {
         const restoreUiWhen = routerState.state.getData<DataPipelinesRestoreUI>('restoreUiWhen');
         if (CollectionsUtil.isNil(restoreUiWhen)) {
@@ -535,6 +548,29 @@ export abstract class DataJobsBaseGridComponent
         const componentState = model.getComponentState();
         const dataJobsData: { content?: DataJob[]; totalItems?: number } = componentState.data.get(JOBS_DATA_KEY) ?? {};
 
+        const queryParams = componentState.filter.criteria;
+        queryParams.forEach((pair) => {
+            switch (pair.property) {
+                case 'jobName':
+                    this.gridFilters.jobName = this._clearFilterPattern('jobName', pair.pattern);
+                    break;
+                case 'config.team':
+                    this.gridFilters.teamName = this._clearFilterPattern('config.team', pair.pattern);
+                    break;
+                case 'deployments.enabled':
+                    this.gridFilters.deploymentStatus = this._clearFilterPattern('deployments.enabled', pair.pattern);
+                    break;
+                case 'deployments.lastExecutionStatus':
+                    this.gridFilters.deploymentLastExecutionStatus = this._clearFilterPattern(
+                        'deployments.lastExecutionStatus',
+                        pair.pattern
+                    );
+                    break;
+                case 'config.description':
+                    this.gridFilters.descriptionFilter = this._clearFilterPattern('config.description', pair.pattern);
+                    break;
+            }
+        });
         this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content) ? [...dataJobsData?.content] : [];
 
         this.clrGridUIState.totalItems = dataJobsData?.totalItems ?? 0;
@@ -547,15 +583,22 @@ export abstract class DataJobsBaseGridComponent
     }
 
     private _extractInitialQueryParams(routeState: RouteState): void {
-        const initialSearchParams = routeState.getQueryParam(this.searchParam);
-
-        if (initialSearchParams) {
-            this.searchQueryValue = initialSearchParams;
-
-            this._updateUrlStateManager();
-        } else {
+        if (!routeState.queryParams) {
             this.searchQueryValue = '';
+            this.gridFilters.jobName = '';
+            this.gridFilters.teamName = '';
+            this.gridFilters.descriptionFilter = '';
+            this.gridFilters.deploymentStatus = '';
+            this.gridFilters.deploymentLastExecutionStatus = '';
+            return;
         }
+
+        this.searchQueryValue = routeState.getQueryParam(this.searchParam);
+        this.gridFilters.jobName = routeState.getQueryParam(this.jobNameParam);
+        this.gridFilters.descriptionFilter = routeState.getQueryParam('description');
+        this.gridFilters.teamName = routeState.getQueryParam('teamName');
+        this.gridFilters.deploymentStatus = routeState.getQueryParam('deploymentEnabled');
+        this.gridFilters.deploymentLastExecutionStatus = routeState.getQueryParam('deploymentLastExecStatus');
     }
 
     private _updateUrlStateManager(routeState?: RouteState): void {
@@ -564,6 +607,11 @@ export abstract class DataJobsBaseGridComponent
         }
 
         this.urlStateManager.setQueryParam(this.searchParam, this.searchQueryValue);
+        this.urlStateManager.setQueryParam(this.jobNameParam, this.gridFilters.jobName);
+        this.urlStateManager.setQueryParam('teamName', this.gridFilters.teamName);
+        this.urlStateManager.setQueryParam('description', this.gridFilters.descriptionFilter);
+        this.urlStateManager.setQueryParam('deploymentEnabled', this.gridFilters.deploymentStatus);
+        this.urlStateManager.setQueryParam('deploymentLastExecStatus', this.gridFilters.deploymentLastExecutionStatus);
     }
 
     private _doUrlUpdate(): void {
@@ -642,6 +690,19 @@ export abstract class DataJobsBaseGridComponent
         return filters;
     }
 
+    private _clearFilterPattern(propertyName: string, value: string) {
+        switch (propertyName) {
+            case 'config.team':
+                return `${value?.slice(1, value.length - 1)}`;
+            case 'deployments.enabled':
+                return `${value}`.replace('_', ' ').toLowerCase();
+            case 'jobName':
+                return `${value?.slice(1, value.length - 1)}`;
+            default:
+                return `${value}`.toLowerCase();
+        }
+    }
+
     private _getFilterPattern(propertyName: string, value: string) {
         // TODO: Remove this, once the Backend support % filterting for all the properties
         // TODO: Once jobName get the same handling as config.team, add case proper case
@@ -657,6 +718,10 @@ export abstract class DataJobsBaseGridComponent
             default:
                 return `${value}`;
         }
+    }
+
+    private isActiveQuickFilter(status: string): boolean {
+        return this.gridFilters.deploymentStatus === status;
     }
 
     private _initializeQuickFilters(): void {
@@ -678,6 +743,7 @@ export abstract class DataJobsBaseGridComponent
             },
             {
                 label: 'Enabled',
+                active: this.isActiveQuickFilter('enabled'),
                 onActivate: activateFilter(DataJobStatus.ENABLED),
                 onDeactivate: deactivateFilter,
                 icon: {
@@ -689,6 +755,7 @@ export abstract class DataJobsBaseGridComponent
             },
             {
                 label: 'Disabled',
+                active: this.isActiveQuickFilter('disabled'),
                 onActivate: activateFilter(DataJobStatus.DISABLED),
                 onDeactivate: deactivateFilter,
                 icon: {
@@ -700,6 +767,7 @@ export abstract class DataJobsBaseGridComponent
             },
             {
                 label: 'Not Deployed',
+                active: this.isActiveQuickFilter('not_deployed'),
                 onActivate: activateFilter(DataJobStatus.NOT_DEPLOYED),
                 onDeactivate: deactivateFilter,
                 icon: {

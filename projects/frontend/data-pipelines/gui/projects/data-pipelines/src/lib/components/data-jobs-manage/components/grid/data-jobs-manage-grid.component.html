@@ -107,7 +107,7 @@
                 data-cy="data-pipelines-jobs-name-column"
                 [clrDgField]="'jobName'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['jobName']"
-                [(clrFilterValue)]="clrGridUIState.filter['jobName']"
+                [(clrFilterValue)]="gridFilters.jobName"
                 >Job name
             </clr-dg-column>
 
@@ -117,7 +117,7 @@
                 data-cy="data-pipelines-jobs-team-column"
                 [clrDgField]="'config.team'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['config.team']"
-                [(clrFilterValue)]="clrGridUIState.filter['config.team']"
+                [(clrFilterValue)]="gridFilters.teamName"
                 >Team name
             </clr-dg-column>
 
@@ -125,7 +125,7 @@
                 class="column__min-width--xl"
                 [clrDgField]="'config.description'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['config.description']"
-                [(clrFilterValue)]="clrGridUIState.filter['config.description']"
+                [(clrFilterValue)]="gridFilters.descriptionFilter"
             >
                 <ng-template
                     [clrDgHideableColumn]="{
@@ -163,7 +163,7 @@
                         #statusFilter
                         [property]="'deployments.enabled'"
                         [listOfOptions]="deploymentStatuses"
-                        [(value)]="clrGridUIState.filter['deployments.enabled']"
+                        [(value)]="gridFilters.deploymentStatus"
                     ></lib-column-filter>
                 </clr-dg-filter>
             </clr-dg-column>
@@ -211,11 +211,7 @@
                         property="deployments.lastExecutionStatus"
                         [optionRenderer]="executionFilterOption"
                         [listOfOptions]="executionStatuses"
-                        [(value)]="
-                            clrGridUIState.filter[
-                                'deployments.lastExecutionStatus'
-                            ]
-                        "
+                        [(value)]="gridFilters.deploymentLastExecutionStatus"
                     >
                         <ng-template #executionFilterOption let-option>
                             <lib-data-job-execution-status

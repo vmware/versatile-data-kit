@@ -233,8 +233,14 @@ describe('DataJobsExploreGridComponent', () => {
             component.search('search test value 2');
 
             // Then
-            expect(setQueryParamSpy.calls.argsFor(0)).toEqual([QUERY_PARAM_SEARCH, 'search test value 1']);
-            expect(setQueryParamSpy.calls.argsFor(1)).toEqual([QUERY_PARAM_SEARCH, 'search test value 2']);
+            expect(setQueryParamSpy.calls.allArgs().filter((pair) => pair[0].includes('search'))[0]).toEqual([
+                QUERY_PARAM_SEARCH,
+                'search test value 1'
+            ]);
+            expect(setQueryParamSpy.calls.allArgs().filter((pair) => pair[0].includes('search'))[1]).toEqual([
+                QUERY_PARAM_SEARCH,
+                'search test value 2'
+            ]);
         });
     });
 
