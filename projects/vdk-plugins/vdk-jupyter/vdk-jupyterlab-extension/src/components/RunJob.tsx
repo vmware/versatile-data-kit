@@ -129,72 +129,82 @@ const findFailingCellId = (message: String): string => {
  */
 const handleErrorsProducedByNotebookCell = async (
   message: VdkErrorMessage,
-  docManager: IDocumentManager,
+  docManager: IDocumentManager
 ): Promise<boolean> => {
   const failingCellId = findFailingCellId(message.what_happened);
-  const { path: nbPath, failingCellIndex } = await getFailingNotebookInfo(
-    failingCellId
-  );
-  if (nbPath) {
-    const navigateToFailingCell = async () => {
-      const notebook = docManager.openOrReveal(nbPath);
-      if (notebook) {
-        await notebook.revealed; // wait until the DOM elements are fully loaded
-        const children = Array.from(notebook.node.children!);
-        children!.forEach(async element => {
-          if (element.classList.contains('jp-Notebook')) {
-            const cells = element.children;
-            const inx = Number(failingCellIndex);
-            if (inx >= 0 && inx < cells.length) {
-              const failingCell = cells.item(inx);
-              if (failingCell) {
-                //const event = new MouseEvent('click', {});
-                //failingCell.dispatchEvent(event);
-                failingCell.scrollIntoView();
-                failingCell.classList.add('jp-vdk-failing-cell');
+  if (failingCellId) {
+    const { path: nbPath, failingCellIndex } = await getFailingNotebookInfo(
+      failingCellId
+    );
+    if (nbPath) {
+      const navigateToFailingCell = async () => {
+        const notebook = docManager.openOrReveal(nbPath);
+        if (notebook) {
+          await notebook.revealed; // wait until the DOM elements are fully loaded
+          const children = Array.from(notebook.node.children!);
+          if (children) {
+            children.forEach(async element => {
+              if (element.classList.contains('jp-Notebook')) {
+                const cells = element.children;
+                const inx = Number(failingCellIndex);
+                if (inx < 0 || inx > cells.length) {
+                  showDialog({
+                    title: 'Run Failed',
+                    body: (
+                      <div>
+                        <p>
+                          Sorry, something went wrong while trying to find the
+                          failing cell!
+                        </p>
+                        <p>
+                          Please, check the {nbPath} once more and try to run
+                          the job while the notebook is active!
+                        </p>
+                      </div>
+                    ),
+                    buttons: [Dialog.cancelButton()]
+                  });
+                } else {
+                  for (let i = 0; i < cells.length; i++) {
+                    if (i == inx) {
+                      const failingCell = cells[i];
+                      failingCell.scrollIntoView();
+                      failingCell.classList.add('jp-vdk-failing-cell');
+                    } else {
+                      cells[i].classList.remove('jp-vdk-failing-cell');
+                    }
+                  }
+                }
               }
-            } else {
-              showDialog({
-                title: 'Run Failed',
-                body: (
-                  <div>
-                    <p>
-                      Sorry, something went wrong while trying to find the
-                      failing cell!
-                    </p>
-                    <p>Please, check the {nbPath} once more and try to run the job while the notebook is active!</p>
-                  </div>
-                ),
-                buttons: [Dialog.cancelButton()]
-              });
-            }
+            });
           }
-        });
+        }
+      };
+
+      let result = await showDialog({
+        title: 'Run Job',
+        body: (
+          <div className="vdk-run-error-message ">
+            <p>{message.exception_message}</p>
+            <p>{message.what_happened}</p>
+            <p>{message.why_it_happened}</p>
+            <p>{message.consequences}</p>
+            <p>{message.countermeasures}</p>
+          </div>
+        ),
+        buttons: [
+          Dialog.okButton({ label: 'See failing cell' }),
+          Dialog.cancelButton()
+        ]
+      });
+
+      if (result.button.accept) {
+        navigateToFailingCell();
       }
-    };
 
-    let result = await showDialog({
-      title: 'Run Job',
-      body: (
-        <div className="vdk-run-error-message ">
-          <p>{message.exception_message}</p>
-          <p>{message.what_happened}</p>
-          <p>{message.why_it_happened}</p>
-          <p>{message.consequences}</p>
-          <p>{message.countermeasures}</p>
-        </div>
-      ),
-      buttons: [
-        Dialog.okButton({ label: 'See failing cell' }),
-        Dialog.cancelButton()
-      ]
-    });
-
-    if (result.button.accept) {
-      navigateToFailingCell();
+      return true;
     }
-
-    return true;
   }
+
   return false;
 };

@@ -114,6 +114,10 @@ export async function jobdDataRequest(): Promise<void> {
   }
 }
 
+/**
+ * Sent a POST request to the server to get more information about the notebook that is failing the job run
+ * Returns the path to the notebook file and the index of the cell that is failing in the notebook
+ */
 export async function getFailingNotebookInfo(failingCellId: string): Promise<{
   path: string;
   failingCellIndex: string;
@@ -156,15 +160,26 @@ export async function getFailingNotebookInfo(failingCellId: string): Promise<{
   }
 }
 
+/**
+ * Sent a POST request to the server to indices of the vdk cells of a notebook
+ * Returns an Array with indices if vdk cells are found and empty array if not
+ */
 export async function getVdkCellIndices(
   nbPath: string
 ): Promise<Array<Number>> {
-  const dataToSend = {
-    nbPath: nbPath
-  };
-  const data = await requestAPI<Array<Number>>('vdkIndices', {
-    body: JSON.stringify(dataToSend),
-    method: 'POST'
-  });
-  return data;
+  try {
+    const dataToSend = {
+      nbPath: nbPath
+    };
+    const data = await requestAPI<Array<Number>>('vdkIndices', {
+      body: JSON.stringify(dataToSend),
+      method: 'POST'
+    });
+    return data;
+  } catch (error) {
+    await showErrorMessage('Encountered an error. Error:', error, [
+      Dialog.okButton()
+    ]);
+  }
+  return [];
 }
