@@ -228,4 +228,12 @@ export class DataJobsManageGridComponent extends DataJobsBaseGridComponent imple
             this.dataPipelinesDocumentationUrl = dataPipelinesModuleConfig.dataPipelinesDocumentationUrl;
         }
     }
+
+    updateQuickFilter($event) {
+        let activeStatus = '';
+        if ($event.activatedFilter && $event.activatedFilter['label']) {
+            activeStatus = $event.activatedFilter['label'];
+        }
+        this.updateDeploymentStatus(activeStatus);
+    }
 }

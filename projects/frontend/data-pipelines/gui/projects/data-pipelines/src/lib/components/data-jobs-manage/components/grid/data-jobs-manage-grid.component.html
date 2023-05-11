@@ -17,6 +17,7 @@
         [suppressQuickFilterChangeEvent]="true"
         [disableActionableElements]="disableActionableElements"
         (search)="search($event)"
+        (quickFilterChange)="updateQuickFilter($event)"
     >
         <div class="custom-buttons-left">
             <button

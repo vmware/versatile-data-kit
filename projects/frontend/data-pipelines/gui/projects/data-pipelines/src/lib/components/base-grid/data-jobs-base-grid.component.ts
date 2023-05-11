@@ -58,7 +58,6 @@ import { LOAD_JOBS_ERROR_CODES } from '../../state/error-codes';
 import { DataJobsApiService, DataJobsService } from '../../services';
 
 export const QUERY_PARAM_SEARCH = 'search';
-export const QUERY_PARAM_JOB_NAME = 'jobName';
 
 export type ClrGridUIState = {
     totalItems: number;
@@ -98,7 +97,6 @@ export abstract class DataJobsBaseGridComponent
 
     @Input() urlUpdateStrategy: 'updateLocation' | 'updateRouter' = 'updateRouter';
     @Input() searchParam: string = QUERY_PARAM_SEARCH;
-    jobNameParam: string = QUERY_PARAM_JOB_NAME;
 
     @Input() set urlStateManager(value: URLStateManager) {
         if (value) {
@@ -594,7 +592,7 @@ export abstract class DataJobsBaseGridComponent
         }
 
         this.searchQueryValue = routeState.getQueryParam(this.searchParam);
-        this.gridFilters.jobName = routeState.getQueryParam(this.jobNameParam);
+        this.gridFilters.jobName = routeState.getQueryParam('jobName');
         this.gridFilters.descriptionFilter = routeState.getQueryParam('description');
         this.gridFilters.teamName = routeState.getQueryParam('teamName');
         this.gridFilters.deploymentStatus = routeState.getQueryParam('deploymentEnabled');
@@ -607,7 +605,7 @@ export abstract class DataJobsBaseGridComponent
         }
 
         this.urlStateManager.setQueryParam(this.searchParam, this.searchQueryValue);
-        this.urlStateManager.setQueryParam(this.jobNameParam, this.gridFilters.jobName);
+        this.urlStateManager.setQueryParam('jobName', this.gridFilters.jobName);
         this.urlStateManager.setQueryParam('teamName', this.gridFilters.teamName);
         this.urlStateManager.setQueryParam('description', this.gridFilters.descriptionFilter);
         this.urlStateManager.setQueryParam('deploymentEnabled', this.gridFilters.deploymentStatus);
