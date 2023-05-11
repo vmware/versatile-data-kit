@@ -20,7 +20,7 @@ def get_data_job_query_response(jobs: List[Any]):
 def get_example_info_response():
     return {
         "api_version": "PipelinesControlService/1.6.855638094/v0.13-30-g23b0851 (root@vdk-cs-dep-6f88c4bff-rzbbl Linux/amd64/amd64)",
-        "supported_python_versions": ["3.7", "3.8"],
+        "supported_python_versions": ["3.7", "3.8", "3.9"],
     }
 
 
