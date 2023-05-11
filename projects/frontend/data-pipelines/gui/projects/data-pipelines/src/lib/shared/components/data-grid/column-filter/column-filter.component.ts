@@ -55,17 +55,13 @@ export class ColumnFilterComponent implements ClrDatagridFilterInterface<DataJob
     }
 
     isValueSelected(value: string) {
-        return this.value === value;
+        return this.value?.toLowerCase() === value?.toLowerCase().replace(' ', '_');
     }
 
     /**
      * @inheritDoc
      */
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['value'].firstChange) {
-            return;
-        }
-
         this._changesSubject.next(changes['value'].currentValue as string);
     }
 
