@@ -92,3 +92,10 @@ class UserErrorClassification(unittest.TestCase):
                 )
             )
         )
+        self.assertTrue(
+            is_impala_user_error(
+                HiveServer2Error(
+                    "impala.error.HiveServer2Error: UDF ERROR: Decimal expression overflowed"
+                )
+            )
+        )
