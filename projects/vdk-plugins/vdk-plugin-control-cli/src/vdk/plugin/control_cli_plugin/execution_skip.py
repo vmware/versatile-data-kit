@@ -8,6 +8,7 @@ from taurus_datajob_api import DataJobExecution
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
+from vdk.internal.builtin_plugins.run.execution_environment import ExecutionEnvironment
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
@@ -104,7 +105,8 @@ def _skip_job_if_necessary(
     try:
         log.info("Checking if job should be skipped:")
         log.info(
-            f"Job : {job_name}, Team : {job_team}, Log config: {log_config}, execution_id: {execution_id}"
+            f"Job : {job_name}, Team : {job_team}, Log config: {log_config}, "
+            f"execution_id: {execution_id}, python_version: {ExecutionEnvironment().get_python_version()}"
         )
         # TODO: Do not use log config type to check if it is a cloud run or not.
         if log_config != "CLOUD":
