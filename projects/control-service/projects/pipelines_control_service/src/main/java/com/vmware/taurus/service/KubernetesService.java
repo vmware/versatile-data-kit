@@ -332,16 +332,10 @@ public abstract class KubernetesService implements InitializingBean {
       return null;
     }
 
-    // Check whether the configurable datajob template file exists.
-    File datajobTemplateFile = new File(datajobTemplateFileLocation);
-    if (!datajobTemplateFile.isFile()) {
-      log.warn("Datajob template location '{}' is not a file.", datajobTemplateFileLocation);
-      return null;
-    }
-
     try {
       // Load the configurable datajob template file.
-      return loadV1beta1CronjobTemplate(datajobTemplateFile);
+      return loadV1beta1CronjobTemplate(
+          new ClassPathResource(datajobTemplateFileLocation).getFile());
     } catch (Exception e) {
       log.error("Error while loading the datajob template file.", e);
       return null;
@@ -355,16 +349,9 @@ public abstract class KubernetesService implements InitializingBean {
       return null;
     }
 
-    // Check whether the configurable datajob template file exists.
-    File datajobTemplateFile = new File(datajobTemplateFileLocation);
-    if (!datajobTemplateFile.isFile()) {
-      log.warn("Datajob template location '{}' is not a file.", datajobTemplateFileLocation);
-      return null;
-    }
-
     try {
       // Load the configurable datajob template file.
-      return loadV1CronjobTemplate(datajobTemplateFile);
+      return loadV1CronjobTemplate(new ClassPathResource(datajobTemplateFileLocation).getFile());
     } catch (Exception e) {
       log.error("Error while loading the datajob template file.", e);
       return null;
