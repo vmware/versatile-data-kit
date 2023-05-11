@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.TestUtils;
+import com.vmware.taurus.exception.ApiConstraintError;
 import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -19,6 +20,8 @@ import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -34,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -168,7 +172,6 @@ public class DeploymentServiceTest {
             any(),
             any(),
             any(),
-            any(),
             anyList());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
@@ -210,7 +213,6 @@ public class DeploymentServiceTest {
             any(),
             any(),
             any(),
-            any(),
             anyList());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
@@ -239,10 +241,28 @@ public class DeploymentServiceTest {
     verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, jobDeployment, true);
     verify(kubernetesService, never())
         .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(kubernetesService, never())
         .createCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(dataJobNotification, never()).notifyJobDeploySuccess(testDataJob.getJobConfig());
     // The builder class is responsible for sending metrics and notifications on failed build.
     verify(deploymentMonitor, never()).recordDeploymentStatus(any(), any());
@@ -265,10 +285,28 @@ public class DeploymentServiceTest {
 
     verify(kubernetesService, never())
         .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(kubernetesService, never())
         .createCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     verify(deploymentMonitor)
         .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR);
     verify(dataJobNotification).notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
@@ -289,7 +327,6 @@ public class DeploymentServiceTest {
             eq(TEST_JOB_IMAGE_NAME),
             eq(TEST_JOB_SCHEDULE),
             eq(true),
-            any(),
             any(),
             any(),
             any(),
@@ -331,18 +368,28 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void enableDeployment_sameEnabledStatus_updateSkipped() throws ApiException {
+  public void patchDeployment_notValidPythonVersion_shouldFail()
+      throws ApiException, ApiConstraintError {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
     jobDeployment.setEnabled(true);
+    jobDeployment.setPythonVersion("3.10");
 
-    deploymentService.patchDeployment(testDataJob, jobDeployment);
+    ApiConstraintError error =
+        assertThrows(
+            ApiConstraintError.class,
+            () -> {
+              deploymentService.patchDeployment(testDataJob, jobDeployment);
+            });
+    assertThat(error.getErrorMessage().toString(), containsString("python_version is not valid"));
 
     verify(kubernetesService, never())
-        .updateCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .updateCronJob(
+            any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
     verify(kubernetesService, never())
-        .createCronJob(any(), any(), anyString(), anyBoolean(), any(), any(), any(), any());
+        .createCronJob(
+            any(), any(), anyString(), anyBoolean(), any(), any(), any(), any(), any(), any());
   }
 
   @Test

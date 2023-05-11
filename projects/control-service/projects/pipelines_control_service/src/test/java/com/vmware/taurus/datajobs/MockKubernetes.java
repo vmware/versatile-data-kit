@@ -87,7 +87,16 @@ public class MockKubernetes {
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
         .when(mock)
         .createCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
         .when(mock)
         .createCronJob(
@@ -100,12 +109,20 @@ public class MockKubernetes {
             any(),
             any(),
             any(),
-            any(),
             anyList());
     doAnswer(inv -> crons.put(inv.getArgument(0), inv))
         .when(mock)
         .updateCronJob(
-            anyString(), anyString(), anyString(), anyBoolean(), any(), any(), any(), any());
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
     doAnswer(inv -> crons.keySet()).when(mock).listCronJobs();
     doAnswer(inv -> crons.remove(inv.getArgument(0))).when(mock).deleteCronJob(anyString());
     doAnswer(
