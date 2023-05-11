@@ -11,16 +11,26 @@
             <div class="branding">
                 <a href="..." class="nav-link">
                     <clr-icon shape="vm-bug"></clr-icon>
-                    <span class="title" data-cy="app-main-title">Data Pipelines</span>
+                    <span class="title" data-cy="app-main-title"
+                        >Data Pipelines</span
+                    >
                 </a>
             </div>
             <div class="header-actions" *ngIf="!skipAuth">
                 <clr-dropdown>
-                    <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
+                    <button
+                        class="nav-text"
+                        clrDropdownTrigger
+                        aria-label="open user profile"
+                    >
                         {{ userName }}
                     </button>
                     <clr-dropdown-menu clrPosition="bottom-right">
-                        <div (click)="logout()" aria-label="Logout" clrDropdownItem>
+                        <div
+                            (click)="logout()"
+                            aria-label="Logout"
+                            clrDropdownItem
+                        >
                             Logout
                         </div>
                     </clr-dropdown-menu>
@@ -29,21 +39,38 @@
         </header>
 
         <div class="content-container switch-btn-bottom">
-            <clr-vertical-nav [clrVerticalNavCollapsible]="true" [(clrVerticalNavCollapsed)]="collapsed">
-                <a id="navLinkGetStarted" clrVerticalNavLink routerLink="/get-started" routerLinkActive="active">
+            <clr-vertical-nav
+                [clrVerticalNavCollapsible]="true"
+                [(clrVerticalNavCollapsed)]="collapsed"
+            >
+                <a
+                    id="navLinkGetStarted"
+                    clrVerticalNavLink
+                    routerLink="/get-started"
+                    routerLinkActive="active"
+                >
                     <clr-icon shape="home"></clr-icon>
                     Get started
                 </a>
 
-                <clr-vertical-nav-group [clrVerticalNavGroupExpanded]="rlaExplore.isActive" routerLinkActive="active"
-                    #rlaExplore="routerLinkActive" data-cy="data-pipelines-nav-group-explore"
-                    *ngIf="explorePageVisible">
+                <clr-vertical-nav-group
+                    [clrVerticalNavGroupExpanded]="rlaExplore.isActive"
+                    routerLinkActive="active"
+                    #rlaExplore="routerLinkActive"
+                    data-cy="data-pipelines-nav-group-explore"
+                    *ngIf="explorePageVisible"
+                >
                     <clr-icon clrVerticalNavIcon shape="search"></clr-icon>
                     Explore
                     <clr-vertical-nav-group-children>
                         <!-- Data Jobs -->
-                        <a id="navLinkExploreDataJobs" clrVerticalNavLink routerLink="explore/data-jobs"
-                            routerLinkActive="active" data-cy="navigation-link-explore-datajobs">
+                        <a
+                            id="navLinkExploreDataJobs"
+                            clrVerticalNavLink
+                            routerLink="explore/data-jobs"
+                            routerLinkActive="active"
+                            data-cy="navigation-link-explore-datajobs"
+                        >
                             <clr-icon shape="data-cluster"></clr-icon>
                             Data jobs
                         </a>
@@ -53,16 +80,26 @@
                 <div class="nav-divider"></div>
 
                 <!-- Manage -->
-                <clr-vertical-nav-group [clrVerticalNavGroupExpanded]="rlaManage.isActive" routerLinkActive="active"
-                    #rlaManage="routerLinkActive" data-cy="data-pipelines-nav-group-manage">
+                <clr-vertical-nav-group
+                    [clrVerticalNavGroupExpanded]="rlaManage.isActive"
+                    routerLinkActive="active"
+                    #rlaManage="routerLinkActive"
+                    data-cy="data-pipelines-nav-group-manage"
+                >
                     <clr-icon clrVerticalNavIcon shape="cog"></clr-icon>
                     Manage
 
                     <clr-vertical-nav-group-children>
                         <!-- Data Jobs -->
-                        <a id="navLinkManageDataJobs" clrVerticalNavLink routerLink="/manage/data-jobs"
-                            routerLinkActive="active" title="Manage Data Jobs"
-                            data-cy="navigation-link-manage-datajobs">Data Jobs</a>
+                        <a
+                            id="navLinkManageDataJobs"
+                            clrVerticalNavLink
+                            routerLink="/manage/data-jobs"
+                            routerLinkActive="active"
+                            title="Manage Data Jobs"
+                            data-cy="navigation-link-manage-datajobs"
+                            >Data Jobs</a
+                        >
                     </clr-vertical-nav-group-children>
                 </clr-vertical-nav-group>
             </clr-vertical-nav>
