@@ -1,4 +1,4 @@
-/*import RunJobDialog, { showRunJobDialog } from '../components/RunJob';
+import RunJobDialog, { showRunJobDialog } from '../components/RunJob';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobData } from '../jobData';
 import React from 'react';
@@ -12,6 +12,7 @@ import DeployJobDialog, {
 } from '../components/DeployJob';
 import CreateJobDialog, { showCreateJobDialog } from '../components/CreateJob';
 import DeleteJobDialog, { showDeleteJobDialog } from '../components/DeleteJob';
+import { VdkErrorMessage } from '../components/VdkErrorMessage';
 
 // Mock the showDialog function
 jest.mock('@jupyterlab/apputils', () => ({
@@ -33,13 +34,14 @@ describe('showRunJobDialog', () => {
     const mockResult = { button: { accept: true } };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
     // Mock the jobRunRequest function
+  });
+
+  it('should show a dialog with the Run Job title and a RunJobDialog component as its body', async () => {
     (jobRunRequest as jest.Mock).mockResolvedValueOnce({
       message: 'Job completed successfully!',
       status: true
     });
-  });
 
-  it('should show a dialog with the Run Job title and a RunJobDialog component as its body', async () => {
     await showRunJobDialog();
 
     // Expect the showDialog function to have been called with the correct parameters
@@ -50,7 +52,12 @@ describe('showRunJobDialog', () => {
     });
   });
 
-  it('should call the jobRunRequest function if the user clicks the accept button', async () => {
+  it('should call the jobRunRequest function if the user clicks the accept button and return success dialog', async () => {
+    (jobRunRequest as jest.Mock).mockResolvedValueOnce({
+      message: 'Job completed successfully!',
+      status: true
+    });
+
     // Call the function
     await showRunJobDialog();
 
@@ -59,11 +66,42 @@ describe('showRunJobDialog', () => {
     expect(showDialog).toHaveBeenCalledWith(
       {
         title: 'Run Job',
-            body: <div className='vdk-run-dialog-message-container'>
-            <p className='vdk-run-dialog-message'>Success!</p>
-            <span className='vdk-tick-element'>✔</span>
-          </div>,
-            buttons: [Dialog.okButton()]
+        body: (
+          <div className="vdk-run-dialog-message-container">
+            <p className="vdk-run-dialog-message">
+              The job was executed successfully!
+            </p>
+          </div>
+        ),
+        buttons: [Dialog.okButton()]
+      }
+    );
+  });
+
+  it('should call the jobRunRequest function if the user clicks the accept button and return failing standard run dialog', async () => {
+    (jobRunRequest as jest.Mock).mockResolvedValueOnce({
+      message: 'Error message',
+      status: false
+    });
+    const errorMessage = new VdkErrorMessage('ERROR : ' + 'Error message');
+    // Call the function
+    await showRunJobDialog();
+
+    // Expect the jobRunRequest function to have been called
+    expect(jobRunRequest).toHaveBeenCalled();
+    expect(showDialog).toHaveBeenCalledWith(
+      {
+        title: 'Run Job',
+          body: (
+            <div className="vdk-run-error-message ">
+              <p>{errorMessage.exception_message}</p>
+              <p>{errorMessage.what_happened}</p>
+              <p>{errorMessage.why_it_happened}</p>
+              <p>{errorMessage.consequences}</p>
+              <p>{errorMessage.countermeasures}</p>
+            </div>
+          ),
+          buttons: [Dialog.okButton()]
       }
     );
   });
@@ -226,4 +264,3 @@ describe('showDeleteJobDialog', () => {
     expect(jobRequestMock).toHaveBeenCalledTimes(0);
   });
 });
-*/

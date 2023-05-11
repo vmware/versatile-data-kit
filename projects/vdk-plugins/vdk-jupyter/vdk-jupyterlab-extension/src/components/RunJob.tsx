@@ -71,7 +71,7 @@ export default class RunJobDialog extends Component<IJobPathProp> {
   };
 }
 
-export async function showRunJobDialog(docManager: IDocumentManager) {
+export async function showRunJobDialog(docManager?: IDocumentManager) {
   const result = await showDialog({
     title: 'Run Job',
     body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
@@ -94,11 +94,10 @@ export async function showRunJobDialog(docManager: IDocumentManager) {
     } else {
       message = 'ERROR : ' + message;
       const errorMessage = new VdkErrorMessage(message);
-      let handledError = await handleErrorsProducedByNotebookCell(
-        errorMessage,
-        docManager
-      );
-      if (!handledError) {
+      if (
+        !docManager ||
+        !(await handleErrorsProducedByNotebookCell(errorMessage, docManager))
+      ) {
         showDialog({
           title: 'Run Job',
           body: (
