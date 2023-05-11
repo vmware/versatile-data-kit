@@ -93,10 +93,10 @@ control_service_integration_test:
   artifacts:
     when: always
     paths:
-      - ./projects/control-service/projects/*/build/reports/**
+      - ./projects/control-service/projects/pipelines_control_service/build/reports/tests/integrationTest/index.html
     expire_in: 1 week
     reports:
-      junit: ./projects/control-service/projects/**/build/test-results/integrationTest/TEST-*.xml
+      junit: ./projects/control-service/projects/pipelines_control_service/build/reports/tests/integrationTest/index.html
   only:
     refs:
       - external_pull_requests
