@@ -38,7 +38,7 @@ import {
 
 import { ErrorUtil } from '../../shared/utils';
 
-import { QuickFilters } from '../../shared/components';
+import { QuickFilterChangeEvent, QuickFilters } from '../../shared/components';
 
 import {
     DataJob,
@@ -139,7 +139,6 @@ export abstract class DataJobsBaseGridComponent
     clrGridDefaultSort: ClrGridUIState['sort'];
 
     quickFilters: QuickFilters;
-    quickFiltersDefaultActiveIndex: number;
 
     dataJobStatus = DataJobStatus;
 
@@ -369,9 +368,6 @@ export abstract class DataJobsBaseGridComponent
      */
     onModelChange(model: ComponentModel): void {
         this._extractData(model);
-        this._initializeQuickFilters();
-        this._updateUrlStateManager();
-        this._doUrlUpdate();
     }
 
     /**
@@ -385,6 +381,14 @@ export abstract class DataJobsBaseGridComponent
 
             this.errorHandlerService.processError(error);
         });
+    }
+
+    updateQuickFilter($event: QuickFilterChangeEvent) {
+        let activeStatus = '';
+        if ($event.activatedFilter && $event.activatedFilter['label']) {
+            activeStatus = this._getFilterPattern('deployments.enabled', $event.activatedFilter['label']);
+        }
+        this.updateDeploymentStatus(activeStatus);
     }
 
     /**
@@ -403,6 +407,39 @@ export abstract class DataJobsBaseGridComponent
             this.loadDataDebouncer.pipe(debounceTime(300)).subscribe((handling) => {
                 if (this.isLoadDataAllowed() || handling === 'forced') {
                     this._doLoadData();
+                    const criteriaFilters = this.model.getComponentState().filter.criteria;
+                    criteriaFilters.forEach((pair) => {
+                        switch (pair.property) {
+                            case 'jobName':
+                                this.gridFilters.jobName = this._clearFilterPattern('jobName', pair.pattern);
+                                break;
+                            case 'config.team':
+                                this.gridFilters.teamName = this._clearFilterPattern('config.team', pair.pattern);
+                                break;
+                            case 'deployments.enabled':
+                                this.gridFilters.deploymentStatus = this._getFilterPattern('deployments.enabled', pair.pattern);
+                                break;
+                            case 'deployments.lastExecutionStatus':
+                                this.gridFilters.deploymentLastExecutionStatus = this._getFilterPattern(
+                                    'deployments.lastExecutionStatus',
+                                    pair.pattern
+                                );
+                                break;
+                            case 'config.description':
+                                this.gridFilters.descriptionFilter = this._getFilterPattern('config.description', pair.pattern);
+                                break;
+                        }
+                    });
+
+                    if (this.gridFilters.deploymentStatus === undefined && this.clrGridUIState.filter['deployments.enabled']) {
+                        this.gridFilters.deploymentStatus = this._getFilterPattern(
+                            'deployments.enabled',
+                            this.clrGridUIState.filter['deployments.enabled']
+                        );
+                    }
+
+                    this._initializeQuickFilters();
+                    this._updateUrlStateManager();
                 }
 
                 if (this.isUrlUpdateAllowed() || handling === 'forced') {
@@ -492,7 +529,7 @@ export abstract class DataJobsBaseGridComponent
     }
 
     protected updateDeploymentStatus(_status: string) {
-        let status = this._getFilterPattern('deployments.enabled', _status);
+        const status = this._getFilterPattern('deployments.enabled', _status);
         this.gridFilters.deploymentStatus = status;
         this.urlStateManager.setQueryParam('deploymentEnabled', status);
         this._doUrlUpdate();
@@ -546,29 +583,6 @@ export abstract class DataJobsBaseGridComponent
         const componentState = model.getComponentState();
         const dataJobsData: { content?: DataJob[]; totalItems?: number } = componentState.data.get(JOBS_DATA_KEY) ?? {};
 
-        const queryParams = componentState.filter.criteria;
-        queryParams.forEach((pair) => {
-            switch (pair.property) {
-                case 'jobName':
-                    this.gridFilters.jobName = this._clearFilterPattern('jobName', pair.pattern);
-                    break;
-                case 'config.team':
-                    this.gridFilters.teamName = this._clearFilterPattern('config.team', pair.pattern);
-                    break;
-                case 'deployments.enabled':
-                    this.gridFilters.deploymentStatus = this._clearFilterPattern('deployments.enabled', pair.pattern);
-                    break;
-                case 'deployments.lastExecutionStatus':
-                    this.gridFilters.deploymentLastExecutionStatus = this._clearFilterPattern(
-                        'deployments.lastExecutionStatus',
-                        pair.pattern
-                    );
-                    break;
-                case 'config.description':
-                    this.gridFilters.descriptionFilter = this._clearFilterPattern('config.description', pair.pattern);
-                    break;
-            }
-        });
         this.dataJobs = CollectionsUtil.isArray(dataJobsData?.content) ? [...dataJobsData?.content] : [];
 
         this.clrGridUIState.totalItems = dataJobsData?.totalItems ?? 0;
@@ -583,11 +597,7 @@ export abstract class DataJobsBaseGridComponent
     private _extractInitialQueryParams(routeState: RouteState): void {
         if (!routeState.queryParams) {
             this.searchQueryValue = '';
-            this.gridFilters.jobName = '';
-            this.gridFilters.teamName = '';
-            this.gridFilters.descriptionFilter = '';
-            this.gridFilters.deploymentStatus = '';
-            this.gridFilters.deploymentLastExecutionStatus = '';
+            this.gridFilters = {};
             return;
         }
 
@@ -735,8 +745,10 @@ export abstract class DataJobsBaseGridComponent
             {
                 label: 'All',
                 suppressCancel: true,
+                active: this.isActiveQuickFilter('all'),
                 onActivate: () => {
                     this.clrGridUIState.filter = {};
+                    this.gridFilters.deploymentStatus = '';
                 }
             },
             {
@@ -775,13 +787,6 @@ export abstract class DataJobsBaseGridComponent
                 }
             }
         ];
-
-        if (
-            CollectionsUtil.isNumber(this.quickFiltersDefaultActiveIndex) &&
-            CollectionsUtil.isDefined(filters[this.quickFiltersDefaultActiveIndex])
-        ) {
-            filters[this.quickFiltersDefaultActiveIndex].active = true;
-        }
 
         this.quickFilters = filters;
     }
