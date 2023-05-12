@@ -7,7 +7,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { IThemeManager } from '@jupyterlab/apputils';
 import { getVdkCellIndices } from './serverRequests';
 
-const addNumberElement = (number: Number, node: Element) => {
+export const addNumberElement = (number: Number, node: Element) => {
   const numberElement = document.createElement('div');
   numberElement.innerText = String(number);
   if (node.classList.contains('jp-vdk-failing-cell')) {
@@ -18,7 +18,7 @@ const addNumberElement = (number: Number, node: Element) => {
   node.appendChild(numberElement);
 };
 
-const addVdkLogo = (node: Element) => {
+export const addVdkLogo = (node: Element) => {
   const logo = document.createElement('img');
   logo.setAttribute(
     'src',
@@ -31,7 +31,7 @@ const addVdkLogo = (node: Element) => {
   node.appendChild(logo);
 };
 
-const addVdkCellDesign = (
+export const addVdkCellDesign = (
   cells: Element[],
   vdkCellIndices: Array<Number>,
   themeManager: IThemeManager,
