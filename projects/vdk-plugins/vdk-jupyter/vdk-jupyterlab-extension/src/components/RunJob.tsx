@@ -171,6 +171,10 @@ export const handleErrorsProducedByNotebookCell = async (
                       failingCell.classList.add('jp-vdk-failing-cell');
                     } else {
                       cells[i].classList.remove('jp-vdk-failing-cell');
+                      let children = cells[i].children;
+                      for(let i = 0; i < children.length; i++){
+                        children[i].classList.remove('jp-vdk-failing-cell-num')
+                      }
                     }
                   }
                 }
