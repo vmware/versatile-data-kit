@@ -86,12 +86,4 @@ export class DataJobsExploreGridComponent extends DataJobsBaseGridComponent impl
     showTeamsColumn() {
         return this.dataPipelinesModuleConfig?.exploreConfig?.showTeamsColumn;
     }
-
-    updateQuickFilter($event) {
-        let activeStatus = '';
-        if ($event.activatedFilter && $event.activatedFilter['label']) {
-            activeStatus = $event.activatedFilter['label'];
-        }
-        this.updateDeploymentStatus(activeStatus);
-    }
 }

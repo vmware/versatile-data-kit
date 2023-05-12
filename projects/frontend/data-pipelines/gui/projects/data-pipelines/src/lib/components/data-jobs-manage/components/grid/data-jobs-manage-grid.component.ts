@@ -58,8 +58,6 @@ export class DataJobsManageGridComponent extends DataJobsBaseGridComponent imple
         'deployments.lastExecutionTime': -1
     };
 
-    override quickFiltersDefaultActiveIndex = 1;
-
     dataPipelinesDocumentationUrl: string;
 
     constructor(
@@ -227,13 +225,5 @@ export class DataJobsManageGridComponent extends DataJobsBaseGridComponent imple
         if (dataPipelinesModuleConfig?.dataPipelinesDocumentationUrl) {
             this.dataPipelinesDocumentationUrl = dataPipelinesModuleConfig.dataPipelinesDocumentationUrl;
         }
-    }
-
-    updateQuickFilter($event) {
-        let activeStatus = '';
-        if ($event.activatedFilter && $event.activatedFilter['label']) {
-            activeStatus = $event.activatedFilter['label'];
-        }
-        this.updateDeploymentStatus(activeStatus);
     }
 }
