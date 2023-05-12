@@ -116,7 +116,7 @@ export async function showRunJobDialog(docManager?: IDocumentManager) {
   }
 }
 
-const findFailingCellId = (message: String): string => {
+export const findFailingCellId = (message: String): string => {
   const regex = /cell_id:([0-9a-fA-F-]+)/;
   const match = message.match(regex);
   if (match) return match[1];
@@ -126,7 +126,7 @@ const findFailingCellId = (message: String): string => {
 /**
  * Seperate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
  */
-const handleErrorsProducedByNotebookCell = async (
+export const handleErrorsProducedByNotebookCell = async (
   message: VdkErrorMessage,
   docManager: IDocumentManager
 ): Promise<boolean> => {
