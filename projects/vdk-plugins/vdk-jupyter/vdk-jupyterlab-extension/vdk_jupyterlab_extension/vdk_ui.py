@@ -132,7 +132,7 @@ class VdkUI:
         name: str, team: str, rest_api_url: str, path: str, reason: str, enabled: bool
     ):
         """
-        Execute `download job`.
+        Execute `Deploy job`.
         :param name: the name of the data job that will be deployed
         :param team: the team of the data job that will be depployed
         :param rest_api_url: The base REST API URL
@@ -160,6 +160,13 @@ class VdkUI:
 
     @staticmethod
     def get_failing_notebook_info(failing_cell_id: str, job_path: str):
+        """
+        Return information about the notebook where a given cell is causing a job to fail.
+        :param failing_cell_id: the id of the cell that is causing the 'Job Run' to fail
+        :param job_path: the path to the job's directory
+        :return: path of the notebook where the failing cell is located, index of the failing cell
+             if the specified job path does not exist, an empty dictionary is returned.
+        """
         if not os.path.exists(job_path):
             job_path = os.getcwd() + job_path
             if not os.path.exists(job_path):
@@ -185,6 +192,12 @@ class VdkUI:
 
     @staticmethod
     def get_vdk_indices(notebook_path: str):
+        """
+        Return the indices of the notebook cells that are tagged with 'vdk'
+        :param notebook_path: Path to the notebook file.
+        :return: A list containing the indices of the cells tagged with 'vdk'.
+             If the specified notebook path does not exist, an empty list is returned.
+        """
         if not os.path.exists(notebook_path):
             job_notebook = os.getcwd() + notebook_path
             if not os.path.exists(job_notebook):
