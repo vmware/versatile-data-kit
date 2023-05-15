@@ -17,7 +17,10 @@ export class AppConfigService {
     private httpClient: HttpClient;
     private appConfig: AppConfig;
 
-    constructor(private httpBackend: HttpBackend, private router: Router) {
+    constructor(
+        private httpBackend: HttpBackend,
+        private router: Router
+    ) {
         this.httpClient = new HttpClient(httpBackend);
     }
 
