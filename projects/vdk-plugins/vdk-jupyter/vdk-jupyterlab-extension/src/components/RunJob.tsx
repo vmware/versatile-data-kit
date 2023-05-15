@@ -184,7 +184,7 @@ export const handleErrorsProducedByNotebookCell = async (
         }
       };
 
-      let result = await showDialog({
+      const result = await showDialog({
         title: 'Run Job',
         body: (
           <div className="vdk-run-error-message ">
