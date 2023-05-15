@@ -164,7 +164,7 @@ class GetVdkIndicesHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        vdk_indices = VdkUI.get_vdk_indices(input_data["nbPath"])
+        vdk_indices = VdkUI.get_vdk_tagged_cell_indices(input_data["nbPath"])
         self.finish(json.dumps(vdk_indices))
 
 

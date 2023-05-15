@@ -191,7 +191,7 @@ class VdkUI:
         return {"path": "", "failingCellIndex": ""}
 
     @staticmethod
-    def get_vdk_indices(notebook_path: str):
+    def get_vdk_tagged_cell_indices(notebook_path: str):
         """
         Return the indices of the notebook cells that are tagged with 'vdk'
         :param notebook_path: Path to the notebook file.
