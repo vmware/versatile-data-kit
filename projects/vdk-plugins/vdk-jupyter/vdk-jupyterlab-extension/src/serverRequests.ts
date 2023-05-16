@@ -169,7 +169,7 @@ export async function getVdkCellIndices(
     const dataToSend = {
       nbPath: nbPath
     };
-    const data = await requestAPI<Array<Number>>('vdkIndices', {
+    const data = await requestAPI<Array<Number>>('vdkCellIndices', {
       body: JSON.stringify(dataToSend),
       method: 'POST'
     });
