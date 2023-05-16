@@ -33,7 +33,6 @@ public class Telemetry implements ITelemetry {
       log.info("Telemetry endpoint is empty and sending telemetry is skipped");
     }
   }
-
   // TODO: add support for buffering, re-tries (with back-off)
   private final String telemetryEndpoint;
   private final HttpClient client;
