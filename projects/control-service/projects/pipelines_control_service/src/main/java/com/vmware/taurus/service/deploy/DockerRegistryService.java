@@ -5,10 +5,13 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.service.credentials.AWSCredentialsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class DockerRegistryService {
 
   @Value("${datajobs.proxy.repositoryUrl}")
@@ -19,6 +22,15 @@ public class DockerRegistryService {
 
   @Value("${datajobs.builder.registrySecret:}")
   private String registrySecret;
+
+  @Value("${datajobs.docker.registryType:}")
+  private String registryType;
+
+  private EcrRegistryInterface ecrRegistryInterface;
+
+  public DockerRegistryService(EcrRegistryInterface ecrRegistryInterface) {
+    this.ecrRegistryInterface = ecrRegistryInterface;
+  }
 
   public String dataJobImage(String dataJobName, String gitCommitSha) {
     return String.format("%s/%s:%s", proxyRepositoryURL, dataJobName, gitCommitSha);
@@ -33,7 +45,9 @@ public class DockerRegistryService {
   }
 
   // TODO: Implement
-  public boolean dataJobImageExists(String imageName) {
-    return false;
+  public boolean dataJobImageExists(
+      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
+    return registryType.equalsIgnoreCase("ecr")
+        && ecrRegistryInterface.checkEcrImageExists(imageName, awsCredentialsDTO);
   }
 }
