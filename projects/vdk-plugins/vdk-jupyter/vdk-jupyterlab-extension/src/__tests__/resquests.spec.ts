@@ -185,7 +185,7 @@ describe('getVdkCellIndices', () => {
   it('should call requestAPI with correct arguments', async () => {
     await getVdkCellIndices(nbPath);
 
-    expect(requestAPI).toHaveBeenCalledWith('vdkIndices', {
+    expect(requestAPI).toHaveBeenCalledWith('vdkCellIndices', {
       body: JSON.stringify({
         nbPath: nbPath
       }),
