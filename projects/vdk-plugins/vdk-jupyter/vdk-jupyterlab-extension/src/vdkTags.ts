@@ -113,7 +113,7 @@ export const trackVdkTags = (
         cellIndex++;
       }
       // this case covers the use case when the notebook is loaded for the first time
-      if (vdkCellIndices.length == 0) {
+      if (!vdkCellIndices.length) {
         vdkCellIndices = await getVdkCellIndices(
           notebookTracker.currentWidget.context.path
         );
