@@ -8,6 +8,7 @@ from vdk.internal.control.command_groups.common_group.default import (
     reset_default_command,
 )
 from vdk.internal.control.command_groups.common_group.default import set_default_command
+from vdk.internal.control.command_groups.info_group.info import info
 from vdk.internal.control.command_groups.job.create import create
 from vdk.internal.control.command_groups.job.delete import delete
 from vdk.internal.control.command_groups.job.deploy_cli import deploy
@@ -43,6 +44,7 @@ def vdk_command_line(root_command: click.Group):
     root_command.add_command(reset_default_command)
     root_command.add_command(show_command)
     root_command.add_command(properties_command)
+    root_command.add_command(info)
 
     plugins = control_plugin_manager.Plugins()
     default_options = DefaultOptions(plugins)
