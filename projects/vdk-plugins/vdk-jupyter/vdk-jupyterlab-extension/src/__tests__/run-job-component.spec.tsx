@@ -73,7 +73,7 @@ describe('findFailingCellId', () => {
 });
 
 import { showDialog } from '@jupyterlab/apputils';
-import { getFailingNotebookInfo } from '../serverRequests';
+import { getNotebookInfo } from '../serverRequests';
 //import React from 'react';
 
 jest.mock('@jupyterlab/apputils', () => ({
@@ -85,7 +85,7 @@ jest.mock('@jupyterlab/apputils', () => ({
 }));
 
 jest.mock('../serverRequests', () => ({
-  getFailingNotebookInfo: jest.fn(),
+  getNotebookInfo: jest.fn(),
 }));
 
 describe('handleErrorsProducedByNotebookCell', () => {
@@ -120,9 +120,9 @@ describe('handleErrorsProducedByNotebookCell', () => {
     message.consequences = 'Consequences';
     message.countermeasures = 'Countermeasures';
 
-    (getFailingNotebookInfo as jest.Mock).mockResolvedValueOnce({
+    (getNotebookInfo as jest.Mock).mockResolvedValueOnce({
       path: '/path/to/notebook.ipynb',
-      failingCellIndex: '0',
+      cellIndex: '0',
     });
     const showDialogMock = showDialog as jest.MockedFunction<typeof showDialog>;
     const acceptResult = { button: { accept: true } };

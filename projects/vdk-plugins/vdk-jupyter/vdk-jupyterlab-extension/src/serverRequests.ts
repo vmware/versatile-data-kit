@@ -115,33 +115,31 @@ export async function jobdDataRequest(): Promise<void> {
 }
 
 /**
- * Sent a POST request to the server to get more information about the notebook that is failing the job run
- * Returns the path to the notebook file and the index of the cell that is failing in the notebook
+ * Sent a POST request to the server to get more information about the notebook that includes a cell with the given id
+ * Returns the path to the notebook file and the index of the cell with the spicific id
+ * If no such notebook in the current directory or no notebook with a cell with such an id is found return empty strings
  */
-export async function getFailingNotebookInfo(failingCellId: string): Promise<{
+export async function getNotebookInfo(cellId: string): Promise<{
   path: string;
-  failingCellIndex: string;
+  cellIndex: string;
 }> {
-  type getFailingNotebookInfoResult = {
+  type getNotebookInfoResult = {
     path: string;
-    failingCellIndex: string;
+    cellIndex: string;
   };
   const dataToSend = {
-    failingCellId: failingCellId,
+    cellId: cellId,
     jobPath: jobData.get(VdkOption.PATH)
   };
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<getFailingNotebookInfoResult>(
-        'failingNotebook',
-        {
-          body: JSON.stringify(dataToSend),
-          method: 'POST'
-        }
-      );
+      const data = await requestAPI<getNotebookInfoResult>('notebook', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST'
+      });
       return {
         path: data['path'],
-        failingCellIndex: data['failingCellIndex']
+        cellIndex: data['cellIndex']
       };
     } catch (error) {
       await showErrorMessage('Encountered an error. Error:', error, [
@@ -149,13 +147,13 @@ export async function getFailingNotebookInfo(failingCellId: string): Promise<{
       ]);
       return {
         path: '',
-        failingCellIndex: ''
+        cellIndex: ''
       };
     }
   } else {
     return {
       path: '',
-      failingCellIndex: ''
+      cellIndex: ''
     };
   }
 }

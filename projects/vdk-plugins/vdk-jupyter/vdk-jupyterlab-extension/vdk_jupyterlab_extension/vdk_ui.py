@@ -159,21 +159,21 @@ class VdkUI:
         return output
 
     @staticmethod
-    def get_failing_notebook_info(failing_cell_id: str, job_path: str):
+    def get_notebook_info(cell_id: str, pr_path: str):
         """
-        Return information about the notebook where a given cell is causing a job to fail.
-        :param failing_cell_id: the id of the cell that is causing the 'Job Run' to fail
-        :param job_path: the path to the job's directory
-        :return: path of the notebook where the failing cell is located, index of the failing cell
-             if the specified job path does not exist, an empty dictionary is returned.
+        Return information about the notebook that includes a cell with a given id
+        :param cell_id: the id of the cell
+        :param pr_path: the path to the parent directory of the notebook
+        :return: path of the notebook, index of the cell
+             if the specified parent directory does not exist, an empty dictionary is returned.
         """
-        if not os.path.exists(job_path):
-            job_path = os.getcwd() + job_path
-            if not os.path.exists(job_path):
-                return ""
+        if not os.path.exists(pr_path):
+            pr_path = os.getcwd() + pr_path
+            if not os.path.exists(pr_path):
+                return {"path": "", "cellIndex": ""}
         notebook_files = [
             x
-            for x in pathlib.Path(job_path).iterdir()
+            for x in pathlib.Path(pr_path).iterdir()
             if (x.name.lower().endswith(".ipynb"))
         ]
         for notebook_file in notebook_files:
@@ -181,14 +181,14 @@ class VdkUI:
                 notebook_json = json.load(f)
                 cell_index = 0
                 for jupyter_cell in notebook_json["cells"]:
-                    if jupyter_cell["id"] == failing_cell_id:
+                    if jupyter_cell["id"] == cell_id:
                         notebook_path = str(notebook_file).replace(os.getcwd(), "")
                         return {
                             "path": str(notebook_path),
-                            "failingCellIndex": str(cell_index),
+                            "cellIndex": str(cell_index),
                         }
                     cell_index += 1
-        return {"path": "", "failingCellIndex": ""}
+        return {"path": "", "cellIndex": ""}
 
     @staticmethod
     def get_vdk_tagged_cell_indices(notebook_path: str):

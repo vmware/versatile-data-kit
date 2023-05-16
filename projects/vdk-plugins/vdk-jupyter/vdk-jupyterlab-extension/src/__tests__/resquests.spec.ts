@@ -7,7 +7,7 @@ import { requestAPI } from '../handler';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import { getJobDataJsonObject, jobData, setJobDataToDefault } from '../jobData';
 import {
-  getFailingNotebookInfo,
+  getNotebookInfo,
   getVdkCellIndices,
   jobdDataRequest,
   jobRequest,
@@ -154,17 +154,17 @@ describe('getFailingNotebookInfo', () => {
   it('should return notebook info if requestAPI returns data', async () => {
     const expectedData = {
       path: '/path/to/notebook.ipynb',
-      failingCellIndex: '2'
+      cellIndex: '2'
     };
     const expectedRequestBody = {
-      failingCellId: mockFailingCellId,
+      cellId: mockFailingCellId,
       jobPath: '/test/job/path'
     };
     (requestAPI as jest.Mock).mockResolvedValue(expectedData);
-    const result = await getFailingNotebookInfo(mockFailingCellId);
+    const result = await getNotebookInfo(mockFailingCellId);
 
     expect(result).toEqual(expectedData);
-    expect(requestAPI).toHaveBeenCalledWith('failingNotebook', {
+    expect(requestAPI).toHaveBeenCalledWith('notebook', {
       body: JSON.stringify(expectedRequestBody),
       method: 'POST'
     });
