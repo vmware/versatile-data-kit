@@ -50,9 +50,10 @@ import org.springframework.test.web.servlet.MvcResult;
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.aws.assumeIAMRole=true",
-      "datajobs.aws.RoleArn=arn:aws:iam::032089572635:role/svc.ecr-integration-test",
+      "datajobs.aws.RoleArn=arn:aws:iam::320807031117:role/svc.ecr-integration-test",
       "datajobs.docker.registryType=ecr",
-      "datajobs.aws.region=us-west-2"
+      "datajobs.aws.region=us-west-2",
+      "DOCKER_REGISTRY_URL = 320807031117.dkr.ecr.us-west-2.amazonaws.com/sc/dp"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
