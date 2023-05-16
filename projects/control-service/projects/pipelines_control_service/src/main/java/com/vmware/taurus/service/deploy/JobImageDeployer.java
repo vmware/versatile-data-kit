@@ -312,8 +312,8 @@ public class JobImageDeployer {
       return supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     } else {
       log.warn(
-              "An issue with the job deployment's pythonVersion or supportedPythonVersions configuration has"
-                      + " occurred. Returning default vdk image");
+          "An issue with the job deployment's pythonVersion or supportedPythonVersions"
+              + " configuration has occurred. Returning default vdk image");
       return supportedPythonVersions.getDefaultVdkImage();
     }
   }

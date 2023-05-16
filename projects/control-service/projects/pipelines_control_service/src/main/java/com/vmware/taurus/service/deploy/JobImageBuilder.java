@@ -136,8 +136,7 @@ public class JobImageBuilder {
     }
 
     if (jobDeployment.getPythonVersion() == null) {
-      log.warn(
-          "Missing pythonVersion. Data Job cannot be deployed.");
+      log.warn("Missing pythonVersion. Data Job cannot be deployed.");
       return false;
     }
 

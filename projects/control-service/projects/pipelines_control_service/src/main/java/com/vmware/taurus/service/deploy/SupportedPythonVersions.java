@@ -33,7 +33,6 @@ public class SupportedPythonVersions {
   @Value("${datajobs.deployment.defaultPythonVersion}")
   private String defaultPythonVersion;
 
-
   /**
    * Check if the pythonVersion passed by the user is supported by the Control Service.
    *
