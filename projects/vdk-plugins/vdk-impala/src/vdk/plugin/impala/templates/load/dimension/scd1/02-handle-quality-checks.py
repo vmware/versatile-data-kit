@@ -4,6 +4,9 @@ import os
 
 from vdk.plugin.impala.templates.utility import get_file_content, align_stg_table_with_target, get_staging_table_name
 from vdk.api.job_input import IJobInput
+from vdk.plugin.impala.templates.utility import align_stg_table_with_target
+from vdk.plugin.impala.templates.utility import get_file_content
+from vdk.plugin.impala.templates.utility import get_staging_table_name
 
 SQL_FILES_FOLDER = (
     os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
@@ -25,11 +28,11 @@ def run(job_input: IJobInput):
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
-    insert_query = get_file_content(SQL_FILES_FOLDER,"02-insert-into-target.sql")
+    insert_query = get_file_content(SQL_FILES_FOLDER, "02-insert-into-target.sql")
 
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
-        staging_table_name = get_staging_table_name(target_schema,target_table)
+        staging_table_name = get_staging_table_name(target_schema, target_table)
 
         staging_table = f"{staging_schema}.{staging_table_name}"
 

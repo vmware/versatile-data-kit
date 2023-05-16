@@ -348,9 +348,10 @@ export class DataPipelinesBasePO extends BasePagePO {
      *      - They are created during tests execution and are deleted before and after test suits.
      *      - Executed in context of test environment.
      *
+     * @param {boolean} isDeleteOptional
      * @returns {Cypress.Chainable<unknown>}
      */
-    static deleteShortLivedTestJobsNoDeploy() {
+    static deleteShortLivedTestJobsNoDeploy(isDeleteOptional) {
         return cy.task(
             'deleteJobsFixtures',
             {
@@ -364,7 +365,8 @@ export class DataPipelinesBasePO extends BasePagePO {
                     {
                         pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V12}.json`
                     }
-                ]
+                ],
+                optional: isDeleteOptional
             },
             { timeout: DataPipelinesBasePO.WAIT_LONG_TASK }
         );

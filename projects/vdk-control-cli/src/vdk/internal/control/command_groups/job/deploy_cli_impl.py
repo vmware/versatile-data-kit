@@ -170,8 +170,7 @@ class JobDeploy:
         elif enabled is not None:
             self.__patch_deployment(name, team, deployment)
             msg = f"Deployment of Data Job {name} updated; "
-            if enabled is not None:
-                msg = msg + "status: " + ("enabled" if enabled else "disabled") + "; "
+            msg = msg + "status: " + ("enabled" if enabled else "disabled") + "; "
             log.info(msg)
         else:
             log.warning(f"Nothing to update for deployment of job {name}.")
@@ -208,7 +207,6 @@ class JobDeploy:
             result = {
                 "job_name": name,
                 "job_version": deployment.job_version,
-                "vdk_version": deployment.vdk_version,
                 "python_version": deployment.python_version,
             }
             self.__printer.print_dict(result)

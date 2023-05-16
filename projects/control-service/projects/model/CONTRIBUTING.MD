@@ -30,7 +30,7 @@ For manual release you should generate the package by the following command from
 gradle buildPython
 ```
 
-After that export your LDAP credentials in environmental variables:
+After that export the following environmental variables:
 
 ```
 export PIP_REPO_UPLOAD_URL="pip-repo-url"

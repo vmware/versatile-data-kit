@@ -7,7 +7,7 @@ import re
 def get_staging_table_name(target_schema, target_table):
     """
     Extracts staging table by given target schema and table.
-    """  
+    """
     staging_table_name = f"vdk_check_{target_schema}_{target_table}"
 
     if len(staging_table_name) > 128:
@@ -30,7 +30,7 @@ def get_file_content(sql_files_folder, sql_file_name):
 def align_stg_table_with_target(target_table, stg_table, job_input):
     """
     Aligns structure of a given staging table with the structure of a given target table.
-    """    
+    """
     _create_table_like(target_table, stg_table, job_input)
 
     orig_create_table_statement = _extract_create_table_statement(

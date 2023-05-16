@@ -312,8 +312,6 @@ public class KubernetesServiceTest {
                       null,
                       Collections.EMPTY_MAP,
                       Collections.EMPTY_MAP,
-                      Collections.EMPTY_MAP,
-                      Collections.EMPTY_MAP,
                       List.of(""));
       Assertions.assertEquals("test-job-name", cronjob.getMetadata().getName());
       Assertions.assertEquals("test-job-schedule", cronjob.getSpec().getSchedule());
@@ -415,8 +413,6 @@ public class KubernetesServiceTest {
                       null,
                       null,
                       null,
-                      Collections.EMPTY_MAP,
-                      Collections.EMPTY_MAP,
                       Collections.EMPTY_MAP,
                       Collections.EMPTY_MAP,
                       List.of(""));
@@ -553,8 +549,6 @@ public class KubernetesServiceTest {
             null,
             Collections.emptyMap(),
             Collections.emptyMap(),
-            Collections.emptyMap(),
-            Collections.emptyMap(),
             Collections.emptyList());
 
     Assertions.assertNull(
@@ -578,8 +572,6 @@ public class KubernetesServiceTest {
             null,
             null,
             null,
-            Collections.emptyMap(),
-            Collections.emptyMap(),
             Collections.emptyMap(),
             Collections.emptyMap(),
             Collections.emptyList());
@@ -607,8 +599,6 @@ public class KubernetesServiceTest {
             null,
             Collections.emptyMap(),
             Collections.emptyMap(),
-            Collections.emptyMap(),
-            Collections.emptyMap(),
             List.of("", ""));
 
     Assertions.assertNull(
@@ -632,8 +622,6 @@ public class KubernetesServiceTest {
             null,
             null,
             null,
-            Collections.emptyMap(),
-            Collections.emptyMap(),
             Collections.emptyMap(),
             Collections.emptyMap(),
             List.of("", ""));
@@ -661,8 +649,6 @@ public class KubernetesServiceTest {
             null,
             null,
             null,
-            Collections.emptyMap(),
-            Collections.emptyMap(),
             Collections.emptyMap(),
             Collections.emptyMap(),
             List.of("", secretName));
@@ -693,8 +679,6 @@ public class KubernetesServiceTest {
             null,
             null,
             null,
-            Collections.emptyMap(),
-            Collections.emptyMap(),
             Collections.emptyMap(),
             Collections.emptyMap(),
             List.of("", secretName));
@@ -733,8 +717,6 @@ public class KubernetesServiceTest {
                 any(),
                 any(),
                 any(),
-                any(),
-                any(),
                 anyList()))
         .thenCallRealMethod();
     Mockito.when(
@@ -742,8 +724,6 @@ public class KubernetesServiceTest {
                 anyString(),
                 anyString(),
                 anyBoolean(),
-                any(),
-                any(),
                 any(),
                 any(),
                 any(),

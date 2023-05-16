@@ -50,6 +50,8 @@ class JobExecute:
         def transform_execution(e: DataJobExecution):
             d = e.to_dict()
             d["job_version"] = e.deployment.job_version
+            if e.deployment.python_version:
+                d["python_version"] = e.deployment.python_version
             del d["deployment"]
             return d
 

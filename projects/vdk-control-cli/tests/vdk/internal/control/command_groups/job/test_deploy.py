@@ -240,7 +240,7 @@ def test_update_job_version(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     )
 
 
-def test_update_miltiple(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+def test_update_multiple(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
 
     httpserver.expect_request(
