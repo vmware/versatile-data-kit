@@ -3,7 +3,7 @@ import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { getFailingNotebookInfo, jobRunRequest } from '../serverRequests';
+import { getNotebookInfo, jobRunRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
@@ -132,7 +132,7 @@ export const handleErrorsProducedByNotebookCell = async (
 ): Promise<boolean> => {
   const failingCellId = findFailingCellId(message.what_happened);
   if (failingCellId) {
-    const { path: nbPath, failingCellIndex } = await getFailingNotebookInfo(
+    const { path: nbPath, cellIndex: failingCellIndex } = await getNotebookInfo(
       failingCellId
     );
     if (nbPath) {

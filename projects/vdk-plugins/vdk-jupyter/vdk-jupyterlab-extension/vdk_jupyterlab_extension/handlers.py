@@ -150,12 +150,12 @@ class CreateDeploymentHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
-class GetFailingNotebookHandler(APIHandler):
+class GetNotebookInfoHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        notebook_info = VdkUI.get_failing_notebook_info(
-            input_data["failingCellId"], input_data[VdkOption.PATH.value]
+        notebook_info = VdkUI.get_notebook_info(
+            input_data["cellId"], input_data[VdkOption.PATH.value]
         )
         self.finish(json.dumps(notebook_info))
 
@@ -185,5 +185,5 @@ def setup_handlers(web_app):
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
-    add_handler(GetFailingNotebookHandler, "failingNotebook")
+    add_handler(GetNotebookInfoHandler, "notebook")
     add_handler(GetVdkIndicesHandler, "vdkIndices")
