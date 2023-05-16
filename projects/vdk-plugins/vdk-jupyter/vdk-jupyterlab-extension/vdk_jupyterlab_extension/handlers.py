@@ -160,7 +160,7 @@ class GetNotebookInfoHandler(APIHandler):
         self.finish(json.dumps(notebook_info))
 
 
-class GetVdkIndicesHandler(APIHandler):
+class GetVdkCellIndicesHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
@@ -186,4 +186,4 @@ def setup_handlers(web_app):
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
     add_handler(GetNotebookInfoHandler, "notebook")
-    add_handler(GetVdkIndicesHandler, "vdkIndices")
+    add_handler(GetVdkCellIndicesHandler, "vdkCellIndices")
