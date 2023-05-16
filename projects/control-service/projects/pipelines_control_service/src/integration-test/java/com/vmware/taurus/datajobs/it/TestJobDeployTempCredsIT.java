@@ -156,7 +156,10 @@ public class TestJobDeployTempCredsIT extends BaseIT {
         .atMost(10, TimeUnit.MINUTES)
         .with()
         .pollInterval(30, TimeUnit.SECONDS)
-        .untilAsserted(() -> Assertions.assertTrue(dockerRegistryService.dataJobImageExists(jobUri, credentialsDTO)));
+        .untilAsserted(
+            () ->
+                Assertions.assertTrue(
+                    dockerRegistryService.dataJobImageExists(jobUri, credentialsDTO)));
 
     String jobDeploymentName = JobImageDeployer.getCronJobName(TEST_JOB_NAME);
 
@@ -169,7 +172,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -180,13 +183,15 @@ public class TestJobDeployTempCredsIT extends BaseIT {
         .atMost(3, TimeUnit.MINUTES)
         .pollDelay(Duration.ofMinutes(1))
         .pollInterval(30, TimeUnit.SECONDS)
-        .untilAsserted(() -> Assertions.assertTrue(
-            dockerRegistryService.dataJobImageExists(
-                jobUri, credentialsDTO)));
+        .untilAsserted(
+            () ->
+                Assertions.assertTrue(
+                    dockerRegistryService.dataJobImageExists(jobUri, credentialsDTO)));
 
     // Making sure only one image present, even though job was redeployed.
-    DescribeImagesRequest countImagesRequest = new DescribeImagesRequest().withRepositoryName(
-        ecrRegistryInterface.extractImageRepositoryTag(repositoryName));
+    DescribeImagesRequest countImagesRequest =
+        new DescribeImagesRequest()
+            .withRepositoryName(ecrRegistryInterface.extractImageRepositoryTag(repositoryName));
     var response = ecrClient.describeImages(countImagesRequest).getImageDetails();
     Assertions.assertEquals(1, response.size(), "Expecting only one image");
   }
@@ -201,7 +206,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
                 .with(user("user")))
         .andExpect(status().isOk());
 
-    //delete repository and images
+    // delete repository and images
     DeleteRepositoryRequest request =
         new DeleteRepositoryRequest()
             .withRepositoryName(ecrRegistryInterface.extractImageRepositoryTag(repositoryName))

@@ -47,7 +47,7 @@ public class DockerRegistryService {
   // TODO: Implement
   public boolean dataJobImageExists(
       String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
-    return registryType.equalsIgnoreCase("ecr") && ecrRegistryInterface.checkEcrImageExists(
-        imageName, awsCredentialsDTO);
+    return registryType.equalsIgnoreCase("ecr")
+        && ecrRegistryInterface.checkEcrImageExists(imageName, awsCredentialsDTO);
   }
 }

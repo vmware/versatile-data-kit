@@ -32,26 +32,28 @@ public class EcrRegistryInterface {
       AWSCredentialsDTO awsCredentialsDTO) {
     if (!awsCredentialsDTO.awsSessionToken().isBlank()) {
       // need to include session token
-      return new AWSStaticCredentialsProvider(new BasicSessionCredentials(
-          awsCredentialsDTO.awsAccessKeyId(),
-          awsCredentialsDTO.awsSecretAccessKey(),
-          awsCredentialsDTO.awsSessionToken()));
+      return new AWSStaticCredentialsProvider(
+          new BasicSessionCredentials(
+              awsCredentialsDTO.awsAccessKeyId(),
+              awsCredentialsDTO.awsSecretAccessKey(),
+              awsCredentialsDTO.awsSessionToken()));
     } else {
       // otherwise, we auth without session token
-      return new AWSStaticCredentialsProvider(new BasicAWSCredentials(
-          awsCredentialsDTO.awsAccessKeyId(), awsCredentialsDTO.awsSecretAccessKey()));
+      return new AWSStaticCredentialsProvider(
+          new BasicAWSCredentials(
+              awsCredentialsDTO.awsAccessKeyId(), awsCredentialsDTO.awsSecretAccessKey()));
     }
   }
 
-  public String extractImageRepositoryTag(String imageName){
+  public String extractImageRepositoryTag(String imageName) {
     // imageName is a string of the sort:
     // 850879199482.dkr.ecr.us-west-2.amazonaws.com/sc/dp/job-name:hash
     return imageName.split("amazonaws.com/")[1];
   }
 
   private AmazonECR buildAmazonEcrClient(AWSCredentialsDTO awsCredentialsDTO) {
-    AWSStaticCredentialsProvider awsStaticCredentialsProvider = createStaticCredentialsProvider(
-        awsCredentialsDTO);
+    AWSStaticCredentialsProvider awsStaticCredentialsProvider =
+        createStaticCredentialsProvider(awsCredentialsDTO);
 
     return AmazonECRClientBuilder.standard()
         .withCredentials(awsStaticCredentialsProvider)
