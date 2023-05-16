@@ -45,6 +45,14 @@ export const addVdkCellDesign = (
     element.remove();
   });
 
+  // Delete previous fail numbering
+  const vdkFailingCellNums = Array.from(
+    document.getElementsByClassName('jp-vdk-failing-cell-num')
+  );
+  vdkFailingCellNums.forEach(element => {
+    element.remove();
+  });
+
   // Delete previously added logo in case of untagging elements
   const vdkCellLogo = Array.from(
     document.getElementsByClassName('jp-vdk-logo')
