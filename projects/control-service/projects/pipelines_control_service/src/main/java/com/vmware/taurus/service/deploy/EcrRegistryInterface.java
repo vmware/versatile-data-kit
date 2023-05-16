@@ -28,37 +28,41 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EcrRegistryInterface {
 
-  private AmazonECR buildAmazonEcrClient(AWSCredentialsDTO awsCredentialsDTO) {
-    AWSStaticCredentialsProvider awsStaticCredentialsProvider;
+  public AWSStaticCredentialsProvider createStaticCredentialsProvider(
+      AWSCredentialsDTO awsCredentialsDTO) {
     if (!awsCredentialsDTO.awsSessionToken().isBlank()) {
       // need to include session token
-      var sessionCredentials =
-          new BasicSessionCredentials(
-              awsCredentialsDTO.awsAccessKeyId(),
-              awsCredentialsDTO.awsSecretAccessKey(),
-              awsCredentialsDTO.awsSessionToken());
-      awsStaticCredentialsProvider = new AWSStaticCredentialsProvider(sessionCredentials);
+      return new AWSStaticCredentialsProvider(new BasicSessionCredentials(
+          awsCredentialsDTO.awsAccessKeyId(),
+          awsCredentialsDTO.awsSecretAccessKey(),
+          awsCredentialsDTO.awsSessionToken()));
     } else {
       // otherwise, we auth without session token
-      var credentials =
-          new BasicAWSCredentials(
-              awsCredentialsDTO.awsAccessKeyId(), awsCredentialsDTO.awsSecretAccessKey());
-      awsStaticCredentialsProvider = new AWSStaticCredentialsProvider(credentials);
+      return new AWSStaticCredentialsProvider(new BasicAWSCredentials(
+          awsCredentialsDTO.awsAccessKeyId(), awsCredentialsDTO.awsSecretAccessKey()));
     }
+  }
 
-    AmazonECR ecrClient =
-        AmazonECRClientBuilder.standard()
-            .withCredentials(awsStaticCredentialsProvider)
-            .withRegion(awsCredentialsDTO.region())
-            .build();
+  public String extractImageRepositoryTag(String imageName){
+    // imageName is a string of the sort:
+    // 850879199482.dkr.ecr.us-west-2.amazonaws.com/sc/dp/job-name:hash
+    return imageName.split("amazonaws.com/")[1];
+  }
 
-    return ecrClient;
+  private AmazonECR buildAmazonEcrClient(AWSCredentialsDTO awsCredentialsDTO) {
+    AWSStaticCredentialsProvider awsStaticCredentialsProvider = createStaticCredentialsProvider(
+        awsCredentialsDTO);
+
+    return AmazonECRClientBuilder.standard()
+        .withCredentials(awsStaticCredentialsProvider)
+        .withRegion(awsCredentialsDTO.region())
+        .build();
   }
 
   private DescribeImagesRequest buildDescribeImagesRequest(String imageName) {
     // imageName is a string of the sort:
     // 850879199482.dkr.ecr.us-west-2.amazonaws.com/sc/dp/job-name:hash
-    String imageRepoTag = imageName.split("amazonaws.com/")[1];
+    String imageRepoTag = extractImageRepositoryTag(imageName);
     ImageIdentifier imageIdentifier =
         new ImageIdentifier().withImageTag(imageRepoTag.split(":")[1]);
     String imageRepository = imageRepoTag.split(":")[0];
