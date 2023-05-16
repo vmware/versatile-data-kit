@@ -21,7 +21,6 @@ public class SupportedPythonVersionsTest {
   private static final String BASE_IMAGE = "baseImage";
   private static final String VDK_IMAGE = "vdkImage";
   private static final String DEFAULT_PYTHON_VERSION = "defaultPythonVersion";
-  private static final String DEPLOYMENT_DATA_JOB_BASE_IMAGE = "deploymentDataJobBaseImage";
 
   @InjectMocks private SupportedPythonVersions supportedPythonVersions;
 
@@ -92,19 +91,6 @@ public class SupportedPythonVersionsTest {
     final String resultBaseImg = "python:3.8-slim";
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
-
-    Assertions.assertEquals(resultBaseImg, supportedPythonVersions.getJobBaseImage("3.8"));
-  }
-
-  @Test
-  public void getJobBaseImage_shouldIgnoreDeploymentDataJobBaseImage() {
-    var supportedVersions = generateSupportedPythonVersionsConf();
-
-    final String resultBaseImg = "python:3.8-slim";
-    ReflectionTestUtils.setField(
-        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
-    ReflectionTestUtils.setField(
-        supportedPythonVersions, DEPLOYMENT_DATA_JOB_BASE_IMAGE, "python:3.9-slim");
 
     Assertions.assertEquals(resultBaseImg, supportedPythonVersions.getJobBaseImage("3.8"));
   }

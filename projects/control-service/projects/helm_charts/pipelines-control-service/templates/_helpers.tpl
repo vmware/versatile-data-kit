@@ -133,54 +133,6 @@ Also, we can't use a single if because lazy evaluation is not an option
 {{- end -}}
 {{- end -}}
 
-{{/*
-Return the proper Control Service data jobs base image where data job run in.
-*/}}
-{{- define "pipelines-control-service.deploymentDataJobBaseImage" -}}
-{{- $globalRegistryOverrideName := .Values.deploymentDataJobBaseImage.globalRegistryOverride -}}
-{{- $registryName := .Values.deploymentDataJobBaseImage.registry -}}
-{{- $repositoryName := .Values.deploymentDataJobBaseImage.repository -}}
-{{- $tag := .Values.deploymentDataJobBaseImage.tag | toString -}}
-{{/*
-Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
-but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
-Also, we can't use a single if because lazy evaluation is not an option
-*/}}
-{{- if $globalRegistryOverrideName }}
-    {{- printf "%s/%s:%s" $globalRegistryOverrideName $repositoryName $tag -}}
-{{- else if .Values.global.imageRegistry }}
-    {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
-{{- else -}}
-    {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the proper Control Service vdk image where the vdk (sdk) is installed and used during data job runs.
-*/}}
-{{- define "pipelines-control-service.deploymentVdkDistributionImageRepository" -}}
-    {{- $globalRegistryOverrideName := .Values.deploymentVdkDistributionImage.globalRegistryOverride -}}
-    {{- $registryName := .Values.deploymentVdkDistributionImage.registry -}}
-    {{- $repositoryName := .Values.deploymentVdkDistributionImage.repository -}}
-
-    {{/*
-    Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
-    but Helm 2.9 and 2.10 doesn't support it, so we need to implement this if-else logic.
-    Also, we can't use a single if because lazy evaluation is not an option
-    */}}
-    {{- if $globalRegistryOverrideName }}
-        {{- printf "%s/%s" $globalRegistryOverrideName $repositoryName -}}
-    {{- else if .Values.global.imageRegistry }}
-        {{- printf "%s/%s" .Values.global.imageRegistry $repositoryName -}}
-    {{- else -}}
-        {{- printf "%s/%s" $registryName $repositoryName -}}
-    {{- end -}}
-{{- end -}}
-
-{{- define "pipelines-control-service.deploymentVdkDistributionImage" -}}
-    {{- $tag := .Values.deploymentVdkDistributionImage.tag | toString -}}
-    {{- printf "%s:%s" (include "pipelines-control-service.deploymentVdkDistributionImageRepository" .) $tag -}}
-{{- end -}}
 
 {{/*
 Create the name of the deployment Kubernetes namespace used by Data Jobs
@@ -273,8 +225,4 @@ Image Pull Secret in json format
 
 {{- define "builderPullSecretJson" }}
     {{ include "buildImagePullSecretJson" (list .Values.deploymentBuilderImage.registry .Values.deploymentBuilderImage.username .Values.deploymentBuilderImage.password) }}
-{{- end }}
-
-{{- define "basePullSecretJson" }}
-    {{ include "buildImagePullSecretJson" (list .Values.deploymentDataJobBaseImage.registry .Values.deploymentDataJobBaseImage.username .Values.deploymentDataJobBaseImage.password) }}
 {{- end }}

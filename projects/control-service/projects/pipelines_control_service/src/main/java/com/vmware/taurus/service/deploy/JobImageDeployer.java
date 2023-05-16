@@ -33,11 +33,6 @@ import java.util.*;
 @Slf4j
 public class JobImageDeployer {
 
-  // TODO: Out of the image we pick only the python vdk module. Remove when property deprecated
-  // It may make sense to just pass the module name as argument instead of an image ???
-  @Value("${datajobs.vdk.image}")
-  private String vdkImage;
-
   @Value("${datajobs.docker.registrySecret:}")
   private String dockerRegistrySecret = "";
 
@@ -312,17 +307,14 @@ public class JobImageDeployer {
   }
 
   private String getJobVdkImage(JobDeployment jobDeployment) {
-    // TODO: Refactor when vdkImage is deprecated.
     if (!supportedPythonVersions.getSupportedPythonVersions().isEmpty()
         && supportedPythonVersions.isPythonVersionSupported(jobDeployment.getPythonVersion())) {
       return supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     } else {
-      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())
-          && StringUtils.isNotBlank(vdkImage)) {
-        return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
-      } else {
-        return vdkImage;
-      }
+      log.warn(
+              "An issue with the job deployment's pythonVersion or supportedPythonVersions configuration has"
+                      + " occurred. Returning default vdk image");
+      return supportedPythonVersions.getDefaultVdkImage();
     }
   }
 

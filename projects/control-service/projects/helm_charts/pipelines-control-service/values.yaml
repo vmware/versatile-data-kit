@@ -249,13 +249,9 @@ deploymentDockerRegistryPassword: ""
 deploymentDockerRegistryUsernameReadOnly: ""
 deploymentDockerRegistryPasswordReadOnly: ""
 
-## Image name of VDK which will be used to run the data jobs.
-## It is recommended to use image with same tag (e.g release or latest)
-## As it will be pulled before any execution thus making sure all jobs use the same and latest version of VDK.
-## The image should contain installation of VDK (vdk) which will be used to run the data jobs (vdk run command)
-## Only the installed python modules (vdk and its dependencies) will be used from the image.
-## Everything else is effectively discarded since another image is used as base during execution.
-## Override if you build VDK SDK yourself instead of using one provided by default.
+
+## The registry and associated credentials needed to pull the vdk sdk image.
+## These are stored in a kubernetes secret.
 deploymentVdkDistributionImage:
   registry: registry.hub.docker.com/versatiledatakit
 
@@ -270,19 +266,11 @@ deploymentVdkDistributionImage:
   registryUsernameReadOnly: ""
   registryPasswordReadOnly: ""
 
-  repository: quickstart-vdk
-  tag: "release"
 
-
-# The base image which will be used to create the image where data job would be run.
-# On top of it the job source and its dependencies are installed for each job.
-# It can be customized further by installing other native dependencies necessary to run different kinds of libraries
-# For example the below default image adds support for Oracle client on top of standard python image.
-# The SDK (vdk) is installed separate image (to enable zero time upgrades) see deploymentVdkDistributionImage
+## The registry URL and associated credentials needed to pull the data job base image.
+## These are stored in a kubernetes secret.
 deploymentDataJobBaseImage:
   registry: registry.hub.docker.com/versatiledatakit
-  repository: data-job-base-python-3.7
-  tag: "latest"
   username:
   password:
 
@@ -307,13 +295,16 @@ deploymentDataJobBaseImage:
 ##   3.7:
 ##     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
 ##     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
-deploymentSupportedPythonVersions: {}
+deploymentSupportedPythonVersions:
+  3.9:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
 
 
 ## Default python version to be used for data job deployments. The value should be a string and would be
 ## used when a user has not provided a specific python_version for their data job's deployment.
 ## Example: "3.9"
-deploymentDefaultPythonVersion: ""
+deploymentDefaultPythonVersion: "3.9"
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.

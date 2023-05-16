@@ -56,9 +56,6 @@ public class JobImageBuilder {
   @Value("${datajobs.docker.registryPassword:}")
   private String registryPassword;
 
-  @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
-  private String deploymentDataJobBaseImage;
-
   @Value("${datajobs.deployment.builder.extraArgs:}")
   private String builderJobExtraArgs;
 
@@ -138,10 +135,9 @@ public class JobImageBuilder {
       }
     }
 
-    // TODO: Remove when deploymentDataJobBaseImage deprecated.
-    if (jobDeployment.getPythonVersion() == null && deploymentDataJobBaseImage == null) {
+    if (jobDeployment.getPythonVersion() == null) {
       log.warn(
-          "Missing pythonVersion and deploymentDataJobBaseImage. Data Job cannot be deployed.");
+          "Missing pythonVersion. Data Job cannot be deployed.");
       return false;
     }
 
