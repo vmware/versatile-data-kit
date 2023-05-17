@@ -46,8 +46,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-      "datajobs.vdk.image=",
-      "datajobs.deployment.dataJobBaseImage="
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,

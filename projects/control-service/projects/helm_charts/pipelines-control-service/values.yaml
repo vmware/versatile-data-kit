@@ -252,6 +252,7 @@ deploymentDockerRegistryPasswordReadOnly: ""
 
 ## The registry and associated credentials needed to pull the vdk sdk image.
 ## These are stored in a kubernetes secret.
+## IMPORTANT: The registry should be the same as the one specified in the deploymentSupportedPythonVersions
 deploymentVdkDistributionImage:
   registry: registry.hub.docker.com/versatiledatakit
 
@@ -269,6 +270,7 @@ deploymentVdkDistributionImage:
 
 ## The registry URL and associated credentials needed to pull the data job base image.
 ## These are stored in a kubernetes secret.
+## IMPORTANT: The registry should be the same as the one specified in the deploymentSupportedPythonVersions
 deploymentDataJobBaseImage:
   registry: registry.hub.docker.com/versatiledatakit
   username:

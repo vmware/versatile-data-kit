@@ -253,7 +253,7 @@ public class JobImageDeployer {
             "-c",
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-    var jobVdkImage = getJobVdkImage(jobDeployment);
+    var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     var jobInitContainer =
         KubernetesService.container(
             "vdk",
@@ -303,18 +303,6 @@ public class JobImageDeployer {
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
-    }
-  }
-
-  private String getJobVdkImage(JobDeployment jobDeployment) {
-    if (!supportedPythonVersions.getSupportedPythonVersions().isEmpty()
-        && supportedPythonVersions.isPythonVersionSupported(jobDeployment.getPythonVersion())) {
-      return supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
-    } else {
-      log.warn(
-          "An issue with the job deployment's pythonVersion or supportedPythonVersions"
-              + " configuration has occurred. Returning default vdk image");
-      return supportedPythonVersions.getDefaultVdkImage();
     }
   }
 
