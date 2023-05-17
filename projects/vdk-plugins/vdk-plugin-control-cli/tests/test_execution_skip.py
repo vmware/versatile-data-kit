@@ -135,7 +135,7 @@ class ExecutionSkipTest(unittest.TestCase):
         # Intention is to get as close as possible to the real API call.
         deployment = {
             "deployed_by": "mzhivkov",
-            "deployed_date": "datetime.datetime(2021, 7, 29, 18, 8, 55, 435596, tzinfo=tzutc())",
+            "deployed_date": "2021-09-23T14:14:03.922Z",
             "enabled": True,
             "id": "release",
             "job_version": "b4d24a249709874ad8c8e43d93ed2824c6ed0292",
@@ -150,17 +150,17 @@ class ExecutionSkipTest(unittest.TestCase):
             "vdk_version": "",
         }
         data_job_execution = DataJobExecution(
-            "mzhivkov-test-job3-latest-1627583589244-9681d",
-            "mzhivkov-test-job3",
-            "running",
-            "manual",
-            "datetime(2021, 7, 29, 18, 33, 9, tzinfo=tzutc())",
-            None,
-            "manual/vdk-control-cli",
-            None,
-            "e61d395859dc4c45",
-            deployment,
-            None,
+            id="mzhivkov-test-job3-latest-1627583589244-9681d",
+            job_name="mzhivkov-test-job3",
+            status="running",
+            type="manual",
+            start_time="2021-09-24T14:14:03.922Z",
+            end_time=None,
+            started_by="manual/vdk-control-cli",
+            logs_url=None,
+            op_id="e61d395859dc4c45",
+            deployment=deployment,
+            # None,
         )
         self.mock_api.data_job_execution_list.return_value = [data_job_execution]
         result = self.checker.is_job_execution_running(

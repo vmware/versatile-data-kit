@@ -4,3 +4,4 @@
  */
 
 export * from './data-job-execution';
+export * from './executions-filters.model';

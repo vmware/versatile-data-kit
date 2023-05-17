@@ -224,8 +224,8 @@ describe('DataJobsExploreGridComponent', () => {
 
         it('should verify will invoke default urlStateManager (dependency injection is null or undefined)', () => {
             // Given
+            const KEY_INDEX = 0;
             const setQueryParamSpy = spyOn(component.urlStateManager, 'setQueryParam').and.callFake(CallFake);
-
             // When
             component.urlStateManager = null;
             component.search('search test value 1');
@@ -233,8 +233,14 @@ describe('DataJobsExploreGridComponent', () => {
             component.search('search test value 2');
 
             // Then
-            expect(setQueryParamSpy.calls.argsFor(0)).toEqual([QUERY_PARAM_SEARCH, 'search test value 1']);
-            expect(setQueryParamSpy.calls.argsFor(1)).toEqual([QUERY_PARAM_SEARCH, 'search test value 2']);
+            expect(setQueryParamSpy.calls.allArgs().filter((pair) => pair[KEY_INDEX] === 'search')[0]).toEqual([
+                QUERY_PARAM_SEARCH,
+                'search test value 1'
+            ]);
+            expect(setQueryParamSpy.calls.allArgs().filter((pair) => pair[KEY_INDEX] === 'search')[1]).toEqual([
+                QUERY_PARAM_SEARCH,
+                'search test value 2'
+            ]);
         });
     });
 

@@ -2,7 +2,6 @@
  * Copyright 2021-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 
@@ -22,6 +21,7 @@ import {
 import { AppConfigService } from './app-config.service';
 
 import { AppComponent } from './app.component';
+import { HttpBackend } from '@angular/common/http';
 
 describe('AppComponent', () => {
     let routerServiceStub: jasmine.SpyObj<RouterService>;
@@ -90,5 +90,42 @@ describe('AppComponent', () => {
     it('should create the app with auth skipped', () => {
         appConfigServiceStub.getSkipAuth.and.returnValue(true);
         configureTestingModule([]);
+        const fixture = TestBed.createComponent(AppComponent);
+        const app = fixture.componentInstance;
+        expect(app).toBeTruthy();
+    });
+
+    it('should create the app with no components ignored', () => {
+        appConfigServiceStub.getConfig.and.returnValue({
+            auth: {},
+            ignoreComponents: [],
+            ignoreRoutes: []
+        });
+
+        // skip auth for convenience
+        appConfigServiceStub.getSkipAuth.and.returnValue(true);
+
+        configureTestingModule([]);
+        const fixture = TestBed.createComponent(AppComponent);
+        const app = fixture.componentInstance;
+        expect(app).toBeTruthy();
+        expect(app.explorePageVisible).toBeTrue();
+    });
+
+    it('should create the app with explore page ignored', () => {
+        appConfigServiceStub.getConfig.and.returnValue({
+            auth: {},
+            ignoreComponents: ['explorePage'],
+            ignoreRoutes: []
+        });
+
+        // skip auth for convenience
+        appConfigServiceStub.getSkipAuth.and.returnValue(true);
+
+        configureTestingModule([]);
+        const fixture = TestBed.createComponent(AppComponent);
+        const app = fixture.componentInstance;
+        expect(app).toBeTruthy();
+        expect(app.explorePageVisible).toBeFalse();
     });
 });

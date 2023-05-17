@@ -34,7 +34,11 @@ docker pull registry.hub.docker.com/versatiledatakit/job-builder:1.2.3
 docker tag registry.hub.docker.com/versatiledatakit/job-builder:1.2.3 ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3
 docker push ${DOCKER_REGISTRY_URL}/versatiledatakit/job-builder:1.2.3
 ```
-
+* To run the TestJobDeployTemporaryCredsIT test case the following is needed
+  - Amazon Elastic Container test Registry with IAM credentials that have rights to create/delete images in the test registry.
+  - If you intend to use the Service User model -
+  The corresponding variables in [application.properties](../main/resources/application.properties) -
+  must be filled in. To find the variables with description and documentation on the service user model search for: 'Variables for using the Service Account pattern.' in application.properties.
 # Run
 ## IntelliJ
 For the ```org.unbroken-dome.test-sets``` plugin to work well with IntelliJ you need Intellij Version ```2019.3 +```

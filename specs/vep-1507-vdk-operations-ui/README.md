@@ -273,6 +273,12 @@ The execution history table can be filtered by
 - ID
 - Version
 
+![](images/logs.png)
+By following the link in the logs column of the job execution table we can open the logs in a new tab.
+**At the moment logs are only visible once the job has completed(https://github.com/vmware/versatile-data-kit/issues/2041)**
+The logs are in json format, this is discussed in this issue:https://github.com/vmware/versatile-data-kit/issues/2042.
+
+
 Deployment details for an individual execution can be viewed using a button
 attached to the row.
 

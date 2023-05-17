@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 import { ClrDatagridFilterInterface } from '@clr/angular';
+
+import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DataJobExecutionStatus } from '../../../../../model';
 
@@ -17,7 +19,22 @@ import { GridDataJobExecution } from '../model';
     selector: 'lib-data-job-execution-status-filter',
     templateUrl: './data-job-execution-status-filter.component.html'
 })
-export class DataJobExecutionStatusFilterComponent implements ClrDatagridFilterInterface<GridDataJobExecution> {
+export class DataJobExecutionStatusFilterComponent implements OnChanges, ClrDatagridFilterInterface<GridDataJobExecution> {
+    /**
+     * ** Path to value (property).
+     */
+    @Input() property: string;
+
+    /**
+     * ** Value bound to {@link property}.
+     */
+    @Input() value: string;
+
+    /**
+     * ** Event emitter that emits whenever {@link value} change.
+     */
+    @Output() valueChange = new EventEmitter<string>();
+
     allStatuses = [
         DataJobExecutionStatus.SUCCEEDED,
         DataJobExecutionStatus.PLATFORM_ERROR,
@@ -30,7 +47,12 @@ export class DataJobExecutionStatusFilterComponent implements ClrDatagridFilterI
 
     selectedStatuses: string[] = [];
 
-    changes: Subject<boolean> = new Subject<boolean>();
+    // We do not want to expose the Subject itself, but the Observable which is read-only
+    get changes(): Observable<string> {
+        return this._changesSubject.asObservable();
+    }
+
+    private _changesSubject = new Subject<string>();
 
     isActive(): boolean {
         return this.selectedStatuses.length > 0;
@@ -52,6 +74,51 @@ export class DataJobExecutionStatusFilterComponent implements ClrDatagridFilterI
             }
         }
 
-        this.changes.next(true);
+        this._updateValue(true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['value']) {
+            this._refreshValue();
+        }
+    }
+
+    private _refreshValue(): void {
+        const selectedTypes: string[] = [];
+
+        if (CollectionsUtil.isStringWithContent(this.value)) {
+            const checkedValues = this._deserializeStatuses();
+            for (const checkedValue of checkedValues) {
+                if (this.allStatuses.includes(checkedValue)) {
+                    selectedTypes.push(checkedValue);
+                }
+            }
+        }
+
+        this.selectedStatuses = selectedTypes;
+
+        this._updateValue();
+    }
+
+    private _updateValue(notifyChange = false): void {
+        const serializedValue = this._serializeStatuses();
+
+        this.value = serializedValue;
+        this._changesSubject.next(serializedValue);
+
+        if (notifyChange) {
+            this.valueChange.next(serializedValue);
+        }
+    }
+
+    private _serializeStatuses(): string {
+        return this.selectedStatuses.join(',').toLowerCase();
+    }
+
+    private _deserializeStatuses(): DataJobExecutionStatus[] {
+        return this.value.toUpperCase().split(',') as DataJobExecutionStatus[];
     }
 }

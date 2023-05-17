@@ -7,7 +7,9 @@ import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } f
 
 import { NavigationService } from '@versatiledatakit/shared';
 
-import { DataJob, DataJobExecution, DataJobExecutions } from '../../../model';
+import { DataJob, DataJobExecution } from '../../../model';
+
+import { GridDataJobExecution } from '../../data-job/pages/executions';
 
 @Component({
     selector: 'lib-data-jobs-executions-widget',
@@ -18,7 +20,7 @@ import { DataJob, DataJobExecution, DataJobExecutions } from '../../../model';
 export class DataJobsExecutionsWidgetComponent implements OnChanges {
     @Input() manageLink: string;
     @Input() allJobs: DataJob[];
-    @Input() jobExecutions: DataJobExecutions;
+    @Input() jobExecutions: GridDataJobExecution[] = [];
 
     readonly uuid = 'DataJobsExecutionsWidgetComponent';
 

@@ -145,7 +145,7 @@ public class JobImageBuilder {
       return false;
     }
 
-    if (dockerRegistryService.dataJobImageExists(imageName)) {
+    if (dockerRegistryService.dataJobImageExists(imageName, credentials)) {
       log.debug("Data Job image {} already exists and nothing else to do.", imageName);
       return true;
     }

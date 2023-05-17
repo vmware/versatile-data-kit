@@ -103,12 +103,12 @@ export class QuickFiltersComponent implements OnChanges {
             } else {
                 console.warn('QuickFiltersComponent: No listener for onActivate callback while Event Emitter is suppressed.');
             }
-        } else {
-            this.quickFilterChange.emit({
-                activatedFilter: this.activatedFilter,
-                deactivatedFilter: this._deactivatedFilter
-            });
         }
+
+        this.quickFilterChange.emit({
+            activatedFilter: this.activatedFilter,
+            deactivatedFilter: this._deactivatedFilter
+        });
     }
 
     /**
@@ -116,10 +116,6 @@ export class QuickFiltersComponent implements OnChanges {
      */
     ngOnChanges(changes: SimpleChanges) {
         if (changes['quickFilters']) {
-            if (!changes['quickFilters'].firstChange) {
-                return;
-            }
-
             const defaultActiveFilter = this.quickFilters.find((f) => f.active);
 
             if (CollectionsUtil.isDefined(defaultActiveFilter)) {

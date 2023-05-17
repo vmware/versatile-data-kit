@@ -58,12 +58,27 @@ export class URLStateManager {
     }
 
     /**
-     * ** Apply current URL state to Browser URl.
+     * ** Replace current URL state to Browser URL.
+     */
+    replaceToUrl(): void {
+        const browserCurrUrl = window.location.href;
+
+        if (browserCurrUrl.endsWith(encodeURI(this.URL))) {
+            return;
+        }
+
+        this.isParamsStateMutated = false;
+
+        this.urlLocation.replaceState(this.URL);
+    }
+
+    /**
+     * ** Apply current URL state to Browser URL.
      */
     locationToURL(): void {
         const browserCurrUrl = window.location.href;
 
-        if (browserCurrUrl.endsWith(this.URL)) {
+        if (browserCurrUrl.endsWith(encodeURI(this.URL))) {
             return;
         }
 
@@ -78,7 +93,7 @@ export class URLStateManager {
     navigateToUrl(): Promise<boolean> {
         const browserCurrUrl = window.location.href;
 
-        if (browserCurrUrl.endsWith(this.URL)) {
+        if (browserCurrUrl.endsWith(encodeURI(this.URL))) {
             return Promise.resolve(false);
         }
 
@@ -236,6 +251,13 @@ export class URLStateManager {
         }
 
         return null;
+    }
+
+    /**
+     * ** Change Base url.
+     */
+    changeBaseUrl(baseUrl: string): void {
+        this.baseURL = baseUrl;
     }
 
     private getSortedByPosition(values: Map<string, StateManagerParamValue>): StateManagerParamValue[] {
