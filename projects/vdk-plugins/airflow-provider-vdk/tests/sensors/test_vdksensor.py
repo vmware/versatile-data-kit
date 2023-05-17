@@ -9,7 +9,7 @@ from vdk_provider.hooks.vdk import VDKJobExecutionException
 from vdk_provider.sensors.vdk import VDKSensor
 
 
-class DummyResponse:
+class DummyLogsResponse:
     status = 200
     data = b"ddf"
     def getheader(self, str):
@@ -68,7 +68,7 @@ class TestVDKSensor(TestCase):
         mock_get_job_execution_status.return_value = DataJobExecution(
             status="succeeded"
         )
-        mock_request.return_value = DummyResponse()
+        mock_request.return_value = DummyLogsResponse()
 
         self.assertEqual(self.sensor.poke(context={}), True)
         mock_access_token.assert_called_once()
@@ -116,7 +116,7 @@ class TestVDKSensor(TestCase):
             status="user_error"
         )
 
-        mock_request.return_value = DummyResponse()
+        mock_request.return_value = DummyLogsResponse()
 
         with self.assertRaises(VDKJobExecutionException) as e:
             self.sensor.poke(context={})
@@ -138,7 +138,7 @@ class TestVDKSensor(TestCase):
             status="platform_error"
         )
 
-        mock_request.return_value = DummyResponse()
+        mock_request.return_value = DummyLogsResponse()
 
         with self.assertRaises(VDKJobExecutionException) as e:
             self.sensor.poke(context={})
