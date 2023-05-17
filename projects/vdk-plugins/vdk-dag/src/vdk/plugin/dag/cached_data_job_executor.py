@@ -152,7 +152,7 @@ class TrackingDataJobExecutor:
         """
         details = self._executor.details_job(job_name, team_name, execution_id)
         log.debug(f"Job execution type: {details.get('type')}")
-        return details.get("type")
+        return details.get("type", "manual")
 
     def get_finished_job_names(self):
         """

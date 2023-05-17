@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
+import re
 import time
 from datetime import date
 from datetime import datetime
@@ -57,7 +58,7 @@ dummy_config = DummyDAGPluginConfiguration()
 
 
 class TestDAG:
-    def _prepare(self):
+    def _prepare(self, dag_job_name=None):
         rest_api_url = self.httpserver.url_for("")
         team_name = "team-awesome"
         if self.jobs is None:
@@ -122,6 +123,45 @@ class TestDAG:
                 exec_handler(job_name, job_status, execution_duration)
             )
 
+            class MatchExecutionID:
+                def __eq__(self, other):
+                    return (
+                        re.match(
+                            r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-\d+$",
+                            other.split("/")[-1],
+                        )
+                        is not None
+                    )
+
+            def exec_id_handler(job_name):
+                def _handler_fn(r: Request):
+                    execution: DataJobExecution = DataJobExecution(
+                        id=job_name,
+                        job_name=job_name,
+                        logs_url="http://url",
+                        deployment=DataJobDeployment(),
+                        start_time="2021-09-24T14:14:03.922Z",
+                        status="succeeded",
+                        message="foo",
+                        started_by="manual/" + dag_job_name,
+                    )
+                    response_data = json.dumps(
+                        execution.to_dict(), indent=4, default=json_serial
+                    )
+                    return Response(
+                        response_data,
+                        status=200,
+                        headers=None,
+                        content_type="application/json",
+                    )
+
+                return _handler_fn
+
+            self.httpserver.expect_request(
+                uri=MatchExecutionID(),
+                method="GET",
+            ).respond_with_handler(exec_id_handler(job_name))
+
             def exec_list_handler(job_name):
                 def _handler_fn(r: Request):
                     execution: DataJobExecution = DataJobExecution(
@@ -152,11 +192,11 @@ class TestDAG:
 
         return rest_api_url
 
-    def _set_up(self, jobs=None, additional_env_vars=None):
+    def _set_up(self, jobs=None, additional_env_vars=None, dag_job_name=None):
         self.httpserver = PluginHTTPServer()
         self.httpserver.start()
         self.jobs = jobs
-        self.api_url = self._prepare()
+        self.api_url = self._prepare(dag_job_name)
         self.env_vars = {"VDK_CONTROL_SERVICE_REST_API_URL": self.api_url}
         if additional_env_vars is not None:
             self.env_vars.update(additional_env_vars)
@@ -311,7 +351,6 @@ class TestDAG:
             assert len(self.httpserver.log) == 21
             self.httpserver.stop()
 
-    """
     def test_dag_concurrent_running_jobs_limit(self):
         jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
 
@@ -320,7 +359,13 @@ class TestDAG:
         dummy_config.dags_delayed_jobs_randomized_added_delay_seconds_value = 1
         dummy_config.dags_time_between_status_check_seconds_value = 1
 
-        self._set_up(jobs, [])
+        env_vars = {
+            "VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS": "2",
+            "VDK_DAGS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
+            "VDK_DAGS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
+            "VDK_DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS_VALUE": "1",
+        }
+        self._set_up(jobs, env_vars, "dag-exceed-limit")
         with mock.patch.dict(
             os.environ,
             self.env_vars,
@@ -350,7 +395,6 @@ class TestDAG:
             # assert that all the jobs finished successfully
             assert len(running_jobs) == 0
             self.httpserver.stop()
-    """
 
     def _test_dag_validation(self, dag_name):
         self._set_up()
