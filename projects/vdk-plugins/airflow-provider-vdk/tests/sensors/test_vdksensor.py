@@ -12,8 +12,10 @@ from vdk_provider.sensors.vdk import VDKSensor
 class DummyLogsResponse:
     status = 200
     data = b"ddf"
+
     def getheader(self, str):
         return "json"
+
 
 @mock.patch.dict(
     "os.environ", AIRFLOW_CONN_TEST_CONN_ID="http://https%3A%2F%2Fwww.vdk-endpoint.org"

@@ -16,11 +16,14 @@ class PatchedAuth(Authentication):
     def read_access_token(self) -> str:
         return "test1token"
 
+
 class DummyStatusResponse:
     status = 200
     data = b"ddf"
+
     def getheader(self, str):
         return "json"
+
 
 class TestVDKHook(unittest.TestCase):
     @mock.patch.dict(
@@ -51,8 +54,6 @@ class TestVDKHook(unittest.TestCase):
                 "deployment_id": "production",
             }
         )
-
-
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
     def test_cancel_job_execution(self, mocked_api_client_request):
