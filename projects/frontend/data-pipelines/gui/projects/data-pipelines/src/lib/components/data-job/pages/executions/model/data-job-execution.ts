@@ -3,13 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { DatePipe } from '@angular/common';
+
 import { FormatDeltaPipe } from '../../../../../shared/pipes';
 
-import { DataJobExecution, DataJobExecutions, DataJobExecutionStatus } from '../../../../../model';
+import { DATA_PIPELINES_DATE_TIME_FORMAT, DataJobExecution, DataJobExecutions, DataJobExecutionStatus } from '../../../../../model';
 
 export interface GridDataJobExecution extends DataJobExecution {
     duration: string;
     jobVersion: string;
+    startTimeFormatted: string;
+    endTimeFormatted: string;
 }
 
 export class DataJobExecutionToGridDataJobExecution {
@@ -29,29 +33,37 @@ export class DataJobExecutionToGridDataJobExecution {
         }
     }
 
-    static convertToDataJobExecution = (dataJobExecution: DataJobExecutions): GridDataJobExecution[] => {
-        const formatDeltaPipe = new FormatDeltaPipe();
+    static convertToDataJobExecution(datePipe: DatePipe) {
+        return (dataJobExecution: DataJobExecutions): GridDataJobExecution[] => {
+            const formatDeltaPipe = new FormatDeltaPipe();
 
-        return dataJobExecution.reduce((accumulator, execution) => {
-            accumulator.push({
-                status: DataJobExecutionToGridDataJobExecution.convertStatus(execution.status, execution.message),
-                type: execution.type,
-                duration: formatDeltaPipe.transform(execution),
-                startTime: execution.startTime,
-                endTime: execution.endTime ? execution.endTime : null,
-                logsUrl: execution.logsUrl,
-                startedBy: execution.startedBy,
-                id: execution.id,
-                jobName: execution.jobName,
-                opId: execution.opId,
-                jobVersion: execution.deployment.jobVersion,
-                deployment: execution.deployment,
-                message: execution.message
-            });
+            return dataJobExecution.reduce((accumulator, execution) => {
+                accumulator.push({
+                    status: DataJobExecutionToGridDataJobExecution.convertStatus(execution.status, execution.message),
+                    type: execution.type,
+                    duration: formatDeltaPipe.transform(execution),
+                    startTime: execution.startTime,
+                    startTimeFormatted: execution.startTime
+                        ? datePipe.transform(execution.startTime, DATA_PIPELINES_DATE_TIME_FORMAT, 'UTC')
+                        : '',
+                    endTime: execution.endTime ? execution.endTime : null,
+                    endTimeFormatted: execution.endTime
+                        ? datePipe.transform(execution.endTime, DATA_PIPELINES_DATE_TIME_FORMAT, 'UTC')
+                        : '',
+                    logsUrl: execution.logsUrl,
+                    startedBy: execution.startedBy,
+                    id: execution.id,
+                    jobName: execution.jobName,
+                    opId: execution.opId,
+                    jobVersion: execution.deployment.jobVersion,
+                    deployment: execution.deployment,
+                    message: execution.message
+                });
 
-            return accumulator;
-        }, [] as GridDataJobExecution[]);
-    };
+                return accumulator;
+            }, [] as GridDataJobExecution[]);
+        };
+    }
 
     static getStatusColorsMap() {
         return {

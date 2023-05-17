@@ -233,11 +233,14 @@ describe(
                 dataJobExecutionsPage
                     .getCurrentUrlNormalized({
                         includePathSegment: true,
-                        includeQueryString: true
+                        includeQueryString: true,
+                        decodeQueryString: true
                     })
                     .should('deep.equal', {
                         pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
-                        queryParams: {}
+                        queryParams: {
+                            sort: '{"startTime":-1}'
+                        }
                     });
 
                 dataJobExecutionsPage
@@ -307,7 +310,7 @@ describe(
             });
 
             describe('DataGrid Filters', () => {
-                it('should verify status filter options are rendered', () => {
+                it('should verify status filter options are rendered and behaves correctly', () => {
                     const dataJobExecutionsPage =
                         DataJobManageExecutionsPage.navigateTo(
                             longLivedFailingJobFixture.team,
@@ -343,9 +346,93 @@ describe(
                     dataJobExecutionsPage
                         .getDataGridPopupFilter()
                         .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open status filter and select all available values and close the filter
+                    dataJobExecutionsPage.openStatusFilter();
+                    dataJobExecutionsPage.filterByStatus('user_error');
+                    dataJobExecutionsPage.filterByStatus('platform_error');
+                    dataJobExecutionsPage.filterByStatus('succeeded');
+                    dataJobExecutionsPage.filterByStatus('running');
+                    dataJobExecutionsPage.filterByStatus('skipped');
+                    dataJobExecutionsPage.filterByStatus('submitted');
+                    dataJobExecutionsPage.filterByStatus('cancelled');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify current URL has appended all execution statuses and sort by status ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"status":"user_error,platform_error,succeeded,running,skipped,submitted,cancelled"}'
+                            }
+                        });
+
+                    // open status filter and unselect statuses: platform_error, skipped, submitted, cancelled and close the filter
+                    dataJobExecutionsPage.openStatusFilter();
+                    dataJobExecutionsPage.clearFilterByStatus('platform_error');
+                    dataJobExecutionsPage.clearFilterByStatus('skipped');
+                    dataJobExecutionsPage.clearFilterByStatus('submitted');
+                    dataJobExecutionsPage.clearFilterByStatus('cancelled');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify current URL has appended execution statuses user_error, succeeded, running and sort by status ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"status":"user_error,succeeded,running"}'
+                            }
+                        });
+
+                    // open status filter and unselect left statuses and close the filter
+                    dataJobExecutionsPage.openStatusFilter();
+                    dataJobExecutionsPage.clearFilterByStatus('user_error');
+                    dataJobExecutionsPage.clearFilterByStatus('succeeded');
+                    dataJobExecutionsPage.clearFilterByStatus('running');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify current URL has appended only sort by status descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
                 });
 
-                it('should verify type filter options are rendered', () => {
+                it('should verify type filter options are rendered and behaves correctly', () => {
                     const dataJobExecutionsPage =
                         DataJobManageExecutionsPage.navigateTo(
                             longLivedFailingJobFixture.team,
@@ -360,11 +447,13 @@ describe(
                         .getDataGridPopupFilter()
                         .should('exist');
                     dataJobExecutionsPage
-                        .getDataGridExecTypeFilters()
-                        .then((elements) =>
-                            Array.from(elements).map((el) => el.innerText)
-                        )
-                        .should('deep.equal', ['Manual', 'Scheduled']);
+                        .getDataGridExecTypeFilterLabel('manual')
+                        .should('exist')
+                        .should('have.text', 'Manual');
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeFilterLabel('scheduled')
+                        .should('exist')
+                        .should('have.text', 'Scheduled');
 
                     // close type filter
                     dataJobExecutionsPage.closeFilter();
@@ -373,9 +462,101 @@ describe(
                     dataJobExecutionsPage
                         .getDataGridPopupFilter()
                         .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open type filter and select manual execution trigger and close
+                    dataJobExecutionsPage.openTypeFilter();
+                    dataJobExecutionsPage.filterByType('manual');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify cell elements
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('scheduled')
+                        .should('have.length', 0);
+
+                    // verify current URL has appended manual execution trigger and sort by type ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"type":"manual"}'
+                            }
+                        });
+
+                    // open type filter and select scheduled execution trigger and close
+                    dataJobExecutionsPage.openTypeFilter();
+                    dataJobExecutionsPage.filterByType('scheduled');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify cell elements
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('manual')
+                        .should('have.length', 0);
+
+                    // verify current URL has appended manual and scheduled execution trigger and sort by type ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"type":"manual,scheduled"}'
+                            }
+                        });
+
+                    // open type filter and unselect scheduled and manual execution triggers and close filter
+                    dataJobExecutionsPage.openTypeFilter();
+                    dataJobExecutionsPage.clearFilterByType('scheduled');
+                    dataJobExecutionsPage.clearFilterByType('manual');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify cell elements
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('manual')
+                        .should('have.length.gte', 0);
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('scheduled')
+                        .should('have.length.gte', 0);
+
+                    // verify current URL has appended only sort by type descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
                 });
 
-                it('should verify id filter render input and filters correctly', () => {
+                it('should verify duration filter render input and filters correctly', () => {
                     const dataJobExecutionsPage =
                         DataJobManageExecutionsPage.navigateTo(
                             longLivedFailingJobFixture.team,
@@ -386,20 +567,49 @@ describe(
                         .getDataGridRows()
                         .should('have.length.gt', 0);
 
-                    // open id filter
-                    dataJobExecutionsPage.openIDFilter();
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open duration filter
+                    dataJobExecutionsPage.openDurationFilter();
 
                     // verify exist fill with data na verify again
                     dataJobExecutionsPage
                         .getDataGridPopupFilter()
                         .should('exist');
-                    dataJobExecutionsPage.typeToFilterInput('xyxyxy');
+                    dataJobExecutionsPage.typeToTextFilterInput('100s');
                     dataJobExecutionsPage
                         .getDataGridRows()
                         .should('have.length', 0);
 
+                    // verify current URL has appended default sort by startTime descending and new value for id xyxyxy
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"duration":"100s"}'
+                            }
+                        });
+
                     // clear filter and verify
-                    dataJobExecutionsPage.clearFilterInput();
+                    dataJobExecutionsPage.clearTextFilterInput();
                     dataJobExecutionsPage
                         .getDataGridRows()
                         .should('have.length.gt', 0);
@@ -411,6 +621,337 @@ describe(
                     dataJobExecutionsPage
                         .getDataGridPopupFilter()
                         .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+                });
+
+                it('should verify execution start time filter render input and filters correctly', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open exec start time filter
+                    dataJobExecutionsPage.openExecStartFilter();
+
+                    // verify exist fill with data na verify again
+                    dataJobExecutionsPage
+                        .getDataGridPopupFilter()
+                        .should('exist');
+                    dataJobExecutionsPage
+                        .generateExecStartFilterValue()
+                        .then((filterValue) => {
+                            // type generated filter value
+                            dataJobExecutionsPage.typeToTextFilterInput(
+                                filterValue
+                            );
+
+                            // verify only cells that match the value are rendered
+                            dataJobExecutionsPage
+                                .getDataGridExecStartCells()
+                                .then(($cells) => {
+                                    const foundCells = Array.from($cells).map(
+                                        (cell) =>
+                                            new RegExp(`${filterValue}$`).test(
+                                                `${cell.innerText?.trim()}`
+                                            )
+                                    );
+
+                                    return foundCells.length;
+                                })
+                                .should('gt', 0);
+
+                            // verify current URL has appended default sort by startTime descending and new value for startTime ${filterValue}
+                            dataJobExecutionsPage
+                                .getCurrentUrlNormalized({
+                                    includePathSegment: true,
+                                    includeQueryString: true,
+                                    decodeQueryString: true
+                                })
+                                .should('deep.equal', {
+                                    pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                                    queryParams: {
+                                        sort: '{"startTime":-1}',
+                                        filter: `{"startTimeFormatted":"${filterValue}"}`
+                                    }
+                                });
+                        });
+
+                    // clear filter and verify
+                    dataJobExecutionsPage.clearTextFilterInput();
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // close start time filter
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify doesn't exist
+                    dataJobExecutionsPage
+                        .getDataGridPopupFilter()
+                        .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+                });
+
+                it('should verify execution end time filter render input and filters correctly', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open exec end time filter
+                    dataJobExecutionsPage.openExecEndFilter();
+
+                    // verify exist fill with data na verify again
+                    dataJobExecutionsPage
+                        .getDataGridPopupFilter()
+                        .should('exist');
+                    dataJobExecutionsPage
+                        .generateExecEndFilterValue()
+                        .then((filterValue) => {
+                            // type generated filter value
+                            dataJobExecutionsPage.typeToTextFilterInput(
+                                filterValue
+                            );
+
+                            // verify only cells that match the value are rendered
+                            dataJobExecutionsPage
+                                .getDataGridExecEndCells()
+                                .then(($cells) => {
+                                    const foundCells = Array.from($cells).map(
+                                        (cell) =>
+                                            new RegExp(`${filterValue}$`).test(
+                                                `${cell.innerText?.trim()}`
+                                            )
+                                    );
+
+                                    return foundCells.length;
+                                })
+                                .should('gt', 0);
+
+                            // verify current URL has appended default sort by startTime descending and new value for endTime ${filterValue}
+                            dataJobExecutionsPage
+                                .getCurrentUrlNormalized({
+                                    includePathSegment: true,
+                                    includeQueryString: true,
+                                    decodeQueryString: true
+                                })
+                                .should('deep.equal', {
+                                    pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                                    queryParams: {
+                                        sort: '{"startTime":-1}',
+                                        filter: `{"endTimeFormatted":"${filterValue}"}`
+                                    }
+                                });
+                        });
+
+                    // clear filter and verify
+                    dataJobExecutionsPage.clearTextFilterInput();
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // close start time filter
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify doesn't exist
+                    dataJobExecutionsPage
+                        .getDataGridPopupFilter()
+                        .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+                });
+
+                it('should verify execution id filter render input and filters correctly', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open exec ID filter
+                    dataJobExecutionsPage.openIDFilter();
+
+                    // verify exist fill with data na verify again
+                    dataJobExecutionsPage
+                        .getDataGridPopupFilter()
+                        .should('exist');
+                    // type job name as filter value
+                    dataJobExecutionsPage.typeToTextFilterInput(
+                        longLivedFailingJobFixture.job_name
+                    );
+
+                    // verify only cells that match the value are rendered
+                    dataJobExecutionsPage
+                        .getDataGridExecIDCells()
+                        .then(($cells) => {
+                            const foundCells = Array.from($cells).map((cell) =>
+                                new RegExp(
+                                    `^${longLivedFailingJobFixture.job_name}-\d+$`
+                                ).test(`${cell.innerText?.trim()}`)
+                            );
+
+                            return foundCells.length;
+                        })
+                        .should('gt', 0);
+
+                    // verify current URL has appended default sort by startTime descending and new value for endTime ${filterValue}
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: `{"id":"${longLivedFailingJobFixture.job_name}"}`
+                            }
+                        });
+
+                    // clear filter and type random text then verify
+                    dataJobExecutionsPage.clearTextFilterInput();
+                    dataJobExecutionsPage.typeToTextFilterInput('xyxyxy');
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length', 0);
+
+                    // verify current URL has appended default sort by startTime descending and new value for id xyxyxy
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"id":"xyxyxy"}'
+                            }
+                        });
+
+                    // clear filter and verify
+                    dataJobExecutionsPage.clearTextFilterInput();
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // close start time filter
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify doesn't exist
+                    dataJobExecutionsPage
+                        .getDataGridPopupFilter()
+                        .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
                 });
 
                 it('should verify version filter render input and filters correctly', () => {
@@ -424,20 +965,49 @@ describe(
                         .getDataGridRows()
                         .should('have.length.gt', 0);
 
-                    // open versino filter
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open version filter
                     dataJobExecutionsPage.openVersionFilter();
 
                     // verify exist fill with data na verify again
                     dataJobExecutionsPage
                         .getDataGridPopupFilter()
                         .should('exist');
-                    dataJobExecutionsPage.typeToFilterInput('xyxyxy');
+                    dataJobExecutionsPage.typeToTextFilterInput('xyxyxy');
                     dataJobExecutionsPage
                         .getDataGridRows()
                         .should('have.length', 0);
 
+                    // verify current URL has appended default sort by startTime descending and new value for jobVersion xyxyxy
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"jobVersion":"xyxyxy"}'
+                            }
+                        });
+
                     // clear filter and verify
-                    dataJobExecutionsPage.clearFilterInput();
+                    dataJobExecutionsPage.clearTextFilterInput();
                     dataJobExecutionsPage
                         .getDataGridRows()
                         .should('have.length.gt', 0);
@@ -449,10 +1019,200 @@ describe(
                     dataJobExecutionsPage
                         .getDataGridPopupFilter()
                         .should('not.exist');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
                 });
             });
 
             describe('DataGrid Sort', () => {
+                it('should verify status sort behaves correctly', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecStatusHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'none');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by status ascending
+                    dataJobExecutionsPage.sortByExecStatus();
+
+                    // verify sort by status is ascending
+                    dataJobExecutionsPage
+                        .getDataGridExecStatusHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'ascending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended sort by status ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"status":1}'
+                            }
+                        });
+
+                    // sort by status descending
+                    dataJobExecutionsPage.sortByExecStatus();
+
+                    // verify sort by status is descending
+                    dataJobExecutionsPage
+                        .getDataGridExecStatusHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'descending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended sort by status descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"status":-1}'
+                            }
+                        });
+                });
+
+                it('should verify type sort behaves correctly', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'none');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by type ascending
+                    dataJobExecutionsPage.sortByExecType();
+
+                    // verify sort is ascending
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'ascending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended sort by type ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"type":1}'
+                            }
+                        });
+
+                    // sort by type descending
+                    dataJobExecutionsPage.sortByExecType();
+
+                    // verify sort is descending
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'descending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    // verify current URL has appended sort by type descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"type":-1}'
+                            }
+                        });
+                });
+
                 it('should verify duration sort works', () => {
                     const dataJobExecutionsPage =
                         DataJobManageExecutionsPage.navigateTo(
@@ -470,6 +1230,21 @@ describe(
                         .invoke('attr', 'aria-sort')
                         .should('eq', 'none');
 
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by duration ascending
                     dataJobExecutionsPage.sortByExecDuration();
 
                     dataJobExecutionsPage
@@ -504,6 +1279,21 @@ describe(
                         })
                         .should('be.lte', 0);
 
+                    // verify current URL has appended sort by duration ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"duration":1}'
+                            }
+                        });
+
+                    // sort by duration descending
                     dataJobExecutionsPage.sortByExecDuration();
 
                     dataJobExecutionsPage
@@ -537,9 +1327,23 @@ describe(
                                 });
                         })
                         .should('be.gte', 0);
+
+                    // verify current URL has appended sort by duration descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"duration":-1}'
+                            }
+                        });
                 });
 
-                it('should verify execution start sort works', () => {
+                it('should verify execution start time sort works', () => {
                     const dataJobExecutionsPage =
                         DataJobManageExecutionsPage.navigateTo(
                             longLivedFailingJobFixture.team,
@@ -573,6 +1377,21 @@ describe(
                         })
                         .should('be.gte', 0);
 
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by exec start ascending
                     dataJobExecutionsPage.sortByExecStart();
 
                     dataJobExecutionsPage
@@ -601,9 +1420,23 @@ describe(
                                 });
                         })
                         .should('be.lte', 0);
+
+                    // verify current URL has appended sort by duration ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":1}'
+                            }
+                        });
                 });
 
-                it('should verify execution end sort works', () => {
+                it('should verify execution end time sort works', () => {
                     const dataJobExecutionsPage =
                         DataJobManageExecutionsPage.navigateTo(
                             longLivedFailingJobFixture.team,
@@ -620,6 +1453,21 @@ describe(
                         .invoke('attr', 'aria-sort')
                         .should('eq', 'none');
 
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by exec end ascending
                     dataJobExecutionsPage.sortByExecEnd();
 
                     dataJobExecutionsPage
@@ -654,6 +1502,21 @@ describe(
                         })
                         .should('be.lte', 0);
 
+                    // verify current URL has appended sort by endTime ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"endTime":1}'
+                            }
+                        });
+
+                    // sort by exec end time descending
                     dataJobExecutionsPage.sortByExecEnd();
 
                     dataJobExecutionsPage
@@ -687,6 +1550,600 @@ describe(
                                 });
                         })
                         .should('be.gte', 0);
+
+                    // verify current URL has appended sort by endTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"endTime":-1}'
+                            }
+                        });
+                });
+
+                it('should verify execution ID sort works', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecIDHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'none');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by ID ascending
+                    dataJobExecutionsPage.sortByExecID();
+
+                    dataJobExecutionsPage
+                        .getDataGridExecIDHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'ascending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecIDCell(1)
+                        .invoke('text')
+                        .invoke('trim')
+                        .then((elText1) => {
+                            return dataJobExecutionsPage
+                                .getDataGridExecIDCell(2)
+                                .invoke('text')
+                                .invoke('trim')
+                                .then((elText2) => {
+                                    return elText2 > elText1;
+                                });
+                        })
+                        .should('be.true');
+
+                    // verify current URL has appended sort by id ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"id":1}'
+                            }
+                        });
+
+                    // sort by ID descending
+                    dataJobExecutionsPage.sortByExecID();
+
+                    dataJobExecutionsPage
+                        .getDataGridExecIDHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'descending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecIDCell(1)
+                        .invoke('text')
+                        .invoke('trim')
+                        .then((elText1) => {
+                            return dataJobExecutionsPage
+                                .getDataGridExecIDCell(2)
+                                .invoke('text')
+                                .invoke('trim')
+                                .then((elText2) => {
+                                    return elText1 > elText2;
+                                });
+                        })
+                        .should('be.true');
+
+                    // verify current URL has appended sort by id descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"id":-1}'
+                            }
+                        });
+                });
+
+                it('should verify execution version sort works', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecVersionHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'none');
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // sort by version ascending
+                    dataJobExecutionsPage.sortByExecVersion();
+
+                    dataJobExecutionsPage
+                        .getDataGridExecVersionHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'ascending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecVersionCell(1)
+                        .invoke('text')
+                        .invoke('trim')
+                        .then((elText1) => {
+                            return dataJobExecutionsPage
+                                .getDataGridExecVersionCell(2)
+                                .invoke('text')
+                                .invoke('trim')
+                                .then((elText2) => {
+                                    return elText2 >= elText1;
+                                });
+                        })
+                        .should('be.true');
+
+                    // verify current URL has appended sort by job version ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"jobVersion":1}'
+                            }
+                        });
+
+                    // sort by version descending
+                    dataJobExecutionsPage.sortByExecVersion();
+
+                    dataJobExecutionsPage
+                        .getDataGridExecVersionHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'descending');
+
+                    dataJobExecutionsPage
+                        .getDataGridRows()
+                        .should('have.length.gt', 0);
+
+                    dataJobExecutionsPage
+                        .getDataGridExecVersionCell(1)
+                        .invoke('text')
+                        .invoke('trim')
+                        .then((elText1) => {
+                            return dataJobExecutionsPage
+                                .getDataGridExecVersionCell(2)
+                                .invoke('text')
+                                .invoke('trim')
+                                .then((elText2) => {
+                                    return elText1 >= elText2;
+                                });
+                        })
+                        .should('be.true');
+
+                    // verify current URL has appended sort by job version descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"jobVersion":-1}'
+                            }
+                        });
+                });
+            });
+
+            // !!! important tests order is very important, because generated url from 1st test is used in the second
+            describe('DataGrid Filters and Sort to URL', () => {
+                // value is assigned at the end of the 1st test and used in the 2nd test
+                let navigationUrlWithFiltersAndSort = '';
+
+                it('should verify multiple filters and sort are appended to URL', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateTo(
+                            longLivedFailingJobFixture.team,
+                            longLivedFailingJobFixture.job_name
+                        );
+
+                    // verify current URL has appended default sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}'
+                            }
+                        });
+
+                    // open status filter and select user_error and close the filter
+                    dataJobExecutionsPage.openStatusFilter();
+                    dataJobExecutionsPage.filterByStatus('user_error');
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify current URL has appended filters execution status: user_error and sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"status":"user_error"}'
+                            }
+                        });
+
+                    // open type filter and select manual execution trigger and close
+                    dataJobExecutionsPage.openTypeFilter();
+                    dataJobExecutionsPage.filterByType('manual');
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('scheduled')
+                        .should('have.length', 0);
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify current URL has appended filters execution status: user_error, trigger type: manual, and sort by startTime descending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"startTime":-1}',
+                                filter: '{"status":"user_error","type":"manual"}'
+                            }
+                        });
+
+                    // sort by exec ID ascending
+                    dataJobExecutionsPage.sortByExecID();
+
+                    // open exec ID filter
+                    dataJobExecutionsPage.openIDFilter();
+                    // type job name as filter value
+                    dataJobExecutionsPage.typeToTextFilterInput(
+                        longLivedFailingJobFixture.job_name
+                    );
+                    // verify only cells that match the value are rendered
+                    dataJobExecutionsPage
+                        .getDataGridExecIDCells()
+                        .then(($cells) => {
+                            const foundCells = Array.from($cells).map((cell) =>
+                                new RegExp(
+                                    `^${longLivedFailingJobFixture.job_name}-\d+$`
+                                ).test(`${cell.innerText?.trim()}`)
+                            );
+
+                            return foundCells.length;
+                        })
+                        .should('gt', 0);
+                    // verify current URL has appended filters execution status: user_error, trigger type: manual, id: long_lived_job_name and sort by id ascending
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .should('deep.equal', {
+                            pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                            queryParams: {
+                                sort: '{"id":1}',
+                                filter: `{"status":"user_error","type":"manual","id":"${longLivedFailingJobFixture.job_name}"}`
+                            }
+                        });
+
+                    // open exec start time filter and type generated filterValue and close
+                    dataJobExecutionsPage.openExecStartFilter();
+                    dataJobExecutionsPage
+                        .generateExecStartFilterValue()
+                        .then((filterValue) => {
+                            // type generated filter value
+                            dataJobExecutionsPage.typeToTextFilterInput(
+                                filterValue
+                            );
+
+                            // verify only cells that match the value are rendered
+                            dataJobExecutionsPage
+                                .getDataGridExecStartCells()
+                                .then(($cells) => {
+                                    const foundCells = Array.from($cells).map(
+                                        (cell) =>
+                                            new RegExp(`${filterValue}$`).test(
+                                                `${cell.innerText?.trim()}`
+                                            )
+                                    );
+
+                                    return foundCells.length;
+                                })
+                                .should('gt', 0);
+
+                            // verify current URL has appended filters execution status: user_error, trigger type: manual, id: long_lived_job_name, startTimeFormatted: ${filterValue} and sort by id ascending
+                            dataJobExecutionsPage
+                                .getCurrentUrlNormalized({
+                                    includePathSegment: true,
+                                    includeQueryString: true,
+                                    decodeQueryString: true
+                                })
+                                .should('deep.equal', {
+                                    pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                                    queryParams: {
+                                        sort: '{"id":1}',
+                                        filter: `{"status":"user_error","type":"manual","id":"${longLivedFailingJobFixture.job_name}","startTimeFormatted":"${filterValue}"}`
+                                    }
+                                });
+                        });
+                    dataJobExecutionsPage.closeFilter();
+
+                    // open exec end time filter and type generated filterValue and close
+                    dataJobExecutionsPage.openExecEndFilter();
+                    dataJobExecutionsPage
+                        .generateExecEndFilterValue()
+                        .then((filterValue) => {
+                            // type generated filter value
+                            dataJobExecutionsPage.typeToTextFilterInput(
+                                filterValue
+                            );
+
+                            // verify only cells that match the value are rendered
+                            dataJobExecutionsPage
+                                .getDataGridExecEndCells()
+                                .then(($cells) => {
+                                    const foundCells = Array.from($cells).map(
+                                        (cell) =>
+                                            new RegExp(`${filterValue}$`).test(
+                                                `${cell.innerText?.trim()}`
+                                            )
+                                    );
+
+                                    return foundCells.length;
+                                })
+                                .should('gt', 0);
+
+                            // verify current URL has appended filters execution status: user_error, trigger type: manual, id: long_lived_job_name, startTimeFormatted: ${filterValue}, endTimeFormatted: ${filterValue} and sort by id ascending
+                            dataJobExecutionsPage
+                                .getCurrentUrlNormalized({
+                                    includePathSegment: true,
+                                    includeQueryString: true,
+                                    decodeQueryString: true
+                                })
+                                .should('deep.equal', {
+                                    pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                                    queryParams: {
+                                        sort: '{"id":1}',
+                                        filter: `{"status":"user_error","type":"manual","id":"${longLivedFailingJobFixture.job_name}","startTimeFormatted":"${filterValue}","endTimeFormatted":"${filterValue}"}`
+                                    }
+                                });
+                        });
+                    dataJobExecutionsPage.closeFilter();
+
+                    // extract current url for next test
+                    dataJobExecutionsPage
+                        .getCurrentUrlNormalized({
+                            includePathSegment: true,
+                            includeQueryString: true,
+                            decodeQueryString: true
+                        })
+                        .then((urlNormalized) => {
+                            const pathSegment = urlNormalized.pathSegment;
+                            const queryParamsSerialized = Object.entries(
+                                urlNormalized.queryParams
+                            )
+                                .map((keyValuePair) => keyValuePair.join('='))
+                                .join('&');
+                            navigationUrlWithFiltersAndSort = `${pathSegment}?${queryParamsSerialized}`;
+
+                            cy.log(navigationUrlWithFiltersAndSort);
+                            console.log(navigationUrlWithFiltersAndSort);
+                        });
+                });
+
+                it('should verify URL navigation with filters and sort will prefill everything and filter accordingly', () => {
+                    const dataJobExecutionsPage =
+                        DataJobManageExecutionsPage.navigateToExecutionsWithUrl(
+                            navigationUrlWithFiltersAndSort
+                        );
+
+                    // open status filter, verify then close
+                    dataJobExecutionsPage.openStatusFilter();
+                    dataJobExecutionsPage
+                        .getDataGridExecStatusFilterCheckboxesStatuses()
+                        .should('deep.equal', [
+                            ['succeeded', false],
+                            ['platform_error', false],
+                            ['user_error', true],
+                            ['running', false],
+                            ['submitted', false],
+                            ['skipped', false],
+                            ['cancelled', false]
+                        ]);
+                    dataJobExecutionsPage.closeFilter();
+
+                    // open type filter, verify then close
+                    dataJobExecutionsPage.openTypeFilter();
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeFilterCheckboxesStatuses()
+                        .should('deep.equal', [
+                            ['manual', true],
+                            ['scheduled', false]
+                        ]);
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('scheduled')
+                        .should('have.length', 0);
+                    dataJobExecutionsPage.closeFilter();
+
+                    // verify sort by id ascending
+                    dataJobExecutionsPage
+                        .getDataGridExecIDHeader()
+                        .should('exist')
+                        .invoke('attr', 'aria-sort')
+                        .should('eq', 'ascending');
+                    dataJobExecutionsPage
+                        .getDataGridExecIDCell(1)
+                        .invoke('text')
+                        .invoke('trim')
+                        .then((elText1) => {
+                            return dataJobExecutionsPage
+                                .getDataGridExecIDCell(2)
+                                .invoke('text')
+                                .invoke('trim')
+                                .then((elText2) => {
+                                    return elText2 > elText1;
+                                });
+                        })
+                        .should('be.true');
+
+                    // open id filter, verify then close
+                    dataJobExecutionsPage.openIDFilter();
+                    dataJobExecutionsPage
+                        .getDataGridInputFilter()
+                        .should('exist')
+                        .should(
+                            'have.value',
+                            longLivedFailingJobFixture.job_name
+                        );
+                    // verify only cells that match the value are rendered
+                    dataJobExecutionsPage
+                        .getDataGridExecIDCells()
+                        .then(($cells) => {
+                            const foundCells = Array.from($cells).map((cell) =>
+                                new RegExp(
+                                    `^${longLivedFailingJobFixture.job_name}-\d+$`
+                                ).test(`${cell.innerText?.trim()}`)
+                            );
+
+                            return foundCells.length;
+                        })
+                        .should('gt', 0);
+                    dataJobExecutionsPage.closeFilter();
+
+                    // open exec start time filter, verify then close
+                    dataJobExecutionsPage.openExecStartFilter();
+                    dataJobExecutionsPage
+                        .generateExecStartFilterValue()
+                        .then((filterValue) => {
+                            // verify generated value prefilled in input field
+                            dataJobExecutionsPage
+                                .getDataGridInputFilter()
+                                .should('exist')
+                                .should('have.value', filterValue);
+
+                            // verify only cells that match the value are rendered
+                            dataJobExecutionsPage
+                                .getDataGridExecStartCells()
+                                .then(($cells) => {
+                                    const foundCells = Array.from($cells).map(
+                                        (cell) =>
+                                            new RegExp(`${filterValue}$`).test(
+                                                `${cell.innerText?.trim()}`
+                                            )
+                                    );
+
+                                    return foundCells.length;
+                                })
+                                .should('gt', 0);
+                        });
+                    dataJobExecutionsPage.closeFilter();
+
+                    // open exec end time filter, verify then close
+                    dataJobExecutionsPage.openExecEndFilter();
+                    dataJobExecutionsPage
+                        .generateExecEndFilterValue()
+                        .then((filterValue) => {
+                            // verify generated value prefilled in input field
+                            dataJobExecutionsPage
+                                .getDataGridInputFilter()
+                                .should('exist')
+                                .should('have.value', filterValue);
+
+                            // verify only cells that match the value are rendered
+                            dataJobExecutionsPage
+                                .getDataGridExecEndCells()
+                                .then(($cells) => {
+                                    const foundCells = Array.from($cells).map(
+                                        (cell) =>
+                                            new RegExp(`${filterValue}$`).test(
+                                                `${cell.innerText?.trim()}`
+                                            )
+                                    );
+
+                                    return foundCells.length;
+                                })
+                                .should('gt', 0);
+                        });
+                    dataJobExecutionsPage.closeFilter();
                 });
             });
         });

@@ -60,8 +60,7 @@
         <clr-dg-cell
             class="time-column"
             data-cy="data-pipelines-job-executions-widget-end-cell"
-            >{{ jobExecution.endTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
-            }}</clr-dg-cell
+            >{{ jobExecution.endTimeFormatted }}</clr-dg-cell
         >
     </clr-dg-row>
 </clr-datagrid>

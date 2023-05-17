@@ -407,6 +407,7 @@ export abstract class DataJobsBaseGridComponent
             this.loadDataDebouncer.pipe(debounceTime(300)).subscribe((handling) => {
                 if (this.isLoadDataAllowed() || handling === 'forced') {
                     this._doLoadData();
+
                     const criteriaFilters = this.model.getComponentState().filter.criteria;
                     criteriaFilters.forEach((pair) => {
                         switch (pair.property) {
@@ -440,6 +441,10 @@ export abstract class DataJobsBaseGridComponent
 
                     this._initializeQuickFilters();
                     this._updateUrlStateManager();
+
+                    if (this.restoreUIStateInProgress) {
+                        this._doUrlUpdate('replaceLocation');
+                    }
                 }
 
                 if (this.isUrlUpdateAllowed() || handling === 'forced') {
@@ -622,12 +627,14 @@ export abstract class DataJobsBaseGridComponent
         this.urlStateManager.setQueryParam('deploymentLastExecStatus', this.gridFilters.deploymentLastExecutionStatus);
     }
 
-    private _doUrlUpdate(): void {
-        if (this.urlUpdateStrategy === 'updateLocation') {
+    private _doUrlUpdate(strategy: 'updateLocation' | 'updateRouter' | 'replaceLocation' = this.urlUpdateStrategy): void {
+        if (strategy === 'updateLocation') {
             this.urlStateManager.locationToURL();
-        } else {
+        } else if (strategy === 'updateRouter') {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.urlStateManager.navigateToUrl().then();
+        } else {
+            this.urlStateManager.replaceToUrl();
         }
     }
 
@@ -701,7 +708,7 @@ export abstract class DataJobsBaseGridComponent
     private _clearFilterPattern(propertyName: string, value: string) {
         switch (propertyName) {
             case 'config.team':
-                return `${value?.slice(1, value.length - 1)}`;
+                return value.startsWith('%') ? `${value?.slice(1, value.length - 1)}` : value;
             case 'deployments.enabled':
                 return `${value}`.replace('_', ' ').toLowerCase();
             case 'jobName':

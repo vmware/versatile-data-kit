@@ -108,11 +108,18 @@ describe('ParseNextRunPipe', () => {
                 if (expected.getUTCHours() === 12 && expected.getUTCMinutes() === 44 && expected.getUTCSeconds() === 59) {
                     lunchTime = true;
                     useTimeout = true;
-                } else if (!((expected.getUTCHours() === 12 && expected.getUTCMinutes() <= 44) || expected.getUTCHours() < 12)) {
+                    expected.setUTCDate(expected.getUTCDate() + 1);
+                } else if (expected.getUTCHours() === 0 && expected.getUTCMinutes() === 44 && expected.getUTCSeconds() === 59) {
+                    useTimeout = true;
+                    expected.setUTCDate(expected.getUTCDate() + 1);
+                } else if (expected.getUTCHours() >= 12 && expected.getUTCMinutes() >= 45) {
                     lunchTime = true;
+                    expected.setUTCDate(expected.getUTCDate() + 1);
+                } else if (expected.getUTCHours() === 0 && expected.getUTCMinutes() < 45) {
+                    lunchTime = true;
+                } else {
+                    expected.setUTCDate(expected.getUTCDate() + 1);
                 }
-
-                expected.setUTCDate(expected.getUTCDate() + 1);
 
                 const y = expected.getUTCFullYear();
                 const _m: number = expected.getUTCMonth() + 1;

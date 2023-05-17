@@ -4,6 +4,7 @@
  */
 
 import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
 import {
@@ -45,7 +46,7 @@ import {
 import { TASK_LOAD_JOB_EXECUTIONS, TASK_LOAD_JOBS_STATE } from '../../../state/tasks';
 import { LOAD_JOB_ERROR_CODES, LOAD_JOBS_ERROR_CODES } from '../../../state/error-codes';
 
-import { DataJobExecutionToGridDataJobExecution } from '../../data-job/pages/executions';
+import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../../data-job/pages/executions';
 
 enum State {
     loading = 'loading',
@@ -57,7 +58,8 @@ enum State {
 @Component({
     selector: 'lib-data-jobs-health-panel',
     templateUrl: './data-jobs-health-panel.component.html',
-    styleUrls: ['./data-jobs-health-panel.component.scss']
+    styleUrls: ['./data-jobs-health-panel.component.scss'],
+    providers: [DatePipe]
 })
 export class DataJobsHealthPanelComponent
     extends TaurusBaseComponent
@@ -74,7 +76,7 @@ export class DataJobsHealthPanelComponent
     teamName: string;
     loading = true;
     dataJobs: DataJob[];
-    jobExecutions: DataJobExecutions;
+    jobExecutions: GridDataJobExecution[] = [];
 
     /**
      * ** Flag that indicates there is jobs executions load error.
@@ -95,6 +97,7 @@ export class DataJobsHealthPanelComponent
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
+        private readonly datePipe: DatePipe,
         @Inject(DATA_PIPELINES_CONFIGS)
         public readonly dataPipelinesModuleConfig: DataPipelinesConfig
     ) {
@@ -168,7 +171,7 @@ export class DataJobsHealthPanelComponent
         if (task === TASK_LOAD_JOB_EXECUTIONS) {
             const executions: DataJobExecutions = model.getComponentState().data.get(JOB_EXECUTIONS_DATA_KEY);
             if (executions) {
-                const remappedExecutions = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution([...executions]);
+                const remappedExecutions = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(this.datePipe)([...executions]);
                 this.jobExecutions = remappedExecutions.filter((ex) => ex.status !== DataJobExecutionStatus.SUCCEEDED);
                 this.loadingExecutions = false;
             }

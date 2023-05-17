@@ -3,10 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { DatePipe } from '@angular/common';
+
+import { TestBed } from '@angular/core/testing';
+
 import { DataJobExecution, DataJobExecutionStatus, DataJobExecutionType } from '../../../../../model';
+
 import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from './data-job-execution';
 
 describe('DataJobExecutionToGridDataJobExecution', () => {
+    let datePipe: { transform: (...args: any[]) => string };
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [DatePipe]
+        });
+
+        datePipe = TestBed.inject(DatePipe);
+    });
+
     describe('Statics::', () => {
         describe('Methods::', () => {
             describe('|convertStatus|', () => {
@@ -36,6 +51,14 @@ describe('DataJobExecutionToGridDataJobExecution', () => {
                 it('should verify will convert object correctly', () => {
                     // Given
                     spyOn(Date, 'now').and.returnValue(1608036156085);
+                    let counter = 0;
+                    spyOn(datePipe, 'transform').and.callFake(() => {
+                        if (++counter % 2 === 1) {
+                            return 'Dec 12, 2020, 10:10:10 AM';
+                        }
+
+                        return 'Dec 12, 2020, 11:11:11 AM';
+                    });
 
                     /* eslint-disable @typescript-eslint/naming-convention */
                     const dataJobExecution: DataJobExecution = {
@@ -72,7 +95,9 @@ describe('DataJobExecutionToGridDataJobExecution', () => {
                         type: DataJobExecutionType.MANUAL,
                         startedBy: 'pmitev',
                         startTime: '2020-12-12T10:10:10Z',
+                        startTimeFormatted: 'Dec 12, 2020, 10:10:10 AM',
                         endTime: '2020-12-12T11:11:11Z',
+                        endTimeFormatted: 'Dec 12, 2020, 11:11:11 AM',
                         duration: '1h 1m',
                         message: 'Platform error',
                         id: '123123123',
@@ -98,7 +123,7 @@ describe('DataJobExecutionToGridDataJobExecution', () => {
                     };
                     /* eslint-enable @typescript-eslint/naming-convention */
 
-                    const convertedJobExecution = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution([
+                    const convertedJobExecution = DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(datePipe as DatePipe)([
                         dataJobExecution,
                         {
                             ...dataJobExecution,
@@ -107,7 +132,15 @@ describe('DataJobExecutionToGridDataJobExecution', () => {
                     ]);
 
                     expect(convertedJobExecution.length).toEqual(2);
-                    expect(convertedJobExecution).toEqual([expectedObject, { ...expectedObject, endTime: null, duration: '3d 2h' }]);
+                    expect(convertedJobExecution).toEqual([
+                        expectedObject,
+                        {
+                            ...expectedObject,
+                            endTimeFormatted: '',
+                            endTime: null,
+                            duration: '3d 2h'
+                        }
+                    ]);
                 });
             });
 
