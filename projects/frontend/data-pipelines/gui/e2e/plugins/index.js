@@ -123,14 +123,16 @@ module.exports = (on, cypressConfig) => {
         /**
          * ** Delete Jobs for provided fixtures paths.
          *
-         * @param {{relativePathToFixtures: Array<{pathToFixture:string;}>}} taskConfig - configuration for task.
+         * @param {{relativePathToFixtures: Array<{pathToFixture:string;}>; optional?: boolean;}} taskConfig - configuration for task.
          *      relativePathToFixtures provides relative paths for fixtures files starting from directory fixtures
+         *      optional if set to true will instruct the plugin to not log console error, if deletion status is different from 2xx, (e.g. 404 or 500)
          *      e.g. {
          *             relativePathToFixtures: [
          *                  {
          *                      pathToFixture: '/base/data-jobs/cy-e2e-vdk/cy-e2e-vdk-failing-v0.json'
          *                  }
-         *             ]
+         *             ],
+         *             optional: true
          *           }
          * @returns {Promise<boolean>}
          */

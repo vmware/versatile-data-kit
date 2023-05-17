@@ -56,6 +56,10 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         return cy.get('[data-cy=data-pipelines-jobs-team-column]');
     }
 
+    getHeaderColumnDescriptionName() {
+        return cy.get('[data-cy=data-pipelines-jobs-description-column]');
+    }
+
     getDataGridJobNameFilter() {
         return this.getHeaderColumnJobName()
             .should('exist')
@@ -78,6 +82,12 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         return this.getHeaderColumnTeamName()
             .should('exist')
             .find('.datagrid-column-title');
+    }
+
+    getDataGridJobDescriptionFilter() {
+        return this.getHeaderColumnDescriptionName()
+            .should('exist')
+            .find('clr-dg-filter button');
     }
 
     getDataGridFilterInput() {
@@ -250,6 +260,18 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         this.getDataGridJobNameFilter().click({ force: true });
 
         this.getDataGridFilterInput().should('be.visible').type(jobName);
+
+        this.getContentContainer().should('be.visible').click({ force: true });
+
+        this.waitForGridDataLoad();
+
+        this.waitForViewToRenderShort();
+    }
+
+    filterByJobDescription(description) {
+        this.getDataGridJobDescriptionFilter().click({ force: true });
+
+        this.getDataGridFilterInput().should('be.visible').type(description);
 
         this.getContentContainer().should('be.visible').click({ force: true });
 

@@ -50,7 +50,7 @@ control_service_build_image:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
-    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
+#    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
   artifacts:
@@ -81,6 +81,8 @@ control_service_integration_test:
     GIT_PASSWORD: $CICD_GIT_PASSWORD
     GIT_USERNAME_READ_WRITE: $CICD_GIT_USER
     GIT_PASSWORD_READ_WRITE: $CICD_GIT_PASSWORD
+    DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID: $DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID
+    DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY: $DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
   script:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal

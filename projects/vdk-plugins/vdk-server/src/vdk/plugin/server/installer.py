@@ -646,6 +646,8 @@ class Installer:
             "--set",
             "deploymentBuilderResourcesDefault.limits.cpu=0",
             "--set",
+            "dataJob.executions.logsUrl.urlTemplate=http://localhost:8092/data-jobs/for-team/{{team_name}}/jobs/{{job_name}}/executions/{{execution_id}}/logs?tail_lines=400",
+            "--set",
             "deploymentBuilderResourcesDefault.requests.cpu=0",
             "--set",
             "deploymentBuilderResourcesDefault.limits.memory=0",

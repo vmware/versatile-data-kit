@@ -4,6 +4,7 @@
  */
 
 import { Component } from '@angular/core';
+import { AppConfigService } from '../app-config.service';
 
 @Component({
     selector: 'app-getting-started',
@@ -11,7 +12,11 @@ import { Component } from '@angular/core';
     styleUrls: ['./getting-started.component.scss']
 })
 export class GettingStartedComponent {
-    constructor() {
+    constructor(private readonly appConfigService: AppConfigService) {
         // No-op.
+    }
+
+    get widgetsVisible(): boolean {
+        return !this.appConfigService.getConfig().ignoreComponents.includes('widgetsComponent');
     }
 }

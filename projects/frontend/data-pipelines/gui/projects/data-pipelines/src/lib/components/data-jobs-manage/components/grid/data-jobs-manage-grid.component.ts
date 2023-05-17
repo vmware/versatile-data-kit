@@ -58,8 +58,6 @@ export class DataJobsManageGridComponent extends DataJobsBaseGridComponent imple
         'deployments.lastExecutionTime': -1
     };
 
-    override quickFiltersDefaultActiveIndex = 1;
-
     dataPipelinesDocumentationUrl: string;
 
     constructor(

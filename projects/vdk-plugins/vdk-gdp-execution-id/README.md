@@ -90,3 +90,7 @@ Run
 ```bash
 pip install -r requirements.txt
 ```
+
+# Example
+
+Find an example data job using `vdk-gdp-execution-id` plugin in [examples/gdp-execution-id-example/](../../../examples/gdp-execution-id-example).

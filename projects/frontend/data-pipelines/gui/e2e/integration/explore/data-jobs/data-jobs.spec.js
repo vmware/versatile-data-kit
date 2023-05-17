@@ -31,7 +31,7 @@ describe(
                 .then(() => DataJobsExplorePage.login())
                 .then(() => cy.saveLocalStorage('data-jobs-explore'))
                 .then(() =>
-                    DataJobsExplorePage.deleteShortLivedTestJobsNoDeploy()
+                    DataJobsExplorePage.deleteShortLivedTestJobsNoDeploy(true)
                 )
                 .then(() =>
                     DataJobsExplorePage.createShortLivedTestJobsNoDeploy()
@@ -183,10 +183,28 @@ describe(
 
                 dataJobsExplorePage = DataJobsExplorePage.navigateTo();
 
+                // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
+                dataJobsExplorePage.filterByJobName(
+                    testJobsFixture[1].job_name.substring(0, 20)
+                );
+
                 dataJobsExplorePage
                     .getDataGridCell(testJobsFixture[1].job_name)
                     .scrollIntoView()
                     .should('be.visible');
+
+                // verify url contains jobName value
+                dataJobsExplorePage
+                    .getCurrentUrl()
+                    .should(
+                        'match',
+                        new RegExp(
+                            `\\/explore\\/data-jobs\\?jobName=${testJobsFixture[1].job_name.substring(
+                                0,
+                                20
+                            )}$`
+                        )
+                    );
 
                 dataJobsExplorePage.searchByJobName(
                     testJobsFixture[0].job_name
@@ -206,6 +224,11 @@ describe(
                 cy.log('Fixture for name: ' + testJobsFixture[0].job_name);
 
                 dataJobsExplorePage = DataJobsExplorePage.navigateTo();
+
+                // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
+                dataJobsExplorePage.filterByJobName(
+                    testJobsFixture[0].job_name.substring(0, 20)
+                );
 
                 // verify 2 test rows visible
                 dataJobsExplorePage
@@ -237,7 +260,10 @@ describe(
                     .should(
                         'match',
                         new RegExp(
-                            `\\/explore\\/data-jobs\\?search=${testJobsFixture[0].job_name}$`
+                            `\\/explore\\/data-jobs\\?jobName=${testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            )}&search=${testJobsFixture[0].job_name}$`
                         )
                     );
 
@@ -257,7 +283,15 @@ describe(
                 // verify url does not contain search value
                 dataJobsExplorePage
                     .getCurrentUrl()
-                    .should('match', new RegExp(`\\/explore\\/data-jobs$`));
+                    .should(
+                        'match',
+                        new RegExp(
+                            `\\/explore\\/data-jobs\\?jobName=${testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            )}$`
+                        )
+                    );
             });
 
             it('searches data jobs, perform search when URL contains search parameter', () => {
@@ -318,8 +352,101 @@ describe(
                     })
                     .should('deep.equal', {
                         pathSegment: '/explore/data-jobs',
-                        queryParams: {}
+                        queryParams: {
+                            jobName: testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            )
+                        }
                     });
+            });
+
+            it('filter description data jobs', () => {
+                dataJobsExplorePage = DataJobsExplorePage.navigateTo();
+
+                // show panel for show/hide columns
+                dataJobsExplorePage.toggleColumnShowHidePanel();
+
+                // verify column is not checked in toggling menu
+                dataJobsExplorePage
+                    .getDataGridColumnShowHideOption('Description')
+                    .should('exist')
+                    .should('not.be.checked');
+
+                // verify header cell for column is not rendered
+                dataJobsExplorePage
+                    .getDataGridHeaderCell('Description')
+                    .should('have.length', 0);
+
+                // toggle column to render
+                dataJobsExplorePage.checkColumnShowHideOption('Description');
+
+                // verify column is checked in toggling menu
+                dataJobsExplorePage
+                    .getHeaderColumnDescriptionName()
+                    .should('exist');
+
+                // filter by job description
+                dataJobsExplorePage.filterByJobDescription(
+                    'Test description 1'
+                );
+
+                // verify url contains description value
+                dataJobsExplorePage
+                    .getCurrentUrl()
+                    .should(
+                        'match',
+                        new RegExp(
+                            `\\/explore\\/data-jobs\\?description=Test%20description%201$`
+                        )
+                    );
+
+                dataJobsExplorePage
+                    .getDataGridCell(testJobsFixture[0].job_name)
+                    .scrollIntoView()
+                    .should('be.visible');
+
+                dataJobsExplorePage
+                    .getDataGridCell(testJobsFixture[1].job_name)
+                    .should('not.exist');
+            });
+
+            it('perform filtering by description when URL contains description parameter', () => {
+                // navigate with description value in URL
+                dataJobsExplorePage = DataJobsExplorePage.navigateToDataJobUrl(
+                    `/explore/data-jobs?description=Test%20description%201`
+                );
+
+                dataJobsExplorePage.waitForGridToLoad(null);
+
+                // show panel for show/hide columns
+                dataJobsExplorePage.toggleColumnShowHidePanel();
+
+                // toggle column to render
+                dataJobsExplorePage.checkColumnShowHideOption('Description');
+
+                // verify url contains description value
+                dataJobsExplorePage
+                    .getCurrentUrlNormalized({
+                        includePathSegment: true,
+                        includeQueryString: true
+                    })
+                    .should('deep.equal', {
+                        pathSegment: '/explore/data-jobs',
+                        queryParams: {
+                            description: 'Test%20description%201'
+                        }
+                    });
+
+                // verify 1 test row visible
+                dataJobsExplorePage
+                    .getDataGridCell(testJobsFixture[0].job_name)
+                    .scrollIntoView()
+                    .should('be.visible');
+
+                dataJobsExplorePage
+                    .getDataGridCell(testJobsFixture[1].job_name)
+                    .should('not.exist');
             });
 
             it('show/hide column when toggling from menu', () => {

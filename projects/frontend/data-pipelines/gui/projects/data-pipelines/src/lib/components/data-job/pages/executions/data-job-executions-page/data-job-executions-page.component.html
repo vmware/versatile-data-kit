@@ -4,14 +4,13 @@
   -->
 
 <ng-container *ngIf="!initialLoading">
-    <div
-        *ngIf="minJobExecutionTime || isComponentInErrorState"
-        class="time-filter__container"
-    >
+    <div class="time-filter__container">
         <div>
             <lib-time-period-filter
                 [loading]="loading"
                 [minTime]="minJobExecutionTime"
+                [filtersSortManager]="filtersSortManager"
+                [timePeriod]="filtersSortManager.filterCriteria['timePeriod']"
                 [isComponentInErrorState]="isComponentInErrorState"
                 (filterChanged)="onTimeFilterChange($event)"
             ></lib-time-period-filter>
@@ -51,6 +50,7 @@
                 <lib-data-job-executions-grid
                     [jobExecutions]="jobExecutions"
                     [loading]="loading"
+                    [filtersSortManager]="filtersSortManager"
                 >
                 </lib-data-job-executions-grid>
             </div>

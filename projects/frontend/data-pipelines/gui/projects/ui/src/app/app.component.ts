@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Optional } from '@angular/core';
 
 import { timer } from 'rxjs';
 
@@ -24,34 +24,47 @@ export class AppComponent implements OnInit {
 
     constructor(
         private readonly appConfigService: AppConfigService,
-        private readonly oauthService: OAuthService,
+        @Optional() private readonly oauthService: OAuthService,
         private readonly navigationService: NavigationService,
         private readonly viewContainerRef: ViewContainerRef,
         private readonly dynamicComponentsService: DynamicComponentsService,
         private readonly confirmationService: ConfirmationService,
         private readonly urlOpenerService: UrlOpenerService
     ) {
-        this.oauthService.configure(appConfigService.getAuthCodeFlowConfig());
-        this.oauthService
-            .loadDiscoveryDocumentAndLogin()
-            .then(() => {
-                this.initTokenRefresh();
-            })
-            .catch(() => {
-                // No-op.
-            });
+        if (!this.skipAuth) {
+            this.oauthService.configure(appConfigService.getAuthCodeFlowConfig());
+            this.oauthService
+                .loadDiscoveryDocumentAndLogin()
+                .then(() => {
+                    this.initTokenRefresh();
+                })
+                .catch(() => {
+                    // No-op.
+                });
+        }
     }
 
     logout(): void {
+        if (this.skipAuth) return;
         this.oauthService.logOut();
     }
 
+    get skipAuth(): boolean {
+        return this.appConfigService.getSkipAuth();
+    }
+
     get idToken(): string {
+        if (this.skipAuth) return null;
         return this.oauthService.getIdToken();
     }
 
     get userName(): string {
+        if (this.skipAuth) return null;
         return this.oauthService.getIdentityClaims() ? this.getIdentityClaim('username') : 'N/A';
+    }
+
+    get explorePageVisible(): boolean {
+        return !this.appConfigService.getConfig().ignoreComponents.includes('explorePage');
     }
 
     /**
@@ -65,6 +78,7 @@ export class AppComponent implements OnInit {
     }
 
     private getIdentityClaim(userNamePropName: string): string {
+        if (this.skipAuth) throw Error;
         const identityClaims = this.oauthService.getIdentityClaims() as {
             [key: string]: string;
         };
@@ -73,6 +87,7 @@ export class AppComponent implements OnInit {
     }
 
     private initTokenRefresh() {
+        if (this.skipAuth) throw Error;
         const refreshTokenConfig = this.appConfigService.getRefreshTokenConfig();
         timer(refreshTokenConfig.start, AppComponent.toMillis(refreshTokenConfig.checkInterval)).subscribe(() => {
             const remainiTimeMillis = this.oauthService.getAccessTokenExpiration() - Date.now();
@@ -86,6 +101,7 @@ export class AppComponent implements OnInit {
     }
 
     private setCustomTokenAttributes(redirectToConsole: boolean, defaultOrg: { refLink: string }) {
+        if (this.skipAuth) throw Error;
         const linkOrgQuery = this.getOrgLinkFromQueryParams(defaultOrg);
         const consoleCloudUrl = this.appConfigService.getConfig().auth.consoleCloudUrl;
         this.oauthService.customQueryParams = {
@@ -99,6 +115,7 @@ export class AppComponent implements OnInit {
     }
 
     private getOrgLinkFromQueryParams(defaultOrg: { refLink: string }): string {
+        if (this.skipAuth) throw Error;
         const params = new URLSearchParams(window.location.search);
         const orgLinkUnderscored = params.get('org_link');
         const orgLinkBase = params.get('orgLink');

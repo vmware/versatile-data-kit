@@ -29,6 +29,7 @@ import { AppRouting } from './app.routing';
 import { AppComponent } from './app.component';
 
 import { GettingStartedComponent } from './getting-started/getting-started.component';
+import { Router } from '@angular/router';
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function lottiePlayerLoader() {
@@ -68,7 +69,7 @@ export function lottiePlayerLoader() {
     ],
     declarations: [AppComponent, GettingStartedComponent],
     providers: [
-        { provide: AppConfigService, useClass: AppConfigService, deps: [HttpBackend] },
+        { provide: AppConfigService, useClass: AppConfigService, deps: [HttpBackend, Router] },
         {
             deps: [AppConfigService],
             multi: true,
@@ -80,6 +81,7 @@ export function lottiePlayerLoader() {
             useValue: localStorage
         },
         {
+            deps: [AppConfigService],
             provide: AuthConfig,
             useFactory: (appConfig: AppConfigService) => () => appConfig.getAuthCodeFlowConfig()
         },
@@ -87,10 +89,7 @@ export function lottiePlayerLoader() {
             deps: [AppConfigService],
             provide: OAuthModuleConfig,
             useFactory: (appConfig: AppConfigService) => ({
-                resourceServer: {
-                    allowedUrls: appConfig.getConfig().auth.resourceServer.allowedUrls,
-                    sendAccessToken: appConfig.getConfig().auth.resourceServer.sendAccessToken
-                }
+                resourceServer: appConfig.getConfig().auth.resourceServer
             })
         },
         {

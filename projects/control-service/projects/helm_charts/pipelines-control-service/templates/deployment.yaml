@@ -281,7 +281,7 @@ spec:
             {{- end }}
             {{- if .Values.deploymentSupportedPythonVersions }}
             - name: DATAJOBS_DEPLOYMENT_SUPPORTED_PYTHON_VERSIONS
-              value: {{ toJson .Values.deploymentSupportedPythonVersions }}
+              value: {{ .Values.deploymentSupportedPythonVersions | toJson | quote }}
             {{- end }}
 
 

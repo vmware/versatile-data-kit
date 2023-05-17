@@ -1,5 +1,6 @@
 {
   "auth": {
+    "skipAuth": false,
     "consoleCloudUrl": "https://console-stg.cloud.vmware.com/",
     "orgLinkRoot": "/csp/gateway/am/api/orgs/",
     "authConfig": {
@@ -35,5 +36,7 @@
       "remainingTime": 360,
       "checkInterval": 60
     }
-  }
+  },
+  "ignoreComponents": [],
+  "ignoreRoutes": []
 }
