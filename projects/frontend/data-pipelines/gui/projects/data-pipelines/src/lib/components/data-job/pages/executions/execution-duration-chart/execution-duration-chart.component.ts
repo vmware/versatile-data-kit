@@ -15,7 +15,7 @@ import { CollectionsUtil } from '@versatiledatakit/shared';
 
 import { DateUtil } from '../../../../../shared/utils';
 
-import { DataJobExecutionStatus } from '../../../../../model';
+import { DATA_PIPELINES_DATE_TIME_FORMAT, DataJobExecutionStatus } from '../../../../../model';
 
 import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../model';
 
@@ -190,7 +190,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                                 return (
                                     `Duration: ${context.parsed.y}|${rawValues.status}` +
                                     (rawValues.endTime
-                                        ? `|End: ${formatDate(rawValues.endTime, 'MMM d, y, hh:mm:ss a', 'en-US', 'UTC')}`
+                                        ? `|End: ${formatDate(rawValues.endTime, DATA_PIPELINES_DATE_TIME_FORMAT, 'en-US', 'UTC')}`
                                         : '')
                                 );
                             }

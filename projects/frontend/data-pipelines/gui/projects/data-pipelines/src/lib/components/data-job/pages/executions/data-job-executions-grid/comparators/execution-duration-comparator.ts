@@ -9,6 +9,11 @@ import { GridDataJobExecution } from '../../model/data-job-execution';
 
 export class DataJobExecutionDurationComparator implements ClrDatagridComparatorInterface<GridDataJobExecution> {
     /**
+     * ** Constructor.
+     */
+    constructor(public readonly property: string) {}
+
+    /**
      * @inheritDoc
      */
     compare(a: GridDataJobExecution, b: GridDataJobExecution) {
