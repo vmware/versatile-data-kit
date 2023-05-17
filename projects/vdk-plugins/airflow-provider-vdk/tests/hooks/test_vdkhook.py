@@ -17,6 +17,14 @@ class PatchedAuth(Authentication):
         return "test1token"
 
 
+class DummyStatusResponse:
+    status = 200
+    data = b"ddf"
+
+    def getheader(self, str):
+        return "json"
+
+
 class TestVDKHook(unittest.TestCase):
     @mock.patch.dict(
         "os.environ", AIRFLOW_CONN_CONN_VDK="http://https%3A%2F%2Fwww.vdk-endpoint.org"
@@ -51,6 +59,8 @@ class TestVDKHook(unittest.TestCase):
     def test_cancel_job_execution(self, mocked_api_client_request):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id"
 
+        mocked_api_client_request.return_value = DummyStatusResponse()
+
         self.hook.cancel_job_execution("test_execution_id")
 
         assert mocked_api_client_request.call_args_list[0][0] == ("DELETE", request_url)
@@ -59,7 +69,7 @@ class TestVDKHook(unittest.TestCase):
     @mock.patch("taurus_datajob_api.api_client.ApiClient.request")
     def test_get_job_execution_status(self, mocked_api_client_request, _):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id"
-
+        mocked_api_client_request.return_value = DummyStatusResponse()
         self.hook.get_job_execution_status("test_execution_id")
 
         assert mocked_api_client_request.call_args_list[0][0] == ("GET", request_url)
@@ -69,6 +79,7 @@ class TestVDKHook(unittest.TestCase):
     def test_get_job_execution_log(self, mocked_api_client_request, _):
         request_url = "https://www.vdk-endpoint.org/data-jobs/for-team/test_team/jobs/test_job/executions/test_execution_id/logs"
 
+        mocked_api_client_request.return_value = DummyStatusResponse()
         self.hook.get_job_execution_log("test_execution_id")
 
         assert mocked_api_client_request.call_args_list[0][0] == ("GET", request_url)
