@@ -83,12 +83,12 @@ class JobExecute:
             args=self.__validate_and_parse_args(arguments),
         )
         log.debug(f"Starting job with request {execution_request}")
-        _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
+        headers = self.__execution_api.data_job_execution_start_with_http_info(
             team_name=team,
             job_name=name,
             deployment_id="production",  # TODO
             data_job_execution_request=execution_request,
-        )
+        ).headers
         log.debug(f"Received headers: {headers}")
 
         location = headers["Location"]
