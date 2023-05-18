@@ -5,7 +5,7 @@ import os
 
 import click
 import click_spinner
-from urllib3 import HTTPResponse
+from taurus_datajob_api import ApiResponse
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.job.job_archive import JobArchive
@@ -29,7 +29,7 @@ class JobDownloadSource:
         try:
             log.info(f"Downloading data job {name} in {path}/{name} ...")
             with click_spinner.spinner():
-                response: HTTPResponse = self.sources_api.data_job_sources_download(
+                response = self.sources_api.data_job_sources_download_with_http_info(
                     team_name=team, job_name=name, _preload_content=False
                 )
                 self.__write_response_to_archive(job_archive_path, response)
@@ -42,10 +42,10 @@ class JobDownloadSource:
             self.__cleanup_archive(job_archive_path)
 
     @staticmethod
-    def __write_response_to_archive(job_archive_path: str, response: HTTPResponse):
+    def __write_response_to_archive(job_archive_path: str, response: ApiResponse):
         log.debug(f"Write data job source to {job_archive_path}")
         with open(job_archive_path, "wb") as w:
-            w.write(response.data)
+            w.write(response.raw_data)
 
     @staticmethod
     def __validate_job_path(path: str, name: str):

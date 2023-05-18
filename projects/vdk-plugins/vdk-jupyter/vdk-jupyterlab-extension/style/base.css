@@ -32,3 +32,17 @@
   right: -5px;
   padding-right: 25px;
 }
+
+.jp-vdk-failing-cell {
+  --jp-cell-editor-border-color: #8c1e1e;
+  --jp-cell-editor-box-shadow: inset 0 0 2px #8c1e1e;
+}
+
+.jp-vdk-failing-cell-num {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #8c1e1e;
+  color: aliceblue;
+  padding: 4px;
+}

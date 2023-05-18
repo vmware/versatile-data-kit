@@ -20,11 +20,11 @@ class JobDownloadKey:
     @ApiClientErrorDecorator()
     def download(self, team: str, name: str, path: str):
         keytab_file_path = os.path.join(path, f"{name}.keytab")
-        response: HTTPResponse = self.jobs_api.data_job_keytab_download(
+        response = self.jobs_api.data_job_keytab_download_with_http_info(
             team_name=team, job_name=name, _preload_content=False
         )
         with open(keytab_file_path, "wb") as w:
-            w.write(response.data)
+            w.write(response.raw_data)
         log.info(f"Saved keytab in {keytab_file_path}")
 
 

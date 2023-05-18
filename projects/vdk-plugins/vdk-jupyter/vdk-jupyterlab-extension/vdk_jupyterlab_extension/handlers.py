@@ -150,6 +150,24 @@ class CreateDeploymentHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
+class GetNotebookInfoHandler(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        notebook_info = VdkUI.get_notebook_info(
+            input_data["cellId"], input_data[VdkOption.PATH.value]
+        )
+        self.finish(json.dumps(notebook_info))
+
+
+class GetVdkCellIndicesHandler(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        vdk_indices = VdkUI.get_vdk_tagged_cell_indices(input_data["nbPath"])
+        self.finish(json.dumps(vdk_indices))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -167,3 +185,5 @@ def setup_handlers(web_app):
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
+    add_handler(GetNotebookInfoHandler, "notebook")
+    add_handler(GetVdkCellIndicesHandler, "vdkCellIndices")

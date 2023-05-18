@@ -43,7 +43,7 @@ operationsUi:
     requests:
       memory: 250Mi
       cpu: 25m
-  config: '{"auth": {"skipAuth": true}}'
+  config: '{"auth": {"skipAuth": true}, "ignoreComponents": ["explorePage", "widgetsComponent"], "ignoreRoutes": ["explore/data-jobs", "explore/data-jobs/:team/:job"]}'
 
 
 # The image configuration for builder jobs used during deployment of data jobs.
