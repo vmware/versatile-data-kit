@@ -213,7 +213,7 @@ public class DataJobDeploymentExtension
                 .with(user(USER_NAME))
                 .contentType(MediaType.APPLICATION_JSON));
     if (perform.andReturn().getResponse().getStatus() != 200) {
-      throw new RuntimeException(
+      throw new Exception(
           "status is "
               + perform.andReturn().getResponse().getStatus()
               + "\nbody is"
