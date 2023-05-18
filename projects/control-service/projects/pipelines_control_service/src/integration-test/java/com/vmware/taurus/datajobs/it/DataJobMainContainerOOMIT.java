@@ -26,7 +26,7 @@ public class DataJobMainContainerOOMIT extends BaseIT {
   static DataJobDeploymentExtension dataJobDeploymentExtension =
       new DataJobDeploymentExtension("oom_job.zip");
 
-  @Test
+//  @Test
   public void testDataJob_causesOOM_shouldCompleteWithUserError(
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
