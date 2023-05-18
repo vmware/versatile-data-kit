@@ -5,16 +5,18 @@
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IThemeManager } from '@jupyterlab/apputils';
+import { getVdkCellIndices } from './serverRequests';
 
-const addNumberElement = (number: Number, node: Element) => {
+export const addNumberElement = (number: Number, node: Element) => {
   const numberElement = document.createElement('div');
   numberElement.innerText = String(number);
-  numberElement.classList.add('jp-vdk-cell-num');
-
+  node.classList.contains('jp-vdk-failing-cell')
+    ? numberElement.classList.add('jp-vdk-failing-cell-num')
+    : numberElement.classList.add('jp-vdk-cell-num');
   node.appendChild(numberElement);
 };
 
-const addVdkLogo = (node: Element) => {
+export const addVdkLogo = (node: Element) => {
   const logo = document.createElement('img');
   logo.setAttribute(
     'src',
@@ -27,17 +29,25 @@ const addVdkLogo = (node: Element) => {
   node.appendChild(logo);
 };
 
-const addVdkCellDesign = (
-  currentCell: Element,
+export const addVdkCellDesign = (
   cells: Element[],
   vdkCellIndices: Array<Number>,
-  themeManager: IThemeManager
+  themeManager: IThemeManager,
+  currentCell?: Element
 ) => {
   // Delete previous numbering in case of untagging elements
   const vdkCellNums = Array.from(
     document.getElementsByClassName('jp-vdk-cell-num')
   );
   vdkCellNums.forEach(element => {
+    element.remove();
+  });
+
+  // Delete previous fail numbering
+  const vdkFailingCellNums = Array.from(
+    document.getElementsByClassName('jp-vdk-failing-cell-num')
+  );
+  vdkFailingCellNums.forEach(element => {
     element.remove();
   });
 
@@ -63,7 +73,9 @@ const addVdkCellDesign = (
         cells[i].classList.add('jp-vdk-cell-dark');
       }
       // We do not add logo to the active cell since it blocks other UI elements
-      if (cells[i] != currentCell) addVdkLogo(cells[i]);
+      if (currentCell && cells[i] != currentCell) {
+        addVdkLogo(cells[i]);
+      }
 
       addNumberElement(++vdkCellCounter, cells[i]);
     } else {
@@ -77,14 +89,14 @@ export const trackVdkTags = (
   notebookTracker: INotebookTracker,
   themeManager: IThemeManager
 ): void => {
-  const changeCells = () => {
+  const changeCells = async () => {
     if (
       notebookTracker.currentWidget &&
       notebookTracker.currentWidget.model &&
       notebookTracker.currentWidget.model.cells.length !== 0
     ) {
       // Get indices of the vdk cells using cell metadata
-      const vdkCellIndices = [];
+      let vdkCellIndices = [];
       let cellIndex = 0;
       while (
         notebookTracker.currentWidget &&
@@ -98,17 +110,23 @@ export const trackVdkTags = (
           vdkCellIndices.push(cellIndex);
         cellIndex++;
       }
-
+      // this case covers the use case when the notebook is loaded for the first time
+      if (!vdkCellIndices.length) {
+        vdkCellIndices = await getVdkCellIndices(
+          notebookTracker.currentWidget.context.path
+        );
+      }
       if (
+        vdkCellIndices.length > 0 &&
         notebookTracker.activeCell &&
         notebookTracker.activeCell.parent &&
         notebookTracker.activeCell.parent.node.children
       ) {
         addVdkCellDesign(
-          notebookTracker.activeCell.node,
           Array.from(notebookTracker.activeCell.parent.node.children!),
           vdkCellIndices,
-          themeManager
+          themeManager,
+          notebookTracker.activeCell.node
         );
       }
     }
