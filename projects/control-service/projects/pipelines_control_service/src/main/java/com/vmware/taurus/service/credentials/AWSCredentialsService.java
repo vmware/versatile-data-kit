@@ -60,7 +60,8 @@ public class AWSCredentialsService {
                   assumeRequest.getRoleArn(), assumeRequest.getRoleSessionName())
               .withStsClient(stsClient)
               .build();
-      log.debug("Created credentials provider with acess key id: {} , secret key: {} , region: {}",
+      log.debug(
+          "Created credentials provider with acess key id: {} , secret key: {} , region: {}",
           awsCredentialsServiceConfig.getServiceAccountAccessKeyId().substring(0, 10),
           awsCredentialsServiceConfig.getServiceAccountSecretAccessKey().substring(0, 15),
           awsCredentialsServiceConfig.getRegion());
