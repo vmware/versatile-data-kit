@@ -64,6 +64,7 @@ class Notebook:
                 if jupyter_cell["cell_type"] == "code":
                     cell = Cell(jupyter_cell)
                     if "vdk" in cell.tags:
+                        index += 1
                         step = NotebookStep(
                             name="".join(
                                 [
@@ -81,7 +82,6 @@ class Notebook:
                         )
                         notebook_steps.append(step)
                         context.step_builder.add_step(step)
-                        index += 1
 
             log.debug(f"{len(notebook_steps)} " f"cells with vdk tag were detected!")
         except json.JSONDecodeError as e:

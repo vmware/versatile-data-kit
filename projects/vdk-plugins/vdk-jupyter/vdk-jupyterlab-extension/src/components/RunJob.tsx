@@ -3,10 +3,10 @@ import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { jobRunRequest } from '../serverRequests';
+import { getNotebookInfo, jobRunRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
-
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -71,41 +71,158 @@ export default class RunJobDialog extends Component<IJobPathProp> {
   };
 }
 
-export async function showRunJobDialog() {
+export async function showRunJobDialog(docManager?: IDocumentManager) {
   const result = await showDialog({
     title: 'Run Job',
-    body: (
-      <RunJobDialog
-        jobPath={jobData.get(VdkOption.PATH)!}
-      ></RunJobDialog>
-    ),
+    body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
     let { message, status } = await jobRunRequest();
-        if (status) {
-          showDialog({
-            title: 'Run Job',
-            body: <div className='vdk-run-dialog-message-container'>
-            <p className='vdk-run-dialog-message'>The job was executed successfully!</p>
-          </div>,
-            buttons: [Dialog.okButton()]
-          });
-        }
-        else{
-          message = "ERROR : " + message;
-          const  errorMessage = new VdkErrorMessage(message);
-          showDialog({
-            title: 'Run Job',
-            body: <div  className="vdk-run-error-message ">
+    if (status) {
+      showDialog({
+        title: 'Run Job',
+        body: (
+          <div className="vdk-run-dialog-message-container">
+            <p className="vdk-run-dialog-message">
+              The job was executed successfully!
+            </p>
+          </div>
+        ),
+        buttons: [Dialog.okButton()]
+      });
+    } else {
+      message = 'ERROR : ' + message;
+      const errorMessage = new VdkErrorMessage(message);
+      if (
+        !docManager ||
+        !(await handleErrorsProducedByNotebookCell(errorMessage, docManager))
+      ) {
+        showDialog({
+          title: 'Run Job',
+          body: (
+            <div className="vdk-run-error-message ">
               <p>{errorMessage.exception_message}</p>
               <p>{errorMessage.what_happened}</p>
               <p>{errorMessage.why_it_happened}</p>
               <p>{errorMessage.consequences}</p>
               <p>{errorMessage.countermeasures}</p>
-            </div>,
-            buttons: [Dialog.okButton()]
-          });
-        }
+            </div>
+          ),
+          buttons: [Dialog.okButton()]
+        });
+      }
+    }
   }
 }
+
+export const findFailingCellId = (message: String): string => {
+  const regex = /cell_id:([0-9a-fA-F-]+)/;
+  const match = message.match(regex);
+  if (match) return match[1];
+  return '';
+};
+
+const switchToFailingCell = (failingCell: Element) => {
+  failingCell.scrollIntoView();
+  failingCell.classList.add('jp-vdk-failing-cell');
+  // Delete previous fail numbering
+  const vdkFailingCellNums = Array.from(
+    document.getElementsByClassName('jp-vdk-failing-cell-num')
+  );
+  vdkFailingCellNums.forEach(element => {
+    element.classList.remove('jp-vdk-failing-cell-num');
+    element.classList.add('jp-vdk-cell-num');
+  });
+};
+
+export const findFailingCellInNotebookCells = async (
+  element: Element,
+  failingCellIndex: Number,
+  nbPath: string
+) => {
+  const cells = element.children;
+  if (failingCellIndex > cells.length) {
+    showDialog({
+      title: 'Run Failed',
+      body: (
+        <div>
+          <p>
+            Sorry, something went wrong while trying to find the failing cell!
+          </p>
+          <p>
+            Please, check the {nbPath} once more and try to run the job while
+            the notebook is active!
+          </p>
+        </div>
+      ),
+      buttons: [Dialog.cancelButton()]
+    });
+  } else {
+    for (let i = 0; i < cells.length; i++) {
+      i === failingCellIndex
+        ? switchToFailingCell(cells[i])
+        : cells[i].classList.remove('jp-vdk-failing-cell');
+    }
+  }
+};
+
+/**
+ * Seperate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
+ */
+export const handleErrorsProducedByNotebookCell = async (
+  message: VdkErrorMessage,
+  docManager: IDocumentManager
+): Promise<boolean> => {
+  const failingCellId = findFailingCellId(message.what_happened);
+  if (failingCellId) {
+    const { path: nbPath, cellIndex: failingCellIndex } = await getNotebookInfo(
+      failingCellId
+    );
+    if (nbPath) {
+      const navigateToFailingCell = async () => {
+        const notebook = docManager.openOrReveal(nbPath);
+        if (notebook) {
+          await notebook.revealed; // wait until the DOM elements are fully loaded
+          const children = Array.from(notebook.node.children!);
+          if (children) {
+            children.forEach(async element => {
+              if (element.classList.contains('jp-Notebook')) {
+                findFailingCellInNotebookCells(
+                  element,
+                  Number(failingCellIndex),
+                  nbPath
+                );
+              }
+            });
+          }
+        }
+      };
+
+      const result = await showDialog({
+        title: 'Run Job',
+        body: (
+          <div className="vdk-run-error-message ">
+            <p>{message.exception_message}</p>
+            <p>{message.what_happened}</p>
+            <p>{message.why_it_happened}</p>
+            <p>{message.consequences}</p>
+            <p>{message.countermeasures}</p>
+          </div>
+        ),
+        buttons: [
+          Dialog.okButton({ label: 'See failing cell' }),
+          Dialog.cancelButton()
+        ]
+      });
+
+      if (result.button.accept) {
+        navigateToFailingCell();
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+};

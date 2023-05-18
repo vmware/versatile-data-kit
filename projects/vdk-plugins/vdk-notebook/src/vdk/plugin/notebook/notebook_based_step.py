@@ -80,7 +80,7 @@ class NotebookStepFuncFactory:
                 errors.log_and_rethrow(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from cell with id:{step.cell_id}"
+                    what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
                     f" from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
                     f": {e.args[0]}",
@@ -96,7 +96,7 @@ class NotebookStepFuncFactory:
                 errors.log_and_rethrow(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from cell with id:{step.cell_id}"
+                    what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
                     f" from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {line_number} of {step.name}"
                     f": {e.args[0]}",
