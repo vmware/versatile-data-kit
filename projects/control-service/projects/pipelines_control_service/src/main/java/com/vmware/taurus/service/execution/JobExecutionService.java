@@ -98,6 +98,7 @@ public class JobExecutionService {
               ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
+
       // 'Scheduled' executions must have their `startedBy` follow the structure
       // 'scheduled/*triggering-mechanism*'
       // 'Manual' executions must have their `startedBy` follow the structure
@@ -110,7 +111,6 @@ public class JobExecutionService {
           jobExecutionRequest.getStartedBy().contains("scheduled")
               ? ExecutionType.SCHEDULED.getValue()
               : ExecutionType.MANUAL.getValue());
-
 
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
