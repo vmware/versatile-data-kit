@@ -123,6 +123,50 @@ export const findFailingCellId = (message: String): string => {
   return '';
 };
 
+const switchToFailingCell = (failingCell: Element) => {
+  failingCell.scrollIntoView();
+  failingCell.classList.add('jp-vdk-failing-cell');
+  // Delete previous fail numbering
+  const vdkFailingCellNums = Array.from(
+    document.getElementsByClassName('jp-vdk-failing-cell-num')
+  );
+  vdkFailingCellNums.forEach(element => {
+    element.classList.remove('jp-vdk-failing-cell-num');
+    element.classList.add('jp-vdk-cell-num');
+  });
+};
+
+export const findFailingCellInNotebookCells = async (
+  element: Element,
+  failingCellIndex: Number,
+  nbPath: string
+) => {
+  const cells = element.children;
+  if (failingCellIndex > cells.length) {
+    showDialog({
+      title: 'Run Failed',
+      body: (
+        <div>
+          <p>
+            Sorry, something went wrong while trying to find the failing cell!
+          </p>
+          <p>
+            Please, check the {nbPath} once more and try to run the job while
+            the notebook is active!
+          </p>
+        </div>
+      ),
+      buttons: [Dialog.cancelButton()]
+    });
+  } else {
+    for (let i = 0; i < cells.length; i++) {
+      i === failingCellIndex
+        ? switchToFailingCell(cells[i])
+        : cells[i].classList.remove('jp-vdk-failing-cell');
+    }
+  }
+};
+
 /**
  * Seperate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
  */
@@ -144,46 +188,11 @@ export const handleErrorsProducedByNotebookCell = async (
           if (children) {
             children.forEach(async element => {
               if (element.classList.contains('jp-Notebook')) {
-                const cells = element.children;
-                const inx = Number(failingCellIndex);
-                if (inx < 0 || inx > cells.length) {
-                  showDialog({
-                    title: 'Run Failed',
-                    body: (
-                      <div>
-                        <p>
-                          Sorry, something went wrong while trying to find the
-                          failing cell!
-                        </p>
-                        <p>
-                          Please, check the {nbPath} once more and try to run
-                          the job while the notebook is active!
-                        </p>
-                      </div>
-                    ),
-                    buttons: [Dialog.cancelButton()]
-                  });
-                } else {
-                  for (let i = 0; i < cells.length; i++) {
-                    if (i == inx) {
-                      const failingCell = cells[i];
-                      failingCell.scrollIntoView();
-                      failingCell.classList.add('jp-vdk-failing-cell');
-                      // Delete previous fail numbering
-                      const vdkFailingCellNums = Array.from(
-                        document.getElementsByClassName(
-                          'jp-vdk-failing-cell-num'
-                        )
-                      );
-                      vdkFailingCellNums.forEach(element => {
-                        element.classList.remove('jp-vdk-failing-cell-num');
-                        element.classList.add('jp-vdk-cell-num')
-                      });
-                    } else {
-                      cells[i].classList.remove('jp-vdk-failing-cell');
-                    }
-                  }
-                }
+                findFailingCellInNotebookCells(
+                  element,
+                  Number(failingCellIndex),
+                  nbPath
+                );
               }
             });
           }
