@@ -72,6 +72,12 @@ public class TestJobDeployTempCredsIT extends BaseIT {
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
 
+  @Value("datajobs.aws.serviceAccountAccessKeyId")
+  private String iamServiceAccountAccessKeyId;
+
+  @Value("datajobs.aws.serviceAccountSecretAccessKey")
+  private String iamUserServiceAccountSecretAccessKey;
+
   private AWSCredentialsService.AWSCredentialsDTO credentialsDTO;
   private AmazonECR ecrClient;
   private String repositoryName;
@@ -98,6 +104,9 @@ public class TestJobDeployTempCredsIT extends BaseIT {
                                 String.format(
                                     "/data-jobs/for-team/%s/jobs/%s",
                                     TEST_TEAM_NAME, TEST_JOB_NAME)))));
+    // Check authentication credentials are filled properly before continuing test.
+    Assertions.assertFalse(iamServiceAccountAccessKeyId.isBlank());
+    Assertions.assertFalse(iamUserServiceAccountSecretAccessKey.isBlank());
 
     this.repositoryName = dockerRepositoryUrl + "/" + TEST_JOB_NAME;
     this.credentialsDTO = awsCredentialsService.createTemporaryCredentials();
