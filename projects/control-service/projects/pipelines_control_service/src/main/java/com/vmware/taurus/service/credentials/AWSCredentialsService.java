@@ -13,7 +13,6 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
  * comments or https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html
  */
 @Service
-@Slf4j
 public class AWSCredentialsService {
 
   public record AWSCredentialsDTO(
