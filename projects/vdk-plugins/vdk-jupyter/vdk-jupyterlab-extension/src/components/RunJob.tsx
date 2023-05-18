@@ -169,6 +169,16 @@ export const handleErrorsProducedByNotebookCell = async (
                       const failingCell = cells[i];
                       failingCell.scrollIntoView();
                       failingCell.classList.add('jp-vdk-failing-cell');
+                      // Delete previous fail numbering
+                      const vdkFailingCellNums = Array.from(
+                        document.getElementsByClassName(
+                          'jp-vdk-failing-cell-num'
+                        )
+                      );
+                      vdkFailingCellNums.forEach(element => {
+                        element.classList.remove('jp-vdk-failing-cell-num');
+                        element.classList.add('jp-vdk-cell-num')
+                      });
                     } else {
                       cells[i].classList.remove('jp-vdk-failing-cell');
                     }
