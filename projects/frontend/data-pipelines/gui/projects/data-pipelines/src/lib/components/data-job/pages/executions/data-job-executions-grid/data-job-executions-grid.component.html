@@ -5,17 +5,24 @@
 
 <clr-datagrid
     data-cy="data-pipelines-job-executions-datagrid"
+    [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
     [clrDgLoading]="loading"
+    (clrDgRefresh)="gridRefresh($event)"
 >
     <clr-dg-placeholder>We couldn't find any executions!</clr-dg-placeholder>
 
     <clr-dg-column
         data-cy="data-pipelines-job-executions-status-header"
         [clrDgField]="'status'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['status']"
+        [clrDgSortBy]="'status'"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['status']"
         >Status
         <clr-dg-filter [clrDgFilter]="statusFilter">
             <lib-data-job-execution-status-filter
                 #statusFilter
+                [property]="'status'"
+                [value]="filtersSortManager.filterCriteria['status']"
             ></lib-data-job-execution-status-filter>
         </clr-dg-filter>
     </clr-dg-column>
@@ -23,37 +30,56 @@
         class="grid-column__min-width--s grid-column__max-width--s"
         data-cy="data-pipelines-job-executions-type-header"
         [clrDgField]="'type'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['type']"
+        [clrDgSortBy]="'type'"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['type']"
         >Type
         <clr-dg-filter [clrDgFilter]="typeFilter">
             <lib-data-job-execution-type-filter
                 #typeFilter
+                [property]="'type'"
+                [value]="filtersSortManager.filterCriteria['type']"
             ></lib-data-job-execution-type-filter>
         </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-duration-header"
+        [clrDgField]="'duration'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['duration']"
         [clrDgSortBy]="durationComparator"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['duration']"
         >Duration
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-start-header"
+        [clrDgField]="'startTimeFormatted'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['startTimeFormatted']"
         [clrDgSortBy]="'startTime'"
-        [clrDgSortOrder]="descSort"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['startTime']"
         >Start (UTC)
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-end-header"
+        [clrDgField]="'endTimeFormatted'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['endTimeFormatted']"
         [clrDgSortBy]="'endTime'"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['endTime']"
         >End (UTC)
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-id-header"
         [clrDgField]="'id'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['id']"
+        [clrDgSortBy]="'id'"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['id']"
         >ID
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-version-header"
-        [clrDgField]="'version'"
+        [clrDgField]="'jobVersion'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['jobVersion']"
+        [clrDgSortBy]="'jobVersion'"
+        [clrDgSortOrder]="filtersSortManager.sortCriteria['jobVersion']"
         >Version
     </clr-dg-column>
     <clr-dg-column class="grid-column__min-width--s grid-column__max-width--s"
@@ -84,15 +110,17 @@
             >{{ jobExecution.duration }}</clr-dg-cell
         >
         <clr-dg-cell data-cy="data-pipelines-job-executions-start-cell"
-            >{{ jobExecution.startTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
-            }}</clr-dg-cell
+            >{{ jobExecution.startTimeFormatted }}</clr-dg-cell
         >
         <clr-dg-cell data-cy="data-pipelines-job-executions-end-cell"
-            >{{ jobExecution.endTime | date : "MMM d, y, hh:mm:ss a" : "UTC"
-            }}</clr-dg-cell
+            >{{ jobExecution.endTimeFormatted }}</clr-dg-cell
         >
-        <clr-dg-cell>{{ jobExecution.id }}</clr-dg-cell>
-        <clr-dg-cell>{{ jobExecution.jobVersion | slice : 0 : 8 }}</clr-dg-cell>
+        <clr-dg-cell data-cy="data-pipelines-job-executions-id-cell"
+            >{{ jobExecution.id }}</clr-dg-cell
+        >
+        <clr-dg-cell data-cy="data-pipelines-job-executions-job-version-cell"
+            >{{ jobExecution.jobVersion | slice : 0 : 8 }}</clr-dg-cell
+        >
         <clr-dg-cell
             class="text-center grid-column__min-width--s grid-column__max-width--s"
         >

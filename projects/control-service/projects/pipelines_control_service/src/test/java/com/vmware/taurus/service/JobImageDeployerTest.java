@@ -33,6 +33,7 @@ public class JobImageDeployerTest {
   private DeploymentProgress deploymentProgress;
   private KubernetesResources kubernetesResources;
   private JobCommandProvider jobCommandProvider;
+  private SupportedPythonVersions supportedPythonVersions;
 
   @BeforeEach
   public void setUp() {
@@ -43,6 +44,7 @@ public class JobImageDeployerTest {
     deploymentProgress = Mockito.mock(DeploymentProgress.class);
     kubernetesResources = Mockito.mock(KubernetesResources.class);
     jobCommandProvider = Mockito.mock(JobCommandProvider.class);
+    supportedPythonVersions = Mockito.mock(SupportedPythonVersions.class);
 
     jobImageDeployer =
         new JobImageDeployer(
@@ -52,7 +54,8 @@ public class JobImageDeployerTest {
             dataJobDefaultConfigurations,
             deploymentProgress,
             kubernetesResources,
-            jobCommandProvider);
+            jobCommandProvider,
+            supportedPythonVersions);
   }
 
   @Test
@@ -90,17 +93,11 @@ public class JobImageDeployerTest {
           .createCronJob(
               Mockito.anyString(),
               Mockito.anyString(),
-              Mockito.anyMap(),
               Mockito.anyString(),
               Mockito.anyBoolean(),
-              Mockito.anyList(),
-              Mockito.any(),
-              Mockito.any(),
               Mockito.any(),
               Mockito.any(),
               Mockito.anyList(),
-              Mockito.anyMap(),
-              Mockito.anyMap(),
               annotationCaptor.capture(),
               labelCaptor.capture(),
               Mockito.anyList());
@@ -111,17 +108,11 @@ public class JobImageDeployerTest {
           .createCronJob(
               Mockito.anyString(),
               Mockito.anyString(),
-              Mockito.anyMap(),
               Mockito.anyString(),
               Mockito.anyBoolean(),
-              Mockito.anyList(),
-              Mockito.any(),
-              Mockito.any(),
               Mockito.any(),
               Mockito.any(),
               Mockito.anyList(),
-              Mockito.anyMap(),
-              Mockito.anyMap(),
               Mockito.anyMap(),
               Mockito.anyMap(),
               Mockito.anyList());

@@ -1,0 +1,105 @@
+<!--
+  ~ Copyright 2023 VMware, Inc.
+  ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<div class="confirmation__header-container">
+    <div class="confirmation__header-title-container">
+        <h3 class="confirmation__header-title" [innerHTML]="model.title"></h3>
+    </div>
+    <button
+        *ngIf="model.closable"
+        type="button"
+        class="confirmation__header-close-btn"
+        aria-label="Close"
+        (click)="cancel($event)"
+    >
+        <clr-icon shape="window-close"></clr-icon>
+    </button>
+</div>
+
+<div class="confirmation__body-container">
+    <p
+        *ngIf="model.message"
+        class="confirmation__body-message"
+        [innerHTML]="model.message"
+    ></p>
+
+    <ng-template #confirmationMessageComponent></ng-template>
+
+    <form clrForm class="confirmation__body-form">
+        <clr-checkbox-container *ngIf="model.optionDoNotShowFutureConfirmation">
+            <clr-checkbox-wrapper class="confirmation__body-checkbox-wrapper">
+                <input
+                    type="checkbox"
+                    class="confirmation__body-checkbox-opt-out"
+                    clrCheckbox
+                    value="false"
+                    [ngModelOptions]="{ standalone: true }"
+                    [(ngModel)]="doNotShowFutureConfirmation"
+                />
+                <label>Do not show this message again.</label>
+            </clr-checkbox-wrapper>
+        </clr-checkbox-container>
+    </form>
+</div>
+
+<div class="confirmation__footer-container">
+    <button
+        *ngIf="model.cancelBtnModel"
+        type="button"
+        class="btn btn-secondary confirmation__footer-cancel-btn"
+        (click)="cancel($event)"
+    >
+        <ng-container
+            *ngIf="model.cancelBtnModel && model.cancelBtnModel.iconPosition === 'left'"
+        >
+            <ng-container
+                *ngTemplateOutlet="iconTemplate; context: {$implicit: model.cancelBtnModel}"
+            ></ng-container>
+        </ng-container>
+        {{ model.cancelBtnModel?.text }}
+        <ng-container
+            *ngIf="model.cancelBtnModel && model.cancelBtnModel.iconPosition === 'right'"
+        >
+            <ng-container
+                *ngTemplateOutlet="iconTemplate; context: {$implicit: model.cancelBtnModel}"
+            ></ng-container>
+        </ng-container>
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-primary confirmation__footer-confirm-btn"
+        (click)="confirm($event)"
+    >
+        <ng-container
+            *ngIf="model.confirmBtnModel && model.confirmBtnModel.iconPosition === 'left'"
+        >
+            <ng-container
+                *ngTemplateOutlet="iconTemplate; context: {$implicit: model.confirmBtnModel}"
+            ></ng-container>
+        </ng-container>
+        {{ model.confirmBtnModel?.text }}
+        <ng-container
+            *ngIf="model.confirmBtnModel && model.confirmBtnModel.iconPosition === 'right'"
+        >
+            <ng-container
+                *ngTemplateOutlet="iconTemplate; context: {$implicit: model.confirmBtnModel}"
+            ></ng-container>
+        </ng-container>
+    </button>
+</div>
+
+<ng-template #iconTemplate let-model>
+    <clr-icon
+        class="confirmation__footer-confirm-btn-icon"
+        [attr.shape]="model.iconShape"
+        [attr.direction]="model.iconDirection ? model.iconDirection : null"
+        [attr.size]="model.iconSize ? model.iconSize : null"
+        [attr.solid]="model.iconSolid ? model.iconSolid : null"
+        [attr.inverse]="model.iconInverse ? model.iconInverse : null"
+        [attr.status]="model.iconStatus ? model.iconStatus : null"
+        [attr.badge]="model.iconBadge ? model.iconBadge : null"
+    ></clr-icon>
+</ng-template>

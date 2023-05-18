@@ -20,14 +20,6 @@ type StatusPropertiesMapping = {
     styleUrls: ['./data-job-execution-status.component.scss']
 })
 export class DataJobExecutionStatusComponent {
-    @HostListener('mouseenter') onMouseEnter(): void {
-        this.clrOpen = true;
-    }
-
-    @HostListener('mouseleave') onMouseLeave(): void {
-        this.clrOpen = false;
-    }
-
     @Input() jobStatus: DataJobExecutionStatus;
     @Input() jobMessage = '';
     @Input() showErrorMessage = false;

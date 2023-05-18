@@ -5,7 +5,7 @@
 
 <div class="clr-row">
     <div class="clr-col-sm-12 clr-col-md-12">
-        <h1 data-cy="getting-started-main-title">
+        <h1 data-cy="data-pipelines-page-title">
             Get Started with Data Pipelines
         </h1>
     </div>
@@ -91,7 +91,11 @@
         </div>
     </div>
 
-    <div class="clr-col-sm-12 clr-col-md-12">
+    <div
+        class="clr-col-sm-12 clr-col-md-12"
+        *ngIf="widgetsVisible"
+        data-cy="get-started-widgets-component"
+    >
         <br />
         <h3>Widgets</h3>
         <br />

@@ -33,7 +33,7 @@ import java.util.*;
 @Slf4j
 public class JobImageDeployer {
 
-  // TODO: Out of the image we pick only the python vdk module
+  // TODO: Out of the image we pick only the python vdk module. Remove when property deprecated
   // It may make sense to just pass the module name as argument instead of an image ???
   @Value("${datajobs.vdk.image}")
   private String vdkImage;
@@ -64,6 +64,7 @@ public class JobImageDeployer {
   private final DeploymentProgress deploymentProgress;
   private final KubernetesResources kubernetesResources;
   private final JobCommandProvider jobCommandProvider;
+  private final SupportedPythonVersions supportedPythonVersions;
 
   public Optional<JobDeploymentStatus> readScheduledJob(String dataJobName) {
     Optional<JobDeploymentStatus> jobDeployment =
@@ -277,7 +278,6 @@ public class JobImageDeployer {
     // At the moment Always is chosen because it's possible to have a change in image that is not
     // detected.
 
-    Map<String, String> jobDeploymentAnnotations = new HashMap<>();
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =
         getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
@@ -288,17 +288,11 @@ public class JobImageDeployer {
       dataJobsKubernetesService.updateCronJob(
           cronJobName,
           jobDeployment.getImageName(),
-          jobContainerEnvVars,
           schedule,
           enabled,
-          List.of(),
-          defaultConfigurations.dataJobRequests(),
-          defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
@@ -306,17 +300,11 @@ public class JobImageDeployer {
       dataJobsKubernetesService.createCronJob(
           cronJobName,
           jobDeployment.getImageName(),
-          jobContainerEnvVars,
           schedule,
           enabled,
-          List.of(),
-          defaultConfigurations.dataJobRequests(),
-          defaultConfigurations.dataJobLimits(),
           jobContainer,
           jobInitContainer,
           Arrays.asList(volume, secretVolume, ephemeralVolume),
-          jobDeploymentAnnotations,
-          Collections.emptyMap(),
           jobAnnotations,
           jobLabels,
           List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret));
@@ -324,10 +312,17 @@ public class JobImageDeployer {
   }
 
   private String getJobVdkImage(JobDeployment jobDeployment) {
-    if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())) {
-      return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
+    // TODO: Refactor when vdkImage is deprecated.
+    if (!supportedPythonVersions.getSupportedPythonVersions().isEmpty()
+        && supportedPythonVersions.isPythonVersionSupported(jobDeployment.getPythonVersion())) {
+      return supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     } else {
-      return vdkImage;
+      if (StringUtils.isNotBlank(jobDeployment.getVdkVersion())
+          && StringUtils.isNotBlank(vdkImage)) {
+        return DockerImageName.updateImageWithTag(vdkImage, jobDeployment.getVdkVersion());
+      } else {
+        return vdkImage;
+      }
     }
   }
 

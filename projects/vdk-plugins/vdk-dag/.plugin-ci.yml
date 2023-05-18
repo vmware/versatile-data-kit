@@ -1,0 +1,22 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-dag:
+  variables:
+    PLUGIN_NAME: vdk-dag
+  extends: .build-plugin
+
+build-py37-vdk-dag:
+  extends: .build-vdk-dag
+  image: "python:3.7"
+
+build-py311-vdk-dag:
+  extends: .build-vdk-dag
+  image: "python:3.11"
+
+release-vdk-dag:
+  variables:
+    PLUGIN_NAME: vdk-dag
+  extends: .release-plugin

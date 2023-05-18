@@ -8,11 +8,12 @@ import { OAuthModuleConfig, OAuthResourceServerErrorHandler, OAuthStorage } from
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
-import { authCodeFlowConfig } from './auth';
+import { AppConfigService } from './app-config.service';
 
 @Injectable()
 export class AuthorizationInterceptor implements HttpInterceptor {
     constructor(
+        private readonly appConfigService: AppConfigService,
         private authStorage: OAuthStorage,
         private errorHandler: OAuthResourceServerErrorHandler,
         @Optional() private moduleConfig: OAuthModuleConfig
@@ -23,24 +24,26 @@ export class AuthorizationInterceptor implements HttpInterceptor {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const url = req.url.toLowerCase();
+        if (this.appConfigService.getSkipAuth()) {
+            return next.handle(req);
+        }
         if (!this.moduleConfig) {
             return next.handle(req);
         }
-
         if (!this.moduleConfig.resourceServer) {
             return next.handle(req);
         }
-
         if (!this.moduleConfig.resourceServer.allowedUrls) {
             return next.handle(req);
         }
 
+        const url = req.url.toLowerCase();
         if (!this.checkUrl(url)) {
             return next.handle(req);
         }
 
         const sendAccessToken = this.moduleConfig.resourceServer.sendAccessToken;
+        const authCodeFlowConfig = this.appConfigService.getAuthCodeFlowConfig();
 
         if (sendAccessToken && url.startsWith(authCodeFlowConfig.issuer) && url.endsWith('api/auth/token')) {
             const headers = req.headers.set('Authorization', 'Basic ' + btoa(authCodeFlowConfig.clientId + ':'));

@@ -3,19 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Optional } from '@angular/core';
 
 import { timer } from 'rxjs';
 
 import { OAuthService } from 'angular-oauth2-oidc';
 
-import { NavigationService } from '@versatiledatakit/shared';
+import { ConfirmationService, DynamicComponentsService, NavigationService, UrlOpenerService } from '@versatiledatakit/shared';
 
-import { authCodeFlowConfig, refreshTokenConfig } from './auth';
-
-const REFRESH_TOKEN_START = 500;
-const ORG_LINK_ROOT = '/csp/gateway/am/api/orgs/';
-const CONSOLE_CLOUD_URL = 'https://console-stg.cloud.vmware.com/';
+import { AppConfigService } from './app-config.service';
 
 @Component({
     selector: 'app-root',
@@ -26,28 +22,49 @@ export class AppComponent implements OnInit {
     title = 'core';
     collapsed = false;
 
-    constructor(private readonly oauthService: OAuthService, private readonly navigationService: NavigationService) {
-        this.oauthService.configure(authCodeFlowConfig);
-        this.oauthService
-            .loadDiscoveryDocumentAndLogin()
-            .then(() => {
-                this.initTokenRefresh();
-            })
-            .catch(() => {
-                // No-op.
-            });
+    constructor(
+        private readonly appConfigService: AppConfigService,
+        @Optional() private readonly oauthService: OAuthService,
+        private readonly navigationService: NavigationService,
+        private readonly viewContainerRef: ViewContainerRef,
+        private readonly dynamicComponentsService: DynamicComponentsService,
+        private readonly confirmationService: ConfirmationService,
+        private readonly urlOpenerService: UrlOpenerService
+    ) {
+        if (!this.skipAuth) {
+            this.oauthService.configure(appConfigService.getAuthCodeFlowConfig());
+            this.oauthService
+                .loadDiscoveryDocumentAndLogin()
+                .then(() => {
+                    this.initTokenRefresh();
+                })
+                .catch(() => {
+                    // No-op.
+                });
+        }
     }
 
     logout(): void {
+        if (this.skipAuth) return;
         this.oauthService.logOut();
     }
 
+    get skipAuth(): boolean {
+        return this.appConfigService.getSkipAuth();
+    }
+
     get idToken(): string {
+        if (this.skipAuth) return null;
         return this.oauthService.getIdToken();
     }
 
     get userName(): string {
+        if (this.skipAuth) return null;
         return this.oauthService.getIdentityClaims() ? this.getIdentityClaim('username') : 'N/A';
+    }
+
+    get explorePageVisible(): boolean {
+        return !this.appConfigService.getConfig().ignoreComponents.includes('explorePage');
     }
 
     /**
@@ -55,9 +72,13 @@ export class AppComponent implements OnInit {
      */
     ngOnInit(): void {
         this.navigationService.initialize();
+        this.dynamicComponentsService.initialize(this.viewContainerRef);
+        this.confirmationService.initialize();
+        this.urlOpenerService.initialize();
     }
 
     private getIdentityClaim(userNamePropName: string): string {
+        if (this.skipAuth) throw Error;
         const identityClaims = this.oauthService.getIdentityClaims() as {
             [key: string]: string;
         };
@@ -66,9 +87,11 @@ export class AppComponent implements OnInit {
     }
 
     private initTokenRefresh() {
-        timer(REFRESH_TOKEN_START, AppComponent.toMillis(refreshTokenConfig.refreshTokenCheckInterval)).subscribe(() => {
+        if (this.skipAuth) throw Error;
+        const refreshTokenConfig = this.appConfigService.getRefreshTokenConfig();
+        timer(refreshTokenConfig.start, AppComponent.toMillis(refreshTokenConfig.checkInterval)).subscribe(() => {
             const remainiTimeMillis = this.oauthService.getAccessTokenExpiration() - Date.now();
-            if (remainiTimeMillis <= AppComponent.toMillis(refreshTokenConfig.refreshTokenRemainingTime)) {
+            if (remainiTimeMillis <= AppComponent.toMillis(refreshTokenConfig.remainingTime)) {
                 this.setCustomTokenAttributes(false, null);
                 this.oauthService.refreshToken().finally(() => {
                     // No-op.
@@ -78,25 +101,28 @@ export class AppComponent implements OnInit {
     }
 
     private setCustomTokenAttributes(redirectToConsole: boolean, defaultOrg: { refLink: string }) {
-        const linkOrgQuery = AppComponent.getOrgLinkFromQueryParams(defaultOrg);
+        if (this.skipAuth) throw Error;
+        const linkOrgQuery = this.getOrgLinkFromQueryParams(defaultOrg);
+        const consoleCloudUrl = this.appConfigService.getConfig().auth.consoleCloudUrl;
         this.oauthService.customQueryParams = {
             orgLink: linkOrgQuery,
-            targetUri: redirectToConsole ? CONSOLE_CLOUD_URL : window.location.href
+            targetUri: redirectToConsole ? consoleCloudUrl : window.location.href
         };
         if (redirectToConsole) {
             // Redirect to console cloud because we dont know the tenant url, but console does
-            this.oauthService.redirectUri = CONSOLE_CLOUD_URL;
+            this.oauthService.redirectUri = consoleCloudUrl;
         }
     }
 
-    private static getOrgLinkFromQueryParams(defaultOrg: { refLink: string }): string {
+    private getOrgLinkFromQueryParams(defaultOrg: { refLink: string }): string {
+        if (this.skipAuth) throw Error;
         const params = new URLSearchParams(window.location.search);
         const orgLinkUnderscored = params.get('org_link');
         const orgLinkBase = params.get('orgLink');
         if (orgLinkBase || orgLinkUnderscored) {
             return [orgLinkBase, orgLinkUnderscored].find((el) => el);
         } else {
-            return defaultOrg ? defaultOrg.refLink : ORG_LINK_ROOT;
+            return defaultOrg ? defaultOrg.refLink : this.appConfigService.getConfig().auth.orgLinkRoot;
         }
     }
 

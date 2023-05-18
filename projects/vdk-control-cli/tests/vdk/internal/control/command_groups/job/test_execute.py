@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import os
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -163,6 +162,12 @@ def test_execute_with_exception(httpserver: PluginHTTPServer, tmpdir: LocalPath)
     assert "what" in result.output and "why" in result.output
 
 
+def _create_json_serializable_version(execution):
+    execution = execution.to_dict()
+    execution["start_time"] = execution["start_time"].isoformat()
+    return execution
+
+
 def test_execute_no_execution_id(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
     team_name = "test-team"
@@ -187,7 +192,11 @@ def test_execute_no_execution_id(httpserver: PluginHTTPServer, tmpdir: LocalPath
         uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/executions",
         method="GET",
     ).respond_with_json(
-        [older_execution.to_dict(), execution.to_dict(), older_execution.to_dict()]
+        [
+            _create_json_serializable_version(older_execution),
+            _create_json_serializable_version(execution),
+            _create_json_serializable_version(older_execution),
+        ]
     )
 
     httpserver.expect_request(

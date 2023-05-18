@@ -50,7 +50,7 @@ control_service_build_image:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
-    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
+#    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
   retry: !reference [.control_service_retry, retry_options]
   coverage: "/    - Line Coverage: ([0-9.]+)%/"
   artifacts:
@@ -81,6 +81,8 @@ control_service_integration_test:
     GIT_PASSWORD: $CICD_GIT_PASSWORD
     GIT_USERNAME_READ_WRITE: $CICD_GIT_USER
     GIT_PASSWORD_READ_WRITE: $CICD_GIT_PASSWORD
+    DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID: $DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID
+    DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY: $DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
   script:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
@@ -104,6 +106,9 @@ control_service_integration_test:
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
+      - projects/control-service/projects/model/CONTRIBUTING.MD
+      - projects/control-service/projects/**/README.md
+      - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
 control_service_test_helm_chart:
   stage: build
@@ -226,7 +231,7 @@ control_service_publish_api_client:
   image: docker:23.0.1
   stage: publish_artifacts
   script:
-    - apk add --no-cache py-pip openjdk17-jdk git python
+    - apk add --no-cache py-pip openjdk17-jdk git
     - pip install -U pip setuptools wheel twine
     - ./projects/control-service/projects/gradlew -p ./projects/control-service/projects/model buildPython
     - cd projects/control-service/projects/model/apidefs/datajob-api/build

@@ -19,7 +19,7 @@ import {
 import { GettingStartedComponent } from './getting-started/getting-started.component';
 import { DataPipelinesRoute } from '../../../data-pipelines/src/lib/model';
 
-const routes: DataPipelinesRoutes = [
+export const routes: DataPipelinesRoutes = [
     { path: 'get-started', component: GettingStartedComponent },
 
     //Explore
@@ -43,6 +43,7 @@ const routes: DataPipelinesRoutes = [
         path: 'explore/data-jobs/:team/:job',
         component: DataJobPageComponent,
         data: {
+            context: 'explore',
             teamParamKey: 'team',
             jobParamKey: 'job'
         },
@@ -86,6 +87,7 @@ const routes: DataPipelinesRoutes = [
         path: 'manage/data-jobs/:team/:job',
         component: DataJobPageComponent,
         data: {
+            context: 'manage',
             teamParamKey: 'team',
             jobParamKey: 'job'
         },

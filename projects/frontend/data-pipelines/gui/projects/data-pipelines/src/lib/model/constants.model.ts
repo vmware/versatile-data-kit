@@ -13,6 +13,11 @@ import { DataPipelinesConfig } from './config.model';
 export const DATA_PIPELINES_CONFIGS = new InjectionToken<DataPipelinesConfig>('DataPipelinesConfig');
 
 /**
+ * ** DateTime format pattern provided to Angular DateTime directives/pipes, etc...
+ */
+export const DATA_PIPELINES_DATE_TIME_FORMAT = 'MMM d, y, hh:mm:ss a';
+
+/**
  * ** Team name constant used as key identifier in {@link ComponentState.requestParams}.
  */
 export const TEAM_NAME_REQ_PARAM = 'team-name-req-param';

@@ -379,12 +379,12 @@ export class CollectionsUtil {
      * <p>
      *     - Returns Array of subArrays that have 2 elements each, first element key and second element value.
      */
-    static objectPairs<T extends Record<string, any>>(obj: T | null | undefined): Array<[string, T[keyof T]]> {
+    static objectPairs<T extends Record<keyof T, T[keyof T]>>(obj: T | null | undefined): Array<[keyof T, T[keyof T]]> {
         if (!CollectionsUtil.isLiteralObject(obj)) {
             return [];
         }
 
-        return Object.entries(obj) as Array<[string, T[keyof T]]>;
+        return Object.entries(obj) as Array<[keyof T, T[keyof T]]>;
     }
 
     /**

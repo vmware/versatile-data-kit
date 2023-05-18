@@ -24,15 +24,21 @@ export class ColumnFilterComponent implements ClrDatagridFilterInterface<DataJob
 
     @Input() optionRenderer: TemplateRef<HTMLElement> = null;
 
-    @Input() value: string;
+    private _value: string;
+    private _changesSubject = new Subject<string>();
+
+    @Input() set value(_value: string) {
+        this._value = _value === 'all' ? null : _value;
+    }
+    get value(): string {
+        return this._value;
+    }
     @Output() valueChange = new EventEmitter<string>();
 
     // We do not want to expose the Subject itself, but the Observable which is read-only
     get changes(): Observable<string> {
         return this._changesSubject.asObservable();
     }
-
-    private _changesSubject = new Subject<string>();
 
     constructor(private filterContainer: ClrDatagridFilter) {
         filterContainer.setFilter(this);
@@ -55,17 +61,13 @@ export class ColumnFilterComponent implements ClrDatagridFilterInterface<DataJob
     }
 
     isValueSelected(value: string) {
-        return this.value === value;
+        return this.value?.toLowerCase() === value?.toLowerCase().replace(' ', '_');
     }
 
     /**
      * @inheritDoc
      */
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['value'].firstChange) {
-            return;
-        }
-
         this._changesSubject.next(changes['value'].currentValue as string);
     }
 

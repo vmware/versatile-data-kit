@@ -74,6 +74,7 @@ class Installer:
         self.__install_helm_chart()
         self.__finalize_configuration()
         log.info("Versatile Data Kit Control Service installed successfully")
+        log.info("Access the UI at http://localhost:8092")
         log.info(
             "Access the REST API at http://localhost:8092/data-jobs/swagger-ui.html\n"
         )
@@ -644,6 +645,8 @@ class Installer:
             "service.type=ClusterIP",
             "--set",
             "deploymentBuilderResourcesDefault.limits.cpu=0",
+            "--set",
+            "dataJob.executions.logsUrl.urlTemplate=http://localhost:8092/data-jobs/for-team/{{team_name}}/jobs/{{job_name}}/executions/{{execution_id}}/logs?tail_lines=400",
             "--set",
             "deploymentBuilderResourcesDefault.requests.cpu=0",
             "--set",

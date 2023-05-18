@@ -10,7 +10,6 @@ def run(job_input: IJobInput):
     data_job_dir = pathlib.Path(job_input.get_job_directory())
     data_file = data_job_dir / "data.json"
 
-    db_catalog = job_input.get_arguments().get("db_catalog")
     db_schema = job_input.get_arguments().get("db_schema")
     db_table = job_input.get_arguments().get("db_table")
 
@@ -20,13 +19,13 @@ def run(job_input: IJobInput):
 
         rows = [tuple(i.values()) for i in data]
         insert_query = f"""
-        INSERT INTO {db_catalog}.{db_schema}.{db_table} VALUES
+        INSERT INTO {db_schema}.{db_table} VALUES
         """ + ", ".join(
             str(i) for i in rows
         )
 
         create_query = f"""
-        CREATE TABLE IF NOT EXISTS {db_catalog}.{db_schema}.{db_table}
+        CREATE TABLE IF NOT EXISTS {db_schema}.{db_table}
         (
             id varchar,
             first_name varchar,

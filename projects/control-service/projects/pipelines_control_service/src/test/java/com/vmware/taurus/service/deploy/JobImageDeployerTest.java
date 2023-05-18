@@ -56,6 +56,7 @@ public class JobImageDeployerTest {
   @Mock private JobCredentialsService jobCredentialsService;
 
   @Mock private KubernetesResources kubernetesResources;
+  @Mock private SupportedPythonVersions supportedPythonVersions;
 
   @Spy private JobCommandProvider jobCommandProvider; // We need this to inject it into the deployer
 
@@ -93,6 +94,8 @@ public class JobImageDeployerTest {
     when(defaultConfigurations.dataJobLimits())
         .thenReturn(new KubernetesService.Resources("2000m", "1G"));
 
+    when(supportedPythonVersions.getDefaultVdkImage()).thenReturn("release");
+
     JobConfig jobConfig = new JobConfig();
     jobConfig.setSchedule(TEST_JOB_SCHEDULE);
     testDataJob = new DataJob();
@@ -125,17 +128,11 @@ public class JobImageDeployerTest {
         .updateCronJob(
             anyString(),
             anyString(),
-            anyMap(),
             anyString(),
             anyBoolean(),
-            anyList(),
-            any(KubernetesService.Resources.class),
-            any(KubernetesService.Resources.class),
             any(V1Container.class),
             any(V1Container.class),
             any(List.class),
-            anyMap(),
-            anyMap(),
             anyMap(),
             anyMap(),
             anyList());
@@ -161,17 +158,11 @@ public class JobImageDeployerTest {
         .createCronJob(
             anyString(),
             anyString(),
-            anyMap(),
             anyString(),
             anyBoolean(),
-            anyList(),
-            any(KubernetesService.Resources.class),
-            any(KubernetesService.Resources.class),
             containerCaptor.capture(),
             any(V1Container.class),
             anyList(),
-            anyMap(),
-            anyMap(),
             anyMap(),
             anyMap(),
             anyList());
@@ -200,17 +191,11 @@ public class JobImageDeployerTest {
         .createCronJob(
             anyString(),
             anyString(),
-            anyMap(),
             scheduleCaptor.capture(),
             anyBoolean(),
-            anyList(),
-            any(KubernetesService.Resources.class),
-            any(KubernetesService.Resources.class),
             any(V1Container.class),
             any(V1Container.class),
             anyList(),
-            anyMap(),
-            anyMap(),
             anyMap(),
             anyMap(),
             anyList());

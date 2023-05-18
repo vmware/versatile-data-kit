@@ -24,16 +24,17 @@
 # Overview
 
 Versatile Data Kit (VDK) is a data framework that enables Data Engineers to
-- develop,
-- run,
-- and manage data workloads, aka [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job)
+- 🧑‍💻develop,
+- ▶️run,
+- 📊and manage data workloads, aka [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job)
+
 
 Its Lego-like design consists of lightweight Python modules installed via `pip` package manager. All VDK plugins are easy to combine.
 
 VDK CLI can generate a data job and run your Python code and SQL queries.
 
-**VDK SDK makes your code shorter, more readable, and faster to create.**<br>
-**Ready-to-use data ETL/ELT patterns make Data Engineering with VDK efficient.**
+**🎯VDK SDK makes your code shorter, more readable, and faster to create.**<br>
+**🚦Ready-to-use data ETL/ELT patterns make Data Engineering with VDK efficient.**
 
 Data Engineers use VDK to implement automatic pull ingestion (E in ELT) and batch data transformation (T in ELT) into a database or any other data storage.
 
@@ -64,17 +65,41 @@ VDK creates data processing workflows to:
 ![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
 
 
-# Versatile Data Kit Components
-- Software Development Kit (SDK):
-    - Tools to automate the extraction, transformation, and loading of data.
-    - A plugin framework that allows users to extend the framework according to their specific requirements.
-- Control Service: The Control Service allows users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.
+# What VDK can do
 
+<p>
+<img src="./support/images/components/VDK SDK.svg" width="600" />
+</p>
+<p>
+<img src="./support/images/components/VDK SDK modules (1).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (2).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (3).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (4).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (5).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (6).svg" width="300"/>
+<img src="./support/images/components/VDK SDK modules (7).svg" width="300"/>
+</p>
+
+<p>
+<img src="./support/images/components/VDK CLI.svg" width="600"/>
+</p>
+
+
+<!-- This is going to be transferred to the VDK CLI page to be linked:
 A preview of the VDK CLI commands:
 - `vdk create`
 - `vdk run`
 - `vdk deploy`<br>
-<br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto />
+  <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto/>
+-->
+<p>
+<img src="./support/images/components/Control Service.svg" width="600"/>
+</p>
+<p>
+<img src="./support/images/components/Control Service modules (1).svg" width="300"/>
+<img src="./support/images/components/Control Service modules (2).svg" width="300"/>
+</p>
+
 
 # Getting Started
 Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.

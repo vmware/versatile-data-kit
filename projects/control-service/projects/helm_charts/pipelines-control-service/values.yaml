@@ -36,8 +36,6 @@ operationsUi:
     username:
     password:
   replicaCount: 1
-  externalDns:
-    ttl: 300
   resources:
     limits:
       memory: 512Mi
@@ -45,6 +43,8 @@ operationsUi:
     requests:
       memory: 250Mi
       cpu: 25m
+  config: '{"auth": {"skipAuth": true}, "ignoreComponents": ["explorePage", "widgetsComponent"], "ignoreRoutes": ["explore/data-jobs", "explore/data-jobs/:team/:job"]}'
+
 
 # The image configuration for builder jobs used during deployment of data jobs.
 # Generally those should be left as it is.
@@ -285,6 +285,35 @@ deploymentDataJobBaseImage:
   tag: "latest"
   username:
   password:
+
+
+## The map of python versions for data job deployments supported by the Control Service.
+## All values should be strings, and follow the format
+## {"pythonVersion": {"baseImage": "<repository>:<tag>", "vdkImage": "<registry>/<repository>:<tag>"}}
+##
+## The value of baseImage will be used to create the image, where data job would be run.
+## On top of it the job source and its dependencies are installed for each job.
+## It can be customized further by installing other native dependencies necessary to run different kinds of libraries
+##
+## The value of vdkImage is the image name of VDK, which will be used to run the data jobs.
+## It is recommended to use image with same tag (e.g., release or latest),
+## as it will be pulled before any execution, thus making sure all jobs use the same and latest version of VDK.
+## The image should contain installation of VDK (vdk), which will be used to run the data jobs (vdk run command)
+## Only the installed python modules (vdk and its dependencies) will be used from the image.
+## Everything else is effectively discarded since another image is used as base during execution.
+##
+## Example:
+## deploymentSupportedPythonVersions:
+##   3.7:
+##     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
+##     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+deploymentSupportedPythonVersions: {}
+
+
+## Default python version to be used for data job deployments. The value should be a string and would be
+## used when a user has not provided a specific python_version for their data job's deployment.
+## Example: "3.9"
+deploymentDefaultPythonVersion: ""
 
 ## ini formatted options that provides default and per-job VDK options.
 ## Allows to provide VDK configuration via environment variables.
@@ -949,7 +978,7 @@ dataJob:
     logsUrl:
       ## This template will be used for building of logs URL for each data job execution returned by API.
       ## Supported variables which will be replaced in the template with the particular execution values:
-      ## {{execution_id}}, {{job_name}}, {{op_id}}, {{start_time}} and {{end_time}}
+      ## {{execution_id}}, {{team_name}}, {{job_name}}, {{op_id}}, {{start_time}} and {{end_time}}
       ## Example: "https://log-insight-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C2%A7%C2%A7%C2%A7%C2%
       ## A7{{start_time}}%C2%A7{{end_time}}%C2%A7true%C2%A7COUNT%C2%A7text:CONTAINS:{{execution_id}}*"
       urlTemplate: ""

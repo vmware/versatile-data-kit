@@ -132,10 +132,10 @@ class JobDeploy:
                 "Note that your deployed job will not be scheduled and will only run when manually executed."
             )
         contacts = DataJobContacts(
-            local_config.get_contacts_notified_on_job_failure_user_error(),
-            local_config.get_contacts_notified_on_job_failure_platform_error(),
-            local_config.get_contacts_notified_on_job_success(),
-            local_config.get_contacts_notified_on_job_deploy(),
+            notified_on_job_failure_user_error=local_config.get_contacts_notified_on_job_failure_user_error(),
+            notified_on_job_failure_platform_error=local_config.get_contacts_notified_on_job_failure_platform_error(),
+            notified_on_job_success=local_config.get_contacts_notified_on_job_success(),
+            notified_on_job_deploy=local_config.get_contacts_notified_on_job_deploy(),
         )
         job.config = DataJobConfig(
             enable_execution_notifications=local_config.get_enable_execution_notifications(),
@@ -154,28 +154,28 @@ class JobDeploy:
         enabled: Optional[bool],  # true, false or None
         job_version: Optional[str],
         vdk_version: Optional[str],
+        python_version: Optional[str] = None,
     ) -> None:
         deployment = DataJobDeployment(enabled=None)
         if job_version:
             deployment.job_version = job_version
         if vdk_version:
             deployment.vdk_version = vdk_version
+        if python_version:
+            deployment.python_version = python_version
         deployment.enabled = enabled
 
-        if job_version:
-            self.__update_job_version(name, team, deployment)
-        elif vdk_version or enabled is not None:
+        if job_version or python_version or vdk_version:
             self.__update_deployment(name, team, deployment)
+        elif enabled is not None:
+            self.__patch_deployment(name, team, deployment)
             msg = f"Deployment of Data Job {name} updated; "
-            if vdk_version:
-                msg = msg + f"vdk version: {vdk_version}; "
-            if enabled is not None:
-                msg = msg + "status: " + ("enabled" if enabled else "disabled") + "; "
+            msg = msg + "status: " + ("enabled" if enabled else "disabled") + "; "
             log.info(msg)
         else:
             log.warning(f"Nothing to update for deployment of job {name}.")
 
-    def __update_deployment(
+    def __patch_deployment(
         self, name: str, team: str, deployment: DataJobDeployment
     ) -> None:
         log.debug(f"Update Deployment of a job {name} of team {team} : {deployment}")
@@ -186,7 +186,7 @@ class JobDeploy:
             data_job_deployment=deployment,
         )
 
-    def __update_job_version(self, name: str, team: str, deployment: DataJobDeployment):
+    def __update_deployment(self, name: str, team: str, deployment: DataJobDeployment):
         log.debug(
             f"Update Deployment version of a job {name} of team {team} : {deployment}"
         )
@@ -207,6 +207,7 @@ class JobDeploy:
             result = {
                 "job_name": name,
                 "job_version": deployment.job_version,
+                "python_version": deployment.python_version,
             }
             self.__printer.print_dict(result)
 
@@ -233,6 +234,7 @@ class JobDeploy:
                     job_version=d.job_version,
                     last_deployed_by=d.last_deployed_by,
                     last_deployed_date=d.last_deployed_date,
+                    python_version=d.python_version,
                     enabled=d.enabled,
                 ),
                 deployments,
@@ -304,7 +306,16 @@ class JobDeploy:
                     reason=reason,
                 )
 
+            python_version = job_config.get_python_version()
+
             self.__update_data_job_deploy_configuration(job_path, name, team)
-            self.update(name, team, enabled, data_job_version.version_sha, vdk_version)
+            self.update(
+                name,
+                team,
+                enabled,
+                data_job_version.version_sha,
+                vdk_version,
+                python_version,
+            )
         finally:
             self.__cleanup_archive(archive_path=archive_path)

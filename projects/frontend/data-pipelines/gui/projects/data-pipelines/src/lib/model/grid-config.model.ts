@@ -9,3 +9,11 @@ export enum DisplayMode {
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
     STANDARD = 'standard'
 }
+
+export interface GridFilters {
+    jobName?: string;
+    teamName?: string;
+    descriptionFilter?: string;
+    deploymentStatus?: string;
+    deploymentLastExecutionStatus?: string;
+}

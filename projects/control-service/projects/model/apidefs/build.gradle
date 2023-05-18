@@ -1,7 +1,6 @@
 plugins {
     id 'java'
-//  when we upgrade to a newer version of openapi.generator we should delete the folder openapi-code-generator/template
-    id 'org.openapi.generator' version '6.2.1'
+    id 'org.openapi.generator' version '6.6.0'
 }
 
 subprojects {
@@ -20,7 +19,6 @@ subprojects {
         validateSpec = true
         outputDir = "$rootDir"
         configFile = "$rootDir/openapi-code-generator/config-spring.json"
-        templateDir = "$rootDir/openapi-code-generator/template"
     }
 
 //    At the moment there doesn't seem to be a way to get open api generator to create the openApi config object but not generate main and all the controllers.
@@ -49,7 +47,7 @@ subprojects {
     }
 
     task buildPython(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
-        generatorName = "python"
+        generatorName = "python-nextgen"
         inputSpec = "$projectDir/api.yaml"
         outputDir = "$projectDir/build/python"
         configFile = "$projectDir/config-python.json"

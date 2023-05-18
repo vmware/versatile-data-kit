@@ -3,15 +3,21 @@
    ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<clr-checkbox-wrapper *ngFor="let type of allTypes">
+<clr-checkbox-wrapper
+    *ngFor="let type of allTypes"
+    data-cy="dp-job-executions-type-filter-checkbox"
+>
     <input
+        [attr.data-cy]="'dp-job-executions-type-filter-checkbox-' + type?.toLowerCase()"
         clrCheckbox
         type="checkbox"
+        [checked]="selectedTypes.includes(type)"
         [value]="type"
         (change)="toggleCheckbox($event)"
     />
 
-    <label data-cy="data-pipelines-job-executions-type-filters">
-        {{ type | titlecase }}</label
+    <label
+        [attr.data-cy]="'dp-job-executions-type-filter-label-' + type?.toLowerCase()"
+        >{{ type | titlecase }}</label
     >
 </clr-checkbox-wrapper>

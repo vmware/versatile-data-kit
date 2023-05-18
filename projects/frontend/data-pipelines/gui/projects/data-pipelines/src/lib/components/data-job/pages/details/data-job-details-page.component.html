@@ -239,6 +239,28 @@
                         </vdk-form-section-container>
 
                         <vdk-form-section-container
+                            *ngIf="shouldShowChangeHistorySection && changeHistoryConfig && !!jobState"
+                            class="p-header-section"
+                            [formState]="readFormState"
+                            sectionName="change_history"
+                        >
+                            <div class="section-title" style="width: 5.5rem">
+                                Change history
+                            </div>
+                            <div class="form-section-readonly">
+                                <a
+                                    class="label-link"
+                                    href="{{ changeHistoryConfig.urlTemplate }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    (click)="navigateToJobChangeHistory($event)"
+                                >
+                                    {{ changeHistoryConfig.urlTemplate }}
+                                </a>
+                            </div>
+                        </vdk-form-section-container>
+
+                        <vdk-form-section-container
                             class="p-header-section"
                             [formState]="readFormState"
                             sectionName="source_url"
@@ -361,8 +383,8 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{ ( jobDetails
-                                                        ?.config ?.contacts
+                                                        ...(+{{ (jobDetails
+                                                        ?.config?.contacts
                                                         ?.notified_on_job_deploy
                                                         | extractContacts
                                                         ).length - 3 }})
@@ -464,8 +486,8 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{ ( jobDetails
-                                                        ?.config ?.contacts
+                                                        ...(+{{ (jobDetails
+                                                        ?.config?.contacts
                                                         ?.notified_on_job_failure_platform_error
                                                         | extractContacts
                                                         ).length - 3 }})
@@ -567,8 +589,8 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{ ( jobDetails
-                                                        ?.config ?.contacts
+                                                        ...(+{{ (jobDetails
+                                                        ?.config?.contacts
                                                         ?.notified_on_job_failure_user_error
                                                         | extractContacts
                                                         ).length - 3 }})
@@ -670,8 +692,8 @@
                                                         class="btn btn-link"
                                                         clrSignpostTrigger
                                                     >
-                                                        ...(+{{ ( jobDetails
-                                                        ?.config ?.contacts
+                                                        ...(+{{ (jobDetails
+                                                        ?.config?.contacts
                                                         ?.notified_on_job_success
                                                         | extractContacts
                                                         ).length - 3 }})
@@ -817,6 +839,7 @@
                     <lib-executions-timeline
                         *ngIf="!loadingExecutions"
                         [jobExecutions]="jobExecutions"
+                        [showErrorMessage]="true"
                         [next]="
                             (jobState?.deployments | extractJobStatus) ===
                             'Enabled'
