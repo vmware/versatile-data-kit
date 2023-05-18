@@ -12,6 +12,14 @@ import {
 } from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
 
+const showError = async (error: any) => {
+  await showErrorMessage(
+    'Encountered an error while trying to connect the server. Error:',
+    error,
+    [Dialog.okButton()]
+  );
+};
+
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -45,11 +53,7 @@ export async function jobRunRequest(): Promise<{
       });
       return { message: data['message'], status: data['message'] == '0' };
     } catch (error) {
-      await showErrorMessage(
-        'Encountered an error when trying to run the job. Error:',
-        error,
-        [Dialog.okButton()]
-      );
+      showError(error);
       return { message: '', status: false };
     }
   } else {
@@ -82,11 +86,7 @@ export async function jobRequest(endPoint: string): Promise<void> {
         );
       }
     } catch (error) {
-      await showErrorMessage(
-        'Encountered an error while trying to run the VDK operation. Error:',
-        error,
-        [Dialog.okButton()]
-      );
+      showError(error);
     }
   }
 }
@@ -106,10 +106,70 @@ export async function jobdDataRequest(): Promise<void> {
       jobData.set(VdkOption.PATH, data[VdkOption.PATH]);
     }
   } catch (error) {
-    await showErrorMessage(
-      'Encountered an error while trying to connect the server. Error:',
-      error,
-      [Dialog.okButton()]
-    );
+    showError(error);
   }
+}
+
+/**
+ * Sent a POST request to the server to get more information about the notebook that includes a cell with the given id
+ * Returns the path to the notebook file and the index of the cell with the spicific id
+ * If no such notebook in the current directory or no notebook with a cell with such an id is found return empty strings
+ */
+export async function getNotebookInfo(cellId: string): Promise<{
+  path: string;
+  cellIndex: string;
+}> {
+  type getNotebookInfoResult = {
+    path: string;
+    cellIndex: string;
+  };
+  const dataToSend = {
+    cellId: cellId,
+    jobPath: jobData.get(VdkOption.PATH)
+  };
+  if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
+    try {
+      const data = await requestAPI<getNotebookInfoResult>('notebook', {
+        body: JSON.stringify(dataToSend),
+        method: 'POST'
+      });
+      return {
+        path: data['path'],
+        cellIndex: data['cellIndex']
+      };
+    } catch (error) {
+      showError(error);
+      return {
+        path: '',
+        cellIndex: ''
+      };
+    }
+  } else {
+    return {
+      path: '',
+      cellIndex: ''
+    };
+  }
+}
+
+/**
+ * Sent a POST request to the server to indices of the vdk cells of a notebook
+ * Returns an Array with indices if vdk cells are found and empty array if not
+ */
+export async function getVdkCellIndices(
+  nbPath: string
+): Promise<Array<Number>> {
+  try {
+    const dataToSend = {
+      nbPath: nbPath
+    };
+    const data = await requestAPI<Array<Number>>('vdkCellIndices', {
+      body: JSON.stringify(dataToSend),
+      method: 'POST'
+    });
+    return data;
+  } catch (error) {
+    showError(error);
+  }
+  return [];
 }

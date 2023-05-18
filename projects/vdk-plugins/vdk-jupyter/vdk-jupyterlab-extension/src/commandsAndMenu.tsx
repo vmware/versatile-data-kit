@@ -9,12 +9,13 @@ import { showDeleteJobDialog } from './components/DeleteJob';
 import { jobdDataRequest } from './serverRequests';
 import { VdkOption } from './vdkOptions/vdk_options';
 import { workingDirectory } from '.';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 var runningVdkOperation = false;
 
-export function updateVDKMenu(commands: CommandRegistry) {
+export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentManager) {
   // Add Run job command
-  add_command(commands, 'jp-vdk:menu-run','Run','Execute VDK Run Command', showRunJobDialog);
+  add_command(commands, 'jp-vdk:menu-run','Run','Execute VDK Run Command', showRunJobDialog, docManager);
 
   // Add Create job command
   add_command(commands, 'jp-vdk:menu-create','Create','Execute VDK Create Command', showCreateJobDialog);
@@ -36,7 +37,8 @@ export function updateVDKMenu(commands: CommandRegistry) {
  *@param caption - the caption for the command.
  *@param getOperationDialog - function that will load the dialog for the command
  */
-function add_command(commands: CommandRegistry, schemaNaming: string, label: string, caption: string, getOperationDialog: Function){
+function add_command(commands: CommandRegistry, schemaNaming: string, label: string, caption: string, getOperationDialog: Function,
+  docManager?: IDocumentManager){
   commands.addCommand(schemaNaming, {
     label: label,
     caption: caption,
@@ -46,7 +48,8 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
           runningVdkOperation = true;
           jobData.set(VdkOption.PATH, workingDirectory);
           await jobdDataRequest();
-          await getOperationDialog();
+          if(docManager) await getOperationDialog(docManager);
+          else  await getOperationDialog();
           setJobDataToDefault();
           runningVdkOperation = false;
         } else {
