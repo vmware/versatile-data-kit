@@ -33,7 +33,7 @@ project.ext {
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.5',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.2.0',
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.2.0',
-            'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.18.0',
+            'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.18.1',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
@@ -41,15 +41,15 @@ project.ext {
             'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
             'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:20.2',
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.1',
-            'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.7.0',
-            'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.466',
-            'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.466',
-            'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.466',
+            'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.8.0',
+            'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.468',
+            'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.468',
+            'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.468',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
             'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.9.3',
-            'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.9',
+            'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.10',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.9',
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.11.0',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.3.0',

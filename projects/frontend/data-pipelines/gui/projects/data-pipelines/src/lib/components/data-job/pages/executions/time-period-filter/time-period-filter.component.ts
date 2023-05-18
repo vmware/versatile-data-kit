@@ -13,6 +13,10 @@ import moment from 'moment';
 
 import { CollectionsUtil } from '@versatiledatakit/shared';
 
+import { FiltersSortManager } from '../../../../../commons';
+
+import { ExecutionsFilterCriteria, FILTER_TIME_PERIOD_KEY } from '../model';
+
 type CustomFormGroup = FormGroup & { controls: { [key: string]: FormControl } };
 
 @Component({
@@ -37,6 +41,14 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
      */
     @Input() isComponentInErrorState = false;
 
+    /**
+     * ** Executions filters sort manager injected from parent.
+     */
+    @Input() filtersSortManager: Readonly<FiltersSortManager<ExecutionsFilterCriteria, string>>;
+
+    /**
+     * ** Event Emitter that emits events on every user form action like submit or clear.
+     */
     @Output() filterChanged: EventEmitter<{ fromTime: Date; toTime: Date }> = new EventEmitter<{ fromTime: Date; toTime: Date }>();
 
     pickerConfig: IDatePickerDirectiveConfig = {
@@ -56,15 +68,50 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         ...this.pickerConfig
     };
 
+    /**
+     * ** User selected value for "FROM" time date picker.
+     */
     fromTime: Date;
+
+    /**
+     * ** User selected value for "TO" time date picker.
+     */
     toTime: Date;
 
+    /**
+     * ** Allowed ranges for "FROM" time date picker.
+     */
+    // "FROM" time min allowed value is used from {@link this.minTime}
     fromTimeMin: moment.Moment;
+    // "FROM" time max allowed value is less than {@link this.toTimeMin}
     fromTimeMax: moment.Moment;
+
+    /**
+     * ** Allowed ranges for "TO" time date picker.
+     */
+    // "TO" time min allowed value is less than {@link this.fromTimeMax}
     toTimeMin: moment.Moment;
+    // "TO" time max allowed value for selection is current time. There is scheduled interval on 15s that updates this value.
+    // TODO check if will work without upper range
     toTimeMax: moment.Moment;
 
+    /**
+     * ** Angular form where DatePicker inputs belongs.
+     */
     tmForm: CustomFormGroup;
+
+    @Input()
+    set timePeriod(timePeriod: string) {
+        if (timePeriod === this._timePeriod) {
+            return;
+        }
+
+        this._timePeriod = timePeriod;
+
+        this._applyTimePeriodFromTo(timePeriod);
+
+        this._normalizeUrlFilterAfterLoad();
+    }
 
     @Input()
     set minTime(date: Date) {
@@ -72,21 +119,22 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             return;
         }
 
+        // set once during initialization or forced when user clear the form
         if (!this._initiallySetMin) {
             this._initiallySetMin = true;
 
             this.fromTime = date;
             this._minTimeOrig = date;
 
-            const minDateTime = this._normalizeDateTime(date, 'min', 'utc');
+            const fromTimeMin = this._normalizeDateTime(date, 'min', 'utc');
 
-            this.fromTimeMin = minDateTime;
+            this.fromTimeMin = fromTimeMin;
             this.fromPickerConfig = {
                 ...this.fromPickerConfig,
                 min: this.fromTimeMin
             };
 
-            this.toTimeMin = minDateTime;
+            this.toTimeMin = fromTimeMin;
             this.toPickerConfig = {
                 ...this.toPickerConfig,
                 min: this.toTimeMin
@@ -97,7 +145,9 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             }
         }
 
-        this._refreshMaxTime();
+        this._setMaxTime();
+
+        this._normalizeUrlFilterAfterLoad();
     }
 
     private _loading = false;
@@ -106,9 +156,16 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
 
     private _isFromPickerOpened = false;
     private _isToPickerOpened = false;
+
     private _initiallySetMin = false;
     private _initiallySetMax = false;
+
+    // refresh interval scheduled reference
     private _refreshIntervalRef: number;
+
+    private _timePeriod: string;
+
+    private _isUrlNormalizeExecuted = false;
 
     /**
      * ** Constructor.
@@ -181,14 +238,20 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * ** Submit selected values and emit.
+     */
     submitForm($event: Event): void {
-        $event.preventDefault();
+        $event?.preventDefault();
 
         this._emitChanges();
     }
 
+    /**
+     * ** Clear selected values and emit.
+     */
     clearFilter($event: MouseEvent): void {
-        $event.preventDefault();
+        $event?.preventDefault();
 
         this._initiallySetMin = false;
         this._initiallySetMax = false;
@@ -205,9 +268,10 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
      * @inheritDoc
      */
     ngOnInit(): void {
+        // TODO check if we could not set max time for "TO" period filter and instead current time to be the max allowed
         this._refreshIntervalRef = setInterval(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            this._refreshMaxTime.bind(this),
+            this._setMaxTime.bind(this),
             15 * 1000
         ); // Update max time every 15s
     }
@@ -221,7 +285,7 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
         }
     }
 
-    private _refreshMaxTime() {
+    private _setMaxTime() {
         const date = new Date();
 
         this.toTimeMax = this._normalizeDateTime(date, 'max', 'utc');
@@ -230,21 +294,36 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
             max: this.toTimeMax
         };
 
+        // set once during initialization or forced when user clear the form
         if (!this._initiallySetMax) {
             this._initiallySetMax = true;
 
             this.toTime = date;
 
-            this.fromTimeMax = this._normalizeDateTime(date, 'max', 'utc');
+            this.fromTimeMax = this._normalizeDateTime(this.toTime, 'max', 'utc');
             this.fromPickerConfig = {
                 ...this.fromPickerConfig,
                 max: this.fromTimeMax
             };
 
             if (!this._isToPickerOpened) {
-                this.tmForm.get('toDate').patchValue(this._normalizeDateTime(date, 'to', 'utc').format(this.toPickerConfig.format));
+                this.tmForm.get('toDate').patchValue(this._normalizeDateTime(this.toTime, 'to', 'utc').format(this.toPickerConfig.format));
             }
         }
+    }
+
+    private _applyTimePeriodFromTo(timePeriodPairValues: string): void {
+        if (!CollectionsUtil.isString(timePeriodPairValues) || timePeriodPairValues.length === 0) {
+            if (CollectionsUtil.isDefined(this.fromTime) || CollectionsUtil.isDate(this.toTime)) {
+                this.clearFilter(null);
+            }
+
+            return;
+        }
+
+        this._deserializeTimePeriodPairValues(timePeriodPairValues);
+
+        this.submitForm(null);
     }
 
     private _normalizeDateTime(
@@ -276,9 +355,93 @@ export class TimePeriodFilterComponent implements OnInit, OnDestroy {
     }
 
     private _emitChanges(): void {
+        if (CollectionsUtil.isNil(this.fromTime) || CollectionsUtil.isNil(this.toTime)) {
+            this.filtersSortManager.deleteFilter(FILTER_TIME_PERIOD_KEY);
+        } else {
+            this.filtersSortManager.setFilter(FILTER_TIME_PERIOD_KEY, this._serializeTimePeriodPairValues());
+        }
+
         this.filterChanged.emit({
             fromTime: this.fromTime,
             toTime: this.toTime
         });
+    }
+
+    private _normalizeUrlFilterAfterLoad(): void {
+        if (!this.filtersSortManager) {
+            return;
+        }
+
+        if (!this._isUrlNormalizeExecuted) {
+            this._isUrlNormalizeExecuted = true;
+
+            return;
+        }
+
+        if (!this.filtersSortManager.hasFilter(FILTER_TIME_PERIOD_KEY)) {
+            return;
+        }
+
+        if (this.filtersSortManager.filterCriteria[FILTER_TIME_PERIOD_KEY] === this._serializeTimePeriodPairValues()) {
+            return;
+        }
+
+        this.filtersSortManager.setFilter(FILTER_TIME_PERIOD_KEY, this._serializeTimePeriodPairValues());
+        this.filtersSortManager.updateBrowserUrl('replaceToURL', true);
+    }
+
+    private _serializeTimePeriodPairValues(): string {
+        let timePeriodFilter = '';
+
+        if (this.fromTime instanceof Date) {
+            timePeriodFilter += `${this.fromTime.valueOf()}`;
+        }
+
+        if (this.toTime instanceof Date) {
+            timePeriodFilter += `-${this.toTime.valueOf()}`;
+        }
+
+        return timePeriodFilter;
+    }
+
+    private _deserializeTimePeriodPairValues(timePeriodPairValues: string): void {
+        const fromToTimeTuple = timePeriodPairValues.split('-');
+
+        let fromTime: Date;
+        let toTime: Date;
+
+        if (CollectionsUtil.isStringWithContent(fromToTimeTuple[0]) && /\d+/.test(fromToTimeTuple[0])) {
+            const parsedFromEpochTime = parseInt(fromToTimeTuple[0], 10);
+
+            if (CollectionsUtil.isNumber(parsedFromEpochTime) && !CollectionsUtil.isNaN(parsedFromEpochTime)) {
+                fromTime = new Date(parsedFromEpochTime);
+
+                if (CollectionsUtil.isNaN(fromTime.valueOf())) {
+                    fromTime = null;
+                }
+            }
+        }
+
+        if (CollectionsUtil.isStringWithContent(fromToTimeTuple[1]) && /\d+/.test(fromToTimeTuple[1])) {
+            const parsedToEpochTime = parseInt(fromToTimeTuple[1], 10);
+
+            if (CollectionsUtil.isNumber(parsedToEpochTime) && !CollectionsUtil.isNaN(parsedToEpochTime)) {
+                toTime = new Date(parsedToEpochTime);
+
+                if (CollectionsUtil.isNaN(toTime.valueOf())) {
+                    toTime = null;
+                }
+            }
+        }
+
+        if (CollectionsUtil.isDefined(fromTime) && CollectionsUtil.isDefined(toTime)) {
+            this.fromTime = fromTime;
+            this.tmForm
+                .get('fromDate')
+                .patchValue(this._normalizeDateTime(this.fromTime, 'from', 'utc').format(this.fromPickerConfig.format));
+
+            this.toTime = toTime;
+            this.tmForm.get('toDate').patchValue(this._normalizeDateTime(this.toTime, 'to', 'utc').format(this.toPickerConfig.format));
+        }
     }
 }

@@ -20,6 +20,7 @@ def is_impala_user_error(received_exception):
         or _is_quota_exceeded(received_exception)
         or _is_other_query_error(received_exception)
         or _is_property_unsupported_value_error(received_exception)
+        or _is_udf_hive_server2_error(received_exception)
     )
 
 
@@ -118,4 +119,12 @@ def _is_quota_exceeded(exception):
         exception,
         classname_with_package="impala.error.OperationalError",
         exception_message_matcher_regex=".*DiskSpace quota of .* is exceeded.*",
+    )
+
+
+def _is_udf_hive_server2_error(exception):
+    return errors.exception_matches(
+        exception,
+        classname_with_package="impala.error.HiveServer2Error",
+        exception_message_matcher_regex=".*UDF ERROR:.*",
     )

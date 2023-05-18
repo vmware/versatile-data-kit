@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { DatePipe, Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { map, take } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+
+import { ClrDatagridSortOrder } from '@clr/angular';
 
 import {
     ASC,
@@ -22,10 +25,13 @@ import {
     OnTaurusModelLoad,
     RouterService,
     RouteState,
-    TaurusBaseComponent
+    TaurusBaseComponent,
+    URLStateManager
 } from '@versatiledatakit/shared';
 
 import { DataJobUtil, ErrorUtil } from '../../../../../shared/utils';
+
+import { FiltersSortManager } from '../../../../../commons';
 
 import {
     DataJobExecutionFilter,
@@ -47,14 +53,24 @@ import { DataJobsService } from '../../../../../services';
 
 import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../model/data-job-execution';
 
+import {
+    ExecutionsFilterCriteria,
+    ExecutionsFilterSortObject,
+    ExecutionsSortCriteria,
+    SORT_START_TIME_KEY,
+    SUPPORTED_EXECUTIONS_FILTER_CRITERIA,
+    SUPPORTED_EXECUTIONS_SORT_CRITERIA
+} from '../model/executions-filters.model';
+
 @Component({
     selector: 'lib-data-job-executions-page',
     templateUrl: './data-job-executions-page.component.html',
-    styleUrls: ['./data-job-executions-page.component.scss']
+    styleUrls: ['./data-job-executions-page.component.scss'],
+    providers: [DatePipe]
 })
 export class DataJobExecutionsPageComponent
     extends TaurusBaseComponent
-    implements OnTaurusModelInit, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError, OnInit
+    implements OnTaurusModelInit, OnTaurusModelLoad, OnTaurusModelChange, OnTaurusModelError, OnInit, OnDestroy
 {
     readonly uuid = 'DataJobExecutionsPageComponent';
 
@@ -82,15 +98,45 @@ export class DataJobExecutionsPageComponent
      */
     isComponentInErrorState = false;
 
+    /**
+     * ** Executions filters sort manager for this page, that is injected to its children.
+     *
+     *      - Singleton for the page instance including its children.
+     */
+    readonly filtersSortManager: Readonly<
+        FiltersSortManager<ExecutionsFilterCriteria, string, ExecutionsSortCriteria, ClrDatagridSortOrder>
+    >;
+
+    /**
+     * ** Url state manager in context of this page.
+     *
+     *      - Singleton for the page instance including its children.
+     */
+    private readonly urlStateManager: URLStateManager;
+
+    /**
+     * ** Constructor.
+     */
     constructor(
         componentService: ComponentService,
         navigationService: NavigationService,
         activatedRoute: ActivatedRoute,
         private readonly routerService: RouterService,
         private readonly dataJobsService: DataJobsService,
-        private readonly errorHandlerService: ErrorHandlerService
+        private readonly errorHandlerService: ErrorHandlerService,
+        private readonly changeDetectorRef: ChangeDetectorRef,
+        private readonly router: Router,
+        private readonly location: Location,
+        private readonly datePipe: DatePipe
     ) {
         super(componentService, navigationService, activatedRoute);
+
+        this.urlStateManager = new URLStateManager(router.url.split('?')[0], location);
+        this.filtersSortManager = new FiltersSortManager(
+            this.urlStateManager,
+            SUPPORTED_EXECUTIONS_FILTER_CRITERIA,
+            SUPPORTED_EXECUTIONS_SORT_CRITERIA
+        );
     }
 
     doNavigateBack(): void {
@@ -133,16 +179,37 @@ export class DataJobExecutionsPageComponent
                     direction: ASC
                 } as DataJobExecutionOrder)
         );
+
+        this.changeDetectorRef.markForCheck();
     }
 
     /**
      * @inheritDoc
      */
     onModelInit(): void {
-        this.routerService
-            .getState()
-            .pipe(take(1))
-            .subscribe((routeState) => this._initialize(routeState));
+        let isInitialized = false;
+
+        this.subscriptions.push(
+            this.routerService
+                .getState()
+                .pipe(
+                    distinctUntilChanged((a, b) => {
+                        return CollectionsUtil.isEqual(a.queryParams, b.queryParams);
+                    })
+                )
+                .subscribe((state) => {
+                    if (!isInitialized) {
+                        isInitialized = true;
+
+                        this._initialize(state);
+                    } else {
+                        // pass query params for popped state and let manager extract known filters and sort
+                        // action is needed for Browser backward/forward actions that trigger router navigation
+                        // tested only for "locationToUrl" update strategy for URLStateManager
+                        this.filtersSortManager.bulkUpdate(state.queryParams as ExecutionsFilterSortObject, true);
+                    }
+                })
+        );
     }
 
     /**
@@ -195,6 +262,15 @@ export class DataJobExecutionsPageComponent
         super.ngOnInit();
     }
 
+    /**
+     * @inheritDoc
+     */
+    override ngOnDestroy(): void {
+        this.filtersSortManager.cancelScheduledBrowserUrlUpdate();
+
+        super.ngOnDestroy();
+    }
+
     private _initialize(state: RouteState): void {
         const teamParamKey = state.getData<DataPipelinesRouteData['teamParamKey']>('teamParamKey');
         this.teamName = state.getParam(teamParamKey);
@@ -204,19 +280,36 @@ export class DataJobExecutionsPageComponent
 
         this.isJobEditable = !!state.getData<DataPipelinesRouteData['editable']>('editable');
 
+        // filters/sort manager have to be initialized before sending HTTP request to load executions
+        this._initializeFiltersSortManager(state);
+
         this._subscribeForExecutions();
 
         this.fetchDataJobExecutions();
+    }
+
+    private _initializeFiltersSortManager(state: RouteState): void {
+        // update manager configuration
+        this.filtersSortManager.changeBaseUrl(state.absoluteRoutePath);
+        this.filtersSortManager.changeUpdateStrategy('locationToURL');
+
+        // update stored filters and sort criteria from Browser URL query params
+        this.filtersSortManager.bulkUpdate(state.queryParams as ExecutionsFilterSortObject);
+
+        // if there is no sort applied through Browser URL, apply default sorting by Start Time Descending
+        if (!this.filtersSortManager.hasAnySort()) {
+            this.filtersSortManager.setSort(SORT_START_TIME_KEY, ClrDatagridSortOrder.DESC);
+        }
+
+        // update Browser URL with replace state, normalized to only manager known criteria
+        this.filtersSortManager.updateBrowserUrl('replaceToURL', true);
     }
 
     private _subscribeForExecutions(): void {
         this.subscriptions.push(
             this.dataJobsService
                 .getNotifiedForJobExecutions()
-                .pipe(
-                    // eslint-disable-next-line @typescript-eslint/unbound-method
-                    map(DataJobExecutionToGridDataJobExecution.convertToDataJobExecution)
-                )
+                .pipe(map(DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(this.datePipe)))
                 .subscribe({
                     next: (values) => {
                         this.jobExecutions = values.filter((ex) => {

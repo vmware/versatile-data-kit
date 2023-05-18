@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import os
 from unittest.mock import patch
 
 from click.testing import CliRunner
