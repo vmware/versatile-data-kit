@@ -112,7 +112,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM));
 
     if (resultAction.andReturn().getResponse().getStatus() != 200) {
-      throw new RuntimeException(
+      throw new Exception(
           "status is "
               + resultAction.andReturn().getResponse().getStatus()
               + "\nbody is "
