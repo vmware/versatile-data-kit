@@ -12,6 +12,14 @@ import {
 } from './jobData';
 import { VdkOption } from './vdkOptions/vdk_options';
 
+const showError = async (error: any) => {
+  await showErrorMessage(
+    'Encountered an error while trying to connect the server. Error:',
+    error,
+    [Dialog.okButton()]
+  );
+};
+
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -45,11 +53,7 @@ export async function jobRunRequest(): Promise<{
       });
       return { message: data['message'], status: data['message'] == '0' };
     } catch (error) {
-      await showErrorMessage(
-        'Encountered an error when trying to run the job. Error:',
-        error,
-        [Dialog.okButton()]
-      );
+      showError(error);
       return { message: '', status: false };
     }
   } else {
@@ -82,11 +86,7 @@ export async function jobRequest(endPoint: string): Promise<void> {
         );
       }
     } catch (error) {
-      await showErrorMessage(
-        'Encountered an error while trying to run the VDK operation. Error:',
-        error,
-        [Dialog.okButton()]
-      );
+      showError(error);
     }
   }
 }
@@ -106,11 +106,7 @@ export async function jobdDataRequest(): Promise<void> {
       jobData.set(VdkOption.PATH, data[VdkOption.PATH]);
     }
   } catch (error) {
-    await showErrorMessage(
-      'Encountered an error while trying to connect the server. Error:',
-      error,
-      [Dialog.okButton()]
-    );
+    showError(error);
   }
 }
 
@@ -142,9 +138,7 @@ export async function getNotebookInfo(cellId: string): Promise<{
         cellIndex: data['cellIndex']
       };
     } catch (error) {
-      await showErrorMessage('Encountered an error. Error:', error, [
-        Dialog.okButton()
-      ]);
+      showError(error);
       return {
         path: '',
         cellIndex: ''
@@ -175,9 +169,7 @@ export async function getVdkCellIndices(
     });
     return data;
   } catch (error) {
-    await showErrorMessage('Encountered an error. Error:', error, [
-      Dialog.okButton()
-    ]);
+    showError(error);
   }
   return [];
 }

@@ -10,11 +10,9 @@ import { getVdkCellIndices } from './serverRequests';
 export const addNumberElement = (number: Number, node: Element) => {
   const numberElement = document.createElement('div');
   numberElement.innerText = String(number);
-  if (node.classList.contains('jp-vdk-failing-cell')) {
-    numberElement.classList.add('jp-vdk-failing-cell-num');
-  } else {
-    numberElement.classList.add('jp-vdk-cell-num');
-  }
+  node.classList.contains('jp-vdk-failing-cell')
+    ? numberElement.classList.add('jp-vdk-failing-cell-num')
+    : numberElement.classList.add('jp-vdk-cell-num');
   node.appendChild(numberElement);
 };
 

@@ -179,15 +179,13 @@ class VdkUI:
         for notebook_file in notebook_files:
             with open(notebook_file) as f:
                 notebook_json = json.load(f)
-                cell_index = 0
-                for jupyter_cell in notebook_json["cells"]:
+                for index, jupyter_cell in enumerate(notebook_json["cells"]):
                     if jupyter_cell["id"] == cell_id:
                         notebook_path = str(notebook_file).replace(os.getcwd(), "")
                         return {
                             "path": str(notebook_path),
-                            "cellIndex": str(cell_index),
+                            "cellIndex": str(index),
                         }
-                    cell_index += 1
         return {"path": "", "cellIndex": ""}
 
     @staticmethod
@@ -205,9 +203,7 @@ class VdkUI:
         with open(notebook_path) as f:
             notebook_json = json.load(f)
             vdk_cells = []
-            cell_index = 0
-            for jupyter_cell in notebook_json["cells"]:
+            for index, jupyter_cell in enumerate(notebook_json["cells"]):
                 if "vdk" in jupyter_cell["metadata"].get("tags", {}):
-                    vdk_cells.append(cell_index)
-                cell_index += 1
+                    vdk_cells.append(index)
             return vdk_cells
