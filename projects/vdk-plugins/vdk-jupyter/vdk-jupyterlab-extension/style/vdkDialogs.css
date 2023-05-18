@@ -41,6 +41,11 @@
   padding-bottom: 10px;
 }
 
+.vdk-run-error-message a {
+  color: #11239a;
+  text-decoration: underline;
+}
+
 .vdk-run-dialog-message {
   font-size: 20px;
   color: #33b53a;
