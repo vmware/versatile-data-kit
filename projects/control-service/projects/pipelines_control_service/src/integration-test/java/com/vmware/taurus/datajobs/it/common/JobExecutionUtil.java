@@ -21,6 +21,7 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,8 +273,13 @@ public class JobExecutionUtil {
     return String.format(
         "%s-%s-%s",
         JobExecutionUtil.JOB_NAME_PREFIX,
-        className.substring(0, 34).toLowerCase(),
+        StringUtils.truncate(className, 36).toLowerCase(),
         UUID.randomUUID().toString().substring(0, 8));
+  }
+
+  public static void main(String... a){
+    String as = "12345";
+    System.out.println(StringUtils.truncate(as, 15));
   }
 
   private static void testDataJobExecutionLogs(
