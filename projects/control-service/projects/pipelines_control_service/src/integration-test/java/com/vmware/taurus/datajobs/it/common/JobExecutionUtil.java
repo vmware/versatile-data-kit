@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class JobExecutionUtil {
 
-  public static final String JOB_NAME_PREFIX = "integration-test";
+  public static final String JOB_NAME_PREFIX = "it";
 
   private static final ObjectMapper objectMapper =
       new ObjectMapper()
@@ -272,7 +272,7 @@ public class JobExecutionUtil {
     return String.format(
         "%s-%s-%s",
         JobExecutionUtil.JOB_NAME_PREFIX,
-        className.substring(0, 20).toLowerCase(),
+        className.substring(0, 34).toLowerCase(),
         UUID.randomUUID().toString().substring(0, 8));
   }
 
