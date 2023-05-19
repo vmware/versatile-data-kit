@@ -73,8 +73,12 @@ public class DataJobDeploymentExtension
 
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
+<<<<<<< HEAD
   private String jobName =
       JobExecutionUtil.generateJobName(DataJobDeploymentExtension.class.getSimpleName());
+=======
+  private String jobName;
+>>>>>>> f90ceb6da (test)
 
   private String jobSource = "simple_job.zip";
 
@@ -99,6 +103,7 @@ public class DataJobDeploymentExtension
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
+    jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
