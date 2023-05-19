@@ -19,6 +19,7 @@ class FactDailySnapshotParams(BaseModel):
     check: Optional[Callable[[str], bool]]
     staging_schema: Optional[str]
 
+
 class FactDailySnapshot(TemplateArgumentsValidator):
     TemplateParams = FactDailySnapshotParams
 

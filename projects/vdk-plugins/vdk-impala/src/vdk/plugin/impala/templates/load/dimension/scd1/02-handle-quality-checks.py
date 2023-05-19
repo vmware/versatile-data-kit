@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 
-from vdk.plugin.impala.templates.utility import get_file_content, align_stg_table_with_target, get_staging_table_name
 from vdk.api.job_input import IJobInput
 from vdk.plugin.impala.templates.utility import align_stg_table_with_target
 from vdk.plugin.impala.templates.utility import get_file_content
