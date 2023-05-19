@@ -79,16 +79,7 @@ public class DataJobDeploymentExtension
 
   private boolean initialized = false;
 
-  private final Map<String, Object> SUPPORTED_PARAMETERS =
-      Map.of(
-          "jobName",
-          jobName,
-          "username",
-          USER_NAME,
-          "deploymentId",
-          DEPLOYMENT_ID,
-          "teamName",
-          TEAM_NAME);
+  private Map<String, Object> SUPPORTED_PARAMETERS;
 
   public DataJobDeploymentExtension() {}
 
@@ -99,6 +90,15 @@ public class DataJobDeploymentExtension
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
     jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
+    SUPPORTED_PARAMETERS = Map.of(
+            "jobName",
+            jobName,
+            "username",
+            USER_NAME,
+            "deploymentId",
+            DEPLOYMENT_ID,
+            "teamName",
+            TEAM_NAME);
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
