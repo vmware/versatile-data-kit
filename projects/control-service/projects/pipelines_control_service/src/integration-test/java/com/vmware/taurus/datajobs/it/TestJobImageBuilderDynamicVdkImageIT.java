@@ -34,7 +34,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.hamcrest.Matchers.is;
@@ -54,7 +53,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
-  private static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(TestJobImageBuilderDynamicVdkImageIT.class.getSimpleName());
+  private static final String TEST_JOB_NAME =
+      JobExecutionUtil.generateJobName(TestJobImageBuilderDynamicVdkImageIT.class.getSimpleName());
   private static final Object DEPLOYMENT_ID = "testing";
 
   @TestConfiguration

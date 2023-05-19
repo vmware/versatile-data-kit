@@ -34,7 +34,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
@@ -53,7 +52,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     classes = ControlplaneApplication.class)
 public class DataJobDeploymentCrudIT extends BaseIT {
 
-  private static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(DataJobDeploymentCrudIT.class.getSimpleName());
+  private static final String TEST_JOB_NAME =
+      JobExecutionUtil.generateJobName(DataJobDeploymentCrudIT.class.getSimpleName());
   private static final Object DEPLOYMENT_ID = "testing";
 
   @TestConfiguration

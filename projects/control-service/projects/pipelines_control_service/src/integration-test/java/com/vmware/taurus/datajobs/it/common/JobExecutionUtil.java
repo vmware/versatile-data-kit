@@ -269,7 +269,11 @@ public class JobExecutionUtil {
   }
 
   public static String generateJobName(String className) {
-    return String.format("%s-%s-%s", JobExecutionUtil.JOB_NAME_PREFIX, className.substring(0, 20).toLowerCase(), UUID.randomUUID().toString().substring(0, 8));
+    return String.format(
+        "%s-%s-%s",
+        JobExecutionUtil.JOB_NAME_PREFIX,
+        className.substring(0, 20).toLowerCase(),
+        UUID.randomUUID().toString().substring(0, 8));
   }
 
   private static void testDataJobExecutionLogs(

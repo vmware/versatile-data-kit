@@ -29,7 +29,6 @@ import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -61,7 +60,8 @@ import org.springframework.test.web.servlet.MvcResult;
     classes = ControlplaneApplication.class)
 public class TestJobDeployTempCredsIT extends BaseIT {
 
-  private static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(TestJobDeployTempCredsIT.class.getSimpleName());
+  private static final String TEST_JOB_NAME =
+      JobExecutionUtil.generateJobName(TestJobDeployTempCredsIT.class.getSimpleName());
 
   @Autowired DockerRegistryService dockerRegistryService;
 

@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.UUID;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -30,7 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class UploadSourceValidationIT extends BaseIT {
-  protected static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(UploadSourceValidationIT.class.getSimpleName());
+  protected static final String TEST_JOB_NAME =
+      JobExecutionUtil.generateJobName(UploadSourceValidationIT.class.getSimpleName());
 
   @BeforeEach
   public void setup() throws Exception {
