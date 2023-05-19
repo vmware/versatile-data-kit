@@ -20,6 +20,7 @@ class PatchedAuth(Authentication):
 class DummyStatusResponse:
     status = 200
     data = b"ddf"
+    headers = {"Location": "job-execution-id-01"}
 
     def getheader(self, str):
         return "json"
@@ -39,7 +40,7 @@ class TestVDKHook(unittest.TestCase):
 
     @mock.patch("taurus_datajob_api.api_client.ApiClient.call_api")
     def test_start_job_execution(self, mock_call_api):
-        mock_call_api.return_value = (None, None, {"Location": "job-execution-id-01"})
+        mock_call_api.return_value = DummyStatusResponse()
 
         self.hook.start_job_execution()
 

@@ -11,6 +11,8 @@ from vdk.plugin.dag.dag import Dag
 
 TEAM_NAME: Optional[str] = None
 DAG_CONFIG = None
+JOB_NAME: Optional[str] = None
+EXECUTION_ID: Optional[str] = None
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +33,7 @@ class DagInput(IDagInput):
         :param jobs: the list of jobs that are part of the DAG
         :return:
         """
-        dag = Dag(TEAM_NAME, DAG_CONFIG)
+        dag = Dag(TEAM_NAME, DAG_CONFIG, JOB_NAME, EXECUTION_ID)
         dag.build_dag(jobs)
         dag.execute_dag()
         log.info(f"DAG summary:\n{dag}")
