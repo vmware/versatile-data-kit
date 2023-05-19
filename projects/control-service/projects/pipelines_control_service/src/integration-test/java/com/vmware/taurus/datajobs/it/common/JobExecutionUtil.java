@@ -277,7 +277,7 @@ public class JobExecutionUtil {
         UUID.randomUUID().toString().substring(0, 8));
   }
 
-  public static void main(String... a){
+  public static void main(String... a) {
     String as = "12345";
     System.out.println(StringUtils.truncate(as, 15));
   }
