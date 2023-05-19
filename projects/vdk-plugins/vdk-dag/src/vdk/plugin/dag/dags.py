@@ -16,9 +16,16 @@ class IDataJobExecutor(abc.ABC):
     """
 
     @abc.abstractmethod
-    def start_job(self, job_name: str, team_name: str, arguments: IJobArguments = None):
+    def start_job(
+        self,
+        job_name: str,
+        team_name: str,
+        started_by: str = None,
+        arguments: IJobArguments = None,
+    ):
         """
         Start an execution of a data job and returns its execution id
+        :param started_by:
         :param arguments:
         :param job_name:
         :param team_name:
@@ -40,11 +47,11 @@ class IDataJobExecutor(abc.ABC):
     @abc.abstractmethod
     def details_job(self, job_name: str, team_name: str, execution_id: str) -> dict:
         """
-        Get the current status of a data job execution
+        Get the current details of a data job execution
         :param job_name:
         :param team_name:
         :param execution_id:
-        :return: status in string as defined by Control Service API
+        :return: details in string as defined by Control Service API
         """
         pass
 

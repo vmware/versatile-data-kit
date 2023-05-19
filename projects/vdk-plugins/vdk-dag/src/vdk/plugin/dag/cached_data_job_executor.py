@@ -62,7 +62,10 @@ class TrackingDataJobExecutor:
         job = self.__get_job(job_name)
         job.start_attempt += 1
         execution_id = self.start_new_job_execution(
-            job_name=job.job_name, team_name=job.team_name, arguments=job.arguments
+            job_name=job.job_name,
+            team_name=job.team_name,
+            started_by=job.details.get("started_by"),
+            arguments=job.arguments,
         )
         log.info(f"Starting new data job execution with id {execution_id}")
         job.execution_id = execution_id
@@ -138,6 +141,20 @@ class TrackingDataJobExecutor:
         log.debug(f"Job status: {job}")
         return job.status
 
+    def execution_type(self, job_name: str, team_name: str, execution_id: str) -> str:
+        """
+        Gets the execution type of a job.
+
+        :param execution_id: the execution id of the job
+        :param team_name: the name of the owning team
+        :param job_name: the name of the job
+        :return: the job execution type (manual/scheduled)
+        """
+        details = self._executor.details_job(job_name, team_name, execution_id)
+        log.debug(f"Job execution type: {details.get('type')}")
+        # the default value for execution type is manual
+        return details.get("type", "manual")
+
     def get_finished_job_names(self):
         """
         :return: list of the names of all the finalized jobs
@@ -175,7 +192,11 @@ class TrackingDataJobExecutor:
         return [j for j in self._jobs_cache.values() if j.status in ACTIVE_JOB_STATUSES]
 
     def start_new_job_execution(
-        self, job_name: str, team_name: str, arguments: IJobArguments = None
+        self,
+        job_name: str,
+        team_name: str,
+        started_by: str = None,
+        arguments: IJobArguments = None,
     ) -> str:
         """
         Start a new data job execution.
@@ -193,6 +214,7 @@ class TrackingDataJobExecutor:
 
         :param job_name: name of the data job to be executed
         :param team_name: name of the owning team
+        :param started_by: the execution type and the name of the DAG job
         :param arguments: arguments of the data job
         :return: id of the started job execution
         """
@@ -205,7 +227,9 @@ class TrackingDataJobExecutor:
 
         while current_retries < ALLOWED_RETRIES:
             try:
-                execution_id = self._executor.start_job(job_name, team_name, arguments)
+                execution_id = self._executor.start_job(
+                    job_name, team_name, started_by, arguments
+                )
                 return execution_id
             except url_exception.TimeoutError as e:
                 log.info(
