@@ -22,7 +22,13 @@ log = logging.getLogger(__name__)
 
 
 class Dag:
-    def __init__(self, team_name: str, dags_config: DagPluginConfiguration):
+    def __init__(
+        self,
+        team_name: str,
+        dags_config: DagPluginConfiguration,
+        job_name: str = None,
+        execution_id: str = None,
+    ):
         """
         This module deals with all the DAG-related operations such as build and execute.
 
@@ -47,6 +53,32 @@ class Dag:
             time_between_status_check_seconds=dags_config.dags_time_between_status_check_seconds(),
         )
         self._dag_validator = DagValidator()
+        if job_name is not None:
+            if execution_id is not None:
+                try:
+                    self._started_by = (
+                        self._job_executor.execution_type(
+                            job_name, team_name, execution_id
+                        )
+                        + "/"
+                        + job_name
+                    )
+                except ApiException as e:
+                    if e.status == 404:
+                        log.debug(
+                            f"Job {job_name} of team {team_name} with execution id {execution_id} failed. "
+                            f"Local job runs return 404 status when getting the execution type: {e}"
+                        )
+                    else:
+                        log.info(
+                            f"Unexpected error while checking for job execution type for job {job_name} "
+                            f"with execution id {execution_id} of team {team_name}: {e}"
+                        )
+                    self._started_by = f"manual/{job_name}"
+            else:
+                self._started_by = f"manual/{job_name}"
+        else:
+            self._started_by = "manual/default"
 
     def build_dag(self, jobs: List[Dict]):
         """
@@ -62,7 +94,9 @@ class Dag:
                 job.get("team_name", self._team_name),
                 job.get("fail_dag_on_error", True),
                 job.get("arguments", None),
+                job.get("details", {}),
             )
+            trackable_job.details = {"started_by": self._started_by}
             self._job_executor.register_job(trackable_job)
             self._topological_sorter.add(trackable_job.job_name, *job["depends_on"])
 

@@ -9,6 +9,10 @@ from vdk_provider.hooks.vdk import VDKHook
 from vdk_provider.operators.vdk import VDKOperator
 
 
+class DummyApiResponse:
+    headers = {"Location": "job-execution-id-01"}
+
+
 def call_api_return_func(*args, **kwargs):
     if (
         args[0]
@@ -21,7 +25,7 @@ def call_api_return_func(*args, **kwargs):
             "deployment_id": "production",
         }
     ):
-        return None, None, {"Location": "job-execution-id-01"}
+        return DummyApiResponse()
     elif (
         args[0]
         == "/data-jobs/for-team/{team_name}/jobs/{job_name}/executions/{execution_id}"
