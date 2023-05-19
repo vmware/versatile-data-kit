@@ -90,7 +90,8 @@ public class DataJobDeploymentExtension
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
     jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
-    SUPPORTED_PARAMETERS = Map.of(
+    SUPPORTED_PARAMETERS =
+        Map.of(
             "jobName",
             jobName,
             "username",
