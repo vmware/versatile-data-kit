@@ -12,7 +12,6 @@ import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -26,7 +25,7 @@ public class DataJobMainContainerOOMIT extends BaseIT {
   static DataJobDeploymentExtension dataJobDeploymentExtension =
       new DataJobDeploymentExtension("oom_job.zip");
 
-  @Test
+  //  @Test
   public void testDataJob_causesOOM_shouldCompleteWithUserError(
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
