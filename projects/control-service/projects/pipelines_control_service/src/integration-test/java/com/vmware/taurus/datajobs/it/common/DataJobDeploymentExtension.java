@@ -179,10 +179,26 @@ public class DataJobDeploymentExtension
           .andExpect(status().isAccepted())
           .andReturn();
 
+      await()
+          .atMost(120, TimeUnit.SECONDS)
+          .with()
+          .pollDelay(20, TimeUnit.SECONDS)
+          .pollInterval(2, TimeUnit.SECONDS)
+          .failFast(
+              () -> {
+                if (dataJobsKubernetesService
+                    .getPod("builder-" + jobName)
+                    .map(a -> a.getStatus().getPhase().equals("Failed"))
+                    .orElse(false)) {
+                  throw new Exception(dataJobsKubernetesService.getPodLogs("builder-" + jobName));
+                }
+              })
+          .until(() -> dataJobsKubernetesService.getPod("builder-" + jobName).isEmpty());
+
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(jobName);
       await()
-          .atMost(360, TimeUnit.SECONDS)
+          .atMost(240, TimeUnit.SECONDS)
           .with()
           .pollInterval(10, TimeUnit.SECONDS)
           .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
