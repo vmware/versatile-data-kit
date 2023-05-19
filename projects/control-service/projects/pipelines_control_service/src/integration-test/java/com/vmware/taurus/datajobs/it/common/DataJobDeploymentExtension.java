@@ -73,12 +73,7 @@ public class DataJobDeploymentExtension
 
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-<<<<<<< HEAD
-  private String jobName =
-      JobExecutionUtil.generateJobName(DataJobDeploymentExtension.class.getSimpleName());
-=======
   private String jobName;
->>>>>>> f90ceb6da (test)
 
   private String jobSource = "simple_job.zip";
 
