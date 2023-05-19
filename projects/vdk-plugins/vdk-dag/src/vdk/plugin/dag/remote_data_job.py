@@ -102,13 +102,13 @@ class RemoteDataJob:
             started_by=self.__started_by,
             args=self.__arguments,
         )
-        _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
+        headers = self.__execution_api.data_job_execution_start_with_http_info(
             team_name=self.__team_name,
             job_name=self.__job_name,
             deployment_id=self.deployment_id,
             data_job_execution_request=execution_request,
             _request_timeout=self.timeout,
-        )
+        ).headers
         log.debug(f"Received headers: {headers}")
 
         job_execution_id = os.path.basename(headers["Location"])
