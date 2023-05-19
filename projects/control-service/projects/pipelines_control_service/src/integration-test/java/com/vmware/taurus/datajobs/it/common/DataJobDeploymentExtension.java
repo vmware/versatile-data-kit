@@ -197,7 +197,7 @@ public class DataJobDeploymentExtension
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(jobName);
       await()
-          .atMost(420, TimeUnit.SECONDS)
+          .atMost(240, TimeUnit.SECONDS)
           .with()
           .pollInterval(10, TimeUnit.SECONDS)
           .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
