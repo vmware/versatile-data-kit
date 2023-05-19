@@ -74,8 +74,7 @@ public class DataJobDeploymentExtension
 
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String jobName =
-      JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+  private String jobName = JobExecutionUtil.generateJobName(DataJobDeploymentExtension.class.getSimpleName());
 
   private String jobSource = "simple_job.zip";
 

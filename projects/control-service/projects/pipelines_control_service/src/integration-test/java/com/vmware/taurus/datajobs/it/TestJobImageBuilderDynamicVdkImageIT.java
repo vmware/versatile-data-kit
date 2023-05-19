@@ -11,6 +11,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import org.apache.commons.io.IOUtils;
@@ -53,8 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
-  private static final String TEST_JOB_NAME =
-      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+  private static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(TestJobImageBuilderDynamicVdkImageIT.class.getSimpleName());
   private static final Object DEPLOYMENT_ID = "testing";
 
   @TestConfiguration

@@ -7,6 +7,7 @@ package com.vmware.taurus.datajobs.it;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class UploadSourceValidationIT extends BaseIT {
-  protected static final String TEST_JOB_NAME =
-      "integration-test-upload-test-" + UUID.randomUUID().toString().substring(0, 8);
+  protected static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(UploadSourceValidationIT.class.getSimpleName());
 
   @BeforeEach
   public void setup() throws Exception {

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.deploy.DockerRegistryService;
 import com.vmware.taurus.service.deploy.EcrRegistryInterface;
@@ -60,8 +61,7 @@ import org.springframework.test.web.servlet.MvcResult;
     classes = ControlplaneApplication.class)
 public class TestJobDeployTempCredsIT extends BaseIT {
 
-  private static final String TEST_JOB_NAME =
-      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+  private static final String TEST_JOB_NAME = JobExecutionUtil.generateJobName(TestJobDeployTempCredsIT.class.getSimpleName());
 
   @Autowired DockerRegistryService dockerRegistryService;
 
