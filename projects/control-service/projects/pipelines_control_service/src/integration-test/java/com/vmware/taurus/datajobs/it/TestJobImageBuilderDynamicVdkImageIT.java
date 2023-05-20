@@ -30,6 +30,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -102,16 +103,22 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     // Execute job upload
-    MvcResult jobUploadResult =
-        mockMvc
-            .perform(
-                post(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
-                    .with(user("user"))
-                    .content(jobZipBinary)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
-            .andExpect(status().isOk())
-            .andReturn();
+    ResultActions resultAction =
+        mockMvc.perform(
+            post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .with(user("user"))
+                .content(jobZipBinary)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM));
+
+    if (resultAction.andReturn().getResponse().getStatus() != 200) {
+      throw new Exception(
+          "status is "
+              + resultAction.andReturn().getResponse().getStatus()
+              + "\nbody is "
+              + resultAction.andReturn().getResponse().getContentAsString());
+    }
+    MvcResult jobUploadResult = resultAction.andExpect(status().isOk()).andReturn();
 
     DataJobVersion testDataJobVersion =
         new ObjectMapper()
