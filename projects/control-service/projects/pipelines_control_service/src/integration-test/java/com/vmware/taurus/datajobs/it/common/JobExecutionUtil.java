@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -162,37 +163,38 @@ public class JobExecutionUtil {
     com.vmware.taurus.controlplane.model.data.DataJobExecution[] dataJobExecution =
         new com.vmware.taurus.controlplane.model.data.DataJobExecution[1];
 
-    await()
-        .atMost(5, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .until(
-            () -> {
-              String dataJobExecutionReadUrl =
-                  String.format(
+    Callable<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutionCallable = () -> {
+      String dataJobExecutionReadUrl =
+              String.format(
                       "/data-jobs/for-team/%s/jobs/%s/executions/%s",
                       teamName, jobName, executionId);
-              MvcResult dataJobExecutionResult =
-                  mockMvc
+      MvcResult dataJobExecutionResult =
+              mockMvc
                       .perform(
-                          get(dataJobExecutionReadUrl)
-                              .with(user(username))
-                              .contentType(MediaType.APPLICATION_JSON))
+                              get(dataJobExecutionReadUrl)
+                                      .with(user(username))
+                                      .contentType(MediaType.APPLICATION_JSON))
                       .andExpect(status().isOk())
                       .andReturn();
 
-              dataJobExecution[0] =
-                  objectMapper.readValue(
+      dataJobExecution[0] =
+              objectMapper.readValue(
                       dataJobExecutionResult.getResponse().getContentAsString(),
                       com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
-              if (dataJobExecution[0] == null) {
-                log.info("No response from server");
-              } else {
-                log.info("Response from server  " + dataJobExecution[0].getStatus());
-              }
-              return dataJobExecution[0] != null
-                  && executionStatus.equals(dataJobExecution[0].getStatus());
-            });
+      return dataJobExecution[0];
+    };
+    await()
+        .atMost(11, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+            .failFast(() -> {
+              com.vmware.taurus.controlplane.model.data.DataJobExecution status = dataJobExecutionCallable.call();
+              return status != null &&
+                      !status.getStatus().equals(com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING) &&
+                      !executionStatus.equals(status.getStatus());
+            })
+            .until(
+                    dataJobExecutionCallable, statusEnum -> statusEnum != null && executionStatus.equals(statusEnum.getStatus()));
 
     assertDataJobExecutionValid(
         executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
