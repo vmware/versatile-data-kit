@@ -89,23 +89,27 @@ public class DataJobDeploymentExtension
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
-    SUPPORTED_PARAMETERS =
-        Map.of(
-            "jobName",
-            jobName,
-            "username",
-            USER_NAME,
-            "deploymentId",
-            DEPLOYMENT_ID,
-            "teamName",
-            TEAM_NAME);
     MockMvc mockMvc = SpringExtension.getApplicationContext(context).getBean(MockMvc.class);
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     // Setup
+    if (!initialized) {
+      jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
+      SUPPORTED_PARAMETERS =
+              Map.of(
+                      "jobName",
+                      jobName,
+                      "username",
+                      USER_NAME,
+                      "deploymentId",
+                      DEPLOYMENT_ID,
+                      "teamName",
+                      TEAM_NAME);
+    }
+
     String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, jobName);
+
     // Create the data job
     mockMvc
         .perform(
