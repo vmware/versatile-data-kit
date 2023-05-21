@@ -31,8 +31,8 @@ project.ext {
             'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2021-10-25T04-50-54-fbc162f',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.2.1',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.5',
-            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.3.0',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.3.0',
+            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.3.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.18.1',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
