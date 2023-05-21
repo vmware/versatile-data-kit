@@ -320,7 +320,7 @@ def test_execute_start_extra_arguments(httpserver: PluginHTTPServer, tmpdir: Loc
         uri=f"/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/production/executions",
         method="POST",
         json=json.loads(
-            '{"args": {"key1": "value1", "key2": "value2"}, "started_by": "vdk-control-cli"}'
+            '{"args": {"key1": "value1", "key2": "value2"}, "started_by": "manual/vdk-control-cli"}'
         ),
     ).respond_with_response(
         Response(

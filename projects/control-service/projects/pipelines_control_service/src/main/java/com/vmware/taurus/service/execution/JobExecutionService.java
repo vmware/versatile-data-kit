@@ -45,7 +45,9 @@ public class JobExecutionService {
 
   @AllArgsConstructor
   public enum ExecutionType {
-    MANUAL("manual"),
+    MANUAL(
+        "manual"), // "manual" executions are ones ran through the `vdk execute --start` command and
+    // the startedBy value of the execution request must always be 'vdk-control-cli'
     SCHEDULED("scheduled");
 
     @Getter private final String value;
@@ -97,7 +99,19 @@ public class JobExecutionService {
               ? jobExecutionRequest.getStartedBy() + "/" + operationContext.getUser()
               : operationContext.getUser();
       annotations.put(JobAnnotation.STARTED_BY.getValue(), startedBy);
-      annotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), ExecutionType.MANUAL.getValue());
+
+      // 'Scheduled' executions must have their `startedBy` follow the structure
+      // 'scheduled/*triggering-mechanism*'
+      // 'Manual' executions must have their `startedBy` follow the structure
+      // 'manual/*triggering-mechanism*'
+      // For example:
+      // - executions started from the CLI would have `startedBy` equal to 'manual/vdk-control-cli'
+      // We default to 'manual'; this also served for the purposes of backwards compatibility
+      annotations.put(
+          JobAnnotation.EXECUTION_TYPE.getValue(),
+          jobExecutionRequest.getStartedBy().contains("scheduled")
+              ? ExecutionType.SCHEDULED.getValue()
+              : ExecutionType.MANUAL.getValue());
 
       Map<String, String> envs = new LinkedHashMap<>();
       envs.put(JobEnvVar.VDK_OP_ID.getValue(), opId);
