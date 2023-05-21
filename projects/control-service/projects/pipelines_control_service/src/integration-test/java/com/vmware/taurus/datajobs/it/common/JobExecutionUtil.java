@@ -273,7 +273,7 @@ public class JobExecutionUtil {
     return String.format(
         "%s-%s-%s",
         JobExecutionUtil.JOB_NAME_PREFIX,
-        StringUtils.truncate(className, 36).toLowerCase(),
+        StringUtils.truncate(className, 35).toLowerCase(),
         UUID.randomUUID().toString().substring(0, 8));
   }
 
