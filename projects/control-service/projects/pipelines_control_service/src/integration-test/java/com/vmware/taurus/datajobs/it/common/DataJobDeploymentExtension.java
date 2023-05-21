@@ -97,15 +97,15 @@ public class DataJobDeploymentExtension
     if (!initialized) {
       jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
       SUPPORTED_PARAMETERS =
-              Map.of(
-                      "jobName",
-                      jobName,
-                      "username",
-                      USER_NAME,
-                      "deploymentId",
-                      DEPLOYMENT_ID,
-                      "teamName",
-                      TEAM_NAME);
+          Map.of(
+              "jobName",
+              jobName,
+              "username",
+              USER_NAME,
+              "deploymentId",
+              DEPLOYMENT_ID,
+              "teamName",
+              TEAM_NAME);
     }
 
     String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, jobName);
