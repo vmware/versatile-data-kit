@@ -31,7 +31,10 @@ export class ToastsComponent extends TaurusObject implements OnInit {
 
     toasts: ToastInternal[];
 
-    constructor(private readonly toastService: ToastService, private readonly clipboardService: ClipboardService) {
+    constructor(
+        private readonly toastService: ToastService,
+        private readonly clipboardService: ClipboardService
+    ) {
         super();
         this.toasts = [];
     }

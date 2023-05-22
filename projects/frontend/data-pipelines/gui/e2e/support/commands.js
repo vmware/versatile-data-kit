@@ -8,12 +8,7 @@
 import 'cypress-localstorage-commands';
 
 import { parseJWTToken } from '../plugins/helpers/util-helpers.plugins';
-import {
-    BASIC_AUTH_CONFIG,
-    CSP_ACCESS_TOKEN_KEY,
-    CSP_EXPIRES_AT_KEY,
-    CSP_ID_TOKEN_KEY
-} from './helpers/constants.support';
+import { BASIC_AUTH_CONFIG, CSP_ACCESS_TOKEN_KEY, CSP_EXPIRES_AT_KEY, CSP_ID_TOKEN_KEY } from './helpers/constants.support';
 
 let jwtToken;
 let idToken;
@@ -54,9 +49,7 @@ Cypress.Commands.add('login', () => {
             failOnStatusCode: false,
             method: 'POST',
             // See project README.md how to set this login url
-            url: `${Cypress.env(
-                'csp_url'
-            )}/csp/gateway/am/api/auth/api-tokens/authorize`,
+            url: `${Cypress.env('csp_url')}/csp/gateway/am/api/auth/api-tokens/authorize`,
             form: true,
             headers: {
                 // CSP staging is using CloudFront CDN that does not permit bot requests unless the below user agent is set
@@ -83,9 +76,7 @@ Cypress.Commands.add('login', () => {
             return cy
                 .request({
                     method: 'GET',
-                    url: `${Cypress.env(
-                        'csp_url'
-                    )}/csp/gateway/am/api/auth/token/expand-overflow-claims`,
+                    url: `${Cypress.env('csp_url')}/csp/gateway/am/api/auth/token/expand-overflow-claims`,
                     headers: {
                         Authorization: `Bearer ${$body.access_token}`,
                         // CSP staging is using CloudFront CDN that does not permit bot requests unless the below user agent is set
@@ -189,12 +180,7 @@ Cypress.Commands.add('saveHarIfSupported', () => {
 // CSP
 
 Cypress.Commands.add('initCspLoggedUserProfileGetReqInterceptor', () => {
-    return cy
-        .intercept(
-            'GET',
-            '**/csp/gateway/am/api/auth/token-public-key?format=jwks'
-        )
-        .as('cspLoggedUserProfileGetReq');
+    return cy.intercept('GET', '**/csp/gateway/am/api/auth/token-public-key?format=jwks').as('cspLoggedUserProfileGetReq');
 });
 
 Cypress.Commands.add('waitForCspLoggedUserProfileGetReqInterceptor', () => {
@@ -204,9 +190,7 @@ Cypress.Commands.add('waitForCspLoggedUserProfileGetReqInterceptor', () => {
 // Data Pipelines
 
 Cypress.Commands.add('initDataJobsApiGetReqInterceptor', () => {
-    return cy
-        .intercept('GET', '**/data-jobs/for-team/**')
-        .as('dataJobsApiGetReq');
+    return cy.intercept('GET', '**/data-jobs/for-team/**').as('dataJobsApiGetReq');
 });
 
 Cypress.Commands.add('waitForDataJobsApiGetReqInterceptor', () => {
@@ -215,15 +199,7 @@ Cypress.Commands.add('waitForDataJobsApiGetReqInterceptor', () => {
 
 Cypress.Commands.add('initDataJobsExecutionsGetReqInterceptor', () => {
     return cy.intercept('GET', '**/data-jobs/for-team/**', (req) => {
-        if (
-            req &&
-            req.query &&
-            req.query.query &&
-            req.query.operationName === 'jobsQuery' &&
-            req.query.query.includes('executions') &&
-            req.query.query.includes('DataJobExecutionFilter') &&
-            req.query.query.includes('DataJobExecutionOrder')
-        ) {
+        if (req && req.query && req.query.query && req.query.operationName === 'jobsQuery' && req.query.query.includes('executions') && req.query.query.includes('DataJobExecutionFilter') && req.query.query.includes('DataJobExecutionOrder')) {
             req.alias = 'dataJobsExecutionsGetReq';
         }
 
@@ -232,15 +208,11 @@ Cypress.Commands.add('initDataJobsExecutionsGetReqInterceptor', () => {
 });
 
 Cypress.Commands.add('initDataJobsSingleExecutionGetReqInterceptor', () => {
-    return cy
-        .intercept('GET', '**/data-jobs/for-team/**/executions/**')
-        .as('dataJobsSingleExecutionGetReq');
+    return cy.intercept('GET', '**/data-jobs/for-team/**/executions/**').as('dataJobsSingleExecutionGetReq');
 });
 
 Cypress.Commands.add('initDataJobExecutionPostReqInterceptor', () => {
-    return cy
-        .intercept('POST', '**/data-jobs/for-team/**/executions')
-        .as('dataJobExecutionPostReq');
+    return cy.intercept('POST', '**/data-jobs/for-team/**/executions').as('dataJobExecutionPostReq');
 });
 
 Cypress.Commands.add('waitForDataJobExecutionPostReqInterceptor', () => {
@@ -248,9 +220,7 @@ Cypress.Commands.add('waitForDataJobExecutionPostReqInterceptor', () => {
 });
 
 Cypress.Commands.add('initDataJobExecutionDeleteReqInterceptor', () => {
-    return cy
-        .intercept('DELETE', '**/data-jobs/for-team/**/executions/**')
-        .as('dataJobExecutionDeleteReq');
+    return cy.intercept('DELETE', '**/data-jobs/for-team/**/executions/**').as('dataJobExecutionDeleteReq');
 });
 
 Cypress.Commands.add('waitForDataJobExecutionDeleteReqInterceptor', () => {
@@ -258,9 +228,7 @@ Cypress.Commands.add('waitForDataJobExecutionDeleteReqInterceptor', () => {
 });
 
 Cypress.Commands.add('initDataJobPutReqInterceptor', () => {
-    return cy
-        .intercept('PUT', '**/data-jobs/for-team/*/jobs/*')
-        .as('dataJobPutReq');
+    return cy.intercept('PUT', '**/data-jobs/for-team/*/jobs/*').as('dataJobPutReq');
 });
 
 Cypress.Commands.add('waitForDataJobPutReqInterceptor', () => {
@@ -268,9 +236,7 @@ Cypress.Commands.add('waitForDataJobPutReqInterceptor', () => {
 });
 
 Cypress.Commands.add('initDataJobDeleteReqInterceptor', () => {
-    return cy
-        .intercept('DELETE', '**/data-jobs/for-team/**/jobs/**')
-        .as('dataJobDeleteReq');
+    return cy.intercept('DELETE', '**/data-jobs/for-team/**/jobs/**').as('dataJobDeleteReq');
 });
 
 Cypress.Commands.add('waitForDataJobDeleteReqInterceptor', () => {
@@ -278,9 +244,7 @@ Cypress.Commands.add('waitForDataJobDeleteReqInterceptor', () => {
 });
 
 Cypress.Commands.add('initDataJobDeploymentPatchReqInterceptor', () => {
-    return cy
-        .intercept('PATCH', '**/data-jobs/for-team/**/deployments/**')
-        .as('dataJobDeploymentPatchReq');
+    return cy.intercept('PATCH', '**/data-jobs/for-team/**/deployments/**').as('dataJobDeploymentPatchReq');
 });
 
 Cypress.Commands.add('waitForDataJobDeploymentPatchReqInterceptor', () => {
@@ -289,28 +253,21 @@ Cypress.Commands.add('waitForDataJobDeploymentPatchReqInterceptor', () => {
 
 // Generics
 
-Cypress.Commands.add(
-    'waitForInterceptorWithRetry',
-    (aliasName, retries, config) => {
-        return cy.wait(aliasName).then((interception) => {
-            if (config.predicate(interception)) {
-                if (typeof config.onfulfill === 'function') {
-                    config.onfulfill(interception);
-                }
-
-                return cy.wrap(interception);
+Cypress.Commands.add('waitForInterceptorWithRetry', (aliasName, retries, config) => {
+    return cy.wait(aliasName).then((interception) => {
+        if (config.predicate(interception)) {
+            if (typeof config.onfulfill === 'function') {
+                config.onfulfill(interception);
             }
 
-            if (retries > 0) {
-                return cy.waitForInterceptorWithRetry(
-                    aliasName,
-                    retries - 1,
-                    config
-                );
-            }
-        });
-    }
-);
+            return cy.wrap(interception);
+        }
+
+        if (retries > 0) {
+            return cy.waitForInterceptorWithRetry(aliasName, retries - 1, config);
+        }
+    });
+});
 
 // App Config
 Cypress.Commands.add('appConfigInterceptorDisableExploreRoute', () => {

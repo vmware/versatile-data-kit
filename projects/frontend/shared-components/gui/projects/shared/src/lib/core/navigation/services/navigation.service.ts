@@ -28,7 +28,10 @@ export class NavigationService {
     /**
      * ** Constructor.
      */
-    constructor(private readonly router: Router, private readonly routerService: RouterService) {
+    constructor(
+        private readonly router: Router,
+        private readonly routerService: RouterService
+    ) {
         this._routeStateFactory = new RouteStateFactory();
     }
 
