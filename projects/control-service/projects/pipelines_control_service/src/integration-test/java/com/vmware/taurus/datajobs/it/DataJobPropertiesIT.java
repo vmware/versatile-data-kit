@@ -27,8 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     classes = ControlplaneApplication.class)
 public class DataJobPropertiesIT extends BaseIT {
 
-  @Autowired private PropertiesRepository propertiesRepository;
-
   @Test
   public void testDataJobProperties() throws Exception {
     // Setup
