@@ -1,6 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from vdk.plugin.test_utils.processing_templates_utility import setup_testing_check
+from vdk.plugin.test_utils.util_funcs import setup_testing_check
 from vdk.api.job_input import IJobInput
 
 __author__ = "VMware, Inc."
