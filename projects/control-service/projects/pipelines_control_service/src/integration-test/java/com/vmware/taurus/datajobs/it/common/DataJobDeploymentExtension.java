@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,23 +74,13 @@ public class DataJobDeploymentExtension
 
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String jobName =
-      JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+  private String jobName;
 
   private String jobSource = "simple_job.zip";
 
   private boolean initialized = false;
 
-  private final Map<String, Object> SUPPORTED_PARAMETERS =
-      Map.of(
-          "jobName",
-          jobName,
-          "username",
-          USER_NAME,
-          "deploymentId",
-          DEPLOYMENT_ID,
-          "teamName",
-          TEAM_NAME);
+  private Map<String, Object> SUPPORTED_PARAMETERS;
 
   public DataJobDeploymentExtension() {}
 
@@ -106,7 +95,22 @@ public class DataJobDeploymentExtension
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     // Setup
+    if (!initialized) {
+      jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
+      SUPPORTED_PARAMETERS =
+          Map.of(
+              "jobName",
+              jobName,
+              "username",
+              USER_NAME,
+              "deploymentId",
+              DEPLOYMENT_ID,
+              "teamName",
+              TEAM_NAME);
+    }
+
     String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, jobName);
+
     // Create the data job
     mockMvc
         .perform(

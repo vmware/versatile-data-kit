@@ -21,6 +21,7 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class JobExecutionUtil {
 
-  public static final String JOB_NAME_PREFIX = "integration-test-";
+  public static final String JOB_NAME_PREFIX = "it";
 
   private static final ObjectMapper objectMapper =
       new ObjectMapper()
@@ -266,6 +267,14 @@ public class JobExecutionUtil {
     assertEquals(1, dataJobExecutions.size());
     assertDataJobExecutionValid(
         executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
+  }
+
+  public static String generateJobName(String className) {
+    return String.format(
+        "%s-%s-%s",
+        JobExecutionUtil.JOB_NAME_PREFIX,
+        StringUtils.truncate(className, 35).toLowerCase(),
+        UUID.randomUUID().toString().substring(0, 8));
   }
 
   private static void testDataJobExecutionLogs(
