@@ -34,7 +34,7 @@
     "build:prod": "jlpm clean && jlpm build:lib && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
-    "build:lib": "tsc",
+    "build:lib": "npm update && tsc",
     "build:interfaces": "pip install py-to-ts-interfaces && py-to-ts-interfaces vdk_jupyterlab_extension/vdk_options/ src/vdkOptions",
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
@@ -53,7 +53,7 @@
     "stylelint:check": "stylelint --cache \"style/**/*.css\"",
     "test": "jest --coverage",
     "watch": "run-p watch:src watch:labextension",
-    "watch:src": "npm update && tsc -w",
+    "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
