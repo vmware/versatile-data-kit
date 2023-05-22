@@ -109,11 +109,16 @@ const BASIC_AUTH_CONFIG = {
         timeoutFactor: 0.25,
         sessionChecksEnabled: true,
         clearHashAfterLogin: false,
-        logoutUrl: 'https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout',
+        logoutUrl:
+            'https://console-stg.cloud.vmware.com/csp/gateway/discovery?logout',
         nonceStateSeparator: 'semicolon'
     },
     resourceServer: {
-        allowedUrls: ['https://console-stg.cloud.vmware.com/', 'https://gaz-preview.csp-vidm-prod.com/', '/data-jobs'],
+        allowedUrls: [
+            'https://console-stg.cloud.vmware.com/',
+            'https://gaz-preview.csp-vidm-prod.com/',
+            '/data-jobs'
+        ],
         sendAccessToken: true
     },
     refreshTokenConfig: {

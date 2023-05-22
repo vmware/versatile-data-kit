@@ -10,7 +10,12 @@ const { Logger } = require('./logger-helpers.plugins');
 
 const { applyGlobalEnvSettings } = require('./util-helpers.plugins');
 
-const { httpDeleteReq, httpGetReq, httpPostReq, httpPatchReq } = require('./http-helpers.plugins');
+const {
+    httpDeleteReq,
+    httpGetReq,
+    httpPostReq,
+    httpPatchReq
+} = require('./http-helpers.plugins');
 
 /**
  * ** Create and Deploy Data jobs if they don't exist.
@@ -48,7 +53,10 @@ const createDeployJobs = (taskConfig, config) => {
                                 .resolve({ ...command, index })
                                 // Send requests to get Data job
                                 .then((prevCommand) => {
-                                    return _getDataJobDeployments(prevCommand.jobFixture, config).then((response) => {
+                                    return _getDataJobDeployments(
+                                        prevCommand.jobFixture,
+                                        config
+                                    ).then((response) => {
                                         return {
                                             ...prevCommand,
                                             response
@@ -63,13 +71,25 @@ const createDeployJobs = (taskConfig, config) => {
 
                                     let nextAction = 'done';
 
-                                    if (httpResponse.status === 200 && httpResponse.data.length > 0) {
-                                        Logger.info(`Data job "${jobName}" is already existing, therefore skipping creation and deployment.`);
-                                    } else if (httpResponse.status === 200 && httpResponse.data.length === 0) {
-                                        Logger.info(`Data job "${jobName}" exists, but it is not deployed. Will start deploying...`);
+                                    if (
+                                        httpResponse.status === 200 &&
+                                        httpResponse.data.length > 0
+                                    ) {
+                                        Logger.info(
+                                            `Data job "${jobName}" is already existing, therefore skipping creation and deployment.`
+                                        );
+                                    } else if (
+                                        httpResponse.status === 200 &&
+                                        httpResponse.data.length === 0
+                                    ) {
+                                        Logger.info(
+                                            `Data job "${jobName}" exists, but it is not deployed. Will start deploying...`
+                                        );
                                         nextAction = 'deploy';
                                     } else if (httpResponse.status === 404) {
-                                        Logger.info(`Data job "${jobName}" not found. Will start creating...`);
+                                        Logger.info(
+                                            `Data job "${jobName}" not found. Will start creating...`
+                                        );
                                         nextAction = 'create';
                                     }
 
@@ -80,21 +100,29 @@ const createDeployJobs = (taskConfig, config) => {
                                 })
                                 // Send request to create Job if its doesn't exist, otherwise pass execution to the next step
                                 .then((prevCommand) => {
-                                    const currentAction = prevCommand.nextAction;
+                                    const currentAction =
+                                        prevCommand.nextAction;
                                     const jobFixture = prevCommand.jobFixture;
                                     const jobName = jobFixture.job_name;
 
                                     if (currentAction === 'create') {
-                                        return _createDataJob(jobFixture, config).then((response) => {
+                                        return _createDataJob(
+                                            jobFixture,
+                                            config
+                                        ).then((response) => {
                                             if (response.status === 201) {
                                                 return {
                                                     ...prevCommand,
                                                     nextAction: 'deploy'
                                                 };
                                             } else {
-                                                Logger.error(`Failed to create Data job "${jobName}"`);
+                                                Logger.error(
+                                                    `Failed to create Data job "${jobName}"`
+                                                );
 
-                                                throw new Error(`Failed to create Data job "${jobName}"`);
+                                                throw new Error(
+                                                    `Failed to create Data job "${jobName}"`
+                                                );
                                             }
                                         });
                                     }
@@ -105,31 +133,57 @@ const createDeployJobs = (taskConfig, config) => {
                                 })
                                 // Send request to deploy Job if it was created on previous step
                                 .then((prevCommandOuter) => {
-                                    const currentAction = prevCommandOuter.nextAction;
-                                    const jobFixture = prevCommandOuter.jobFixture;
-                                    const pathToZipFile = prevCommandOuter.pathToZipFile;
+                                    const currentAction =
+                                        prevCommandOuter.nextAction;
+                                    const jobFixture =
+                                        prevCommandOuter.jobFixture;
+                                    const pathToZipFile =
+                                        prevCommandOuter.pathToZipFile;
                                     const jobName = jobFixture.job_name;
 
                                     if (currentAction === 'deploy') {
                                         if (!pathToZipFile) {
-                                            Logger.info(`Data job "${jobName}" doesn't have path to job zip file, therefore skipping deployment.`);
+                                            Logger.info(
+                                                `Data job "${jobName}" doesn't have path to job zip file, therefore skipping deployment.`
+                                            );
                                         } else {
-                                            Logger.debug(`Loading Job Zip binary located on =>`, pathToZipFile);
+                                            Logger.debug(
+                                                `Loading Job Zip binary located on =>`,
+                                                pathToZipFile
+                                            );
 
                                             let jobZipFile;
 
                                             try {
-                                                jobZipFile = fs.readFileSync(pathToZipFile, { encoding: 'base64' });
+                                                jobZipFile = fs.readFileSync(
+                                                    pathToZipFile,
+                                                    { encoding: 'base64' }
+                                                );
                                             } catch (error) {
-                                                Logger.error(`Cannot read file located on =>`, pathToZipFile);
+                                                Logger.error(
+                                                    `Cannot read file located on =>`,
+                                                    pathToZipFile
+                                                );
 
                                                 throw error;
                                             }
 
                                             return new Promise((resolve) => {
-                                                setTimeout(() => resolve(prevCommandOuter), prevCommandOuter.index * 2000 + 250);
+                                                setTimeout(
+                                                    () =>
+                                                        resolve(
+                                                            prevCommandOuter
+                                                        ),
+                                                    prevCommandOuter.index *
+                                                        2000 +
+                                                        250
+                                                );
                                             }).then((prevCommandInner) => {
-                                                return _deployDataJob(jobFixture, jobZipFile, config).then((result) => {
+                                                return _deployDataJob(
+                                                    jobFixture,
+                                                    jobZipFile,
+                                                    config
+                                                ).then((result) => {
                                                     return {
                                                         ...prevCommandInner,
                                                         ...result
@@ -153,9 +207,13 @@ const createDeployJobs = (taskConfig, config) => {
                                     const jobFixture = prevCommand.jobFixture;
                                     const jobName = jobFixture.job_name;
 
-                                    Logger.error(`Failed to create/deploy Data job "${jobName}"`);
+                                    Logger.error(
+                                        `Failed to create/deploy Data job "${jobName}"`
+                                    );
 
-                                    throw new Error(`Failed to create/deploy Data job "${jobName}".`);
+                                    throw new Error(
+                                        `Failed to create/deploy Data job "${jobName}".`
+                                    );
                                 })
                         );
                     })
@@ -164,7 +222,10 @@ const createDeployJobs = (taskConfig, config) => {
             // Deployment to its end for all Jobs
             .finally(() => {
                 const endTime = new Date();
-                Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
+                Logger.profiling(
+                    `End time: ${endTime.toISOString()};`,
+                    `Duration: ${(endTime - startTime) / 1000}s`
+                );
             })
     );
 };
@@ -189,7 +250,9 @@ const provideDataJobsExecutions = (taskConfig, config) => {
     const targetExecutions = taskConfig.executions ?? 2;
     const jobExecutionTimeout = 180000; // Wait up to 3 min per Job for execution to complete
 
-    Logger.info(`Trying to provide at least ${targetExecutions} executions for Data job fixtures`);
+    Logger.info(
+        `Trying to provide at least ${targetExecutions} executions for Data job fixtures`
+    );
     Logger.profiling(`Start time: ${startTime.toISOString()}`);
 
     return (
@@ -206,17 +269,33 @@ const provideDataJobsExecutions = (taskConfig, config) => {
                         // Pass the command down the stream with timeouts to avoid glitch on the server
                         return (
                             new Promise((resolve) => {
-                                setTimeout(() => resolve({ ...command }), index * 2150 + 350);
+                                setTimeout(
+                                    () => resolve({ ...command }),
+                                    index * 2150 + 350
+                                );
                             })
                                 // Get Data job executions
                                 .then((prevCommandOuter) => {
-                                    return _getDataJobExecutionsArray(prevCommandOuter.jobFixture, config).then((executions) => {
-                                        Logger.info(`For Data job "${jobName}" found ${executions.length} executions, while target is ${targetExecutions}`);
+                                    return _getDataJobExecutionsArray(
+                                        prevCommandOuter.jobFixture,
+                                        config
+                                    ).then((executions) => {
+                                        Logger.info(
+                                            `For Data job "${jobName}" found ${executions.length} executions, while target is ${targetExecutions}`
+                                        );
 
-                                        if (executions.length >= targetExecutions) {
-                                            Logger.info(`For Data job "${jobName}" skipping serial execution, because expected number found`);
+                                        if (
+                                            executions.length >=
+                                            targetExecutions
+                                        ) {
+                                            Logger.info(
+                                                `For Data job "${jobName}" skipping serial execution, because expected number found`
+                                            );
 
-                                            if (executions.length > targetExecutions) {
+                                            if (
+                                                executions.length >
+                                                targetExecutions
+                                            ) {
                                                 return {
                                                     ...prevCommandOuter,
                                                     executions,
@@ -225,7 +304,11 @@ const provideDataJobsExecutions = (taskConfig, config) => {
                                             }
 
                                             // Wait to finish if there is already executing Data job and continue
-                                            return waitForDataJobExecutionToComplete(jobFixture, jobExecutionTimeout, config).then(() => {
+                                            return waitForDataJobExecutionToComplete(
+                                                jobFixture,
+                                                jobExecutionTimeout,
+                                                config
+                                            ).then(() => {
                                                 return {
                                                     ...prevCommandOuter,
                                                     executions,
@@ -236,7 +319,11 @@ const provideDataJobsExecutions = (taskConfig, config) => {
 
                                         // Wait to finish if there is already executing Data job and continue
                                         return (
-                                            waitForDataJobExecutionToComplete(jobFixture, jobExecutionTimeout, config)
+                                            waitForDataJobExecutionToComplete(
+                                                jobFixture,
+                                                jobExecutionTimeout,
+                                                config
+                                            )
                                                 .then(() => {
                                                     return {
                                                         ...prevCommandOuter,
@@ -246,7 +333,10 @@ const provideDataJobsExecutions = (taskConfig, config) => {
                                                 })
                                                 // Get Data job last deployment
                                                 .then((prevCommandInner) => {
-                                                    return _getJobLastDeployment(jobFixture, config).then((lastDeployment) => {
+                                                    return _getJobLastDeployment(
+                                                        jobFixture,
+                                                        config
+                                                    ).then((lastDeployment) => {
                                                         return {
                                                             ...prevCommandInner,
                                                             lastDeployment,
@@ -256,15 +346,26 @@ const provideDataJobsExecutions = (taskConfig, config) => {
                                                 })
                                                 // If last deployment found trigger execution for Data job
                                                 .then((prevCommandInner) => {
-                                                    if (prevCommandInner.lastDeployment) {
-                                                        return _triggerExecutionForJob(jobFixture, jobExecutionTimeout, prevCommandInner.lastDeployment, targetExecutions - prevCommandInner.executions, config).then((result) => {
+                                                    if (
+                                                        prevCommandInner.lastDeployment
+                                                    ) {
+                                                        return _triggerExecutionForJob(
+                                                            jobFixture,
+                                                            jobExecutionTimeout,
+                                                            prevCommandInner.lastDeployment,
+                                                            targetExecutions -
+                                                                prevCommandInner.executions,
+                                                            config
+                                                        ).then((result) => {
                                                             return {
                                                                 ...prevCommandInner,
                                                                 ...result
                                                             };
                                                         });
                                                     } else {
-                                                        Logger.error(`For Data job "${jobName}" last deployment was not found`);
+                                                        Logger.error(
+                                                            `For Data job "${jobName}" last deployment was not found`
+                                                        );
                                                     }
 
                                                     return {
@@ -278,14 +379,20 @@ const provideDataJobsExecutions = (taskConfig, config) => {
                                 // Final step to validate if everything is OK
                                 .then((prevCommand) => {
                                     if (prevCommand.code === 0) {
-                                        Logger.info(`Provided at least ${targetExecutions} executions for Data job fixtures`);
+                                        Logger.info(
+                                            `Provided at least ${targetExecutions} executions for Data job fixtures`
+                                        );
 
                                         return true;
                                     }
 
-                                    Logger.error(`Failed to provide at least ${targetExecutions} for Data job "${jobName}"`);
+                                    Logger.error(
+                                        `Failed to provide at least ${targetExecutions} for Data job "${jobName}"`
+                                    );
 
-                                    throw new Error(`Failed to provide at least ${targetExecutions} for Data job "${jobName}"`);
+                                    throw new Error(
+                                        `Failed to provide at least ${targetExecutions} for Data job "${jobName}"`
+                                    );
                                 })
                         );
                     })
@@ -294,7 +401,10 @@ const provideDataJobsExecutions = (taskConfig, config) => {
             // Executions to its end for all Jobs
             .finally(() => {
                 const endTime = new Date();
-                Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
+                Logger.profiling(
+                    `End time: ${endTime.toISOString()};`,
+                    `Duration: ${(endTime - startTime) / 1000}s`
+                );
             })
     );
 };
@@ -324,31 +434,54 @@ const changeJobsStatusesFixtures = (taskConfig, config) => {
     return (
         _loadFixturesValuesAndBinariesPaths(taskConfig.relativePathToFixtures)
             .then((commands) => {
-                const jobFixtures = commands.map((command) => applyGlobalEnvSettings(command.jobFixture));
+                const jobFixtures = commands.map((command) =>
+                    applyGlobalEnvSettings(command.jobFixture)
+                );
 
                 return Promise.all(
                     jobFixtures.map((jobFixture) => {
-                        _getJobLastDeployment(jobFixture, config).then((lastDeployment) => {
-                            if (!lastDeployment || !lastDeployment.job_version) {
-                                Logger.error(`Deployment doesn't exist for Data Job "${jobFixture?.job_name}", skipping status change`);
+                        _getJobLastDeployment(jobFixture, config).then(
+                            (lastDeployment) => {
+                                if (
+                                    !lastDeployment ||
+                                    !lastDeployment.job_version
+                                ) {
+                                    Logger.error(
+                                        `Deployment doesn't exist for Data Job "${jobFixture?.job_name}", skipping status change`
+                                    );
 
-                                return false;
-                            }
-
-                            const deploymentHash = lastDeployment.job_version;
-
-                            return _updateDataJob(jobFixture.team, jobFixture.job_name, deploymentHash, { enabled: taskConfig.status }, config).then((updateResponse) => {
-                                if (updateResponse.status >= 200 && updateResponse.status < 300) {
-                                    Logger.info(`Data Job "${jobFixture?.job_name}" status changed to "${taskConfig.status}"`);
-
-                                    return true;
+                                    return false;
                                 }
 
-                                Logger.error(`Data Job "${jobFixture?.job_name}" failed status change to "${taskConfig.status}"`);
+                                const deploymentHash =
+                                    lastDeployment.job_version;
 
-                                return false;
-                            });
-                        });
+                                return _updateDataJob(
+                                    jobFixture.team,
+                                    jobFixture.job_name,
+                                    deploymentHash,
+                                    { enabled: taskConfig.status },
+                                    config
+                                ).then((updateResponse) => {
+                                    if (
+                                        updateResponse.status >= 200 &&
+                                        updateResponse.status < 300
+                                    ) {
+                                        Logger.info(
+                                            `Data Job "${jobFixture?.job_name}" status changed to "${taskConfig.status}"`
+                                        );
+
+                                        return true;
+                                    }
+
+                                    Logger.error(
+                                        `Data Job "${jobFixture?.job_name}" failed status change to "${taskConfig.status}"`
+                                    );
+
+                                    return false;
+                                });
+                            }
+                        );
                     })
                 );
             })
@@ -356,7 +489,10 @@ const changeJobsStatusesFixtures = (taskConfig, config) => {
             // Status change to its end for all Jobs
             .finally(() => {
                 const endTime = new Date();
-                Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
+                Logger.profiling(
+                    `End time: ${endTime.toISOString()};`,
+                    `Duration: ${(endTime - startTime) / 1000}s`
+                );
             })
     );
 };
@@ -387,7 +523,9 @@ const deleteJobsFixtures = (taskConfig, config) => {
     return (
         _loadFixturesValuesAndBinariesPaths(taskConfig.relativePathToFixtures)
             .then((commands) => {
-                const jobFixtures = commands.map((command) => command.jobFixture);
+                const jobFixtures = commands.map(
+                    (command) => command.jobFixture
+                );
 
                 // Send requests to delete data for fixtures
                 return deleteJobs(jobFixtures, config).then((states) => {
@@ -396,18 +534,29 @@ const deleteJobsFixtures = (taskConfig, config) => {
 
                     states.forEach((isSuccessful, index) => {
                         if (isSuccessful) {
-                            successfulDeletion.push(jobFixtures[index].job_name);
+                            successfulDeletion.push(
+                                jobFixtures[index].job_name
+                            );
                         } else {
-                            unsuccessfulDeletion.push(jobFixtures[index].job_name);
+                            unsuccessfulDeletion.push(
+                                jobFixtures[index].job_name
+                            );
                         }
                     });
 
                     if (successfulDeletion.length > 0) {
-                        Logger.info(`Deleted Data Jobs: ${successfulDeletion.toString()}`);
+                        Logger.info(
+                            `Deleted Data Jobs: ${successfulDeletion.toString()}`
+                        );
                     }
 
-                    if (!taskConfig.optional && unsuccessfulDeletion.length > 0) {
-                        Logger.error(`Failed to delete Data Jobs: ${unsuccessfulDeletion.toString()}`);
+                    if (
+                        !taskConfig.optional &&
+                        unsuccessfulDeletion.length > 0
+                    ) {
+                        Logger.error(
+                            `Failed to delete Data Jobs: ${unsuccessfulDeletion.toString()}`
+                        );
                     }
 
                     return true;
@@ -416,7 +565,10 @@ const deleteJobsFixtures = (taskConfig, config) => {
             // Executions to its end for all Jobs
             .finally(() => {
                 const endTime = new Date();
-                Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
+                Logger.profiling(
+                    `End time: ${endTime.toISOString()};`,
+                    `Duration: ${(endTime - startTime) / 1000}s`
+                );
             })
     );
 };
@@ -438,23 +590,27 @@ const deleteJobs = (jobFixtures, config) => {
 
             return _getDataJob(jobFixture, config).then((outerResponse) => {
                 if (outerResponse.status === 200) {
-                    return _deleteDataJob(jobFixture, config).then((innerResponse) => {
-                        if (innerResponse.status === 200) {
-                            Logger.info(`Data job "${jobName}" deleted`);
+                    return _deleteDataJob(jobFixture, config).then(
+                        (innerResponse) => {
+                            if (innerResponse.status === 200) {
+                                Logger.info(`Data job "${jobName}" deleted`);
 
-                            return true;
+                                return true;
+                            }
+
+                            Logger.error(`Data job "${jobName}" delete failed`);
+
+                            return false;
                         }
-
-                        Logger.error(`Data job "${jobName}" delete failed`);
-
-                        return false;
-                    });
+                    );
                 }
 
                 if (outerResponse.status === 404) {
                     Logger.info(`Data job "${jobName}" doesn't exist`);
                 } else {
-                    Logger.info(`Data job "${jobName}" failed to get job details`);
+                    Logger.info(
+                        `Data job "${jobName}" failed to get job details`
+                    );
                     Logger.error(`Data job "${jobName}" delete failed`);
                 }
 
@@ -472,7 +628,11 @@ const deleteJobs = (jobFixtures, config) => {
  * @param {Cypress.ResolvedConfigOptions} config
  * @returns {Promise<{code: number}>}
  */
-const waitForDataJobExecutionToComplete = (injectedJobFixture, jobExecutionTimeout, config) => {
+const waitForDataJobExecutionToComplete = (
+    injectedJobFixture,
+    jobExecutionTimeout,
+    config
+) => {
     const jobFixture = applyGlobalEnvSettings(injectedJobFixture);
     const jobName = jobFixture.job_name;
     const pollInterval = 10000; // retry every 10s
@@ -499,8 +659,13 @@ const waitForDataJobExecutionToComplete = (injectedJobFixture, jobExecutionTimeo
         const lastExecution = jobExecutions[jobExecutions.length - 1];
         const lastExecutionStatus = lastExecution.status.toLowerCase();
 
-        if (lastExecutionStatus !== 'running' && lastExecutionStatus !== 'submitted') {
-            Logger.info(`Data job "${jobName}" executed successfully, polling completed`);
+        if (
+            lastExecutionStatus !== 'running' &&
+            lastExecutionStatus !== 'submitted'
+        ) {
+            Logger.info(
+                `Data job "${jobName}" executed successfully, polling completed`
+            );
 
             return {
                 code: 0
@@ -508,18 +673,30 @@ const waitForDataJobExecutionToComplete = (injectedJobFixture, jobExecutionTimeo
         }
 
         if (jobExecutionTimeout <= 0) {
-            Logger.error(`Data job "${jobName}" waiting time for execution exceeded, skipping and continue with next steps`);
+            Logger.error(
+                `Data job "${jobName}" waiting time for execution exceeded, skipping and continue with next steps`
+            );
 
             return {
                 code: 1
             };
         }
 
-        Logger.info(`Data job "${jobName}", still executing... retry after ${pollInterval / 1000} seconds`);
+        Logger.info(
+            `Data job "${jobName}", still executing... retry after ${
+                pollInterval / 1000
+            } seconds`
+        );
 
         return new Promise((resolve) => {
             setTimeout(() => resolve(), pollInterval);
-        }).then(() => waitForDataJobExecutionToComplete(jobFixture, jobExecutionTimeout - pollInterval, config));
+        }).then(() =>
+            waitForDataJobExecutionToComplete(
+                jobFixture,
+                jobExecutionTimeout - pollInterval,
+                config
+            )
+        );
     });
 };
 
@@ -535,7 +712,9 @@ const compareDatesASC = (left, right) => {
     const leftStartTime = left.start_time ? left.start_time : 0;
     const rightStartTime = right.start_time ? right.start_time : 0;
 
-    return new Date(leftStartTime).getTime() - new Date(rightStartTime).getTime();
+    return (
+        new Date(leftStartTime).getTime() - new Date(rightStartTime).getTime()
+    );
 };
 
 /**
@@ -550,13 +729,26 @@ const compareDatesASC = (left, right) => {
  * @returns {Promise<{code: number}>}
  * @private
  */
-const _triggerExecutionForJob = (jobFixture, jobExecutionTimeout, lastDeployment, neededExecutions, config, counterOfExecutions = 0) => {
+const _triggerExecutionForJob = (
+    jobFixture,
+    jobExecutionTimeout,
+    lastDeployment,
+    neededExecutions,
+    config,
+    counterOfExecutions = 0
+) => {
     const jobName = jobFixture.job_name;
 
     if (counterOfExecutions === 0) {
-        Logger.info(`Submitting ${neededExecutions} serial executions for Data job "${jobName}"`);
+        Logger.info(
+            `Submitting ${neededExecutions} serial executions for Data job "${jobName}"`
+        );
     } else {
-        Logger.info(`Submitted ${counterOfExecutions} executions for Data job "${jobName}" and left ${neededExecutions - counterOfExecutions}`);
+        Logger.info(
+            `Submitted ${counterOfExecutions} executions for Data job "${jobName}" and left ${
+                neededExecutions - counterOfExecutions
+            }`
+        );
     }
 
     if (neededExecutions === counterOfExecutions) {
@@ -574,8 +766,23 @@ const _triggerExecutionForJob = (jobFixture, jobExecutionTimeout, lastDeployment
 
             return result;
         })
-        .then(() => waitForDataJobExecutionToComplete(jobFixture, jobExecutionTimeout, config))
-        .then(() => _triggerExecutionForJob(jobFixture, jobExecutionTimeout, lastDeployment, neededExecutions, config, counterOfExecutions + 1));
+        .then(() =>
+            waitForDataJobExecutionToComplete(
+                jobFixture,
+                jobExecutionTimeout,
+                config
+            )
+        )
+        .then(() =>
+            _triggerExecutionForJob(
+                jobFixture,
+                jobExecutionTimeout,
+                lastDeployment,
+                neededExecutions,
+                config,
+                counterOfExecutions + 1
+            )
+        );
 };
 
 /**
@@ -645,7 +852,9 @@ const _getJobLastDeployment = (jobFixture, config) => {
             return null;
         }
 
-        return response.data && response.data.length ? response.data[response.data.length - 1] : null;
+        return response.data && response.data.length
+            ? response.data[response.data.length - 1]
+            : null;
     });
 };
 
@@ -666,47 +875,67 @@ const _deployDataJob = (jobFixture, jobZipFile, config) => {
     Logger.info(`Deploying Data job "${jobName}"`);
 
     // Upload Data Job resources
-    return _sendDataJobResources(teamName, jobName, jobZipFile, config).then((response1) => {
-        if (response1.status > 400) {
-            Logger.error(`Failed to send Data job "${jobName}" resources to server`);
-
-            return {
-                code: 1
-            };
-        }
-
-        /**
-         * @type {{version_sha: string}}
-         */
-        let jsonResponse;
-
-        try {
-            jsonResponse = response1.data;
-        } catch (error) {
-            Logger.error(`Cannot parse response and read SHA for deployed Data jobs resources, response =>`, response1);
-
-            throw error;
-        }
-
-        // Deploy data job
-        return new Promise((resolve) => {
-            setTimeout(() => resolve(), 1000);
-        })
-            .then(() => _deployDataJobSHAVersion(teamName, jobName, jsonResponse.version_sha, config))
-            .then((response2) => {
-                if (response2.status === 202) {
-                    Logger.info(`Data job "${jobName}" deployment in progress...`);
-
-                    return _waitForDataJobDeploymentToComplete(jobFixture, waitForJobDeploymentTimeout, config);
-                }
-
-                Logger.error(`Data job "${jobName}" deployment failed`);
+    return _sendDataJobResources(teamName, jobName, jobZipFile, config).then(
+        (response1) => {
+            if (response1.status > 400) {
+                Logger.error(
+                    `Failed to send Data job "${jobName}" resources to server`
+                );
 
                 return {
-                    code: 0
+                    code: 1
                 };
-            });
-    });
+            }
+
+            /**
+             * @type {{version_sha: string}}
+             */
+            let jsonResponse;
+
+            try {
+                jsonResponse = response1.data;
+            } catch (error) {
+                Logger.error(
+                    `Cannot parse response and read SHA for deployed Data jobs resources, response =>`,
+                    response1
+                );
+
+                throw error;
+            }
+
+            // Deploy data job
+            return new Promise((resolve) => {
+                setTimeout(() => resolve(), 1000);
+            })
+                .then(() =>
+                    _deployDataJobSHAVersion(
+                        teamName,
+                        jobName,
+                        jsonResponse.version_sha,
+                        config
+                    )
+                )
+                .then((response2) => {
+                    if (response2.status === 202) {
+                        Logger.info(
+                            `Data job "${jobName}" deployment in progress...`
+                        );
+
+                        return _waitForDataJobDeploymentToComplete(
+                            jobFixture,
+                            waitForJobDeploymentTimeout,
+                            config
+                        );
+                    }
+
+                    Logger.error(`Data job "${jobName}" deployment failed`);
+
+                    return {
+                        code: 0
+                    };
+                });
+        }
+    );
 };
 
 /**
@@ -732,18 +961,30 @@ const _waitForDataJobDeploymentToComplete = (jobFixture, timeout, config) => {
         }
 
         if (timeout <= 0) {
-            Logger.error(`Data job "${jobName}" waiting time to deploy exceeded, skipping and continue with next steps`);
+            Logger.error(
+                `Data job "${jobName}" waiting time to deploy exceeded, skipping and continue with next steps`
+            );
 
             return {
                 code: 0
             };
         }
 
-        Logger.info(`Data job "${jobName}", still deploying... retry after ${waitInterval / 1000} seconds`);
+        Logger.info(
+            `Data job "${jobName}", still deploying... retry after ${
+                waitInterval / 1000
+            } seconds`
+        );
 
         return new Promise((resolve) => {
             setTimeout(() => resolve(), waitInterval);
-        }).then(() => _waitForDataJobDeploymentToComplete(jobFixture, timeout - waitInterval, config));
+        }).then(() =>
+            _waitForDataJobDeploymentToComplete(
+                jobFixture,
+                timeout - waitInterval,
+                config
+            )
+        );
     });
 };
 
@@ -776,7 +1017,13 @@ const _createDataJob = (jobFixture, config) => {
  * @returns {Promise<AxiosResponse<Record<any, any>>>}
  * @private
  */
-const _updateDataJob = (teamName, jobName, deploymentHash, jobFixture, config) => {
+const _updateDataJob = (
+    teamName,
+    jobName,
+    deploymentHash,
+    jobFixture,
+    config
+) => {
     const url = `${config.env['data_jobs_url']}/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentHash}`;
 
     Logger.debug(`Updating Data job "${jobName}" for Team "${teamName}"`);
@@ -873,7 +1120,10 @@ const _sendDataJobResources = (teamName, jobName, jobZipFile, config) => {
     try {
         buffer = Buffer.from(jobZipFile, 'base64');
     } catch (error) {
-        Logger.error(`Cannot convert from base64 to Buffer Data job "${jobName}" zip file`, error);
+        Logger.error(
+            `Cannot convert from base64 to Buffer Data job "${jobName}" zip file`,
+            error
+        );
 
         throw error;
     }
@@ -916,8 +1166,22 @@ const _loadFixturesValuesAndBinariesPaths = (pathToFixtures) => {
     return Promise.resolve(
         pathToFixtures.map((relativePathToFixture) => {
             return {
-                pathToFixture: path.join(__dirname, `../../fixtures/${relativePathToFixture.pathToFixture.replace(/^\//, '')}`),
-                pathToZipFile: relativePathToFixture.pathToZipFile ? path.join(__dirname, `../../fixtures/${relativePathToFixture.pathToZipFile.replace(/^\//, '')}`) : null
+                pathToFixture: path.join(
+                    __dirname,
+                    `../../fixtures/${relativePathToFixture.pathToFixture.replace(
+                        /^\//,
+                        ''
+                    )}`
+                ),
+                pathToZipFile: relativePathToFixture.pathToZipFile
+                    ? path.join(
+                          __dirname,
+                          `../../fixtures/${relativePathToFixture.pathToZipFile.replace(
+                              /^\//,
+                              ''
+                          )}`
+                      )
+                    : null
             };
         })
     ).then((pathToFixturesAndBinaries) => {
@@ -925,7 +1189,10 @@ const _loadFixturesValuesAndBinariesPaths = (pathToFixtures) => {
         return pathToFixturesAndBinaries.map((data) => {
             const pathToFixture = data.pathToFixture;
 
-            Logger.debug(`Loading Data job fixture located on =>`, pathToFixture);
+            Logger.debug(
+                `Loading Data job fixture located on =>`,
+                pathToFixture
+            );
 
             let jobFile;
             let jobFixture;
@@ -946,7 +1213,10 @@ const _loadFixturesValuesAndBinariesPaths = (pathToFixtures) => {
                     pathToZipFile: data.pathToZipFile
                 };
             } catch (error) {
-                Logger.error(`Cannot parse read file located on =>`, pathToFixture);
+                Logger.error(
+                    `Cannot parse read file located on =>`,
+                    pathToFixture
+                );
 
                 throw error;
             }

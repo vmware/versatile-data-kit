@@ -10,223 +10,358 @@ import { compareDatesASC } from '../../../../plugins/helpers/job-helpers.plugins
 import { DataJobsManagePage } from '../../../../support/pages/manage/data-jobs/data-jobs.po';
 import { DataJobManageDetailsPage } from '../../../../support/pages/manage/data-jobs/details/data-job-details.po';
 
-describe('Data Job Manage Details Page', { tags: ['@dataPipelines', '@manageDataJobDetails', '@manage'] }, () => {
-    const descriptionWordsBeforeTruncate = 12;
+describe(
+    'Data Job Manage Details Page',
+    { tags: ['@dataPipelines', '@manageDataJobDetails', '@manage'] },
+    () => {
+        const descriptionWordsBeforeTruncate = 12;
 
-    /**
-     * @type {DataJobManageDetailsPage};
-     */
-    let dataJobManageDetailsPage;
-    /**
-     * @type {Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
-     */
-    let testJobsFixture;
-    /**
-     * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
-     */
-    let additionalTestJobFixture;
-    /**
-     * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
-     */
-    let shortLivedTestJobWithDeployFixture;
-    /**
-     * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
-     */
-    let longLivedFailingJobFixture;
+        /**
+         * @type {DataJobManageDetailsPage};
+         */
+        let dataJobManageDetailsPage;
+        /**
+         * @type {Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
+         */
+        let testJobsFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let additionalTestJobFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let shortLivedTestJobWithDeployFixture;
+        /**
+         * @type {{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}}
+         */
+        let longLivedFailingJobFixture;
 
-    before(() => {
-        return DataJobManageDetailsPage.recordHarIfSupported()
-            .then(() => cy.clearLocalStorageSnapshot('data-job-manage-details'))
-            .then(() => DataJobManageDetailsPage.login())
-            .then(() => cy.saveLocalStorage('data-job-manage-details'))
-            .then(() => DataJobManageDetailsPage.deleteShortLivedTestJobsNoDeploy(true))
-            .then(() => DataJobManageDetailsPage.createLongLivedJobs('failing'))
-            .then(() => DataJobManageDetailsPage.provideExecutionsForLongLivedJobs('failing'))
-            .then(() =>
-                DataJobManageDetailsPage.loadLongLivedFailingJobFixture().then((loadedTestJob) => {
-                    longLivedFailingJobFixture = loadedTestJob;
+        before(() => {
+            return DataJobManageDetailsPage.recordHarIfSupported()
+                .then(() =>
+                    cy.clearLocalStorageSnapshot('data-job-manage-details')
+                )
+                .then(() => DataJobManageDetailsPage.login())
+                .then(() => cy.saveLocalStorage('data-job-manage-details'))
+                .then(() =>
+                    DataJobManageDetailsPage.deleteShortLivedTestJobsNoDeploy(
+                        true
+                    )
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.createLongLivedJobs('failing')
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.provideExecutionsForLongLivedJobs(
+                        'failing'
+                    )
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.loadLongLivedFailingJobFixture().then(
+                        (loadedTestJob) => {
+                            longLivedFailingJobFixture = loadedTestJob;
 
-                    return cy.wrap({
-                        context: 'manage::1::data-job-details.spec::before()',
-                        action: 'continue'
-                    });
-                })
-            )
-            .then(() => DataJobManageDetailsPage.createShortLivedTestJobWithDeploy('v1'))
-            .then(() =>
-                DataJobManageDetailsPage.loadShortLivedTestJobFixtureWithDeploy('v1').then((loadedTestJob) => {
-                    shortLivedTestJobWithDeployFixture = loadedTestJob;
+                            return cy.wrap({
+                                context:
+                                    'manage::1::data-job-details.spec::before()',
+                                action: 'continue'
+                            });
+                        }
+                    )
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.createShortLivedTestJobWithDeploy(
+                        'v1'
+                    )
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.loadShortLivedTestJobFixtureWithDeploy(
+                        'v1'
+                    ).then((loadedTestJob) => {
+                        shortLivedTestJobWithDeployFixture = loadedTestJob;
 
-                    return cy.wrap({
-                        context: 'manage::2::data-job-details.spec::before()',
-                        action: 'continue'
-                    });
-                })
-            )
-            .then(() => DataJobManageDetailsPage.createShortLivedTestJobsNoDeploy())
-            .then(() =>
-                DataJobManageDetailsPage.loadShortLivedTestJobsFixtureNoDeploy().then((fixtures) => {
-                    testJobsFixture = [fixtures[0], fixtures[1]];
-                    additionalTestJobFixture = fixtures[2];
+                        return cy.wrap({
+                            context:
+                                'manage::2::data-job-details.spec::before()',
+                            action: 'continue'
+                        });
+                    })
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.createShortLivedTestJobsNoDeploy()
+                )
+                .then(() =>
+                    DataJobManageDetailsPage.loadShortLivedTestJobsFixtureNoDeploy().then(
+                        (fixtures) => {
+                            testJobsFixture = [fixtures[0], fixtures[1]];
+                            additionalTestJobFixture = fixtures[2];
 
-                    return cy.wrap({
-                        context: 'manage::3::data-job-details.spec::before()',
-                        action: 'continue'
-                    });
-                })
-            );
-    });
-
-    after(() => {
-        DataJobManageDetailsPage.deleteShortLivedTestJobWithDeploy('v1');
-        DataJobManageDetailsPage.deleteShortLivedTestJobsNoDeploy();
-
-        DataJobManageDetailsPage.saveHarIfSupported();
-    });
-
-    beforeEach(() => {
-        cy.restoreLocalStorage('data-job-manage-details');
-
-        DataJobManageDetailsPage.wireUserSession();
-        DataJobManageDetailsPage.initInterceptors();
-    });
-
-    describe('smoke', { tags: ['@smoke'] }, () => {
-        it('should verify will open job details', () => {
-            const dataJobsManagePage = DataJobsManagePage.navigateWithSideMenu();
-
-            dataJobsManagePage.chooseQuickFilter(0);
-
-            // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
-            dataJobsManagePage.filterByJobName(shortLivedTestJobWithDeployFixture.job_name.substring(0, 20));
-
-            dataJobsManagePage.openJobDetails(shortLivedTestJobWithDeployFixture.team, shortLivedTestJobWithDeployFixture.job_name);
-
-            dataJobManageDetailsPage = DataJobManageDetailsPage.getPage();
-
-            dataJobManageDetailsPage.getPageTitle().invoke('text').invoke('trim').should('eq', `Data Job: ${shortLivedTestJobWithDeployFixture.job_name}`);
+                            return cy.wrap({
+                                context:
+                                    'manage::3::data-job-details.spec::before()',
+                                action: 'continue'
+                            });
+                        }
+                    )
+                );
         });
 
-        it('disable/enable job', () => {
-            dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(shortLivedTestJobWithDeployFixture.team, shortLivedTestJobWithDeployFixture.job_name);
+        after(() => {
+            DataJobManageDetailsPage.deleteShortLivedTestJobWithDeploy('v1');
+            DataJobManageDetailsPage.deleteShortLivedTestJobsNoDeploy();
 
-            //Toggle job status twice, enable to disable and vice versa.
-            dataJobManageDetailsPage.toggleJobStatus(shortLivedTestJobWithDeployFixture.job_name);
-            dataJobManageDetailsPage.toggleJobStatus(shortLivedTestJobWithDeployFixture.job_name);
+            DataJobManageDetailsPage.saveHarIfSupported();
         });
 
-        it('execute now', () => {
-            dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(shortLivedTestJobWithDeployFixture.team, shortLivedTestJobWithDeployFixture.job_name);
+        beforeEach(() => {
+            cy.restoreLocalStorage('data-job-manage-details');
 
-            DataJobManageDetailsPage.waitForShortLivedTestJobWithDeployExecutionToComplete('v1');
-
-            dataJobManageDetailsPage.executeNow();
-
-            dataJobManageDetailsPage
-                .getToastTitle(10000)
-                .should('exist')
-                .contains(/Data job Queued for execution|Failed, Data job is already executing/);
+            DataJobManageDetailsPage.wireUserSession();
+            DataJobManageDetailsPage.initInterceptors();
         });
 
-        it('delete job', () => {
-            DataJobsManagePage.createAdditionalShortLivedTestJobsNoDeploy();
+        describe('smoke', { tags: ['@smoke'] }, () => {
+            it('should verify will open job details', () => {
+                const dataJobsManagePage =
+                    DataJobsManagePage.navigateWithSideMenu();
 
-            dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(additionalTestJobFixture.team, additionalTestJobFixture.job_name);
+                dataJobsManagePage.chooseQuickFilter(0);
 
-            dataJobManageDetailsPage.openActionDropdown();
+                // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
+                dataJobsManagePage.filterByJobName(
+                    shortLivedTestJobWithDeployFixture.job_name.substring(0, 20)
+                );
 
-            dataJobManageDetailsPage.deleteJob();
+                dataJobsManagePage.openJobDetails(
+                    shortLivedTestJobWithDeployFixture.team,
+                    shortLivedTestJobWithDeployFixture.job_name
+                );
 
-            dataJobManageDetailsPage
-                .getToastTitle(20000) // Wait up to 20 seconds for the job to be deleted.
-                .should('contain.text', 'Data job delete completed');
+                dataJobManageDetailsPage = DataJobManageDetailsPage.getPage();
 
-            const dataJobsManagePage = DataJobsManagePage.getPage();
+                dataJobManageDetailsPage
+                    .getPageTitle()
+                    .invoke('text')
+                    .invoke('trim')
+                    .should(
+                        'eq',
+                        `Data Job: ${shortLivedTestJobWithDeployFixture.job_name}`
+                    );
+            });
 
-            dataJobsManagePage.waitForGridDataLoad();
+            it('disable/enable job', () => {
+                dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
+                    shortLivedTestJobWithDeployFixture.team,
+                    shortLivedTestJobWithDeployFixture.job_name
+                );
 
-            dataJobsManagePage.chooseQuickFilter(0);
+                //Toggle job status twice, enable to disable and vice versa.
+                dataJobManageDetailsPage.toggleJobStatus(
+                    shortLivedTestJobWithDeployFixture.job_name
+                );
+                dataJobManageDetailsPage.toggleJobStatus(
+                    shortLivedTestJobWithDeployFixture.job_name
+                );
+            });
 
-            dataJobsManagePage
-                .getDataGridCell(additionalTestJobFixture.job_name, 10000) // Wait up to 10 seconds for the jobs list to show.
-                .should('not.exist');
-        });
-    });
+            it('execute now', () => {
+                dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
+                    shortLivedTestJobWithDeployFixture.team,
+                    shortLivedTestJobWithDeployFixture.job_name
+                );
 
-    describe('extended', () => {
-        it('edit job description', () => {
-            let newDescription = 'Test if changing the description is working';
+                DataJobManageDetailsPage.waitForShortLivedTestJobWithDeployExecutionToComplete(
+                    'v1'
+                );
 
-            const dataJobsManagePage = DataJobsManagePage.navigateWithSideMenu();
+                dataJobManageDetailsPage.executeNow();
 
-            dataJobsManagePage.chooseQuickFilter(0);
+                dataJobManageDetailsPage
+                    .getToastTitle(10000)
+                    .should('exist')
+                    .contains(
+                        /Data job Queued for execution|Failed, Data job is already executing/
+                    );
+            });
 
-            // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
-            dataJobsManagePage.filterByJobName(testJobsFixture[0].job_name.substring(0, 20));
+            it('delete job', () => {
+                DataJobsManagePage.createAdditionalShortLivedTestJobsNoDeploy();
 
-            dataJobsManagePage.openJobDetails(testJobsFixture[0].team, testJobsFixture[0].job_name);
+                dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
+                    additionalTestJobFixture.team,
+                    additionalTestJobFixture.job_name
+                );
 
-            dataJobManageDetailsPage = DataJobManageDetailsPage.getPage();
+                dataJobManageDetailsPage.openActionDropdown();
 
-            dataJobManageDetailsPage.openDescription();
+                dataJobManageDetailsPage.deleteJob();
 
-            dataJobManageDetailsPage.enterDescriptionDetails(newDescription);
+                dataJobManageDetailsPage
+                    .getToastTitle(20000) // Wait up to 20 seconds for the job to be deleted.
+                    .should('contain.text', 'Data job delete completed');
 
-            dataJobManageDetailsPage.saveDescription();
+                const dataJobsManagePage = DataJobsManagePage.getPage();
 
-            dataJobManageDetailsPage.getDescription().scrollIntoView().should('be.visible').should('contain.text', newDescription.split(' ').slice(0, descriptionWordsBeforeTruncate).join(' '));
-        });
+                dataJobsManagePage.waitForGridDataLoad();
 
-        it('download job key', () => {
-            dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(shortLivedTestJobWithDeployFixture.team, shortLivedTestJobWithDeployFixture.job_name);
+                dataJobsManagePage.chooseQuickFilter(0);
 
-            dataJobManageDetailsPage.openActionDropdown();
-
-            dataJobManageDetailsPage.downloadJobKey();
-
-            dataJobManageDetailsPage.readFile('downloadsFolder', `${shortLivedTestJobWithDeployFixture.job_name}.keytab`).should('exist');
-        });
-
-        it('executions timeline', () => {
-            const jobName = longLivedFailingJobFixture.job_name;
-            const teamName = longLivedFailingJobFixture.team;
-
-            dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(teamName, jobName);
-
-            dataJobManageDetailsPage.waitForGetExecutionsReqInterceptor().then((interception) => {
-                const executionsResponse = [];
-                const content = interception?.response?.body?.data?.content;
-
-                if (content) {
-                    executionsResponse.push(...content);
-                }
-
-                const lastExecutions = executionsResponse.sort((left, right) => compareDatesASC(left, right)).slice(executionsResponse.length > 5 ? executionsResponse.length - 5 : 0);
-
-                const lastExecutionsSize = lastExecutions.length;
-                const lastExecution = lastExecutions[lastExecutionsSize - 1];
-                const timelineSize = lastExecutionsSize + 1; // +1 next execution
-
-                dataJobManageDetailsPage.getExecutionsSteps().should('have.length', timelineSize);
-
-                for (const execution of lastExecutions) {
-                    const executionTimelineSelector = `[data-cy=${execution.id}]`;
-
-                    const executionStartedTime = dataJobManageDetailsPage.formatDateTimeFromISOToExecutionsTimeline(execution.startTime);
-                    dataJobManageDetailsPage.getExecutionStepStartedTile(executionTimelineSelector).invoke('trim').should('eq', `Started ${executionStartedTime}`);
-
-                    if (execution?.type?.toLowerCase() === 'manual') {
-                        dataJobManageDetailsPage.getExecutionStepManualTriggerer(executionTimelineSelector).should('be.visible');
-                    }
-
-                    if (execution?.status?.toLowerCase() !== 'running' && execution?.status?.toLowerCase() !== 'submitted') {
-                        dataJobManageDetailsPage.getExecutionStepStatusIcon(executionTimelineSelector, execution.status).should('exist');
-
-                        const executionEndTime = dataJobManageDetailsPage.formatDateTimeFromISOToExecutionsTimeline(execution.endTime);
-                        dataJobManageDetailsPage.getExecutionStepEndedTile(executionTimelineSelector).invoke('trim').should('eq', `Ended ${executionEndTime}`);
-                    }
-                }
+                dataJobsManagePage
+                    .getDataGridCell(additionalTestJobFixture.job_name, 10000) // Wait up to 10 seconds for the jobs list to show.
+                    .should('not.exist');
             });
         });
-    });
-});
+
+        describe('extended', () => {
+            it('edit job description', () => {
+                let newDescription =
+                    'Test if changing the description is working';
+
+                const dataJobsManagePage =
+                    DataJobsManagePage.navigateWithSideMenu();
+
+                dataJobsManagePage.chooseQuickFilter(0);
+
+                // filter by job name substring because there are a lot of jobs, and it could potentially be on second/third page
+                dataJobsManagePage.filterByJobName(
+                    testJobsFixture[0].job_name.substring(0, 20)
+                );
+
+                dataJobsManagePage.openJobDetails(
+                    testJobsFixture[0].team,
+                    testJobsFixture[0].job_name
+                );
+
+                dataJobManageDetailsPage = DataJobManageDetailsPage.getPage();
+
+                dataJobManageDetailsPage.openDescription();
+
+                dataJobManageDetailsPage.enterDescriptionDetails(
+                    newDescription
+                );
+
+                dataJobManageDetailsPage.saveDescription();
+
+                dataJobManageDetailsPage
+                    .getDescription()
+                    .scrollIntoView()
+                    .should('be.visible')
+                    .should(
+                        'contain.text',
+                        newDescription
+                            .split(' ')
+                            .slice(0, descriptionWordsBeforeTruncate)
+                            .join(' ')
+                    );
+            });
+
+            it('download job key', () => {
+                dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
+                    shortLivedTestJobWithDeployFixture.team,
+                    shortLivedTestJobWithDeployFixture.job_name
+                );
+
+                dataJobManageDetailsPage.openActionDropdown();
+
+                dataJobManageDetailsPage.downloadJobKey();
+
+                dataJobManageDetailsPage
+                    .readFile(
+                        'downloadsFolder',
+                        `${shortLivedTestJobWithDeployFixture.job_name}.keytab`
+                    )
+                    .should('exist');
+            });
+
+            it('executions timeline', () => {
+                const jobName = longLivedFailingJobFixture.job_name;
+                const teamName = longLivedFailingJobFixture.team;
+
+                dataJobManageDetailsPage = DataJobManageDetailsPage.navigateTo(
+                    teamName,
+                    jobName
+                );
+
+                dataJobManageDetailsPage
+                    .waitForGetExecutionsReqInterceptor()
+                    .then((interception) => {
+                        const executionsResponse = [];
+                        const content =
+                            interception?.response?.body?.data?.content;
+
+                        if (content) {
+                            executionsResponse.push(...content);
+                        }
+
+                        const lastExecutions = executionsResponse
+                            .sort((left, right) => compareDatesASC(left, right))
+                            .slice(
+                                executionsResponse.length > 5
+                                    ? executionsResponse.length - 5
+                                    : 0
+                            );
+
+                        const lastExecutionsSize = lastExecutions.length;
+                        const lastExecution =
+                            lastExecutions[lastExecutionsSize - 1];
+                        const timelineSize = lastExecutionsSize + 1; // +1 next execution
+
+                        dataJobManageDetailsPage
+                            .getExecutionsSteps()
+                            .should('have.length', timelineSize);
+
+                        for (const execution of lastExecutions) {
+                            const executionTimelineSelector = `[data-cy=${execution.id}]`;
+
+                            const executionStartedTime =
+                                dataJobManageDetailsPage.formatDateTimeFromISOToExecutionsTimeline(
+                                    execution.startTime
+                                );
+                            dataJobManageDetailsPage
+                                .getExecutionStepStartedTile(
+                                    executionTimelineSelector
+                                )
+                                .invoke('trim')
+                                .should(
+                                    'eq',
+                                    `Started ${executionStartedTime}`
+                                );
+
+                            if (execution?.type?.toLowerCase() === 'manual') {
+                                dataJobManageDetailsPage
+                                    .getExecutionStepManualTriggerer(
+                                        executionTimelineSelector
+                                    )
+                                    .should('be.visible');
+                            }
+
+                            if (
+                                execution?.status?.toLowerCase() !==
+                                    'running' &&
+                                execution?.status?.toLowerCase() !== 'submitted'
+                            ) {
+                                dataJobManageDetailsPage
+                                    .getExecutionStepStatusIcon(
+                                        executionTimelineSelector,
+                                        execution.status
+                                    )
+                                    .should('exist');
+
+                                const executionEndTime =
+                                    dataJobManageDetailsPage.formatDateTimeFromISOToExecutionsTimeline(
+                                        execution.endTime
+                                    );
+                                dataJobManageDetailsPage
+                                    .getExecutionStepEndedTile(
+                                        executionTimelineSelector
+                                    )
+                                    .invoke('trim')
+                                    .should('eq', `Ended ${executionEndTime}`);
+                            }
+                        }
+                    });
+            });
+        });
+    }
+);
