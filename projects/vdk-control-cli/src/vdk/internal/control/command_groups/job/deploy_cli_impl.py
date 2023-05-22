@@ -129,7 +129,7 @@ class JobDeploy:
         if len(schedule) == 0:
             log.warning(
                 "You have provided no schedule for your Data Job. "
-                "Note that your deployed job will not be scheduled and will only run when manually executed."
+                "Note that your deployed job will not be scheduled and will only run when triggered manually or otherwise."
             )
         contacts = DataJobContacts(
             notified_on_job_failure_user_error=local_config.get_contacts_notified_on_job_failure_user_error(),

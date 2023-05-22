@@ -102,13 +102,51 @@ A preview of the VDK CLI commands:
 
 
 # Getting Started
-Installing VDK is a simple pip command. See the [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started) guide to install VDK and create a data job.
+
+## Create and run data jobs locally
+
+```
+pip install quickstart-vdk
+```
+
+This installs the core vdk packages and the vdk command line interface. You can
+use them to run jobs in your local shell environment.
+
+See also the [Getting
+Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started)
+section of the wiki
+
+## Run the Control Service locally with Docker and Kubernetes
+
+Using Kubernetes for your data jobs workflow provides additional benefits, such
+as continuous delivery, easier collaboration, streamlined data job
+orchestration, high availability, security, and job runtime isolation
+
+More info https://kubernetes.io/docs/concepts/overview/
+
+**Prerequisites**
+- [helm](https://helm.sh/docs/intro/install)
+- [docker](https://docs.docker.com/get-docker)
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) (version 0.11.1 or later)
+
+```
+vdk server --install
+```
+
+You can then use the vdk cli to create and deploy jobs and the UI to manage
+them.
 
 # Next Steps
-- See [use case examples](https://github.com/vmware/versatile-data-kit/wiki/Examples) that show how VDK fits into the data workflow.
-- See the [documentation](https://github.com/vmware/versatile-data-kit/wiki/Introduction) for VDK.
-- Read the article about [using the Versatile Data Kit and Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e).
-- Join us at a [community meeting](https://github.com/vmware/versatile-data-kit/wiki/Community-and-Resources)
+
+▶️ [Getting started with VDK Operations UI](https://www.youtube.com/watch?v=DLRGCCGUp0U)</br>
+📖 [Use case examples](https://github.com/vmware/versatile-data-kit/wiki/Examples) that show how VDK fits into the data workflow.</br>
+📖 [VDK with Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e).</br>
+🗣️ Get to know us and ask questions at our [community meeting](https://github.com/vmware/versatile-data-kit/wiki/Community-and-Resources)</br>
+
+# Additional Resources
+📖 [Running in production](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-versatile-data-kit-control-service)</br>
+📖 [Documentation](https://github.com/vmware/versatile-data-kit/wiki/Introduction) for VDK.</br>
+▶️ [VDK Operations UI Overview](https://www.youtube.com/watch?v=9BkAOSvXuUg)</br>
 
 # Contributing
 Create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes. If you are interested in contributing as a developer, visit the [contributing](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md) page.
