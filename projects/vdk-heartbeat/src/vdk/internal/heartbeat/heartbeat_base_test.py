@@ -53,7 +53,7 @@ class HeartbeatBaseTest(ABC):
             self.execute_test()
         except:
             log.info("Heartbeat has failed.")
-            if self._config.clean_up_on_failure:
+            if self.config.clean_up_on_failure:
                 log.info("Heartbeat clean up on failure.")
                 self.clean_up()
             raise
