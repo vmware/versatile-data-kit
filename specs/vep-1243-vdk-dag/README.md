@@ -221,6 +221,11 @@ The DAG is executed as follows:
 3. Finished jobs are marked as completed and removed from the execution queue.
 
 The algorithm continues executing jobs until all jobs in the DAG are completed.
+The execution type of the DAG is being inherited by its orchestrated jobs.
+Upon sending the execution request for each job, the "started_by" parameter is set to "EXEC-TYPE/DAG-NAME"
+(e.g. "manual/dag-job"), where:
+* EXEC-TYPE = "manual" or "scheduled";
+* DAG-NAME = the name of the DAG Job.
 
 ### Capacity Estimation and Constraints
 

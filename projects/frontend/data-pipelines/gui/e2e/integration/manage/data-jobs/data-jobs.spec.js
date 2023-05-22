@@ -221,7 +221,12 @@ describe(
                     .should('deep.equal', {
                         pathSegment: '/manage/data-jobs',
                         queryParams: {
-                            search: testJobsFixture[0].job_name
+                            search: testJobsFixture[0].job_name,
+                            jobName: testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            ),
+                            deploymentEnabled: 'all'
                         }
                     });
 
@@ -246,7 +251,13 @@ describe(
                     })
                     .should('deep.equal', {
                         pathSegment: '/manage/data-jobs',
-                        queryParams: {}
+                        queryParams: {
+                            jobName: testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            ),
+                            deploymentEnabled: 'all'
+                        }
                     });
             });
 
@@ -274,7 +285,12 @@ describe(
                     .should('deep.equal', {
                         pathSegment: '/manage/data-jobs',
                         queryParams: {
-                            search: testJobsFixture[1].job_name
+                            search: testJobsFixture[1].job_name,
+                            jobName: testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            ),
+                            deploymentEnabled: 'all'
                         }
                     });
 
@@ -308,7 +324,13 @@ describe(
                     })
                     .should('deep.equal', {
                         pathSegment: '/manage/data-jobs',
-                        queryParams: {}
+                        queryParams: {
+                            jobName: testJobsFixture[0].job_name.substring(
+                                0,
+                                20
+                            ),
+                            deploymentEnabled: 'all'
+                        }
                     });
             });
 
@@ -470,6 +492,96 @@ describe(
                             true
                         );
                     });
+            });
+
+            it('filter description data jobs', () => {
+                dataJobsManagePage = DataJobsManagePage.navigateTo();
+
+                dataJobsManagePage.chooseQuickFilter(0);
+
+                // show panel for show/hide columns
+                dataJobsManagePage.toggleColumnShowHidePanel();
+
+                // verify column is not checked in toggling menu
+                dataJobsManagePage
+                    .getDataGridColumnShowHideOption('Description')
+                    .should('exist')
+                    .should('not.be.checked');
+
+                // verify header cell for column is not rendered
+                dataJobsManagePage
+                    .getDataGridHeaderCell('Description')
+                    .should('have.length', 0);
+
+                // toggle column to render
+                dataJobsManagePage.checkColumnShowHideOption('Description');
+
+                // verify column is checked in toggling menu
+                dataJobsManagePage
+                    .getHeaderColumnDescriptionName()
+                    .should('exist');
+
+                // filter by job description because
+                dataJobsManagePage.filterByJobDescription('Test description 1');
+
+                // verify url contains description value
+                dataJobsManagePage
+                    .getCurrentUrl()
+                    .should(
+                        'match',
+                        new RegExp(
+                            `\\/manage\\/data-jobs\\?deploymentEnabled=all&description=Test%20description%201$`
+                        )
+                    );
+
+                dataJobsManagePage
+                    .getDataGridCell(testJobsFixture[0].job_name)
+                    .scrollIntoView()
+                    .should('be.visible');
+
+                dataJobsManagePage
+                    .getDataGridCell(testJobsFixture[1].job_name)
+                    .should('not.exist');
+            });
+
+            it('perform filtering by description when URL contains description parameter', () => {
+                // navigate with search value in URL
+                dataJobsManagePage = DataJobsManagePage.navigateToDataJobUrl(
+                    `/manage/data-jobs?deploymentEnabled=enabled&description=Test%20description%201`
+                );
+
+                dataJobsManagePage.chooseQuickFilter(0);
+                dataJobsManagePage.waitForGridToLoad(null);
+
+                // show panel for show/hide columns
+                dataJobsManagePage.toggleColumnShowHidePanel();
+
+                // toggle column to render
+                dataJobsManagePage.checkColumnShowHideOption('Description');
+
+                // verify url contains search value
+                dataJobsManagePage
+                    .getCurrentUrlNormalized({
+                        includePathSegment: true,
+                        includeQueryString: true
+                    })
+                    .should('deep.equal', {
+                        pathSegment: '/manage/data-jobs',
+                        queryParams: {
+                            deploymentEnabled: 'all',
+                            description: 'Test%20description%201'
+                        }
+                    });
+
+                // verify 1 test row visible
+                dataJobsManagePage
+                    .getDataGridCell(testJobsFixture[0].job_name)
+                    .scrollIntoView()
+                    .should('be.visible');
+
+                dataJobsManagePage
+                    .getDataGridCell(testJobsFixture[1].job_name)
+                    .should('not.exist');
             });
 
             it('show/hide column when toggling from menu', () => {

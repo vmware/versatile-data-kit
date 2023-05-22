@@ -3,14 +3,21 @@
    ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<clr-checkbox-wrapper *ngFor="let status of allStatuses">
+<clr-checkbox-wrapper
+    *ngFor="let status of allStatuses"
+    data-cy="dp-job-executions-status-filter-checkbox"
+>
     <input
+        [attr.data-cy]="'dp-job-executions-status-filter-checkbox-' + status?.toLowerCase()"
         type="checkbox"
         clrCheckbox
+        [checked]="selectedStatuses.includes(status)"
         [value]="status"
         (change)="toggleCheckbox($event)"
     />
-    <label>
+    <label
+        [attr.data-cy]="'dp-job-executions-status-filter-label-' + status?.toLowerCase()"
+    >
         <lib-data-job-execution-status
             [jobStatus]="status"
         ></lib-data-job-execution-status>

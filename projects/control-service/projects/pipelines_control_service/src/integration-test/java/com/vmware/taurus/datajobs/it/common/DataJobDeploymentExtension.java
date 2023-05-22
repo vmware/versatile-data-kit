@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +39,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
+import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Extension that deploys Data Job before all tests. Before the test execution, the extension
@@ -74,23 +74,13 @@ public class DataJobDeploymentExtension
 
   protected final ObjectMapper MAPPER = new ObjectMapper();
 
-  private String jobName =
-      JobExecutionUtil.JOB_NAME_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+  private String jobName;
 
   private String jobSource = "simple_job.zip";
 
   private boolean initialized = false;
 
-  private final Map<String, Object> SUPPORTED_PARAMETERS =
-      Map.of(
-          "jobName",
-          jobName,
-          "username",
-          USER_NAME,
-          "deploymentId",
-          DEPLOYMENT_ID,
-          "teamName",
-          TEAM_NAME);
+  private Map<String, Object> SUPPORTED_PARAMETERS;
 
   public DataJobDeploymentExtension() {}
 
@@ -105,7 +95,22 @@ public class DataJobDeploymentExtension
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
     // Setup
+    if (!initialized) {
+      jobName = JobExecutionUtil.generateJobName(context.getTestClass().get().getSimpleName());
+      SUPPORTED_PARAMETERS =
+          Map.of(
+              "jobName",
+              jobName,
+              "username",
+              USER_NAME,
+              "deploymentId",
+              DEPLOYMENT_ID,
+              "teamName",
+              TEAM_NAME);
+    }
+
     String dataJobRequestBody = BaseIT.getDataJobRequestBody(TEAM_NAME, jobName);
+
     // Create the data job
     mockMvc
         .perform(
@@ -178,10 +183,26 @@ public class DataJobDeploymentExtension
           .andExpect(status().isAccepted())
           .andReturn();
 
+      await()
+          .atMost(120, TimeUnit.SECONDS)
+          .with()
+          .pollDelay(20, TimeUnit.SECONDS)
+          .pollInterval(2, TimeUnit.SECONDS)
+          .failFast(
+              () -> {
+                if (dataJobsKubernetesService
+                    .getPod("builder-" + jobName)
+                    .map(a -> a.getStatus().getPhase().equals("Failed"))
+                    .orElse(false)) {
+                  throw new Exception(dataJobsKubernetesService.getPodLogs("builder-" + jobName));
+                }
+              })
+          .until(() -> dataJobsKubernetesService.getPod("builder-" + jobName).isEmpty());
+
       // Verify that the job deployment was created
       String jobDeploymentName = JobImageDeployer.getCronJobName(jobName);
       await()
-          .atMost(360, TimeUnit.SECONDS)
+          .atMost(240, TimeUnit.SECONDS)
           .with()
           .pollInterval(10, TimeUnit.SECONDS)
           .until(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
@@ -206,12 +227,18 @@ public class DataJobDeploymentExtension
     DataJobsKubernetesService dataJobsKubernetesService =
         SpringExtension.getApplicationContext(context).getBean(DataJobsKubernetesService.class);
 
-    mockMvc
-        .perform(
+    ResultActions perform =
+        mockMvc.perform(
             delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEAM_NAME, jobName))
                 .with(user(USER_NAME))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON));
+    if (perform.andReturn().getResponse().getStatus() != 200) {
+      throw new Exception(
+          "status is "
+              + perform.andReturn().getResponse().getStatus()
+              + "\nbody is"
+              + perform.andReturn().getResponse().getContentAsString());
+    }
 
     // Finally, delete the K8s jobs to avoid them messing up subsequent runs of the same test
     dataJobsKubernetesService.listJobs().stream()

@@ -38,6 +38,21 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         return page;
     }
 
+    /**
+     * ** Navigate to Data Job executions page with provided URL.
+     *
+     * @param {string} url
+     * @return {DataJobManageExecutionsPage}
+     */
+    static navigateToExecutionsWithUrl(url) {
+        const page = this.navigateToDataJobUrl(url, 3);
+
+        page.waitForGridToLoad(null);
+        page.waitForViewToRenderShort();
+
+        return page;
+    }
+
     /* Utils */
 
     /**
@@ -134,6 +149,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
 
     // Header
 
+    // status
     getDataGridExecStatusHeader() {
         return this.getDataGrid()
             .should('exist')
@@ -152,6 +168,55 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .find('[data-cy=data-pipelines-job-executions-status-filters]');
     }
 
+    getDataGridExecStatusSortBtn() {
+        return this.getDataGridExecStatusHeader()
+            .should('exist')
+            .find('.datagrid-column-title');
+    }
+
+    /**
+     * ** Get status filter label
+     *
+     * @param {'succeeded'|'platform_error'|'user_error'|'running'|'submitted'|'skipped'|'cancelled'} status
+     * @return {Cypress.Chainable<JQuery<HTMLElement>>}
+     */
+    getDataGridExecStatusFilterLabel(status) {
+        return cy.get(
+            `[data-cy=dp-job-executions-status-filter-label-${status}]`
+        );
+    }
+
+    /**
+     * ** Get status filter checkbox
+     *
+     * @param {'succeeded'|'platform_error'|'user_error'|'running'|'submitted'|'skipped'|'cancelled'} status
+     * @return {Cypress.Chainable<JQuery<HTMLElement>>}
+     */
+    getDataGridExecStatusFilterCheckbox(status) {
+        return cy.get(
+            `[data-cy=dp-job-executions-status-filter-checkbox-${status}]`
+        );
+    }
+
+    getDataGridExecStatusFilterCheckboxesStatuses() {
+        return cy
+            .get('[data-cy=dp-job-executions-status-filter-checkbox] input')
+            .then(($checkboxes) => {
+                return cy.wrap(
+                    Array.from($checkboxes).map((checkbox) => {
+                        const key = checkbox
+                            .getAttribute('data-cy')
+                            .split('-')
+                            .pop();
+                        const value = checkbox.checked;
+
+                        return [key, value];
+                    })
+                );
+            });
+    }
+
+    // type
     getDataGridExecTypeHeader() {
         return this.getDataGrid()
             .should('exist')
@@ -164,16 +229,63 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .find('.datagrid-filter-toggle');
     }
 
-    getDataGridExecTypeFilters() {
-        return this.getDataGridPopupFilter()
+    getDataGridExecTypeSortBtn() {
+        return this.getDataGridExecTypeHeader()
             .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-type-filters]');
+            .find('.datagrid-column-title');
     }
 
+    /**
+     * ** Get type filter label
+     *
+     * @param {'manual'|'scheduled'} type
+     * @return {Cypress.Chainable<JQuery<HTMLElement>>}
+     */
+    getDataGridExecTypeFilterLabel(type) {
+        return cy.get(`[data-cy=dp-job-executions-type-filter-label-${type}]`);
+    }
+
+    /**
+     * ** Get type filter checkbox
+     *
+     * @param {'manual'|'scheduled'} type
+     * @return {Cypress.Chainable<JQuery<HTMLElement>>}
+     */
+    getDataGridExecTypeFilterCheckbox(type) {
+        return cy.get(
+            `[data-cy=dp-job-executions-type-filter-checkbox-${type}]`
+        );
+    }
+
+    getDataGridExecTypeFilterCheckboxesStatuses() {
+        return cy
+            .get('[data-cy=dp-job-executions-type-filter-checkbox] input')
+            .then(($checkboxes) => {
+                return cy.wrap(
+                    Array.from($checkboxes).map((checkbox) => {
+                        const key = checkbox
+                            .getAttribute('data-cy')
+                            .split('-')
+                            .pop();
+                        const value = checkbox.checked;
+
+                        return [key, value];
+                    })
+                );
+            });
+    }
+
+    // duration
     getDataGridExecDurationHeader() {
         return this.getDataGrid()
             .should('exist')
             .find('[data-cy=data-pipelines-job-executions-duration-header]');
+    }
+
+    getDataGridExecDurationFilterOpenerBtn() {
+        return this.getDataGridExecDurationHeader()
+            .should('exist')
+            .find('.datagrid-filter-toggle');
     }
 
     getDataGridExecDurationSortBtn() {
@@ -182,10 +294,17 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .find('.datagrid-column-title');
     }
 
+    // exec start
     getDataGridExecStartHeader() {
         return this.getDataGrid()
             .should('exist')
             .find('[data-cy=data-pipelines-job-executions-start-header]');
+    }
+
+    getDataGridExecStartFilterOpenerBtn() {
+        return this.getDataGridExecStartHeader()
+            .should('exist')
+            .find('.datagrid-filter-toggle');
     }
 
     getDataGridExecStartSortBtn() {
@@ -194,10 +313,17 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .find('.datagrid-column-title');
     }
 
+    // exec end
     getDataGridExecEndHeader() {
         return this.getDataGrid()
             .should('exist')
             .find('[data-cy=data-pipelines-job-executions-end-header]');
+    }
+
+    getDataGridExecEndFilterOpenerBtn() {
+        return this.getDataGridExecEndHeader()
+            .should('exist')
+            .find('.datagrid-filter-toggle');
     }
 
     getDataGridExecEndSortBtn() {
@@ -206,6 +332,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .find('.datagrid-column-title');
     }
 
+    // id
     getDataGridExecIDHeader() {
         return this.getDataGrid()
             .should('exist')
@@ -218,6 +345,13 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .find('.datagrid-filter-toggle');
     }
 
+    getDataGridExecIDSortBtn() {
+        return this.getDataGridExecIDHeader()
+            .should('exist')
+            .find('.datagrid-column-title');
+    }
+
+    // version
     getDataGridExecVersionHeader() {
         return this.getDataGrid()
             .should('exist')
@@ -228,6 +362,12 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         return this.getDataGridExecVersionHeader()
             .should('exist')
             .find('.datagrid-filter-toggle');
+    }
+
+    getDataGridExecVersionSortBtn() {
+        return this.getDataGridExecVersionHeader()
+            .should('exist')
+            .find('.datagrid-column-title');
     }
 
     // Rows and Cells
@@ -278,6 +418,11 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         return this.getDataGridRow(rowIndex).should('exist').find(identifier);
     }
 
+    getDataGridCellsByIdentifier(identifier) {
+        return this.getDataGrid().should('exist').find(identifier);
+    }
+
+    // type
     getDataGridExecTypeCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
@@ -285,12 +430,40 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         );
     }
 
-    getDataGridExecTypeContainer(rowIndex) {
-        return this.getDataGridExecTypeCell(rowIndex)
+    /**
+     * ** Get containers in cells for given type.
+     *
+     * @param {'manual'|'scheduled'} type
+     * @return {Cypress.Chainable<Array<string>>}
+     */
+    getDataGridExecTypeContainers(type) {
+        return this.getDataGrid()
             .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-type-container]');
+            .find('[data-cy=data-pipelines-job-executions-type-container]')
+            .then(($containers) => {
+                return cy.wrap(
+                    Array.from($containers)
+                        .map((container) =>
+                            container.getAttribute('title').toLowerCase()
+                        )
+                        .filter((title) => new RegExp(`^${type}`).test(title))
+                );
+            });
     }
 
+    // getDataGridExecStatusFilterCheckboxesStatuses() {
+    //     return cy.get('[data-cy=dp-job-executions-status-filter-checkbox] input')
+    //              .then(($checkboxes) => {
+    //                  return cy.wrap(Array.from($checkboxes).map((checkbox) => {
+    //                      const key = checkbox.getAttribute('data-cy').split('-').pop();
+    //                      const value = checkbox.checked;
+    //
+    //                      return [key, value];
+    //                  }));
+    //              });
+    // }
+
+    // duration
     getDataGridExecDurationCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
@@ -298,6 +471,7 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         );
     }
 
+    // exec start
     getDataGridExecStartCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
@@ -305,10 +479,79 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         );
     }
 
+    getDataGridExecStartCells() {
+        return this.getDataGridCellsByIdentifier(
+            '[data-cy=data-pipelines-job-executions-start-cell]'
+        );
+    }
+
+    generateExecStartFilterValue() {
+        return this.getDataGridExecStartCells().then(($cells) => {
+            const pmCells = Array.from($cells).map((cell) =>
+                /PM$/.test(`${cell.innerText?.trim()}`)
+            );
+
+            if (pmCells.length > 0) {
+                return cy.wrap('PM');
+            }
+
+            return cy.wrap('AM');
+        });
+    }
+
+    // exec end
     getDataGridExecEndCell(rowIndex) {
         return this.getDataGridCellByIdentifier(
             rowIndex,
             '[data-cy=data-pipelines-job-executions-end-cell]'
+        );
+    }
+
+    getDataGridExecEndCells() {
+        return this.getDataGridCellsByIdentifier(
+            '[data-cy=data-pipelines-job-executions-end-cell]'
+        );
+    }
+
+    generateExecEndFilterValue() {
+        return this.getDataGridExecEndCells().then(($cells) => {
+            const pmCells = Array.from($cells).map((cell) =>
+                /PM$/.test(`${cell.innerText?.trim()}`)
+            );
+
+            if (pmCells.length > 0) {
+                return cy.wrap('PM');
+            }
+
+            return cy.wrap('AM');
+        });
+    }
+
+    // id
+    getDataGridExecIDCell(rowIndex) {
+        return this.getDataGridCellByIdentifier(
+            rowIndex,
+            '[data-cy=data-pipelines-job-executions-id-cell]'
+        );
+    }
+
+    getDataGridExecIDCells() {
+        return this.getDataGridCellsByIdentifier(
+            '[data-cy=data-pipelines-job-executions-id-cell]'
+        );
+    }
+
+    // exec version
+    getDataGridExecVersionCell(rowIndex) {
+        return this.getDataGridCellByIdentifier(
+            rowIndex,
+            '[data-cy=data-pipelines-job-executions-job-version-cell]'
+        );
+    }
+
+    getDataGridExecVersionCells() {
+        return this.getDataGridCellsByIdentifier(
+            '[data-cy=data-pipelines-job-executions-job-version-cell]'
         );
     }
 
@@ -332,16 +575,16 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
 
     // DataGrid
 
-    typeToFilterInput(value) {
+    typeToTextFilterInput(value) {
         this.getDataGridInputFilter().should('exist').type(value);
 
-        this.waitForViewToRenderShort();
+        this.waitForViewToRender();
     }
 
-    clearFilterInput() {
+    clearTextFilterInput() {
         this.getDataGridInputFilter().should('exist').clear({ force: true });
 
-        this.waitForViewToRenderShort();
+        this.waitForViewToRender();
     }
 
     closeFilter() {
@@ -354,6 +597,10 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
 
     // Header
 
+    // status
+    /**
+     * ** Open status filter.
+     */
     openStatusFilter() {
         this.getDataGridExecStatusFilterOpenerBtn()
             .should('exist')
@@ -362,6 +609,57 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         this.waitForViewToRenderShort();
     }
 
+    /**
+     * ** Choose filter by some status.
+     *
+     * @param {'succeeded'|'platform_error'|'user_error'|'running'|'submitted'|'skipped'|'cancelled'} status
+     */
+    filterByStatus(status) {
+        this.getDataGridExecStatusFilterCheckbox(status)
+            .should('exist')
+            .as('checkbox')
+            .invoke('is', ':checked')
+            .then((checked) => {
+                if (!checked) {
+                    this.getDataGridExecStatusFilterLabel(status)
+                        .should('exist')
+                        .click({ force: true });
+                }
+            });
+
+        this.waitForViewToRender();
+    }
+
+    /**
+     * ** Clear filter by some status.
+     *
+     * @param {'succeeded'|'platform_error'|'user_error'|'running'|'submitted'|'skipped'|'cancelled'} status
+     */
+    clearFilterByStatus(status) {
+        this.getDataGridExecStatusFilterCheckbox(status)
+            .should('exist')
+            .as('checkbox')
+            .invoke('is', ':checked')
+            .then((checked) => {
+                if (checked) {
+                    this.getDataGridExecStatusFilterLabel(status)
+                        .should('exist')
+                        .click({ force: true });
+                }
+            });
+
+        this.waitForViewToRender();
+    }
+
+    sortByExecStatus() {
+        this.getDataGridExecStatusSortBtn()
+            .should('exist')
+            .click({ force: true });
+
+        this.waitForViewToRender();
+    }
+
+    // type
     openTypeFilter() {
         this.getDataGridExecTypeFilterOpenerBtn()
             .should('exist')
@@ -370,16 +668,59 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
         this.waitForViewToRenderShort();
     }
 
-    openIDFilter() {
-        this.getDataGridExecIDFilterOpenerBtn()
+    /**
+     * ** Choose filter by some type.
+     *
+     * @param {'manual'|'scheduled'} type
+     */
+    filterByType(type) {
+        this.getDataGridExecTypeFilterCheckbox(type)
+            .should('exist')
+            .as('checkbox')
+            .invoke('is', ':checked')
+            .then((checked) => {
+                if (!checked) {
+                    this.getDataGridExecTypeFilterLabel(type).click({
+                        force: true
+                    });
+                }
+            });
+
+        this.waitForViewToRender();
+    }
+
+    /**
+     * ** Clear filter by some type.
+     *
+     * @param {'manual'|'scheduled'} type
+     */
+    clearFilterByType(type) {
+        this.getDataGridExecTypeFilterCheckbox(type)
+            .should('exist')
+            .as('checkbox')
+            .invoke('is', ':checked')
+            .then((checked) => {
+                if (checked) {
+                    this.getDataGridExecTypeFilterLabel(type)
+                        .should('exist')
+                        .click({ force: true });
+                }
+            });
+
+        this.waitForViewToRender();
+    }
+
+    sortByExecType() {
+        this.getDataGridExecTypeSortBtn()
             .should('exist')
             .click({ force: true });
 
-        this.waitForViewToRenderShort();
+        this.waitForViewToRender();
     }
 
-    openVersionFilter() {
-        this.getDataGridExecVersionFilterOpenerBtn()
+    // duration
+    openDurationFilter() {
+        this.getDataGridExecDurationFilterOpenerBtn()
             .should('exist')
             .click({ force: true });
 
@@ -391,11 +732,29 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             .should('exist')
             .click({ force: true });
 
+        this.waitForViewToRender();
+    }
+
+    // exec start
+    openExecStartFilter() {
+        this.getDataGridExecStartFilterOpenerBtn()
+            .should('exist')
+            .click({ force: true });
+
         this.waitForViewToRenderShort();
     }
 
     sortByExecStart() {
         this.getDataGridExecStartSortBtn()
+            .should('exist')
+            .click({ force: true });
+
+        this.waitForViewToRender();
+    }
+
+    // exec end
+    openExecEndFilter() {
+        this.getDataGridExecEndFilterOpenerBtn()
             .should('exist')
             .click({ force: true });
 
@@ -405,6 +764,38 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     sortByExecEnd() {
         this.getDataGridExecEndSortBtn().should('exist').click({ force: true });
 
+        this.waitForViewToRender();
+    }
+
+    // id
+    openIDFilter() {
+        this.getDataGridExecIDFilterOpenerBtn()
+            .should('exist')
+            .click({ force: true });
+
         this.waitForViewToRenderShort();
+    }
+
+    sortByExecID() {
+        this.getDataGridExecIDSortBtn().should('exist').click({ force: true });
+
+        this.waitForViewToRender();
+    }
+
+    // version
+    openVersionFilter() {
+        this.getDataGridExecVersionFilterOpenerBtn()
+            .should('exist')
+            .click({ force: true });
+
+        this.waitForViewToRenderShort();
+    }
+
+    sortByExecVersion() {
+        this.getDataGridExecVersionSortBtn()
+            .should('exist')
+            .click({ force: true });
+
+        this.waitForViewToRender();
     }
 }

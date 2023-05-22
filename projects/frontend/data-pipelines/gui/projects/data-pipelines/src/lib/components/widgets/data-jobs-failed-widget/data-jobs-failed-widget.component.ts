@@ -9,6 +9,8 @@ import { NavigationService } from '@versatiledatakit/shared';
 
 import { DataJob, DataJobExecutions } from '../../../model';
 
+import { GridDataJobExecution } from '../../data-job/pages/executions';
+
 interface DataJobGrid extends DataJob {
     failedTotal?: number;
 }
@@ -22,7 +24,7 @@ interface DataJobGrid extends DataJob {
 export class DataJobsFailedWidgetComponent implements OnChanges {
     @Input() manageLink: string;
     @Input() allJobs: DataJob[];
-    @Input() jobExecutions: DataJobExecutions = [];
+    @Input() jobExecutions: GridDataJobExecution[] = [];
 
     readonly uuid = 'DataJobsFailedWidgetComponent';
 

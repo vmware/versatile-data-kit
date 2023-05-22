@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
+import re
 import time
 from datetime import date
 from datetime import datetime
@@ -57,7 +58,7 @@ dummy_config = DummyDAGPluginConfiguration()
 
 
 class TestDAG:
-    def _prepare(self):
+    def _prepare(self, dag_name=None):
         rest_api_url = self.httpserver.url_for("")
         team_name = "team-awesome"
         if self.jobs is None:
@@ -102,6 +103,7 @@ class TestDAG:
                         start_time="2021-09-24T14:14:03.922Z",
                         status=actual_job_status,
                         message="foo",
+                        started_by="manual/" + dag_name,
                     )
                     response_data = json.dumps(
                         execution.to_dict(), indent=4, default=json_serial
@@ -122,6 +124,45 @@ class TestDAG:
                 exec_handler(job_name, job_status, execution_duration)
             )
 
+            class MatchExecutionID:
+                def __eq__(self, other):
+                    return (
+                        re.match(
+                            r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-\d+$",
+                            other.split("/")[-1],
+                        )
+                        is not None
+                    )
+
+            def exec_id_handler(job_name):
+                def _handler_fn(r: Request):
+                    execution: DataJobExecution = DataJobExecution(
+                        id=job_name,
+                        job_name=job_name,
+                        logs_url="http://url",
+                        deployment=DataJobDeployment(),
+                        start_time="2021-09-24T14:14:03.922Z",
+                        status="succeeded",
+                        message="foo",
+                        started_by="manual/" + dag_name,
+                    )
+                    response_data = json.dumps(
+                        execution.to_dict(), indent=4, default=json_serial
+                    )
+                    return Response(
+                        response_data,
+                        status=200,
+                        headers=None,
+                        content_type="application/json",
+                    )
+
+                return _handler_fn
+
+            self.httpserver.expect_request(
+                uri=MatchExecutionID(),
+                method="GET",
+            ).respond_with_handler(exec_id_handler(job_name))
+
             def exec_list_handler(job_name):
                 def _handler_fn(r: Request):
                     execution: DataJobExecution = DataJobExecution(
@@ -132,6 +173,7 @@ class TestDAG:
                         start_time="2021-09-24T14:14:03.922Z",
                         status="succeeded",
                         message="foo",
+                        started_by="manual/" + dag_name,
                     )
                     response_data = json.dumps(
                         [execution.to_dict()], indent=4, default=json_serial
@@ -152,11 +194,11 @@ class TestDAG:
 
         return rest_api_url
 
-    def _set_up(self, jobs=None, additional_env_vars=None):
+    def _set_up(self, jobs=None, additional_env_vars=None, dag_name=None):
         self.httpserver = PluginHTTPServer()
         self.httpserver.start()
         self.jobs = jobs
-        self.api_url = self._prepare()
+        self.api_url = self._prepare(dag_name)
         self.env_vars = {"VDK_CONTROL_SERVICE_REST_API_URL": self.api_url}
         if additional_env_vars is not None:
             self.env_vars.update(additional_env_vars)
@@ -188,13 +230,14 @@ class TestDAG:
             assert len(self.httpserver.log) == 0
 
     def test_dag(self):
-        self._set_up()
+        dag = "dag"
+        self._set_up(dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag")
+            result = self._run_dag(dag)
             cli_assert_equal(0, result)
             self.httpserver.stop()
 
@@ -205,13 +248,14 @@ class TestDAG:
             ("job3", [200], "platform_error"),
             ("job4", [200], "succeeded"),
         ]
-        self._set_up(jobs)
+        dag = "dag"
+        self._set_up(jobs, dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag")
+            result = self._run_dag(dag)
             cli_assert_equal(1, result)
             self.httpserver.stop()
 
@@ -222,13 +266,14 @@ class TestDAG:
             ("job3", [200], "succeeded"),
             ("job4", [200], "succeeded"),
         ]
-        self._set_up(jobs)
+        dag = "dag"
+        self._set_up(jobs, dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag")
+            result = self._run_dag(dag)
             cli_assert_equal(0, result)
             self.httpserver.stop()
 
@@ -239,17 +284,18 @@ class TestDAG:
             ("job3", [200], "succeeded"),
             ("job4", [200], "succeeded"),
         ]
+        dag = "dag"
         env_vars = {
             "VDK_DAGS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "0",
             "VDK_DAGS_DELAYED_JOBS_MIN_DELAY_SECONDS": "0",
         }
-        self._set_up(jobs, env_vars)
+        self._set_up(jobs, env_vars, dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag")
+            result = self._run_dag(dag)
             cli_assert_equal(0, result)
             self.httpserver.stop()
 
@@ -260,18 +306,20 @@ class TestDAG:
             ("job3", [200], "succeeded"),
             ("job4", [200], "succeeded"),
         ]
-        self._set_up(jobs)
+        dag = "dag"
+        self._set_up(jobs, dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag")
+            result = self._run_dag(dag)
             cli_assert_equal(1, result)
-            # we should have 2 requests in the log, one to get a list
-            # of all executions, and one for the failing data job
-            # no other request should be tried as the DAG fails
-            assert len(self.httpserver.log) == 2
+            # we should have 3 requests in the log, one to get
+            # the execution type of the dag,a list of all
+            # executions and one for the failing data job no
+            # other request should be tried as the DAG fails
+            assert len(self.httpserver.log) == 3
             self.httpserver.stop()
 
     def test_dag_long_running(self):
@@ -281,17 +329,18 @@ class TestDAG:
             ("job3", [200], "succeeded"),
             ("job4", [200], "succeeded"),
         ]
+        dag = "dag"
         # we set 5 seconds more than execution duration of 3 set above
         dummy_config.dags_time_between_status_check_seconds_value = 5
         dummy_config.dags_dag_execution_check_time_period_seconds_value = 0
 
-        self._set_up(jobs, [])
+        self._set_up(jobs, dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag")
+            result = self._run_dag(dag)
             cli_assert_equal(0, result)
             job1_requests = [
                 req
@@ -308,25 +357,32 @@ class TestDAG:
             # if implementation is changed the number below would likely change.
             # If the new count is not that big we can edit it here to pass the test,
             # if the new count is too big, we have an issue that need to be investigated.
-            assert len(self.httpserver.log) == 21
+            assert len(self.httpserver.log) == 22
             self.httpserver.stop()
 
-    """
     def test_dag_concurrent_running_jobs_limit(self):
         jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
+        dag = "dag-exceed-limit"
 
         dummy_config.dags_max_concurrent_running_jobs_value = 2
         dummy_config.dags_delayed_jobs_min_delay_seconds_value = 1
         dummy_config.dags_delayed_jobs_randomized_added_delay_seconds_value = 1
         dummy_config.dags_time_between_status_check_seconds_value = 1
 
-        self._set_up(jobs, [])
+        env_vars = {
+            "VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS": "2",
+            "VDK_DAGS_DELAYED_JOBS_RANDOMIZED_ADDED_DELAY_SECONDS": "1",
+            "VDK_DAGS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
+            "VDK_DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS_VALUE": "1",
+        }
+
+        self._set_up(jobs, env_vars, dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag-exceed-limit")
+            result = self._run_dag(dag)
             expected_max_running_jobs = int(
                 os.getenv("VDK_DAGS_MAX_CONCURRENT_RUNNING_JOBS", "2")
             )
@@ -350,7 +406,25 @@ class TestDAG:
             # assert that all the jobs finished successfully
             assert len(running_jobs) == 0
             self.httpserver.stop()
-    """
+
+    def test_dag_execution_type_propagation(self):
+        dag = "dag"
+        self._set_up(dag_name=dag)
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
+            result = self._run_dag(dag)
+            for request, response in self.httpserver.log:
+                if "executions" in request.path:
+                    if request.method == "GET":
+                        execution = json.loads(response.response[0])
+                        if isinstance(execution, list):
+                            execution = execution[0]
+                        assert execution["started_by"] == "manual/" + dag
+            cli_assert_equal(0, result)
+            self.httpserver.stop()
 
     def _test_dag_validation(self, dag_name):
         self._set_up()
@@ -380,13 +454,14 @@ class TestDAG:
         self._test_dag_validation("dag-wrong-job-arguments-type")
 
     def test_dag_arguments(self):
-        self._set_up()
+        dag = "dag-arguments"
+        self._set_up(dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag-arguments")
+            result = self._run_dag(dag)
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
             assert len(job2_arguments) == 2
@@ -394,13 +469,14 @@ class TestDAG:
             self.httpserver.stop()
 
     def test_dag_empty_arguments(self):
-        self._set_up()
+        dag = "dag-empty-arguments"
+        self._set_up(dag_name=dag)
         with mock.patch.dict(
             os.environ,
             self.env_vars,
         ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
-            result = self._run_dag("dag-empty-arguments")
+            result = self._run_dag(dag)
             cli_assert_equal(0, result)
             job2_arguments = self._get_job_arguments("job2")
             assert len(job2_arguments) == 0

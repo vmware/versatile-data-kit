@@ -11,6 +11,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import org.apache.commons.io.IOUtils;
@@ -30,10 +31,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.hamcrest.Matchers.is;
@@ -54,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     classes = ControlplaneApplication.class)
 public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
   private static final String TEST_JOB_NAME =
-      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+      JobExecutionUtil.generateJobName(TestJobImageBuilderDynamicVdkImageIT.class.getSimpleName());
   private static final Object DEPLOYMENT_ID = "testing";
 
   @TestConfiguration
@@ -102,16 +103,22 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     // Execute job upload
-    MvcResult jobUploadResult =
-        mockMvc
-            .perform(
-                post(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
-                    .with(user("user"))
-                    .content(jobZipBinary)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
-            .andExpect(status().isOk())
-            .andReturn();
+    ResultActions resultAction =
+        mockMvc.perform(
+            post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .with(user("user"))
+                .content(jobZipBinary)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM));
+
+    if (resultAction.andReturn().getResponse().getStatus() != 200) {
+      throw new Exception(
+          "status is "
+              + resultAction.andReturn().getResponse().getStatus()
+              + "\nbody is "
+              + resultAction.andReturn().getResponse().getContentAsString());
+    }
+    MvcResult jobUploadResult = resultAction.andExpect(status().isOk()).andReturn();
 
     DataJobVersion testDataJobVersion =
         new ObjectMapper()

@@ -395,7 +395,7 @@ export class BasePagePO {
     /**
      * ** Returns current browser Url normalized.
      *
-     * @param {{includeUrl?: boolean; includeBaseUrl?: boolean; includePathSegment?: boolean; includeQueryString?: boolean}} extras
+     * @param {{includeUrl?: boolean; includeBaseUrl?: boolean; includePathSegment?: boolean; includeQueryString?: boolean; decodeQueryString?: boolean;}} extras
      * @returns {Cypress.Chainable<{pathSegment: string; queryParams: {[key: string]: string}; baseUrl?: string; url?: string}>}
      */
     getCurrentUrlNormalized(extras = { includeQueryString: true }) {
@@ -435,7 +435,11 @@ export class BasePagePO {
 
                         const splitParam = queryStringChunk.split('=');
 
-                        return { [splitParam[0]]: splitParam[1] };
+                        return {
+                            [splitParam[0]]: extras.decodeQueryString
+                                ? decodeURIComponent(splitParam[1])
+                                : splitParam[1]
+                        };
                     })
                     .reduce((accumulator, currentValue) => {
                         return {

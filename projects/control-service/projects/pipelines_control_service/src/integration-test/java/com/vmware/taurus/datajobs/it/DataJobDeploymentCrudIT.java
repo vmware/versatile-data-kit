@@ -11,6 +11,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
+import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +34,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DataJobDeploymentCrudIT extends BaseIT {
 
   private static final String TEST_JOB_NAME =
-      "integration-test-" + UUID.randomUUID().toString().substring(0, 8);
+      JobExecutionUtil.generateJobName(DataJobDeploymentCrudIT.class.getSimpleName());
   private static final Object DEPLOYMENT_ID = "testing";
 
   @TestConfiguration

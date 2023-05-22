@@ -2,6 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 openapi: 3.0.3
+
+servers:
+  - url: http://localhost:8092
+    description: quickstart-vdk default local setup
+
 info:
   title: Versatile Data Kit Control Service API
   version: '1.0'

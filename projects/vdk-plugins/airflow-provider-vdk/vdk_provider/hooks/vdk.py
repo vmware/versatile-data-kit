@@ -96,21 +96,21 @@ class VDKHook(HttpHook):
 
     def start_job_execution(self, **request_kwargs) -> str:
         """
-        Triggers a manual Datajob execution.
+        Triggers a Datajob execution.
 
         :param: request_kwargs: Request arguments to be included with the HTTP request
         """
         execution_request = DataJobExecutionRequest(
-            started_by="airflow-provider-vdk",
+            started_by="scheduled/airflow-provider-vdk",
             args=request_kwargs,
         )
-        _, _, headers = self.__execution_api.data_job_execution_start_with_http_info(
+        headers = self.__execution_api.data_job_execution_start_with_http_info(
             team_name=self.team_name,
             job_name=self.job_name,
             deployment_id=self.deployment_id,
             data_job_execution_request=execution_request,
             _request_timeout=self.timeout,
-        )
+        ).headers
         log.debug(f"Received headers: {headers}")
 
         job_execution_id = os.path.basename(headers["Location"])
