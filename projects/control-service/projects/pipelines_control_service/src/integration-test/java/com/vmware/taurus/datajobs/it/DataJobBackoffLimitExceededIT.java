@@ -34,7 +34,7 @@ public class DataJobBackoffLimitExceededIT extends BaseIT {
   static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   @Test
-  public void testDataJob_causesOOM_shouldCompleteWithUserError(
+  public void testDataJob_causesBackoffLimitExceeded_shouldCompleteWithUserError(
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
     ImmutablePair<String, String> executeDataJobResult =
