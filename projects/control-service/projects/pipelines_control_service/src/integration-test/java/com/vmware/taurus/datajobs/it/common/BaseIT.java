@@ -12,7 +12,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
-import com.vmware.taurus.datajobs.it.DataJobDeploymentCrudIT;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobConfig;
@@ -75,7 +74,8 @@ public class BaseIT {
 
   private boolean ownsControlNamespace = false;
 
-  protected final String testJobName = JobExecutionUtil.generateJobName(this.getClass().getSimpleName());
+  protected final String testJobName =
+      JobExecutionUtil.generateJobName(this.getClass().getSimpleName());
 
   @BeforeEach
   public void before() {

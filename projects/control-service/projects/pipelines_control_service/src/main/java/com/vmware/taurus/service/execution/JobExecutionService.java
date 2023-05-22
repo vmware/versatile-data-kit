@@ -311,12 +311,12 @@ public class JobExecutionService {
       // in the list above.
       if (dataJobExecutionPersistedOptional.get().getStatus()
               == executionResult.getExecutionStatus()
-              || finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus())) {
+          || finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus())) {
         log.debug(
-                "The job execution will NOT be updated due to the incorrect status. "
-                        + "Execution status to be updated {}. New execution status {}",
-                dataJobExecutionPersistedOptional.get().getStatus(),
-                executionResult.getExecutionStatus());
+            "The job execution will NOT be updated due to the incorrect status. "
+                + "Execution status to be updated {}. New execution status {}",
+            dataJobExecutionPersistedOptional.get().getStatus(),
+            executionResult.getExecutionStatus());
         return Optional.empty();
         // omits Data Job execution status that come after the Data Job completion
       } else if (dataJobExecutionPersistedOptional.get().getEndTime() != null) {

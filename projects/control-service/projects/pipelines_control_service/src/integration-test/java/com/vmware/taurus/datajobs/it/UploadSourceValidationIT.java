@@ -7,7 +7,6 @@ package com.vmware.taurus.datajobs.it;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
-import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
