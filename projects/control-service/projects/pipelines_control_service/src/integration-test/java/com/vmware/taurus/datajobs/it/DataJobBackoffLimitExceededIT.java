@@ -22,9 +22,7 @@ import static com.vmware.taurus.datajobs.it.common.JobExecutionUtil.*;
 @Slf4j
 @TestPropertySource(
     properties = {
-      // This is a standard cron job template except restartPolicy is set to never so that when a
-      // job runs out of memory it is
-      // not retied but instead reports more quickly that it is a platform error
+      // This is a standard cron job template except activeDeadlineSeconds is set to 1
       "datajobs.control.k8s.data.job.template.file=data_job_templates/backoff_limit_exceeded_cron_job.yaml"
     })
 @SpringBootTest(

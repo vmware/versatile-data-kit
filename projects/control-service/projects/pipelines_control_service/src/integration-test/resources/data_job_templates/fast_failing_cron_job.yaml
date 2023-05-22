@@ -18,7 +18,7 @@ spec:
       annotations: # merged with additional annotations from TPCS
       labels: # merged with additional labels from TPCS
     spec:
-      activeDeadlineSeconds: 1
+      activeDeadlineSeconds: 43200
       backoffLimit: 3
       template:
         metadata:

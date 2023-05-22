@@ -164,7 +164,7 @@ public class JobExecutionUtil {
         new com.vmware.taurus.controlplane.model.data.DataJobExecution[1];
 
     await()
-        .atMost(15, TimeUnit.MINUTES)
+        .atMost(5, TimeUnit.MINUTES)
         .with()
         .pollInterval(15, TimeUnit.SECONDS)
         .until(

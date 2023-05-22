@@ -320,6 +320,8 @@ public class JobExecutionService {
         return Optional.empty();
         // omits Data Job execution status that come after the Data Job completion
       } else if (dataJobExecutionPersistedOptional.get().getEndTime() != null) {
+        log.debug("The job execution will NOT be updated since " +
+                        "the Data Job execution status came after the Data Job completion.");
         return Optional.empty();
       }
     }
