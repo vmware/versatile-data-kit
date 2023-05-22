@@ -19,7 +19,9 @@ version_tag=$(awk -v id=$patch_version 'BEGIN { FS="."; OFS = "."; ORS = "" } { 
 
 image_repo="$VDK_DOCKER_REGISTRY_URL/$name"
 image_tag="$image_repo:$version_tag"
+commit_sha=$(git rev-parse --short HEAD)
 
-docker build -t "$image_tag" -t "$image_repo:latest" $ui_path
+docker build -t "$image_tag" -t "$image_repo:latest" -t "$image_repo:$commit_sha" $ui_path
 docker push "$image_tag"
 docker push "$image_repo:latest"
+docker push "$image_repo:$commit_sha"
