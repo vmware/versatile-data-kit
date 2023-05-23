@@ -300,31 +300,24 @@ public class JobExecutionService {
     // with null.
     var finalStatusSet =
         new HashSet<>(
-            List.of(ExecutionStatus.CANCELLED, ExecutionStatus.SUCCEEDED, ExecutionStatus.SKIPPED));
+            List.of(ExecutionStatus.CANCELLED, ExecutionStatus.SUCCEEDED, ExecutionStatus.SKIPPED, ExecutionStatus.USER_ERROR));
     ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
-    if (dataJobExecutionPersistedOptional.isPresent()) {
-      // Optimization:
-      // if there is an existing execution in the database and
-      // the status has not changed (the new status is equal to the old one)
-      // do not update the record. Does not update record if previous status is
-      // in the list above.
-      if (dataJobExecutionPersistedOptional.get().getStatus()
-              == executionResult.getExecutionStatus()
-          || finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus())) {
-        log.debug(
-            "The job execution will NOT be updated due to the incorrect status. "
-                + "Execution status to be updated {}. New execution status {}",
-            dataJobExecutionPersistedOptional.get().getStatus(),
-            executionResult.getExecutionStatus());
-        return Optional.empty();
-        // omits Data Job execution status that come after the Data Job completion
-      } else if (dataJobExecutionPersistedOptional.get().getEndTime() != null) {
-        log.debug(
-            "The job execution will NOT be updated since "
-                + "the Data Job execution status came after the Data Job completion.");
-        return Optional.empty();
-      }
+    // Optimization:
+    // if there is an existing execution in the database and
+    // the status has not changed (the new status is equal to the old one)
+    // do not update the record. Does not update record if previous status is
+    // in the list above.
+    if (dataJobExecutionPersistedOptional.isPresent()
+        && (dataJobExecutionPersistedOptional.get().getStatus()
+                == executionResult.getExecutionStatus()
+            || finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
+      log.debug(
+          "The job execution will NOT be updated due to the incorrect status. "
+              + "Execution status to be updated {}. New execution status {}",
+          dataJobExecutionPersistedOptional.get().getStatus(),
+          executionResult.getExecutionStatus());
+      return Optional.empty();
     }
 
     final com.vmware.taurus.service.model.DataJobExecution.DataJobExecutionBuilder
