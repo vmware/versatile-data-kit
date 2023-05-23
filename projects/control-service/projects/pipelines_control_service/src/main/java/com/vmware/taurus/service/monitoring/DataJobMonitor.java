@@ -13,7 +13,6 @@ import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -141,13 +140,14 @@ public class DataJobMonitor {
 
     // Update the termination status from the last execution
     jobExecutionService
-        .getLastExecution(dataJobName).ifPresent(
-        e -> {
-          if (jobsService.updateTerminationStatus(e)) {
-            jobsRepository
-                .findById(dataJobName)
-                .ifPresent(this::updateDataJobTerminationStatusGauge);
-          }
-        });
+        .getLastExecution(dataJobName)
+        .ifPresent(
+            e -> {
+              if (jobsService.updateTerminationStatus(e)) {
+                jobsRepository
+                    .findById(dataJobName)
+                    .ifPresent(this::updateDataJobTerminationStatusGauge);
+              }
+            });
   }
 }
