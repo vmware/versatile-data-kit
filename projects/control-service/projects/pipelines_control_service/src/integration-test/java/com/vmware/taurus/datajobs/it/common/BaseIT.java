@@ -74,6 +74,9 @@ public class BaseIT {
 
   private boolean ownsControlNamespace = false;
 
+  protected final String testJobName =
+      JobExecutionUtil.generateJobName(this.getClass().getSimpleName());
+
   @BeforeEach
   public void before() {
     log.info("Running test with: {} bytes of memory.", Runtime.getRuntime().totalMemory());
