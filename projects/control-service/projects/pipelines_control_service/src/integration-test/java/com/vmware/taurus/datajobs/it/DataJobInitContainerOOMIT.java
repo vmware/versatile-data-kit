@@ -9,7 +9,6 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
-import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
