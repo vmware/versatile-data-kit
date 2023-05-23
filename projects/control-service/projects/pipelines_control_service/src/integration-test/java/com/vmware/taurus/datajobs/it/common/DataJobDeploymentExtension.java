@@ -135,20 +135,21 @@ public class DataJobDeploymentExtension
               getClass().getClassLoader().getResourceAsStream(JOB_SOURCE_PATH + jobSource));
 
       // Upload the data job
-      MvcResult uploadResult = mockMvc
+      MvcResult uploadResult =
+          mockMvc
               .perform(
-                      post(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEAM_NAME, jobName))
-                              .with(user(USER_NAME))
-                              .content(jobZipBinary)
-                              .contentType(MediaType.APPLICATION_OCTET_STREAM)).andReturn();
-
+                  post(String.format("/data-jobs/for-team/%s/jobs/%s/sources", TEAM_NAME, jobName))
+                      .with(user(USER_NAME))
+                      .content(jobZipBinary)
+                      .contentType(MediaType.APPLICATION_OCTET_STREAM))
+              .andReturn();
 
       if (uploadResult.getResponse().getStatus() != 200) {
         throw new Exception(
-                "status is "
-                        + uploadResult.getResponse().getStatus()
-                        + "\nbody is "
-                        + uploadResult.getResponse().getContentAsString());
+            "status is "
+                + uploadResult.getResponse().getStatus()
+                + "\nbody is "
+                + uploadResult.getResponse().getContentAsString());
       }
 
       DataJobVersion dataJobVersion =
