@@ -12,12 +12,9 @@ import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
 import com.vmware.taurus.service.execution.JobExecutionService;
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionResult;
-import com.vmware.taurus.service.model.JobLabel;
-import com.vmware.taurus.service.threads.ThreadPoolConf;
-import io.kubernetes.client.openapi.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.lang3.StringUtils;
@@ -39,13 +36,7 @@ import java.util.stream.Collectors;
 @Component
 public class DataJobMonitor {
 
-  private static final long ONE_MINUTE_MILLIS = TimeUnit.MINUTES.toMillis(1);
-
-  private final Map<String, String> labelsToWatch =
-      Collections.singletonMap(JobLabel.TYPE.getValue(), "DataJob");
-
   private final JobsRepository jobsRepository;
-  private final DataJobsKubernetesService dataJobsKubernetesService;
   private final JobsService jobsService;
   private final JobExecutionService jobExecutionService;
   private final DataJobMetrics dataJobMetrics;
@@ -56,69 +47,15 @@ public class DataJobMonitor {
   @Autowired
   public DataJobMonitor(
       JobsRepository jobsRepository,
-      DataJobsKubernetesService dataJobsKubernetesService,
       JobsService jobsService,
       JobExecutionService jobExecutionService,
       DataJobMetrics dataJobMetrics) {
-    this.dataJobsKubernetesService = dataJobsKubernetesService;
     this.jobsRepository = jobsRepository;
     this.jobsService = jobsService;
     this.jobExecutionService = jobExecutionService;
     this.dataJobMetrics = dataJobMetrics;
   }
 
-  /**
-   * This method is annotated with {@link SchedulerLock} to prevent it from being executed
-   * simultaneously by more than one instance of the service in a multi-node deployment. This aims
-   * to reduce the number of rps to the Kubernetes API as well as to avoid errors due to concurrent
-   * database writes.
-   *
-   * <p>The flow is as follows:
-   *
-   * <ol>
-   *   <li>At any given point only one of the nodes will acquire the lock and execute the method.
-   *   <li>A lock will be held for no longer than 10 minutes (as configured in {@link
-   *       ThreadPoolConf}), which should be enough for a watch to complete (it currently has 5
-   *       minutes timeout).
-   *   <li>The other nodes will skip their schedules until after this node completes.
-   *   <li>When a termination status of a job is updated by the node holding the lock, the other
-   *       nodes will be eventually consistent within 5 seconds (by default) due to the continuous
-   *       updates done here: {@link DataJobMonitorSync#updateDataJobStatus}.
-   *   <li>Subsequently, when one of the other nodes acquires the lock, it will detect all changes
-   *       since its own last run (see {@code lastWatchTime}) and rewrite them. We can potentially
-   *       improve on this by sharing the lastWatchTime amongst the nodes.
-   * </ol>
-   *
-   * @see <a href="https://github.com/lukas-krecan/ShedLock">ShedLock</a>
-   */
-  @Scheduled(
-      fixedDelayString = "${datajobs.status.watch.interval:1000}",
-      initialDelayString = "${datajobs.status.watch.initial.delay:10000}")
-  @SchedulerLock(name = "watchJobs_schedulerLock")
-  public void watchJobs() {
-    dataJobMetrics.incrementWatchTaskInvocations();
-    try {
-      dataJobsKubernetesService.watchJobs(
-          labelsToWatch,
-          s -> {
-            log.info(
-                "Termination message of Data Job {} with execution {}: {}",
-                s.getJobName(),
-                s.getExecutionId(),
-                s.getMainContainerTerminationMessage());
-            recordJobExecutionStatus(s);
-          },
-          runningJobExecutionIds -> {
-            jobExecutionService.syncJobExecutionStatuses(runningJobExecutionIds);
-          },
-          lastWatchTime);
-      // Move the lastWatchTime one minute into the past to account for events that
-      // could have happened after the watch has completed until now
-      lastWatchTime = Instant.now().minusMillis(ONE_MINUTE_MILLIS).toEpochMilli();
-    } catch (IOException | ApiException e) {
-      log.info("Failed to watch jobs. Error was: {}", e.getMessage());
-    }
-  }
 
   /**
    * Creates gauges that expose configuration information and termination status for the specified
@@ -185,7 +122,7 @@ public class DataJobMonitor {
    */
   @Measurable(includeArg = 0, argName = "execution_status")
   @Transactional
-  void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
+  public void recordJobExecutionStatus(KubernetesService.JobExecution jobStatus) {
     log.debug("Storing Data Job execution status: {}", jobStatus);
     String dataJobName = jobStatus.getJobName();
     ExecutionResult executionResult = JobExecutionResultManager.getResult(jobStatus);
@@ -204,13 +141,13 @@ public class DataJobMonitor {
     final DataJob dataJob = dataJobOptional.get();
 
     // Update the job execution and the last execution state
-    jobExecutionService
-        .updateJobExecution(dataJob, jobStatus, executionResult)
+    Optional<DataJobExecution> dataJobExecution = jobExecutionService
+            .updateJobExecution(dataJob, jobStatus, executionResult);
+    dataJobExecution
         .ifPresent(jobsService::updateLastExecution);
 
     // Update the termination status from the last execution
-    jobExecutionService
-        .getLastExecution(dataJobName)
+    dataJobExecution
         .ifPresent(
             e -> {
               if (jobsService.updateTerminationStatus(e)) {
