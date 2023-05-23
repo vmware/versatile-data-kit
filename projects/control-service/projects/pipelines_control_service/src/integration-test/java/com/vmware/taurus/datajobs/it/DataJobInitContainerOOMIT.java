@@ -42,7 +42,7 @@ public class DataJobInitContainerOOMIT extends BaseIT {
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
     ImmutablePair<String, String> executeDataJobResult =
-        JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
+        executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
     String opId = executeDataJobResult.getLeft();
     String executionId = executeDataJobResult.getRight();
 
