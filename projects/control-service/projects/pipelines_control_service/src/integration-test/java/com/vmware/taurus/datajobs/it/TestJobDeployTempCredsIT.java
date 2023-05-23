@@ -222,9 +222,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
   public void deleteDataJob() throws Exception {
     mockMvc
         .perform(
-            delete(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
                 .with(user("user")))
         .andExpect(status().isOk());
   }
