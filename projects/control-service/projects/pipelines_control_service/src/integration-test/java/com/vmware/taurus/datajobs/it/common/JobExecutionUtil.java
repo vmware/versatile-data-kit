@@ -295,13 +295,14 @@ public class JobExecutionUtil {
     MockHttpServletResponse dataJobExecutionLogsResult =
         mockMvc
             .perform(get(dataJobExecutionListUrl).with(user(username)))
-            .andReturn().getResponse();
-    if(dataJobExecutionLogsResult.getStatus() != 200){
+            .andReturn()
+            .getResponse();
+    if (dataJobExecutionLogsResult.getStatus() != 200) {
       throw new Exception(
-              "status is "
-                      + dataJobExecutionLogsResult.getStatus()
-                      + "\nbody is "
-                      + dataJobExecutionLogsResult.getContentAsString());
+          "status is "
+              + dataJobExecutionLogsResult.getStatus()
+              + "\nbody is "
+              + dataJobExecutionLogsResult.getContentAsString());
     }
     return dataJobExecutionLogsResult;
   }

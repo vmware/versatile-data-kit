@@ -16,17 +16,12 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionResult;
 import lombok.extern.slf4j.Slf4j;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +50,6 @@ public class DataJobMonitor {
     this.jobExecutionService = jobExecutionService;
     this.dataJobMetrics = dataJobMetrics;
   }
-
 
   /**
    * Creates gauges that expose configuration information and termination status for the specified
@@ -141,20 +135,18 @@ public class DataJobMonitor {
     final DataJob dataJob = dataJobOptional.get();
 
     // Update the job execution and the last execution state
-    Optional<DataJobExecution> dataJobExecution = jobExecutionService
-            .updateJobExecution(dataJob, jobStatus, executionResult);
-    dataJobExecution
-        .ifPresent(jobsService::updateLastExecution);
+    Optional<DataJobExecution> dataJobExecution =
+        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
+    dataJobExecution.ifPresent(jobsService::updateLastExecution);
 
     // Update the termination status from the last execution
-    dataJobExecution
-        .ifPresent(
-            e -> {
-              if (jobsService.updateTerminationStatus(e)) {
-                jobsRepository
-                    .findById(dataJobName)
-                    .ifPresent(this::updateDataJobTerminationStatusGauge);
-              }
-            });
+    dataJobExecution.ifPresent(
+        e -> {
+          if (jobsService.updateTerminationStatus(e)) {
+            jobsRepository
+                .findById(dataJobName)
+                .ifPresent(this::updateDataJobTerminationStatusGauge);
+          }
+        });
   }
 }
