@@ -312,7 +312,7 @@ public class JobExecutionService {
         && (dataJobExecutionPersistedOptional.get().getStatus()
                 == executionResult.getExecutionStatus()
             || finalStatusSet.contains(dataJobExecutionPersistedOptional.get().getStatus()))) {
-      log.debug(
+      log.warn(
           "The job execution will NOT be updated due to the incorrect status. "
               + "Execution status to be updated {}. New execution status {}",
           dataJobExecutionPersistedOptional.get().getStatus(),
@@ -355,7 +355,8 @@ public class JobExecutionService {
             .lastDeployedDate(jobExecution.getDeployedDate())
             .lastDeployedBy(jobExecution.getDeployedBy())
             .build();
-    return Optional.of(jobExecutionRepository.save(dataJobExecution));
+
+    return Optional.of(jobExecutionRepository.saveAndFlush(dataJobExecution));
   }
 
   /**

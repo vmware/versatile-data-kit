@@ -135,12 +135,13 @@ public class DataJobMonitor {
     final DataJob dataJob = dataJobOptional.get();
 
     // Update the job execution and the last execution state
-    Optional<DataJobExecution> dataJobExecution =
-        jobExecutionService.updateJobExecution(dataJob, jobStatus, executionResult);
-    dataJobExecution.ifPresent(jobsService::updateLastExecution);
+    jobExecutionService
+        .updateJobExecution(dataJob, jobStatus, executionResult)
+        .ifPresent(jobsService::updateLastExecution);
 
     // Update the termination status from the last execution
-    dataJobExecution.ifPresent(
+    jobExecutionService
+        .getLastExecution(dataJobName).ifPresent(
         e -> {
           if (jobsService.updateTerminationStatus(e)) {
             jobsRepository
