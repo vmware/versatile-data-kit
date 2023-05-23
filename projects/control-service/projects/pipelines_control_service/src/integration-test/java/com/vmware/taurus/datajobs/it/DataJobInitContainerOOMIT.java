@@ -49,7 +49,7 @@ public class DataJobInitContainerOOMIT extends BaseIT {
     // Check the data job execution status
     testDataJobExecutionRead(
         executionId,
-        DataJobExecution.StatusEnum.USER_ERROR,
+        DataJobExecution.StatusEnum.PLATFORM_ERROR,
         opId,
         jobName,
         teamName,
@@ -57,7 +57,7 @@ public class DataJobInitContainerOOMIT extends BaseIT {
         mockMvc);
     testDataJobExecutionList(
         executionId,
-        DataJobExecution.StatusEnum.USER_ERROR,
+        DataJobExecution.StatusEnum.PLATFORM_ERROR,
         opId,
         jobName,
         teamName,
@@ -65,7 +65,7 @@ public class DataJobInitContainerOOMIT extends BaseIT {
         mockMvc);
     testDataJobDeploymentExecutionList(
         executionId,
-        DataJobExecution.StatusEnum.USER_ERROR,
+        DataJobExecution.StatusEnum.PLATFORM_ERROR,
         opId,
         jobName,
         teamName,
