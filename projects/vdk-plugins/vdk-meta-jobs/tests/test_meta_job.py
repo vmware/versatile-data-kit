@@ -3,6 +3,8 @@
 import json
 import os
 import time
+from datetime import date
+from datetime import datetime
 from unittest import mock
 
 from click.testing import Result
@@ -16,6 +18,14 @@ from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from werkzeug import Request
 from werkzeug import Response
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type %s not serializable" % type(obj))
 
 
 class TestMetaJob:
@@ -65,7 +75,9 @@ class TestMetaJob:
                         status=actual_job_status,
                         message="foo",
                     )
-                    response_data = json.dumps(execution.to_dict(), indent=4)
+                    response_data = json.dumps(
+                        execution.to_dict(), indent=4, default=json_serial
+                    )
                     return Response(
                         response_data,
                         status=200,
@@ -93,7 +105,9 @@ class TestMetaJob:
                         status="succeeded",
                         message="foo",
                     )
-                    response_data = json.dumps(execution.to_dict(), indent=4)
+                    response_data = json.dumps(
+                        execution.to_dict(), indent=4, default=json_serial
+                    )
                     return Response(
                         [response_data],
                         status=200,
