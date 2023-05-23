@@ -42,7 +42,7 @@ project.ext {
             'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:20.2',
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.1',
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.8.0',
-            'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.468',
+            'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.473',
             'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.472',
             'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.471',
 
