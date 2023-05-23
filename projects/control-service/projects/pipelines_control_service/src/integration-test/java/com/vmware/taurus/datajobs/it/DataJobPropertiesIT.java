@@ -7,9 +7,7 @@ package com.vmware.taurus.datajobs.it;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
-import com.vmware.taurus.properties.service.PropertiesRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,8 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobPropertiesIT extends BaseIT {
-
-  @Autowired private PropertiesRepository propertiesRepository;
 
   @Test
   public void testDataJobProperties() throws Exception {

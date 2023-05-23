@@ -11,7 +11,6 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
-import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import org.apache.commons.io.IOUtils;
@@ -54,8 +53,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
-  private static final String TEST_JOB_NAME =
-      JobExecutionUtil.generateJobName(TestJobImageBuilderDynamicVdkImageIT.class.getSimpleName());
   private static final Object DEPLOYMENT_ID = "testing";
 
   @TestConfiguration
@@ -72,7 +69,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
 
   @BeforeEach
   public void setup() throws Exception {
-    String dataJobRequestBody = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_NAME);
+    String dataJobRequestBody = getDataJobRequestBody(TEST_TEAM_NAME, testJobName);
 
     // Execute create job
     mockMvc
@@ -91,7 +88,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                             s.endsWith(
                                 String.format(
                                     "/data-jobs/for-team/%s/jobs/%s",
-                                    TEST_TEAM_NAME, TEST_JOB_NAME)))));
+                                    TEST_TEAM_NAME, testJobName)))));
   }
 
   @Test
@@ -106,7 +103,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     ResultActions resultAction =
         mockMvc.perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(jobZipBinary)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM));
@@ -135,13 +132,13 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isAccepted());
 
-    String jobDeploymentName = JobImageDeployer.getCronJobName(TEST_JOB_NAME);
+    String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
     // Verify job deployment created
     Optional<JobDeploymentStatus> cronJobOptional =
         dataJobsKubernetesService.readCronJob(jobDeploymentName);
@@ -159,7 +156,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             .perform(
                 get(String.format(
                         "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                     .with(user("user"))
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -186,7 +183,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             patch(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentEnableRequestBody(false))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -204,7 +201,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             patch(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -215,7 +212,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
         .perform(
             get(String.format(
                     "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -225,13 +222,13 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(getDataJobDeploymentRequestBody(testJobVersionSha, "3.8"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isAccepted());
 
-    jobDeploymentName = JobImageDeployer.getCronJobName(TEST_JOB_NAME);
+    jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
     // Verify job deployment updated properly
     cronJobOptional = dataJobsKubernetesService.readCronJob(jobDeploymentName);
     Assertions.assertTrue(cronJobOptional.isPresent());
@@ -250,7 +247,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
             delete(
                     String.format(
                         "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, TEST_JOB_NAME, DEPLOYMENT_ID))
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isAccepted());
@@ -268,7 +265,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
         .perform(
             delete(
                     String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                 .with(user("user")))
         .andExpect(status().isOk());
   }
