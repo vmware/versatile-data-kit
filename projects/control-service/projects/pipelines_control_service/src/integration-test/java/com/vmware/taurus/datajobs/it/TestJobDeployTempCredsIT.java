@@ -207,14 +207,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
   }
 
   @AfterEach
-  public void cleanUp() throws Exception {
-    mockMvc
-        .perform(
-            delete(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
-                .with(user("user")))
-        .andExpect(status().isOk());
+  public void deleteImage() {
 
     // delete repository and images
     DeleteRepositoryRequest request =
@@ -223,5 +216,16 @@ public class TestJobDeployTempCredsIT extends BaseIT {
             .withForce(true); // Set force to true to delete the repository even if it's not empty.
 
     ecrClient.deleteRepository(request);
+  }
+
+  @AfterEach
+  public void deleteDataJob() throws Exception {
+    mockMvc
+        .perform(
+            delete(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, TEST_JOB_NAME))
+                .with(user("user")))
+        .andExpect(status().isOk());
   }
 }
