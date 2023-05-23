@@ -49,7 +49,7 @@ class HeartbeatTest(HeartbeatBaseTest):
 
             self.__job_controller.disable_deployment()
 
-            if self._config.check_manual_job_execution:
+            if self.config.check_manual_job_execution:
                 self.__job_controller.check_job_execution_finished()
                 self.__job_controller.start_job_execution()
                 self.__job_controller.check_job_execution_finished()
@@ -60,7 +60,7 @@ class HeartbeatTest(HeartbeatBaseTest):
             log.info("Heartbeat has failed.")
             self.__job_controller.show_job_details()
             self.__job_controller.show_last_job_execution_logs()
-            if self._config.clean_up_on_failure:
+            if self.config.clean_up_on_failure:
                 log.info("Heartbeat clean up on failure.")
                 self.clean()
             raise

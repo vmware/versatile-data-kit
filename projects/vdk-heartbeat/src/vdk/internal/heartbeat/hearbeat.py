@@ -21,14 +21,13 @@ class Heartbeat:
     """
 
     def __init__(self, config: Config):
-        self._config = config
+        self.config = config
 
     @TestDecorator()
     def run(self):
-        create_test_instance(self._config).run_test()
+        create_test_instance(self.config).run_test()
 
 
-@staticmethod
 def create_test_instance(config: Config) -> HeartbeatBaseTest:
     import importlib
 
