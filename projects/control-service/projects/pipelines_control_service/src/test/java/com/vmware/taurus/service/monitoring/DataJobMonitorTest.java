@@ -833,43 +833,66 @@ public class DataJobMonitorTest {
 
     // Create data job
     String jobId = "job-id-test";
-    var dataJob = new DataJob(jobId, new JobConfig(),
-            DeploymentStatus.NONE, ExecutionStatus.USER_ERROR, "old-execution-id");
+    var dataJob =
+        new DataJob(
+            jobId,
+            new JobConfig(),
+            DeploymentStatus.NONE,
+            ExecutionStatus.USER_ERROR,
+            "old-execution-id");
     jobsRepository.save(dataJob);
 
     // Change status to USER_ERROR
-    JobExecution jobExecutionUserError = buildJobExecutionStatus(jobId, "last-execution-id",
-            ExecutionStatus.USER_ERROR.getPodStatus(), false,
+    JobExecution jobExecutionUserError =
+        buildJobExecutionStatus(
+            jobId,
+            "last-execution-id",
+            ExecutionStatus.USER_ERROR.getPodStatus(),
+            false,
             OffsetDateTime.now().minus(Duration.ofDays(2)),
             OffsetDateTime.now().minus(Duration.ofDays(1)));
     dataJobMonitor.recordJobExecutionStatus(jobExecutionUserError);
 
     // Check status is saved OK.
-    Optional<DataJob> actualJobUserError = jobsRepository.findById(jobExecutionUserError.getJobName());
+    Optional<DataJob> actualJobUserError =
+        jobsRepository.findById(jobExecutionUserError.getJobName());
     Assertions.assertFalse(actualJobUserError.isEmpty());
-    Assertions.assertEquals(ExecutionStatus.USER_ERROR, actualJobUserError.get().getLastExecutionStatus());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR, actualJobUserError.get().getLastExecutionStatus());
 
     // Check gauge status
-    var gaugesUserError = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+    var gaugesUserError =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
     Assertions.assertEquals(1, gaugesUserError.size());
-    Assertions.assertEquals(ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(), gaugesUserError.stream().findFirst().get().value());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(),
+        gaugesUserError.stream().findFirst().get().value());
 
     // Change status to PLATFORM_ERROR
-    JobExecution jobExecutionPlatformError = buildJobExecutionStatus(jobId, "last-execution-id",
-            ExecutionStatus.PLATFORM_ERROR.getPodStatus(), false,
+    JobExecution jobExecutionPlatformError =
+        buildJobExecutionStatus(
+            jobId,
+            "last-execution-id",
+            ExecutionStatus.PLATFORM_ERROR.getPodStatus(),
+            false,
             OffsetDateTime.now().minus(Duration.ofDays(2)),
             OffsetDateTime.now().minus(Duration.ofDays(1)));
     dataJobMonitor.recordJobExecutionStatus(jobExecutionPlatformError);
 
     // Check status is not saved OK.
-    Optional<DataJob> actualJobPlatformError = jobsRepository.findById(jobExecutionUserError.getJobName());
+    Optional<DataJob> actualJobPlatformError =
+        jobsRepository.findById(jobExecutionUserError.getJobName());
     Assertions.assertFalse(actualJobPlatformError.isEmpty());
-    Assertions.assertEquals(ExecutionStatus.USER_ERROR, actualJobPlatformError.get().getLastExecutionStatus());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR, actualJobPlatformError.get().getLastExecutionStatus());
 
     // Check gauge status
-    var gaugesPlatformError = meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+    var gaugesPlatformError =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
     Assertions.assertEquals(1, gaugesPlatformError.size());
-    Assertions.assertEquals(ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(), gaugesPlatformError.stream().findFirst().get().value());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(),
+        gaugesPlatformError.stream().findFirst().get().value());
   }
 
   private static String randomId(String prefix) {
