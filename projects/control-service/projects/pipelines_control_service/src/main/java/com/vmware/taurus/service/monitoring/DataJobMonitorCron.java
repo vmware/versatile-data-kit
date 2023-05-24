@@ -78,33 +78,6 @@ public class DataJobMonitorCron {
   @Scheduled(
       fixedDelayString = "${datajobs.status.watch.interval:1000}",
       initialDelayString = "${datajobs.status.watch.initial.delay:10000}")
-  /**
-   * This method is annotated with {@link SchedulerLock} to prevent it from being executed
-   * simultaneously by more than one instance of the service in a multi-node deployment. This aims
-   * to reduce the number of rps to the Kubernetes API as well as to avoid errors due to concurrent
-   * database writes.
-   *
-   * <p>The flow is as follows:
-   *
-   * <ol>
-   *   <li>At any given point only one of the nodes will acquire the lock and execute the method.
-   *   <li>A lock will be held for no longer than 10 minutes (as configured in {@link
-   *       ThreadPoolConf}), which should be enough for a watch to complete (it currently has 5
-   *       minutes timeout).
-   *   <li>The other nodes will skip their schedules until after this node completes.
-   *   <li>When a termination status of a job is updated by the node holding the lock, the other
-   *       nodes will be eventually consistent within 5 seconds (by default) due to the continuous
-   *       updates done here: {@link DataJobMonitorSync#updateDataJobStatus}.
-   *   <li>Subsequently, when one of the other nodes acquires the lock, it will detect all changes
-   *       since its own last run (see {@code lastWatchTime}) and rewrite them. We can potentially
-   *       improve on this by sharing the lastWatchTime amongst the nodes.
-   * </ol>
-   *
-   * @see <a href="https://github.com/lukas-krecan/ShedLock">ShedLock</a>
-   */
-  @Scheduled(
-      fixedDelayString = "${datajobs.status.watch.interval:1000}",
-      initialDelayString = "${datajobs.status.watch.initial.delay:10000}")
   @SchedulerLock(name = "watchJobs_schedulerLock")
   public void watchJobs() {
     dataJobMetrics.incrementWatchTaskInvocations();
