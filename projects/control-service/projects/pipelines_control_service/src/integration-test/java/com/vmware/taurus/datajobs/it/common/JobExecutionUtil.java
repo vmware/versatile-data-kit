@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -112,12 +111,12 @@ public class JobExecutionUtil {
     } catch (Error e) {
       try {
         // print logs in case execution has failed
-        MockHttpServletResponse dataJobExecutionLogsResult =
+        MvcResult dataJobExecutionLogsResult =
             getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
         log.info(
             "Job Execution {} logs:\n{}",
             executionId,
-            dataJobExecutionLogsResult.getContentAsString());
+            dataJobExecutionLogsResult.getResponse().getContentAsString());
       } catch (Error ignore) {
       }
       throw e;
@@ -281,29 +280,22 @@ public class JobExecutionUtil {
   private static void testDataJobExecutionLogs(
       String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
       throws Exception {
-    MockHttpServletResponse dataJobExecutionLogsResult =
+    MvcResult dataJobExecutionLogsResult =
         getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
-    assertFalse(dataJobExecutionLogsResult.getContentAsString().isEmpty());
+    assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
   }
 
-  private static MockHttpServletResponse getExecuteLogs(
+  private static MvcResult getExecuteLogs(
       String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
       throws Exception {
     String dataJobExecutionListUrl =
         String.format(
             "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
-    MockHttpServletResponse dataJobExecutionLogsResult =
+    MvcResult dataJobExecutionLogsResult =
         mockMvc
             .perform(get(dataJobExecutionListUrl).with(user(username)))
-            .andReturn()
-            .getResponse();
-    if (dataJobExecutionLogsResult.getStatus() != 200) {
-      throw new Exception(
-          "status is "
-              + dataJobExecutionLogsResult.getStatus()
-              + "\nbody is "
-              + dataJobExecutionLogsResult.getContentAsString());
-    }
+            .andExpect(status().isOk())
+            .andReturn();
     return dataJobExecutionLogsResult;
   }
 
