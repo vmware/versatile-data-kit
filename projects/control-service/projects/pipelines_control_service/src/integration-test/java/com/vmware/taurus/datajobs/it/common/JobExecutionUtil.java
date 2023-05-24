@@ -26,6 +26,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -43,8 +44,8 @@ public class JobExecutionUtil {
   public static final String JOB_NAME_PREFIX = "it";
 
   private static final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
+          new ObjectMapper()
+                  .registerModule(new JavaTimeModule()); // Used for converting to OffsetDateTime;
 
   private static final Logger log = LoggerFactory.getLogger(JobExecutionUtil.class);
 
@@ -59,64 +60,64 @@ public class JobExecutionUtil {
   }
 
   public static DataJobExecution createDataJobExecution(
-      JobExecutionRepository jobExecutionRepository,
-      String executionId,
-      DataJob dataJob,
-      OffsetDateTime startTime,
-      OffsetDateTime endTime,
-      ExecutionStatus executionStatus) {
+          JobExecutionRepository jobExecutionRepository,
+          String executionId,
+          DataJob dataJob,
+          OffsetDateTime startTime,
+          OffsetDateTime endTime,
+          ExecutionStatus executionStatus) {
 
     var jobExecution =
-        DataJobExecution.builder()
-            .id(executionId)
-            .dataJob(dataJob)
-            .startTime(startTime)
-            .endTime(endTime)
-            .type(ExecutionType.MANUAL)
-            .status(executionStatus)
-            .resourcesCpuRequest(1F)
-            .resourcesCpuLimit(2F)
-            .resourcesMemoryRequest(500)
-            .resourcesMemoryLimit(1000)
-            .message("message")
-            .lastDeployedBy("test_user")
-            .lastDeployedDate(getTimeAccurateToMicroSecond())
-            .jobVersion("test_version")
-            .jobSchedule("*/5 * * * *")
-            .opId("test_op_id")
-            .vdkVersion("test_vdk_version")
-            .build();
+            DataJobExecution.builder()
+                    .id(executionId)
+                    .dataJob(dataJob)
+                    .startTime(startTime)
+                    .endTime(endTime)
+                    .type(ExecutionType.MANUAL)
+                    .status(executionStatus)
+                    .resourcesCpuRequest(1F)
+                    .resourcesCpuLimit(2F)
+                    .resourcesMemoryRequest(500)
+                    .resourcesMemoryLimit(1000)
+                    .message("message")
+                    .lastDeployedBy("test_user")
+                    .lastDeployedDate(getTimeAccurateToMicroSecond())
+                    .jobVersion("test_version")
+                    .jobSchedule("*/5 * * * *")
+                    .opId("test_op_id")
+                    .vdkVersion("test_vdk_version")
+                    .build();
 
     return jobExecutionRepository.save(jobExecution);
   }
 
   public static void checkDataJobExecutionStatus(
-      String executionId,
-      com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username,
-      MockMvc mockMvc)
-      throws Exception {
+          String executionId,
+          com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
+          String opId,
+          String jobName,
+          String teamName,
+          String username,
+          MockMvc mockMvc)
+          throws Exception {
 
     try {
       testDataJobExecutionRead(
-          executionId, executionStatus, opId, jobName, teamName, username, mockMvc);
+              executionId, executionStatus, opId, jobName, teamName, username, mockMvc);
       testDataJobExecutionList(
-          executionId, executionStatus, opId, jobName, teamName, username, mockMvc);
+              executionId, executionStatus, opId, jobName, teamName, username, mockMvc);
       testDataJobDeploymentExecutionList(
-          executionId, executionStatus, opId, jobName, teamName, username, mockMvc);
+              executionId, executionStatus, opId, jobName, teamName, username, mockMvc);
       testDataJobExecutionLogs(executionId, jobName, teamName, username, mockMvc);
     } catch (Error e) {
       try {
         // print logs in case execution has failed
-        MvcResult dataJobExecutionLogsResult =
-            getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
+        MockHttpServletResponse dataJobExecutionLogsResult =
+                getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
         log.info(
-            "Job Execution {} logs:\n{}",
-            executionId,
-            dataJobExecutionLogsResult.getResponse().getContentAsString());
+                "Job Execution {} logs:\n{}",
+                executionId,
+                dataJobExecutionLogsResult.getContentAsString());
       } catch (Error ignore) {
       }
       throw e;
@@ -124,26 +125,26 @@ public class JobExecutionUtil {
   }
 
   public static ImmutablePair<String, String> executeDataJob(
-      String jobName, String teamName, String username, String deploymentId, MockMvc mockMvc)
-      throws Exception {
+          String jobName, String teamName, String username, String deploymentId, MockMvc mockMvc)
+          throws Exception {
     String opId = jobName + UUID.randomUUID().toString().toLowerCase();
 
     String triggerDataJobExecutionUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName, jobName, deploymentId);
+            String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
+                    teamName, jobName, deploymentId);
     MvcResult dataJobExecutionResponse =
-        mockMvc
-            .perform(
-                post(triggerDataJobExecutionUrl)
-                    .with(user(username))
-                    .header(HEADER_X_OP_ID, opId)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            new DataJobExecutionRequest().startedBy(username)))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(202))
-            .andReturn();
+            mockMvc
+                    .perform(
+                            post(triggerDataJobExecutionUrl)
+                                    .with(user(username))
+                                    .header(HEADER_X_OP_ID, opId)
+                                    .content(
+                                            objectMapper.writeValueAsString(
+                                                    new DataJobExecutionRequest().startedBy(username)))
+                                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().is(202))
+                    .andReturn();
 
     // Check the data job execution status
     String location = dataJobExecutionResponse.getResponse().getHeader("location");
@@ -152,168 +153,175 @@ public class JobExecutionUtil {
   }
 
   public static void testDataJobExecutionRead(
-      String executionId,
-      com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username,
-      MockMvc mockMvc) {
+          String executionId,
+          com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
+          String opId,
+          String jobName,
+          String teamName,
+          String username,
+          MockMvc mockMvc) {
 
     com.vmware.taurus.controlplane.model.data.DataJobExecution[] dataJobExecution =
-        new com.vmware.taurus.controlplane.model.data.DataJobExecution[1];
+            new com.vmware.taurus.controlplane.model.data.DataJobExecution[1];
 
     await()
-        .atMost(5, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .until(
-            () -> {
-              String dataJobExecutionReadUrl =
-                  String.format(
-                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
-                      teamName, jobName, executionId);
-              MvcResult dataJobExecutionResult =
-                  mockMvc
-                      .perform(
-                          get(dataJobExecutionReadUrl)
-                              .with(user(username))
-                              .contentType(MediaType.APPLICATION_JSON))
-                      .andExpect(status().isOk())
-                      .andReturn();
+            .atMost(5, TimeUnit.MINUTES)
+            .with()
+            .pollInterval(15, TimeUnit.SECONDS)
+            .until(
+                    () -> {
+                      String dataJobExecutionReadUrl =
+                              String.format(
+                                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
+                                      teamName, jobName, executionId);
+                      MvcResult dataJobExecutionResult =
+                              mockMvc
+                                      .perform(
+                                              get(dataJobExecutionReadUrl)
+                                                      .with(user(username))
+                                                      .contentType(MediaType.APPLICATION_JSON))
+                                      .andExpect(status().isOk())
+                                      .andReturn();
 
-              dataJobExecution[0] =
-                  objectMapper.readValue(
-                      dataJobExecutionResult.getResponse().getContentAsString(),
-                      com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
-              if (dataJobExecution[0] == null) {
-                log.info("No response from server");
-              } else {
-                log.info("Response from server  " + dataJobExecution[0].getStatus());
-              }
-              return dataJobExecution[0] != null
-                  && executionStatus.equals(dataJobExecution[0].getStatus());
-            });
+                      dataJobExecution[0] =
+                              objectMapper.readValue(
+                                      dataJobExecutionResult.getResponse().getContentAsString(),
+                                      com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
+                      if (dataJobExecution[0] == null) {
+                        log.info("No response from server");
+                      } else {
+                        log.info("Response from server  " + dataJobExecution[0].getStatus());
+                      }
+                      return dataJobExecution[0] != null
+                              && executionStatus.equals(dataJobExecution[0].getStatus());
+                    });
 
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
+            executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
   }
 
   public static void testDataJobExecutionList(
-      String executionId,
-      com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username,
-      MockMvc mockMvc)
-      throws Exception {
+          String executionId,
+          com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
+          String opId,
+          String jobName,
+          String teamName,
+          String username,
+          MockMvc mockMvc)
+          throws Exception {
 
     String dataJobExecutionListUrl =
-        String.format("/data-jobs/for-team/%s/jobs/%s/executions", teamName, jobName);
+            String.format("/data-jobs/for-team/%s/jobs/%s/executions", teamName, jobName);
     MvcResult dataJobExecutionResult =
-        mockMvc
-            .perform(
-                get(dataJobExecutionListUrl)
-                    .with(user(username))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
+            mockMvc
+                    .perform(
+                            get(dataJobExecutionListUrl)
+                                    .with(user(username))
+                                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
 
     List<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutions =
-        objectMapper.readValue(
-            dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
+            objectMapper.readValue(
+                    dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
     assertNotNull(dataJobExecutions);
     dataJobExecutions =
-        dataJobExecutions.stream()
-            .filter(e -> e.getId().equals(executionId))
-            .collect(Collectors.toList());
+            dataJobExecutions.stream()
+                    .filter(e -> e.getId().equals(executionId))
+                    .collect(Collectors.toList());
     assertEquals(1, dataJobExecutions.size());
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
+            executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
   }
 
   public static void testDataJobDeploymentExecutionList(
-      String executionId,
-      com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      String jobName,
-      String teamName,
-      String username,
-      MockMvc mockMvc)
-      throws Exception {
+          String executionId,
+          com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
+          String opId,
+          String jobName,
+          String teamName,
+          String username,
+          MockMvc mockMvc)
+          throws Exception {
 
     String dataJobDeploymentExecutionListUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
-            teamName, jobName, "release");
+            String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
+                    teamName, jobName, "release");
     MvcResult dataJobExecutionResult =
-        mockMvc
-            .perform(
-                get(dataJobDeploymentExecutionListUrl)
-                    .with(user(username))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
+            mockMvc
+                    .perform(
+                            get(dataJobDeploymentExecutionListUrl)
+                                    .with(user(username))
+                                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
 
     List<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutions =
-        objectMapper.readValue(
-            dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
+            objectMapper.readValue(
+                    dataJobExecutionResult.getResponse().getContentAsString(), new TypeReference<>() {});
     assertNotNull(dataJobExecutions);
     dataJobExecutions =
-        dataJobExecutions.stream()
-            .filter(e -> e.getId().equals(executionId))
-            .collect(Collectors.toList());
+            dataJobExecutions.stream()
+                    .filter(e -> e.getId().equals(executionId))
+                    .collect(Collectors.toList());
     assertEquals(1, dataJobExecutions.size());
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
+            executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
   }
 
   public static String generateJobName(String className) {
     return String.format(
-        "%s-%s-%s",
-        JobExecutionUtil.JOB_NAME_PREFIX,
-        StringUtils.truncate(className, 35).toLowerCase(),
-        UUID.randomUUID().toString().substring(0, 8));
+            "%s-%s-%s",
+            JobExecutionUtil.JOB_NAME_PREFIX,
+            StringUtils.truncate(className, 35).toLowerCase(),
+            UUID.randomUUID().toString().substring(0, 8));
   }
 
   private static void testDataJobExecutionLogs(
-      String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
-      throws Exception {
-    MvcResult dataJobExecutionLogsResult =
-        getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
-    assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
+          String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
+          throws Exception {
+    MockHttpServletResponse dataJobExecutionLogsResult =
+            getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
+    assertFalse(dataJobExecutionLogsResult.getContentAsString().isEmpty());
   }
 
-  private static MvcResult getExecuteLogs(
-      String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
-      throws Exception {
+  private static MockHttpServletResponse getExecuteLogs(
+          String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
+          throws Exception {
     String dataJobExecutionListUrl =
-        String.format(
-            "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
-    MvcResult dataJobExecutionLogsResult =
-        mockMvc
-            .perform(get(dataJobExecutionListUrl).with(user(username)))
-            .andExpect(status().isOk())
-            .andReturn();
+            String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
+    MockHttpServletResponse dataJobExecutionLogsResult =
+            mockMvc
+                    .perform(get(dataJobExecutionListUrl).with(user(username)))
+                    .andReturn()
+                    .getResponse();
+    if (dataJobExecutionLogsResult.getStatus() != 200) {
+      throw new Exception(
+              "status is "
+                      + dataJobExecutionLogsResult.getStatus()
+                      + "\nbody is "
+                      + dataJobExecutionLogsResult.getContentAsString());
+    }
     return dataJobExecutionLogsResult;
   }
 
   private static void assertDataJobExecutionValid(
-      String executionId,
-      com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
-      String opId,
-      com.vmware.taurus.controlplane.model.data.DataJobExecution dataJobExecution,
-      String jobName,
-      String username) {
+          String executionId,
+          com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum executionStatus,
+          String opId,
+          com.vmware.taurus.controlplane.model.data.DataJobExecution dataJobExecution,
+          String jobName,
+          String username) {
 
     assertNotNull(dataJobExecution);
     assertEquals(executionId, dataJobExecution.getId());
     assertEquals(jobName, dataJobExecution.getJobName());
     assertEquals(executionStatus, dataJobExecution.getStatus());
     assertEquals(
-        com.vmware.taurus.controlplane.model.data.DataJobExecution.TypeEnum.MANUAL,
-        dataJobExecution.getType());
+            com.vmware.taurus.controlplane.model.data.DataJobExecution.TypeEnum.MANUAL,
+            dataJobExecution.getType());
     assertEquals(username + "/" + "user", dataJobExecution.getStartedBy());
     assertEquals(opId, dataJobExecution.getOpId());
   }
