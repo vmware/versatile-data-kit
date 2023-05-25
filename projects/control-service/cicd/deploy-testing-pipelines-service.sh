@@ -103,7 +103,6 @@ helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       --set security.enabled=true \
       --set security.oauth2.jwtJwkSetUri=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/token-public-key?format=jwks \
       --set security.oauth2.jwtIssuerUrl=https://gaz-preview.csp-vidm-prod.com \
-      --set security.authorizationEnabled=true \
-      --set security.authorization.webhookUri=https://httpbin.org/post \
+      --set security.authorizationEnabled=false \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"
