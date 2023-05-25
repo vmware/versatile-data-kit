@@ -22,10 +22,10 @@ import org.springframework.test.context.TestPropertySource;
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 @TestPropertySource(
-        properties = {
-                "datajobs.job.resources.requests.memory=6Mi",
-                "datajobs.job.resources.limits.memory=6Mi",
-        })
+    properties = {
+      "datajobs.job.resources.requests.memory=6Mi",
+      "datajobs.job.resources.limits.memory=6Mi",
+    })
 public class DataJobMainContainerOOMIT extends BaseIT {
 
   @RegisterExtension
