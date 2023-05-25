@@ -1,0 +1,12 @@
+# this file is used to provide testing requirements
+# for requirements (dependencies) needed during installation update setup.py install_requires section
+
+
+pytest
+pytest-httpserver
+urllib3
+vdk-control-api-auth
+vdk-control-service-api
+vdk-core
+vdk-plugin-control-cli
+vdk-test-utils
