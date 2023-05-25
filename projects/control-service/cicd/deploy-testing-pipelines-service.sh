@@ -69,6 +69,18 @@ envsubst < $VDK_OPTIONS > $VDK_OPTIONS_SUBSTITUTED
 cd $TPCS_CHART || exit
 helm dependency update --kubeconfig=$KUBECONFIG
 
+
+helm_latest_deployment=`helm history  cicd-control-service | tail -1`
+echo $helm_latest_deployment
+if [[ $helm_latest_deployment == *"pending-upgrade"* ]]; then
+  echo "Pipeline failed because of an existing deployment in the pending-state.
+  If the problem persists use 'helm history cicd-control-service' to see the last successful deployment.
+  then use 'helm rollback cicd-control-service <revision number>' to rollback to that deployment. then re run this pipeline"
+  exit 125
+fi
+
+
+#
 # TODO :change container images with official ones when they are being deployed (I've currently uploaded them once in ghcr.io/tozka)
 #
 # image.tag is fixed during release. It is set here to deploy using latest change in source code.
