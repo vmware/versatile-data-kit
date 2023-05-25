@@ -72,6 +72,7 @@ class TestMetaJob:
                         logs_url="http://url",
                         deployment=DataJobDeployment(),
                         start_time="2021-09-24T14:14:03.922Z",
+                        end_time="2021-09-24T14:14:03.922Z",
                         status=actual_job_status,
                         message="foo",
                     )
@@ -106,10 +107,10 @@ class TestMetaJob:
                         message="foo",
                     )
                     response_data = json.dumps(
-                        execution.to_dict(), indent=4, default=json_serial
+                        [execution.to_dict()], indent=4, default=json_serial
                     )
                     return Response(
-                        [response_data],
+                        response_data,
                         status=200,
                         headers=None,
                         content_type="application/json",
@@ -313,6 +314,8 @@ class TestMetaJob:
                         )  # assert that max concurrent running jobs is not exceeded
                     if request.method == "GET":
                         execution = json.loads(response.response[0])
+                        if isinstance(execution, list):
+                            execution = execution[0]
                         if execution["status"] == "succeeded":
                             running_jobs.discard(execution["job_name"])
             cli_assert_equal(0, result)
