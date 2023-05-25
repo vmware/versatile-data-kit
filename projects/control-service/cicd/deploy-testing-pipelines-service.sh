@@ -18,6 +18,8 @@ export RELEASE_NAME=${RELEASE_NAME:-cicd-control-service}
 export VDK_OPTIONS=${VDK_OPTIONS:-"$SCRIPT_DIR/vdk-options.ini"}
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
+export TESTING_PIPELINES_SERVICE_VALUES_FILE=${TESTING_PIPELINES_SERVICE_VALUES_FILE:-"$SCRIPT_DIR/testing-pipelines-service-values.yaml"}
+
 
 RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
 
@@ -86,8 +88,8 @@ fi
 # image.tag is fixed during release. It is set here to deploy using latest change in source code.
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
 helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
+      -f "$TESTING_PIPELINES_SERVICE_VALUES_FILE" \
       --set image.tag="$TAG" \
-      --set resources.limits.memory=2G \
       --set credentials.repository="EMPTY" \
       --set-file vdkOptions=$VDK_OPTIONS_SUBSTITUTED \
       --set deploymentGitUrl="$CICD_GIT_URI" \
