@@ -75,7 +75,7 @@ echo $helm_latest_deployment
 if [[ $helm_latest_deployment == *"pending-upgrade"* ]]; then
   echo "Pipeline failed because of an existing deployment in the pending-state.
   If the problem persists use 'helm history cicd-control-service' to see the last successful deployment.
-   then use 'helm rollback cicd-control-service <revision number>' to rollback to that deployment. then re run this pipeline"
+  then use 'helm rollback cicd-control-service <revision number>' to rollback to that deployment. then re run this pipeline"
   exit 125
 fi
 
