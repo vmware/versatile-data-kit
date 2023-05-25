@@ -359,7 +359,7 @@ public class JobExecutionService {
             .lastDeployedDate(jobExecution.getDeployedDate())
             .lastDeployedBy(jobExecution.getDeployedBy())
             .build();
-    return Optional.of(jobExecutionRepository.save(dataJobExecution));
+    return Optional.of(jobExecutionRepository.saveAndFlush(dataJobExecution));
   }
 
   /**
