@@ -142,8 +142,16 @@ public class DataJobDeploymentExtension
                       .with(user(USER_NAME))
                       .content(jobZipBinary)
                       .contentType(MediaType.APPLICATION_OCTET_STREAM))
-              .andExpect(status().isOk())
               .andReturn();
+
+      if (uploadResult.getResponse().getStatus() != 200) {
+        throw new Exception(
+            "status is "
+                + uploadResult.getResponse().getStatus()
+                + "\nbody is "
+                + uploadResult.getResponse().getContentAsString());
+      }
+
       DataJobVersion dataJobVersion =
           MAPPER.readValue(uploadResult.getResponse().getContentAsString(), DataJobVersion.class);
 
