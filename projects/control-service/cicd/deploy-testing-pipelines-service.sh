@@ -80,9 +80,6 @@ if [[ $helm_latest_deployment == *"pending-upgrade"* ]]; then
 fi
 
 
-
-if[]
-
 #
 # TODO :change container images with official ones when they are being deployed (I've currently uploaded them once in ghcr.io/tozka)
 #
