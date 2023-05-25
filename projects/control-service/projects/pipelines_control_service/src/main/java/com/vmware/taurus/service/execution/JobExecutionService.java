@@ -300,7 +300,11 @@ public class JobExecutionService {
     // with null.
     var finalStatusSet =
         new HashSet<>(
-            List.of(ExecutionStatus.CANCELLED, ExecutionStatus.SUCCEEDED, ExecutionStatus.SKIPPED));
+            List.of(
+                ExecutionStatus.CANCELLED,
+                ExecutionStatus.SUCCEEDED,
+                ExecutionStatus.SKIPPED,
+                ExecutionStatus.USER_ERROR));
     ExecutionStatus executionStatus = executionResult.getExecutionStatus();
 
     // Optimization:
