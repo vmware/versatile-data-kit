@@ -8,7 +8,7 @@ project.ext {
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.6',
             'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
             'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.6.0',
-            'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.26',
+            'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.28',
             'com.h2database:h2'                                                  : 'com.h2database:h2:2.1.214',
             'org.apache.httpcomponents:httpclient'                               : 'org.apache.httpcomponents:httpclient:4.5.14',
             'org.junit.jupiter:junit-jupiter-api'                                : 'org.junit.jupiter:junit-jupiter-api:5.9.3',
