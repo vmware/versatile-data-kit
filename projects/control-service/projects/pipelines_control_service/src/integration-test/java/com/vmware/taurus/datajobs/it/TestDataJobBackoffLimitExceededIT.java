@@ -9,7 +9,6 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
-import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ import static com.vmware.taurus.datajobs.it.common.JobExecutionUtil.*;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-public class DataJobBackoffLimitExceededIT extends BaseIT {
+public class TestDataJobBackoffLimitExceededIT extends BaseIT {
 
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
@@ -38,7 +37,7 @@ public class DataJobBackoffLimitExceededIT extends BaseIT {
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     // manually start job execution
     ImmutablePair<String, String> executeDataJobResult =
-        JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
+        executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
     String opId = executeDataJobResult.getLeft();
     String executionId = executeDataJobResult.getRight();
 
