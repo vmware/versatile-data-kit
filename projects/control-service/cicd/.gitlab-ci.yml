@@ -255,18 +255,14 @@ control_service_deploy_testing_data_pipelines:
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
-    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export DESIRED_VERSION=v3.12.0 # helm version
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_code_change_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_helm_change_locations
+  only:
+    refs:
+      - external_pull_requests
+    changes: *control_service_code_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
