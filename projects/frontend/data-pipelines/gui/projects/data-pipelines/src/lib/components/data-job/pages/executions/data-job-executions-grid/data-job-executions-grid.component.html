@@ -5,6 +5,7 @@
 
 <clr-datagrid
     data-cy="data-pipelines-job-executions-datagrid"
+    class="data-pipelines-job-executions-datagrid"
     [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
     [clrDgLoading]="loading"
     (clrDgRefresh)="gridRefresh($event)"
@@ -46,22 +47,22 @@
         data-cy="data-pipelines-job-executions-duration-header"
         [clrDgField]="'duration'"
         [clrFilterValue]="filtersSortManager.filterCriteria['duration']"
-        [clrDgSortBy]="durationComparator"
+        [clrDgSortBy]="'duration'"
         [clrDgSortOrder]="filtersSortManager.sortCriteria['duration']"
         >Duration
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-start-header"
-        [clrDgField]="'startTimeFormatted'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['startTimeFormatted']"
+        [clrDgField]="'startTime'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['startTime']"
         [clrDgSortBy]="'startTime'"
         [clrDgSortOrder]="filtersSortManager.sortCriteria['startTime']"
         >Start (UTC)
     </clr-dg-column>
     <clr-dg-column
         data-cy="data-pipelines-job-executions-end-header"
-        [clrDgField]="'endTimeFormatted'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['endTimeFormatted']"
+        [clrDgField]="'endTime'"
+        [clrFilterValue]="filtersSortManager.filterCriteria['endTime']"
         [clrDgSortBy]="'endTime'"
         [clrDgSortOrder]="filtersSortManager.sortCriteria['endTime']"
         >End (UTC)
@@ -87,8 +88,8 @@
     >
 
     <clr-dg-row
-        *clrDgItems="let jobExecution of jobExecutions; trackBy: trackByFn"
-        [clrDgItem]="jobExecution"
+        *ngFor="let jobExecution of paginatedJobExecutions; trackBy: trackByFn"
+        [ngClass]="{'data-pipelines-job__execution--highlighted': highlightedExecutionId === jobExecution.id}"
     >
         <clr-dg-cell>
             <lib-data-job-execution-status
@@ -152,7 +153,9 @@
         <clr-dg-pagination
             #pagination
             data-cy="data-pipelines-job-executions-datagrid-pagination"
-            [clrDgPageSize]="10"
+            [clrDgTotalItems]="paginationTotalItems"
+            [clrDgPageSize]="paginationPageSize"
+            [(clrDgPage)]="paginationPageNumber"
         >
             <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]"
                 >Executions per page</clr-dg-page-size

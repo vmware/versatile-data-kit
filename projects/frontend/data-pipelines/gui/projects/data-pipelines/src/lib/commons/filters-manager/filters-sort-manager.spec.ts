@@ -1495,7 +1495,6 @@ describe('FiltersSortManager', () => {
                 // Given
                 const filterValue1 = 'f1v,f11v';
                 const filterValue3 = 'f3v';
-                const filterValue4 = 'f4v,f44v,f444v';
                 const sortValue1 = 's1v';
                 const sortValue2 = '-1';
                 const sortValue3 = 's3v';
@@ -1744,8 +1743,6 @@ describe('FiltersSortManager', () => {
                 // Given
                 const filterValue1 = 'f1v,f11v';
                 const filterValue3 = 'f3v';
-                const filterValue4 = 'f4v,f44v,f444v';
-                const sortValue1 = 's1v';
                 const sortValue2 = '-1';
                 const sortValue3 = 's3v';
                 const sortValue4 = 's4v';

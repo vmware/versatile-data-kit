@@ -11,8 +11,8 @@ export const FILTER_TIME_PERIOD_KEY = 'timePeriod';
 export const FILTER_STATUS_KEY = 'status';
 export const FILTER_TYPE_KEY = 'type';
 export const FILTER_DURATION_KEY = 'duration';
-export const FILTER_START_TIME_KEY = 'startTimeFormatted';
-export const FILTER_END_TIME_KEY = 'endTimeFormatted';
+export const FILTER_START_TIME_KEY = 'startTime';
+export const FILTER_END_TIME_KEY = 'endTime';
 export const FILTER_ID_KEY = 'id';
 export const FILTER_VERSION_KEY = 'jobVersion';
 
@@ -32,12 +32,12 @@ export type ExecutionsFilterCriteria =
 /**
  * ** Executions filter pair with its corresponding value in Tuple.
  */
-export type ExecutionsFilterPairs = KeyValueTuple<ExecutionsFilterCriteria, string>;
+export type ExecutionsFilterPairs<K extends string = ExecutionsFilterCriteria> = KeyValueTuple<K, string>;
 
 /**
  * ** Executions grid filter with its value.
  */
-export type ExecutionsGridFilter = { property: ExecutionsFilterCriteria; value: string };
+export type ExecutionsGridFilter<K extends string = ExecutionsFilterCriteria> = { property: K; value: string };
 
 /**
  * ** Executions supported filter criteria.

@@ -16,6 +16,7 @@ import {
     CollectionsUtil,
     ComponentModel,
     ComponentService,
+    Criteria,
     ErrorHandlerService,
     ErrorRecord,
     NavigationService,
@@ -34,11 +35,9 @@ import { DataJobUtil, ErrorUtil } from '../../../../../shared/utils';
 import { FiltersSortManager } from '../../../../../commons';
 
 import {
-    DataJobExecutionFilter,
     DataJobExecutionOrder,
     DataJobExecutions,
     DataPipelinesRouteData,
-    FILTER_REQ_PARAM,
     JOB_EXECUTIONS_DATA_KEY,
     JOB_NAME_REQ_PARAM,
     ORDER_REQ_PARAM,
@@ -62,6 +61,15 @@ import {
     SUPPORTED_EXECUTIONS_SORT_CRITERIA
 } from '../model/executions-filters.model';
 
+import { GridCriteriaAndComparator } from '../data-job-executions-grid';
+
+import { ExecutionsTimePeriodCriteria } from './criteria/time-period';
+
+interface SelectedDateTimePeriod {
+    from: Date;
+    to: Date;
+}
+
 @Component({
     selector: 'lib-data-job-executions-page',
     templateUrl: './data-job-executions-page.component.html',
@@ -78,15 +86,42 @@ export class DataJobExecutionsPageComponent
     jobName: string;
     isJobEditable = false;
 
-    jobExecutions: GridDataJobExecution[];
+    jobExecutions: GridDataJobExecution[] = [];
+    filteredJobExecutions: GridDataJobExecution[] = [];
     minJobExecutionTime: Date;
     loading = true;
     initialLoading = true;
 
-    dateTimeFilter: { fromTime: Date; toTime: Date } = {
-        fromTime: null,
-        toTime: null
+    /**
+     * ** Selected DateTime period in time period filter.
+     */
+    selectedPeriod: SelectedDateTimePeriod = {
+        from: null,
+        to: null
     };
+
+    /**
+     * ** Indicates whether time filter is chosen, period is selected.
+     */
+    isPeriodSelected = false;
+
+    /**
+     * ** Zoomed DateTime period, in duration chart.
+     */
+    zoomedPeriod: SelectedDateTimePeriod = {
+        from: null,
+        to: null
+    };
+
+    /**
+     * ** Focused (highlighted) execution id in duration chart.
+     */
+    highlightedExecutionId: string;
+
+    /**
+     * ** Grid Criteria and Comparator from Executions Data Grid.
+     */
+    gridCriteriaAndComparator: GridCriteriaAndComparator;
 
     /**
      * ** Array of error code patterns that component should listen for in errors store.
@@ -144,26 +179,45 @@ export class DataJobExecutionsPageComponent
         this.navigateBack({ '$.team': this.teamName }).then();
     }
 
-    onTimeFilterChange(dateTimeFilter: { fromTime: Date; toTime: Date }): void {
-        this.dateTimeFilter = dateTimeFilter;
-
-        const modelFilter: DataJobExecutionFilter = this.model.getComponentState().requestParams.get(FILTER_REQ_PARAM) ?? {};
-
-        if (CollectionsUtil.isNil(dateTimeFilter.fromTime) || CollectionsUtil.isNil(dateTimeFilter.toTime)) {
-            delete modelFilter.startTimeGte;
-            delete modelFilter.startTimeLte;
-
-            this.model.withRequestParam(FILTER_REQ_PARAM, {
-                ...modelFilter
-            } as DataJobExecutionFilter);
-        } else {
-            this.model.withRequestParam(FILTER_REQ_PARAM, {
-                ...modelFilter,
-                startTimeGte: dateTimeFilter.fromTime,
-                startTimeLte: dateTimeFilter.toTime
-            } as DataJobExecutionFilter);
+    timeFilterChange(selectedPeriod: SelectedDateTimePeriod): void {
+        if (this.selectedPeriod.from === selectedPeriod.from && this.selectedPeriod.to === selectedPeriod.to) {
+            return;
         }
 
+        this.selectedPeriod = selectedPeriod;
+
+        this.isPeriodSelected = this.selectedPeriod.from !== null && this.selectedPeriod.to !== null;
+
+        this._filterExecutions();
+    }
+
+    /**
+     * ** Executed whenever focus on execution id in duration chart changes.
+     */
+    durationChartExecutionIdFocusChange(executionId: string): void {
+        this.highlightedExecutionId = executionId;
+    }
+
+    durationChartZoomPeriodChange(zoomedPeriod: SelectedDateTimePeriod): void {
+        if (
+            this.selectedPeriod.from === zoomedPeriod.from &&
+            this.selectedPeriod.to === zoomedPeriod.to &&
+            this.zoomedPeriod.from === zoomedPeriod.from &&
+            this.zoomedPeriod.to === zoomedPeriod.to
+        ) {
+            return;
+        }
+
+        this.zoomedPeriod = zoomedPeriod;
+    }
+
+    gridCriteriaAndComparatorChange($event: GridCriteriaAndComparator): void {
+        this.gridCriteriaAndComparator = $event;
+
+        this._filterExecutions();
+    }
+
+    refresh(): void {
         this.fetchDataJobExecutions();
     }
 
@@ -312,24 +366,15 @@ export class DataJobExecutionsPageComponent
                 .pipe(map(DataJobExecutionToGridDataJobExecution.convertToDataJobExecution(this.datePipe)))
                 .subscribe({
                     next: (values) => {
-                        this.jobExecutions = values.filter((ex) => {
-                            if (CollectionsUtil.isNil(this.dateTimeFilter.fromTime) || CollectionsUtil.isNil(this.dateTimeFilter.toTime)) {
-                                return true;
-                            }
+                        this.jobExecutions = values;
 
-                            if (!CollectionsUtil.isString(ex.startTime)) {
-                                return false;
-                            }
-
-                            const startTime = new Date(ex.startTime);
-
-                            return startTime > this.dateTimeFilter.fromTime && startTime < this.dateTimeFilter.toTime;
-                        });
+                        this._filterExecutions();
 
                         if (this.jobExecutions.length > 0) {
-                            const newMinJobExecutionsTime = new Date(
-                                this.jobExecutions.reduce((prev, curr) => (prev.startTime < curr.startTime ? prev : curr)).startTime
-                            );
+                            const oldestExecutionStartTime = [...this.jobExecutions]
+                                .sort((ex1, ex2) => (ex1.startTime < ex2.startTime ? 1 : -1))
+                                .pop().startTime;
+                            const newMinJobExecutionsTime = new Date(oldestExecutionStartTime);
 
                             if (
                                 CollectionsUtil.isNil(this.minJobExecutionTime) ||
@@ -337,6 +382,8 @@ export class DataJobExecutionsPageComponent
                             ) {
                                 this.minJobExecutionTime = newMinJobExecutionsTime;
                             }
+                        } else {
+                            this.minJobExecutionTime = null;
                         }
                     },
                     error: (error: unknown) => {
@@ -344,5 +391,37 @@ export class DataJobExecutionsPageComponent
                     }
                 })
         );
+    }
+
+    private _filterExecutions(): void {
+        let timePeriodCriteria: Criteria<GridDataJobExecution>;
+        let executionsFilteredAndSorted: GridDataJobExecution[];
+
+        if (CollectionsUtil.isDefined(this.selectedPeriod.from) && CollectionsUtil.isDefined(this.selectedPeriod.to)) {
+            timePeriodCriteria = new ExecutionsTimePeriodCriteria(this.selectedPeriod.from, this.selectedPeriod.to);
+            // execute filter by time period
+            executionsFilteredAndSorted = timePeriodCriteria.meetCriteria(this.jobExecutions);
+        } else {
+            executionsFilteredAndSorted = [...this.jobExecutions];
+        }
+
+        if (this.gridCriteriaAndComparator) {
+            if (this.gridCriteriaAndComparator.filter) {
+                executionsFilteredAndSorted = this.gridCriteriaAndComparator.filter.meetCriteria(executionsFilteredAndSorted);
+            }
+
+            if (this.gridCriteriaAndComparator.sort) {
+                executionsFilteredAndSorted = executionsFilteredAndSorted.sort(
+                    this.gridCriteriaAndComparator.sort.compare.bind(this.gridCriteriaAndComparator.sort) as (
+                        a: GridDataJobExecution,
+                        b: GridDataJobExecution
+                    ) => number
+                );
+            }
+        }
+
+        this.filteredJobExecutions = executionsFilteredAndSorted;
+
+        this.minJobExecutionTime = new Date(this.minJobExecutionTime);
     }
 }

@@ -344,6 +344,8 @@ export class FiltersSortManager<
         // debouncing for update URL, to avoid multiple updates when there are multiple serial near close update events
         this._updateTimeoutRef = setTimeout(() => {
             this._doUpdateBrowserUrl(strategy);
+
+            this._updateTimeoutRef = null;
         }, this._debouncingTime);
     }
 
@@ -355,6 +357,8 @@ export class FiltersSortManager<
     cancelScheduledBrowserUrlUpdate(): void {
         if (CollectionsUtil.isNumber(this._updateTimeoutRef)) {
             clearTimeout(this._updateTimeoutRef);
+
+            this._updateTimeoutRef = null;
         }
     }
 
