@@ -7,97 +7,77 @@ package com.vmware.taurus.properties;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.properties.service.JobProperties;
 import com.vmware.taurus.properties.service.PropertiesRepository;
 import com.vmware.taurus.properties.service.PropertiesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = ControlplaneApplication.class)
 class PropertiesServiceTest {
 
-  @Mock private PropertiesRepository propertiesRepository;
+    @Autowired
+    private PropertiesRepository propertiesRepository;
 
-  private PropertiesService propertiesService;
+    @Autowired
+    private PropertiesService propertiesService;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        propertiesRepository.deleteAll();
+        String jobName = "testJob";
+        var intialProperties = new JobProperties(jobName, "{\"key2\":\"value2\",\"key1\":123}");
+        propertiesRepository.save(intialProperties);
+        this.propertiesService = new PropertiesService(propertiesRepository);
+    }
 
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-    this.propertiesService = new PropertiesService(propertiesRepository);
-  }
+    @Test
+    void testUpdateJobProperties() throws JsonProcessingException {
+        String jobName = "testJob";
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("key1", "value1");
+        properties.put("key2", 123);
+        properties.put("key3", true);
+        properties.put("key4", null);
 
-  @Test
-  void testUpdateJobProperties() {
-    String jobName = "testJob";
-    Map<String, Object> properties = new HashMap<>();
-    properties.put("key1", "value1");
-    properties.put("key2", 123);
-    properties.put("key3", true);
-    properties.put("key4", null);
+        Map<String, Object> initial = propertiesService.readJobProperties(jobName);
+        assertNotEquals(properties, initial);
 
-    var existingProperties = new JobProperties(jobName, "{\"key2\":\"value2\",\"key1\":123}");
+        propertiesService.updateJobProperties(jobName, properties);
+        Map<String, Object> result = propertiesService.readJobProperties(jobName);
 
-    JobProperties expectedjobProperties =
-        new JobProperties(
-            jobName, "{\"key1\":\"value1\",\"key2\":123,\"key3\":true,\"key4\":null}");
+        assertEquals(properties, result);
+    }
 
-    when(propertiesRepository.findByJobName(jobName)).thenReturn(Optional.of(existingProperties));
-    when(propertiesRepository.save(expectedjobProperties)).thenReturn(expectedjobProperties);
+    @Test
+    void testReadJobProperties() throws JsonProcessingException {
+        String jobName = "testJob";
+        Map<String, Object> expectedProperties = new HashMap<>();
+        expectedProperties.put("key2", "value2");
+        expectedProperties.put("key1", 123);
 
-    propertiesService.updateJobProperties(jobName, properties);
+        Map<String, Object> actualProperties = propertiesService.readJobProperties(jobName);
 
-    verify(propertiesRepository, times(1)).findByJobName(jobName);
-    verify(propertiesRepository, times(1)).save(existingProperties);
+        assertEquals(expectedProperties, actualProperties);
+    }
 
-    assertEquals(
-        "{\"key1\":\"value1\",\"key2\":123,\"key3\":true,\"key4\":null}",
-        existingProperties.getPropertiesJson());
-  }
-
-  @Test
-  void testReadJobProperties() throws JsonProcessingException {
-    String jobName = "testJob";
-    String propertiesJson = "{\"key1\":\"value1\",\"key2\":123}";
-
-    JobProperties jobProperties = new JobProperties(jobName, propertiesJson);
-
-    when(propertiesRepository.findByJobName(jobName)).thenReturn(Optional.of(jobProperties));
-
-    Map<String, Object> expectedProperties = new HashMap<>();
-    expectedProperties.put("key1", "value1");
-    expectedProperties.put("key2", 123);
-
-    Map<String, Object> actualProperties = propertiesService.readJobProperties(jobName);
-
-    verify(propertiesRepository, times(1)).findByJobName(jobName);
-
-    assertEquals(expectedProperties, actualProperties);
-  }
-
-  @Test
-  void testReadEmptyJobProperties() throws JsonProcessingException {
-    String jobName = "testJob";
-
-    when(propertiesRepository.findByJobName(jobName)).thenReturn(Optional.empty());
-
-    Map<String, Object> actualProperties = propertiesService.readJobProperties(jobName);
-
-    verify(propertiesRepository, times(1)).findByJobName(jobName);
-
-    assertEquals(actualProperties, Collections.emptyMap());
-  }
+    @Test
+    void testReadEmptyJobProperties() throws JsonProcessingException {
+        String jobName = "testJob1";
+        Map<String, Object> actualProperties = propertiesService.readJobProperties(jobName);
+        assertEquals(actualProperties, Collections.emptyMap());
+    }
 }
