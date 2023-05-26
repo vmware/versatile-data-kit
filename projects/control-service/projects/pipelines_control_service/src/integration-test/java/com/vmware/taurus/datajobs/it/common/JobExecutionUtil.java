@@ -177,31 +177,31 @@ public class JobExecutionUtil {
                   .andReturn();
 
           return objectMapper.readValue(
-                  dataJobExecutionResult.getResponse().getContentAsString(),
-                  com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
+              dataJobExecutionResult.getResponse().getContentAsString(),
+              com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
         };
-    var result = await()
-        .atMost(11, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .failFast(
-            () -> {
-              com.vmware.taurus.controlplane.model.data.DataJobExecution status =
-                  dataJobExecutionCallable.call();
-              return status != null
-                  && !status
-                      .getStatus()
-                      .equals(
-                          com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum
-                              .RUNNING)
-                  && !executionStatus.equals(status.getStatus());
-            })
-        .until(
-            dataJobExecutionCallable,
-            statusEnum -> statusEnum != null && executionStatus.equals(statusEnum.getStatus()));
+    var result =
+        await()
+            .atMost(11, TimeUnit.MINUTES)
+            .with()
+            .pollInterval(15, TimeUnit.SECONDS)
+            .failFast(
+                () -> {
+                  com.vmware.taurus.controlplane.model.data.DataJobExecution status =
+                      dataJobExecutionCallable.call();
+                  return status != null
+                      && !status
+                          .getStatus()
+                          .equals(
+                              com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum
+                                  .RUNNING)
+                      && !executionStatus.equals(status.getStatus());
+                })
+            .until(
+                dataJobExecutionCallable,
+                statusEnum -> statusEnum != null && executionStatus.equals(statusEnum.getStatus()));
 
-    assertDataJobExecutionValid(
-        executionId, executionStatus, opId, result, jobName, username);
+    assertDataJobExecutionValid(executionId, executionStatus, opId, result, jobName, username);
   }
 
   public static void testDataJobExecutionList(
