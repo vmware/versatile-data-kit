@@ -6,13 +6,22 @@
 <ng-container *ngIf="!initialLoading">
     <div class="time-filter__container">
         <div>
+            <!--
+                 - Time Period filter is the single source of truth for DateTime executions filtering.
+                 - Events emitted from Time Period filter component are used as min and max allowed values
+                   for executions start time.
+                 - Even when User do zoom selection in duration chart, values from the chart are emitted
+                   and then injected to Time Period filter, which on it's own set in the calendar choosers,
+                   and then emits event that is used to filter executions.
+             -->
             <lib-time-period-filter
                 [loading]="loading"
-                [minTime]="minJobExecutionTime"
+                [minDateTime]="minJobExecutionTime"
                 [filtersSortManager]="filtersSortManager"
-                [timePeriod]="filtersSortManager.filterCriteria['timePeriod']"
+                [selectedPeriodSerialized]="filtersSortManager.filterCriteria['timePeriod']"
+                [selectedPeriod]="zoomedPeriod"
                 [isComponentInErrorState]="isComponentInErrorState"
-                (filterChanged)="onTimeFilterChange($event)"
+                (filterChanged)="timeFilterChange($event)"
             ></lib-time-period-filter>
         </div>
         <div>
@@ -21,7 +30,7 @@
                 class="btn btn-icon btn-link refresh"
                 data-cy="data-pipelines-job-executions-refresh-btn"
                 aria-label="refresh"
-                (click)="fetchDataJobExecutions()"
+                (click)="refresh()"
             >
                 <clr-icon shape="refresh" size="14"></clr-icon>
             </button>
@@ -33,14 +42,17 @@
             <div class="clr-col-2 execution-statuses-chart">
                 <lib-execution-status-chart
                     *ngIf="!loading"
-                    [jobExecutions]="jobExecutions"
+                    [jobExecutions]="filteredJobExecutions"
                 >
                 </lib-execution-status-chart>
             </div>
             <div class="clr-col-10">
                 <lib-execution-duration-chart
                     *ngIf="!loading"
-                    [jobExecutions]="jobExecutions"
+                    [jobExecutions]="filteredJobExecutions"
+                    [chartZoomed]="isPeriodSelected"
+                    (executionIdFocused)="durationChartExecutionIdFocusChange($event)"
+                    (zoomPeriodChanged)="durationChartZoomPeriodChange($event)"
                 >
                 </lib-execution-duration-chart>
             </div>
@@ -48,9 +60,11 @@
         <div class="clr-row">
             <div class="clr-col-12">
                 <lib-data-job-executions-grid
-                    [jobExecutions]="jobExecutions"
+                    [jobExecutions]="filteredJobExecutions"
                     [loading]="loading"
                     [filtersSortManager]="filtersSortManager"
+                    [highlightedExecutionId]="highlightedExecutionId"
+                    (gridCriteriaAndComparatorChanged)="gridCriteriaAndComparatorChange($event)"
                 >
                 </lib-data-job-executions-grid>
             </div>

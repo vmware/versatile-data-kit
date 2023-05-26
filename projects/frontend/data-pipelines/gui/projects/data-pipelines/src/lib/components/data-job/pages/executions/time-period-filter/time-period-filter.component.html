@@ -4,7 +4,7 @@
   -->
 
 <div class="time-filter__container">
-    <span class="time-filter__heading">Time period (UTC): </span>
+    <span class="time-filter__heading">Filter by time period (UTC): </span>
     <ng-container *ngIf="!isComponentInErrorState">
         <clr-spinner
             *ngIf="loading; else timeFilter"
@@ -20,15 +20,20 @@
             clrSignpostTrigger
             data-cy="data-pipelines-job-executions-time-period"
         >
-            {{ fromTime | date : "MMM d, y, hh:mm:ss a" : "UTC" }} to {{ toTime
-            | date : "MMM d, y, hh:mm:ss a" : "UTC" }}
+            {{ fromDateTime | date : dateTimeFormat : "UTC" }} to {{ toDateTime
+            | date : dateTimeFormat : "UTC" }}
+            <cds-icon
+                class="data-pipelines-job__executions-period-filter-caret"
+                shape="angle"
+                direction="down"
+            ></cds-icon>
         </p>
         <clr-signpost-content clrPosition="bottom-middle">
             <form
                 clrForm
                 autocomplete="off"
                 [formGroup]="tmForm"
-                (ngSubmit)="submitForm($event)"
+                (ngSubmit)="applyFilter($event)"
             >
                 <div class="clr-date-container clr-form-control clr-row">
                     <label
@@ -50,14 +55,14 @@
                                     [attr.placeholder]="
                                         'MMM DD, yyyy, HH:mm:ss A'
                                     "
-                                    [formControl]="tmForm.controls['fromDate']"
+                                    [formControl]="tmForm.controls['fromDateTime']"
                                     [dpDayPicker]="fromPickerConfig"
                                     [theme]="
                                         'dp-material data-pipelines__executions-filter-picker'
                                     "
                                     [mode]="'daytime'"
-                                    [minDate]="fromTimeMin"
-                                    [maxDate]="fromTimeMax"
+                                    [minDate]="fromDateTimeMin"
+                                    [maxDate]="fromDateTimeMax"
                                     (focus)="
                                         fromDateGroup.classList.add('clr-focus')
                                     "
@@ -105,13 +110,13 @@
                                     [attr.placeholder]="
                                         'MMM DD, yyyy, HH:mm:ss A'
                                     "
-                                    [formControl]="tmForm.controls['toDate']"
+                                    [formControl]="tmForm.controls['toDateTime']"
                                     [dpDayPicker]="toPickerConfig"
                                     [theme]="
                                         'dp-material data-pipelines__executions-filter-picker'
                                     "
                                     [mode]="'daytime'"
-                                    [minDate]="toTimeMin"
+                                    [minDate]="toDateTimeMin"
                                     (focus)="
                                         toDateGroup.classList.add('clr-focus')
                                     "
@@ -148,7 +153,7 @@
                             data-cy="time-filter-clear-btn"
                             type="button"
                             class="btn btn-secondary"
-                            (click)="clearFilter($event)"
+                            (click)="clearFilter($event, true)"
                         >
                             Reset
                         </button>

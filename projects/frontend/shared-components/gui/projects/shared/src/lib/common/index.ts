@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+export * from './criteria';
 export * from './error';
 export * from './http';
 export * from './interfaces';

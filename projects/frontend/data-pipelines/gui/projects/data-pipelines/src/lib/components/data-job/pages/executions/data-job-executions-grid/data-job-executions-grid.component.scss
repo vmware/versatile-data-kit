@@ -14,3 +14,30 @@
 .grid-column__max-width--s {
     max-width: 4rem;
 }
+
+clr-datagrid {
+    &.data-pipelines-job-executions-datagrid {
+        clr-dg-row {
+            &.data-pipelines-job__execution--highlighted {
+                --execution-row-highlighted: var(--clr-datagrid-row-hover, #e8e8e8);
+                background-color: var(--execution-row-highlighted);
+
+                ::ng-deep .datagrid-row-sticky {
+                    background-color: var(--execution-row-highlighted);
+                }
+            }
+        }
+    }
+}
+
+::ng-deep .fade-to-dark.dark {
+    clr-datagrid {
+        &.data-pipelines-job-executions-datagrid {
+            clr-dg-row {
+                &.data-pipelines-job__execution--highlighted {
+                    --execution-row-highlighted: #28404d;
+                }
+            }
+        }
+    }
+}

@@ -4,6 +4,9 @@
  */
 
 :host {
+    .data-pipelines-job__executions-period-filter-caret {
+        margin-top: -2px;
+    }
     .time-filter__action-btn {
         display: flex;
         justify-content: flex-end;

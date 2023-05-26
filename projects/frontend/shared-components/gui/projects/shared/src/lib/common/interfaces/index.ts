@@ -4,7 +4,9 @@
  */
 
 export * from './comparable.interface';
+export * from './comparator.interface';
 export * from './copy.interface';
+export * from './criteria.interface';
 export * from './equals.interface';
 export * from './expression.interface';
 export * from './literal.interface';
